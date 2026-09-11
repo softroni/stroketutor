@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "case",
+  "title": "Conformance Case",
+  "canvas": {
+    "width": 1000,
+    "height": 1000
+  },
+  "steps": [
+    {
+      "id": "one",
+      "title": "One",
+      "instruction": "Draw one line.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 100 100 L 900 900",
+          "duration": 1.5,
+          "lineWidth": 12,
+          "colour": "#FF0000"
+        }
+      ]
+    }
+  ]
+}

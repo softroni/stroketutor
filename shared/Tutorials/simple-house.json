@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "simple-house",
+  "title": "Simple House",
+  "canvas": { "width": 1000, "height": 1000 },
+  "style": {
+    "strokeColor": "#2B2B2B",
+    "backgroundColor": "#FAF7F0"
+  },
+  "steps": [
+    {
+      "id": "walls",
+      "title": "Draw the walls",
+      "instruction": "Draw a big square in the middle of your paper. That is the front of the house.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 250 480 L 750 480 L 750 850 L 250 850 Z",
+          "duration": 2.4,
+          "lineWidth": 16
+        }
+      ]
+    },
+    {
+      "id": "roof",
+      "title": "Add the roof",
+      "instruction": "Now draw a big triangle on top for the roof. Start at the left corner, go up to the point, then down to the right corner.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 200 480 L 500 260 L 800 480 Z",
+          "duration": 2.2,
+          "lineWidth": 16
+        }
+      ]
+    },
+    {
+      "id": "door",
+      "title": "Put in the door",
+      "instruction": "Draw a tall rectangle at the bottom middle for the door. Leave the bottom open so it sits on the ground.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 440 850 L 440 690 L 560 690 L 560 850",
+          "duration": 1.6,
+          "lineWidth": 12
+        }
+      ]
+    },
+    {
+      "id": "windows",
+      "title": "Add two windows",
+      "instruction": "Draw one small square on the left of the door and one on the right. Those are the windows.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 320 540 L 420 540 L 420 640 L 320 640 Z",
+          "duration": 1.3,
+          "lineWidth": 12
+        },
+        {
+          "d": "M 580 540 L 680 540 L 680 640 L 580 640 Z",
+          "duration": 1.3,
+          "lineWidth": 12
+        }
+      ]
+    },
+    {
+      "id": "chimney",
+      "title": "Finish with a chimney",
+      "instruction": "Draw a little chimney standing up on the right side of the roof. Great job, your house is done!",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 620 348 L 620 200 L 700 200 L 700 407",
+          "duration": 1.6,
+          "lineWidth": 12
+        }
+      ]
+    }
+  ]
+}

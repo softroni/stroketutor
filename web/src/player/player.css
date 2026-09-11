@@ -1,0 +1,166 @@
+.st-player {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.st-player__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.st-player__title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.st-player__step-title {
+  margin: 6px 0 0;
+  font-size: 17px;
+  color: var(--ink-muted);
+}
+
+/* Step progress dots: filled = done, ringed = current, empty = upcoming. */
+.st-dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  background: transparent;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.st-dot.is-done {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.st-dot.is-current {
+  background: transparent;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.st-canvas-frame {
+  width: 100%;
+  max-width: 640px;
+  align-self: center;
+}
+
+.st-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  filter: drop-shadow(0 8px 24px rgba(31, 27, 20, 0.08));
+}
+
+.st-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px 24px;
+  background: var(--surface);
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.st-card--active {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.st-card__instruction {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.st-card--active .st-card__instruction {
+  color: var(--ink);
+}
+
+.st-card__hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-faint);
+}
+
+.st-card__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.st-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.st-button {
+  font: inherit;
+  font-size: 15px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 60ms ease;
+}
+
+.st-button:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.st-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.st-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.st-button--primary {
+  font-size: 18px;
+  padding: 13px 26px;
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+  font-weight: 600;
+}
+
+.st-button--primary:hover:not(:disabled) {
+  background: #000;
+}
+
+.st-button--secondary {
+  font-size: 18px;
+  padding: 13px 22px;
+}
+
+.st-button--speed {
+  font-variant-numeric: tabular-nums;
+  min-width: 108px;
+}

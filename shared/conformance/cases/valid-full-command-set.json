@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "id": "case",
+  "title": "Conformance Case",
+  "canvas": {
+    "width": 1000,
+    "height": 1000
+  },
+  "steps": [
+    {
+      "id": "curves",
+      "title": "Curves",
+      "instruction": "Draw the curvy shape.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 100 100 C 200 50 300 50 400 100 Q 500 150 600 100 Z",
+          "duration": 2.0,
+          "lineWidth": 16
+        }
+      ]
+    },
+    {
+      "id": "subpaths",
+      "title": "Subpaths",
+      "instruction": "Draw two separate lines.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 100,700 L 300,700 M 400,700 L 600,700",
+          "duration": 1.2,
+          "lineWidth": 10
+        }
+      ]
+    },
+    {
+      "id": "exponent",
+      "title": "Exponent",
+      "instruction": "Draw the last line.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 1e2 800 L 200 800",
+          "duration": 0.8,
+          "lineWidth": 10
+        }
+      ]
+    }
+  ],
+  "style": {
+    "strokeColor": "#2B2B2B",
+    "backgroundColor": "#FAF7F0"
+  }
+}

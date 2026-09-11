@@ -1,0 +1,289 @@
+{
+  "$comment": "Conformance corpus shared by the web player and the iOS app. Every case is a whole tutorial document; the manifest says what each player must decide about it. 'expect' is the shared verdict. A 'web' or 'ios' block adds assertions for that player, and an 'expect' inside one of those blocks records a DELIBERATE divergence -- always with a 'why'. Adding a case means dropping a .json in cases/ and an entry here: both test suites pick it up with no other change.",
+  "cases": [
+    {
+      "file": "valid-minimal.json",
+      "expect": "valid",
+      "why": "The smallest document the schema allows: one step, one stroke, no style."
+    },
+    {
+      "file": "valid-full-command-set.json",
+      "expect": "valid",
+      "why": "Every supported command, a closed subpath, comma separators, two subpaths in one d, and exponent notation."
+    },
+    {
+      "file": "valid-repeated-coordinates.json",
+      "expect": "valid",
+      "why": "One command letter carrying two coordinate pairs is two line segments."
+    },
+    {
+      "file": "valid-implicit-lineto-after-move.json",
+      "expect": "valid",
+      "why": "Coordinate pairs after the first in a moveto are implicit linetos, per the SVG grammar."
+    },
+    {
+      "file": "valid-hex-without-hash.json",
+      "expect": "valid",
+      "why": "iOS Color(hex:) accepts a missing leading #, so the tool must too \u2014 the web player adds it back before handing the colour to SVG."
+    },
+    {
+      "file": "valid-hex-with-alpha.json",
+      "expect": "valid",
+      "why": "iOS Color(hex:) accepts 8-digit #RRGGBBAA, and so does CSS Color 4."
+    },
+    {
+      "file": "valid-voiceover-absent.json",
+      "expect": "valid",
+      "why": "voiceover is optional; both sides treat absent and null alike."
+    },
+    {
+      "file": "valid-voiceover-string.json",
+      "expect": "valid",
+      "why": "A string voiceover is accepted and ignored; v1 has no audio."
+    },
+    {
+      "file": "invalid-schema-version.json",
+      "expect": "invalid",
+      "why": "Only schemaVersion 1 exists; both players must refuse a future format rather than guess.",
+      "web": {
+        "path": "schemaVersion",
+        "messageContains": "schemaVersion 2"
+      },
+      "ios": {
+        "messageContains": "Unsupported schemaVersion 2"
+      }
+    },
+    {
+      "file": "invalid-missing-title.json",
+      "expect": "invalid",
+      "why": "A required root field is missing.",
+      "web": {
+        "path": "title",
+        "messageContains": "missing"
+      },
+      "ios": {
+        "messageContains": "title"
+      }
+    },
+    {
+      "file": "invalid-canvas-missing-height.json",
+      "expect": "invalid",
+      "why": "The canvas defines the coordinate space; half of it is not usable.",
+      "web": {
+        "path": "canvas.height"
+      },
+      "ios": {
+        "messageContains": "height"
+      }
+    },
+    {
+      "file": "invalid-canvas-zero-width.json",
+      "expect": "invalid",
+      "why": "A zero-width canvas has no coordinate space to map to the viewBox.",
+      "web": {
+        "path": "canvas.width"
+      },
+      "ios": {
+        "messageContains": "Canvas size"
+      }
+    },
+    {
+      "file": "invalid-no-steps.json",
+      "expect": "invalid",
+      "why": "A tutorial with no steps has nothing to teach.",
+      "web": {
+        "path": "steps"
+      },
+      "ios": {
+        "messageContains": "no steps"
+      }
+    },
+    {
+      "file": "invalid-step-without-strokes.json",
+      "expect": "invalid",
+      "why": "A step with no strokes would pause the player on a blank canvas.",
+      "web": {
+        "path": "steps[0].strokes"
+      },
+      "ios": {
+        "messageContains": "no strokes"
+      }
+    },
+    {
+      "file": "invalid-duration-wrong-type.json",
+      "expect": "invalid",
+      "why": "duration is seconds, not a string.",
+      "web": {
+        "path": "steps[0].strokes[0].duration"
+      },
+      "ios": {
+        "messageContains": "duration"
+      }
+    },
+    {
+      "file": "invalid-path-relative-command.json",
+      "expect": "invalid",
+      "why": "Lowercase commands are relative. Rendering them as absolute would draw the wrong picture, so both parsers refuse.",
+      "web": {
+        "path": "steps[0].strokes[0].d",
+        "messageContains": "Relative command 'l' at position 10"
+      },
+      "ios": {
+        "messageContains": "Relative command 'l' at position 10"
+      }
+    },
+    {
+      "file": "invalid-path-unsupported-command.json",
+      "expect": "invalid",
+      "why": "Arcs are outside the M/L/C/Q/Z subset both renderers implement.",
+      "web": {
+        "path": "steps[0].strokes[0].d",
+        "messageContains": "Only M, L, C, Q and Z"
+      },
+      "ios": {
+        "messageContains": "Only M, L, C, Q and Z"
+      }
+    },
+    {
+      "file": "invalid-path-truncated.json",
+      "expect": "invalid",
+      "why": "A lineto needs two numbers.",
+      "web": {
+        "path": "steps[0].strokes[0].d",
+        "messageContains": "needs 2 numbers but only 1"
+      },
+      "ios": {
+        "messageContains": "needs 2 numbers but only 1"
+      }
+    },
+    {
+      "file": "invalid-path-missing-initial-move.json",
+      "expect": "invalid",
+      "why": "A path that does not start with a moveto has no defined start point.",
+      "web": {
+        "path": "steps[0].strokes[0].d",
+        "messageContains": "must begin with a moveto"
+      },
+      "ios": {
+        "messageContains": "must begin with a moveto"
+      }
+    },
+    {
+      "file": "invalid-path-bad-number.json",
+      "expect": "invalid",
+      "why": "A lone decimal point is not a number.",
+      "web": {
+        "path": "steps[0].strokes[0].d",
+        "messageContains": "position 12"
+      },
+      "ios": {
+        "messageContains": "position 12"
+      }
+    },
+    {
+      "file": "invalid-path-empty-string.json",
+      "expect": "invalid",
+      "why": "An empty d draws nothing; the schema catches it as an empty string, iOS as an empty path.",
+      "web": {
+        "path": "steps[0].strokes[0].d"
+      },
+      "ios": {
+        "messageContains": "empty"
+      }
+    },
+    {
+      "file": "invalid-path-coordinate-overflow.json",
+      "expect": "invalid",
+      "why": "A coordinate that overflows to infinity draws nothing. JavaScript and Swift both parse 1e400 to infinity rather than failing, so both parsers check explicitly.",
+      "web": {
+        "path": "steps[0].strokes[0].d",
+        "messageContains": "position 2"
+      },
+      "ios": {
+        "messageContains": "position 2"
+      }
+    },
+    {
+      "file": "divergent-zero-duration.json",
+      "expect": "invalid",
+      "why": "A stroke that takes no time never animates.",
+      "web": {
+        "path": "steps[0].strokes[0].duration",
+        "messageContains": "greater than 0"
+      },
+      "ios": {
+        "expect": "valid",
+        "warningContains": "duration",
+        "why": "The device clamps rather than refuse to draw: a bad export should not strand a child mid-lesson. The authoring tool rejects, because catching it before shipping is the tool's whole job."
+      }
+    },
+    {
+      "file": "divergent-zero-line-width.json",
+      "expect": "invalid",
+      "why": "A zero-width stroke draws nothing.",
+      "web": {
+        "path": "steps[0].strokes[0].lineWidth",
+        "messageContains": "greater than 0"
+      },
+      "ios": {
+        "expect": "valid",
+        "warningContains": "lineWidth",
+        "why": "The device clamps rather than refuse to draw: a bad export should not strand a child mid-lesson. The authoring tool rejects, because catching it before shipping is the tool's whole job."
+      }
+    },
+    {
+      "file": "divergent-unknown-property.json",
+      "expect": "invalid",
+      "why": "An unknown key is almost always a typo for a real one.",
+      "web": {
+        "path": "steps[0].strokes[0].colour",
+        "messageContains": "Unknown property"
+      },
+      "ios": {
+        "expect": "valid",
+        "why": "Swift's JSONDecoder drops unknown keys. Left as-is deliberately: the device should play a document a newer tool wrote, not refuse it over an extra field."
+      }
+    },
+    {
+      "file": "divergent-empty-title.json",
+      "expect": "invalid",
+      "why": "An untitled tutorial cannot be picked out of a library.",
+      "web": {
+        "path": "title",
+        "messageContains": "empty"
+      },
+      "ios": {
+        "expect": "valid",
+        "why": "iOS treats the title as free text and would show an empty label rather than fail to load."
+      }
+    },
+    {
+      "file": "divergent-unparseable-hex.json",
+      "expect": "invalid",
+      "why": "CSS colour names are not hex, and iOS parses hex only.",
+      "web": {
+        "path": "style.strokeColor",
+        "messageContains": "hex colour"
+      },
+      "ios": {
+        "expect": "valid",
+        "warningContains": "strokeColor",
+        "why": "iOS warns and falls back to the default. The tool refuses so the author sees the colour they wrote is not the colour the device will draw."
+      }
+    },
+    {
+      "file": "divergent-three-digit-hex.json",
+      "expect": "invalid",
+      "why": "Three-digit hex is valid CSS but iOS Color(hex:) requires 6 or 8 digits.",
+      "web": {
+        "path": "style.strokeColor",
+        "messageContains": "hex colour"
+      },
+      "ios": {
+        "expect": "valid",
+        "warningContains": "strokeColor",
+        "why": "The dangerous direction: the browser would happily draw #FFF while the device silently substitutes the default. The tool rejects it so the two never disagree on screen."
+      }
+    }
+  ]
+}

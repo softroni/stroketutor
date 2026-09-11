@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "case",
+  "title": "Conformance Case",
+  "canvas": {
+    "width": 1000,
+    "height": 1000
+  },
+  "steps": []
+}
