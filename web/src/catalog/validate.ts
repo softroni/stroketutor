@@ -138,7 +138,7 @@ function describe(file: CatalogFile, error: ErrorObject, root: unknown): Catalog
         file,
         path,
         message: path.endsWith('.file')
-          ? 'Must be a plain file name such as "house-cottage-01.jpg": lowercase letters, digits and dashes, ending in .jpg, .jpeg, .png or .webp.'
+          ? 'Must be a plain file name such as "house-cottage-01.jpg": lowercase letters, digits and dashes, ending in .jpg, .jpeg, .png, .webp or .svg.'
           : 'Must be a lowercase id such as "simple-house": letters, digits and single dashes.',
         value,
       }

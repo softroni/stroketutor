@@ -17,6 +17,7 @@ import { IssueList } from './IssueList'
 import type { Library } from './library'
 import { slugify } from './pathOps'
 import { qualityWarnings } from './quality'
+import { REFERENCE_TYPES, REFERENCE_TYPES_LABEL, imageForModel } from './referenceImage'
 import { routeHref } from './route'
 import { storedModel } from './settings'
 import './editor/editor.css'
@@ -29,7 +30,6 @@ export interface NewLessonViewProps {
 }
 
 const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
-const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 type Outcome =
   | { kind: 'idle' }
@@ -82,7 +82,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
   if (!ID_PATTERN.test(lessonId)) problems.push('The id must use lowercase letters, digits and single dashes.')
   else if (taken) problems.push(`"${lessonId}" is already a lesson. Choose another id; nothing is ever replaced.`)
   if (!file) problems.push('Add the reference photo.')
-  else if (!PHOTO_TYPES.includes(file.type)) problems.push('The photo must be JPEG, PNG or WebP.')
+  else if (!REFERENCE_TYPES.includes(file.type)) problems.push(`The photo must be ${REFERENCE_TYPES_LABEL}.`)
   if (!source.trim() || !license.trim()) problems.push('Record where the photo came from and its licence.')
   if (!objective.trim()) problems.push('Write the one-line objective.')
   if (!goal.trim()) problems.push('Describe the learning goal.')
@@ -106,7 +106,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
         position,
         goal: goal.trim(),
         constraints: constraints.trim(),
-        image: { contentType: file.type, base64: await toBase64(file) },
+        image: await imageForModel(file),
       })
       // The server has validated already; the browser checks again with the
       // same code before anything can enter the editor (§22).
@@ -254,11 +254,11 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
           <h2 className="st-label">Reference photo</h2>
           {preview ? <img className="st-reference-form__preview" src={preview} alt="" /> : null}
           <label className="st-field">
-            <span className="st-field__label">Photo (JPEG, PNG or WebP, up to 8 MB)</span>
+            <span className="st-field__label">Photo ({REFERENCE_TYPES_LABEL}, up to 8 MB)</span>
             <input
               className="st-field__input"
               type="file"
-              accept={PHOTO_TYPES.join(',')}
+              accept={REFERENCE_TYPES.join(',')}
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
             />
           </label>
@@ -472,13 +472,4 @@ export function AnalysisPanel({ analysis }: { analysis: Analysis }) {
       </dl>
     </div>
   )
-}
-
-async function toBase64(file: File): Promise<string> {
-  const bytes = new Uint8Array(await file.arrayBuffer())
-  let binary = ''
-  for (let index = 0; index < bytes.length; index += 0x8000) {
-    binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000))
-  }
-  return btoa(binary)
 }

@@ -105,9 +105,11 @@ Writes must be same-origin and carry an `X-StrokeTutor-Studio` header. In dev th
 **Save** writes the lesson, then reads it back from disk and confirms it matches the preview.
 **Approve…** shows the quality warnings (`studio/quality.ts`: length, stroke count, tiny strokes,
 crowded steps, placeholder words, a jump from the previous lesson) with the §36 checklist, then
-saves and marks the lesson approved. Warnings never block. A reference photo is saved as
-`<lesson>.jpg|png|webp` with its source and licence recorded in `lessons.json`. Nothing runs git:
-saves appear as ordinary diffs to review.
+saves and marks the lesson approved. Warnings never block. A reference image is saved as
+`<lesson>.jpg|png|webp|svg` with its source and licence recorded in `lessons.json`. An SVG must be a
+plain drawing: scripts, event handlers, `<foreignObject>`, entity declarations and links to other
+files are refused with a reason, and every reference is served under a sandboxing
+`Content-Security-Policy`. Nothing runs git: saves appear as ordinary diffs to review.
 
 ## Generating
 
@@ -128,7 +130,8 @@ photo with its source and licence, the learning goal and optional constraints, a
 **Generate tutorial** button. The server (`server/generate.ts`):
 
 1. checks the input, and refuses an id that already exists — generation never replaces a lesson;
-2. sends the photo, the goal and the titles and objectives of the path's earlier lessons to the
+2. sends the photo (an SVG reference is rendered to PNG in the browser first, since models are not
+   sent SVG), the goal and the titles and objectives of the path's earlier lessons to the
    chosen model, asking for strict JSON (`response_format` with a JSON schema, and
    `provider.require_parameters` so only providers that honour it are used);
 3. fills in `schemaVersion`, `id`, `title` and the 1000 × 1000 canvas itself, makes step ids

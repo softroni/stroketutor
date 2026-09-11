@@ -111,7 +111,7 @@
         "file": {
           "description": "File name inside Assets/References/. A bare name, so it can never point outside that folder.",
           "type": "string",
-          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*\\.(jpg|jpeg|png|webp)$"
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*\\.(jpg|jpeg|png|webp|svg)$"
         },
         "source": { "type": "string", "minLength": 1 },
         "license": { "type": "string", "minLength": 1 }

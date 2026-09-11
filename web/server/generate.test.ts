@@ -195,6 +195,17 @@ describe('generateCandidate', () => {
       [{ title: ' ' }, {}, 400],
       [{ goal: '' }, {}, 400],
       [{ image: { contentType: 'image/gif', base64: PNG } }, {}, 415],
+      // The browser renders an SVG reference to PNG; the model is never sent SVG.
+      [
+        {
+          image: {
+            contentType: 'image/svg+xml',
+            base64: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>').toString('base64'),
+          },
+        },
+        {},
+        415,
+      ],
       [{ image: { contentType: 'image/jpeg', base64: PNG } }, {}, 415],
       [{ image: { contentType: 'image/png', base64: '' } }, {}, 400],
       // Never replaces an existing lesson.

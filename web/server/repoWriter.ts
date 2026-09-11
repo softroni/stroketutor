@@ -17,12 +17,20 @@ import { formatJSON } from '../src/schema/formatJSON'
 export const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
 
 /** Same rule as `reference.file` in `catalog.schema.json`. */
-export const REFERENCE_FILE_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*\.(jpg|jpeg|png|webp)$/
+export const REFERENCE_FILE_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*\.(jpg|jpeg|png|webp|svg)$/
 
-export const REFERENCE_TYPES: Record<string, 'jpg' | 'png' | 'webp'> = {
+export type ImageExtension = 'jpg' | 'png' | 'webp' | 'svg'
+
+/** Pixel formats, which are also the ones a model can be sent (see `generate.ts`). */
+export const RASTER_TYPES: Record<string, Exclude<ImageExtension, 'svg'>> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
+}
+
+export const REFERENCE_TYPES: Record<string, ImageExtension> = {
+  ...RASTER_TYPES,
+  'image/svg+xml': 'svg',
 }
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -30,6 +38,18 @@ const CONTENT_TYPES: Record<string, string> = {
   jpeg: 'image/jpeg',
   png: 'image/png',
   webp: 'image/webp',
+  svg: 'image/svg+xml',
+}
+
+/**
+ * Served with every reference image. An SVG opened on its own is a document
+ * on the Studio's origin, where the write endpoints live; `sandbox` gives it
+ * an opaque origin and `default-src 'none'` stops it running or fetching
+ * anything, whatever got past `svgProblem`.
+ */
+export const REFERENCE_RESPONSE_HEADERS = {
+  'Content-Security-Policy': "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox",
+  'X-Content-Type-Options': 'nosniff',
 }
 
 export const MAX_REFERENCE_BYTES = 8 * 1024 * 1024
@@ -209,16 +229,20 @@ export function createRepoWriter(options: RepoWriterOptions) {
       checkId(lessonId)
       const extension = REFERENCE_TYPES[contentType.split(';')[0].trim().toLowerCase()]
       if (!extension) {
-        throw new WriteRefused(415, 'Reference photos must be JPEG, PNG or WebP.')
+        throw new WriteRefused(415, 'Reference images must be JPEG, PNG, WebP or SVG.')
       }
       if (bytes.byteLength > MAX_REFERENCE_BYTES) {
         throw new WriteRefused(
           413,
-          `Reference photos must be ${MAX_REFERENCE_BYTES / 1024 / 1024} MB or smaller.`,
+          `Reference images must be ${MAX_REFERENCE_BYTES / 1024 / 1024} MB or smaller.`,
         )
       }
       if (sniffImage(bytes) !== extension) {
         throw new WriteRefused(415, `The file's contents are not a ${extension.toUpperCase()} image.`)
+      }
+      if (extension === 'svg') {
+        const problem = svgProblem(new TextDecoder().decode(bytes))
+        if (problem) throw new WriteRefused(422, `This SVG was not saved: ${problem}`)
       }
 
       const name = `${lessonId}.${extension}`
@@ -302,12 +326,66 @@ async function atomicWrite(target: string, content: string | Uint8Array) {
 }
 
 /** The image type a file's own signature declares, whatever it claims to be. */
-export function sniffImage(bytes: Uint8Array): 'jpg' | 'png' | 'webp' | null {
+export function sniffImage(bytes: Uint8Array): ImageExtension | null {
   const starts = (...signature: number[]) => signature.every((byte, index) => bytes[index] === byte)
   if (starts(0xff, 0xd8, 0xff)) return 'jpg'
   if (starts(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)) return 'png'
   const ascii = (from: number, to: number) => String.fromCharCode(...bytes.slice(from, to))
   if (bytes.length >= 12 && ascii(0, 4) === 'RIFF' && ascii(8, 12) === 'WEBP') return 'webp'
+  if (isSvgDocument(bytes)) return 'svg'
+  return null
+}
+
+/**
+ * SVG has no magic number: it is UTF-8 text whose first element is `<svg>`,
+ * after an optional byte-order mark, XML declaration, comments and a DOCTYPE.
+ * A DOCTYPE with an internal subset is recognised here so that `svgProblem`
+ * can refuse it with a reason: entity declarations are never needed for a
+ * drawing, and are how XML bombs are built.
+ */
+function isSvgDocument(bytes: Uint8Array): boolean {
+  let text: string
+  try {
+    text = new TextDecoder('utf-8', { fatal: true }).decode(bytes.subarray(0, 4096))
+  } catch {
+    // A multi-byte character cut at 4096 bytes is not a reason to refuse.
+    if (bytes.length <= 4096) return false
+    text = new TextDecoder().decode(bytes.subarray(0, 4096))
+  }
+  const prolog = /^\uFEFF?\s*(<\?xml[^>]*\?>\s*)?((<!--[\s\S]*?-->|<!DOCTYPE\s+svg[^[>]*(\[[\s\S]*?\]\s*)?>)\s*)*<svg[\s>/]/i
+  return prolog.test(text)
+}
+
+/**
+ * Why an SVG may not be kept as a reference, or null. A reference is a
+ * picture to look at; anything that runs code or pulls in other files is
+ * refused with a reason the creator can act on. (Displayed through `<img>`,
+ * none of it would run anyway, and `REFERENCE_RESPONSE_HEADERS` covers the
+ * file opened on its own.)
+ */
+export function svgProblem(text: string): string | null {
+  if (/<!ENTITY/i.test(text) || /<!DOCTYPE[^>]*\[/i.test(text)) {
+    return 'it declares XML entities. Export it again without a DOCTYPE.'
+  }
+  if (/<script[\s>/]/i.test(text)) return 'it contains a script. Remove the <script> element.'
+  if (/<foreignObject[\s>/]/i.test(text)) return 'it embeds HTML through <foreignObject>.'
+  if (/<(iframe|embed|object)[\s>/]/i.test(text)) return 'it embeds another document.'
+  const handler = /\son[a-z]+\s*=/i.exec(text)
+  if (handler) return `it has an event-handler attribute (${handler[0].trim().replace(/=$/, '')}).`
+  if (/javascript:/i.test(text)) return 'it contains a javascript: link.'
+  if (/@import/i.test(text)) return 'its CSS imports another file.'
+  for (const match of text.matchAll(/\b(?:xlink:)?href\s*=\s*(["'])([\s\S]*?)\1/gi)) {
+    const target = match[2].trim()
+    if (!target.startsWith('#') && !/^data:image\/(png|jpeg|webp|gif);/i.test(target)) {
+      return `it links to another file (${target.slice(0, 60)}), which would not load. Embed the image instead.`
+    }
+  }
+  for (const match of text.matchAll(/url\(\s*(["']?)([^)"']*)\1\s*\)/gi)) {
+    const target = match[2].trim()
+    if (!target.startsWith('#') && !/^data:image\//i.test(target)) {
+      return `its CSS loads another file (${target.slice(0, 60)}), which would not load.`
+    }
+  }
   return null
 }
 

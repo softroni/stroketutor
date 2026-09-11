@@ -176,3 +176,58 @@ describe('reference photos', () => {
     expect((await refusal(() => writer.writeReference('../outside', 'image/png', png))).status).toBe(400)
   })
 })
+
+describe('SVG references', () => {
+  const encode = (text: string) => new TextEncoder().encode(text)
+  const svg = (body: string, prolog = '') =>
+    encode(`${prolog}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80">${body}</svg>\n`)
+
+  it('stores a plain drawing, with the usual editor prologs', async () => {
+    const drawing = svg('<path d="M10 10 L90 70" stroke="#000"/>')
+    expect(await writer.writeReference('simple-house', 'image/svg+xml', drawing)).toEqual({
+      file: 'simple-house.svg',
+    })
+    const exported = svg(
+      '<rect width="10" height="10" style="fill:url(#g)"/><use href="#r"/>',
+      '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: Illustrator -->\n' +
+        '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n',
+    )
+    expect(await writer.writeReference('simple-house', 'image/svg+xml', exported)).toEqual({
+      file: 'simple-house.svg',
+    })
+    const read = await writer.readReference('simple-house.svg')
+    expect(read?.contentType).toBe('image/svg+xml')
+  })
+
+  it('refuses text that is not an SVG, and an SVG sent under another type', async () => {
+    const html = encode('<html><svg></svg></html>')
+    expect((await refusal(() => writer.writeReference('simple-house', 'image/svg+xml', html))).status).toBe(415)
+    expect((await refusal(() => writer.writeReference('simple-house', 'image/png', svg('')))).status).toBe(415)
+  })
+
+  it.each([
+    ['a script', '<script>fetch("/api/catalog")</script>'],
+    ['an event handler', '<rect width="10" height="10" onload="alert(1)"/>'],
+    ['foreignObject', '<foreignObject><div xmlns="http://www.w3.org/1999/xhtml">hi</div></foreignObject>'],
+    ['a javascript: link', '<a href="javascript:alert(1)"><rect width="1" height="1"/></a>'],
+    ['an external image', '<image href="https://example.com/photo.jpg" width="10" height="10"/>'],
+    ['an external stylesheet', '<style>@import url(https://example.com/a.css);</style>'],
+  ])('refuses an SVG with %s, and says why', async (_, body) => {
+    const refused = await refusal(() => writer.writeReference('simple-house', 'image/svg+xml', svg(body)))
+    expect(refused.status).toBe(422)
+    expect(refused.message).toMatch(/^This SVG was not saved: its? /)
+    await expect(readdir(path.join(shared, 'Assets', 'References'))).rejects.toThrow()
+  })
+
+  it('refuses entity declarations', async () => {
+    const bomb = svg('<text>&a;</text>', '<!DOCTYPE svg [<!ENTITY a "aaaa">]>')
+    expect((await refusal(() => writer.writeReference('simple-house', 'image/svg+xml', bomb))).status).toBe(422)
+  })
+
+  it('accepts embedded raster images', async () => {
+    const embedded = svg('<image href="data:image/png;base64,iVBORw0KGgo=" width="10" height="10"/>')
+    expect(await writer.writeReference('simple-house', 'image/svg+xml', embedded)).toEqual({
+      file: 'simple-house.svg',
+    })
+  })
+})

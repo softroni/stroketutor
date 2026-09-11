@@ -6,6 +6,7 @@ import { GenerationFailed, generateCandidate } from './generate'
 import { listVisionModels } from './models'
 import {
   MAX_REFERENCE_BYTES,
+  REFERENCE_RESPONSE_HEADERS,
   WriteRefused,
   createRepoWriter,
   type Precondition,
@@ -159,7 +160,11 @@ async function handle(
       if (method === 'GET') {
         const photo = await writer.readReference(name)
         if (!photo) return send(res, 404, { error: `There is no reference photo ${name}.` })
-        res.writeHead(200, { 'Content-Type': photo.contentType, 'Cache-Control': 'no-cache' })
+        res.writeHead(200, {
+          'Content-Type': photo.contentType,
+          'Cache-Control': 'no-cache',
+          ...REFERENCE_RESPONSE_HEADERS,
+        })
         return res.end(photo.bytes)
       }
       if (method === 'PUT') {

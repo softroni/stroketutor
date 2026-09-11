@@ -162,6 +162,7 @@ real reference photos, live model iteration and your judgement. Start with the o
 - **Formatting.** Saved JSON is formatted like the hand-written golden files, so an unchanged lesson saves byte for byte.
 - **Reference photos:**
   - Stored as `shared/Assets/References/<lessonId>.<ext>`: JPEG, PNG or WebP, up to 8 MB, with the file signature checked.
+    SVG was added later (see the follow-up below).
   - A source and a licence are required, and are recorded in `lessons.json`.
   - The upload *form* wasn't driven end to end, because the browser tool can't pick local files. The endpoint was exercised from the page and by tests.
 - **Catalog writes.** `paths.json` and `lessons.json` are validated together, and both versions are checked before either file is written. The two
@@ -239,6 +240,22 @@ thrown away silently whenever another save re-read the catalog.
 - **In the browser:** I created "Trees", moved it above Houses, moved Simple House into Trees and back, then deleted Trees.
   `paths.json` ended byte-identical to where it started.
 
+### Follow-up · SVG reference images (2026-09-11)
+A lesson's reference image can now be an SVG as well as JPEG, PNG or WebP, in both the workspace and New lesson.
+- **Stored as is.** It's saved as `<lessonId>.svg`, and `reference.file` in `catalog.schema.json` allows `.svg`.
+- **The model gets a PNG.** OpenRouter takes PNG, JPEG, WebP and GIF, but not SVG. So for generation the browser renders the
+  SVG to a PNG (longest edge 1536 px, on white), and the server still refuses SVG sent to the model.
+- **No active content.** An SVG is a document, and it's served from the origin that holds the write endpoints. So:
+  - on save, the server refuses scripts, event-handler attributes, `<foreignObject>`, embedded documents, `javascript:`
+    links, entity declarations and links to other files, each with a reason. Embedded `data:` images are allowed.
+  - every reference is served with `Content-Security-Policy: default-src 'none'; …; sandbox` and `nosniff`, which covers
+    anything the check misses when a file is opened on its own.
+- **For M7:** `UIImage` can't draw SVG, so the iOS app will need a plan for SVG references: render with a web view, or
+  convert them to PNG when they're bundled.
+
+**Verified:** web 183 tests pass (10 new), the build succeeds, and iOS tests pass. In the browser, an SVG rendered to a PNG with the
+right aspect ratio, and a clean SVG was stored and served with the CSP headers. An SVG with a script was refused.
+
 ### M5 · AI generation quality (gated)
 Prompting for human pen gestures, stage-level regeneration (drawing / order / steps / instructions),
 generation history and compare, prompt versions. Needs live model iteration and the creator's judgement.
@@ -250,6 +267,7 @@ Needs licensed reference photos with source/licence metadata, plus creator appro
 ### M7 · iOS product shell (gated on M6)
 Onboarding, Home/Paths, Path Detail, Lesson Preview, and the player with the reference photo visible. Reads `shared/Catalog`.
 Rewrite the current kid-oriented copy for an adult audience; accessibility (§31).
+Reference images may be SVG, which `UIImage` can't draw; decide how the app shows them.
 
 ### M8 · Private sketchbook
 Photograph the finished page and store it locally, linked to the lesson, path and date. No feed, no accounts.

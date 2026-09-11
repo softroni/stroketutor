@@ -11,7 +11,7 @@ export interface ReferencePanelProps {
   onUpload: (file: File, source: string, license: string) => Promise<void>
 }
 
-const ACCEPTED = 'image/jpeg,image/png,image/webp'
+import { REFERENCE_TYPES, REFERENCE_TYPES_LABEL } from './referenceImage'
 
 /**
  * The real-world photo the lesson simplifies (§6: reality → interpretation →
@@ -59,11 +59,11 @@ export function ReferencePanel({
     <form className="st-reference-form" onSubmit={submit}>
       {preview ? <img className="st-reference-form__preview" src={preview} alt="" /> : null}
       <label className="st-field">
-        <span className="st-field__label">Photo (JPEG, PNG or WebP, up to 8 MB)</span>
+        <span className="st-field__label">Photo ({REFERENCE_TYPES_LABEL}, up to 8 MB)</span>
         <input
           className="st-field__input"
           type="file"
-          accept={ACCEPTED}
+          accept={REFERENCE_TYPES.join(',')}
           onChange={(event) => setFile(event.target.files?.[0] ?? null)}
         />
       </label>

@@ -3,7 +3,7 @@ import { GenerationFailed, requestLesson, type Candidate } from './openrouter'
 import {
   ID_PATTERN,
   MAX_REFERENCE_BYTES,
-  REFERENCE_TYPES,
+  RASTER_TYPES,
   WriteRefused,
   sniffImage,
   type Issue,
@@ -64,8 +64,13 @@ export async function generateCandidate(
 
   const image = (body.image ?? {}) as { contentType?: unknown; base64?: unknown }
   const contentType = text(image.contentType).toLowerCase()
-  const extension = REFERENCE_TYPES[contentType]
-  if (!extension) throw new WriteRefused(415, 'Reference photos must be JPEG, PNG or WebP.')
+  // OpenRouter accepts PNG, JPEG, WebP and GIF, not SVG
+  // (https://openrouter.ai/docs/guides/overview/multimodal/image-understanding),
+  // so the Studio sends a PNG rendering of an SVG reference instead.
+  const extension = RASTER_TYPES[contentType]
+  if (!extension) {
+    throw new WriteRefused(415, 'The model must be sent a JPEG, PNG or WebP; render an SVG to PNG first.')
+  }
   const bytes = Buffer.from(text(image.base64), 'base64')
   if (bytes.byteLength === 0) throw new WriteRefused(400, 'Add a reference photo.')
   if (bytes.byteLength > MAX_REFERENCE_BYTES) {
