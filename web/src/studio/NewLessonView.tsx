@@ -20,8 +20,8 @@ import { IssueList } from './IssueList'
 import type { Library } from './library'
 import { slugify } from './pathOps'
 import { qualityWarnings } from './quality'
+import { ModelPicker } from './ModelPicker'
 import { REFERENCE_TYPES, REFERENCE_TYPES_LABEL, imageForModel } from './referenceImage'
-import { routeHref } from './route'
 import { storedModel } from './settings'
 import './editor/editor.css'
 
@@ -71,7 +71,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
   const [keeping, setKeeping] = useState(false)
   const [keepError, setKeepError] = useState<string | null>(null)
   const [now, setNow] = useState(Date.now())
-  const model = storedModel()
+  const [model, setModel] = useState(storedModel)
 
   useEffect(() => {
     if (outcome.kind !== 'generating') return
@@ -362,19 +362,8 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
             >
               {outcome.kind === 'generating' ? 'Generating…' : 'Generate tutorial'}
             </button>
-            <span className="st-field__hint">
-              {model ? (
-                <>
-                  With <code>{model}</code>. <a href={routeHref({ name: 'settings' })}>Change</a>
-                </>
-              ) : (
-                <>
-                  No model chosen, so the server default applies if there is one.{' '}
-                  <a href={routeHref({ name: 'settings' })}>Choose a model</a>
-                </>
-              )}
-            </span>
           </div>
+          <ModelPicker model={model} onChange={setModel} disabled={busy} />
           {problems.length > 0 && outcome.kind === 'idle' ? (
             <ul className="st-new-lesson__todo">
               {problems.map((problem) => (

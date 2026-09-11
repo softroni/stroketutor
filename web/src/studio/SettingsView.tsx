@@ -1,44 +1,28 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { listModels, readSettings, type StudioSettings, type VisionModel } from './api'
+import { readSettings, type StudioSettings } from './api'
 import type { Library } from './library'
+import { ModelList } from './ModelPicker'
 import { storeModel, storedModel } from './settings'
 
 /**
  * Generation settings (master plan §14): whether an OpenRouter key is set up,
  * and which model to use. The list comes live from OpenRouter, filtered to
  * models that take images and honour structured output, because the right
- * model will change as they are tested (§39).
+ * model will change as they are tested (§39). New lesson and the Regenerate
+ * panel can change the model too, and save it the same way.
  */
 export function SettingsView({ library }: { library: Library }) {
   const [settings, setSettings] = useState<StudioSettings | null>(null)
-  const [models, setModels] = useState<VisionModel[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [model, setModel] = useState(storedModel)
-  const [filter, setFilter] = useState('')
 
   useEffect(() => {
     if (!library.writable) return
     readSettings()
       .then(setSettings)
       .catch((caught: Error) => setError(caught.message))
-    listModels()
-      .then((result) => setModels(result.models))
-      .catch((caught: Error) => setError(caught.message))
   }, [library.writable])
-
-  const shown = useMemo(() => {
-    const query = filter.trim().toLowerCase()
-    return (models ?? []).filter(
-      (candidate) =>
-        !query || candidate.id.toLowerCase().includes(query) || candidate.name.toLowerCase().includes(query),
-    )
-  }, [models, filter])
-
-  const choose = (id: string) => {
-    setModel(id)
-    storeModel(id)
-  }
 
   const effective = model || settings?.defaultModel || ''
 
@@ -75,52 +59,23 @@ export function SettingsView({ library }: { library: Library }) {
         <h2 className="st-label">Model</h2>
         <p className="st-field__hint">
           Models that accept a photo and can be held to the lesson's JSON shape, as OpenRouter lists them
-          now. Prices are US dollars per million tokens, input / output.
+          now. Prices are US dollars per million tokens, input / output. New lesson and the Regenerate panel
+          can change it too.
         </p>
         <p>
           Generating with: <strong>{effective || 'no model chosen'}</strong>
           {!model && settings?.defaultModel ? ' (OPENROUTER_MODEL default)' : ''}
         </p>
-        {effective && models && models.length > 0 && !models.some((candidate) => candidate.id === effective) ? (
-          <p className="st-notice st-notice--error" role="alert">
-            <code>{effective}</code> is not in the list below: it either makes images rather than writing
-            text, or no longer takes a photo with structured output. Generating with it will likely fail;
-            choose a model below.
-          </p>
-        ) : null}
-        <label className="st-field">
-          <span className="st-field__label">Filter</span>
-          <input
-            className="st-field__input"
-            value={filter}
-            placeholder="e.g. claude, gemini, gpt"
-            onChange={(event) => setFilter(event.target.value)}
+        {library.writable ? (
+          <ModelList
+            model={model}
+            effective={effective}
+            onChoose={(id) => {
+              setModel(id)
+              storeModel(id)
+            }}
           />
-        </label>
-        {models === null ? (
-          <p className="st-field__hint">Loading the model list…</p>
-        ) : models.length === 0 ? (
-          <p className="st-field__hint">OpenRouter's model list could not be loaded. Check the network connection.</p>
-        ) : (
-          <ul className="st-model-list" aria-label="Models">
-            {shown.map((candidate) => (
-              <li key={candidate.id}>
-                <button
-                  type="button"
-                  className={`st-model-list__item ${candidate.id === model ? 'is-selected' : ''}`}
-                  aria-pressed={candidate.id === model}
-                  onClick={() => choose(candidate.id)}
-                >
-                  <span className="st-model-list__name">{candidate.name}</span>
-                  <code className="st-model-list__id">{candidate.id}</code>
-                  <span className="st-model-list__price">
-                    {formatPrice(candidate.promptPerMillion)} / {formatPrice(candidate.completionPerMillion)}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        ) : null}
       </section>
 
       <section className="st-panel">
@@ -133,8 +88,4 @@ export function SettingsView({ library }: { library: Library }) {
       </section>
     </div>
   )
-}
-
-function formatPrice(value: number | null): string {
-  return value === null ? '?' : `$${value}`
 }

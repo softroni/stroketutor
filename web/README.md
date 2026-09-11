@@ -124,7 +124,9 @@ only whether a key is configured. `OPENROUTER_MODEL` in the same file sets a def
 **Settings** lists the models OpenRouter currently offers that accept images, support
 structured output and answer in text only, with prices; image-generation models such as
 `google/gemini-2.5-flash-image` are left out. The choice is kept in the browser, and Settings warns
-when the kept choice is no longer in the list. A provider's refusal is shown with the provider's
+when the kept choice is no longer in the list. New lesson and the Regenerate panel show the model in use
+with **Change model**, which opens the same list in place; a choice made there is saved the same way,
+so Settings and the next visit use it too. A provider's refusal is shown with the provider's
 own reason, taken from OpenRouter's `error.metadata`. No model id is written into
 the code.
 

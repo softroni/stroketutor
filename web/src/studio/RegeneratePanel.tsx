@@ -10,9 +10,9 @@ import { drawingImage } from './drawingImage'
 import { FinishedDrawing } from './FinishedDrawing'
 import { IssueList } from './IssueList'
 import type { Library } from './library'
+import { ModelPicker } from './ModelPicker'
 import { AnalysisPanel } from './NewLessonView'
 import { imageForModel } from './referenceImage'
-import { routeHref } from './route'
 import { storedModel } from './settings'
 
 /** Cheapest first: most weak lessons need their words or grouping fixed, not a new drawing. */
@@ -91,7 +91,7 @@ export function RegeneratePanel({
   const [maxStrokes, setMaxStrokes] = useState(64)
   const [outcome, setOutcome] = useState<Outcome>({ kind: 'idle' })
   const [now, setNow] = useState(Date.now())
-  const model = storedModel()
+  const [model, setModel] = useState(storedModel)
 
   useEffect(() => {
     if (outcome.kind !== 'running') return
@@ -257,19 +257,8 @@ export function RegeneratePanel({
         >
           {running ? 'Regenerating…' : `Regenerate ${chosen?.label.toLowerCase()}`}
         </button>
-        <span className="st-field__hint">
-          {model ? (
-            <>
-              With <code>{model}</code>. <a href={routeHref({ name: 'settings' })}>Change</a>
-            </>
-          ) : (
-            <>
-              No model chosen, so the server default applies if there is one.{' '}
-              <a href={routeHref({ name: 'settings' })}>Choose a model</a>
-            </>
-          )}
-        </span>
       </div>
+      <ModelPicker model={model} onChange={setModel} disabled={running} />
       {problems.length > 0 && !running ? (
         <ul className="st-new-lesson__todo">
           {problems.map((problem) => (

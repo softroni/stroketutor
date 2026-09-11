@@ -383,6 +383,9 @@ teacher, not a children's book. Say where each line starts."
 - **For part 3:** the new words do say where lines start, but they place things less exactly than the hand-written ones.
   "Near the centre of the page" replaced "a little above the middle and slightly left of centre."
 
+**Follow-up (2026-09-11):** New lesson and the Regenerate panel can change the model in place with **Change model**,
+which opens the Settings list inline. The choice is saved as Settings saves it.
+
 **Part 2 · History and compare.** Next.
 
 **Part 3 · Prompt tuning (needs the creator).** 3–5 real reference photos, live runs and the creator's judgement, towards

@@ -945,6 +945,26 @@
   list-style: none;
 }
 
+.st-model-list--compact {
+  max-height: 280px;
+}
+
+.st-model-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.st-model-picker > .st-field__hint {
+  margin: 0;
+}
+
+.st-model-picker__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .st-model-list__item {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
