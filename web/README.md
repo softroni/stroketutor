@@ -146,6 +146,18 @@ previewed with its quality warnings; **Keep as draft** writes the tutorial (crea
 and a `draft` catalog entry that records the model, prompt version, goal and analysis, then opens
 the lesson in the workspace. Failures of any kind keep everything the creator typed.
 
+**From an SVG.** When the reference is an SVG, New lesson traces it in the browser as soon as it is
+chosen (`src/trace/traceSvg.ts`) and previews the lines and colours. **Generate tutorial** then
+posts the trace to `POST /api/generate-from-trace` (`server/generateFromTrace.ts`, prompt
+`svg-lesson-v1`):
+- the model sees each line and colour as an id with its position and size, never its path data,
+  plus the picture;
+- it answers with outline steps, then colour steps;
+- the server builds the lesson from the exact traced shapes, placing every line and colour once and
+  noting any corrections.
+
+If tracing fails, generation uses the picture instead.
+
 The prompt lives in `server/prompts/lessonPrompt.ts` and carries a version (`lesson-v1`) that every
 generated lesson records. `server/fixtures/` holds representative model outputs — one good, one
 that breaks the contract — so the pipeline is tested without calling a model. OpenRouter's

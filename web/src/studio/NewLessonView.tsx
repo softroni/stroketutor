@@ -4,8 +4,11 @@ import type { Analysis, Lesson } from '../catalog/types'
 import { totalStrokes, type Tutorial } from '../schema/types'
 import { validateTutorial, type ValidationIssue } from '../schema/validate'
 
+import { traceSvg, type TracedDrawing } from '../trace/traceSvg'
+
 import {
   ApiError,
+  generateFromTrace,
   generateLesson,
   saveCatalog,
   saveTutorial,
@@ -30,6 +33,13 @@ export interface NewLessonViewProps {
 }
 
 const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
+
+/** An SVG reference is traced in the browser as soon as it is chosen. */
+type TraceState =
+  | { status: 'none' }
+  | { status: 'tracing' }
+  | { status: 'done'; drawing: TracedDrawing }
+  | { status: 'failed'; message: string }
 
 type Outcome =
   | { kind: 'idle' }
@@ -69,6 +79,32 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
     return () => clearInterval(timer)
   }, [outcome.kind])
 
+  // "Code traces, model teaches": an SVG becomes exact lines and colours here,
+  // and generation only orders them. If tracing fails, the picture is used instead.
+  const [trace, setTrace] = useState<TraceState>({ status: 'none' })
+  useEffect(() => {
+    if (!file || file.type !== 'image/svg+xml') {
+      setTrace({ status: 'none' })
+      return
+    }
+    let cancelled = false
+    setTrace({ status: 'tracing' })
+    file
+      .text()
+      .then((text) => traceSvg(text))
+      .then(
+        (drawing) => {
+          if (!cancelled) setTrace({ status: 'done', drawing })
+        },
+        (error: unknown) => {
+          if (!cancelled) setTrace({ status: 'failed', message: error instanceof Error ? error.message : String(error) })
+        },
+      )
+    return () => {
+      cancelled = true
+    }
+  }, [file])
+
   const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file])
   useEffect(() => () => {
     if (preview) URL.revokeObjectURL(preview)
@@ -83,6 +119,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
   else if (taken) problems.push(`"${lessonId}" is already a lesson. Choose another id; nothing is ever replaced.`)
   if (!file) problems.push('Add the reference photo.')
   else if (!REFERENCE_TYPES.includes(file.type)) problems.push(`The photo must be ${REFERENCE_TYPES_LABEL}.`)
+  if (trace.status === 'tracing') problems.push('Wait for the SVG to finish tracing.')
   if (!source.trim() || !license.trim()) problems.push('Record where the photo came from and its licence.')
   if (!objective.trim()) problems.push('Write the one-line objective.')
   if (!goal.trim()) problems.push('Describe the learning goal.')
@@ -98,7 +135,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
     setOutcome({ kind: 'generating', startedAt: Date.now() })
     setKeepError(null)
     try {
-      const result = await generateLesson({
+      const request = {
         model,
         lessonId,
         title: title.trim(),
@@ -107,7 +144,11 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
         goal: goal.trim(),
         constraints: constraints.trim(),
         image: await imageForModel(file),
-      })
+      }
+      const result =
+        trace.status === 'done'
+          ? await generateFromTrace({ ...request, trace: trace.drawing })
+          : await generateLesson(request)
       // The server has validated already; the browser checks again with the
       // same code before anything can enter the editor (§22).
       const verdict = result.issues.length === 0 ? validateTutorial(result.tutorial) : null
@@ -262,6 +303,17 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
             />
           </label>
+          {trace.status === 'tracing' ? (
+            <p className="st-field__hint" role="status">
+              Tracing the SVG…
+            </p>
+          ) : null}
+          {trace.status === 'failed' ? (
+            <p className="st-notice st-notice--error">
+              {trace.message} Generation will work from the picture instead.
+            </p>
+          ) : null}
+          {trace.status === 'done' ? <TracePreview drawing={trace.drawing} /> : null}
           <label className="st-field">
             <span className="st-field__label">Source</span>
             <input
@@ -400,6 +452,13 @@ function CandidatePanel({
         prompt {result.promptVersion}
         {result.usage?.cost !== undefined ? ` · about $${result.usage.cost.toFixed(3)}` : ''}
       </p>
+      {result.notes && result.notes.length > 0 ? (
+        <ul className="st-new-lesson__todo">
+          {result.notes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      ) : null}
       <div className="st-candidate__grid">
         <div className="st-candidate__drawing">
           <FinishedDrawing tutorial={tutorial} className="st-canvas" />
@@ -451,6 +510,49 @@ function IssueListWarnings({ warnings }: { warnings: ValidationIssue[] }) {
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+/** The traced lines and colours, drawn whole, with what tracing simplified. */
+function TracePreview({ drawing }: { drawing: TracedDrawing }) {
+  const tutorial = useMemo<Tutorial>(
+    () => ({
+      schemaVersion: 2,
+      id: 'trace-preview',
+      title: 'Traced drawing',
+      canvas: drawing.canvas,
+      steps: [
+        {
+          id: 'traced',
+          title: 'Traced drawing',
+          instruction: 'Traced drawing',
+          strokes: drawing.strokes.map((stroke) => ({
+            d: stroke.d,
+            duration: 1,
+            lineWidth: stroke.lineWidth,
+            ...(stroke.color ? { color: stroke.color } : {}),
+          })),
+          fills: drawing.fills.map((fill) => ({ d: fill.d, color: fill.color, duration: 1, fillRule: 'evenodd' as const })),
+        },
+      ],
+    }),
+    [drawing],
+  )
+  return (
+    <div className="st-trace-preview">
+      <p className="st-field__hint">
+        Traced from the SVG: {drawing.strokes.length} lines and {drawing.fills.length} colours. The lesson keeps
+        exactly these; the model only orders them into steps and writes the instructions.
+      </p>
+      <FinishedDrawing tutorial={tutorial} className="st-reference-form__preview" />
+      {drawing.notes.length > 0 ? (
+        <ul className="st-new-lesson__todo">
+          {drawing.notes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   )
 }

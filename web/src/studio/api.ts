@@ -1,6 +1,7 @@
 import type { Analysis, LessonsFile, PathsFile } from '../catalog/types'
 import type { Tutorial } from '../schema/types'
 import type { ValidationIssue } from '../schema/validate'
+import type { TracedDrawing } from '../trace/traceSvg'
 
 // Every write carries this header; see STUDIO_HEADER in server/studioApi.ts.
 const WRITE_HEADERS = { 'X-StrokeTutor-Studio': '1' }
@@ -108,11 +109,21 @@ export interface GenerateResult {
   promptVersion: string
   usage?: { promptTokens?: number; completionTokens?: number; cost?: number }
   issues: ValidationIssue[]
+  /** SVG lessons: what the Studio corrected in the model's plan. */
+  notes?: string[]
 }
 
 /** Sends the photo and the goal to the chosen model. Writes nothing. */
 export function generateLesson(request: GenerateRequest) {
   return call<GenerateResult>('/api/generate', json('POST', request))
+}
+
+/**
+ * Sends a traced SVG, its picture and the goal. The model orders the traced
+ * lines and colours into steps; every shape stays the traced one. Writes nothing.
+ */
+export function generateFromTrace(request: GenerateRequest & { trace: TracedDrawing }) {
+  return call<GenerateResult>('/api/generate-from-trace', json('POST', request))
 }
 
 export function uploadReference(lessonId: string, file: File) {

@@ -40,6 +40,39 @@ export async function generateCandidate(
   body: Record<string, unknown>,
   deps: GenerateDeps,
 ): Promise<GenerateResult> {
+  const input = await readLessonRequest(body, deps)
+  const candidate = await requestLesson(
+    {
+      model: input.model,
+      lessonId: input.lessonId,
+      title: input.title,
+      canvas: GENERATION_CANVAS,
+      image: input.image,
+      context: lessonContext(input.library, input.pathId, input.position, input.goal, input.constraints),
+    },
+    { apiKey: input.apiKey, fetch: deps.fetch },
+  )
+
+  const verdict = deps.validateTutorial(candidate.tutorial)
+  return { ...candidate, issues: verdict.ok ? [] : verdict.issues }
+}
+
+/** A generation request, checked before anything is spent. Shared by photo and SVG generation. */
+export interface LessonRequest {
+  apiKey: string
+  model: string
+  lessonId: string
+  title: string
+  goal: string
+  constraints: string
+  pathId: string | null
+  position: number
+  /** A raster image the model can be sent. */
+  image: { contentType: string; base64: string }
+  library: LibrarySnapshot
+}
+
+export async function readLessonRequest(body: Record<string, unknown>, deps: GenerateDeps): Promise<LessonRequest> {
   if (!deps.apiKey) {
     throw new WriteRefused(
       503,
@@ -92,20 +125,18 @@ export async function generateCandidate(
   }
 
   const position = typeof body.position === 'number' && Number.isInteger(body.position) ? body.position : Infinity
-  const candidate = await requestLesson(
-    {
-      model,
-      lessonId,
-      title,
-      canvas: GENERATION_CANVAS,
-      image: { contentType, base64: bytes.toString('base64') },
-      context: lessonContext(library, text(body.pathId) || null, position, goal, text(body.constraints)),
-    },
-    { apiKey: deps.apiKey, fetch: deps.fetch },
-  )
-
-  const verdict = deps.validateTutorial(candidate.tutorial)
-  return { ...candidate, issues: verdict.ok ? [] : verdict.issues }
+  return {
+    apiKey: deps.apiKey,
+    model,
+    lessonId,
+    title,
+    goal,
+    constraints: text(body.constraints),
+    pathId: text(body.pathId) || null,
+    position,
+    image: { contentType, base64: bytes.toString('base64') },
+    library,
+  }
 }
 
 function lessonIds(library: LibrarySnapshot): Set<string> {

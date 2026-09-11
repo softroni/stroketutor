@@ -82,15 +82,16 @@ device, only louder.
 | unknown property, including `fills` in a v1 document | rejects as a likely typo | ignored by `JSONDecoder` |
 | empty `title` | rejects | loads, shows an empty label |
 | unparseable or 3-digit hex | rejects | warns, falls back to the default colour |
-| any `schemaVersion` 2 document | plays it | refuses by name until M7 |
+| any `schemaVersion` 2 document | plays it | refuses by name until M7; a bundled one is skipped, not reported |
 
 The hex row is the direction that actually bites: a browser draws `#FFF` happily
 while `Color(hex:)` requires 6 or 8 digits and would silently substitute the
 default. The tool rejects it so the two can never disagree on screen.
 
 The version 2 row is the one place the tool is ahead of the device, on purpose: v2 is
-authored and previewed in the Studio before the iOS player learns it. Until then a v2
-lesson must not be bundled with the app.
+authored and previewed in the Studio before the iOS player learns it. Until then the app
+skips a bundled v2 lesson instead of reporting it as broken (`TutorialLoader.isForNewerApp`),
+so the Studio saves v2 lessons into `Tutorials/` alongside v1 ones.
 
 ## Version 2: colour
 

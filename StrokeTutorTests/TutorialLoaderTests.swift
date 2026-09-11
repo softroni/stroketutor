@@ -100,6 +100,12 @@ final class TutorialLoaderTests: XCTestCase {
         }
     }
 
+    func testBundledFilesInANewerVersionAreSkippedNotReported() {
+        XCTAssertTrue(TutorialLoader.isForNewerApp(.unsupportedSchemaVersion(found: 2, supported: 1)))
+        XCTAssertFalse(TutorialLoader.isForNewerApp(.unsupportedSchemaVersion(found: 0, supported: 1)))
+        XCTAssertFalse(TutorialLoader.isForNewerApp(.noSteps))
+    }
+
     // MARK: - Bundled content
 
     func testBundledTutorialsAllLoad() {

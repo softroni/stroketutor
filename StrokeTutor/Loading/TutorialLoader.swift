@@ -74,6 +74,7 @@ enum TutorialLoader {
             do {
                 tutorials.append(try loadTutorial(at: url, source: .bundled))
             } catch let error as TutorialLoadError {
+                if isForNewerApp(error) { continue }
                 failures.append(TutorialLoadFailure(fileName: url.lastPathComponent, error: error))
             } catch {
                 failures.append(TutorialLoadFailure(fileName: url.lastPathComponent,
@@ -83,6 +84,15 @@ enum TutorialLoader {
 
         tutorials.sort { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
         return (tutorials, failures)
+    }
+
+    /// A bundled file in a newer `schemaVersion` than this app reads. It is
+    /// skipped rather than reported: the Studio authors colour (version 2)
+    /// lessons ahead of the app, and a learner can do nothing about them. A
+    /// file the learner imports still reports the version by name.
+    static func isForNewerApp(_ error: TutorialLoadError) -> Bool {
+        if case let .unsupportedSchemaVersion(found, supported) = error { return found > supported }
+        return false
     }
 
     /// Discovers `.json` files in the `Tutorials` folder without hardcoding names.

@@ -90,15 +90,46 @@ export async function requestLesson(
   request: GenerateRequest,
   options: OpenRouterOptions,
 ): Promise<Candidate> {
+  const completion = await completeJSON(
+    { model: request.model, messages: buildMessages(request), schemaName: 'stroketutor_lesson', schema: OUTPUT_SCHEMA },
+    options,
+  )
+  const output = parseOutput(completion.content)
+  return {
+    analysis: output.analysis,
+    tutorial: toCandidate(output.steps, request),
+    model: completion.model,
+    promptVersion: PROMPT_VERSION,
+    usage: completion.usage,
+  }
+}
+
+export interface Completion {
+  /** The model's answer text, not yet parsed. */
+  content: string
+  /** The model that actually answered, as OpenRouter reports it. */
+  model: string
+  usage?: Candidate['usage']
+}
+
+/**
+ * One strict-JSON chat completion through OpenRouter, with every documented
+ * failure turned into a sentence the creator can act on. Shared by the photo
+ * and SVG lesson prompts.
+ */
+export async function completeJSON(
+  request: { model: string; messages: unknown[]; schemaName: string; schema: unknown; maxTokens?: number },
+  options: OpenRouterOptions,
+): Promise<Completion> {
   const body = {
     model: request.model,
-    messages: buildMessages(request),
+    messages: request.messages,
     response_format: {
       type: 'json_schema',
-      json_schema: { name: 'stroketutor_lesson', strict: true, schema: OUTPUT_SCHEMA },
+      json_schema: { name: request.schemaName, strict: true, schema: request.schema },
     },
     provider: { require_parameters: true },
-    max_tokens: MAX_OUTPUT_TOKENS,
+    max_tokens: request.maxTokens ?? MAX_OUTPUT_TOKENS,
   }
 
   const controller = new AbortController()
@@ -155,6 +186,12 @@ export async function requestLesson(
     )
   }
   if (choice?.finish_reason === 'length') {
+    // Thinking models spend output tokens on reasoning before they answer, so
+    // what was spent is the only clue to why the answer was cut off.
+    console.warn(
+      '[studio] generation cut off at the output limit:',
+      JSON.stringify({ model: payload?.model ?? request.model, provider: payload?.provider, maxTokens: body.max_tokens, usage: payload?.usage }),
+    )
     throw new GenerationFailed(
       502,
       'The model ran out of room before finishing the lesson. Try again, or choose a model with a larger output limit.',
@@ -165,12 +202,9 @@ export async function requestLesson(
     throw new GenerationFailed(502, 'The model answered without a lesson.')
   }
 
-  const output = parseOutput(content)
   return {
-    analysis: output.analysis,
-    tutorial: toCandidate(output.steps, request),
+    content,
     model: payload?.model ?? request.model,
-    promptVersion: PROMPT_VERSION,
     usage: payload?.usage
       ? {
           promptTokens: payload.usage.prompt_tokens,
@@ -255,35 +289,40 @@ function failureFor(status: number, error: ChatError | undefined): GenerationFai
 }
 
 /** The model's JSON, tolerating a Markdown fence some providers add anyway. */
-function parseOutput(content: string): { analysis: Analysis; steps: unknown[] } {
+export function parseAnswer(content: string): unknown {
   const unfenced = content
     .trim()
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```$/, '')
-  let data: unknown
   try {
-    data = JSON.parse(unfenced)
+    return JSON.parse(unfenced)
   } catch {
     throw new GenerationFailed(502, "The model's answer was not the JSON that was asked for.", content.slice(0, 500))
   }
+}
 
-  const root = data as { analysis?: unknown; tutorial?: { steps?: unknown } } | null
-  const analysis = root?.analysis as Partial<Analysis> | undefined
-  const isStrings = (value: unknown) =>
-    Array.isArray(value) && value.every((item) => typeof item === 'string')
-  if (
-    !analysis ||
-    !isStrings(analysis.mainForms) ||
-    !isStrings(analysis.importantDetails) ||
-    !isStrings(analysis.detailsRemoved) ||
-    typeof analysis.drawingStrategy !== 'string'
-  ) {
+/** Whether a value is a complete analysis, as both prompts ask for. */
+export function isAnalysis(value: unknown): value is Analysis {
+  const analysis = value as Partial<Analysis> | null | undefined
+  const isStrings = (list: unknown) => Array.isArray(list) && list.every((item) => typeof item === 'string')
+  return Boolean(
+    analysis &&
+      isStrings(analysis.mainForms) &&
+      isStrings(analysis.importantDetails) &&
+      isStrings(analysis.detailsRemoved) &&
+      typeof analysis.drawingStrategy === 'string',
+  )
+}
+
+function parseOutput(content: string): { analysis: Analysis; steps: unknown[] } {
+  const root = parseAnswer(content) as { analysis?: unknown; tutorial?: { steps?: unknown } } | null
+  if (!isAnalysis(root?.analysis)) {
     throw new GenerationFailed(502, "The model's answer is missing its analysis of the photo.")
   }
   if (!Array.isArray(root?.tutorial?.steps)) {
     throw new GenerationFailed(502, "The model's answer is missing the lesson's steps.")
   }
-  return { analysis: analysis as Analysis, steps: root.tutorial.steps as unknown[] }
+  return { analysis: root.analysis, steps: root.tutorial.steps as unknown[] }
 }
 
 /**
@@ -310,7 +349,7 @@ function toCandidate(steps: unknown[], request: GenerateRequest): CandidateTutor
   }
 }
 
-function slug(text: string): string {
+export function slug(text: string): string {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')

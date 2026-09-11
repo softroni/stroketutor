@@ -136,6 +136,11 @@ Teaching
 }
 
 function userText(title: string, context: LessonContext): string {
+  return [...contextLines(title, context), '', 'The reference photo follows.'].join('\n')
+}
+
+/** Where the lesson sits in its path and what the creator asked for; shared with the SVG prompt. */
+export function contextLines(title: string, context: LessonContext): string[] {
   const lines: string[] = []
   lines.push(
     context.pathTitle
@@ -155,8 +160,7 @@ function userText(title: string, context: LessonContext): string {
   }
   lines.push('', "The creator's learning goal for this lesson:", context.goal)
   if (context.constraints) lines.push('', "The creator's constraints:", context.constraints)
-  lines.push('', 'The reference photo follows.')
-  return lines.join('\n')
+  return lines
 }
 
 /**

@@ -304,8 +304,9 @@ in after all the outlines are drawn.
   - fills are painted beneath every stroke and revealed left to right, like colouring in;
   - the thumbnail and the editor show fills;
   - editing keeps fill-only steps, and split and merge carry fills along.
-- [ ] Before a v2 lesson is saved into `shared/Tutorials`: iOS bundles that folder and requires every file to load, so
-  v2 lessons need somewhere iOS won't pick them up, or iOS must skip them gracefully.
+- [x] v2 lessons live in `shared/Tutorials` (the creator's choice). The iOS loader skips a bundled file of a newer
+  version instead of reporting it (`TutorialLoader.isForNewerApp`). A file the learner imports still gets the version
+  error by name.
 - [x] SVG tracer (`web/src/trace/traceSvg.ts`, runs in the browser):
   - [x] parse shapes, transforms and styles. The file is mounted in a shadow root, so its CSS can't leak into the Studio,
     and it is checked with the same safety rules as the server (`web/src/svg/safety.ts`);
@@ -329,9 +330,21 @@ in after all the outlines are drawn.
     21 pieces, of which 7 are kept.
   - Touching coconuts come out as arcs rather than closed circles.
   - Not yet handled: `<use>`, and group-level opacity. Gradients count as a colour rather than as ink.
-- [ ] Generation: the model gets a compact list of traced strokes and fills and returns steps and instructions as strict
-  JSON; the code assembles the tutorial.
-- [ ] Studio: "New lesson from SVG", with a preview before keeping.
+- [x] Generation (`POST /api/generate-from-trace`, prompt `svg-lesson-v1`):
+  - the model gets the traced lines and colours as ids with positions and sizes, never path data, plus the picture;
+  - it returns outline steps, then colour steps, as strict JSON;
+  - code builds the lesson from the exact traced shapes. Every line and colour appears once: invented or repeated ids
+    are ignored, anything left out joins the last step of its kind, and each correction is noted;
+  - a drawing with no colour stays v1.
+- [x] Studio: choosing an SVG in New lesson traces it straight away and previews the result. Generate then uses the
+  trace; if tracing fails, it falls back to the picture. "Keep as draft" is unchanged.
+
+  **Live check, 2026-09-11** (`google/gemini-3.8-flash`, the palm):
+  - **Result:** a valid v2 lesson: 12 outline steps (coconuts, trunk, ground, then each frond), then 6 colour steps.
+    The model placed every line and colour itself, so no corrections were needed.
+  - **Cost and time:** 130 s and about $0.09. The model used 24,188 output tokens, mostly reasoning, which cut off the
+    first attempt at the photo prompt's 16,000-token limit. This request now allows 32,000.
+  - **Watch the time:** the server gives up at 180 s.
 
 ### M5 · AI generation quality (gated)
 Prompting for human pen gestures, stage-level regeneration (drawing / order / steps / instructions),

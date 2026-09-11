@@ -3,6 +3,7 @@ import type { ServerResponse } from 'node:http'
 import type { Connect, Plugin, ViteDevServer } from 'vite'
 
 import { GenerationFailed, generateCandidate } from './generate'
+import { generateFromTrace } from './generateFromTrace'
 import { listVisionModels } from './models'
 import {
   MAX_REFERENCE_BYTES,
@@ -24,6 +25,9 @@ export const STUDIO_HEADER = 'x-stroketutor-studio'
 const MAX_JSON_BYTES = 2 * 1024 * 1024
 /** A generation request carries the photo as base64, a third larger than the file. */
 const MAX_GENERATE_BYTES = Math.ceil((MAX_REFERENCE_BYTES * 4) / 3) + 64 * 1024
+
+/** SVG generation also carries the traced drawing: a few hundred path strings at most. */
+const MAX_TRACE_GENERATE_BYTES = MAX_GENERATE_BYTES + 4 * 1024 * 1024
 
 export interface StudioApiOptions {
   sharedDir: string
@@ -48,6 +52,7 @@ export interface StudioApiOptions {
  * - `GET  /api/settings`            whether an OpenRouter key is configured (never the key)
  * - `GET  /api/models`              models that take images and honour structured output
  * - `POST /api/generate`            one lesson candidate from a photo and a goal; writes nothing
+ * - `POST /api/generate-from-trace` one lesson from a traced SVG: the model orders its lines and colours
  */
 export function studioApi(options: StudioApiOptions): Plugin {
   return {
@@ -117,6 +122,17 @@ async function handle(
     if (resource === 'generate' && parts.length === 1 && method === 'POST') {
       const body = await readJSON(req, MAX_GENERATE_BYTES)
       const result = await generateCandidate(body, {
+        apiKey: options.openRouterKey,
+        defaultModel: options.defaultModel,
+        library: () => writer.readLibrary(),
+        validateTutorial: checks.validateTutorial,
+      })
+      return send(res, 200, result)
+    }
+
+    if (resource === 'generate-from-trace' && parts.length === 1 && method === 'POST') {
+      const body = await readJSON(req, MAX_TRACE_GENERATE_BYTES)
+      const result = await generateFromTrace(body, {
         apiKey: options.openRouterKey,
         defaultModel: options.defaultModel,
         library: () => writer.readLibrary(),
