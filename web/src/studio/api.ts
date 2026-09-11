@@ -1,4 +1,5 @@
 import type { Analysis, LessonsFile, PathsFile } from '../catalog/types'
+import type { HistoryEntry, HistoryRecord } from '../history/types'
 import type { Tutorial } from '../schema/types'
 import type { ValidationIssue } from '../schema/validate'
 import type { TracedDrawing } from '../trace/traceSvg'
@@ -173,6 +174,16 @@ export interface RegenerateResult {
 /** Regenerates one layer of an existing lesson. Writes nothing; the creator chooses what to keep. */
 export function regenerateLayer(request: RegenerateRequest) {
   return call<RegenerateResult>('/api/regenerate', json('POST', request))
+}
+
+/** Every recorded version of a lesson, newest first. */
+export function listHistory(lessonId: string) {
+  return call<{ entries: HistoryEntry[] }>(`/api/history/${encodeURIComponent(lessonId)}`)
+}
+
+/** Keeps a generated or regenerated version beside the lesson. Saves are recorded by the server itself. */
+export function recordHistory(lessonId: string, record: HistoryRecord & { kind: 'generated' | 'regenerated' }) {
+  return call<{ entry: HistoryEntry }>(`/api/history/${encodeURIComponent(lessonId)}`, json('POST', record))
 }
 
 export function uploadReference(lessonId: string, file: File) {

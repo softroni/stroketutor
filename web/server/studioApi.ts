@@ -58,6 +58,8 @@ export interface StudioApiOptions {
  * - `POST /api/generate`            one lesson candidate from a photo and a goal; writes nothing
  * - `POST /api/generate-from-trace` one lesson from a traced SVG: the model orders its lines and colours
  * - `POST /api/regenerate`          one layer of an existing lesson: drawing, order, steps or instructions; writes nothing
+ * - `GET  /api/history/:lesson`      every recorded version of a lesson, newest first
+ * - `POST /api/history/:lesson`      records a generated or regenerated version (saves record themselves)
  */
 export function studioApi(options: StudioApiOptions): Plugin {
   return {
@@ -158,6 +160,14 @@ async function handle(
       if (method === 'PUT') {
         const body = await readJSON(req, MAX_JSON_BYTES)
         return send(res, 200, await writer.writeTutorial(name, body.tutorial, preconditionOf(body.etag)))
+      }
+    }
+
+    if (resource === 'history' && parts.length === 2) {
+      if (method === 'GET') return send(res, 200, { entries: await writer.readHistory(name) })
+      if (method === 'POST') {
+        const body = await readJSON(req, MAX_JSON_BYTES)
+        return send(res, 200, await writer.appendHistory(name, body))
       }
     }
 

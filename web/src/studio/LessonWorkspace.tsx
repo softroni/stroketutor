@@ -3,8 +3,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { DebugPanel } from '../app/DebugPanel'
 import { estimateLearnerSeconds, formatMinutes } from '../catalog/metrics'
 import { findLesson, findPathOfLesson, type Catalog, type Lesson, type LearningPath } from '../catalog/types'
+import { describeEntry } from '../history/types'
 import { TutorialPlayer } from '../player/TutorialPlayer'
-import { totalDuration, totalStrokes } from '../schema/types'
+import { totalDuration, totalStrokes, type Tutorial } from '../schema/types'
 import { parseTutorialJSON, validateTutorial, type ValidationIssue } from '../schema/validate'
 
 import { ApiError, readTutorial, saveCatalog, saveTutorial, uploadReference } from './api'
@@ -30,6 +31,7 @@ import {
   type EditableTutorial,
 } from './editor/ops'
 import { StepEditor } from './editor/StepEditor'
+import { HistoryPanel } from './HistoryPanel'
 import { IssueList } from './IssueList'
 import type { Library, TutorialEntry } from './library'
 import { AnalysisPanel } from './NewLessonView'
@@ -82,7 +84,7 @@ export function LessonWorkspace({ library, catalog, lessonId, onSaved }: LessonW
 }
 
 type Mode = 'edit' | 'preview'
-type BottomPanel = 'inspector' | 'generation' | 'advanced'
+type BottomPanel = 'inspector' | 'generation' | 'history' | 'advanced'
 
 interface SaveReport {
   file: string
@@ -125,8 +127,10 @@ function LessonEditor({
   const [saveReport, setSaveReport] = useState<SaveReport | null>(null)
   const [saveFailure, setSaveFailure] = useState<SaveFailure | null>(null)
   const [regenerating, setRegenerating] = useState(false)
-  /** Said once a regenerated version is in the editor, until it is saved or undone. */
-  const [regenerated, setRegenerated] = useState<string | null>(null)
+  /** Said once a regenerated or recorded version is in the editor, until it is saved or undone. */
+  const [editorNotice, setEditorNotice] = useState<string | null>(null)
+  /** Bumped whenever a version may have been recorded, so the History tab reads it again. */
+  const [historyKey, setHistoryKey] = useState(0)
 
   const doc = history.present
   const tutorial = useMemo(() => toTutorial(doc), [doc])
@@ -235,6 +239,16 @@ function LessonEditor({
     setReplay((current) => ({ uids, runId: (current?.runId ?? 0) + 1 }))
   }
 
+  /** Puts a whole other version in the editor as one undoable edit, and says so until it is saved or undone. */
+  const putInEditor = (next: Tutorial, message: string) => {
+    setSelection(new Set())
+    setReplay(null)
+    setMode('edit')
+    setActiveStep(0)
+    apply(() => toEditable(next))
+    setEditorNotice(`${message} Nothing is saved yet: review, then Save. Undo (⌘Z) brings back the previous version.`)
+  }
+
   /** Rewrites the catalog as it is on disk with this one lesson changed. */
   const saveLessonMeta = async (change: (current: Lesson) => Lesson) => {
     const disk = library.catalog
@@ -283,7 +297,11 @@ function LessonEditor({
     } finally {
       // Re-read shared/ whenever something was written, even if a later step
       // failed, so the next save names the right version.
-      if (wrote) await onSaved()
+      if (wrote) {
+        await onSaved()
+        // The server keeps every save in the lesson's history.
+        setHistoryKey((key) => key + 1)
+      }
       setSaving(false)
     }
   }
@@ -442,24 +460,18 @@ function LessonEditor({
             position={position}
             current={validation.ok ? validation.tutorial : null}
             onUse={(next, result) => {
-              setSelection(new Set())
-              setReplay(null)
-              setMode('edit')
-              setActiveStep(0)
-              apply(() => toEditable(next))
-              setRegenerating(false)
               const plural = result.layer === 'steps' || result.layer === 'instructions'
-              setRegenerated(
-                `The new ${result.layer} from ${result.model} ${plural ? 'are' : 'is'} in the editor. Nothing is saved yet: review, then Save. Undo (⌘Z) brings back the previous version.`,
-              )
+              putInEditor(next, `The new ${result.layer} from ${result.model} ${plural ? 'are' : 'is'} in the editor.`)
+              setRegenerating(false)
             }}
+            onRecorded={() => setHistoryKey((key) => key + 1)}
             onClose={() => setRegenerating(false)}
           />
         </div>
       ) : null}
-      {regenerated && changed ? (
+      {editorNotice && changed ? (
         <p className="st-notice st-notice--success" role="status">
-          {regenerated}
+          {editorNotice}
         </p>
       ) : null}
 
@@ -602,6 +614,17 @@ function LessonEditor({
               Generation
             </button>
           ) : null}
+          {library.writable ? (
+            <button
+              type="button"
+              role="tab"
+              className="st-tab"
+              aria-selected={panel === 'history'}
+              onClick={() => setPanel('history')}
+            >
+              History
+            </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -659,6 +682,20 @@ function LessonEditor({
               ) : null}
             </p>
             <AnalysisPanel analysis={lesson.generation.analysis} />
+          </div>
+        ) : panel === 'history' && library.writable ? (
+          <div role="tabpanel">
+            <HistoryPanel
+              lessonId={entry.id}
+              current={validation.ok ? validation.tutorial : null}
+              refreshKey={historyKey}
+              onUse={(next, item) =>
+                putInEditor(
+                  next,
+                  `The version “${describeEntry(item)}” from ${new Date(item.createdAt).toLocaleString()} is in the editor.`,
+                )
+              }
+            />
           </div>
         ) : (
           <div role="tabpanel">

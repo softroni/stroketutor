@@ -10,6 +10,7 @@ import {
   ApiError,
   generateFromTrace,
   generateLesson,
+  recordHistory,
   saveCatalog,
   saveTutorial,
   uploadReference,
@@ -46,7 +47,12 @@ type Outcome =
   | { kind: 'generating'; startedAt: number }
   | { kind: 'failed'; message: string }
   | { kind: 'rejected'; result: GenerateResult }
-  | { kind: 'candidate'; result: GenerateResult; tutorial: Tutorial }
+
+/** A valid generation, kept for the rest of the session so "Generate another" never loses one. */
+interface Candidate {
+  result: GenerateResult
+  tutorial: Tutorial
+}
 
 /**
  * A new lesson from a real-world photo (master plan §16, Appendix B). One
@@ -68,6 +74,8 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
   const [goal, setGoal] = useState('')
   const [constraints, setConstraints] = useState('')
   const [outcome, setOutcome] = useState<Outcome>({ kind: 'idle' })
+  const [candidates, setCandidates] = useState<Candidate[]>([])
+  const [shown, setShown] = useState(0)
   const [keeping, setKeeping] = useState(false)
   const [keepError, setKeepError] = useState<string | null>(null)
   const [now, setNow] = useState(Date.now())
@@ -103,6 +111,12 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
     return () => {
       cancelled = true
     }
+  }, [file])
+
+  // Candidates are drawn from one photo; a different photo starts afresh.
+  useEffect(() => {
+    setCandidates([])
+    setShown(0)
   }, [file])
 
   const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file])
@@ -152,23 +166,34 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
       // The server has validated already; the browser checks again with the
       // same code before anything can enter the editor (§22).
       const verdict = result.issues.length === 0 ? validateTutorial(result.tutorial) : null
-      setOutcome(
-        verdict?.ok
-          ? { kind: 'candidate', result, tutorial: verdict.tutorial }
-          : { kind: 'rejected', result: verdict && !verdict.ok ? { ...result, issues: verdict.issues } : result },
-      )
+      if (verdict?.ok) {
+        // A new candidate joins the earlier ones rather than replacing them (§24).
+        const next = [...candidates, { result, tutorial: verdict.tutorial }]
+        setCandidates(next)
+        setShown(next.length - 1)
+        setOutcome({ kind: 'idle' })
+      } else {
+        setOutcome({ kind: 'rejected', result: verdict && !verdict.ok ? { ...result, issues: verdict.issues } : result })
+      }
     } catch (error) {
       setOutcome({ kind: 'failed', message: error instanceof Error ? error.message : String(error) })
     }
   }
 
-  /** Writes the kept draft: tutorial (create-only), photo, then its place in the catalog. */
+  /**
+   * Writes the kept draft: tutorial (create-only), photo, then its place in the
+   * catalog. Every candidate of the session then goes into the lesson's
+   * history, the kept one marked, so none is lost (§24).
+   */
   const keep = async () => {
-    if (outcome.kind !== 'candidate' || !catalog || !file) return
+    const chosen = candidates[shown]
+    if (!chosen || !catalog || !file) return
     setKeeping(true)
     setKeepError(null)
+    // The id and title as they are now, even if they were edited after generating.
+    const asLesson = (tutorial: Tutorial): Tutorial => ({ ...tutorial, id: lessonId, title: title.trim() })
     try {
-      await saveTutorial(lessonId, outcome.tutorial, null)
+      await saveTutorial(lessonId, asLesson(chosen.tutorial), null)
       const { file: photo } = await uploadReference(lessonId, file)
       const lesson: Lesson = {
         id: lessonId,
@@ -176,12 +201,12 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
         objective: objective.trim(),
         reference: { file: photo, source: source.trim(), license: license.trim() },
         generation: {
-          model: outcome.result.model,
-          promptVersion: outcome.result.promptVersion,
+          model: chosen.result.model,
+          promptVersion: chosen.result.promptVersion,
           createdAt: new Date().toISOString(),
           goal: goal.trim(),
           ...(constraints.trim() ? { constraints: constraints.trim() } : {}),
-          analysis: outcome.result.analysis,
+          analysis: chosen.result.analysis,
         },
       }
       const paths = catalog.paths.map((candidate) => {
@@ -195,6 +220,26 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
         { catalogVersion: 1, lessons: [...catalog.lessons, lesson] },
         { paths: library.catalogEtags.paths ?? null, lessons: library.catalogEtags.lessons ?? null },
       )
+      try {
+        for (let index = 0; index < candidates.length; index += 1) {
+          const { result, tutorial } = candidates[index]
+          await recordHistory(lessonId, {
+            kind: 'generated',
+            tutorial: asLesson(tutorial),
+            model: result.model,
+            promptVersion: result.promptVersion,
+            goal: goal.trim(),
+            ...(constraints.trim() ? { constraints: constraints.trim() } : {}),
+            analysis: result.analysis,
+            ...(result.notes && result.notes.length > 0 ? { notes: result.notes } : {}),
+            ...(result.usage?.cost !== undefined ? { cost: result.usage.cost } : {}),
+            ...(index === shown ? { kept: true } : {}),
+          })
+        }
+      } catch (error) {
+        // The lesson is kept either way; only its record of candidates is incomplete.
+        console.warn('[studio] the lesson was kept, but not every candidate was recorded in its history:', error)
+      }
       await onCreated(lessonId)
     } catch (error) {
       setKeepError(
@@ -395,16 +440,22 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
           <AnalysisPanel analysis={outcome.result.analysis} />
         </>
       ) : null}
-      {outcome.kind === 'candidate' ? (
+      {candidates.length > 0 ? (
         <CandidatePanel
-          result={outcome.result}
-          tutorial={outcome.tutorial}
+          candidates={candidates}
+          shown={Math.min(shown, candidates.length - 1)}
+          onShow={setShown}
           previous={previousTutorial}
+          busy={busy}
           keeping={keeping}
           keepError={keepError}
           onKeep={() => void keep()}
           onRegenerate={() => void generate()}
-          onDiscard={() => setOutcome({ kind: 'idle' })}
+          onDiscard={() => {
+            const next = candidates.filter((_, index) => index !== shown)
+            setCandidates(next)
+            setShown(Math.max(0, Math.min(shown, next.length - 1)))
+          }}
         />
       ) : null}
     </div>
@@ -412,30 +463,49 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
 }
 
 function CandidatePanel({
-  result,
-  tutorial,
+  candidates,
+  shown,
+  onShow,
   previous,
+  busy,
   keeping,
   keepError,
   onKeep,
   onRegenerate,
   onDiscard,
 }: {
-  result: GenerateResult
-  tutorial: Tutorial
+  candidates: Candidate[]
+  shown: number
+  onShow: (index: number) => void
   previous: Tutorial | undefined
+  /** Generating or keeping: nothing else may start. */
+  busy: boolean
   keeping: boolean
   keepError: string | null
   onKeep: () => void
   onRegenerate: () => void
   onDiscard: () => void
 }) {
+  const { result, tutorial } = candidates[shown]
   const warnings = qualityWarnings(tutorial, previous)
   return (
     <section className="st-candidate" aria-labelledby="st-candidate-heading">
       <h2 id="st-candidate-heading" className="st-section-heading">
-        Draft: {tutorial.title}
+        {candidates.length > 1 ? `Candidate ${shown + 1} of ${candidates.length}` : 'Draft'}: {tutorial.title}
       </h2>
+      {candidates.length > 1 ? (
+        <div className="st-segmented" role="group" aria-label="Candidates">
+          {candidates.map((_, index) => (
+            <button key={index} type="button" aria-pressed={index === shown} onClick={() => onShow(index)}>
+              Candidate {index + 1}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      <p className="st-field__hint">
+        Keeping one records every candidate here in the lesson’s history, so the others can be compared and brought
+        back later.
+      </p>
       <p className="st-field__hint">
         {tutorial.steps.length} steps · {totalStrokes(tutorial)} strokes · by <code>{result.model}</code> with
         prompt {result.promptVersion}
@@ -474,14 +544,14 @@ function CandidatePanel({
         </p>
       ) : null}
       <div className="st-new-lesson__actions">
-        <button type="button" className="st-button st-button--primary" disabled={keeping} onClick={onKeep}>
-          {keeping ? 'Saving…' : 'Keep as draft'}
+        <button type="button" className="st-button st-button--primary" disabled={busy} onClick={onKeep}>
+          {keeping ? 'Saving…' : candidates.length > 1 ? `Keep candidate ${shown + 1} as draft` : 'Keep as draft'}
         </button>
-        <button type="button" className="st-button" disabled={keeping} onClick={onRegenerate}>
-          Generate again
+        <button type="button" className="st-button" disabled={busy} onClick={onRegenerate}>
+          Generate another
         </button>
-        <button type="button" className="st-link-button" disabled={keeping} onClick={onDiscard}>
-          Discard
+        <button type="button" className="st-link-button" disabled={busy} onClick={onDiscard}>
+          Discard this candidate
         </button>
       </div>
     </section>

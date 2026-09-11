@@ -1,19 +1,25 @@
 import { useEffect, useState } from 'react'
 
 import type { LearningPath, Lesson } from '../catalog/types'
-import { totalFills, totalStrokes, type Tutorial } from '../schema/types'
+import type { Tutorial } from '../schema/types'
 import { validateTutorial } from '../schema/validate'
 import { traceSvg, type TracedDrawing } from '../trace/traceSvg'
 
-import { regenerateLayer, type RegenerateLayer, type RegenerateRequest, type RegenerateResult } from './api'
+import {
+  recordHistory,
+  regenerateLayer,
+  type RegenerateLayer,
+  type RegenerateRequest,
+  type RegenerateResult,
+} from './api'
 import { drawingImage } from './drawingImage'
-import { FinishedDrawing } from './FinishedDrawing'
 import { IssueList } from './IssueList'
 import type { Library } from './library'
 import { ModelPicker } from './ModelPicker'
 import { AnalysisPanel } from './NewLessonView'
 import { imageForModel } from './referenceImage'
 import { storedModel } from './settings'
+import { Version, changedSteps } from './Version'
 
 /** Cheapest first: most weak lessons need their words or grouping fixed, not a new drawing. */
 const LAYERS: { layer: RegenerateLayer; label: string; keeps: string }[] = [
@@ -65,6 +71,8 @@ export interface RegeneratePanelProps {
   current: Tutorial | null
   /** Puts the regenerated version into the editor, where Undo can take it back. */
   onUse: (tutorial: Tutorial, result: RegenerateResult) => void
+  /** Called once a result is kept in the lesson's history. */
+  onRecorded?: () => void
   onClose: () => void
 }
 
@@ -82,6 +90,7 @@ export function RegeneratePanel({
   position,
   current,
   onUse,
+  onRecorded,
   onClose,
 }: RegeneratePanelProps) {
   const [layer, setLayer] = useState<RegenerateLayer>('instructions')
@@ -92,6 +101,28 @@ export function RegeneratePanel({
   const [outcome, setOutcome] = useState<Outcome>({ kind: 'idle' })
   const [now, setNow] = useState(Date.now())
   const [model, setModel] = useState(storedModel)
+  const [recordError, setRecordError] = useState<string | null>(null)
+
+  /** Every valid result is kept beside the lesson as soon as it arrives, whether or not it is used (§24). */
+  const record = (tutorial: Tutorial, result: RegenerateResult) => {
+    setRecordError(null)
+    recordHistory(lessonId, {
+      kind: 'regenerated',
+      tutorial,
+      layer: result.layer,
+      model: result.model,
+      promptVersion: result.promptVersion,
+      ...(note.trim() ? { note: note.trim() } : {}),
+      ...(result.layer === 'drawing' ? { goal: goal.trim(), ...(constraints.trim() ? { constraints: constraints.trim() } : {}) } : {}),
+      ...(result.rationale ? { rationale: result.rationale } : {}),
+      ...(result.notes.length > 0 ? { notes: result.notes } : {}),
+      ...(result.analysis ? { analysis: result.analysis } : {}),
+      ...(result.usage?.cost !== undefined ? { cost: result.usage.cost } : {}),
+    }).then(
+      () => onRecorded?.(),
+      (error: unknown) => setRecordError(error instanceof Error ? error.message : String(error)),
+    )
+  }
 
   useEffect(() => {
     if (outcome.kind !== 'running') return
@@ -152,6 +183,7 @@ export function RegeneratePanel({
       // The server has validated already; the browser checks again with the
       // same code before anything can enter the editor.
       const verdict = result.issues.length === 0 ? validateTutorial(result.tutorial) : null
+      if (verdict?.ok) record(verdict.tutorial, result)
       setOutcome(
         verdict?.ok
           ? {
@@ -285,6 +317,11 @@ export function RegeneratePanel({
           issues={outcome.result.issues}
         />
       ) : null}
+      {recordError ? (
+        <p className="st-notice st-notice--error" role="alert">
+          This version could not be kept in the lesson’s history: {recordError}
+        </p>
+      ) : null}
       {outcome.kind === 'candidate' ? (
         <Comparison
           outcome={outcome}
@@ -312,16 +349,14 @@ function Comparison({
   onDiscard: () => void
 }) {
   const { result, tutorial, basis, seconds } = outcome
-  const changedSteps = tutorial.steps.filter(
-    (step, index) => JSON.stringify(step) !== JSON.stringify(basis?.steps[index]),
-  ).length
+  const changed = changedSteps(tutorial, basis ?? undefined)
   // Edits made while the model was working are in `current` but not in `basis`.
   const editedMeanwhile = current !== basis
 
   return (
     <div className="st-candidate">
       <p className="st-field__hint">
-        {changedSteps} of {tutorial.steps.length} steps differ from the version sent · <code>{result.model}</code>{' '}
+        {changed} of {tutorial.steps.length} steps differ from the version sent · <code>{result.model}</code>{' '}
         with prompt {result.promptVersion} · {seconds}s
         {result.usage?.cost !== undefined ? ` · about $${result.usage.cost.toFixed(3)}` : ''}
       </p>
@@ -355,40 +390,6 @@ function Comparison({
           Discard
         </button>
       </div>
-    </div>
-  )
-}
-
-/** One version of the lesson: its finished drawing and its steps, marking those that differ from `against`. */
-function Version({ heading, tutorial, against }: { heading: string; tutorial: Tutorial; against?: Tutorial }) {
-  const fills = totalFills(tutorial)
-  return (
-    <div className="st-candidate__side">
-      <h3 className="st-label">{heading}</h3>
-      <div
-        className="st-candidate__drawing"
-        style={{ aspectRatio: `${tutorial.canvas.width} / ${tutorial.canvas.height}` }}
-      >
-        <FinishedDrawing tutorial={tutorial} className="st-canvas" />
-      </div>
-      <p className="st-field__hint">
-        {tutorial.steps.length} steps · {totalStrokes(tutorial)} lines{fills > 0 ? ` · ${fills} colours` : ''}
-      </p>
-      <ol className="st-candidate__steps">
-        {tutorial.steps.map((step, index) => (
-          <li key={`${step.id}-${index}`}>
-            <strong>{step.title}</strong>
-            {against && JSON.stringify(step) !== JSON.stringify(against.steps[index]) ? (
-              <span className="st-changed">changed</span>
-            ) : null}{' '}
-            — {step.instruction}{' '}
-            <span className="st-regenerate__count">
-              ({step.strokes.length} {step.strokes.length === 1 ? 'line' : 'lines'}
-              {step.fills?.length ? `, ${step.fills.length} ${step.fills.length === 1 ? 'colour' : 'colours'}` : ''})
-            </span>
-          </li>
-        ))}
-      </ol>
     </div>
   )
 }

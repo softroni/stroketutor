@@ -50,12 +50,12 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M5, part 2: generation history and compare.** Keep every generation and regeneration beside the draft, not in
-`shared/Tutorials`, so a new version never replaces a good one blindly, with a side-by-side compare and "use this one"
-(§24). Part 1, regenerating one layer at a time, is done; see M5 below.
+**M5, part 3: prompt tuning. It needs the creator.** Parts 1 and 2 are done; see M5 below:
+- part 1 regenerates one layer at a time;
+- part 2 keeps a history of every version, to compare.
 
-Part 3 needs the creator: real reference photos, live model iteration and their judgement on the prompt. Start with the
-observations under M4 below.
+Part 3 needs 3–5 real reference photos, live runs and the creator's judgement on the prompt, towards `lesson-v2`. Start
+with the observations under M4 and the part 1 live check. Don't start it without the creator.
 
 ---
 
@@ -386,13 +386,53 @@ teacher, not a children's book. Say where each line starts."
 **Follow-up (2026-09-11):** New lesson and the Regenerate panel can change the model in place with **Change model**,
 which opens the Settings list inline. The choice is saved as Settings saves it.
 
-**Part 2 · History and compare.** Next.
+**Part 2 · History and compare (2026-09-11)**
+The plan's "compare generations: retain good prior versions instead of overwriting blindly" (§24). Every version of a lesson is
+kept, beside it and never in its place, and any two can be compared.
+
+- [x] **Storage: `shared/History/<lesson>/<time>-<kind>-<random>.json`** (`web/src/history/types.ts`).
+  - Studio-only: the iOS target bundles only `shared/Tutorials`, so the app never sees history.
+  - Written as ordinary files, like every Studio save; the creator decides whether to commit them.
+  - Each entry holds a whole tutorial and how it came about: `kind`, which is `generated`, `regenerated` or `saved`.
+    Depending on the kind it also records the layer, model, prompt version, goal, constraints, note, rationale, the
+    Studio's corrections, the analysis, the cost, and whether it was the kept candidate.
+- [x] **Server: in `repoWriter.ts`,** which stays the only code that touches disk.
+  - `GET /api/history/:lesson` lists entries, newest first. A file that can't be read is skipped.
+  - `POST /api/history/:lesson` only adds, and only generated or regenerated versions.
+  - Refused: a tutorial that isn't valid, one whose id doesn't match the lesson, or a lesson that doesn't exist.
+  - The server assigns the id and time. Ids start with the time, so the order on disk is the order of events.
+  - **Saves record themselves:** the writer records every save that changes a lesson. A save that changes nothing records
+    nothing.
+  - **Baseline:** before a lesson's first regeneration or changing save is recorded, its version on disk is recorded as
+    "Saved, before any recorded change", so there is always something to go back to.
+- [x] **Recording:**
+  - New lesson keeps every valid candidate in the session. **Generate another** adds one and never replaces, and the
+    creator can switch between them. **Keep as draft** records all of them, marking the kept one.
+  - Each valid regeneration is recorded as soon as it arrives, whether or not it is used.
+- [x] **Workspace History tab:**
+  - every entry, newest first, with its kind, time, model, prompt, cost and size;
+  - the chosen entry side by side with the editor's version or with another entry, with changed steps marked;
+  - **Use this version** puts it in the editor as an undoable edit, like a regeneration.
+- [x] 6 tests (`web/server/history.test.ts`): recording a regeneration after the baseline, saves recording themselves,
+  no-op saves and new lessons recording nothing, candidate order and unreadable files, and every refusal. Docs updated
+  in `web/README.md` and `shared/README.md`.
+
+**Checked, 2026-09-11:** all 254 web tests pass. In the browser, on Coconut Palm:
+- **Regeneration recorded:** an Instructions regeneration (`google/gemini-3.8-flash`, 15 s, $0.0099) was recorded as it
+  arrived, after the baseline. The lesson file was untouched, and the History tab listed both.
+- **Compare and Use:** comparing with the baseline marked the changed steps. **Use this version** put the regenerated words
+  in the editor, and ⌘Z took them back.
+- **Cleanup:** the test's history files were deleted afterwards.
+
+**Not driven in the browser:**
+- keeping one of several New lesson candidates, because the browser tool can't choose a photo in the file picker;
+- a Save recording history, which the server tests cover.
 
 **Part 3 · Prompt tuning (needs the creator).** 3–5 real reference photos, live runs and the creator's judgement, towards
 `lesson-v2`.
 
-**Not yet recorded:** the catalog's `generation` block still describes a lesson's first generation. Regenerations will be
-recorded by part 2.
+**Where regenerations are recorded:** in the lesson's history (part 2). The catalog's `generation` block still describes
+the lesson's first generation only.
 
 ### M6 · Houses vertical slice (gated)
 About five lessons: Simple House → House With Chimney → Small Cottage → House From an Angle → Two-Story House.

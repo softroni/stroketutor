@@ -92,8 +92,9 @@ times three, plus eight seconds per step — until real lessons are timed.
 `server/studioApi.ts` mounts a few JSON endpoints under `/api` on the Vite dev server and nowhere
 else. `server/repoWriter.ts` does the disk work, and it is the only code that writes:
 
-- only under `shared/Tutorials/`, `shared/Catalog/` and `shared/Assets/References/`, at file names
-  the server derives from validated ids — the browser never sends a path;
+- only under `shared/Tutorials/`, `shared/Catalog/`, `shared/Assets/References/` and
+  `shared/History/`, at file names the server derives from validated ids — the browser never sends a
+  path;
 - only documents that pass the Studio's own strict validators, loaded through Vite;
 - only over the version the Studio read: each write names a SHA-256 of the file it replaces, and a
   file changed on disk in the meantime is refused rather than overwritten;
@@ -176,6 +177,22 @@ shapes it already has. A new drawing from an SVG traces the file again at the ch
 
 The result appears beside the current version; **Use the regenerated version** makes it an ordinary edit, so
 **Undo** takes it back and **Save** writes it. Nothing is written by regenerating.
+
+**History.** Every version of a lesson is kept beside it, never in its place, so a good one is never
+lost (master plan §24). Each version is one file, `shared/History/<lesson>/<time>-<kind>-<random>.json`
+(`src/history/types.ts`), holding the whole tutorial and how it came about: model, prompt version,
+note, rationale, the Studio's corrections, the analysis and the cost.
+- **Generated:** New lesson keeps every valid candidate of the session (**Generate another** adds one
+  and never replaces), and **Keep as draft** records all of them, the kept one marked.
+- **Regenerated:** each valid regeneration, recorded as it arrives, whether or not it is used.
+- **Saved:** the writer records every save that changes a lesson. The first time anything is recorded
+  about a lesson, the version on disk goes in first, so there is always one to go back to.
+
+The workspace's **History** tab lists every version, newest first, and shows the chosen one beside
+the editor's version or beside another recorded one. **Use this version** brings it back as an ordinary
+edit. `GET /api/history/:lesson` lists; `POST /api/history/:lesson` only adds, and only generated or
+regenerated versions that validate and carry the lesson's id. History files are ordinary files, like
+every save: the creator decides whether to commit them. The iOS app never sees them.
 
 The prompt lives in `server/prompts/lessonPrompt.ts` and carries a version (`lesson-v1`) that every
 generated lesson records. `server/fixtures/` holds representative model outputs — one good, one
