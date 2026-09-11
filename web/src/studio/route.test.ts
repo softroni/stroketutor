@@ -16,6 +16,9 @@ describe('parseRoute', () => {
       lessonId: 'simple-house',
     })
     expect(parseRoute('#/import')).toEqual({ name: 'import' })
+    expect(parseRoute('#/settings')).toEqual({ name: 'settings' })
+    expect(parseRoute('#/new')).toEqual({ name: 'new', pathId: null })
+    expect(parseRoute('#/new/houses')).toEqual({ name: 'new', pathId: 'houses' })
   })
 
   it('survives malformed escapes', () => {
@@ -27,6 +30,9 @@ describe('parseRoute', () => {
       { name: 'paths', pathId: null },
       { name: 'paths', pathId: 'houses' },
       { name: 'lesson', lessonId: 'simple-house' },
+      { name: 'new', pathId: null },
+      { name: 'new', pathId: 'houses' },
+      { name: 'settings' },
       { name: 'import' },
     ]
     for (const route of routes) expect(parseRoute(routeHref(route))).toEqual(route)

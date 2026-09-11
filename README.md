@@ -37,8 +37,8 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M0 | Baseline: protect the PoC | §34 Phase 0 | autonomous | ✅ Done 2026-09-11 | `5a4e687` |
 | M1 | Studio shell + catalog | §14–15, §26, §34 Phase 1 | autonomous | ✅ Done 2026-09-11 | `5482365` |
 | M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ✅ Done 2026-09-11 | `4c40bf3` |
-| M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ✅ Done 2026-09-11 | see git log |
-| M4 | OpenRouter integration | §20–22, §35 Phase 4 | autonomous (live check needs a key) | ⬜ Not started | |
+| M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ✅ Done 2026-09-11 | `25d4368` |
+| M4 | OpenRouter integration | §20–22, §35 Phase 4 | autonomous (live check needs a key) | ✅ Done 2026-09-11 | see git log |
 | M5 | AI generation quality | §23–24, §35 Phase 5 | **gated**: needs creator judgement | ⬜ Not started | |
 | M6 | Houses vertical slice | §35 Phase 6, App. A | **gated**: needs reference photos + approval | ⬜ Not started | |
 | M7 | iOS product shell | §29–31 | **gated** on M6 | ⬜ Not started | |
@@ -50,7 +50,8 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M4: OpenRouter integration.** Autonomous runs stop after **M4**. M5 and later need the creator.
+**M5: AI generation quality. This needs the creator.** The autonomous run stopped after M4, as planned. M5 and later need
+real reference photos, live model iteration and your judgement. Start with the observations under M4 below.
 
 ---
 
@@ -171,14 +172,54 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 - **No git from the Studio.** The Studio still never runs git (§27); saves show up as ordinary diffs.
 
 ### M4 · OpenRouter integration
-- [ ] Server-side proxy; `OPENROUTER_API_KEY` in `web/.env.local` (gitignored); model id configurable.
-- [ ] Reference image + path context + creator prompt are sent only on an explicit Generate.
-- [ ] Structured `{analysis, tutorial}` output; only `tutorial` is strictly validated and allowed into the editor.
-- [ ] Failures keep the creator's input and never overwrite an approved lesson.
-- [ ] New Lesson flow with one "Generate Tutorial" action; Settings shows key status, never the key.
-- [ ] Fixture-based tests for malformed, missing and invalid responses.
+- [x] Server-side proxy; `OPENROUTER_API_KEY` in `web/.env.local` (gitignored); model id configurable.
+- [x] Reference image + path context + creator prompt are sent only on an explicit Generate.
+- [x] Structured `{analysis, tutorial}` output; only `tutorial` is strictly validated and allowed into the editor.
+- [x] Failures keep the creator's input and never overwrite an approved lesson.
+- [x] New Lesson flow with one "Generate Tutorial" action; Settings shows key status, never the key.
+- [x] Fixture-based tests for malformed, missing and invalid responses.
 
 **Exit:** an uploaded reference plus a prompt produces a candidate tutorial, and failures are handled cleanly.
+
+**Done.**
+- **Tests:** web 160 pass (20 new). The generation tests use recorded model outputs in `web/server/fixtures/`, one good and
+  one that breaks the contract, and cover:
+  - every OpenRouter failure mode in its error docs (401, 402, 429, 503, provider errors inside a 200, truncated output,
+    non-JSON, missing analysis or steps);
+  - input checks that run before anything is spent;
+  - refusal of an existing id.
+  The build passes. iOS isn't affected (only the catalog schema gained an optional field), so its tests weren't re-run.
+- **Live check** on 2026-09-11, using the key in `web/.env.local`:
+  - **Request:** a synthetic house image, lesson 2 of Houses, with the goal "add a chimney as the one new detail".
+  - **Run:** `anthropic/claude-sonnet-5` answered in 59 s. It cost about $0.056 (2,169 tokens in, 5,204 out).
+  - **Result:** a *valid* tutorial with 5 steps and 6 strokes: body, roof, a dedicated chimney step, door, windows.
+    It also returned a sensible analysis of what it left out.
+  - **Nothing written:** no files were written.
+- **In the browser:** Settings shows the key as configured without showing it. The live model list has 236 models that
+  take images and support structured output. New Lesson renders and lists what's still missing before Generate is enabled.
+- **Not driven end to end:** "Keep as draft" wasn't driven through the UI, because the browser tool can't choose a photo in
+  the file picker. It chains three calls, each already verified in M3 (create-only tutorial write, photo upload, catalog write).
+  Try it once with a real photo.
+
+**Departures and decisions:**
+- **The model isn't fixed in code.** It's chosen in Settings from OpenRouter's live list and kept in the browser.
+  `OPENROUTER_MODEL` can set a default.
+- **The server fills in the fixed fields.** It sets `schemaVersion`, `id`, `title` and the 1000 × 1000 canvas, and the model
+  supplies only the analysis and the steps. Step ids are made unique; everything else is left to strict validation, which
+  names the exact field.
+- **Invalid output never reaches the editor.** The candidate is shown with its issues instead. The browser re-validates with
+  the same code before accepting anything.
+- **Keeping a draft** writes the tutorial (create-only), the photo and a `draft` catalog entry. The entry records a new optional
+  `generation` block (model, prompt version, goal, constraints, analysis) — the plan's "analysis as Studio metadata".
+- **Prompt versioning.** The prompt is versioned as `lesson-v1` in `web/server/prompts/lessonPrompt.ts`.
+- **Security.** Generation requests are guarded like writes (same-origin plus the Studio header), so another website can't spend credits.
+
+**Observations to start M5 with**, from a single live run, so treat them as early signs:
+- **Geometric first stroke.** The first stroke was a perfectly straight rectangle, despite the prompt asking for gentle hand
+  curvature. This is the §37 "overly geometric" risk.
+- **Child-leaning instruction.** One instruction referred back to "your simple house", which is good curriculum awareness,
+  but another opened with a child-leaning tone.
+- **Per-stage regeneration.** Regenerating a single stage (drawing, order, steps, instructions) is the natural next control.
 
 ### M5 · AI generation quality (gated)
 Prompting for human pen gestures, stage-level regeneration (drawing / order / steps / instructions),

@@ -1,0 +1,57 @@
+{
+  "analysis": {
+    "mainForms": ["the front wall as a wide box", "a pitched roof", "the door", "two windows"],
+    "importantDetails": ["the chimney on the right-hand slope"],
+    "detailsRemoved": [
+      "roof tiles, which would take longer than the whole lesson",
+      "the garden plants, so the house reads on its own",
+      "window bars, too small to matter at this size"
+    ],
+    "drawingStrategy": "Start with the wall so everything else has something to sit on, set the roof over it, then place the door and windows against the wall edges."
+  },
+  "tutorial": {
+    "steps": [
+      {
+        "id": "walls",
+        "title": "Draw the front wall",
+        "instruction": "Draw a wide box across the middle of the page, a little wider than it is tall. Everything else sits on it.",
+        "strokes": [
+          { "d": "M 262 482 Q 500 476 742 484 L 746 846 Q 500 852 258 844 Z", "duration": 2.4, "lineWidth": 14 }
+        ]
+      },
+      {
+        "id": "roof",
+        "title": "Set the roof on top",
+        "instruction": "Start just outside the left corner of the wall, rise to a point above its middle, and come down just past the right corner.",
+        "strokes": [
+          { "d": "M 220 486 Q 360 380 500 268 Q 640 380 782 486", "duration": 2.2, "lineWidth": 14 }
+        ]
+      },
+      {
+        "id": "door",
+        "title": "Place the door",
+        "instruction": "The door stands on the bottom edge, in the middle, and reaches about halfway up the wall.",
+        "strokes": [
+          { "d": "M 446 848 L 444 694 Q 500 688 558 694 L 556 848", "duration": 1.6, "lineWidth": 12 }
+        ]
+      },
+      {
+        "id": "windows",
+        "title": "Add the two windows",
+        "instruction": "Put one window on each side of the door, level with each other and a little above the top of the door.",
+        "strokes": [
+          { "d": "M 322 548 L 418 546 L 420 636 L 324 638 Z", "duration": 1.3, "lineWidth": 11 },
+          { "d": "M 582 546 L 678 548 L 676 638 L 580 636 Z", "duration": 1.3, "lineWidth": 11 }
+        ]
+      },
+      {
+        "id": "Chimney!",
+        "title": "Finish with the chimney",
+        "instruction": "Stand a narrow chimney on the right-hand slope of the roof, its top a little lower than the roof's peak.",
+        "strokes": [
+          { "d": "M 624 350 L 622 214 Q 660 210 698 214 L 700 404", "duration": 1.6, "lineWidth": 12 }
+        ]
+      }
+    ]
+  }
+}

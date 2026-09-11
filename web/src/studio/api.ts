@@ -1,4 +1,4 @@
-import type { LessonsFile, PathsFile } from '../catalog/types'
+import type { Analysis, LessonsFile, PathsFile } from '../catalog/types'
 import type { Tutorial } from '../schema/types'
 import type { ValidationIssue } from '../schema/validate'
 
@@ -64,6 +64,55 @@ export function saveCatalog(
     '/api/catalog',
     json('PUT', { paths, lessons, etags }),
   )
+}
+
+/** Whether the server has an OpenRouter key. The key itself never reaches the browser. */
+export interface StudioSettings {
+  keyConfigured: boolean
+  defaultModel: string | null
+}
+
+export function readSettings() {
+  return call<StudioSettings>('/api/settings')
+}
+
+export interface VisionModel {
+  id: string
+  name: string
+  contextLength: number | null
+  promptPerMillion: number | null
+  completionPerMillion: number | null
+}
+
+export function listModels() {
+  return call<{ models: VisionModel[] }>('/api/models')
+}
+
+export interface GenerateRequest {
+  model: string
+  lessonId: string
+  title: string
+  pathId: string | null
+  /** Where the lesson will sit in its path, zero-based. */
+  position: number
+  goal: string
+  constraints: string
+  image: { contentType: string; base64: string }
+}
+
+export interface GenerateResult {
+  analysis: Analysis
+  /** Unvalidated until checked; `issues` is the server's verdict. */
+  tutorial: unknown
+  model: string
+  promptVersion: string
+  usage?: { promptTokens?: number; completionTokens?: number; cost?: number }
+  issues: ValidationIssue[]
+}
+
+/** Sends the photo and the goal to the chosen model. Writes nothing. */
+export function generateLesson(request: GenerateRequest) {
+  return call<GenerateResult>('/api/generate', json('POST', request))
 }
 
 export function uploadReference(lessonId: string, file: File) {

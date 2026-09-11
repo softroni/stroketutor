@@ -32,6 +32,7 @@ import {
 import { StepEditor } from './editor/StepEditor'
 import { IssueList } from './IssueList'
 import type { Library, TutorialEntry } from './library'
+import { AnalysisPanel } from './NewLessonView'
 import { qualityWarnings } from './quality'
 import { ReferencePanel } from './ReferencePanel'
 import { routeHref } from './route'
@@ -81,7 +82,7 @@ export function LessonWorkspace({ library, catalog, lessonId, onSaved }: LessonW
 }
 
 type Mode = 'edit' | 'preview'
-type BottomPanel = 'inspector' | 'advanced'
+type BottomPanel = 'inspector' | 'generation' | 'advanced'
 
 interface SaveReport {
   file: string
@@ -548,6 +549,17 @@ function LessonEditor({
           >
             Inspector
           </button>
+          {lesson?.generation ? (
+            <button
+              type="button"
+              role="tab"
+              className="st-tab"
+              aria-selected={panel === 'generation'}
+              onClick={() => setPanel('generation')}
+            >
+              Generation
+            </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -588,6 +600,23 @@ function LessonEditor({
               onReplaySelection={() => playReplay(selectedInOrder)}
               onClearSelection={() => setSelection(new Set())}
             />
+          </div>
+        ) : panel === 'generation' && lesson?.generation ? (
+          <div role="tabpanel" className="st-generation">
+            <p className="st-field__hint">
+              Generated {new Date(lesson.generation.createdAt).toLocaleString()} by{' '}
+              <code>{lesson.generation.model}</code> with prompt {lesson.generation.promptVersion}.
+            </p>
+            <p>
+              <strong>Goal:</strong> {lesson.generation.goal}
+              {lesson.generation.constraints ? (
+                <>
+                  <br />
+                  <strong>Constraints:</strong> {lesson.generation.constraints}
+                </>
+              ) : null}
+            </p>
+            <AnalysisPanel analysis={lesson.generation.analysis} />
           </div>
         ) : (
           <div role="tabpanel">

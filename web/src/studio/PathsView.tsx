@@ -185,6 +185,12 @@ function PathDetail({
         <p className="st-path-header__meta">
           {rows.length} {rows.length === 1 ? 'lesson' : 'lessons'} · {formatMinutes(totalSeconds)}{' '}
           of drawing in total
+          {library.writable ? (
+            <>
+              {' · '}
+              <a href={routeHref({ name: 'new', pathId: path.id })}>New lesson in this path</a>
+            </>
+          ) : null}
         </p>
       </header>
 

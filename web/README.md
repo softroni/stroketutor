@@ -25,8 +25,10 @@ npm test         # path parser, conformance corpus, catalog, Studio helpers
 npm run build    # type-check and bundle
 ```
 
-No accounts, no remote backend, and everything runs offline. `npm run dev` also mounts the Studio's
-small local server (see [Saving](#saving)); a static build has no server and is read-only.
+No accounts and no remote backend. `npm run dev` also mounts the Studio's small local server (see
+[Saving](#saving)); a static build has no server and is read-only. Everything works offline except
+generation, which calls OpenRouter only when **Generate tutorial** is pressed (see
+[Generating](#generating)).
 
 ## Layout
 
@@ -41,6 +43,8 @@ src/
   app/       ImportView.tsx, TutorialSource.tsx, DebugPanel.tsx
   samples/   index.ts                       globs the golden files (read-only fallback)
 server/      studioApi.ts, repoWriter.ts    the local server: the only code that writes shared/
+             generate.ts, openrouter.ts, models.ts, prompts/   lesson generation (server-side only)
+             fixtures/                      representative model outputs for tests
 ```
 
 `@shared/*` resolves to `../shared/*` — see the alias in `vite.config.ts` and the
@@ -96,6 +100,42 @@ crowded steps, placeholder words, a jump from the previous lesson) with the §36
 saves and marks the lesson approved. Warnings never block. A reference photo is saved as
 `<lesson>.jpg|png|webp` with its source and licence recorded in `lessons.json`. Nothing runs git:
 saves appear as ordinary diffs to review.
+
+## Generating
+
+```bash
+echo 'OPENROUTER_API_KEY=sk-or-…' >> .env.local   # ignored by git; restart npm run dev
+```
+
+The key is read by `vite.config.ts` and handed to the server plugin only. Vite exposes nothing but
+`VITE_`-prefixed variables to the browser, so it never reaches the bundle, and **Settings** shows
+only whether a key is configured. `OPENROUTER_MODEL` in the same file sets a default model.
+
+**Settings** lists the models OpenRouter currently offers that accept images and support
+structured output, with prices; the choice is kept in the browser. No model id is written into
+the code.
+
+**New lesson** takes a path and position, a title and id, a one-line objective, the reference
+photo with its source and licence, the learning goal and optional constraints, and one
+**Generate tutorial** button. The server (`server/generate.ts`):
+
+1. checks the input, and refuses an id that already exists — generation never replaces a lesson;
+2. sends the photo, the goal and the titles and objectives of the path's earlier lessons to the
+   chosen model, asking for strict JSON (`response_format` with a JSON schema, and
+   `provider.require_parameters` so only providers that honour it are used);
+3. fills in `schemaVersion`, `id`, `title` and the 1000 × 1000 canvas itself, makes step ids
+   unique, and runs strict validation;
+4. returns the candidate, the model's analysis of the photo and any issues. It writes nothing.
+
+An invalid candidate is shown with its issues and never reaches the editor. A valid one is
+previewed with its quality warnings; **Keep as draft** writes the tutorial (create-only), the photo
+and a `draft` catalog entry that records the model, prompt version, goal and analysis, then opens
+the lesson in the workspace. Failures of any kind keep everything the creator typed.
+
+The prompt lives in `server/prompts/lessonPrompt.ts` and carries a version (`lesson-v1`) that every
+generated lesson records. `server/fixtures/` holds representative model outputs — one good, one
+that breaks the contract — so the pipeline is tested without calling a model. OpenRouter's
+documentation used for the request format is cited at the top of `server/openrouter.ts`.
 
 ## Loading a tutorial in Import & test
 

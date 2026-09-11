@@ -2,6 +2,8 @@ import type { ServerResponse } from 'node:http'
 
 import type { Connect, Plugin, ViteDevServer } from 'vite'
 
+import { GenerationFailed, generateCandidate } from './generate'
+import { listVisionModels } from './models'
 import {
   MAX_REFERENCE_BYTES,
   WriteRefused,
@@ -11,18 +13,29 @@ import {
 } from './repoWriter'
 
 /**
- * Every writing request must carry this header. A page on another origin
- * cannot add it without a CORS preflight, which Vite's dev server refuses for
- * foreign origins, so a stray website cannot write into the repository.
+ * Every writing or spending request must carry this header. A page on another
+ * origin cannot add it without a CORS preflight, which Vite's dev server
+ * refuses for foreign origins, so a stray website cannot write into the
+ * repository or spend OpenRouter credits.
  */
 export const STUDIO_HEADER = 'x-stroketutor-studio'
 
 const MAX_JSON_BYTES = 2 * 1024 * 1024
+/** A generation request carries the photo as base64, a third larger than the file. */
+const MAX_GENERATE_BYTES = Math.ceil((MAX_REFERENCE_BYTES * 4) / 3) + 64 * 1024
+
+export interface StudioApiOptions {
+  sharedDir: string
+  /** From OPENROUTER_API_KEY. Kept in this process; never sent to the browser. */
+  openRouterKey?: string
+  /** From OPENROUTER_MODEL, used when the Studio names no model. */
+  defaultModel?: string
+}
 
 /**
  * The Studio's local server (master plan §25): a few JSON endpoints under
  * `/api`, mounted on the Vite dev server and nowhere else. A production build
- * has no writer, and the Studio falls back to its bundled, read-only copy.
+ * has no server, and the Studio falls back to its bundled, read-only copy.
  *
  * - `GET  /api/library`             every tutorial, both catalog files, photo list
  * - `GET  /api/tutorials/:id`       one tutorial as stored, with its etag
@@ -31,14 +44,17 @@ const MAX_JSON_BYTES = 2 * 1024 * 1024
  * - `PUT  /api/catalog`             `{ paths, lessons, etags }`
  * - `GET  /api/references/:file`    a reference photo
  * - `PUT  /api/references/:lesson`  the photo's bytes, typed by Content-Type
+ * - `GET  /api/settings`            whether an OpenRouter key is configured (never the key)
+ * - `GET  /api/models`              models that take images and honour structured output
+ * - `POST /api/generate`            one lesson candidate from a photo and a goal; writes nothing
  */
-export function studioApi(options: { sharedDir: string }): Plugin {
+export function studioApi(options: StudioApiOptions): Plugin {
   return {
     name: 'stroketutor-studio-api',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/api', (req, res) => {
-        handle(server, options.sharedDir, req, res).catch((error: unknown) => {
+        handle(server, options, req, res).catch((error: unknown) => {
           server.config.logger.error(
             `[studio api] ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`,
           )
@@ -51,7 +67,7 @@ export function studioApi(options: { sharedDir: string }): Plugin {
   }
 }
 
-async function writerFor(server: ViteDevServer, sharedDir: string) {
+async function validators(server: ViteDevServer) {
   // Loaded through Vite so the validators resolve `@shared/…` exactly as they
   // do in the browser: the server checks documents with the Studio's own
   // code, not a copy of it.
@@ -59,16 +75,15 @@ async function writerFor(server: ViteDevServer, sharedDir: string) {
     server.ssrLoadModule('/src/schema/validate.ts'),
     server.ssrLoadModule('/src/catalog/validate.ts'),
   ])
-  return createRepoWriter({
-    sharedDir,
+  return {
     validateTutorial: schema.validateTutorial as RepoWriterOptions['validateTutorial'],
     validateCatalog: catalog.validateCatalog as RepoWriterOptions['validateCatalog'],
-  })
+  }
 }
 
 async function handle(
   server: ViteDevServer,
-  sharedDir: string,
+  options: StudioApiOptions,
   req: Connect.IncomingMessage,
   res: ServerResponse,
 ) {
@@ -84,7 +99,30 @@ async function handle(
       throw new WriteRefused(403, 'Writes are only accepted from the Studio itself.')
     }
 
-    const writer = await writerFor(server, sharedDir)
+    if (resource === 'settings' && parts.length === 1 && method === 'GET') {
+      return send(res, 200, {
+        keyConfigured: Boolean(options.openRouterKey),
+        defaultModel: options.defaultModel ?? null,
+      })
+    }
+
+    if (resource === 'models' && parts.length === 1 && method === 'GET') {
+      return send(res, 200, { models: await listVisionModels() })
+    }
+
+    const checks = await validators(server)
+    const writer = createRepoWriter({ sharedDir: options.sharedDir, ...checks })
+
+    if (resource === 'generate' && parts.length === 1 && method === 'POST') {
+      const body = await readJSON(req, MAX_GENERATE_BYTES)
+      const result = await generateCandidate(body, {
+        apiKey: options.openRouterKey,
+        defaultModel: options.defaultModel,
+        library: () => writer.readLibrary(),
+        validateTutorial: checks.validateTutorial,
+      })
+      return send(res, 200, result)
+    }
 
     if (resource === 'library' && parts.length === 1 && method === 'GET') {
       return send(res, 200, await writer.readLibrary())
@@ -96,7 +134,7 @@ async function handle(
         return stored ? send(res, 200, stored) : send(res, 404, { error: `There is no ${name}.json.` })
       }
       if (method === 'PUT') {
-        const body = await readJSON(req)
+        const body = await readJSON(req, MAX_JSON_BYTES)
         return send(res, 200, await writer.writeTutorial(name, body.tutorial, preconditionOf(body.etag)))
       }
     }
@@ -104,7 +142,7 @@ async function handle(
     if (resource === 'catalog' && parts.length === 1) {
       if (method === 'GET') return send(res, 200, await writer.readCatalog())
       if (method === 'PUT') {
-        const body = await readJSON(req)
+        const body = await readJSON(req, MAX_JSON_BYTES)
         const etags = (body.etags ?? {}) as Record<string, unknown>
         return send(
           res,
@@ -135,6 +173,9 @@ async function handle(
   } catch (error) {
     if (error instanceof WriteRefused) {
       return send(res, error.status, { error: error.message, issues: error.issues })
+    }
+    if (error instanceof GenerationFailed) {
+      return send(res, error.status, { error: error.message, detail: error.detail })
     }
     throw error
   }
@@ -169,8 +210,8 @@ async function readBody(req: Connect.IncomingMessage, limit: number): Promise<Ui
   return new Uint8Array(Buffer.concat(chunks))
 }
 
-async function readJSON(req: Connect.IncomingMessage): Promise<Record<string, unknown>> {
-  const text = new TextDecoder().decode(await readBody(req, MAX_JSON_BYTES))
+async function readJSON(req: Connect.IncomingMessage, limit: number): Promise<Record<string, unknown>> {
+  const text = new TextDecoder().decode(await readBody(req, limit))
   let body: unknown
   try {
     body = JSON.parse(text)

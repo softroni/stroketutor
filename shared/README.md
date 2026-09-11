@@ -95,7 +95,9 @@ curriculum work can never touch the playback contract above.
 - `Catalog/lessons.json` holds per-lesson metadata: authoring status (`draft`, `needs-review`,
   `approved`), a one-line objective, complexity, creator notes, and an optional reference photo
   with its source and licence. The photo lives in `Assets/References/`, named by a bare file name
-  so it can never point outside that folder.
+  so it can never point outside that folder. A generated lesson also keeps a `generation` record:
+  the model, the prompt version, the creator's goal and constraints, and the model's analysis of
+  the photo. It is authoring history for comparing prompts and models, never shown to learners.
 
 A lesson's id is also its tutorial's file name, `Tutorials/<id>.json`. Beyond the schema, the
 Studio checks that ids are unique, that every lesson resolves to a valid tutorial, that no lesson

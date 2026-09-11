@@ -6,8 +6,10 @@ import type { Catalog } from '../catalog/types'
 import { saveCatalog } from './api'
 import { LessonWorkspace } from './LessonWorkspace'
 import { buildLibrary, type Library } from './library'
+import { NewLessonView } from './NewLessonView'
 import { PathsView } from './PathsView'
 import { parseRoute, routeHref, type Route } from './route'
+import { SettingsView } from './SettingsView'
 import { loadSources } from './sources'
 import './studio.css'
 
@@ -63,6 +65,14 @@ export function Studio() {
     setOrderChanged(false)
   }, [library])
 
+  const openCreated = useCallback(
+    async (lessonId: string) => {
+      await reload()
+      window.location.hash = routeHref({ name: 'lesson', lessonId })
+    },
+    [reload],
+  )
+
   let screen: ReactNode
   if (!library) {
     screen = <p className="st-empty">Reading shared/…</p>
@@ -92,11 +102,27 @@ export function Studio() {
           />
         )
         break
+      case 'new':
+        screen = (
+          <NewLessonView
+            key={route.pathId ?? ''}
+            library={library}
+            initialPathId={route.pathId}
+            onCreated={openCreated}
+          />
+        )
+        break
+      case 'settings':
+        screen = <SettingsView library={library} />
+        break
       case 'import':
         screen = <ImportView samples={library.samples} />
         break
     }
   }
+
+  const current = (name: Route['name'] | Route['name'][]) =>
+    (Array.isArray(name) ? name : [name]).includes(route.name) ? 'page' : undefined
 
   return (
     <div className="st-studio">
@@ -117,17 +143,17 @@ export function Studio() {
             </span>
           ) : null}
           <nav className="st-studio__nav" aria-label="Studio">
-            <a
-              href={routeHref({ name: 'paths', pathId: null })}
-              aria-current={route.name === 'import' ? undefined : 'page'}
-            >
+            <a href={routeHref({ name: 'paths', pathId: null })} aria-current={current(['paths', 'lesson'])}>
               Paths
             </a>
-            <a
-              href={routeHref({ name: 'import' })}
-              aria-current={route.name === 'import' ? 'page' : undefined}
-            >
+            <a href={routeHref({ name: 'new', pathId: null })} aria-current={current('new')}>
+              New lesson
+            </a>
+            <a href={routeHref({ name: 'import' })} aria-current={current('import')}>
               Import &amp; test
+            </a>
+            <a href={routeHref({ name: 'settings' })} aria-current={current('settings')}>
+              Settings
             </a>
           </nav>
         </div>

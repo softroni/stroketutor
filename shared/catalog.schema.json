@@ -74,7 +74,32 @@
           "description": "Authoring notes for the creator. Never shown to learners.",
           "type": "string"
         },
-        "reference": { "$ref": "#/definitions/reference" }
+        "reference": { "$ref": "#/definitions/reference" },
+        "generation": { "$ref": "#/definitions/generation" }
+      }
+    },
+    "generation": {
+      "description": "How the lesson was first generated, kept so prompts and models can be compared later. Never shown to learners.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "promptVersion", "createdAt", "goal", "analysis"],
+      "properties": {
+        "model": { "type": "string", "minLength": 1 },
+        "promptVersion": { "type": "string", "minLength": 1 },
+        "createdAt": { "description": "ISO 8601 timestamp.", "type": "string", "minLength": 1 },
+        "goal": { "type": "string" },
+        "constraints": { "type": "string" },
+        "analysis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mainForms", "importantDetails", "detailsRemoved", "drawingStrategy"],
+          "properties": {
+            "mainForms": { "type": "array", "items": { "type": "string" } },
+            "importantDetails": { "type": "array", "items": { "type": "string" } },
+            "detailsRemoved": { "type": "array", "items": { "type": "string" } },
+            "drawingStrategy": { "type": "string" }
+          }
+        }
       }
     },
     "reference": {

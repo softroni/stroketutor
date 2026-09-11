@@ -131,6 +131,22 @@ describe('validateCatalog', () => {
     expect(locations(result)).toEqual(['lessons.json lessons[0].reference.file'])
   })
 
+  it('accepts a generation record and rejects a malformed one', () => {
+    const generation = {
+      model: 'vendor/model',
+      promptVersion: 'lesson-v1',
+      createdAt: '2026-09-11T05:00:00Z',
+      goal: 'Introduce a side wall.',
+      analysis: { mainForms: ['box'], importantDetails: [], detailsRemoved: ['trees'], drawingStrategy: 'Wall first.' },
+    }
+    expect(validateCatalog(pathsFile(), lessonsFile(lesson('a', { generation })), context).ok).toBe(true)
+
+    const broken = { ...generation, analysis: { ...generation.analysis, mood: 'calm' } }
+    expect(locations(validateCatalog(pathsFile(), lessonsFile(lesson('a', { generation: broken })), context))).toEqual([
+      'lessons.json lessons[0].generation.analysis.mood',
+    ])
+  })
+
   it('rejects an unsupported catalogVersion by name', () => {
     const result = validateCatalog({ catalogVersion: 2, paths: [] }, lessonsFile(), context)
     expect(result.ok).toBe(false)

@@ -22,6 +22,25 @@ export interface LessonReference {
   license: string
 }
 
+/** What the generator saw in the reference photo (§22). Creator-facing only. */
+export interface Analysis {
+  mainForms: string[]
+  importantDetails: string[]
+  detailsRemoved: string[]
+  drawingStrategy: string
+}
+
+/** How a lesson was first generated, kept for comparing prompts and models later. */
+export interface LessonGeneration {
+  model: string
+  promptVersion: string
+  /** ISO 8601 timestamp. */
+  createdAt: string
+  goal: string
+  constraints?: string
+  analysis: Analysis
+}
+
 export interface Lesson {
   /** Also the tutorial's id and file name: `shared/Tutorials/<id>.json`. */
   id: string
@@ -33,6 +52,7 @@ export interface Lesson {
   /** For the creator only; never shown to learners. */
   notes?: string
   reference?: LessonReference
+  generation?: LessonGeneration
 }
 
 export interface LearningPath {

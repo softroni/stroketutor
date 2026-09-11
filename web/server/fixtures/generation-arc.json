@@ -1,0 +1,26 @@
+{
+  "analysis": {
+    "mainForms": ["a round window"],
+    "importantDetails": [],
+    "detailsRemoved": ["everything else"],
+    "drawingStrategy": "A single circle."
+  },
+  "tutorial": {
+    "steps": [
+      {
+        "id": "window",
+        "title": "Draw the round window",
+        "instruction": "Draw a circle in the middle of the page.",
+        "strokes": [
+          { "d": "M 400 500 A 100 100 0 1 0 600 500 A 100 100 0 1 0 400 500", "duration": 2, "lineWidth": 12 }
+        ]
+      },
+      {
+        "id": "window",
+        "title": "Draw the frame",
+        "instruction": "Draw a line across the circle.",
+        "strokes": [{ "d": "M 400 500 L 600 500", "duration": 0, "lineWidth": 10 }]
+      }
+    ]
+  }
+}
