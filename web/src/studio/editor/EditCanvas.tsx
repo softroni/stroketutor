@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
-import { StrokeCanvas, type RenderStroke } from '../../player/StrokeCanvas'
-import { resolveStyle } from '../../schema/types'
+import { StrokeCanvas, type RenderFill, type RenderStroke } from '../../player/StrokeCanvas'
+import { cssColor, resolveStyle } from '../../schema/types'
 
 import type { EditableStroke, EditableTutorial } from './ops'
 import { useReplay } from './useReplay'
@@ -51,6 +51,7 @@ const toRender = ({ stroke }: Placed): RenderStroke => ({
   key: stroke.uid,
   d: stroke.d,
   lineWidth: stroke.lineWidth,
+  ...(stroke.color !== undefined ? { color: cssColor(stroke.color) } : {}),
 })
 
 /**
@@ -62,6 +63,20 @@ export function EditCanvas({ doc, selection, colorBySteps, replay, onSelect }: E
   const style = useMemo(() => resolveStyle(doc.style), [doc.style])
   const placed = useMemo<Placed[]>(
     () => doc.steps.flatMap((step, stepIndex) => step.strokes.map((stroke) => ({ stroke, stepIndex }))),
+    [doc],
+  )
+  // v2 fills are shown as the learner will see them, beneath every stroke. They
+  // are not selectable: the editor reshapes the teaching order of strokes.
+  const fills = useMemo<RenderFill[]>(
+    () =>
+      doc.steps.flatMap((step, stepIndex) =>
+        (step.fills ?? []).map((fill, fillIndex) => ({
+          key: `${stepIndex}:f${fillIndex}`,
+          d: fill.d,
+          color: cssColor(fill.color),
+          fillRule: fill.fillRule,
+        })),
+      ),
     [doc],
   )
 
@@ -87,6 +102,7 @@ export function EditCanvas({ doc, selection, colorBySteps, replay, onSelect }: E
         strokeColor={style.strokeColor}
         backgroundColor={style.backgroundColor}
         completed={placed.filter((entry) => !replayUids.has(entry.stroke.uid)).map(toRender)}
+        completedFills={fills}
         strokes={replaying.map(toRender)}
         activeIndex={current ? state.strokeIndex : 0}
         activeProgress={current ? state.progress : 0}
@@ -116,13 +132,20 @@ export function EditCanvas({ doc, selection, colorBySteps, replay, onSelect }: E
         stroke="rgba(43, 43, 43, 0.12)"
         strokeWidth={border}
       />
+      <g pointerEvents="none" opacity={selection.size > 0 ? 0.45 : 1}>
+        {fills.map((fill) => (
+          <path key={fill.key} d={fill.d} fill={fill.color} fillRule={fill.fillRule ?? 'nonzero'} stroke="none" />
+        ))}
+      </g>
       {placed.map(({ stroke, stepIndex }) => {
         const selected = selection.has(stroke.uid)
         const color = selected
           ? SELECTED_COLOR
           : colorBySteps
             ? stepColor(stepIndex)
-            : style.strokeColor
+            : stroke.color !== undefined
+              ? cssColor(stroke.color)
+              : style.strokeColor
         return (
           <g
             key={stroke.uid}

@@ -5,7 +5,8 @@ of anything — both sides read these exact files.
 
 ```
 shared/
-  tutorial.schema.json     the schema, v1
+  tutorial.schema.json     the schema, v1 (frozen)
+  tutorial.v2.schema.json  v2: v1 plus stroke colours and fills (web only until M7)
   Tutorials/               the golden tutorials that ship in the app
   conformance/             cases both players must agree about
   catalog.schema.json      the curriculum catalog schema, v1
@@ -20,6 +21,7 @@ disk. Studio saves are ordinary diffs to review before committing.
 | File | Read by iOS | Read by web |
 |---|---|---|
 | `tutorial.schema.json` | no (see below) | yes — Ajv compiles it and validates every load |
+| `tutorial.v2.schema.json` | no — iOS refuses `schemaVersion` 2 by name until M7 | yes — used for documents that declare version 2 |
 | `Tutorials/*.json` | yes — bundled as a folder reference | yes — globbed via the `@shared` alias |
 | `conformance/` | yes — `ConformanceTests.swift` | yes — `conformance.test.ts` |
 | `catalog.schema.json`, `Catalog/` | not yet — the learner app adopts it in M7 | yes — the Studio validates both files and their cross-references |
@@ -67,23 +69,42 @@ Adding a case is dropping a `.json` in `cases/` and an entry in `cases.json`.
 Both suites pick it up with no other change — `conformance/` is a folder
 reference in the Xcode project, and the web suite reads the directory.
 
-## The four deliberate divergences
+## The deliberate divergences
 
 The device is lenient because it must never strand a child mid-lesson; the
 authoring tool is strict because catching a bad export before it ships is the
-tool's entire job. So the tool is *never* more permissive than the device, only
-louder.
+tool's entire job. So for version 1 the tool is *never* more permissive than the
+device, only louder.
 
 | Document | Web | iOS |
 |---|---|---|
 | `duration` or `lineWidth` of 0 | rejects | clamps to 0.8s / 8, with a warning |
-| unknown property | rejects as a likely typo | ignored by `JSONDecoder` |
+| unknown property, including `fills` in a v1 document | rejects as a likely typo | ignored by `JSONDecoder` |
 | empty `title` | rejects | loads, shows an empty label |
 | unparseable or 3-digit hex | rejects | warns, falls back to the default colour |
+| any `schemaVersion` 2 document | plays it | refuses by name until M7 |
 
-The last one is the direction that actually bites: a browser draws `#FFF` happily
+The hex row is the direction that actually bites: a browser draws `#FFF` happily
 while `Color(hex:)` requires 6 or 8 digits and would silently substitute the
 default. The tool rejects it so the two can never disagree on screen.
+
+The version 2 row is the one place the tool is ahead of the device, on purpose: v2 is
+authored and previewed in the Studio before the iOS player learns it. Until then a v2
+lesson must not be bundled with the app.
+
+## Version 2: colour
+
+`tutorial.v2.schema.json` is version 1 plus colour, and nothing else changes:
+
+- a stroke may carry `color`, instead of `style.strokeColor`;
+- a step may carry `fills`: shapes painted after its strokes, each with `d` (the same
+  absolute M/L/C/Q/Z grammar), `color`, `duration` and an optional `fillRule`;
+- a step's `strokes` may then be empty, but a step needs at least one stroke or fill.
+
+Fills are painted beneath every stroke of the lesson, so outlines always stay on top,
+and a lesson normally keeps its colour steps until every outline is drawn. The web
+player reveals a fill left to right, like colouring in. Version 1 is untouched and
+frozen: a v1 document that carries `fills` is refused as an unknown property.
 
 ## The curriculum catalog
 

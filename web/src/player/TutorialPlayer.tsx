@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react'
 
-import { resolveStyle, type Tutorial } from '../schema/types'
+import { cssColor, resolveStyle, type Tutorial } from '../schema/types'
 
-import { StrokeCanvas, type RenderStroke } from './StrokeCanvas'
+import { StrokeCanvas, type RenderFill, type RenderStroke } from './StrokeCanvas'
 import { usePlayback } from './usePlayback'
 import './player.css'
 
@@ -13,12 +13,34 @@ export interface TutorialPlayerProps {
 /** Stable identity for a stroke across the whole document. */
 const strokeKey = (stepIndex: number, strokeIndex: number) => `${stepIndex}:${strokeIndex}`
 
-function strokesOfStep(tutorial: Tutorial, stepIndex: number): RenderStroke[] {
+export function strokesOfStep(tutorial: Tutorial, stepIndex: number): RenderStroke[] {
   return tutorial.steps[stepIndex].strokes.map((stroke, strokeIndex) => ({
     key: strokeKey(stepIndex, strokeIndex),
     d: stroke.d,
     lineWidth: stroke.lineWidth,
+    ...(stroke.color !== undefined ? { color: cssColor(stroke.color) } : {}),
   }))
+}
+
+/** A step's fills (v2), ready for the canvas. */
+export function fillsOfStep(tutorial: Tutorial, stepIndex: number): RenderFill[] {
+  return (tutorial.steps[stepIndex].fills ?? []).map((fill, fillIndex) => ({
+    key: `${stepIndex}:f${fillIndex}`,
+    d: fill.d,
+    color: cssColor(fill.color),
+    fillRule: fill.fillRule,
+  }))
+}
+
+/** Every stroke and fill of the steps before `end`, in drawing order. */
+function upTo(tutorial: Tutorial, end: number) {
+  const strokes: RenderStroke[] = []
+  const fills: RenderFill[] = []
+  for (let stepIndex = 0; stepIndex < end; stepIndex += 1) {
+    strokes.push(...strokesOfStep(tutorial, stepIndex))
+    fills.push(...fillsOfStep(tutorial, stepIndex))
+  }
+  return { strokes, fills }
 }
 
 /**
@@ -38,29 +60,24 @@ export function TutorialPlayer({ tutorial }: TutorialPlayerProps) {
 
   // Everything drawn in earlier steps stays on the paper, faded, while the
   // current step draws over it.
-  const completed = useMemo(() => {
-    if (finished) return []
-    const out: RenderStroke[] = []
-    for (let stepIndex = 0; stepIndex < currentStepIndex; stepIndex += 1) {
-      out.push(...strokesOfStep(tutorial, stepIndex))
-    }
-    return out
-  }, [tutorial, currentStepIndex, finished])
+  const completed = useMemo(
+    () => (finished ? { strokes: [], fills: [] } : upTo(tutorial, currentStepIndex)),
+    [tutorial, currentStepIndex, finished],
+  )
 
   // On the last screen the drawing is shown whole, at full strength.
-  const active = useMemo(() => {
-    if (finished) {
-      const out: RenderStroke[] = []
-      for (let stepIndex = 0; stepIndex < stepCount; stepIndex += 1) {
-        out.push(...strokesOfStep(tutorial, stepIndex))
-      }
-      return out
-    }
-    return strokesOfStep(tutorial, currentStepIndex)
-  }, [tutorial, currentStepIndex, stepCount, finished])
+  const active = useMemo(
+    () =>
+      finished
+        ? upTo(tutorial, stepCount)
+        : { strokes: strokesOfStep(tutorial, currentStepIndex), fills: fillsOfStep(tutorial, currentStepIndex) },
+    [tutorial, currentStepIndex, stepCount, finished],
+  )
 
-  const activeIndex = finished || awaiting ? active.length : playback.strokeIndex
+  const everything = active.strokes.length + active.fills.length
+  const activeIndex = finished || awaiting ? everything : playback.strokeIndex
   const activeProgress = finished || awaiting ? 1 : playback.strokeProgress
+  const painting = !finished && !awaiting && playback.strokeIndex >= currentStep.strokes.length
 
   const handleSpeed = useCallback(() => playback.cycleSpeed(), [playback])
 
@@ -98,8 +115,10 @@ export function TutorialPlayer({ tutorial }: TutorialPlayerProps) {
           canvas={tutorial.canvas}
           strokeColor={style.strokeColor}
           backgroundColor={style.backgroundColor}
-          completed={completed}
-          strokes={active}
+          completed={completed.strokes}
+          completedFills={completed.fills}
+          strokes={active.strokes}
+          fills={active.fills}
           activeIndex={activeIndex}
           activeProgress={activeProgress}
           showPencil={state.phase === 'drawing'}
@@ -139,7 +158,11 @@ export function TutorialPlayer({ tutorial }: TutorialPlayerProps) {
               </button>
             </div>
           ) : (
-            <p className="st-card__hint">Watch the stroke, then copy it onto your paper.</p>
+            <p className="st-card__hint">
+              {painting
+                ? 'Watch where the colour goes, then colour it in on your paper.'
+                : 'Watch the stroke, then copy it onto your paper.'}
+            </p>
           )}
         </div>
       )}

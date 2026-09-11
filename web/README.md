@@ -200,6 +200,15 @@ because the device would silently draw the default instead. `voiceover` is alway
 `null` in v1 and is ignored — there is no audio. A `schemaVersion` other than `1` is
 rejected by name.
 
+## Schema v2
+
+`shared/tutorial.v2.schema.json` adds colour and nothing else: a stroke may carry its own `color`,
+and a step may carry `fills`, shapes painted after its strokes. A step's `strokes` may then be
+empty, but it needs a stroke or a fill. `validate.ts` picks the schema by `schemaVersion`, and v1
+stays frozen, so a v1 document with `fills` is refused as an unknown property. The player paints
+fills beneath every stroke and reveals each one left to right; `usePlayback` runs a step's strokes,
+then its fills. iOS reads v1 only until M7 (see `shared/README.md`).
+
 Paths support absolute `M`, `L`, `C`, `Q` and `Z` only. Commas or whitespace
 separate numbers, and one command letter may carry repeated coordinate sets
 (`L 10 10 20 20` is two segments). Lowercase `z` is accepted; any other lowercase

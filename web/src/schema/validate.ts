@@ -1,10 +1,11 @@
 import Ajv, { type ErrorObject, type ValidateFunction } from 'ajv'
 
-import schema from '@shared/tutorial.schema.json'
+import schemaV1 from '@shared/tutorial.schema.json'
+import schemaV2 from '@shared/tutorial.v2.schema.json'
 
 import { SVGPathError, parsePath } from '../player/svgPath'
 
-import { SUPPORTED_SCHEMA_VERSION, type Tutorial } from './types'
+import { SUPPORTED_SCHEMA_VERSIONS, type SchemaVersion, type Tutorial } from './types'
 
 /**
  * One thing wrong with a document, addressed the way an author reads it.
@@ -33,11 +34,16 @@ const ROOT_PATH = '(root)'
  * after this passes, `Tutorial` is safe to hand to the renderer.
  */
 const ajv = new Ajv({ allErrors: true, strict: false, allowUnionTypes: true })
-let compiled: ValidateFunction | null = null
+const compiled = new Map<SchemaVersion, ValidateFunction>()
 
-function validator(): ValidateFunction {
-  if (!compiled) compiled = ajv.compile(schema)
-  return compiled
+/** Each version is its own schema file; v1 stays exactly as it shipped. */
+function validator(version: SchemaVersion): ValidateFunction {
+  let validate = compiled.get(version)
+  if (!validate) {
+    validate = ajv.compile(version === 2 ? schemaV2 : schemaV1)
+    compiled.set(version, validate)
+  }
+  return validate
 }
 
 /** `/steps/2/strokes/0/d` -> `steps[2].strokes[0].d` */
@@ -67,7 +73,7 @@ export function valueAt(root: unknown, instancePath: string): unknown {
 }
 
 /** Turns one Ajv error into something an author can act on. */
-function describe(error: ErrorObject, root: unknown): ValidationIssue {
+function describe(error: ErrorObject, root: unknown, version: SchemaVersion): ValidationIssue {
   const params = error.params as Record<string, unknown>
 
   if (error.keyword === 'required') {
@@ -83,7 +89,7 @@ function describe(error: ErrorObject, root: unknown): ValidationIssue {
     const extra = String(params.additionalProperty)
     return {
       path: toAuthorPath(error.instancePath, extra),
-      message: `Unknown property "${extra}". It is not part of schemaVersion ${SUPPORTED_SCHEMA_VERSION}.`,
+      message: `Unknown property "${extra}". It is not part of schemaVersion ${version}.`,
       value: valueAt(root, `${error.instancePath}/${extra}`),
     }
   }
@@ -104,6 +110,17 @@ function describe(error: ErrorObject, root: unknown): ValidationIssue {
       return { path, message: `Must be greater than ${String(params.limit)}.`, value }
     case 'maximum':
       return { path, message: `Must be at most ${String(params.limit)}.`, value }
+    case 'anyOf':
+      // The schemas' only anyOf: a v2 step needs strokes, fills or both.
+      return { path, message: 'A step needs at least one stroke or fill.', value: undefined }
+    case 'enum':
+      return {
+        path,
+        message: `Must be one of ${(params.allowedValues as unknown[])
+          .map((allowed) => JSON.stringify(allowed))
+          .join(', ')}.`,
+        value,
+      }
     case 'pattern':
       return {
         path,
@@ -122,21 +139,24 @@ function describe(error: ErrorObject, root: unknown): ValidationIssue {
  */
 function validatePaths(tutorial: Tutorial): ValidationIssue[] {
   const issues: ValidationIssue[] = []
+  const check = (d: string, path: string) => {
+    try {
+      parsePath(d)
+    } catch (error) {
+      const message =
+        error instanceof SVGPathError
+          ? error.message
+          : `Could not be parsed: ${String(error)}`
+      issues.push({ path, message, value: d })
+    }
+  }
   tutorial.steps.forEach((step, stepIndex) => {
     step.strokes.forEach((stroke, strokeIndex) => {
-      try {
-        parsePath(stroke.d)
-      } catch (error) {
-        const message =
-          error instanceof SVGPathError
-            ? error.message
-            : `Could not be parsed: ${String(error)}`
-        issues.push({
-          path: `steps[${stepIndex}].strokes[${strokeIndex}].d`,
-          message,
-          value: stroke.d,
-        })
-      }
+      check(stroke.d, `steps[${stepIndex}].strokes[${strokeIndex}].d`)
+    })
+    // v2 fill shapes follow the same grammar as strokes.
+    step.fills?.forEach((fill, fillIndex) => {
+      check(fill.d, `steps[${stepIndex}].fills[${fillIndex}].d`)
     })
   })
   return issues
@@ -161,28 +181,31 @@ export function validateTutorial(data: unknown): ValidationResult {
     }
   }
 
-  // Checked before the schema so a v2 file gets a sentence about versions
-  // instead of a const-mismatch on an unfamiliar field.
-  const version = (data as Record<string, unknown>).schemaVersion
-  if (version !== undefined && version !== SUPPORTED_SCHEMA_VERSION) {
+  // Checked before the schema so a future file gets a sentence about versions
+  // instead of a const-mismatch on an unfamiliar field. A missing version is
+  // left to the v1 schema, which names it as required.
+  const declared = (data as Record<string, unknown>).schemaVersion
+  if (declared !== undefined && !SUPPORTED_SCHEMA_VERSIONS.includes(declared as SchemaVersion)) {
     return {
       ok: false,
       issues: [
         {
           path: 'schemaVersion',
           message: `Unsupported schemaVersion ${JSON.stringify(
-            version,
-          )}. This player only understands schemaVersion ${SUPPORTED_SCHEMA_VERSION}.`,
-          value: version,
+            declared,
+          )}. This player understands schemaVersion ${SUPPORTED_SCHEMA_VERSIONS.join(' and ')}.`,
+          value: declared,
         },
       ],
     }
   }
+  const version: SchemaVersion = declared === 2 ? 2 : 1
 
-  const validate = validator()
+  const validate = validator(version)
   if (!validate(data)) {
-    const errors = validate.errors ?? []
-    const issues = errors.map((error) => describe(error, data))
+    // An anyOf also reports every branch that failed; its own sentence covers them.
+    const errors = (validate.errors ?? []).filter((error) => !error.schemaPath.includes('/anyOf/'))
+    const issues = errors.map((error) => describe(error, data, version))
     return { ok: false, issues: dedupe(issues) }
   }
 

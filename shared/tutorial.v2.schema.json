@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://stroketutor.app/schema/tutorial.v2.schema.json",
+  "title": "StrokeTutor Tutorial, version 2",
+  "description": "Version 1 plus colour: a stroke may carry its own colour, and a step may fill shapes after its strokes. Fills are painted beneath every stroke, so outlines always stay on top. The web player reads versions 1 and 2; the iOS player reads version 1 only until M7.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "title", "canvas", "steps"],
+  "properties": {
+    "schemaVersion": {
+      "description": "Format version.",
+      "const": 2
+    },
+    "id": {
+      "description": "Stable identifier, unique within a tutorial library.",
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "description": "Human-readable name of the whole drawing.",
+      "type": "string",
+      "minLength": 1
+    },
+    "canvas": { "$ref": "#/definitions/canvas" },
+    "style": { "$ref": "#/definitions/style" },
+    "steps": {
+      "description": "Ordered steps. The player pauses after each one.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/step" }
+    }
+  },
+  "definitions": {
+    "canvas": {
+      "description": "Coordinate space for every coordinate and line width. Maps directly to the SVG viewBox.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "number", "exclusiveMinimum": 0 },
+        "height": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "style": {
+      "description": "Optional palette. Defaults are #2B2B2B on #FAF7F0.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "strokeColor": { "$ref": "#/definitions/color" },
+        "backgroundColor": { "$ref": "#/definitions/color" }
+      }
+    },
+    "color": {
+      "description": "Hex colour, as in version 1: #RRGGBB or #RRGGBBAA, with the leading # optional.",
+      "type": "string",
+      "pattern": "^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "step": {
+      "description": "A step draws its strokes in order, then paints its fills in order. It needs at least one of either.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "instruction", "strokes"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "instruction": {
+          "description": "Shown to the learner while they copy the step onto paper.",
+          "type": "string",
+          "minLength": 1
+        },
+        "voiceover": {
+          "description": "Reserved for a future version. Players ignore it.",
+          "type": ["string", "null"]
+        },
+        "strokes": {
+          "description": "Drawn strictly in order; stroke N+1 starts when N finishes. Empty in a step that only fills.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/stroke" }
+        },
+        "fills": {
+          "description": "Painted after the step's strokes, strictly in order, each beneath every stroke of the lesson.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/fill" }
+        }
+      },
+      "anyOf": [
+        { "properties": { "strokes": { "minItems": 1 } } },
+        { "required": ["fills"] }
+      ]
+    },
+    "stroke": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["d", "duration", "lineWidth"],
+      "properties": {
+        "d": {
+          "description": "SVG path data, absolute M/L/C/Q/Z only.",
+          "type": "string",
+          "minLength": 1
+        },
+        "duration": {
+          "description": "Seconds to draw this stroke at 1x speed.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "lineWidth": {
+          "description": "Stroke width in canvas units.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "color": {
+          "description": "This stroke's colour, instead of style.strokeColor.",
+          "$ref": "#/definitions/color"
+        }
+      }
+    },
+    "fill": {
+      "description": "A shape painted in one colour.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["d", "color", "duration"],
+      "properties": {
+        "d": {
+          "description": "The shape as SVG path data, absolute M/L/C/Q/Z only. Several subpaths may make one shape, holes included.",
+          "type": "string",
+          "minLength": 1
+        },
+        "color": { "$ref": "#/definitions/color" },
+        "duration": {
+          "description": "Seconds to paint this fill at 1x speed.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "fillRule": {
+          "description": "Which parts of overlapping subpaths count as inside, as in SVG. Defaults to nonzero.",
+          "enum": ["nonzero", "evenodd"]
+        }
+      }
+    }
+  }
+}

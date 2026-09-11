@@ -297,8 +297,15 @@ in after all the outlines are drawn.
   groups them into steps and writes the instructions.
 
 **To do:**
-- [ ] `shared/tutorial.v2.schema.json`, the web types and a validator for versions 1 and 2, and v2 conformance cases.
-- [ ] Web player: coloured strokes, and fill steps revealed after the outlines.
+- [x] `shared/tutorial.v2.schema.json`, the web types and a validator for versions 1 and 2, and v2 conformance cases.
+  The old unsupported-version case now uses version 3. A v1 document with `fills` is refused on the web; iOS drops
+  the key, like any unknown property.
+- [x] Web player: coloured strokes, and fill steps revealed after the outlines.
+  - fills are painted beneath every stroke and revealed left to right, like colouring in;
+  - the thumbnail and the editor show fills;
+  - editing keeps fill-only steps, and split and merge carry fills along.
+- [ ] Before a v2 lesson is saved into `shared/Tutorials`: iOS bundles that folder and requires every file to load, so
+  v2 lessons need somewhere iOS won't pick them up, or iOS must skip them gracefully.
 - [ ] SVG tracer:
   - [ ] parse shapes, transforms and styles;
   - [ ] map them to absolute M/L/C/Q/Z on the lesson canvas;

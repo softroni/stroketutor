@@ -25,9 +25,12 @@ export interface Playback {
   currentStepIndex: number
   stepCount: number
   speed: Speed
-  /** Index of the stroke currently being drawn within `currentStep`. */
+  /**
+   * Position in `currentStep`'s timeline: its strokes, then its fills (v2).
+   * Past the last stroke, a fill is being painted.
+   */
   strokeIndex: number
-  /** 0..1 through that stroke. */
+  /** 0..1 through that stroke or fill. */
   strokeProgress: number
   next: () => void
   previous: () => void
@@ -38,6 +41,18 @@ export interface Playback {
   cycleSpeed: () => void
   canGoPrevious: boolean
   canGoNext: boolean
+}
+
+/**
+ * A step's timeline, as durations: its strokes in order, then its fills in
+ * order. Fills come last so every outline is on the page before colour goes in.
+ */
+export function stepDurations(step: Step | undefined): number[] {
+  if (!step) return []
+  return [
+    ...step.strokes.map((stroke) => stroke.duration),
+    ...(step.fills ?? []).map((fill) => fill.duration),
+  ]
 }
 
 /**
@@ -102,8 +117,8 @@ export function usePlayback(tutorial: Tutorial): Playback {
   useEffect(() => {
     if (state.phase !== 'drawing') return
 
-    const strokes = tutorial.steps[state.stepIndex]?.strokes ?? []
-    if (strokes.length === 0) {
+    const durations = stepDurations(tutorial.steps[state.stepIndex])
+    if (durations.length === 0) {
       setState((previous) => ({
         phase: 'awaitingUser',
         stepIndex: state.stepIndex,
@@ -121,7 +136,7 @@ export function usePlayback(tutorial: Tutorial): Playback {
     const beginStroke = (strokeIndex: number, now: number) => {
       index = strokeIndex
       startedAt = now
-      duration = Math.max(0, strokes[strokeIndex].duration) / speedRef.current
+      duration = Math.max(0, durations[strokeIndex]) / speedRef.current
       setCursor({ strokeIndex, progress: 0 })
     }
 
@@ -132,7 +147,7 @@ export function usePlayback(tutorial: Tutorial): Playback {
       setCursor({ strokeIndex: index, progress })
 
       if (progress >= 1) {
-        if (index + 1 < strokes.length) {
+        if (index + 1 < durations.length) {
           // Strictly sequential: the next stroke starts only now.
           beginStroke(index + 1, now)
         } else {

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { cssColor, stepDuration } from '../../schema/types'
+
 import { stepColor } from './EditCanvas'
 import type { EditableTutorial } from './ops'
 import './editor.css'
@@ -44,7 +46,8 @@ export function StepEditor({
   return (
     <ol className="st-step-editor">
       {doc.steps.map((step, stepIndex) => {
-        const seconds = step.strokes.reduce((sum, stroke) => sum + stroke.duration, 0)
+        const seconds = stepDuration(step)
+        const fills = step.fills ?? []
         const active = stepIndex === activeStepIndex
         return (
           <li
@@ -150,6 +153,28 @@ export function StepEditor({
                 )
               })}
             </ul>
+
+            {fills.length > 0 ? (
+              <p className="st-stroke-row__meta st-step-card__fills">
+                {step.strokes.length > 0 ? 'Then colours' : 'Colours'} {fills.length}{' '}
+                {fills.length === 1 ? 'shape' : 'shapes'}
+                {fills.map((fill, fillIndex) => (
+                  <span
+                    key={fillIndex}
+                    aria-hidden="true"
+                    style={{
+                      display: 'inline-block',
+                      width: '0.75em',
+                      height: '0.75em',
+                      marginLeft: '0.3em',
+                      borderRadius: '2px',
+                      verticalAlign: 'middle',
+                      background: cssColor(fill.color),
+                    }}
+                  />
+                ))}
+              </p>
+            ) : null}
 
             <div className="st-step-card__actions">
               <button

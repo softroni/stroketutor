@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 2,
+  "id": "case",
+  "title": "Conformance Case",
+  "canvas": {
+    "width": 1000,
+    "height": 1000
+  },
+  "steps": [
+    {
+      "id": "nothing",
+      "title": "Nothing",
+      "instruction": "There is nothing to draw.",
+      "voiceover": null,
+      "strokes": []
+    }
+  ]
+}

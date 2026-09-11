@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "id": "case",
+  "title": "Conformance Case",
+  "canvas": {
+    "width": 1000,
+    "height": 1000
+  },
+  "steps": [
+    {
+      "id": "outline",
+      "title": "Outline",
+      "instruction": "Draw the square.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 200 200 L 800 200 L 800 800 L 200 800 Z",
+          "duration": 2,
+          "lineWidth": 12,
+          "color": "#1F3A5F"
+        }
+      ]
+    },
+    {
+      "id": "colour",
+      "title": "Colour",
+      "instruction": "Colour the square, then the frame inside it.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 200 200 L 800 200 L 800 800 L 200 800 Z",
+          "color": "#E8C872",
+          "duration": 1.5
+        },
+        {
+          "d": "M 300 300 L 700 300 L 700 700 L 300 700 Z M 400 400 L 400 600 L 600 600 L 600 400 Z",
+          "color": "#C86C35CC",
+          "duration": 1,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}

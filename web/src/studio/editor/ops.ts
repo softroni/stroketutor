@@ -11,7 +11,8 @@ import { moveItem } from '../moveItem'
  *
  * Invariants every operation keeps, checked by `ops.test.ts`:
  * - every stroke appears exactly once, except after an explicit delete;
- * - no step is left without strokes (a step that empties is removed);
+ * - no step is left with nothing to draw (one with no strokes and no fills is removed);
+ * - v2 fills stay with their step, after its strokes.
  * - step ids stay unique.
  */
 
@@ -54,9 +55,9 @@ export function toEditable(tutorial: Tutorial): EditableTutorial {
 }
 
 /**
- * Back to a plain v1 document. Built field by field, in the order the golden
- * files use, so nothing editor-only can leak into a saved file and a save of an
- * unchanged lesson is byte-identical.
+ * Back to a plain document. Built field by field, in the order the golden files
+ * use, so nothing editor-only can leak into a saved file and a save of an
+ * unchanged lesson is byte-identical. v2 fields appear only when present.
  */
 export function toTutorial(doc: EditableTutorial): Tutorial {
   const { steps, ...meta } = doc
@@ -71,7 +72,18 @@ export function toTutorial(doc: EditableTutorial): Tutorial {
         d: stroke.d,
         duration: stroke.duration,
         lineWidth: stroke.lineWidth,
+        ...(stroke.color !== undefined ? { color: stroke.color } : {}),
       })),
+      ...(step.fills && step.fills.length > 0
+        ? {
+            fills: step.fills.map((fill) => ({
+              d: fill.d,
+              color: fill.color,
+              duration: fill.duration,
+              ...(fill.fillRule !== undefined ? { fillRule: fill.fillRule } : {}),
+            })),
+          }
+        : {}),
     })),
   }
 }
@@ -183,30 +195,38 @@ export function splitStep(
     )
   }
 
+  // Fills come after a step's strokes, so they go with the second half.
+  const { fills, ...first } = step
   const steps = [...doc.steps]
   steps.splice(
     stepIndex,
     1,
-    { ...step, strokes: step.strokes.slice(0, atStrokeIndex) },
+    { ...first, strokes: step.strokes.slice(0, atStrokeIndex) },
     {
       id: uniqueStepId(doc, step.id),
       title: `${step.title} (continued)`,
       instruction: step.instruction,
       voiceover: step.voiceover ?? null,
       strokes: step.strokes.slice(atStrokeIndex),
+      ...(fills ? { fills } : {}),
     },
   )
   return { ...doc, steps }
 }
 
-/** Folds the next step's strokes into this one, keeping this step's words. */
+/** Folds the next step's strokes and fills into this one, keeping this step's words. */
 export function mergeWithNext(doc: EditableTutorial, stepIndex: number): EditableTutorial {
   const step = stepAt(doc, stepIndex)
   const next = doc.steps[stepIndex + 1]
   if (!next) throw new EditError(`"${step.title}" is the last step; there is nothing to merge into it.`)
 
+  const fills = [...(step.fills ?? []), ...(next.fills ?? [])]
   const steps = [...doc.steps]
-  steps.splice(stepIndex, 2, { ...step, strokes: [...step.strokes, ...next.strokes] })
+  steps.splice(stepIndex, 2, {
+    ...step,
+    strokes: [...step.strokes, ...next.strokes],
+    ...(fills.length > 0 ? { fills } : {}),
+  })
   return { ...doc, steps }
 }
 
@@ -274,7 +294,7 @@ function replaceStep(doc: EditableTutorial, stepIndex: number, step: EditableSte
 }
 
 function withoutEmptySteps(steps: EditableStep[]): EditableStep[] {
-  return steps.filter((step) => step.strokes.length > 0)
+  return steps.filter((step) => step.strokes.length > 0 || (step.fills?.length ?? 0) > 0)
 }
 
 /** `base`, or `base-2`, `base-3`… whichever is not taken yet. */

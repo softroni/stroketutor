@@ -44,13 +44,13 @@
     {
       "file": "invalid-schema-version.json",
       "expect": "invalid",
-      "why": "Only schemaVersion 1 exists; both players must refuse a future format rather than guess.",
+      "why": "A version neither player knows. Both must refuse a future format rather than guess.",
       "web": {
         "path": "schemaVersion",
-        "messageContains": "schemaVersion 2"
+        "messageContains": "schemaVersion 3"
       },
       "ios": {
-        "messageContains": "Unsupported schemaVersion 2"
+        "messageContains": "Unsupported schemaVersion 3"
       }
     },
     {
@@ -283,6 +283,65 @@
         "expect": "valid",
         "warningContains": "strokeColor",
         "why": "The dangerous direction: the browser would happily draw #FFF while the device silently substitutes the default. The tool rejects it so the two never disagree on screen."
+      }
+    },
+    {
+      "file": "divergent-v1-with-fills.json",
+      "expect": "invalid",
+      "why": "Fills are version 2. A version 1 document that carries them was written by mistake, and would lose its colour on a v1 player.",
+      "web": {
+        "path": "steps[0].fills",
+        "messageContains": "not part of schemaVersion 1"
+      },
+      "ios": {
+        "expect": "valid",
+        "why": "Swift's JSONDecoder drops unknown keys, as for any other unknown property: the device plays the outlines and never sees the fills."
+      }
+    },
+    {
+      "file": "valid-v2-fills.json",
+      "expect": "valid",
+      "why": "Version 2: a coloured stroke, then a step that only fills, with a translucent colour and an evenodd shape with a hole.",
+      "ios": {
+        "expect": "invalid",
+        "messageContains": "Unsupported schemaVersion 2",
+        "why": "The iOS player reads version 1 only until M7. It refuses by name rather than drop the colour, and v2 lessons are not bundled with the app until then."
+      }
+    },
+    {
+      "file": "invalid-v2-empty-step.json",
+      "expect": "invalid",
+      "why": "A version 2 step may have no strokes only when it fills; with neither it pauses on nothing.",
+      "web": {
+        "path": "steps[0]",
+        "messageContains": "at least one stroke or fill"
+      },
+      "ios": {
+        "messageContains": "Unsupported schemaVersion 2"
+      }
+    },
+    {
+      "file": "invalid-v2-fill-relative-path.json",
+      "expect": "invalid",
+      "why": "Fill shapes follow the same path grammar as strokes: absolute M/L/C/Q/Z only.",
+      "web": {
+        "path": "steps[0].fills[0].d",
+        "messageContains": "Relative command"
+      },
+      "ios": {
+        "messageContains": "Unsupported schemaVersion 2"
+      }
+    },
+    {
+      "file": "invalid-v2-fill-missing-color.json",
+      "expect": "invalid",
+      "why": "A fill is a colour; without one there is nothing to paint.",
+      "web": {
+        "path": "steps[0].fills[0].color",
+        "messageContains": "missing"
+      },
+      "ios": {
+        "messageContains": "Unsupported schemaVersion 2"
       }
     }
   ]

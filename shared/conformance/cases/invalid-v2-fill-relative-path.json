@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 2,
+  "id": "case",
+  "title": "Conformance Case",
+  "canvas": {
+    "width": 1000,
+    "height": 1000
+  },
+  "steps": [
+    {
+      "id": "colour",
+      "title": "Colour",
+      "instruction": "Colour the square.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "m 200 200 l 600 0 l 0 600 l -600 0 z",
+          "color": "#E8C872",
+          "duration": 1.5
+        }
+      ]
+    }
+  ]
+}

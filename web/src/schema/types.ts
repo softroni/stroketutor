@@ -32,19 +32,37 @@ export interface Stroke {
   duration: number
   /** Stroke width in canvas units. */
   lineWidth: number
+  /** v2: this stroke's colour, instead of `style.strokeColor`. */
+  color?: string
+}
+
+/** v2: a shape painted in one colour, beneath every stroke of the lesson. */
+export interface Fill {
+  /** Absolute `M`/`L`/`C`/`Q`/`Z` path data. Several subpaths may form one shape, holes included. */
+  d: string
+  color: string
+  /** Seconds to paint this fill at 1x speed. */
+  duration: number
+  /** As in SVG; `nonzero` when absent. */
+  fillRule?: 'nonzero' | 'evenodd'
 }
 
 export interface Step {
   id: string
   title: string
   instruction: string
-  /** Reserved for a future version. Always `null` in v1 and ignored by players. */
+  /** Reserved for a future version. Ignored by players. */
   voiceover?: string | null
+  /** Drawn in order. Empty only in a v2 step that fills. */
   strokes: Stroke[]
+  /** v2: painted after the strokes, in order. */
+  fills?: Fill[]
 }
 
+export type SchemaVersion = 1 | 2
+
 export interface Tutorial {
-  schemaVersion: 1
+  schemaVersion: SchemaVersion
   id: string
   title: string
   canvas: CanvasSpec
@@ -52,8 +70,8 @@ export interface Tutorial {
   steps: Step[]
 }
 
-/** The only `schemaVersion` this player understands. */
-export const SUPPORTED_SCHEMA_VERSION = 1
+/** The `schemaVersion`s this player understands. iOS understands 1 only, until M7. */
+export const SUPPORTED_SCHEMA_VERSIONS: readonly SchemaVersion[] = [1, 2]
 
 export const DEFAULT_STYLE: ResolvedStyle = {
   strokeColor: '#2B2B2B',
@@ -71,6 +89,11 @@ function normalizeHex(hex: string | undefined): string | undefined {
   return trimmed.startsWith('#') ? trimmed : `#${trimmed}`
 }
 
+/** A document colour as SVG needs it: always with its leading `#`. */
+export function cssColor(hex: string): string {
+  return normalizeHex(hex) ?? hex
+}
+
 /** Fills in the optional half of `style`. */
 export function resolveStyle(style: TutorialStyle | undefined): ResolvedStyle {
   return {
@@ -79,12 +102,20 @@ export function resolveStyle(style: TutorialStyle | undefined): ResolvedStyle {
   }
 }
 
+/** Seconds of animation at 1x for one step: its strokes, then its fills. */
+export function stepDuration(step: Step): number {
+  const strokes = step.strokes.reduce((sum, stroke) => sum + stroke.duration, 0)
+  return strokes + (step.fills ?? []).reduce((sum, fill) => sum + fill.duration, 0)
+}
+
 /** Total seconds of animation at 1x, across every step. */
 export function totalDuration(tutorial: Tutorial): number {
-  return tutorial.steps.reduce(
-    (sum, step) => sum + step.strokes.reduce((s, stroke) => s + stroke.duration, 0),
-    0,
-  )
+  return tutorial.steps.reduce((sum, step) => sum + stepDuration(step), 0)
+}
+
+/** Total number of fills across every step (v2). */
+export function totalFills(tutorial: Tutorial): number {
+  return tutorial.steps.reduce((sum, step) => sum + (step.fills?.length ?? 0), 0)
 }
 
 /** Total number of strokes across every step. */
