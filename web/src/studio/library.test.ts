@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
@@ -17,7 +17,9 @@ function fromDisk(): LibrarySources {
       .map((fileName) => ({ fileName, text: read(`Tutorials/${fileName}`), etag: `etag-${fileName}` })),
     paths: { text: read('Catalog/paths.json'), etag: 'etag-paths' },
     lessons: { text: read('Catalog/lessons.json'), etag: 'etag-lessons' },
-    references: [],
+    references: existsSync(`${sharedDir}Assets/References`)
+      ? readdirSync(`${sharedDir}Assets/References`).map((file) => ({ file, url: `/api/references/${file}` }))
+      : [],
     writable: true,
   }
 }
@@ -25,10 +27,11 @@ function fromDisk(): LibrarySources {
 describe('buildLibrary', () => {
   it('builds the shipped library with no problems', () => {
     const library = buildLibrary(fromDisk())
-    expect([...library.tutorials.keys()].sort()).toEqual(['cat-face', 'simple-house'])
+    // The Studio adds lessons and paths, so check for the golden ones rather than an exact list.
+    expect([...library.tutorials.keys()]).toEqual(expect.arrayContaining(['cat-face', 'simple-house']))
     expect(library.broken).toEqual([])
     expect(library.catalogIssues).toEqual([])
-    expect(library.catalog?.paths.map((path) => path.id)).toEqual(['houses'])
+    expect(library.catalog?.paths.map((path) => path.id)).toContain('houses')
     expect(library.tutorials.get('simple-house')?.etag).toBe('etag-simple-house.json')
     expect(library.catalogEtags).toEqual({ paths: 'etag-paths', lessons: 'etag-lessons' })
   })

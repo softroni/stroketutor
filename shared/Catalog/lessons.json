@@ -7,6 +7,17 @@
       "objective": "See a house as a box with a triangle on top, then place the door, windows and chimney.",
       "complexity": 1,
       "notes": "Instructions were written for children in the proof of concept (\"Great job, your house is done!\"). Rewrite them in a calm adult voice and add a reference photo before approving."
+    },
+    {
+      "id": "coconut-palm",
+      "status": "needs-review",
+      "objective": "Build a palm front to back: overlapping coconuts, a curving trunk, then each frond as a spine and a zigzag of leaves",
+      "notes": "Drawn by hand (Claude), without generation, from the same reference as palm-tree, 2026-09-11.",
+      "reference": {
+        "file": "coconut-palm.svg",
+        "source": "https://pixabay.com/vectors/ai-generated-palm-tree-coconut-tree-9553709/",
+        "license": "Pixabay Content License"
+      }
     }
   ]
 }

@@ -50,8 +50,11 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M5: AI generation quality. This needs the creator.** The autonomous run stopped after M4, as planned. M5 and later need
-real reference photos, live model iteration and your judgement. Start with the observations under M4 below.
+**Lessons from SVG files, with fills.** The creator chose the approach on 2026-09-11 (see "Next · Lessons from SVG files"
+below). Start with schema v2 and fills in the web player, then the tracer.
+
+The rest of M5 still needs the creator: real reference photos, live model iteration and their judgement. Start with the
+observations under M4 below.
 
 ---
 
@@ -270,6 +273,41 @@ from `error.metadata`, was Google AI Studio's "JSON mode is not enabled for this
 
 **Verified:** web 185 tests pass (2 new) and the build succeeds. Live, the same request now reports the reason above,
 and Settings flags the saved model.
+
+### Follow-up · Coconut Palm, drawn by hand (2026-09-11)
+The creator didn't like the Gemini draft of the palm, so Claude drew `coconut-palm` by hand, without a model. It's the
+first lesson in the new Trees path: 9 steps, 29 strokes, about 4 minutes.
+- **Order:** front to back, so no line crosses one already drawn: front coconuts, then the coconuts behind them (only
+  their visible parts), trunk, frond spines, leaf zigzags, bark, sand.
+- **Checks:** the geometry was computed with a small script. No line runs into a coconut or across the trunk, and no two
+  fronds' lines cross. There are no quality warnings.
+- **Reference:** the Pixabay palm SVG, stored as `coconut-palm.svg`.
+- **Not committed:** the Gemini draft `palm-tree` stays in the working copy.
+- **Tests:** they now check that the golden lessons are present rather than an exact file list, and the writer tests
+  copy `shared/Assets`, because the Studio adds lessons and references.
+
+### Next · Lessons from SVG files, with fills (decided 2026-09-11)
+When the reference is an SVG, the lesson should follow the source file closely, and the file's colours should be filled
+in after all the outlines are drawn.
+
+**Decisions by the creator:**
+- **Schema v2** with optional stroke colours and filled shapes. v1 stays frozen. iOS keeps rejecting v2 by name until
+  M7 teaches it v2.
+- **Code traces, the model teaches.** The Studio turns the SVG into exact strokes and fills itself. A text model only
+  groups them into steps and writes the instructions.
+
+**To do:**
+- [ ] `shared/tutorial.v2.schema.json`, the web types and a validator for versions 1 and 2, and v2 conformance cases.
+- [ ] Web player: coloured strokes, and fill steps revealed after the outlines.
+- [ ] SVG tracer:
+  - [ ] parse shapes, transforms and styles;
+  - [ ] map them to absolute M/L/C/Q/Z on the lesson canvas;
+  - [ ] turn thin dark filled bands (cartoon outlines) into centre-line strokes, and use stroked paths directly;
+  - [ ] turn coloured regions into fills;
+  - [ ] simplify to a drawable count.
+- [ ] Generation: the model gets a compact list of traced strokes and fills and returns steps and instructions as strict
+  JSON; the code assembles the tutorial.
+- [ ] Studio: "New lesson from SVG", with a preview before keeping.
 
 ### M5 · AI generation quality (gated)
 Prompting for human pen gestures, stage-level regeneration (drawing / order / steps / instructions),

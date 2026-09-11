@@ -6,6 +6,11 @@
       "title": "Houses",
       "description": "From a front-facing house to a small street scene: the body and roof first, then the details that give a house character, then a side wall and shallow perspective.",
       "lessonIds": ["simple-house"]
+    },
+    {
+      "id": "trees",
+      "title": "Trees",
+      "lessonIds": ["coconut-palm"]
     }
   ]
 }

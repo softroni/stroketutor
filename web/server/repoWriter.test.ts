@@ -22,6 +22,10 @@ beforeEach(async () => {
   shared = path.join(root, 'shared')
   await cp(path.join(realShared, 'Tutorials'), path.join(shared, 'Tutorials'), { recursive: true })
   await cp(path.join(realShared, 'Catalog'), path.join(shared, 'Catalog'), { recursive: true })
+  // The reference images the catalog points at, when there are any.
+  await cp(path.join(realShared, 'Assets'), path.join(shared, 'Assets'), { recursive: true }).catch((error) => {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+  })
   await writeFile(path.join(root, 'outside.json'), 'untouched')
   writer = createRepoWriter({ sharedDir: shared, validateTutorial, validateCatalog })
 })
@@ -62,10 +66,9 @@ describe('tutorials', () => {
     const edited = { ...data, steps: [...data.steps].reverse() }
     await writer.writeTutorial('simple-house', edited, { etag: stored.etag })
     expect(JSON.parse(await readShared('Tutorials/simple-house.json'))).toEqual(edited)
-    expect((await readdir(path.join(shared, 'Tutorials'))).sort()).toEqual([
-      'cat-face.json',
-      'simple-house.json',
-    ])
+    const names = await readdir(path.join(shared, 'Tutorials'))
+    expect(names).toContain('simple-house.json')
+    expect(names.filter((name) => !name.endsWith('.json') || name.startsWith('.'))).toEqual([])
   })
 
   it('creates a new lesson only when asked to create', async () => {
@@ -216,7 +219,7 @@ describe('SVG references', () => {
     const refused = await refusal(() => writer.writeReference('simple-house', 'image/svg+xml', svg(body)))
     expect(refused.status).toBe(422)
     expect(refused.message).toMatch(/^This SVG was not saved: its? /)
-    await expect(readdir(path.join(shared, 'Assets', 'References'))).rejects.toThrow()
+    await expect(readFile(path.join(shared, 'Assets', 'References', 'simple-house.svg'))).rejects.toThrow()
   })
 
   it('refuses entity declarations', async () => {
