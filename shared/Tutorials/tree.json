@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "id": "tree",
+  "title": "Tree",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "coconuts",
+      "title": "Draw the coconut cluster",
+      "instruction": "Place a tight group of rounded, overlapping egg shapes slightly above the middle of your page. Start with the prominent middle nuts, then tuck the outer ones behind.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 470 370 C 490 370 502 385 500 410 C 498 430 480 435 460 430 C 445 425 442 400 450 380 C 455 372 462 370 470 370 Z",
+          "duration": 1.2,
+          "lineWidth": 14
+        },
+        {
+          "d": "M 495 370 C 515 365 540 380 542 405 C 543 422 528 430 512 425 C 498 420 492 400 495 370 Z",
+          "duration": 1.1,
+          "lineWidth": 14
+        },
+        {
+          "d": "M 460 415 C 485 415 510 430 508 460 C 505 480 482 485 465 475 C 450 465 442 445 460 415 Z",
+          "duration": 1.2,
+          "lineWidth": 14
+        },
+        {
+          "d": "M 450 410 C 445 410 420 412 418 440 C 416 460 435 472 452 468",
+          "duration": 0.9,
+          "lineWidth": 14
+        },
+        {
+          "d": "M 445 465 C 438 472 440 505 465 518 C 488 522 500 500 496 475",
+          "duration": 1,
+          "lineWidth": 14
+        },
+        {
+          "d": "M 520 418 C 542 400 572 408 570 435 C 568 452 548 456 530 445",
+          "duration": 1,
+          "lineWidth": 14
+        }
+      ]
+    },
+    {
+      "id": "trunk",
+      "title": "Draw the curving trunk",
+      "instruction": "Draw two long, parallel curves sweeping down from under the coconuts. Notice how the trunk curves gently leftward and widens slightly near the base.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 510 435 Q 515 620 445 770",
+          "duration": 1.8,
+          "lineWidth": 14
+        },
+        {
+          "d": "M 526 430 Q 562 610 500 780",
+          "duration": 1.9,
+          "lineWidth": 14
+        },
+        {
+          "d": "M 445 770 Q 470 782 500 780",
+          "duration": 0.6,
+          "lineWidth": 14
+        }
+      ]
+    },
+    {
+      "id": "rings-and-ground",
+      "title": "Add trunk rings and the ground",
+      "instruction": "Divide the trunk with short curved lines that follow its rounded volume. Anchor the tree with a few tufts of grass and a low sandy mound.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 515 470 Q 525 475 538 472 M 517 508 Q 530 514 544 510 M 518 550 Q 532 558 550 552 M 513 595 Q 530 605 554 597 M 504 645 Q 525 658 554 648 M 490 692 Q 515 706 545 696 M 472 735 Q 498 750 530 740 M 456 765 Q 480 776 512 768",
+          "duration": 2.2,
+          "lineWidth": 11
+        },
+        {
+          "d": "M 425 768 L 440 730 L 452 755 L 460 735 L 465 765",
+          "duration": 0.8,
+          "lineWidth": 11
+        },
+        {
+          "d": "M 545 766 L 565 738 L 566 765 L 580 748 L 580 766",
+          "duration": 0.8,
+          "lineWidth": 11
+        },
+        {
+          "d": "M 265 790 Q 450 755 740 780 M 320 812 Q 440 828 650 810",
+          "duration": 2,
+          "lineWidth": 11
+        }
+      ]
+    },
+    {
+      "id": "crown-top",
+      "title": "Draw the upright central fronds",
+      "instruction": "Draw the fronds standing high at the center of the crown. Sketch the outer smooth spine first, then return along the bottom with sharp jagged cuts.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 490 345 Q 480 240 376 168 Q 425 190 440 245 Q 460 215 482 250 Q 485 295 490 345",
+          "duration": 1.8,
+          "lineWidth": 13
+        },
+        {
+          "d": "M 492 330 Q 520 220 715 212 C 670 230 645 242 630 265 C 610 250 580 270 575 292 C 555 275 530 300 520 330 Z",
+          "duration": 2.3,
+          "lineWidth": 13
+        }
+      ]
+    },
+    {
+      "id": "fronds-left",
+      "title": "Draw the left fronds",
+      "instruction": "Draw two large arching leaves sweeping out to the left. Follow the top smooth curve outward, then flick back toward the trunk with jagged leaf points.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 450 320 Q 320 230 240 270 C 270 278 290 286 285 300 C 315 295 340 320 325 338 C 360 325 390 360 380 378 C 410 360 440 370 450 365",
+          "duration": 2.5,
+          "lineWidth": 13
+        },
+        {
+          "d": "M 430 350 Q 280 340 248 460 C 265 440 285 410 295 435 C 308 415 320 390 340 415 C 360 385 385 380 405 400 Q 430 370 445 385",
+          "duration": 2.4,
+          "lineWidth": 13
+        }
+      ]
+    },
+    {
+      "id": "fronds-right-and-lower",
+      "title": "Complete the right and lower fronds",
+      "instruction": "Finish the crown with the broad fronds on the right and two drooping downward leaves framing the coconuts.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 530 350 Q 640 310 760 435 C 740 420 710 400 705 430 C 690 395 660 385 645 422 C 635 380 595 380 580 415 Q 560 375 530 375",
+          "duration": 2.6,
+          "lineWidth": 13
+        },
+        {
+          "d": "M 430 400 Q 355 450 378 600 C 390 560 405 520 410 550 C 420 510 435 480 440 500 Q 442 450 445 420",
+          "duration": 2.1,
+          "lineWidth": 13
+        },
+        {
+          "d": "M 545 385 Q 635 430 622 590 C 610 550 595 510 592 540 C 580 495 565 470 560 495 Q 555 445 540 415",
+          "duration": 2.1,
+          "lineWidth": 13
+        }
+      ]
+    }
+  ]
+}
