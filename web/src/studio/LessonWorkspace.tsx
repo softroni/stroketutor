@@ -35,6 +35,7 @@ import type { Library, TutorialEntry } from './library'
 import { AnalysisPanel } from './NewLessonView'
 import { qualityWarnings } from './quality'
 import { ReferencePanel } from './ReferencePanel'
+import { RegeneratePanel } from './RegeneratePanel'
 import { routeHref } from './route'
 import { StatusPill } from './StatusPill'
 
@@ -123,6 +124,9 @@ function LessonEditor({
   const [saving, setSaving] = useState(false)
   const [saveReport, setSaveReport] = useState<SaveReport | null>(null)
   const [saveFailure, setSaveFailure] = useState<SaveFailure | null>(null)
+  const [regenerating, setRegenerating] = useState(false)
+  /** Said once a regenerated version is in the editor, until it is saved or undone. */
+  const [regenerated, setRegenerated] = useState<string | null>(null)
 
   const doc = history.present
   const tutorial = useMemo(() => toTutorial(doc), [doc])
@@ -134,10 +138,11 @@ function LessonEditor({
   )
   const activeStepIndex = Math.min(activeStep, doc.steps.length - 1)
 
-  const previous = useMemo(() => {
-    const index = path ? path.lessonIds.indexOf(entry.id) : -1
-    return path && index > 0 ? library.tutorials.get(path.lessonIds[index - 1])?.tutorial : undefined
-  }, [path, entry.id, library])
+  const position = path ? Math.max(0, path.lessonIds.indexOf(entry.id)) : 0
+  const previous = useMemo(
+    () => (path && position > 0 ? library.tutorials.get(path.lessonIds[position - 1])?.tutorial : undefined),
+    [path, position, library],
+  )
   const warnings = useMemo(
     () => (validation.ok ? qualityWarnings(validation.tutorial, previous) : []),
     [validation, previous],
@@ -366,7 +371,7 @@ function LessonEditor({
         </label>
         <span className="st-toolbar__spacer" />
         {validation.ok ? (
-          <span className="st-valid">Valid v1 tutorial</span>
+          <span className="st-valid">Valid v{tutorial.schemaVersion} tutorial</span>
         ) : (
           <span className="st-invalid">
             {validation.issues.length} {validation.issues.length === 1 ? 'problem' : 'problems'}
@@ -404,6 +409,14 @@ function LessonEditor({
             >
               Approve…
             </button>
+            <button
+              type="button"
+              className={`st-button ${regenerating ? 'st-button--on' : ''}`}
+              aria-expanded={regenerating}
+              onClick={() => setRegenerating((open) => !open)}
+            >
+              Regenerate…
+            </button>
           </>
         ) : null}
       </div>
@@ -415,6 +428,39 @@ function LessonEditor({
           onConfirm={() => void save(true)}
           onCancel={() => setApproving(false)}
         />
+      ) : null}
+
+      {library.writable ? (
+        // Hidden rather than unmounted, so a regeneration still running is not lost.
+        <div hidden={!regenerating}>
+          <RegeneratePanel
+            library={library}
+            lessonId={entry.id}
+            title={tutorial.title}
+            lesson={lesson}
+            path={path}
+            position={position}
+            current={validation.ok ? validation.tutorial : null}
+            onUse={(next, result) => {
+              setSelection(new Set())
+              setReplay(null)
+              setMode('edit')
+              setActiveStep(0)
+              apply(() => toEditable(next))
+              setRegenerating(false)
+              const plural = result.layer === 'steps' || result.layer === 'instructions'
+              setRegenerated(
+                `The new ${result.layer} from ${result.model} ${plural ? 'are' : 'is'} in the editor. Nothing is saved yet: review, then Save. Undo (⌘Z) brings back the previous version.`,
+              )
+            }}
+            onClose={() => setRegenerating(false)}
+          />
+        </div>
+      ) : null}
+      {regenerated && changed ? (
+        <p className="st-notice st-notice--success" role="status">
+          {regenerated}
+        </p>
       ) : null}
 
       {changed ? (

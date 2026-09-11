@@ -126,6 +126,55 @@ export function generateFromTrace(request: GenerateRequest & { trace: TracedDraw
   return call<GenerateResult>('/api/generate-from-trace', json('POST', request))
 }
 
+/** The four layers of master plan §24, each regenerated on its own. */
+export type RegenerateLayer = 'drawing' | 'order' | 'steps' | 'instructions'
+
+type ModelImage = { contentType: string; base64: string }
+
+interface RegenerateBase {
+  model: string
+  lessonId: string
+  pathId: string | null
+  /** The lesson's place in its path, zero-based. */
+  position: number
+  goal: string
+  constraints: string
+  /** What the creator wants different this time; may be empty. */
+  note: string
+}
+
+export type RegenerateRequest =
+  /** A new drawing from the reference: the SVG traced afresh, or the photo. */
+  | (RegenerateBase & { layer: 'drawing'; title: string; image: ModelImage; trace?: TracedDrawing })
+  /** One layer of the current lesson; the drawing stays exactly as it is. */
+  | (RegenerateBase & {
+      layer: Exclude<RegenerateLayer, 'drawing'>
+      tutorial: Tutorial
+      drawing: ModelImage
+      reference?: ModelImage
+    })
+
+export interface RegenerateResult {
+  layer: RegenerateLayer
+  /** Unvalidated until checked; `issues` is the server's verdict. */
+  tutorial: unknown
+  issues: ValidationIssue[]
+  /** What the Studio corrected in the model's answer. */
+  notes: string[]
+  /** The model's own account of what it changed. */
+  rationale?: string
+  /** Only a new drawing comes with a new analysis. */
+  analysis?: Analysis
+  model: string
+  promptVersion: string
+  usage?: { promptTokens?: number; completionTokens?: number; cost?: number }
+}
+
+/** Regenerates one layer of an existing lesson. Writes nothing; the creator chooses what to keep. */
+export function regenerateLayer(request: RegenerateRequest) {
+  return call<RegenerateResult>('/api/regenerate', json('POST', request))
+}
+
 export function uploadReference(lessonId: string, file: File) {
   return call<{ file: string }>(`/api/references/${encodeURIComponent(lessonId)}`, {
     method: 'PUT',

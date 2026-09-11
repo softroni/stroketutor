@@ -2,9 +2,10 @@ import type { ServerResponse } from 'node:http'
 
 import type { Connect, Plugin, ViteDevServer } from 'vite'
 
-import { GenerationFailed, generateCandidate } from './generate'
+import { GenerationFailed, generateCandidate, type GenerateDeps } from './generate'
 import { generateFromTrace } from './generateFromTrace'
 import { listVisionModels } from './models'
+import { regenerate } from './regenerate'
 import {
   MAX_REFERENCE_BYTES,
   REFERENCE_RESPONSE_HEADERS,
@@ -28,6 +29,9 @@ const MAX_GENERATE_BYTES = Math.ceil((MAX_REFERENCE_BYTES * 4) / 3) + 64 * 1024
 
 /** SVG generation also carries the traced drawing: a few hundred path strings at most. */
 const MAX_TRACE_GENERATE_BYTES = MAX_GENERATE_BYTES + 4 * 1024 * 1024
+
+/** Regenerating a layer carries the lesson, a picture of it and the reference, or a fresh trace. */
+const MAX_REGENERATE_BYTES = MAX_TRACE_GENERATE_BYTES + MAX_GENERATE_BYTES + MAX_JSON_BYTES
 
 export interface StudioApiOptions {
   sharedDir: string
@@ -53,6 +57,7 @@ export interface StudioApiOptions {
  * - `GET  /api/models`              models that take images and honour structured output
  * - `POST /api/generate`            one lesson candidate from a photo and a goal; writes nothing
  * - `POST /api/generate-from-trace` one lesson from a traced SVG: the model orders its lines and colours
+ * - `POST /api/regenerate`          one layer of an existing lesson: drawing, order, steps or instructions; writes nothing
  */
 export function studioApi(options: StudioApiOptions): Plugin {
   return {
@@ -119,26 +124,26 @@ async function handle(
     const checks = await validators(server)
     const writer = createRepoWriter({ sharedDir: options.sharedDir, ...checks })
 
+    const generation: GenerateDeps = {
+      apiKey: options.openRouterKey,
+      defaultModel: options.defaultModel,
+      library: () => writer.readLibrary(),
+      validateTutorial: checks.validateTutorial,
+    }
+
     if (resource === 'generate' && parts.length === 1 && method === 'POST') {
       const body = await readJSON(req, MAX_GENERATE_BYTES)
-      const result = await generateCandidate(body, {
-        apiKey: options.openRouterKey,
-        defaultModel: options.defaultModel,
-        library: () => writer.readLibrary(),
-        validateTutorial: checks.validateTutorial,
-      })
-      return send(res, 200, result)
+      return send(res, 200, await generateCandidate(body, generation))
     }
 
     if (resource === 'generate-from-trace' && parts.length === 1 && method === 'POST') {
       const body = await readJSON(req, MAX_TRACE_GENERATE_BYTES)
-      const result = await generateFromTrace(body, {
-        apiKey: options.openRouterKey,
-        defaultModel: options.defaultModel,
-        library: () => writer.readLibrary(),
-        validateTutorial: checks.validateTutorial,
-      })
-      return send(res, 200, result)
+      return send(res, 200, await generateFromTrace(body, generation))
+    }
+
+    if (resource === 'regenerate' && parts.length === 1 && method === 'POST') {
+      const body = await readJSON(req, MAX_REGENERATE_BYTES)
+      return send(res, 200, await regenerate(body, generation))
     }
 
     if (resource === 'library' && parts.length === 1 && method === 'GET') {

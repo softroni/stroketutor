@@ -39,7 +39,7 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ✅ Done 2026-09-11 | `4c40bf3` |
 | M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ✅ Done 2026-09-11 | `25d4368` |
 | M4 | OpenRouter integration | §20–22, §35 Phase 4 | autonomous (live check needs a key) | ✅ Done 2026-09-11 | see git log |
-| M5 | AI generation quality | §23–24, §35 Phase 5 | **gated**: needs creator judgement | ⬜ Not started | |
+| M5 | AI generation quality | §23–24, §35 Phase 5 | **gated**: needs creator judgement | 🟡 In progress | see git log |
 | M6 | Houses vertical slice | §35 Phase 6, App. A | **gated**: needs reference photos + approval | ⬜ Not started | |
 | M7 | iOS product shell | §29–31 | **gated** on M6 | ⬜ Not started | |
 | M8 | Private sketchbook | §32 | gated | ⬜ Not started | |
@@ -50,10 +50,11 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**Lessons from SVG files, with fills.** The creator chose the approach on 2026-09-11 (see "Next · Lessons from SVG files"
-below). Start with schema v2 and fills in the web player, then the tracer.
+**M5, part 2: generation history and compare.** Keep every generation and regeneration beside the draft, not in
+`shared/Tutorials`, so a new version never replaces a good one blindly, with a side-by-side compare and "use this one"
+(§24). Part 1, regenerating one layer at a time, is done; see M5 below.
 
-The rest of M5 still needs the creator: real reference photos, live model iteration and their judgement. Start with the
+Part 3 needs the creator: real reference photos, live model iteration and their judgement on the prompt. Start with the
 observations under M4 below.
 
 ---
@@ -346,9 +347,49 @@ in after all the outlines are drawn.
     first attempt at the photo prompt's 16,000-token limit. This request now allows 32,000.
   - **Watch the time:** the server gives up at 180 s.
 
-### M5 · AI generation quality (gated)
-Prompting for human pen gestures, stage-level regeneration (drawing / order / steps / instructions),
-generation history and compare, prompt versions. Needs live model iteration and the creator's judgement.
+### M5 · AI generation quality (in progress)
+Phase 5 in the plan (p. 33, §23–24): human pen gestures, stage-level regeneration, quality warnings, generation history.
+Its exit condition is that most candidate lessons need only modest structural correction.
+
+Already covered by earlier milestones:
+- supported SVG commands in the prompt and in strict validation (M4);
+- the §23 warnings: stroke count, tiny strokes, over five minutes, a crowded step, a jump from the previous lesson (M3).
+
+**Part 1 · Regenerate one layer (2026-09-11)**
+- [x] `POST /api/regenerate` (`web/server/regenerate.ts`). Writes nothing.
+  - **Drawing:** a whole new generation for the same lesson. A photo uses the photo prompt; an SVG reference is traced again
+    in the browser, at a chosen level of detail, and uses the SVG prompt.
+  - **Order, Steps, Instructions:** the current lesson is sent with a picture of it and its reference. The model sees each
+    line and colour as an id with its box, its two ends and its size, and answers with ids and words. Code rebuilds the
+    lesson from the shapes it already has, so nothing outside that layer can change.
+    - **Order** moves steps, and lines within a step, and can reverse which end a line is drawn from. It never moves a line
+      to another step.
+    - **Steps** regroups every line and colour, each placed exactly once.
+    - **Instructions** rewrites titles and instructions only.
+  - Prompts `regenerate-order-v1`, `regenerate-steps-v1` and `regenerate-instructions-v1`. Each answer carries a rationale
+    for the creator.
+- [x] Workspace: **Regenerate…** opens a panel with the four layers, cheapest first, and an optional "What should be
+  different?" note.
+  - The result is shown beside the current version, with changed steps marked, the model's rationale and anything the
+    Studio corrected.
+  - **Use the regenerated version** puts it in the editor as an ordinary edit: Undo takes it back, Save writes it.
+- [x] 13 tests: path reversal, each layer's rebuild, request checks before any spend, and the drawing layer on an
+  existing lesson.
+
+**Live check, 2026-09-11** (`google/gemini-3.8-flash`, Coconut Palm, Instructions). The note was "Sound like a calm adult
+teacher, not a children's book. Say where each line starts."
+- **Result:** all 9 instructions were rewritten, and every line stayed as it was.
+- **Cost and time:** 21 s and about $0.012. The model's rationale was shown beside the result.
+- **For part 3:** the new words do say where lines start, but they place things less exactly than the hand-written ones.
+  "Near the centre of the page" replaced "a little above the middle and slightly left of centre."
+
+**Part 2 · History and compare.** Next.
+
+**Part 3 · Prompt tuning (needs the creator).** 3–5 real reference photos, live runs and the creator's judgement, towards
+`lesson-v2`.
+
+**Not yet recorded:** the catalog's `generation` block still describes a lesson's first generation. Regenerations will be
+recorded by part 2.
 
 ### M6 · Houses vertical slice (gated)
 About five lessons: Simple House → House With Chimney → Small Cottage → House From an Angle → Two-Story House.

@@ -11,7 +11,7 @@ const MODEL_EDGE = 1536
  * so an SVG is rendered to a PNG on white paper here. The SVG itself is still
  * what is kept as the lesson's reference.
  */
-export async function imageForModel(file: File): Promise<{ contentType: string; base64: string }> {
+export async function imageForModel(file: Blob): Promise<{ contentType: string; base64: string }> {
   if (file.type !== 'image/svg+xml') return { contentType: file.type, base64: await toBase64(file) }
   const png = await renderSvg(await file.text(), MODEL_EDGE)
   return { contentType: 'image/png', base64: await toBase64(png) }

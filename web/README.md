@@ -158,6 +158,23 @@ posts the trace to `POST /api/generate-from-trace` (`server/generateFromTrace.ts
 
 If tracing fails, generation uses the picture instead.
 
+**Regenerating one layer.** In the Lesson Workspace, **Regenerate…** redoes one layer of the lesson
+(`POST /api/regenerate`, `server/regenerate.ts`, master plan §24):
+
+| Layer | What changes | What stays |
+|---|---|---|
+| Instructions | every title and instruction | the drawing, the steps and their order |
+| Steps | how lines and colours are grouped, and the words | every line and colour, each placed once |
+| Order | the order of steps and of lines within them, and which end a line starts from | each step's lines, colours and words |
+| Drawing | everything: a new generation from the reference | the lesson's id and title |
+
+For the first three, the model is sent the lesson as ids with positions (never path data), a picture of the drawing
+(`src/studio/drawingImage.ts`) and the reference. It answers with ids, and the server rebuilds the lesson from the
+shapes it already has. A new drawing from an SVG traces the file again at the chosen detail.
+
+The result appears beside the current version; **Use the regenerated version** makes it an ordinary edit, so
+**Undo** takes it back and **Save** writes it. Nothing is written by regenerating.
+
 The prompt lives in `server/prompts/lessonPrompt.ts` and carries a version (`lesson-v1`) that every
 generated lesson records. `server/fixtures/` holds representative model outputs — one good, one
 that breaks the contract — so the pipeline is tested without calling a model. OpenRouter's

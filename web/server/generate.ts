@@ -28,6 +28,13 @@ export interface GenerateResult extends Candidate {
   issues: Issue[]
 }
 
+/**
+ * `new`: the id must be free, so generation can never replace a lesson.
+ * `existing`: regenerating a lesson's drawing, so the lesson must exist. Either
+ * way nothing is written; the creator decides what to keep.
+ */
+export type LessonMode = 'new' | 'existing'
+
 export { GenerationFailed }
 
 /**
@@ -39,8 +46,9 @@ export { GenerationFailed }
 export async function generateCandidate(
   body: Record<string, unknown>,
   deps: GenerateDeps,
+  mode: LessonMode = 'new',
 ): Promise<GenerateResult> {
-  const input = await readLessonRequest(body, deps)
+  const input = await readLessonRequest(body, deps, mode)
   const candidate = await requestLesson(
     {
       model: input.model,
@@ -72,17 +80,13 @@ export interface LessonRequest {
   library: LibrarySnapshot
 }
 
-export async function readLessonRequest(body: Record<string, unknown>, deps: GenerateDeps): Promise<LessonRequest> {
-  if (!deps.apiKey) {
-    throw new WriteRefused(
-      503,
-      'Generation needs an OpenRouter key: add OPENROUTER_API_KEY to web/.env.local, then restart npm run dev.',
-    )
-  }
-
+export async function readLessonRequest(
+  body: Record<string, unknown>,
+  deps: GenerateDeps,
+  mode: LessonMode = 'new',
+): Promise<LessonRequest> {
+  const { apiKey, model } = readModelChoice(body, deps)
   const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
-  const model = text(body.model) || deps.defaultModel || ''
-  if (!model) throw new WriteRefused(400, 'Choose a model in Settings first.')
 
   const lessonId = text(body.lessonId)
   if (!ID_PATTERN.test(lessonId)) {
@@ -94,39 +98,23 @@ export async function readLessonRequest(body: Record<string, unknown>, deps: Gen
   if (!goal) {
     throw new WriteRefused(400, 'Describe the learning goal: it is what the lesson is planned around.')
   }
-
-  const image = (body.image ?? {}) as { contentType?: unknown; base64?: unknown }
-  const contentType = text(image.contentType).toLowerCase()
-  // OpenRouter accepts PNG, JPEG, WebP and GIF, not SVG
-  // (https://openrouter.ai/docs/guides/overview/multimodal/image-understanding),
-  // so the Studio sends a PNG rendering of an SVG reference instead.
-  const extension = RASTER_TYPES[contentType]
-  if (!extension) {
-    throw new WriteRefused(415, 'The model must be sent a JPEG, PNG or WebP; render an SVG to PNG first.')
-  }
-  const bytes = Buffer.from(text(image.base64), 'base64')
-  if (bytes.byteLength === 0) throw new WriteRefused(400, 'Add a reference photo.')
-  if (bytes.byteLength > MAX_REFERENCE_BYTES) {
-    throw new WriteRefused(413, `Reference photos must be ${MAX_REFERENCE_BYTES / 1024 / 1024} MB or smaller.`)
-  }
-  if (sniffImage(bytes) !== extension) {
-    throw new WriteRefused(415, `The photo's contents are not a ${extension.toUpperCase()} image.`)
-  }
+  const image = readRasterImage(body.image, 'Add a reference photo.')
 
   const library = await deps.library()
-  const taken =
-    library.tutorials.some((file) => file.fileName === `${lessonId}.json`) ||
-    lessonIds(library).has(lessonId)
-  if (taken) {
+  const hasFile = library.tutorials.some((file) => file.fileName === `${lessonId}.json`)
+  if (mode === 'new' && (hasFile || lessonIds(library).has(lessonId))) {
     throw new WriteRefused(
       409,
       `A lesson called "${lessonId}" already exists. Generation never replaces a lesson; choose another id.`,
     )
   }
+  if (mode === 'existing' && !hasFile) {
+    throw new WriteRefused(404, `There is no lesson "${lessonId}" to regenerate.`)
+  }
 
   const position = typeof body.position === 'number' && Number.isInteger(body.position) ? body.position : Infinity
   return {
-    apiKey: deps.apiKey,
+    apiKey,
     model,
     lessonId,
     title,
@@ -134,9 +122,44 @@ export async function readLessonRequest(body: Record<string, unknown>, deps: Gen
     constraints: text(body.constraints),
     pathId: text(body.pathId) || null,
     position,
-    image: { contentType, base64: bytes.toString('base64') },
+    image,
     library,
   }
+}
+
+/** The key and the model every generation needs, or a sentence saying which is missing. */
+export function readModelChoice(body: Record<string, unknown>, deps: GenerateDeps): { apiKey: string; model: string } {
+  if (!deps.apiKey) {
+    throw new WriteRefused(
+      503,
+      'Generation needs an OpenRouter key: add OPENROUTER_API_KEY to web/.env.local, then restart npm run dev.',
+    )
+  }
+  const model = (typeof body.model === 'string' ? body.model.trim() : '') || deps.defaultModel || ''
+  if (!model) throw new WriteRefused(400, 'Choose a model in Settings first.')
+  return { apiKey: deps.apiKey, model }
+}
+
+/** An image for the model, checked to be the raster type it claims; `missing` is said when it is empty. */
+export function readRasterImage(value: unknown, missing: string): { contentType: string; base64: string } {
+  const image = (value ?? {}) as { contentType?: unknown; base64?: unknown }
+  const contentType = typeof image.contentType === 'string' ? image.contentType.trim().toLowerCase() : ''
+  // OpenRouter accepts PNG, JPEG, WebP and GIF, not SVG
+  // (https://openrouter.ai/docs/guides/overview/multimodal/image-understanding),
+  // so the Studio sends a PNG rendering of an SVG instead.
+  const extension = RASTER_TYPES[contentType]
+  if (!extension) {
+    throw new WriteRefused(415, 'The model must be sent a JPEG, PNG or WebP; render an SVG to PNG first.')
+  }
+  const bytes = Buffer.from(typeof image.base64 === 'string' ? image.base64 : '', 'base64')
+  if (bytes.byteLength === 0) throw new WriteRefused(400, missing)
+  if (bytes.byteLength > MAX_REFERENCE_BYTES) {
+    throw new WriteRefused(413, `Images sent to the model must be ${MAX_REFERENCE_BYTES / 1024 / 1024} MB or smaller.`)
+  }
+  if (sniffImage(bytes) !== extension) {
+    throw new WriteRefused(415, `The image's contents are not a ${extension.toUpperCase()} image.`)
+  }
+  return { contentType, base64: bytes.toString('base64') }
 }
 
 function lessonIds(library: LibrarySnapshot): Set<string> {

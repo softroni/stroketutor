@@ -1,8 +1,9 @@
 import type { Analysis } from '../src/catalog/types'
 
-import { readLessonRequest, type GenerateDeps } from './generate'
+import { readLessonRequest, type GenerateDeps, type LessonMode } from './generate'
 import { lessonContext } from './lessonContext'
-import { GenerationFailed, completeJSON, isAnalysis, parseAnswer, slug } from './openrouter'
+import { GenerationFailed, completeJSON, isAnalysis, parseAnswer } from './openrouter'
+import { count, createPlacer, createStepIds } from './placement'
 import { SVG_OUTPUT_SCHEMA, SVG_PROMPT_VERSION, buildSvgMessages, type TraceSummary } from './prompts/svgLessonPrompt'
 import { WriteRefused, type Issue } from './repoWriter'
 
@@ -77,10 +78,14 @@ export const fillDuration = (area: number) => round1(Math.min(3, Math.max(0.8, 0
  * that order them and the words for each. Every shape in the lesson is the
  * traced one. Writes nothing, like photo generation.
  */
-export async function generateFromTrace(body: Record<string, unknown>, deps: GenerateDeps): Promise<TraceGenerateResult> {
+export async function generateFromTrace(
+  body: Record<string, unknown>,
+  deps: GenerateDeps,
+  mode: LessonMode = 'new',
+): Promise<TraceGenerateResult> {
   // A malformed trace is refused before anything is spent.
   const trace = readTrace(body.trace)
-  const input = await readLessonRequest(body, deps)
+  const input = await readLessonRequest(body, deps, mode)
   const completion = await completeJSON(
     {
       model: input.model,
@@ -131,35 +136,17 @@ export function assembleTracedLesson(
   meta: { id: string; title: string },
 ): { tutorial: Record<string, unknown>; notes: string[] } {
   const notes: string[] = []
-  const used = new Set<string>()
-  let madeUp = 0
-  let repeated = 0
-  const take = <T extends { id: string }>(ids: string[], byId: Map<string, T>): T[] =>
-    ids.flatMap((id) => {
-      const item = byId.get(id)
-      if (!item) {
-        madeUp += 1
-        return []
-      }
-      if (used.has(id)) {
-        repeated += 1
-        return []
-      }
-      used.add(id)
-      return [item]
-    })
-
+  const placer = createPlacer()
   const strokesById = new Map(trace.strokes.map((stroke) => [stroke.id, stroke]))
   const fillsById = new Map(trace.fills.map((fill) => [fill.id, fill]))
   const outlineSteps = outline
-    .map((step) => ({ step, items: take(step.ids, strokesById) }))
+    .map((step) => ({ step, items: placer.take(step.ids, strokesById) }))
     .filter((entry) => entry.items.length > 0)
   const colourSteps = colour
-    .map((step) => ({ step, items: take(step.ids, fillsById) }))
+    .map((step) => ({ step, items: placer.take(step.ids, fillsById) }))
     .filter((entry) => entry.items.length > 0)
 
-  const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
-  const missingStrokes = trace.strokes.filter((stroke) => !used.has(stroke.id))
+  const missingStrokes = trace.strokes.filter((stroke) => !placer.used.has(stroke.id))
   if (missingStrokes.length > 0) {
     if (outlineSteps.length === 0) {
       outlineSteps.push({
@@ -172,7 +159,7 @@ export function assembleTracedLesson(
       `${count(missingStrokes.length, 'line', 'lines')} the model did not place ${missingStrokes.length === 1 ? 'was' : 'were'} added to the last outline step.`,
     )
   }
-  const missingFills = trace.fills.filter((fill) => !used.has(fill.id))
+  const missingFills = trace.fills.filter((fill) => !placer.used.has(fill.id))
   if (missingFills.length > 0) {
     if (colourSteps.length === 0) {
       colourSteps.push({
@@ -185,19 +172,10 @@ export function assembleTracedLesson(
       `${count(missingFills.length, 'colour', 'colours')} the model did not place ${missingFills.length === 1 ? 'was' : 'were'} put in the last colour step.`,
     )
   }
-  if (madeUp > 0) notes.push(`${count(madeUp, 'id', 'ids')} the model made up ${madeUp === 1 ? 'was' : 'were'} ignored.`)
-  if (repeated > 0) {
-    notes.push(`${count(repeated, 'repeated id was', 'repeated ids were')} ignored; each line and colour is drawn once.`)
-  }
+  notes.push(...placer.notes())
 
-  const taken = new Set<string>()
-  const stepId = (step: PlannedStep, fallback: string) => {
-    const base = slug(step.id || step.title) || fallback
-    let unique = base
-    for (let n = 2; taken.has(unique); n += 1) unique = `${base}-${n}`
-    taken.add(unique)
-    return unique
-  }
+  const uniqueId = createStepIds()
+  const stepId = (step: PlannedStep, fallback: string) => uniqueId(step.id || step.title, fallback)
   const coloured = trace.fills.length > 0 || trace.strokes.some((stroke) => stroke.color)
   const steps = [
     ...outlineSteps.map(({ step, items }, index) => ({
