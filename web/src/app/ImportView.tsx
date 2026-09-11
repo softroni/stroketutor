@@ -1,13 +1,15 @@
 import { useCallback, useState } from 'react'
 
 import { TutorialPlayer } from '../player/TutorialPlayer'
-import { DEFAULT_SAMPLE, loadSample } from '../samples'
+import type { Sample } from '../samples'
 import type { Tutorial } from '../schema/types'
 import { parseTutorialJSON, type ValidationIssue } from '../schema/validate'
 
 import { DebugPanel } from './DebugPanel'
 import { TutorialSource } from './TutorialSource'
 import './app.css'
+
+const DEFAULT_SAMPLE = 'simple-house.json'
 
 interface Loaded {
   tutorial: Tutorial
@@ -16,17 +18,22 @@ interface Loaded {
   generation: number
 }
 
+export interface ImportViewProps {
+  /** The tutorials in shared/Tutorials, as raw text. */
+  samples: Sample[]
+}
+
 /**
- * Load any tutorial JSON — bundled, picked, dropped or pasted — then validate
+ * Load any tutorial JSON — a sample, picked, dropped or pasted — then validate
  * and play it. Nothing here is saved; it is the quickest way to try a
  * hand-edited or generated document against the real player.
  */
-export function ImportView() {
-  const [loaded, setLoaded] = useState<Loaded>(() => ({
-    tutorial: loadSample(DEFAULT_SAMPLE),
-    label: DEFAULT_SAMPLE,
-    generation: 0,
-  }))
+export function ImportView({ samples }: ImportViewProps) {
+  const [loaded, setLoaded] = useState<Loaded | null>(() => {
+    const first = samples.find((sample) => sample.fileName === DEFAULT_SAMPLE) ?? samples[0]
+    const result = first ? parseTutorialJSON(first.source) : null
+    return first && result?.ok ? { tutorial: result.tutorial, label: first.fileName, generation: 0 } : null
+  })
   const [issues, setIssues] = useState<ValidationIssue[] | null>(null)
   const [failedLabel, setFailedLabel] = useState<string | null>(null)
   const [debugOpen, setDebugOpen] = useState(false)
@@ -45,7 +52,7 @@ export function ImportView() {
     setLoaded((previous) => ({
       tutorial: result.tutorial,
       label,
-      generation: previous.generation + 1,
+      generation: (previous?.generation ?? 0) + 1,
     }))
   }, [])
 
@@ -63,24 +70,30 @@ export function ImportView() {
           className={`st-button ${debugOpen ? 'st-button--on' : ''}`}
           onClick={() => setDebugOpen((open) => !open)}
           aria-pressed={debugOpen}
+          disabled={!loaded}
         >
           {debugOpen ? 'Hide debug' : 'Show debug'}
         </button>
       </div>
 
-      <div className={`st-app__main ${debugOpen ? 'is-debugging' : ''}`}>
+      <div className={`st-app__main ${debugOpen && loaded ? 'is-debugging' : ''}`}>
         <TutorialSource
+          samples={samples}
           onLoadText={handleLoadText}
-          activeLabel={loaded.label}
+          activeLabel={loaded?.label ?? 'nothing yet'}
           issues={issues}
           failedLabel={failedLabel}
         />
 
         <div className="st-app__stage">
-          <TutorialPlayer key={loaded.generation} tutorial={loaded.tutorial} />
+          {loaded ? (
+            <TutorialPlayer key={loaded.generation} tutorial={loaded.tutorial} />
+          ) : (
+            <p className="st-import__note">Load a tutorial to play it here.</p>
+          )}
         </div>
 
-        {debugOpen ? (
+        {debugOpen && loaded ? (
           <DebugPanel tutorial={loaded.tutorial} onClose={() => setDebugOpen(false)} />
         ) : null}
       </div>

@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { SAMPLES } from '../samples'
+import type { Sample } from '../samples'
 import type { ValidationIssue } from '../schema/validate'
 
 export interface TutorialSourceProps {
+  /** The tutorials in shared/Tutorials, offered as one-click samples. */
+  samples: Sample[]
   /** Hands raw JSON text up to the app, which owns parsing and validation. */
   onLoadText: (text: string, label: string) => void
   /** Label of the document currently on the canvas. */
@@ -22,6 +24,7 @@ export interface TutorialSourceProps {
  * is validated exactly like a bundled one.
  */
 export function TutorialSource({
+  samples,
   onLoadText,
   activeLabel,
   issues,
@@ -89,7 +92,7 @@ export function TutorialSource({
       <div className="st-source__group">
         <h3 className="st-source__label">Bundled samples</h3>
         <div className="st-source__row">
-          {SAMPLES.map((sample) => (
+          {samples.map((sample) => (
             <button
               key={sample.fileName}
               type="button"

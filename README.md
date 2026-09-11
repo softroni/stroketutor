@@ -36,8 +36,8 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 |---|---|---|---|---|---|
 | M0 | Baseline: protect the PoC | §34 Phase 0 | autonomous | ✅ Done 2026-09-11 | `5a4e687` |
 | M1 | Studio shell + catalog | §14–15, §26, §34 Phase 1 | autonomous | ✅ Done 2026-09-11 | `5482365` |
-| M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ✅ Done 2026-09-11 | see git log |
-| M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ⬜ Not started | |
+| M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ✅ Done 2026-09-11 | `4c40bf3` |
+| M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ✅ Done 2026-09-11 | see git log |
 | M4 | OpenRouter integration | §20–22, §35 Phase 4 | autonomous (live check needs a key) | ⬜ Not started | |
 | M5 | AI generation quality | §23–24, §35 Phase 5 | **gated**: needs creator judgement | ⬜ Not started | |
 | M6 | Houses vertical slice | §35 Phase 6, App. A | **gated**: needs reference photos + approval | ⬜ Not started | |
@@ -50,7 +50,7 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M3: Repository writer.** Autonomous runs stop after **M4**. M5 and later need the creator.
+**M4: OpenRouter integration.** Autonomous runs stop after **M4**. M5 and later need the creator.
 
 ---
 
@@ -120,14 +120,55 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
   wide invisible hit areas, so thin strokes are easy to click.
 
 ### M3 · Repository writer
-- [ ] Local dev-server API. It writes only to `shared/Tutorials/`, `shared/Assets/References/` and `shared/Catalog/`.
+- [x] Local dev-server API. It writes only to `shared/Tutorials/`, `shared/Assets/References/` and `shared/Catalog/`.
       Ids are safe, writes are atomic, and the client never supplies a path.
-- [ ] Server-side strict validation before any write.
-- [ ] Non-blocking quality warnings: stroke count, tiny strokes, estimated time over 5 min, crowded step.
-- [ ] Approve & Save → re-read the saved file → confirm stroke/step order matches → show the result.
-- [ ] Tests: traversal rejected, non-whitelisted paths rejected, invalid tutorials refused, save/reload parity.
+- [x] Server-side strict validation before any write.
+- [x] Non-blocking quality warnings: stroke count, tiny strokes, estimated time over 5 min, crowded step.
+- [x] Approve & Save → re-read the saved file → confirm stroke/step order matches → show the result.
+- [x] Tests: traversal rejected, non-whitelisted paths rejected, invalid tutorials refused, save/reload parity.
 
 **Exit:** an edited tutorial validates, saves to `shared/Tutorials`, reopens, and matches the preview.
+
+**Done.**
+- **Web tests:** 140 pass (34 new: 13 file-writer, 7 formatter, 9 quality, 5 library), and the build passes.
+- **iOS:** 35/35 passed with a Studio-written `simple-house.json` in place, so iOS loads what the Studio saves.
+- **End to end in the browser:**
+  1. Swapped the two window strokes and pressed Save. The diff was exactly those two strokes.
+  2. The Studio read the file back from disk and reported it identical to the preview.
+  3. Swapped them back and saved again, which left the golden file byte for byte.
+  4. "Approve & save" set the status in `lessons.json`. That was a test edit, so I restored the status to `needs-review`.
+  5. Neither save reloaded the page.
+- **API guards, checked from the page:**
+
+  | Request | Result |
+  |---|---|
+  | Write without the Studio header | 403 |
+  | Non-image sent as PNG | 415 |
+  | Traversal id | 400 |
+  | Stale version | 409 |
+  | Unknown route | 404 |
+
+**Departures and decisions:**
+- **Where the server lives.** It's Vite middleware (`web/server/studioApi.ts`) that runs only under `npm run dev`. `web/server/repoWriter.ts` does
+  the file work, validating with the Studio's own validators loaded through Vite rather than a copy of them.
+- **How writes are guarded:**
+  - A write names the version it replaces: a SHA-256 of the file as read. A stale version gets 409, and a missing one on an existing file gets 428.
+  - Writes must be same-origin and carry an `X-StrokeTutor-Studio` header.
+  - Files are written to a temporary name, then renamed into place.
+- **Reading through the API.** In dev the Studio reads `shared/` through `/api/library` instead of bundling it, so a save never reloads the page.
+  Without the server (a static build) it falls back to a read-only bundled copy. *If a dev server served the Studio from before M3, restart it
+  once:* its stale module graph reloads the page on save.
+- **Formatting.** Saved JSON is formatted like the hand-written golden files, so an unchanged lesson saves byte for byte.
+- **Reference photos:**
+  - Stored as `shared/Assets/References/<lessonId>.<ext>`: JPEG, PNG or WebP, up to 8 MB, with the file signature checked.
+  - A source and a licence are required, and are recorded in `lessons.json`.
+  - The upload *form* wasn't driven end to end, because the browser tool can't pick local files. The endpoint was exercised from the page and by tests.
+- **Catalog writes.** `paths.json` and `lessons.json` are validated together, and both versions are checked before either file is written. The two
+  renames aren't a single transaction.
+- **Approval** writes the tutorial and sets the status to `approved`, after showing the §36 checklist. Quality warnings never block it.
+- **Conformance test.** It now checks that the golden tutorials exist, rather than asserting an exact file list, because the Studio can add lessons.
+- **Stroke length.** The quality checks measure stroke length from path geometry, since `measurePathLength` needs a DOM and returns 0 without one.
+- **No git from the Studio.** The Studio still never runs git (§27); saves show up as ordinary diffs.
 
 ### M4 · OpenRouter integration
 - [ ] Server-side proxy; `OPENROUTER_API_KEY` in `web/.env.local` (gitignored); model id configurable.

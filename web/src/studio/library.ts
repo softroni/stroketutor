@@ -1,24 +1,18 @@
-import lessonsSource from '@shared/Catalog/lessons.json?raw'
-import pathsSource from '@shared/Catalog/paths.json?raw'
-
 import type { Catalog } from '../catalog/types'
 import { validateCatalog, type CatalogFile, type CatalogIssue } from '../catalog/validate'
-import { SAMPLES } from '../samples'
+import type { Sample } from '../samples'
 import type { Tutorial } from '../schema/types'
 import { parseTutorialJSON, type ValidationIssue } from '../schema/validate'
 
-// Served by Vite as URLs. The folder may not exist yet, in which case this is empty.
-const referenceUrls = import.meta.glob<string>('@shared/Assets/References/*', {
-  query: '?url',
-  import: 'default',
-  eager: true,
-})
+import type { LibrarySources, SourceFile } from './sources'
 
 export interface TutorialEntry {
   /** File name without `.json`; always equal to `tutorial.id`. */
   id: string
   fileName: string
   tutorial: Tutorial
+  /** The version on disk, which a save must name. Absent in the read-only bundle. */
+  etag?: string
 }
 
 export interface BrokenTutorial {
@@ -26,7 +20,7 @@ export interface BrokenTutorial {
   issues: ValidationIssue[]
 }
 
-/** Everything the Studio reads from `shared/`, validated once at start-up. */
+/** Everything the Studio reads from `shared/`, validated in one pass. */
 export interface Library {
   tutorials: Map<string, TutorialEntry>
   /** Files in `shared/Tutorials` that failed validation. */
@@ -34,24 +28,27 @@ export interface Library {
   /** Null when the catalog files are invalid; `catalogIssues` says why. */
   catalog: Catalog | null
   catalogIssues: CatalogIssue[]
+  catalogEtags: { paths?: string; lessons?: string }
+  /** Every tutorial file as raw text, for Import & test. */
+  samples: Sample[]
+  /** True when the Studio server can save. */
+  writable: boolean
   referenceUrl: (file: string) => string | undefined
 }
 
-const fileNameOf = (path: string) => path.slice(path.lastIndexOf('/') + 1)
-
-export function loadLibrary(): Library {
+export function buildLibrary(sources: LibrarySources): Library {
   const tutorials = new Map<string, TutorialEntry>()
   const broken: BrokenTutorial[] = []
 
-  for (const sample of SAMPLES) {
-    const id = sample.fileName.replace(/\.json$/, '')
-    const result = parseTutorialJSON(sample.source)
+  for (const source of sources.tutorials) {
+    const id = source.fileName.replace(/\.json$/, '')
+    const result = parseTutorialJSON(source.text)
     if (!result.ok) {
-      broken.push({ fileName: sample.fileName, issues: result.issues })
+      broken.push({ fileName: source.fileName, issues: result.issues })
     } else if (result.tutorial.id !== id) {
       // The Studio finds and saves a tutorial by its id, so the two must agree.
       broken.push({
-        fileName: sample.fileName,
+        fileName: source.fileName,
         issues: [
           {
             path: 'id',
@@ -61,16 +58,14 @@ export function loadLibrary(): Library {
         ],
       })
     } else {
-      tutorials.set(id, { id, fileName: sample.fileName, tutorial: result.tutorial })
+      tutorials.set(id, { id, fileName: source.fileName, tutorial: result.tutorial, etag: source.etag })
     }
   }
 
-  const references = new Map(
-    Object.entries(referenceUrls).map(([path, url]) => [fileNameOf(path), url]),
-  )
+  const references = new Map(sources.references.map((reference) => [reference.file, reference.url]))
 
-  const paths = parseCatalogFile('paths.json', pathsSource)
-  const lessons = parseCatalogFile('lessons.json', lessonsSource)
+  const paths = parseCatalogFile('paths.json', sources.paths)
+  const lessons = parseCatalogFile('lessons.json', sources.lessons)
   let catalog: Catalog | null = null
   let catalogIssues: CatalogIssue[] = [...paths.issues, ...lessons.issues]
 
@@ -88,16 +83,22 @@ export function loadLibrary(): Library {
     broken,
     catalog,
     catalogIssues,
+    catalogEtags: { paths: sources.paths?.etag, lessons: sources.lessons?.etag },
+    samples: sources.tutorials.map((source) => ({ fileName: source.fileName, source: source.text })),
+    writable: sources.writable,
     referenceUrl: (file) => references.get(file),
   }
 }
 
 function parseCatalogFile(
   file: CatalogFile,
-  source: string,
+  source: SourceFile | null,
 ): { data: unknown; issues: CatalogIssue[] } {
+  if (!source) {
+    return { data: null, issues: [{ file, path: '(root)', message: `shared/Catalog/${file} is missing.` }] }
+  }
   try {
-    return { data: JSON.parse(source), issues: [] }
+    return { data: JSON.parse(source.text), issues: [] }
   } catch (error) {
     return {
       data: null,

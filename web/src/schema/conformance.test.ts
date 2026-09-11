@@ -90,8 +90,10 @@ describe('shared golden tutorials', () => {
   const tutorialsDir = fileURLToPath(new URL('../../../shared/Tutorials/', import.meta.url))
   const files = readdirSync(tutorialsDir).filter((name) => name.endsWith('.json'))
 
-  it('finds the tutorials the iOS app bundles', () => {
-    expect(files.sort()).toEqual(['cat-face.json', 'simple-house.json'])
+  it('still has the golden tutorials the iOS app bundles', () => {
+    // The Studio saves new lessons into this folder too, so this checks for the
+    // goldens rather than an exact list; every file is validated below.
+    expect(files).toEqual(expect.arrayContaining(['cat-face.json', 'simple-house.json']))
   })
 
   for (const file of files) {

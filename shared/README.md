@@ -10,7 +10,12 @@ shared/
   conformance/             cases both players must agree about
   catalog.schema.json      the curriculum catalog schema, v1
   Catalog/                 paths.json + lessons.json: where each lesson sits in the curriculum
+  Assets/References/       reference photos, named <lesson>.jpg|png|webp (created by the Studio)
 ```
+
+Everything here except `conformance/` can be written by the Studio's local server
+(`web/server/repoWriter.ts`), which validates strictly and never saves over a file that changed on
+disk. Studio saves are ordinary diffs to review before committing.
 
 | File | Read by iOS | Read by web |
 |---|---|---|
@@ -18,6 +23,7 @@ shared/
 | `Tutorials/*.json` | yes — bundled as a folder reference | yes — globbed via the `@shared` alias |
 | `conformance/` | yes — `ConformanceTests.swift` | yes — `conformance.test.ts` |
 | `catalog.schema.json`, `Catalog/` | not yet — the learner app adopts it in M7 | yes — the Studio validates both files and their cross-references |
+| `Assets/References/` | not yet — M7 | yes — shown beside the lesson, served by the Studio server |
 
 `Tutorials` keeps its capital T because it is also the folder name inside the app
 bundle, which `TutorialLoader.bundleSubdirectory` looks for.

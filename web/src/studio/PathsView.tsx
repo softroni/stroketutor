@@ -18,6 +18,8 @@ export interface PathsViewProps {
   /** True once the lesson order differs from what is on disk. */
   orderChanged: boolean
   onReorder: (pathId: string, lessonIds: string[]) => void
+  onSaveOrder: () => Promise<void>
+  onDiscardOrder: () => void
 }
 
 /**
@@ -30,6 +32,8 @@ export function PathsView({
   selectedPathId,
   orderChanged,
   onReorder,
+  onSaveOrder,
+  onDiscardOrder,
 }: PathsViewProps) {
   if (!catalog) {
     return (
@@ -79,6 +83,8 @@ export function PathsView({
             library={library}
             orderChanged={orderChanged}
             onReorder={onReorder}
+            onSaveOrder={onSaveOrder}
+            onDiscardOrder={onDiscardOrder}
           />
         ) : (
           <p className="st-section-note">No paths yet. Add one to shared/Catalog/paths.json.</p>
@@ -132,14 +138,32 @@ function PathDetail({
   library,
   orderChanged,
   onReorder,
+  onSaveOrder,
+  onDiscardOrder,
 }: {
   path: LearningPath
   catalog: Catalog
   library: Library
   orderChanged: boolean
   onReorder: (pathId: string, lessonIds: string[]) => void
+  onSaveOrder: () => Promise<void>
+  onDiscardOrder: () => void
 }) {
   const [dropIndex, setDropIndex] = useState<number | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  const saveOrder = async () => {
+    setSaving(true)
+    setSaveError(null)
+    try {
+      await onSaveOrder()
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : String(error))
+    } finally {
+      setSaving(false)
+    }
+  }
 
   // Validation guarantees every id resolves to a lesson and a tutorial.
   const rows = path.lessonIds.flatMap((id) => {
@@ -165,9 +189,30 @@ function PathDetail({
       </header>
 
       {orderChanged ? (
-        <p className="st-notice" role="status">
-          The new order lasts for this session only. Saving it to shared/Catalog comes with the
-          repository writer.
+        <div className="st-notice st-notice--actions" role="status">
+          {library.writable ? (
+            <>
+              <span>The lesson order has changed.</span>
+              <button
+                type="button"
+                className="st-button st-button--primary st-button--compact"
+                disabled={saving}
+                onClick={() => void saveOrder()}
+              >
+                {saving ? 'Saving…' : 'Save order'}
+              </button>
+              <button type="button" className="st-button st-button--compact" disabled={saving} onClick={onDiscardOrder}>
+                Discard
+              </button>
+            </>
+          ) : (
+            <span>The new order lasts for this session only: saving needs the Studio server.</span>
+          )}
+        </div>
+      ) : null}
+      {saveError ? (
+        <p className="st-notice st-notice--error" role="alert">
+          {saveError}
         </p>
       ) : null}
 

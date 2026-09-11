@@ -25,7 +25,8 @@ npm test         # path parser, conformance corpus, catalog, Studio helpers
 npm run build    # type-check and bundle
 ```
 
-No backend, no network calls, no accounts. Everything runs offline.
+No accounts, no remote backend, and everything runs offline. `npm run dev` also mounts the Studio's
+small local server (see [Saving](#saving)); a static build has no server and is read-only.
 
 ## Layout
 
@@ -38,7 +39,8 @@ src/
   studio/    Studio.tsx, PathsView.tsx, LessonWorkspace.tsx, library.ts, route.ts
     editor/  ops.ts (pure, tested edits), history.ts, EditCanvas.tsx, StepEditor.tsx, Inspector.tsx
   app/       ImportView.tsx, TutorialSource.tsx, DebugPanel.tsx
-  samples/   index.ts                       globs the golden files from ../shared
+  samples/   index.ts                       globs the golden files (read-only fallback)
+server/      studioApi.ts, repoWriter.ts    the local server: the only code that writes shared/
 ```
 
 `@shared/*` resolves to `../shared/*` — see the alias in `vite.config.ts` and the
@@ -72,6 +74,28 @@ At start-up `studio/library.ts` validates every tutorial and the catalog once. A
 
 The estimated learner time (`catalog/metrics.ts`) is a placeholder formula — animation time
 times three, plus eight seconds per step — until real lessons are timed.
+
+## Saving
+
+`server/studioApi.ts` mounts a few JSON endpoints under `/api` on the Vite dev server and nowhere
+else. `server/repoWriter.ts` does the disk work, and it is the only code that writes:
+
+- only under `shared/Tutorials/`, `shared/Catalog/` and `shared/Assets/References/`, at file names
+  the server derives from validated ids — the browser never sends a path;
+- only documents that pass the Studio's own strict validators, loaded through Vite;
+- only over the version the Studio read: each write names a SHA-256 of the file it replaces, and a
+  file changed on disk in the meantime is refused rather than overwritten;
+- atomically (temporary file, then rename), formatted like the hand-written golden files.
+
+Writes must be same-origin and carry an `X-StrokeTutor-Studio` header. In dev the Studio reads
+`shared/` through `/api/library` rather than bundling it, so saving never reloads the page.
+
+**Save** writes the lesson, then reads it back from disk and confirms it matches the preview.
+**Approve…** shows the quality warnings (`studio/quality.ts`: length, stroke count, tiny strokes,
+crowded steps, placeholder words, a jump from the previous lesson) with the §36 checklist, then
+saves and marks the lesson approved. Warnings never block. A reference photo is saved as
+`<lesson>.jpg|png|webp` with its source and licence recorded in `lessons.json`. Nothing runs git:
+saves appear as ordinary diffs to review.
 
 ## Loading a tutorial in Import & test
 
