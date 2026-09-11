@@ -40,7 +40,6 @@ import { StatusPill } from './StatusPill'
 
 export interface LessonWorkspaceProps {
   library: Library
-  /** The catalog as shown, which may hold an unsaved lesson order. */
   catalog: Catalog | null
   lessonId: string
   /** Called after anything is written, so the Studio re-reads shared/. */
@@ -231,10 +230,7 @@ function LessonEditor({
     setReplay((current) => ({ uids, runId: (current?.runId ?? 0) + 1 }))
   }
 
-  /**
-   * Rewrites the catalog as it is on disk with this one lesson changed. An
-   * unsaved lesson order on the Paths view is deliberately not swept along.
-   */
+  /** Rewrites the catalog as it is on disk with this one lesson changed. */
   const saveLessonMeta = async (change: (current: Lesson) => Lesson) => {
     const disk = library.catalog
     if (!disk || !lesson) throw new ApiError(0, 'This lesson is not in shared/Catalog/lessons.json.')

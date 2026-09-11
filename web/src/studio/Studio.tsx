@@ -20,50 +20,35 @@ import './studio.css'
  */
 export function Studio() {
   const [library, setLibrary] = useState<Library | null>(null)
-  // The catalog as shown, which may hold a lesson order not saved yet.
-  const [catalog, setCatalog] = useState<Catalog | null>(null)
-  const [orderChanged, setOrderChanged] = useState(false)
   const route = useHashRoute()
 
   /** Reads shared/ again: at start-up, and after every save, so the Studio shows what is on disk. */
   const reload = useCallback(async () => {
-    const next = buildLibrary(await loadSources())
-    setLibrary(next)
-    setCatalog(next.catalog)
-    setOrderChanged(false)
+    setLibrary(buildLibrary(await loadSources()))
   }, [])
 
   useEffect(() => {
     void reload()
   }, [reload])
 
-  const handleReorder = useCallback((pathId: string, lessonIds: string[]) => {
-    setCatalog((current) =>
-      current
-        ? {
-            ...current,
-            paths: current.paths.map((path) => (path.id === pathId ? { ...path, lessonIds } : path)),
-          }
-        : current,
-    )
-    setOrderChanged(true)
-  }, [])
-
-  const saveOrder = useCallback(async () => {
-    if (!library?.catalog || !catalog) return
-    // Only the order changes: lessons are written back exactly as read.
-    await saveCatalog(
-      { catalogVersion: 1, paths: catalog.paths },
-      { catalogVersion: 1, lessons: library.catalog.lessons },
-      { paths: library.catalogEtags.paths ?? null, lessons: library.catalogEtags.lessons ?? null },
-    )
-    await reload()
-  }, [library, catalog, reload])
-
-  const discardOrder = useCallback(() => {
-    setCatalog(library?.catalog ?? null)
-    setOrderChanged(false)
-  }, [library])
+  /**
+   * Applies one curriculum change to the catalog as it is on disk and saves it
+   * at once. Nothing is held unsaved, so no other save can sweep a pending
+   * change away, and the writer's version check refuses a stale catalog.
+   */
+  const editCatalog = useCallback(
+    async (change: (catalog: Catalog) => Catalog) => {
+      if (!library?.catalog) throw new Error('The catalog could not be read, so it cannot be changed.')
+      const next = change(library.catalog)
+      await saveCatalog(
+        { catalogVersion: 1, paths: next.paths },
+        { catalogVersion: 1, lessons: next.lessons },
+        { paths: library.catalogEtags.paths ?? null, lessons: library.catalogEtags.lessons ?? null },
+      )
+      await reload()
+    },
+    [library, reload],
+  )
 
   const openCreated = useCallback(
     async (lessonId: string) => {
@@ -80,15 +65,7 @@ export function Studio() {
     switch (route.name) {
       case 'paths':
         screen = (
-          <PathsView
-            library={library}
-            catalog={catalog}
-            selectedPathId={route.pathId}
-            orderChanged={orderChanged}
-            onReorder={handleReorder}
-            onSaveOrder={saveOrder}
-            onDiscardOrder={discardOrder}
-          />
+          <PathsView library={library} selectedPathId={route.pathId} onEdit={editCatalog} />
         )
         break
       case 'lesson':
@@ -96,7 +73,7 @@ export function Studio() {
           <LessonWorkspace
             key={route.lessonId}
             library={library}
-            catalog={catalog}
+            catalog={library.catalog}
             lessonId={route.lessonId}
             onSaved={reload}
           />

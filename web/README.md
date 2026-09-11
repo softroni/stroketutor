@@ -60,9 +60,17 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
 
 - **Paths** lists every path in `shared/Catalog/paths.json` and the lessons of the selected one
   in unlock order, each with its finished drawing, authoring status, objective and an estimated
-  learner time. Lessons can be reordered by drag or with the arrow buttons; the new order lasts
-  for the session until the repository writer (M3) can save it. Tutorials that no path lists
-  are shown separately, because a learner would never reach them.
+  learner time. It is also where the curriculum is shaped (`studio/pathOps.ts`):
+  - **+ New path** takes a title, an id (fixed once created; lessons and the app refer to paths
+    by it) and an optional description;
+  - paths reorder with their ↑/↓ buttons; a path's title and description are edited in place;
+  - a path can be deleted only once it is empty;
+  - lessons reorder by drag or ↑/↓, move to another path or out of every path with **Move to…**,
+    and a catalogued lesson outside every path can be added to the open one.
+
+  Every change is saved at once through the repository writer, so there is never an unsaved
+  curriculum to lose. Tutorials that no path lists are shown separately, because a learner would
+  never reach them; ones not yet in `lessons.json` must be catalogued before joining a path.
 - **Lesson Workspace** puts the reference photo, the drawing and the step list side by side,
   with an inspector and the debug tools underneath. It is an editor for the teaching structure,
   not for the drawing (§18): click or shift-click strokes on the canvas or in the step list, then

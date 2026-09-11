@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 
 import { estimateLearnerSeconds, formatMinutes } from '../catalog/metrics'
 import type { Catalog, LearningPath } from '../catalog/types'
@@ -7,34 +7,40 @@ import { totalStrokes } from '../schema/types'
 import { FinishedDrawing } from './FinishedDrawing'
 import { IssueList } from './IssueList'
 import type { Library } from './library'
-import { moveItem } from './moveItem'
+import {
+  assignLesson,
+  createPath,
+  deletePath,
+  movePath,
+  reorderLessons,
+  slugify,
+  updatePath,
+  type PathFields,
+} from './pathOps'
 import { routeHref } from './route'
 import { StatusPill } from './StatusPill'
 
 export interface PathsViewProps {
   library: Library
-  catalog: Catalog | null
   selectedPathId: string | null
-  /** True once the lesson order differs from what is on disk. */
-  orderChanged: boolean
-  onReorder: (pathId: string, lessonIds: string[]) => void
-  onSaveOrder: () => Promise<void>
-  onDiscardOrder: () => void
+  /** Applies one change to the catalog as it is on disk and saves it straight away. */
+  onEdit: (change: (catalog: Catalog) => Catalog) => Promise<void>
 }
 
+/** Runs one curriculum change; resolves to whether it was saved. */
+type Run = (change: (catalog: Catalog) => Catalog) => Promise<boolean>
+
 /**
- * The curriculum: every path, and the ordered lessons inside the selected one
- * (master plan §15).
+ * The curriculum (master plan §15): every path, the ordered lessons inside
+ * the selected one, and the controls to reshape both. Every change is saved
+ * as soon as it is made, so there is never an unsaved curriculum to lose.
  */
-export function PathsView({
-  library,
-  catalog,
-  selectedPathId,
-  orderChanged,
-  onReorder,
-  onSaveOrder,
-  onDiscardOrder,
-}: PathsViewProps) {
+export function PathsView({ library, selectedPathId, onEdit }: PathsViewProps) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
+
+  const catalog = library.catalog
   if (!catalog) {
     return (
       <div className="st-paths st-paths--single">
@@ -51,6 +57,21 @@ export function PathsView({
     )
   }
 
+  const run: Run = async (change) => {
+    setBusy(true)
+    setError(null)
+    try {
+      await onEdit(change)
+      return true
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught))
+      return false
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const editable = library.writable && !busy
   const selected = catalog.paths.find((path) => path.id === selectedPathId) ?? catalog.paths[0]
   const inAPath = new Set(catalog.paths.flatMap((path) => path.lessonIds))
   const outside = [...library.tutorials.values()].filter((entry) => !inAPath.has(entry.id))
@@ -59,35 +80,97 @@ export function PathsView({
     <div className="st-paths">
       <nav className="st-paths__list" aria-label="Paths">
         <h2 className="st-label">Paths</h2>
-        <ul className="st-paths__items">
-          {catalog.paths.map((path) => (
-            <li key={path.id}>
-              <a
-                className="st-paths__link"
-                href={routeHref({ name: 'paths', pathId: path.id })}
-                aria-current={path.id === selected?.id ? 'page' : undefined}
-              >
-                {path.title}
-                <span className="st-paths__count">{path.lessonIds.length}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
+        {catalog.paths.length > 0 ? (
+          <ul className="st-paths__items">
+            {catalog.paths.map((path, index) => (
+              <li key={path.id} className="st-paths__row">
+                <a
+                  className="st-paths__link"
+                  href={routeHref({ name: 'paths', pathId: path.id })}
+                  aria-current={path.id === selected?.id ? 'page' : undefined}
+                >
+                  {path.title}
+                  <span className="st-paths__count">{path.lessonIds.length}</span>
+                </a>
+                {library.writable ? (
+                  <span className="st-paths__order">
+                    <button
+                      type="button"
+                      className="st-mini-button"
+                      aria-label={`Move the ${path.title} path up`}
+                      disabled={!editable || index === 0}
+                      onClick={() => void run((current) => movePath(current, index, index - 1))}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="st-mini-button"
+                      aria-label={`Move the ${path.title} path down`}
+                      disabled={!editable || index === catalog.paths.length - 1}
+                      onClick={() => void run((current) => movePath(current, index, index + 1))}
+                    >
+                      ↓
+                    </button>
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="st-section-note">No paths yet.</p>
+        )}
+
+        {!library.writable ? (
+          <p className="st-section-note">Read-only copy: changing paths needs the Studio server (npm run dev).</p>
+        ) : creating ? (
+          <PathForm
+            withId
+            submitLabel="Create path"
+            busy={busy}
+            onCancel={() => setCreating(false)}
+            onSubmit={async (fields, id) => {
+              if (await run((current) => createPath(current, id, fields))) {
+                setCreating(false)
+                window.location.hash = routeHref({ name: 'paths', pathId: id })
+              }
+            }}
+          />
+        ) : (
+          <button
+            type="button"
+            className="st-button st-button--compact"
+            disabled={busy}
+            onClick={() => setCreating(true)}
+          >
+            + New path
+          </button>
+        )}
       </nav>
 
       <div className="st-paths__detail">
+        {error ? (
+          <p className="st-notice st-notice--error" role="alert">
+            {error}
+          </p>
+        ) : null}
+
         {selected ? (
           <PathDetail
+            key={selected.id}
             path={selected}
             catalog={catalog}
             library={library}
-            orderChanged={orderChanged}
-            onReorder={onReorder}
-            onSaveOrder={onSaveOrder}
-            onDiscardOrder={onDiscardOrder}
+            editable={editable}
+            busy={busy}
+            run={run}
           />
         ) : (
-          <p className="st-section-note">No paths yet. Add one to shared/Catalog/paths.json.</p>
+          <p className="st-section-note">
+            {library.writable
+              ? 'No paths yet. Create the first one with “+ New path”.'
+              : 'No paths yet.'}
+          </p>
         )}
 
         {outside.length > 0 ? (
@@ -100,18 +183,33 @@ export function PathsView({
               {outside.map((entry) => {
                 const lesson = catalog.lessons.find((candidate) => candidate.id === entry.id)
                 return (
-                  <li key={entry.id}>
-                    <a className="st-tile" href={routeHref({ name: 'lesson', lessonId: entry.id })}>
+                  <li key={entry.id} className="st-tile">
+                    <a className="st-tile__link" href={routeHref({ name: 'lesson', lessonId: entry.id })}>
                       <span className="st-tile__thumb">
                         <FinishedDrawing tutorial={entry.tutorial} />
                       </span>
                       <span className="st-tile__title">{entry.tutorial.title}</span>
-                      {lesson ? (
-                        <StatusPill status={lesson.status} />
-                      ) : (
-                        <span className="st-pill">Not catalogued</span>
-                      )}
                     </a>
+                    {lesson ? (
+                      <StatusPill status={lesson.status} />
+                    ) : (
+                      <span
+                        className="st-pill"
+                        title="Only lessons in shared/Catalog/lessons.json can be placed in a path."
+                      >
+                        Not catalogued
+                      </span>
+                    )}
+                    {lesson && selected && library.writable ? (
+                      <button
+                        type="button"
+                        className="st-link-button"
+                        disabled={!editable}
+                        onClick={() => void run((current) => assignLesson(current, lesson.id, selected.id))}
+                      >
+                        Add to {selected.title}
+                      </button>
+                    ) : null}
                   </li>
                 )
               })}
@@ -136,34 +234,20 @@ function PathDetail({
   path,
   catalog,
   library,
-  orderChanged,
-  onReorder,
-  onSaveOrder,
-  onDiscardOrder,
+  editable,
+  busy,
+  run,
 }: {
   path: LearningPath
   catalog: Catalog
   library: Library
-  orderChanged: boolean
-  onReorder: (pathId: string, lessonIds: string[]) => void
-  onSaveOrder: () => Promise<void>
-  onDiscardOrder: () => void
+  editable: boolean
+  busy: boolean
+  run: Run
 }) {
   const [dropIndex, setDropIndex] = useState<number | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
-
-  const saveOrder = async () => {
-    setSaving(true)
-    setSaveError(null)
-    try {
-      await onSaveOrder()
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : String(error))
-    } finally {
-      setSaving(false)
-    }
-  }
+  const [editing, setEditing] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   // Validation guarantees every id resolves to a lesson and a tutorial.
   const rows = path.lessonIds.flatMap((id) => {
@@ -172,53 +256,85 @@ function PathDetail({
     return lesson && entry ? [{ lesson, entry }] : []
   })
   const totalSeconds = rows.reduce((sum, row) => sum + estimateLearnerSeconds(row.entry.tutorial), 0)
+  const otherPaths = catalog.paths.filter((candidate) => candidate.id !== path.id)
 
   const move = (from: number, to: number) => {
-    if (from !== to) onReorder(path.id, moveItem(path.lessonIds, from, to))
+    if (from !== to) void run((current) => reorderLessons(current, path.id, from, to))
   }
 
   return (
     <>
       <header className="st-path-header">
-        <h1>{path.title}</h1>
-        {path.description ? <p>{path.description}</p> : null}
+        {editing ? (
+          <PathForm
+            initial={{ title: path.title, description: path.description ?? '' }}
+            submitLabel="Save"
+            busy={busy}
+            onCancel={() => setEditing(false)}
+            onSubmit={async (fields) => {
+              if (await run((current) => updatePath(current, path.id, fields))) setEditing(false)
+            }}
+          />
+        ) : (
+          <>
+            <h1>{path.title}</h1>
+            {path.description ? <p>{path.description}</p> : null}
+          </>
+        )}
         <p className="st-path-header__meta">
           {rows.length} {rows.length === 1 ? 'lesson' : 'lessons'} · {formatMinutes(totalSeconds)}{' '}
-          of drawing in total
-          {library.writable ? (
-            <>
-              {' · '}
-              <a href={routeHref({ name: 'new', pathId: path.id })}>New lesson in this path</a>
-            </>
-          ) : null}
+          of drawing in total · id <code>{path.id}</code>
         </p>
-      </header>
-
-      {orderChanged ? (
-        <div className="st-notice st-notice--actions" role="status">
-          {library.writable ? (
-            <>
-              <span>The lesson order has changed.</span>
+        {library.writable && !editing ? (
+          <div className="st-path-header__actions">
+            <a href={routeHref({ name: 'new', pathId: path.id })}>New lesson in this path</a>
+            <button type="button" className="st-link-button" disabled={!editable} onClick={() => setEditing(true)}>
+              Edit title and description
+            </button>
+            {confirmingDelete ? (
+              <span className="st-path-header__confirm" role="alert">
+                Delete the “{path.title}” path?
+                <button
+                  type="button"
+                  className="st-button st-button--danger st-button--compact"
+                  disabled={!editable}
+                  onClick={async () => {
+                    if (await run((current) => deletePath(current, path.id))) {
+                      window.location.hash = routeHref({ name: 'paths', pathId: null })
+                    }
+                  }}
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  className="st-button st-button--compact"
+                  onClick={() => setConfirmingDelete(false)}
+                >
+                  Cancel
+                </button>
+              </span>
+            ) : rows.length > 0 ? (
+              // Said in words rather than a disabled button with a tooltip, so
+              // everyone can see why the path cannot go yet.
+              <span className="st-field__hint">To delete this path, move its lessons elsewhere first.</span>
+            ) : (
               <button
                 type="button"
-                className="st-button st-button--primary st-button--compact"
-                disabled={saving}
-                onClick={() => void saveOrder()}
+                className="st-link-button"
+                disabled={!editable}
+                onClick={() => setConfirmingDelete(true)}
               >
-                {saving ? 'Saving…' : 'Save order'}
+                Delete path
               </button>
-              <button type="button" className="st-button st-button--compact" disabled={saving} onClick={onDiscardOrder}>
-                Discard
-              </button>
-            </>
-          ) : (
-            <span>The new order lasts for this session only: saving needs the Studio server.</span>
-          )}
-        </div>
-      ) : null}
-      {saveError ? (
-        <p className="st-notice st-notice--error" role="alert">
-          {saveError}
+            )}
+          </div>
+        ) : null}
+      </header>
+
+      {rows.length === 0 ? (
+        <p className="st-section-note">
+          No lessons yet. Generate one with “New lesson in this path”, or add one from “Not in a path” below.
         </p>
       ) : null}
 
@@ -229,12 +345,13 @@ function PathDetail({
             <li
               key={lesson.id}
               className={`st-lesson-row ${dropIndex === index ? 'is-drop-target' : ''}`}
-              draggable
+              draggable={editable}
               onDragStart={(event) => {
                 event.dataTransfer.setData('text/plain', String(index))
                 event.dataTransfer.effectAllowed = 'move'
               }}
               onDragOver={(event) => {
+                if (!editable) return
                 event.preventDefault()
                 setDropIndex(index)
               }}
@@ -269,30 +386,133 @@ function PathDetail({
                 </p>
                 {lesson.notes ? <p className="st-lesson-row__notes">{lesson.notes}</p> : null}
               </div>
-              <div className="st-lesson-row__order">
-                <button
-                  type="button"
-                  className="st-icon-button"
-                  aria-label={`Move ${tutorial.title} earlier`}
-                  disabled={index === 0}
-                  onClick={() => move(index, index - 1)}
-                >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  className="st-icon-button"
-                  aria-label={`Move ${tutorial.title} later`}
-                  disabled={index === rows.length - 1}
-                  onClick={() => move(index, index + 1)}
-                >
-                  ↓
-                </button>
-              </div>
+              {library.writable ? (
+                <div className="st-lesson-row__order">
+                  <span className="st-lesson-row__arrows">
+                    <button
+                      type="button"
+                      className="st-icon-button"
+                      aria-label={`Move ${tutorial.title} earlier`}
+                      disabled={!editable || index === 0}
+                      onClick={() => move(index, index - 1)}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="st-icon-button"
+                      aria-label={`Move ${tutorial.title} later`}
+                      disabled={!editable || index === rows.length - 1}
+                      onClick={() => move(index, index + 1)}
+                    >
+                      ↓
+                    </button>
+                  </span>
+                  <select
+                    className="st-field__input st-lesson-row__move"
+                    value=""
+                    aria-label={`Move ${tutorial.title} to another path`}
+                    disabled={!editable}
+                    onChange={(event) => {
+                      const target = event.target.value
+                      if (!target) return
+                      void run((current) => assignLesson(current, lesson.id, target === '-' ? null : target))
+                    }}
+                  >
+                    <option value="">Move to…</option>
+                    {otherPaths.map((candidate) => (
+                      <option key={candidate.id} value={candidate.id}>
+                        {candidate.title}
+                      </option>
+                    ))}
+                    <option value="-">No path</option>
+                  </select>
+                </div>
+              ) : null}
             </li>
           )
         })}
       </ol>
     </>
+  )
+}
+
+/** Title, optional description and — for a new path only — the id. */
+function PathForm({
+  initial,
+  withId = false,
+  submitLabel,
+  busy,
+  onSubmit,
+  onCancel,
+}: {
+  initial?: PathFields
+  withId?: boolean
+  submitLabel: string
+  busy: boolean
+  onSubmit: (fields: PathFields, id: string) => void
+  onCancel: () => void
+}) {
+  const [title, setTitle] = useState(initial?.title ?? '')
+  const [description, setDescription] = useState(initial?.description ?? '')
+  const [id, setId] = useState('')
+  const [idEdited, setIdEdited] = useState(false)
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault()
+    onSubmit({ title, description }, id)
+  }
+
+  return (
+    <form className="st-path-form" onSubmit={submit}>
+      <label className="st-field">
+        <span className="st-field__label">Title</span>
+        <input
+          className="st-field__input"
+          value={title}
+          autoFocus
+          placeholder="e.g. Trees"
+          onChange={(event) => {
+            setTitle(event.target.value)
+            if (!idEdited) setId(slugify(event.target.value))
+          }}
+        />
+      </label>
+      {withId ? (
+        <label className="st-field">
+          <span className="st-field__label">Id</span>
+          <input
+            className="st-field__input"
+            value={id}
+            onChange={(event) => {
+              setIdEdited(true)
+              setId(event.target.value)
+            }}
+          />
+          <span className="st-field__hint">Fixed once created: lessons and the app refer to the path by it.</span>
+        </label>
+      ) : null}
+      <label className="st-field">
+        <span className="st-field__label">Description (optional)</span>
+        <textarea
+          className="st-field__input"
+          value={description}
+          placeholder="How the path progresses, e.g. trunk and canopy first, then species character."
+          onChange={(event) => setDescription(event.target.value)}
+        />
+      </label>
+      <div className="st-path-form__actions">
+        <button
+          type="submit"
+          className="st-button st-button--primary st-button--compact"
+          disabled={busy || !title.trim() || (withId && !id)}
+        >
+          {busy ? 'Saving…' : submitLabel}
+        </button>
+        <button type="button" className="st-button st-button--compact" disabled={busy} onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
+    </form>
   )
 }

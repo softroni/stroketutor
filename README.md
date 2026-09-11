@@ -221,6 +221,24 @@ real reference photos, live model iteration and your judgement. Start with the o
   but another opened with a child-leaning tone.
 - **Per-stage regeneration.** Regenerating a single stage (drawing, order, steps, instructions) is the natural next control.
 
+### Follow-up · Path management (2026-09-11)
+The plan's Studio MVP starts with "create and reorder a Path" (§28, item 1), but M1–M3 only covered lesson order.
+
+**Added to the Paths view:**
+- create a path: title, a fixed id and an optional description;
+- edit a path's title and description;
+- reorder paths;
+- delete a path, but only once it's empty;
+- move a lesson to another path, or out of all paths.
+
+**Every change saves at once** through the repository writer. This also fixes a bug: an unsaved lesson order used to be
+thrown away silently whenever another save re-read the catalog.
+
+**Verified:**
+- **Tests:** 173 web tests pass (13 new).
+- **In the browser:** I created "Trees", moved it above Houses, moved Simple House into Trees and back, then deleted Trees.
+  `paths.json` ended byte-identical to where it started.
+
 ### M5 · AI generation quality (gated)
 Prompting for human pen gestures, stage-level regeneration (drawing / order / steps / instructions),
 generation history and compare, prompt versions. Needs live model iteration and the creator's judgement.

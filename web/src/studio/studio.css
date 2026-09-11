@@ -366,6 +366,13 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
+}
+
+.st-tile__link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
   color: var(--ink);
   text-decoration: none;
 }
@@ -608,13 +615,6 @@
   gap: 14px;
 }
 
-.st-notice--actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
 .st-notice--success {
   border-color: #b9dcc5;
   background: #eef8f1;
@@ -689,6 +689,62 @@
 .st-reference-form__actions {
   display: flex;
   gap: 10px;
+}
+
+/* ---------- Path management ---------- */
+
+.st-paths__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.st-paths__row .st-paths__link {
+  flex: 1;
+  min-width: 0;
+}
+
+.st-paths__order {
+  display: flex;
+  gap: 3px;
+}
+
+.st-path-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.st-path-form__actions,
+.st-path-header__confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.st-path-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.st-lesson-row__order {
+  align-items: flex-end;
+}
+
+.st-lesson-row__arrows {
+  display: flex;
+  gap: 6px;
+}
+
+.st-lesson-row__move {
+  width: 132px;
+  padding: 6px 8px;
+  font-size: 13.5px;
 }
 
 /* ---------- New lesson and settings ---------- */

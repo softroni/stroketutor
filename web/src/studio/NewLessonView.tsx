@@ -15,6 +15,7 @@ import {
 import { FinishedDrawing } from './FinishedDrawing'
 import { IssueList } from './IssueList'
 import type { Library } from './library'
+import { slugify } from './pathOps'
 import { qualityWarnings } from './quality'
 import { routeHref } from './route'
 import { storedModel } from './settings'
@@ -471,15 +472,6 @@ export function AnalysisPanel({ analysis }: { analysis: Analysis }) {
       </dl>
     </div>
   )
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 }
 
 async function toBase64(file: File): Promise<string> {
