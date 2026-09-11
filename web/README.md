@@ -36,6 +36,7 @@ src/
   catalog/   types.ts, validate.ts, metrics.ts   the curriculum catalog beside the tutorials
   player/    TutorialPlayer.tsx, StrokeCanvas.tsx, usePlayback.ts, svgPath.ts
   studio/    Studio.tsx, PathsView.tsx, LessonWorkspace.tsx, library.ts, route.ts
+    editor/  ops.ts (pure, tested edits), history.ts, EditCanvas.tsx, StepEditor.tsx, Inspector.tsx
   app/       ImportView.tsx, TutorialSource.tsx, DebugPanel.tsx
   samples/   index.ts                       globs the golden files from ../shared
 ```
@@ -57,8 +58,13 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
   for the session until the repository writer (M3) can save it. Tutorials that no path lists
   are shown separately, because a learner would never reach them.
 - **Lesson Workspace** puts the reference photo, the drawing and the step list side by side,
-  with the selected step's instruction and the debug tools underneath. **Preview as learner**
-  mounts `TutorialPlayer` with the lesson.
+  with an inspector and the debug tools underneath. It is an editor for the teaching structure,
+  not for the drawing (§18): click or shift-click strokes on the canvas or in the step list, then
+  group them into a new step, move them to another step, retime them or delete them; reorder
+  steps and strokes, split a step at any stroke, merge it with the next, and edit its title and
+  instruction. Strokes are coloured by step while editing. Any stroke, step or the whole lesson can
+  be replayed on the real clock, every change is undoable (⌘Z / ⇧⌘Z), and strict validation runs
+  on every edit. **Preview as learner** mounts `TutorialPlayer` with the edited lesson.
 - **Import & test** is the original loader: any tutorial JSON, validated and played, never saved.
 
 At start-up `studio/library.ts` validates every tutorial and the catalog once. A tutorial whose

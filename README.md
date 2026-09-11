@@ -35,8 +35,8 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | ID | Milestone | Plan ref | Mode | Status | Commit |
 |---|---|---|---|---|---|
 | M0 | Baseline: protect the PoC | §34 Phase 0 | autonomous | ✅ Done 2026-09-11 | `5a4e687` |
-| M1 | Studio shell + catalog | §14–15, §26, §34 Phase 1 | autonomous | ✅ Done 2026-09-11 | see git log |
-| M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ⬜ Not started | |
+| M1 | Studio shell + catalog | §14–15, §26, §34 Phase 1 | autonomous | ✅ Done 2026-09-11 | `5482365` |
+| M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ✅ Done 2026-09-11 | see git log |
 | M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ⬜ Not started | |
 | M4 | OpenRouter integration | §20–22, §35 Phase 4 | autonomous (live check needs a key) | ⬜ Not started | |
 | M5 | AI generation quality | §23–24, §35 Phase 5 | **gated**: needs creator judgement | ⬜ Not started | |
@@ -50,7 +50,7 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M2: Lesson editor.** Autonomous runs stop after **M4**. M5 and later need the creator.
+**M3: Repository writer.** Autonomous runs stop after **M4**. M5 and later need the creator.
 
 ---
 
@@ -91,14 +91,33 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 - **Reorder isn't saved yet.** Lesson reordering holds in memory until the repository writer (M3) can save it.
 
 ### M2 · Lesson editor
-- [ ] Pure, tested ops: reorder steps/strokes, move strokes, group into a new step, split, merge, delete stroke, and
+- [x] Pure, tested ops: reorder steps/strokes, move strokes, group into a new step, split, merge, delete stroke, and
       edits to title, instruction, duration and lineWidth. Undo/redo.
-- [ ] Invariants hold: every stroke appears exactly once (except explicit deletes), no empty steps, unique step ids.
-- [ ] Canvas stroke selection (click, shift-click), step list reorder, temporary step colours in Edit mode.
-- [ ] Replay a stroke, a step or the whole lesson; live strict validation.
-- [ ] "Preview as Learner" mounts the real `TutorialPlayer`.
+- [x] Invariants hold: every stroke appears exactly once (except explicit deletes), no empty steps, unique step ids.
+- [x] Canvas stroke selection (click, shift-click), step list reorder, temporary step colours in Edit mode.
+- [x] Replay a stroke, a step or the whole lesson; live strict validation.
+- [x] "Preview as Learner" mounts the real `TutorialPlayer`.
 
 **Exit:** simple-house can be reordered, grouped and split, then re-previewed, with no hand-written JSON.
+
+**Done.**
+- **Tests:** web 106 (26 new). The editor ops are checked against both golden files, including 300 random operations on each,
+  asserting the invariants and strict validity after every step. The build passes. Nothing in `shared/` or iOS changed, so the iOS
+  tests weren't re-run.
+- **In the browser:** on simple-house I moved a step, undid it with ⌘Z, split "Add two windows", and grouped the door with a window into a new
+  step. The lesson stayed valid throughout, and Preview as learner played the edited five-step lesson in `TutorialPlayer`. No console errors.
+
+**Departures and decisions:**
+- **Edits aren't saved yet.** Edits live in the open lesson only. Leaving it discards them, and a reload or close asks first. Saving is M3.
+- **Selection ids are editor-only.** They're stripped on the way out, and fields are rebuilt in the golden files' order, so an unchanged lesson
+  round-trips byte for byte.
+- **Moving strokes between steps.** Strokes change step through Group or "Move to step…" on the selection, not by dragging. Steps reorder by
+  drag or with the arrow buttons; every operation is reachable from the keyboard.
+- **Placeholder wording.** A grouped step starts as "New step" with placeholder wording, and a split step's second half is titled "… (continued)".
+  The creator rewrites both; validation doesn't flag placeholders yet. That's a candidate warning for M5.
+- **Splitting.** Split is a faint "split here" rule between strokes, always visible, so it can be found without hovering.
+- **Replay.** Replay uses `StrokeCanvas` with the same duration-based clock as playback. The interactive canvas is a separate static SVG with
+  wide invisible hit areas, so thin strokes are easy to click.
 
 ### M3 · Repository writer
 - [ ] Local dev-server API. It writes only to `shared/Tutorials/`, `shared/Assets/References/` and `shared/Catalog/`.

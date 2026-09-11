@@ -1,0 +1,371 @@
+/* ---------- Workspace toolbar ---------- */
+
+.st-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.st-toolbar__spacer {
+  flex: 1;
+}
+
+.st-segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 11px;
+  background: var(--surface);
+}
+
+.st-segmented button {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink-muted);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.st-segmented button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.st-segmented button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.st-valid,
+.st-invalid {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.st-valid {
+  color: #1f6b3a;
+}
+
+.st-valid::before {
+  content: '✓ ';
+}
+
+.st-invalid {
+  color: var(--danger);
+}
+
+.st-notice--error {
+  border-color: #e6bfc3;
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+
+/* ---------- Edit canvas ---------- */
+
+.st-edit-canvas {
+  cursor: default;
+}
+
+.st-edit-canvas__hit {
+  cursor: pointer;
+}
+
+/* ---------- Step editor ---------- */
+
+.st-step-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.st-step-card.is-active {
+  border-color: var(--accent-soft);
+  background: var(--accent-tint);
+}
+
+.st-step-card.is-drop-target {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.st-step-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-step-card__swatch {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.st-step-card__title {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  padding: 2px 0;
+  border: none;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.st-step-card__number {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.st-step-card__meta {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-step-card__strokes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  list-style: none;
+}
+
+.st-stroke-row__line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.st-stroke-row__pick {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink-muted);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.st-stroke-row__pick:hover {
+  background: var(--surface-hover);
+}
+
+.st-stroke-row__pick.is-selected {
+  border-color: rgba(215, 38, 61, 0.35);
+  background: rgba(215, 38, 61, 0.07);
+  color: var(--ink);
+}
+
+.st-stroke-row__meta {
+  font-size: 12px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A faint rule between strokes that splits the step there. Always visible, so
+   the creator can discover it without hovering. */
+.st-stroke-row__split {
+  display: block;
+  width: 100%;
+  margin: 2px 0;
+  padding: 0;
+  border: none;
+  border-top: 1px dashed var(--line);
+  background: none;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.st-stroke-row__split:hover,
+.st-stroke-row__split:focus-visible {
+  border-top-color: var(--accent);
+  color: var(--accent);
+  opacity: 1;
+}
+
+.st-step-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-left: 18px;
+}
+
+.st-step-card__order {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.st-mini-button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--ink-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.st-mini-button:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.st-mini-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.st-link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.st-link-button:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.st-link-button:disabled {
+  color: var(--ink-faint);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- Inspector ---------- */
+
+.st-inspector-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 28px;
+}
+
+.st-inspector-panel__column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.st-inspector-panel__numbers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.st-inspector-panel__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.st-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.st-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.st-field__input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: #fcfbf8;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+}
+
+.st-field__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.st-field__input--long {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.st-field__select {
+  width: auto;
+  padding: 9px 10px;
+}
+
+.st-field__hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+
+.st-button--danger {
+  border-color: #e6bfc3;
+  color: var(--danger);
+}
+
+.st-button--danger:hover:not(:disabled) {
+  background: var(--danger-tint);
+}
+
+@media (max-width: 900px) {
+  .st-inspector-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

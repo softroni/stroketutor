@@ -439,7 +439,7 @@
 
 .st-workspace__grid {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr) minmax(240px, 1fr);
+  grid-template-columns: minmax(200px, 0.9fr) minmax(0, 1.8fr) minmax(320px, 1.2fr);
   gap: 20px;
   align-items: start;
 }
