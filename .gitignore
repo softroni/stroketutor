@@ -1,0 +1,4 @@
+.DS_Store
+xcuserdata/
+# Lock + heartbeat for the milestone runner (see README "Working on milestones").
+.milestones/
