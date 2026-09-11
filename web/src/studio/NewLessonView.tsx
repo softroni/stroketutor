@@ -341,7 +341,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
       ) : null}
       {outcome.kind === 'failed' ? (
         <p className="st-notice st-notice--error" role="alert">
-          {outcome.message} Your inputs are unchanged; try again when ready.
+          {outcome.message} Your inputs are unchanged.
         </p>
       ) : null}
       {outcome.kind === 'rejected' ? (

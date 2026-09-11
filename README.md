@@ -263,6 +263,10 @@ from `error.metadata`, was Google AI Studio's "JSON mode is not enabled for this
 - **Settings now offers only models that answer in text.** This dropped 10 of 240, and Settings warns if the saved
   choice isn't in the list.
 - **Provider refusals now show the provider's own reason**, and a 400 suggests trying another model.
+- **Mid-answer failures.** A second failure, with `google/gemini-3.8-flash`, arrived as a 200 with `finish_reason: "error"`
+  and no error object, so it read "no details given". It now names the provider and its `native_finish_reason`, and
+  the server logs the outcome without the key or the request. The same request rerun live, with a palm-tree SVG, gave a
+  valid 6-step lesson in 39 s for about $0.025, so the failure looks transient.
 
 **Verified:** web 185 tests pass (2 new) and the build succeeds. Live, the same request now reports the reason above,
 and Settings flags the saved model.

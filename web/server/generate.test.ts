@@ -205,6 +205,16 @@ describe('generateCandidate', () => {
     expect(failed.message).toContain('Google AI Studio: JSON mode is not enabled for this model')
   })
 
+  it('reports the provider and its stop reason when a 200 fails without an error object', async () => {
+    const body = {
+      provider: 'Google',
+      choices: [{ finish_reason: 'error', native_finish_reason: 'MALFORMED_RESPONSE', message: { content: '' } }],
+    }
+    const failed = await refusal(generateCandidate(request(), deps(openRouter(200, body).fetch)))
+    expect(failed.status).toBe(502)
+    expect(failed.message).toContain('provider (Google) failed while answering: it stopped with "MALFORMED_RESPONSE"')
+  })
+
   it('checks the input before spending anything', async () => {
     const router = openRouter(200, answer(fixture('generation-cottage.json')))
     const cases: [Record<string, unknown>, Partial<GenerateDeps>, number][] = [

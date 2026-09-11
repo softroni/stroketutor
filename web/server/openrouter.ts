@@ -74,8 +74,15 @@ interface ChatError {
 
 interface ChatResponse {
   model?: string
+  /** The provider that served the request, e.g. "Google". */
+  provider?: string
   error?: ChatError
-  choices?: { finish_reason?: string | null; message?: { content?: string | null } }[]
+  choices?: {
+    finish_reason?: string | null
+    /** The provider's own stop reason, such as Gemini's "SAFETY" or "MALFORMED_FUNCTION_CALL". */
+    native_finish_reason?: string | null
+    message?: { content?: string | null }
+  }[]
   usage?: { prompt_tokens?: number; completion_tokens?: number; cost?: number }
 }
 
@@ -125,9 +132,26 @@ export async function requestLesson(
 
   const choice = payload?.choices?.[0]
   if (payload?.error || choice?.finish_reason === 'error') {
+    // A failure after the answer began arrives as a 200. The top-level error is
+    // often absent; the provider and its native stop reason are then all there is.
+    const native = choice?.native_finish_reason ? `it stopped with "${choice.native_finish_reason}"` : ''
+    const reasons = [payload?.error ? reasonOf(payload.error) : '', native].filter(Boolean).join('; ')
+    console.warn(
+      '[studio] generation failed inside a 200:',
+      JSON.stringify({
+        model: payload?.model ?? request.model,
+        provider: payload?.provider,
+        finish_reason: choice?.finish_reason,
+        native_finish_reason: choice?.native_finish_reason,
+        error: payload?.error,
+        usage: payload?.usage,
+      }),
+    )
     throw new GenerationFailed(
       502,
-      `The model's provider failed while answering: ${reasonOf(payload?.error)}. Try again.`,
+      `The model's provider${payload?.provider ? ` (${payload.provider})` : ''} failed while answering: ${
+        reasons || 'no details given'
+      }. Try again, or choose another model in Settings.`,
     )
   }
   if (choice?.finish_reason === 'length') {
