@@ -306,12 +306,29 @@ in after all the outlines are drawn.
   - editing keeps fill-only steps, and split and merge carry fills along.
 - [ ] Before a v2 lesson is saved into `shared/Tutorials`: iOS bundles that folder and requires every file to load, so
   v2 lessons need somewhere iOS won't pick them up, or iOS must skip them gracefully.
-- [ ] SVG tracer:
-  - [ ] parse shapes, transforms and styles;
-  - [ ] map them to absolute M/L/C/Q/Z on the lesson canvas;
-  - [ ] turn thin dark filled bands (cartoon outlines) into centre-line strokes, and use stroked paths directly;
-  - [ ] turn coloured regions into fills;
-  - [ ] simplify to a drawable count.
+- [x] SVG tracer (`web/src/trace/traceSvg.ts`, runs in the browser):
+  - [x] parse shapes, transforms and styles. The file is mounted in a shadow root, so its CSS can't leak into the Studio,
+    and it is checked with the same safety rules as the server (`web/src/svg/safety.ts`);
+  - [x] map them to absolute M/L/C/Q/Z on the lesson canvas. `web/src/svg/pathNormalize.ts` converts the full path
+    grammar, with arcs turned into cubics;
+  - [x] turn thin dark filled bands (cartoon outlines) into centre-line strokes, and use stroked paths directly:
+    - Zhang–Suen thinning, with line width taken from the band;
+    - spurs pruned, lines carried straight on through junctions, and near-touching ends joined;
+  - [x] turn coloured regions into fills:
+    - k-means in CIELAB, keeping the file's own most common colours;
+    - specks removed, and colour grown under the outlines so no paper shows;
+    - one evenodd shape per colour;
+  - [x] simplify to a drawable count: up to 64 strokes by default, longest first, with a note on how much of the
+    outline the kept lines follow.
+
+  **On the Pixabay palm:** 0.2 s. 8 fills from the file's 28 colours, and with the outlines it reproduces the picture
+  closely. 64 strokes follow 83% of the outline length.
+
+  **Known limits:**
+  - Where many lines crowd together, the outline still breaks into short pieces. The upright top frond is the example:
+    21 pieces, of which 7 are kept.
+  - Touching coconuts come out as arcs rather than closed circles.
+  - Not yet handled: `<use>`, and group-level opacity. Gradients count as a colour rather than as ink.
 - [ ] Generation: the model gets a compact list of traced strokes and fills and returns steps and instructions as strict
   JSON; the code assembles the tutorial.
 - [ ] Studio: "New lesson from SVG", with a preview before keeping.
