@@ -1,7 +1,11 @@
 /**
  * The models the Studio can generate with, read live from OpenRouter's public
  * model list, so no model id is baked into the code (master plan §20, §39).
- * Only models that accept images and support structured outputs qualify.
+ * Only models that accept images, support structured outputs and answer in
+ * text alone qualify. Image-generation models (output "image,text", such as
+ * google/gemini-2.5-flash-image) list structured outputs too, but their
+ * provider refuses the request: on 2026-09-11 Google AI Studio answered "JSON
+ * mode is not enabled for this model".
  * https://openrouter.ai/docs/api-reference/list-available-models
  */
 
@@ -22,7 +26,7 @@ interface RawModel {
   id?: string
   name?: string
   context_length?: number
-  architecture?: { input_modalities?: string[] }
+  architecture?: { input_modalities?: string[]; output_modalities?: string[] }
   supported_parameters?: string[]
   pricing?: { prompt?: string; completion?: string }
 }
@@ -55,6 +59,7 @@ export function selectVisionModels(raw: RawModel[]): VisionModel[] {
       (model) =>
         typeof model.id === 'string' &&
         (model.architecture?.input_modalities ?? []).includes('image') &&
+        (model.architecture?.output_modalities ?? ['text']).every((output) => output === 'text') &&
         (model.supported_parameters ?? []).includes('structured_outputs'),
     )
     .map((model) => ({

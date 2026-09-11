@@ -81,6 +81,13 @@ export function SettingsView({ library }: { library: Library }) {
           Generating with: <strong>{effective || 'no model chosen'}</strong>
           {!model && settings?.defaultModel ? ' (OPENROUTER_MODEL default)' : ''}
         </p>
+        {effective && models && models.length > 0 && !models.some((candidate) => candidate.id === effective) ? (
+          <p className="st-notice st-notice--error" role="alert">
+            <code>{effective}</code> is not in the list below: it either makes images rather than writing
+            text, or no longer takes a photo with structured output. Generating with it will likely fail;
+            choose a model below.
+          </p>
+        ) : null}
         <label className="st-field">
           <span className="st-field__label">Filter</span>
           <input

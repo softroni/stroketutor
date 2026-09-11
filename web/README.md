@@ -121,8 +121,11 @@ The key is read by `vite.config.ts` and handed to the server plugin only. Vite e
 `VITE_`-prefixed variables to the browser, so it never reaches the bundle, and **Settings** shows
 only whether a key is configured. `OPENROUTER_MODEL` in the same file sets a default model.
 
-**Settings** lists the models OpenRouter currently offers that accept images and support
-structured output, with prices; the choice is kept in the browser. No model id is written into
+**Settings** lists the models OpenRouter currently offers that accept images, support
+structured output and answer in text only, with prices; image-generation models such as
+`google/gemini-2.5-flash-image` are left out. The choice is kept in the browser, and Settings warns
+when the kept choice is no longer in the list. A provider's refusal is shown with the provider's
+own reason, taken from OpenRouter's `error.metadata`. No model id is written into
 the code.
 
 **New lesson** takes a path and position, a title and id, a one-line objective, the reference

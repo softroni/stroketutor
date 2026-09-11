@@ -256,6 +256,17 @@ A lesson's reference image can now be an SVG as well as JPEG, PNG or WebP, in bo
 **Verified:** web 183 tests pass (10 new), the build succeeds, and iOS tests pass. In the browser, an SVG rendered to a PNG with the
 right aspect ratio, and a clean SVG was stored and served with the CSP headers. An SVG with a script was refused.
 
+### Follow-up · Image-generation models (2026-09-11)
+Generating with `google/gemini-2.5-flash-image` failed with only "Provider returned error". The provider's real reason,
+from `error.metadata`, was Google AI Studio's "JSON mode is not enabled for this model". Image-generation models
+(output "image,text") still list structured outputs, so Settings offered them.
+- **Settings now offers only models that answer in text.** This dropped 10 of 240, and Settings warns if the saved
+  choice isn't in the list.
+- **Provider refusals now show the provider's own reason**, and a 400 suggests trying another model.
+
+**Verified:** web 185 tests pass (2 new) and the build succeeds. Live, the same request now reports the reason above,
+and Settings flags the saved model.
+
 ### M5 · AI generation quality (gated)
 Prompting for human pen gestures, stage-level regeneration (drawing / order / steps / instructions),
 generation history and compare, prompt versions. Needs live model iteration and the creator's judgement.

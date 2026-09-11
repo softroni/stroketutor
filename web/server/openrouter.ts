@@ -66,9 +66,15 @@ export interface OpenRouterOptions {
   fetch?: typeof fetch
 }
 
+interface ChatError {
+  code?: number
+  message?: string
+  metadata?: Record<string, unknown>
+}
+
 interface ChatResponse {
   model?: string
-  error?: { code?: number; message?: string }
+  error?: ChatError
   choices?: { finish_reason?: string | null; message?: { content?: string | null } }[]
   usage?: { prompt_tokens?: number; completion_tokens?: number; cost?: number }
 }
@@ -115,13 +121,13 @@ export async function requestLesson(
   }
 
   const payload = (await response.json().catch(() => null)) as ChatResponse | null
-  if (!response.ok) throw failureFor(response.status, payload?.error?.message)
+  if (!response.ok) throw failureFor(response.status, payload?.error)
 
   const choice = payload?.choices?.[0]
   if (payload?.error || choice?.finish_reason === 'error') {
     throw new GenerationFailed(
       502,
-      `The model's provider failed while answering: ${payload?.error?.message ?? 'no details given'}. Try again.`,
+      `The model's provider failed while answering: ${reasonOf(payload?.error)}. Try again.`,
     )
   }
   if (choice?.finish_reason === 'length') {
@@ -151,10 +157,52 @@ export async function requestLesson(
   }
 }
 
-function failureFor(status: number, message = 'no details given'): GenerationFailed {
+/**
+ * OpenRouter's message, plus the provider's own reason when OpenRouter passes
+ * one on in `error.metadata` (provider name, the upstream body as `raw`, and
+ * `provider_code`). On its own, "Provider returned error" gives the creator
+ * nothing to act on.
+ */
+export function reasonOf(error: ChatError | undefined): string {
+  const message = error?.message?.trim() || 'no details given'
+  const metadata = error?.metadata ?? {}
+  const provider = typeof metadata.provider_name === 'string' ? metadata.provider_name : ''
+  const raw = upstreamMessage(metadata.raw)
+  const code = typeof metadata.provider_code === 'string' ? metadata.provider_code : ''
+  const detail = raw || (code ? `code ${code}` : '')
+  if (!provider && !detail) return message
+  return `${message} (${[provider, detail].filter(Boolean).join(': ')})`
+}
+
+/** The readable part of a provider's error body, which arrives as JSON text, an object or plain text. */
+function upstreamMessage(raw: unknown): string {
+  let value = raw
+  if (typeof raw === 'string') {
+    try {
+      value = JSON.parse(raw)
+    } catch {
+      return raw.trim().slice(0, 300)
+    }
+  }
+  const nested = value as { error?: { message?: unknown } | string; message?: unknown } | null
+  const text =
+    (typeof nested?.error === 'object' && typeof nested.error?.message === 'string' && nested.error.message) ||
+    (typeof nested?.error === 'string' && nested.error) ||
+    (typeof nested?.message === 'string' && nested.message) ||
+    (value === null || value === undefined ? '' : JSON.stringify(value))
+  return text.trim().slice(0, 300)
+}
+
+function failureFor(status: number, error: ChatError | undefined): GenerationFailed {
+  const message = reasonOf(error)
   switch (status) {
     case 400:
-      return new GenerationFailed(400, `OpenRouter refused the request: ${message}`)
+      return new GenerationFailed(
+        400,
+        typeof error?.metadata?.provider_name === 'string'
+          ? `The model's provider refused the request: ${message}. Try another model in Settings.`
+          : `OpenRouter refused the request: ${message}`,
+      )
     case 401:
       return new GenerationFailed(
         401,

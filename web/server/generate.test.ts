@@ -186,6 +186,25 @@ describe('generateCandidate', () => {
     expect(failure.message).toContain(phrase)
   })
 
+  it("passes on the provider's own reason, not just \"Provider returned error\"", async () => {
+    const error = {
+      code: 400,
+      message: 'Provider returned error',
+      metadata: {
+        provider_name: 'Google AI Studio',
+        raw: JSON.stringify({ error: { code: 400, message: 'JSON mode is not enabled for this model' } }),
+      },
+    }
+    const refused = await refusal(generateCandidate(request(), deps(openRouter(400, { error }).fetch)))
+    expect(refused.status).toBe(400)
+    expect(refused.message).toContain('(Google AI Studio: JSON mode is not enabled for this model)')
+    expect(refused.message).toContain('Try another model in Settings')
+
+    const inside200 = { error, choices: [{ finish_reason: 'error', message: { content: '' } }] }
+    const failed = await refusal(generateCandidate(request(), deps(openRouter(200, inside200).fetch)))
+    expect(failed.message).toContain('Google AI Studio: JSON mode is not enabled for this model')
+  })
+
   it('checks the input before spending anything', async () => {
     const router = openRouter(200, answer(fixture('generation-cottage.json')))
     const cases: [Record<string, unknown>, Partial<GenerateDeps>, number][] = [
