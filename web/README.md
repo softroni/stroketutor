@@ -1,11 +1,13 @@
-# StrokeTutor Web
+# StrokeTutor Studio (web)
 
-Browser player for interactive "learn to draw on paper" tutorials, and the surface
-tutorials are authored and tested on before they ship to the iOS app.
+The private authoring tool for StrokeTutor lessons, built around the browser player that
+tutorials are tested on before they ship to the iOS app. See the
+[master plan](../docs/StrokeTutor_Master_Plan.pdf) (Part III) and the milestone tracker in the
+[root README](../README.md).
 
 Both apps read the same JSON — literally the same files, in [`../shared`](../shared).
-The schema, the golden tutorials and the conformance corpus live there and are read
-by this app and by the iOS target; neither side keeps a copy. `src/player/svgPath.ts`
+The schema, the golden tutorials, the curriculum catalog and the conformance corpus live there
+and are read by this app and by the iOS target; neither side keeps a copy. `src/player/svgPath.ts`
 is a port of `StrokeTutor/Parsing/SVGPathParser.swift` — same grammar, same
 rejections, same character indices in error messages.
 
@@ -18,8 +20,8 @@ there. Where the two are meant to differ, the manifest says so and says why. See
 
 ```bash
 npm install
-npm run dev      # opens the House sample with step one animating
-npm test         # path parser + shared conformance corpus
+npm run dev      # opens the Studio on the Paths view
+npm test         # path parser, conformance corpus, catalog, Studio helpers
 npm run build    # type-check and bundle
 ```
 
@@ -28,21 +30,44 @@ No backend, no network calls, no accounts. Everything runs offline.
 ## Layout
 
 ```
-../shared/            tutorial.schema.json, Tutorials/, conformance/   (also read by iOS)
+../shared/            tutorial.schema.json, catalog.schema.json, Tutorials/, Catalog/, conformance/
 src/
-  schema/    types.ts, validate.ts          mirrors and enforces the shared schema
+  schema/    types.ts, validate.ts          mirrors and enforces the tutorial schema
+  catalog/   types.ts, validate.ts, metrics.ts   the curriculum catalog beside the tutorials
   player/    TutorialPlayer.tsx, StrokeCanvas.tsx, usePlayback.ts, svgPath.ts
-  app/       App.tsx, TutorialSource.tsx, DebugPanel.tsx
-  samples/   index.ts                       loads the golden files from ../shared
+  studio/    Studio.tsx, PathsView.tsx, LessonWorkspace.tsx, library.ts, route.ts
+  app/       ImportView.tsx, TutorialSource.tsx, DebugPanel.tsx
+  samples/   index.ts                       globs the golden files from ../shared
 ```
 
 `@shared/*` resolves to `../shared/*` — see the alias in `vite.config.ts` and the
 matching `paths` entry in `tsconfig.json`.
 
-`player/` imports nothing from `app/`. `TutorialPlayer` takes a validated `Tutorial`
-and nothing else, so a future editing UI can wrap it unchanged.
+`player/` imports nothing from `app/` or `studio/`. `TutorialPlayer` takes a validated
+`Tutorial` and nothing else, which is why the Studio's learner preview can be the real player
+rather than an imitation of it.
 
-## Loading a tutorial
+## The Studio
+
+Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<lesson>`, `#/import`.
+
+- **Paths** lists every path in `shared/Catalog/paths.json` and the lessons of the selected one
+  in unlock order, each with its finished drawing, authoring status, objective and an estimated
+  learner time. Lessons can be reordered by drag or with the arrow buttons; the new order lasts
+  for the session until the repository writer (M3) can save it. Tutorials that no path lists
+  are shown separately, because a learner would never reach them.
+- **Lesson Workspace** puts the reference photo, the drawing and the step list side by side,
+  with the selected step's instruction and the debug tools underneath. **Preview as learner**
+  mounts `TutorialPlayer` with the lesson.
+- **Import & test** is the original loader: any tutorial JSON, validated and played, never saved.
+
+At start-up `studio/library.ts` validates every tutorial and the catalog once. A tutorial whose
+`id` does not match its file name is refused, because lessons are found and saved by id.
+
+The estimated learner time (`catalog/metrics.ts`) is a placeholder formula — animation time
+times three, plus eight seconds per step — until real lessons are timed.
+
+## Loading a tutorial in Import & test
 
 Four ways, all ending in the same validation path:
 
@@ -77,7 +102,8 @@ For hand-authoring coordinates: show-all rendering, a 100-unit grid with axis
 labels, a live canvas-space cursor readout, and a stroke inspector listing every
 stroke's `d`, duration and measured path length — hover a row to pick that stroke
 out on the canvas. It renders its own static canvas next to the live player, so you
-can read coordinates off a still copy while the animation plays.
+can read coordinates off a still copy while the animation plays. In the Studio it
+lives under the workspace's **Advanced** tab.
 
 ## Schema v1
 

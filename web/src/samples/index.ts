@@ -5,9 +5,13 @@ import type { Tutorial } from '../schema/types'
 // exact same code path as a pasted or dropped file. If a golden file ever drifts
 // out of schema, it fails here loudly instead of being trusted implicitly.
 //
-// These are the same files the iOS app bundles -- not copies of them.
-import catFaceSource from '@shared/Tutorials/cat-face.json?raw'
-import simpleHouseSource from '@shared/Tutorials/simple-house.json?raw'
+// These are the same files the iOS app bundles -- not copies of them. Globbed
+// rather than listed, so a lesson the Studio saves appears without a code change.
+const sources = import.meta.glob<string>('@shared/Tutorials/*.json', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+})
 
 export interface Sample {
   /** File name, shown in the source list and used as the loaded document label. */
@@ -15,10 +19,9 @@ export interface Sample {
   source: string
 }
 
-export const SAMPLES: Sample[] = [
-  { fileName: 'simple-house.json', source: simpleHouseSource },
-  { fileName: 'cat-face.json', source: catFaceSource },
-]
+export const SAMPLES: Sample[] = Object.entries(sources)
+  .map(([path, source]) => ({ fileName: path.slice(path.lastIndexOf('/') + 1), source }))
+  .sort((a, b) => a.fileName.localeCompare(b.fileName))
 
 /**
  * Parses a bundled sample.

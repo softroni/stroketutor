@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://stroketutor.app/schema/catalog.schema.json",
+  "title": "StrokeTutor Curriculum Catalog",
+  "description": "Where each lesson lives in the curriculum. Kept beside the tutorials, never inside them: tutorial.schema.json says how a drawing plays, this says which path it belongs to, in what order, and how far through authoring it is. Catalog/paths.json is validated against definitions/pathsFile and Catalog/lessons.json against definitions/lessonsFile.",
+  "definitions": {
+    "id": {
+      "description": "Lowercase slug. A lesson id is also the file name of its tutorial: Tutorials/<id>.json.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "pathsFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["catalogVersion", "paths"],
+      "properties": {
+        "catalogVersion": { "const": 1 },
+        "paths": {
+          "description": "Subject paths, in the order the learner sees them.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/path" }
+        }
+      }
+    },
+    "path": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "lessonIds"],
+      "properties": {
+        "id": { "$ref": "#/definitions/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "lessonIds": {
+          "description": "Lessons in unlock order. Each must exist in lessons.json and belong to no other path.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/id" }
+        }
+      }
+    },
+    "lessonsFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["catalogVersion", "lessons"],
+      "properties": {
+        "catalogVersion": { "const": 1 },
+        "lessons": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/lesson" }
+        }
+      }
+    },
+    "lesson": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "objective"],
+      "properties": {
+        "id": { "$ref": "#/definitions/id" },
+        "status": {
+          "description": "Authoring state. Only approved lessons are meant to reach learners.",
+          "enum": ["draft", "needs-review", "approved"]
+        },
+        "objective": {
+          "description": "One line: the single new idea this lesson teaches.",
+          "type": "string",
+          "minLength": 1
+        },
+        "complexity": {
+          "description": "Relative difficulty inside the path, 1 (first lesson) to 5.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "notes": {
+          "description": "Authoring notes for the creator. Never shown to learners.",
+          "type": "string"
+        },
+        "reference": { "$ref": "#/definitions/reference" }
+      }
+    },
+    "reference": {
+      "description": "The real-world photo the lesson simplifies, with where it came from and the terms it may be used under.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "source", "license"],
+      "properties": {
+        "file": {
+          "description": "File name inside Assets/References/. A bare name, so it can never point outside that folder.",
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*\\.(jpg|jpeg|png|webp)$"
+        },
+        "source": { "type": "string", "minLength": 1 },
+        "license": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

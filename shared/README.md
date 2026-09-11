@@ -8,13 +8,16 @@ shared/
   tutorial.schema.json     the schema, v1
   Tutorials/               the golden tutorials that ship in the app
   conformance/             cases both players must agree about
+  catalog.schema.json      the curriculum catalog schema, v1
+  Catalog/                 paths.json + lessons.json: where each lesson sits in the curriculum
 ```
 
 | File | Read by iOS | Read by web |
 |---|---|---|
 | `tutorial.schema.json` | no (see below) | yes — Ajv compiles it and validates every load |
-| `Tutorials/*.json` | yes — bundled as a folder reference | yes — imported via the `@shared` alias |
+| `Tutorials/*.json` | yes — bundled as a folder reference | yes — globbed via the `@shared` alias |
 | `conformance/` | yes — `ConformanceTests.swift` | yes — `conformance.test.ts` |
+| `catalog.schema.json`, `Catalog/` | not yet — the learner app adopts it in M7 | yes — the Studio validates both files and their cross-references |
 
 `Tutorials` keeps its capital T because it is also the folder name inside the app
 bundle, which `TutorialLoader.bundleSubdirectory` looks for.
@@ -75,6 +78,23 @@ louder.
 The last one is the direction that actually bites: a browser draws `#FFF` happily
 while `Color(hex:)` requires 6 or 8 digits and would silently substitute the
 default. The tool rejects it so the two can never disagree on screen.
+
+## The curriculum catalog
+
+A tutorial answers *how does this drawing play?* The catalog answers *where does this lesson
+live in the curriculum, and how far through authoring is it?* They are kept apart on purpose, so
+curriculum work can never touch the playback contract above.
+
+- `Catalog/paths.json` lists subject paths in order, each with its lesson ids in unlock order.
+- `Catalog/lessons.json` holds per-lesson metadata: authoring status (`draft`, `needs-review`,
+  `approved`), a one-line objective, complexity, creator notes, and an optional reference photo
+  with its source and licence. The photo lives in `Assets/References/`, named by a bare file name
+  so it can never point outside that folder.
+
+A lesson's id is also its tutorial's file name, `Tutorials/<id>.json`. Beyond the schema, the
+Studio checks that ids are unique, that every lesson resolves to a valid tutorial, that no lesson
+sits in two paths, and that referenced photos exist. A tutorial no path lists still plays; it is
+just unreachable for a learner, and the Studio says so.
 
 ## Running both suites
 

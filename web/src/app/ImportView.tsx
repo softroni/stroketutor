@@ -16,7 +16,12 @@ interface Loaded {
   generation: number
 }
 
-export function App() {
+/**
+ * Load any tutorial JSON — bundled, picked, dropped or pasted — then validate
+ * and play it. Nothing here is saved; it is the quickest way to try a
+ * hand-edited or generated document against the real player.
+ */
+export function ImportView() {
   const [loaded, setLoaded] = useState<Loaded>(() => ({
     tutorial: loadSample(DEFAULT_SAMPLE),
     label: DEFAULT_SAMPLE,
@@ -45,14 +50,13 @@ export function App() {
   }, [])
 
   return (
-    <div className="st-app">
-      <header className="st-app__bar">
-        <div className="st-app__brand">
-          <span className="st-app__mark">✎</span>
-          <div>
-            <h1 className="st-app__name">StrokeTutor Web</h1>
-            <p className="st-app__tagline">Author and test draw-along tutorials</p>
-          </div>
+    <div className="st-import">
+      <div className="st-import__bar">
+        <div>
+          <h1 className="st-import__title">Import &amp; test</h1>
+          <p className="st-import__note">
+            Load any tutorial JSON to validate it and play it. Nothing here is saved.
+          </p>
         </div>
         <button
           type="button"
@@ -62,9 +66,9 @@ export function App() {
         >
           {debugOpen ? 'Hide debug' : 'Show debug'}
         </button>
-      </header>
+      </div>
 
-      <main className={`st-app__main ${debugOpen ? 'is-debugging' : ''}`}>
+      <div className={`st-app__main ${debugOpen ? 'is-debugging' : ''}`}>
         <TutorialSource
           onLoadText={handleLoadText}
           activeLabel={loaded.label}
@@ -79,7 +83,7 @@ export function App() {
         {debugOpen ? (
           <DebugPanel tutorial={loaded.tutorial} onClose={() => setDebugOpen(false)} />
         ) : null}
-      </main>
+      </div>
     </div>
   )
 }

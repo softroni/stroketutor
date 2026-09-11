@@ -1,46 +1,26 @@
-.st-app {
-  min-height: 100vh;
+.st-import {
   display: flex;
   flex-direction: column;
 }
 
-.st-app__bar {
+.st-import__bar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-  padding: 18px 32px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface);
+  padding: 28px 32px 0;
 }
 
-.st-app__brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.st-app__mark {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--ink);
-  color: #faf7f0;
-  font-size: 20px;
-}
-
-.st-app__name {
+.st-import__title {
   margin: 0;
-  font-size: 19px;
+  font-size: 24px;
   font-weight: 650;
   letter-spacing: -0.01em;
 }
 
-.st-app__tagline {
-  margin: 2px 0 0;
-  font-size: 14px;
+.st-import__note {
+  margin: 4px 0 0;
+  font-size: 15px;
   color: var(--ink-faint);
 }
 
@@ -68,6 +48,11 @@
   .st-app__main,
   .st-app__main.is-debugging {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Stacked, a sticky source panel would slide over the player. */
+  .st-source {
+    position: static;
   }
 }
 

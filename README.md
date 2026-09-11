@@ -34,8 +34,8 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 
 | ID | Milestone | Plan ref | Mode | Status | Commit |
 |---|---|---|---|---|---|
-| M0 | Baseline: protect the PoC | §34 Phase 0 | autonomous | ✅ Done 2026-09-11 | see git log |
-| M1 | Studio shell + catalog | §14–15, §26, §34 Phase 1 | autonomous | ⬜ Not started | |
+| M0 | Baseline: protect the PoC | §34 Phase 0 | autonomous | ✅ Done 2026-09-11 | `5a4e687` |
+| M1 | Studio shell + catalog | §14–15, §26, §34 Phase 1 | autonomous | ✅ Done 2026-09-11 | see git log |
 | M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ⬜ Not started | |
 | M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ⬜ Not started | |
 | M4 | OpenRouter integration | §20–22, §35 Phase 4 | autonomous (live check needs a key) | ⬜ Not started | |
@@ -50,7 +50,7 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M1: Studio shell + catalog.** Autonomous runs stop after **M4**. M5 and later need the creator.
+**M2: Lesson editor.** Autonomous runs stop after **M4**. M5 and later need the creator.
 
 ---
 
@@ -64,16 +64,31 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 **Exit:** the baseline is documented below and green.
 
 ### M1 · Studio shell + catalog
-- [ ] `shared/Catalog/paths.json` + `lessons.json`: ordered paths; lesson status (draft / needs-review / approved),
+- [x] `shared/Catalog/paths.json` + `lessons.json`: ordered paths; lesson status (draft / needs-review / approved),
       objective, stage, and an optional reference `{file, source, license}`. The tutorial schema is untouched.
-- [ ] Catalog validation with tests: dangling ids, duplicates, every lesson resolves to a tutorial.
-- [ ] Tutorials load from `shared/Tutorials/*.json` by glob, so new files appear without code changes.
-- [ ] Paths view: ordered lessons, status, finished-stroke thumbnail, estimated time, drag reorder.
-- [ ] Lesson Workspace: Reference | Drawing | Steps, with debug tools under Advanced.
-- [ ] Existing paste/drop/file import still works.
-- [ ] simple-house appears in a Houses path.
+- [x] Catalog validation with tests: dangling ids, duplicates, every lesson resolves to a tutorial.
+- [x] Tutorials load from `shared/Tutorials/*.json` by glob, so new files appear without code changes.
+- [x] Paths view: ordered lessons, status, finished-stroke thumbnail, estimated time, drag reorder.
+- [x] Lesson Workspace: Reference | Drawing | Steps, with debug tools under Advanced.
+- [x] Existing paste/drop/file import still works.
+- [x] simple-house appears in a Houses path.
 
 **Exit:** path and lesson navigation work with the existing sample.
+
+**Done.**
+- **Verification:** web 80 tests (22 new) and the build pass; iOS still 35/35.
+- **Checked in the browser:** the Paths view, the Lesson Workspace, Preview as learner, and Import & test. After a fresh load there were no console errors.
+
+**Departures and decisions:**
+- **One schema file.** The catalog schema is `shared/catalog.schema.json`, with a definition for each of the two files. The plan left the format open.
+  "Stage" became `complexity` (1–5), and I added a creator-only `notes` field.
+- **Lesson id = file name.** A lesson's id is its tutorial's file name. The Studio refuses a tutorial whose `id` doesn't match its file name,
+  because lessons are found and saved by id.
+- **Preview arrived early.** "Preview as learner" (listed under M2) landed now, because `TutorialPlayer` already accepts any validated tutorial.
+- **Placeholder time estimate.** Estimated learner time is animation × 3 + 8 s per step. Calibrate it against real lessons in M6.
+- **Catalogue status.** simple-house is catalogued as `needs-review`, because its copy is child-oriented. cat-face stays out of the catalog.
+- **Importer moved.** The importer moved from `app/App.tsx` to `app/ImportView.tsx`, under **Import & test**. The narrow-layout overlap is fixed.
+- **Reorder isn't saved yet.** Lesson reordering holds in memory until the repository writer (M3) can save it.
 
 ### M2 · Lesson editor
 - [ ] Pure, tested ops: reorder steps/strokes, move strokes, group into a new step, split, merge, delete stroke, and

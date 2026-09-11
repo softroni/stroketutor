@@ -41,7 +41,7 @@ function validator(): ValidateFunction {
 }
 
 /** `/steps/2/strokes/0/d` -> `steps[2].strokes[0].d` */
-function toAuthorPath(instancePath: string, extra?: string): string {
+export function toAuthorPath(instancePath: string, extra?: string): string {
   const tokens = instancePath.split('/').filter(Boolean).map(unescapePointer)
   if (extra) tokens.push(extra)
   if (tokens.length === 0) return ROOT_PATH
@@ -56,7 +56,7 @@ function unescapePointer(token: string): string {
 }
 
 /** Walks the raw document to fetch whatever sits at a JSON Pointer. */
-function valueAt(root: unknown, instancePath: string): unknown {
+export function valueAt(root: unknown, instancePath: string): unknown {
   const tokens = instancePath.split('/').filter(Boolean).map(unescapePointer)
   let current: unknown = root
   for (const token of tokens) {
