@@ -34,7 +34,7 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 
 | ID | Milestone | Plan ref | Mode | Status | Commit |
 |---|---|---|---|---|---|
-| M0 | Baseline: protect the PoC | §34 Phase 0 | autonomous | ⬜ Not started | |
+| M0 | Baseline: protect the PoC | §34 Phase 0 | autonomous | ✅ Done 2026-09-11 | see git log |
 | M1 | Studio shell + catalog | §14–15, §26, §34 Phase 1 | autonomous | ⬜ Not started | |
 | M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ⬜ Not started | |
 | M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ⬜ Not started | |
@@ -50,16 +50,16 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M0: Baseline.** Autonomous runs stop after **M4**. M5 and later need the creator.
+**M1: Studio shell + catalog.** Autonomous runs stop after **M4**. M5 and later need the creator.
 
 ---
 
 ### M0 · Baseline: protect the PoC
-- [ ] `cd web && npm test` and `npm run build` green; record counts.
-- [ ] `xcodebuild test` (iPhone 17 simulator) green; record counts.
-- [ ] simple-house and cat-face play on web and on iOS.
-- [ ] Record the deliberate web/iOS divergences (see [shared/README.md](shared/README.md)).
-- [ ] Log gaps between the plan and the current code, without changing behaviour.
+- [x] `cd web && npm test` and `npm run build` green; record counts.
+- [x] `xcodebuild test` (iPhone 17 simulator) green; record counts.
+- [x] simple-house and cat-face play on web and on iOS.
+- [x] Record the deliberate web/iOS divergences (see [shared/README.md](shared/README.md)).
+- [x] Log gaps between the plan and the current code, without changing behaviour.
 
 **Exit:** the baseline is documented below and green.
 
@@ -135,7 +135,36 @@ Read Apple's current guidance before building and cite it in code. Never copy a 
 
 ## Baseline (M0)
 
-_To be recorded._
+Recorded 2026-09-11 on the PoC as first committed (`c43cd04`), with no code changed.
+
+| Check | Result |
+|---|---|
+| `npm test` (Vitest 3.2) | ✅ 58 passed: 25 SVG path parser, 33 conformance and golden-file |
+| `npm run build` (tsc + Vite 6.4) | ✅ 175 modules, 301 kB JS (96 kB gzip) |
+| `xcodebuild test` (Xcode 26.6, iPhone 17 simulator) | ✅ 35 passed, 0 failures, across the 3 suites in `StrokeTutorTests/` |
+| simple-house / cat-face on web | ✅ both load and animate; "Step 1 of 5 · Draw the walls" / "Step 1 of 6 · Draw the head" |
+| simple-house / cat-face on iOS | ✅ both selectable and animating in the simulator |
+
+**Deliberate divergences**, unchanged and documented in [shared/README.md](shared/README.md): a zero
+`duration` or `lineWidth`, an unknown property, an empty `title`, and an unparseable or 3-digit hex colour
+are rejected by the web and tolerated (clamped, ignored or defaulted, with a warning) by iOS.
+
+**Gaps between the master plan and the PoC**, logged here and assigned rather than fixed in M0:
+
+- **Audience and tone.** The PoC was written for children, the plan targets adults (§2, §30). Examples:
+  tutorial copy ("Great job, your house is done!"), web "Nicely done!", iOS "Finished!" and
+  "Watch carefully…", the schema's "Shown to the child", and comments in `PlayerViewModel` and
+  `shared/README.md`. Content goes to M6; iOS copy to M7. The schema's description text is left alone
+  while v1 is frozen.
+- **cat-face** is a cute subject the style guide avoids (§5). It stays as a PoC sample, since iOS bundles it and
+  the conformance suite counts it, but it goes into no path.
+- **Speed changes differ.** The web applies a new speed from the next stroke; iOS
+  (`PlayerViewModel.cycleSpeed`) restarts the current step. The conformance corpus doesn't cover
+  playback timing. Decide which one is intended before M7.
+- **No curriculum, reference photo, completion capture or sketchbook yet** (§14–17, §31–32). These are M1, M3, M7 and M8.
+- **Web importer layout below 1100px.** The sticky source panel slides over the player. Fixed in M1.
+- **Hard-coded tutorial list.** `conformance.test.ts` asserts `shared/Tutorials` holds exactly cat-face and simple-house.
+  That assertion has to change in M3, once the Studio can save new tutorials.
 
 ## Working on milestones
 
