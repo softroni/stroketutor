@@ -1,11 +1,12 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
+import { summarise } from '../../server/generateFromTrace'
 import type { TraceOptions } from '../../src/trace/traceSvg'
 
 import { parseNumber, stringValue, type OptionSpecs, type Parsed } from '../args'
 import { command, type Command } from '../command'
-import { CliError, plural } from '../output'
+import { CliError, plural, table } from '../output'
 
 /** The tracer's knobs as command-line options; the defaults are the tracer's own. */
 export const TRACE_OPTIONS: OptionSpecs = {
@@ -54,7 +55,11 @@ export const svgCommands: Command[] = [
     'svg trace',
     'Trace an SVG into the lines and colours a lesson would be built from.',
     ['<file>'],
-    { out: { type: 'string', description: 'Write the trace as JSON here (for `svg to-steps --trace`).', placeholder: 'file' }, ...TRACE_OPTIONS },
+    {
+      out: { type: 'string', description: 'Write the trace as JSON here (for `svg to-steps --trace`).', placeholder: 'file' },
+      summary: { type: 'boolean', description: 'Print what a model is told about the trace: each line and colour with its id, box and size, never path data.' },
+      ...TRACE_OPTIONS,
+    },
     async (ctx, args) => {
       const file = args.positionals[0]
       const text = await readSvg(file)
@@ -62,6 +67,23 @@ export const svgCommands: Command[] = [
       const trace = await browser.trace(text, traceOptionsFrom(args))
       const out = stringValue(args.values, 'out')
       if (out) await writeFile(out, `${JSON.stringify(trace, null, 2)}\n`)
+      if (args.values.summary) {
+        const summary = summarise(trace)
+        const n = (value: number) => String(Math.round(value))
+        const box = (b: [number, number, number, number]) => `${n(b[0])} ${n(b[1])} ${n(b[2])} ${n(b[3])}`
+        const colourOf = new Map(trace.strokes.map((stroke) => [stroke.id, stroke.color ?? '']))
+        ctx.out.result({ ...summary, notes: trace.notes, outlineCoverage: trace.outlineCoverage }, () => [
+          `${plural(summary.strokes.length, 'line')} and ${plural(summary.fills.length, 'colour')} on a ${summary.canvas.width}×${summary.canvas.height} canvas (origin top left, y down).`,
+          '',
+          ...table(
+            summary.strokes.map((stroke) => [stroke.id, box(stroke.box), n(stroke.length), stroke.closed ? 'closed' : 'open', colourOf.get(stroke.id) ?? '']),
+            ['line', 'box', 'length', 'shape', 'colour'],
+          ),
+          ...(summary.fills.length > 0 ? ['', ...table(summary.fills.map((fill) => [fill.id, fill.color, n(fill.area), box(fill.box)]), ['colour', 'value', 'area', 'box'])] : []),
+          ...(out ? ['', `Wrote ${out}.`] : []),
+        ])
+        return
+      }
       ctx.out.result(trace, () => [
         `${plural(trace.strokes.length, 'line')} and ${plural(trace.fills.length, 'colour')} on a ${trace.canvas.width}×${trace.canvas.height} canvas; the lines follow ${Math.round(trace.outlineCoverage * 100)}% of the file's outlines.`,
         ...trace.notes.map((note) => `  ${note}`),

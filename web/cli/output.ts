@@ -1,6 +1,7 @@
 import { createInterface } from 'node:readline/promises'
 
 import type { Issue } from '../server/repoWriter'
+import { stepDuration, type Tutorial } from '../src/schema/types'
 
 import { UsageError } from './args'
 
@@ -112,6 +113,14 @@ export function table(rows: string[][], header?: string[]): string[] {
   const lines = all.map(line)
   if (header) lines.splice(1, 0, widths.map((width) => '-'.repeat(width)).join('  '))
   return lines
+}
+
+/** The steps of a lesson in one table: number, id, title, how many strokes and fills, seconds of animation. */
+export function stepTable(tutorial: Tutorial): string[] {
+  return table(
+    tutorial.steps.map((step, index) => [String(index + 1), step.id, step.title, String(step.strokes.length), String(step.fills?.length ?? 0), `${stepDuration(step).toFixed(1)}s`]),
+    ['#', 'id', 'title', 'strokes', 'fills', 'animation'],
+  )
 }
 
 /** The `git add` line the Studio shows after publishing. */

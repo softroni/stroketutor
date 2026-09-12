@@ -7,28 +7,11 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import type { Catalog } from '../src/catalog/types'
 import type { Tutorial } from '../src/schema/types'
-import type { TracedDrawing } from '../src/trace/traceSvg'
 
-import type { BrowserBridge } from './bridge'
-import { openTestStudio, type TestStudio } from './testing'
+import { PNG_BYTES as PNG, fakeBrowser, openTestStudio, squareTrace as trace, type TestStudio } from './testing'
 
-const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0])
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="#E8C872"/></svg>'
 const fixture = (name: string) => readFileSync(fileURLToPath(new URL(`../server/fixtures/${name}`, import.meta.url)), 'utf8')
-
-const line = (id: string, d: string) => ({ id, d, lineWidth: 6, color: undefined, length: 200, box: [100, 100, 300, 300] as [number, number, number, number], closed: false, origin: 'outline' as const })
-
-/** A traced square: three lines and two colours, as `generateFromTrace.test.ts` uses. */
-const trace = (): TracedDrawing => ({
-  canvas: { width: 1000, height: 1000 },
-  strokes: [line('s1', 'M 100 100 L 300 100'), line('s2', 'M 100 100 L 100 300'), line('s3', 'M 300 100 L 300 300')],
-  fills: [
-    { id: 'f1', d: 'M 100 100 L 300 100 L 300 300 L 100 300 Z', color: '#E8C872', area: 40000, box: [100, 100, 300, 300] },
-    { id: 'f2', d: 'M 150 150 L 250 150 L 250 250 L 150 250 Z', color: '#1F3A5F', area: 10000, box: [150, 150, 250, 250] },
-  ],
-  notes: ['Traced for the test.'],
-  outlineCoverage: 1,
-})
 
 const analysis = { mainForms: ['a square'], importantDetails: [], detailsRemoved: [], drawingStrategy: 'The top edge first.' }
 
@@ -47,28 +30,6 @@ function model(answer: unknown) {
   return { calls, fetch }
 }
 
-/** A browser that traces every SVG to the square and renders every picture to the tiny PNG. */
-function browser(): BrowserBridge & { traced: number } {
-  const bridge = {
-    traced: 0,
-    async trace() {
-      bridge.traced += 1
-      return trace()
-    },
-    async renderPng() {
-      return PNG.toString('base64')
-    },
-    async drawingPng() {
-      return PNG.toString('base64')
-    },
-    async optimize() {
-      throw new Error('not in these tests')
-    },
-    async close() {},
-  }
-  return bridge
-}
-
 let t: TestStudio
 
 afterEach(async () => {
@@ -77,7 +38,7 @@ afterEach(async () => {
 
 async function open(answer: unknown, options: { key?: boolean } = {}) {
   const router = model(answer)
-  const bridge = browser()
+  const bridge = fakeBrowser()
   t = await openTestStudio({
     generation: { apiKey: options.key === false ? undefined : 'test-key', defaultModel: 'vendor/text-model', fetch: router.fetch },
     browser: bridge,
@@ -215,6 +176,54 @@ describe('svg to-steps', () => {
     expect((await t.workspace.readHistory('square')).map((e) => e.kind)).toEqual(['generated'])
   })
 
+  it('builds the planned steps from the trace and a plan, asking no model, and keeps the draft', async () => {
+    const { router, bridge } = await open(answer)
+    const svg = path.join(t.root, 'square.svg')
+    await writeFile(svg, SVG)
+    const plan = path.join(t.root, 'plan.json')
+    await writeFile(
+      plan,
+      JSON.stringify({
+        outlineSteps: [
+          { id: 'top', title: 'Draw the top', instruction: 'A line across.', strokeIds: ['s1'] },
+          { id: 'sides', title: 'Draw the sides', instruction: 'Down from each end.', strokeIds: ['s3', 's2'] },
+        ],
+        colourSteps: [{ id: 'colour', title: 'Colour it in', instruction: 'Sand, then navy.', fillIds: ['f1', 'f2'] }],
+      }),
+    )
+    const outcome = await t.studio(['svg', 'to-steps', svg, '--id', 'square', '--plan', plan, '--title', 'Square', '--objective', 'A square', '--source', 'me', '--license', 'CC0'])
+    expect(outcome.stderr).toBe('')
+    expect(outcome.code).toBe(0)
+    expect(outcome.stdout).toContain('Built from the trace and your plan.')
+    expect(router.calls).toHaveLength(0)
+    expect(bridge.traced).toBe(1)
+    const stored = JSON.parse((await t.workspace.readTutorial('square'))!.text) as Tutorial
+    expect(stored.steps.map((s) => [s.id, s.strokes.map((stroke) => stroke.d), s.fills?.length ?? 0])).toEqual([
+      ['top', ['M 100 100 L 300 100'], 0],
+      ['sides', ['M 300 100 L 300 300', 'M 100 100 L 100 300'], 0],
+      ['colour', [], 2],
+    ])
+    expect((await catalog()).lessons.find((l) => l.id === 'square')).toMatchObject({ status: 'draft', reference: { file: 'square.svg' } })
+    expect((await catalog()).lessons.find((l) => l.id === 'square')?.generation).toBeUndefined()
+    expect((await t.workspace.readHistory('square')).map((e) => e.kind)).toEqual(['generated'])
+  })
+
+  it('refuses a plan naming an id that is not in the trace before anything is written', async () => {
+    await open(answer)
+    const svg = path.join(t.root, 'square.svg')
+    await writeFile(svg, SVG)
+    const plan = path.join(t.root, 'plan.json')
+    await writeFile(plan, JSON.stringify({ outlineSteps: [{ id: 'all', title: 'All', instruction: 'All of it.', strokeIds: ['s1', 's2', 's9'] }], colourSteps: [] }))
+    const outcome = await t.studio(['svg', 'to-steps', svg, '--id', 'square', '--plan', plan, '--title', 'Square', '--objective', 'A square', '--source', 'me', '--license', 'CC0'])
+    expect(outcome.code).toBe(1)
+    expect(outcome.stderr).toContain('not there: s9')
+    expect(await t.workspace.readTutorial('square')).toBeNull()
+    expect((await catalog()).lessons.find((l) => l.id === 'square')).toBeUndefined()
+
+    const both = await t.studio(['svg', 'to-steps', svg, '--id', 'square', '--plan', plan, '--no-model', '--title', 'Square', '--objective', 'A square', '--source', 'me', '--license', 'CC0'])
+    expect(both.code).toBe(2)
+  })
+
   it('shows and writes the candidate without keeping it, with --no-keep', async () => {
     await open(answer)
     const svg = path.join(t.root, 'square.svg')
@@ -225,6 +234,24 @@ describe('svg to-steps', () => {
     expect(outcome.stdout).toContain('Not kept')
     expect(await t.workspace.readTutorial('square')).toBeNull()
     expect((JSON.parse(await readFile(out, 'utf8')) as { tutorial: Tutorial }).tutorial.id).toBe('square')
+  })
+})
+
+describe('svg trace --summary', () => {
+  it('prints what a model is told about the trace', async () => {
+    await open({})
+    const svg = path.join(t.root, 'square.svg')
+    await writeFile(svg, SVG)
+    const summary = await t.json<{ strokes: { id: string; box: number[] }[]; fills: { id: string; color: string }[]; notes: string[]; outlineCoverage: number }>(['svg', 'trace', svg, '--summary'])
+    expect(summary.strokes.map((stroke) => stroke.id)).toEqual(['s1', 's2', 's3'])
+    expect(summary.strokes[0]).toEqual({ id: 's1', box: [100, 100, 300, 300], length: 200, closed: false })
+    expect(summary.fills.map((fill) => fill.color)).toEqual(['#E8C872', '#1F3A5F'])
+    expect(summary.notes).toEqual(['Traced for the test.'])
+    expect(summary.outlineCoverage).toBe(1)
+    const outcome = await t.studio(['svg', 'trace', svg, '--summary'])
+    expect(outcome.stdout).toContain('3 lines and 2 colours')
+    expect(outcome.stdout).toMatch(/s2 {4}100 100 300 300 {2}200 {5}open/)
+    expect(outcome.stdout).toMatch(/f1 {6}#E8C872 {2}40000/)
   })
 })
 

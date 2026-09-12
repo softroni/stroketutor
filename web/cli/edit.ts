@@ -49,6 +49,19 @@ export async function editTutorial(
   return { before: tutorial, after, etag: result.etag, changed: result.etag !== stored.etag }
 }
 
+/**
+ * Saves a tutorial built outside the editor (a plan applied to the lesson)
+ * over the version read, validated first, like an editor save.
+ */
+export async function saveTutorial(ctx: Context, id: string, next: Tutorial, { checkpoint = true } = {}): Promise<EditOutcome> {
+  const { stored, tutorial } = await readLesson(ctx, id)
+  const verdict = ctx.validateTutorial(next)
+  if (!verdict.ok) throw new CliError('The change would leave the lesson invalid, so it was not saved.', verdict.issues)
+  const store = await ctx.workspace()
+  const result = await store.writeTutorial(id, next, { etag: stored.etag }, { checkpoint })
+  return { before: tutorial, after: next, etag: result.etag, changed: result.etag !== stored.etag }
+}
+
 /** Replaces the whole tutorial, for imports and for bringing back a version from History. */
 export async function replaceTutorial(
   ctx: Context,

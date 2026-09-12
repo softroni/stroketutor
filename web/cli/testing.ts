@@ -8,6 +8,7 @@ import { createRepoWriter } from '../server/repoWriter'
 import { openWorkspace, type Workspace } from '../server/workspaceStore'
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
+import type { TracedDrawing } from '../src/trace/traceSvg'
 
 import type { BrowserBridge } from './bridge'
 import { run } from './main'
@@ -91,4 +92,52 @@ export async function openTestStudio(options: { generation?: Partial<GenerateDep
       await rm(root, { recursive: true, force: true })
     },
   }
+}
+
+/** The first bytes of a PNG, enough for `sniffImage` and for a test to recognise. */
+export const PNG_BYTES = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0])
+
+const line = (id: string, d: string) => ({ id, d, lineWidth: 6, color: undefined, length: 200, box: [100, 100, 300, 300] as [number, number, number, number], closed: false, origin: 'outline' as const })
+
+/** A traced square: three lines and two colours, as `generateFromTrace.test.ts` uses. */
+export const squareTrace = (): TracedDrawing => ({
+  canvas: { width: 1000, height: 1000 },
+  strokes: [line('s1', 'M 100 100 L 300 100'), line('s2', 'M 100 100 L 100 300'), line('s3', 'M 300 100 L 300 300')],
+  fills: [
+    { id: 'f1', d: 'M 100 100 L 300 100 L 300 300 L 100 300 Z', color: '#E8C872', area: 40000, box: [100, 100, 300, 300] },
+    { id: 'f2', d: 'M 150 150 L 250 150 L 250 250 L 150 250 Z', color: '#1F3A5F', area: 10000, box: [150, 150, 250, 250] },
+  ],
+  notes: ['Traced for the test.'],
+  outlineCoverage: 1,
+})
+
+export interface FakeBrowser extends BrowserBridge {
+  /** How many SVGs were traced. */
+  traced: number
+  /** The SVG text of every picture rendered, in order. */
+  rendered: string[]
+}
+
+/** A browser that traces every SVG to the square and renders every picture to the tiny PNG, recording what it was given. */
+export function fakeBrowser(): FakeBrowser {
+  const bridge: FakeBrowser = {
+    traced: 0,
+    rendered: [],
+    async trace() {
+      bridge.traced += 1
+      return squareTrace()
+    },
+    async renderPng(svgText) {
+      bridge.rendered.push(svgText)
+      return PNG_BYTES.toString('base64')
+    },
+    async drawingPng() {
+      return PNG_BYTES.toString('base64')
+    },
+    async optimize() {
+      throw new Error('not in these tests')
+    },
+    async close() {},
+  }
+  return bridge
 }

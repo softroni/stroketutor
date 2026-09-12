@@ -231,7 +231,8 @@ function plannedSteps(value: unknown, key: 'strokeIds' | 'fillIds'): PlannedStep
     }))
 }
 
-function summarise(trace: Trace): TraceSummary {
+/** What a model is told about a trace: ids, boxes and sizes, never path data. Also what `svg trace --summary` prints. */
+export function summarise(trace: Trace): TraceSummary {
   return {
     canvas: trace.canvas,
     strokes: trace.strokes.map(({ id, box, length, closed }) => ({ id, box, length, closed })),
