@@ -39,7 +39,7 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M2 | Lesson editor | §17–19, §34 Phase 2 | autonomous | ✅ Done 2026-09-11 | `4c40bf3` |
 | M3 | Repository writer | §25, §27, §34 Phase 3 | autonomous | ✅ Done 2026-09-11 | `25d4368` |
 | M4 | OpenRouter integration | §20–22, §35 Phase 4 | autonomous (live check needs a key) | ✅ Done 2026-09-11 | see git log |
-| M5 | AI generation quality | §23–24, §35 Phase 5 | **gated**: needs creator judgement | 🟡 In progress | see git log |
+| M5 | AI generation quality | §23–24, §35 Phase 5 | **gated**: needs creator judgement | ✅ Done 2026-09-11 | see git log |
 | M6 | Houses vertical slice | §35 Phase 6, App. A | **gated**: needs reference photos + approval | ⬜ Not started | |
 | M7 | iOS product shell | §29–31 | **gated** on M6 | ⬜ Not started | |
 | M8 | Private sketchbook | §32 | gated | ⬜ Not started | |
@@ -50,12 +50,18 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M5, part 3: prompt tuning. It needs the creator.** Parts 1 and 2 are done; see M5 below:
-- part 1 regenerates one layer at a time;
-- part 2 keeps a history of every version, to compare.
+**M6 · Houses vertical slice. It needs the creator.** M5 is done; see below.
 
-Part 3 needs 3–5 real reference photos, live runs and the creator's judgement on the prompt, towards `lesson-v2`. Start
-with the observations under M4 and the part 1 live check. Don't start it without the creator.
+M6 needs licensed reference photos, each with its source and licence recorded, and the creator's approval of each lesson
+against the §36 checklist. The five lessons are:
+- Simple House, which exists;
+- House With Chimney;
+- Small Cottage;
+- House From an Angle;
+- Two-Story House.
+
+The blue two-story house from the M5 tuning round would suit the last one, if a licensed copy can be used. Don't start
+M6 without the creator.
 
 ---
 
@@ -354,7 +360,7 @@ in after all the outlines are drawn.
     - **Why not cap the reasoning instead:** OpenRouter's reasoning controls differ by model family, and with
       `require_parameters` they would exclude providers. See `TRACE_TIMEOUT_MS` in `web/server/generateFromTrace.ts`.
 
-### M5 · AI generation quality (in progress)
+### M5 · AI generation quality (done 2026-09-11)
 Phase 5 in the plan (p. 33, §23–24): human pen gestures, stage-level regeneration, quality warnings, generation history.
 Its exit condition is that most candidate lessons need only modest structural correction.
 
@@ -435,8 +441,31 @@ kept, beside it and never in its place, and any two can be compared.
 - keeping one of several New lesson candidates, because the browser tool can't choose a photo in the file picker;
 - a Save recording history, which the server tests cover.
 
-**Part 3 · Prompt tuning (needs the creator).** 3–5 real reference photos, live runs and the creator's judgement, towards
-`lesson-v2`.
+**Part 3 · Prompt tuning (2026-09-11).** One round on four photos the creator supplied: a two-story house, a barn at an
+angle, a corner shop at an angle and a front-facing shopfront. Each was generated with `lesson-v1` and
+`google/gemini-3.8-flash` through `/api/generate`, which writes nothing, for about $0.14 in all. The creator reviewed
+each lesson beside its photo, step by step.
+
+- **Result:** all four read as their photos, in 6–7 steps and 16–27 strokes. The words are calm, adult and specific.
+- **Creator's judgement:**
+  - the level of detail is right;
+  - either order is fine, roof first or walls first;
+  - ignore the hand-drawn look for now.
+
+  So `lesson-v1` stays, and there is no `lesson-v2`.
+- **Known, deferred:**
+  - 86 of 88 strokes were ruler-straight, despite the prompt asking for gentle curves. The drawings look like vector
+    icons, which is the §23 "overly geometric" risk. A code wobble or a stronger prompt can be tried later.
+  - The barn's raised middle roof came out as a jumbled wedge. Complicated multi-level roofs in perspective can go wrong.
+  - The busiest steps hold 6 strokes.
+- **Photos:** the tuning photos were only sent to the model; none is saved in `shared/`. The shopfront photo carries an
+  Alamy watermark, so it must not become a lesson reference. Any photo used for a real lesson needs its source and
+  licence.
+- **One provider failure:** one generation failed inside Google's provider with no tokens and no cost. It succeeded when
+  retried.
+
+**Exit condition:** "most candidate lessons need only modest structural correction". It is met, by the creator's
+judgement on this round.
 
 **Where regenerations are recorded:** in the lesson's history (part 2). The catalog's `generation` block still describes
 the lesson's first generation only.
