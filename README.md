@@ -67,7 +67,8 @@ M6 without the creator.
 
 This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the
 milestones and doesn't unblock M6. The approved plan: a local workspace kept apart from published content, delete with
-confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. **All four are done.**
+confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. A fifth, the command line,
+was asked for on 2026-09-12. **All five are done.**
 
 | ID | Work | Status | Commit |
 |---|---|---|---|
@@ -75,6 +76,7 @@ confirmation, then a less clumsy Paths view, lesson workspace and New lesson flo
 | S2 | Paths view: search and status filters, one ⋯ menu per lesson, Unfiled / Publish / Trash in the sidebar | ✅ Done 2026-09-11 | see git log |
 | S3 | Lesson workspace in three full-height panes, autosave, a drawer for Regenerate and History, shortcuts | ✅ Done 2026-09-11 | see git log |
 | S4 | New lesson layout, "save as draft" from Import & test, a ⌘K palette | ✅ Done 2026-09-11 | see git log |
+| S5 | Command line: every Studio action from the terminal, SVG trace/optimise/render in headless Chromium | ✅ Done 2026-09-12 | see git log |
 
 #### S1 · Workspace vs published
 - [x] A SQLite workspace in `.studio/` (gitignored), on Node's built-in `node:sqlite`, backed up daily (newest seven kept).
@@ -203,6 +205,38 @@ confirmation, then a less clumsy Paths view, lesson workspace and New lesson flo
 **Decisions:**
 - **The palette covers places, not actions.** Lessons, paths and pages cover the everyday jumps. Actions stay next
   to what they act on.
+
+---
+
+#### S5 · The command line
+`npm run studio -- <command>` does what the Studio does, on the same workspace, so paths, lessons, steps,
+strokes, references, history, publishing and the trash can be managed without the UI, and an image or an SVG
+can become a lesson from a script. See [web/README.md](web/README.md#the-command-line).
+- [x] One bootstrap (`web/cli/studio.mjs`) starts Vite as a module loader only, so the Studio's own store,
+      validators and editing operations run unchanged; nothing is reimplemented.
+- [x] `paths`, `lessons`, `steps`, `strokes`, `history`, `publish`, `trash`, `status`, `settings`, `models`,
+      `adopt-shared`, with `--json` for scripts and typed confirmation (or `--yes`) for destructive changes.
+- [x] `svg trace`, `svg optimize` (normalise; `--simplify` for fewer points), `svg render`: the Studio's
+      browser code in headless Chromium through Playwright, so a trace matches New lesson's exactly.
+- [x] `svg to-steps`, `image to-steps`, `lessons generate` and `lessons regenerate`, ending as "Keep as
+      draft" and the Regenerate drawer do; `--no-model` builds a lesson from a trace without a model.
+- [x] The workspace waits its turn on a busy SQLite file, so the command line and `npm run dev` share it.
+
+**Done.**
+- **Tests:** web 342 pass (53 of them for the command line, in-process on the server tests' fixture with a
+  fake model and a fake browser) and 4 browser smoke tests pass in real Chromium with
+  `STUDIO_BROWSER_TESTS=1`. The build passes.
+- **From the terminal,** on a scratch workspace over the real `shared/`: a path was created, moved and renamed;
+  a lesson was duplicated, split, retimed, approved, exported and imported at a chosen position; the palm
+  SVG was traced (64 lines, 8 colours, 84% of its outlines), optimised with `--simplify` (131,977 → 98,037
+  bytes, 99 specks left out), rendered to a PNG that matched, and built into a seven-step lesson with
+  `--no-model`; a draft was deleted, restored and deleted for good. `shared/` was untouched.
+
+**Decisions:**
+- **Chromium, not a Node port of the tracer.** A second implementation of the SVG geometry pass would drift
+  from the browser on CSS and transform edge cases; running the same code headless cannot.
+- **`svg optimize` is normalising first.** Without `--simplify` the drawing is unchanged: shapes become
+  plain paths the players read, on the lesson's canvas. Simplification is opt-in because it changes lines.
 
 ---
 

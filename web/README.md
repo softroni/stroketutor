@@ -21,8 +21,9 @@ there. Where the two are meant to differ, the manifest says so and says why. See
 ```bash
 npm install
 npm run dev      # opens the Studio on the Paths view
-npm test         # path parser, conformance corpus, catalog, Studio helpers
+npm test         # path parser, conformance corpus, catalog, Studio helpers, command line
 npm run build    # type-check and bundle
+npm run studio   # the Studio from the terminal; see "The command line"
 ```
 
 No accounts and no remote backend. `npm run dev` also mounts the Studio's small local server (see
@@ -45,6 +46,8 @@ src/
 server/      studioApi.ts, repoWriter.ts    the local server: the only code that writes shared/
              generate.ts, openrouter.ts, models.ts, prompts/   lesson generation (server-side only)
              fixtures/                      representative model outputs for tests
+cli/         studio.mjs (bootstrap), main.ts, commands/   the Studio from the terminal, on the same store
+             browser.ts, browser/page.ts    the Studio's browser code in headless Chromium, for SVGs
 ```
 
 `@shared/*` resolves to `../shared/*` — see the alias in `vite.config.ts` and the
@@ -173,6 +176,85 @@ saves and marks the lesson approved. Warnings never block. A reference image is 
 plain drawing: scripts, event handlers, `<foreignObject>`, entity declarations and links to other
 files are refused with a reason, and every reference is served under a sandboxing
 `Content-Security-Policy`. Nothing runs git: publishing appears as ordinary diffs to review.
+
+## The command line
+
+Everything the Studio does can be done from a terminal, on the same workspace, with the same store,
+validators and editing operations (`cli/`). `npm run studio -- <command>` runs one command;
+`npm run studio` alone lists them, and `--help` after any command describes it.
+
+```bash
+npm run studio -- status                                   # paths, lessons, what publishing would change
+npm run studio -- paths create --title "Animals"
+npm run studio -- lessons list --path houses
+npm run studio -- steps split simple-house windows --at 2
+npm run studio -- strokes set simple-house 4.* --duration 1.5
+npm run studio -- lessons approve simple-house && npm run studio -- publish all
+npm run studio -- svg trace palm.svg --out palm.trace.json
+npm run studio -- svg optimize palm.svg --simplify
+npm run studio -- svg to-steps palm.svg --id palm --title Palm --objective "…" --goal "…" --source … --license …
+npm run studio -- image to-steps house.jpg --id house --title House --objective "…" --goal "…" --source … --license …
+npm run studio -- lessons regenerate palm --layer instructions --note "Say where to start." --use
+```
+
+| Group | Commands |
+|---|---|
+| the Studio | `status`, `settings`, `models`, `adopt-shared` |
+| `paths` | `list`, `show`, `create`, `rename`, `describe`, `move`, `reorder`, `add`, `delete` |
+| `lessons` | `list`, `show`, `export`, `import`, `set`, `move`, `duplicate`, `delete`, `unpublish`, `approve`, `validate`, `quality`, `reference set`, `reference export`, `generate`, `regenerate` |
+| `steps` | `list`, `set`, `split`, `merge`, `move`, `group` |
+| `strokes` | `list`, `move`, `reorder`, `delete`, `set` (retime, line width) |
+| `history` | `list`, `show`, `use` |
+| `publish` | `pending`, `lessons`, `curriculum`, `all` |
+| `trash` | `list`, `restore`, `purge`, `empty` |
+| `svg` | `trace`, `optimize`, `render`, `to-steps` |
+| `image` | `to-steps` |
+
+- **The same workspace.** `cli/studio.mjs` is plain JavaScript that starts Vite in middleware mode as a
+  module loader only (no port, no browser, no watcher), so the Studio's TypeScript, its `@shared` alias and
+  its JSON schema imports resolve as they do for the Studio server, which loads the same validators through
+  `ssrLoadModule`. `cli/context.ts` then opens the workspace with `server/workspaceStore.ts` and
+  `server/repoWriter.ts`; nothing is reimplemented. The command line and `npm run dev` can share the
+  workspace file (SQLite waits its turn), and the Studio shows the command line's changes on its next
+  reload. `--workspace` and `--shared` point elsewhere; `STUDIO_WORKSPACE`, `OPENROUTER_API_KEY` and
+  `OPENROUTER_MODEL` are read from `.env.local` as `vite.config.ts` reads them, and `--model` overrides
+  the model.
+- **Edits are the editor's.** `steps` and `strokes` commands run `src/studio/editor/ops.ts` on the lesson
+  as it stands, validate, and save naming the version replaced, as ⌘S does: the version is kept in History
+  (`--no-checkpoint` saves like an autosave). A step is named by its number in `steps list` or its id; a
+  stroke by `<step>.<n>`, a range `2.1-3`, all of them `walls.*`, or a list `2.1,2.4-5`. A save that lands
+  on a version changed meanwhile is refused with "run it again". `lessons set` changes the catalog entry
+  (objective, status, complexity, notes) and `--title` the tutorial; `history use` brings a recorded
+  version back.
+- **Destructive changes ask, as the dialogs do.** Unpublishing, deleting a published lesson, trashing a
+  path with its lessons, and deleting for good ask for the id to be typed; `--yes` answers for a script,
+  and without a terminal nothing is changed until it is passed. Deleting a workspace draft goes straight
+  to the Trash, where `trash restore` finds it.
+- **Publishing is the same act.** `publish lessons`, `publish curriculum` and `publish all` call
+  `workspace.publish`, print the `git add` line, and refuse while `shared/Catalog` has changed outside the
+  Studio until `adopt-shared`.
+- **SVGs go through a real browser.** Tracing, optimising and rendering need an engine that resolves a
+  file's CSS, transforms and pixels, so `cli/browser.ts` opens `cli/browser/page.ts` in headless Chromium
+  (Playwright), served by the same Vite: `svg trace` is New lesson's tracer to the byte, with its knobs as
+  options (`--max-strokes 32|64|96` are the Regenerate drawer's detail levels). Chromium is started only
+  by commands that need it. Run `npx playwright install chromium` once, or set `STUDIO_CHROMIUM` to a
+  Chrome executable. `svg optimize` rewrites a file as the tracer sees it (`src/svg/optimize.ts`): one
+  path per shape, absolute M/L/C/Q/Z, transforms applied, styles as attributes, fitted to the
+  1000 × 1000 canvas; `--simplify` also simplifies each path, drops specks and smooths the curves that
+  remain, keeping real corners. `svg render` is the PNG a model would be sent.
+- **Generation ends as "Keep as draft" does.** `image to-steps` (a photo), `svg to-steps` (an SVG, traced;
+  `--no-model` builds the lesson from the trace alone, a few lines per step) and `lessons generate`
+  (either) keep the tutorial, the reference with its source and licence, a draft catalog entry with the
+  generation record, and the candidate in History. `--no-keep` only shows it, `--out` writes it, and
+  `--dry-run` says what would be sent without spending anything. `lessons regenerate --layer` records the
+  result in History whether or not `--use` makes it the lesson.
+- **Output.** Tables and sentences by default; `--json` prints one JSON document for scripts, with errors
+  as `{ "error", "issues" }`. Exit code 1 means refused (a validation problem, a missing lesson, a model's
+  failure), 2 that the command line could not be understood.
+
+Every command runs in-process in `cli/*.test.ts` on the server tests' fixture (a scratch copy of `shared/`,
+an in-memory workspace, a fake model), without Vite or a browser. `cli/browser.smoke.test.ts` traces,
+optimises and renders in real Chromium when `STUDIO_BROWSER_TESTS=1`.
 
 ## Generating
 
