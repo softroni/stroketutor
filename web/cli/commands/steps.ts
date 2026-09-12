@@ -1,3 +1,4 @@
+import { reversePath } from '../../server/regenerate'
 import { stepDuration, type Tutorial } from '../../src/schema/types'
 import {
   deleteStrokes,
@@ -184,6 +185,20 @@ export const stepCommands: Command[] = [
       )
     },
   ),
+
+  command('strokes reverse', 'Draw the selected strokes from their other end: the same shape, animated the other way round.', ['<id>', '<strokes...>'], CHECKPOINT, async (ctx, args) => {
+    const [id, ...selectors] = args.positionals
+    await edit(
+      ctx,
+      id,
+      args.values,
+      (doc) => {
+        const chosen = new Set(resolveStrokes(doc, selectors))
+        return { ...doc, steps: doc.steps.map((step) => ({ ...step, strokes: step.strokes.map((stroke) => (chosen.has(stroke.uid) ? { ...stroke, d: reversePath(stroke.d) } : stroke)) })) }
+      },
+      `Reversed ${selectors.join(' ')}.`,
+    )
+  }),
 
   command('strokes delete', 'Remove the selected strokes for good, and any step they leave empty.', ['<id>', '<strokes...>'], CHECKPOINT, async (ctx, args) => {
     const [id, ...selectors] = args.positionals

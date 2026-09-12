@@ -150,7 +150,8 @@ describe('reversePath', () => {
   })
 
   it('runs a closed shape the other way round from the same start', () => {
-    expect(reversePath(WALLS)).toBe('M 200 400 L 200 900 L 800 900 L 800 400 L 200 400 Z')
+    expect(reversePath(WALLS)).toBe('M 200 400 L 200 900 L 800 900 L 800 400 Z')
+    expect(reversePath(reversePath(WALLS))).toBe(WALLS)
   })
 
   it('reverses the order of subpaths too', () => {

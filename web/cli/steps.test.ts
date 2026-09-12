@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { reversePath } from '../server/regenerate'
 import type { Tutorial } from '../src/schema/types'
 import { toEditable } from '../src/studio/editor/ops'
 
@@ -130,3 +131,20 @@ describe('strokes', () => {
     expect(outcome.stderr).toContain('at least one stroke')
   })
 })
+
+describe('strokes reverse', () => {
+  it('draws a stroke from its other end, and back again when reversed twice', async () => {
+    const original = (await house()).steps[1].strokes[0].d
+    const once = await t.studio(['strokes', 'reverse', 'simple-house', '2.1'])
+    expect(once.stderr).toBe('')
+    expect(once.code).toBe(0)
+    expect(once.stdout).toContain('Reversed 2.1.')
+    const reversed = (await house()).steps[1].strokes[0].d
+    expect(reversed).toBe(reversePath(original))
+    expect(reversed).not.toBe(original)
+    await t.studio(['strokes', 'reverse', 'simple-house', '2.1'])
+    expect((await house()).steps[1].strokes[0].d).toBe(original)
+    expect((await t.workspace.readHistory('simple-house')).map((e) => e.kind)).toEqual(['saved', 'saved', 'saved'])
+  })
+})
+

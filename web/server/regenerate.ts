@@ -347,8 +347,9 @@ export function applySteps(tutorial: Tutorial, plan: PlannedStep[]): { tutorial:
 /**
  * The same path drawn from the other end: subpaths in reverse order, each one
  * reversed segment by segment. A closed subpath keeps its start point and runs
- * the other way round. The player animates a stroke from its start, so this is
- * how a line's drawing direction changes without changing its shape.
+ * the other way round; reversing twice gives the path back as it was. The
+ * player animates a stroke from its start, so this is how a line's drawing
+ * direction changes without changing its shape.
  */
 export function reversePath(d: string): string {
   const subpaths: { start: Point; parts: Exclude<PathSegment, { kind: 'move' } | { kind: 'close' }>[]; closed: boolean }[] = []
@@ -381,6 +382,9 @@ export function reversePath(d: string): string {
     for (let index = parts.length - 1; index >= 0; index -= 1) {
       const part = parts[index]
       const to = points[index]
+      // Z draws the straight line back to the start itself, so a line there is
+      // not written; that keeps reversing twice byte-identical for closed shapes.
+      if (part.kind === 'line' && closed && index === 0) continue
       if (part.kind === 'line') reversed.push({ kind: 'line', to })
       else if (part.kind === 'quad') reversed.push({ kind: 'quad', control: part.control, end: to })
       else reversed.push({ kind: 'cubic', control1: part.control2, control2: part.control1, end: to })

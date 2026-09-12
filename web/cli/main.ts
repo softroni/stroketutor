@@ -14,6 +14,7 @@ import { stepCommands } from './commands/steps'
 import { svgCommands } from './commands/svg'
 import { generateCommands } from './commands/generate'
 import { planCommands } from './commands/plan'
+import { previewCommands } from './commands/preview'
 import { trashCommands } from './commands/trash'
 import { createContext, type RunOptions } from './context'
 import { CliError, Reporter, terminalIO } from './output'
@@ -37,6 +38,7 @@ export const COMMANDS: Command[] = [
   ...svgCommands,
   ...generateCommands,
   ...planCommands,
+  ...previewCommands,
 ]
 
 export async function run(argv: string[], options: RunOptions): Promise<number> {

@@ -43,7 +43,8 @@ export async function readSvg(file: string): Promise<string> {
   return text
 }
 
-const withExtension = (file: string, extension: string) => path.join(path.dirname(file), `${path.basename(file, path.extname(file))}${extension}`)
+/** `palm.svg` + `.png` → `palm.png`, beside the file. */
+export const withExtension = (file: string, extension: string) => path.join(path.dirname(file), `${path.basename(file, path.extname(file))}${extension}`)
 
 /**
  * The SVG tools of New lesson and Regenerate, on their own: what the Studio
