@@ -182,7 +182,10 @@ files are refused with a reason, and every reference is served under a sandboxin
 
 Everything the Studio does can be done from a terminal, on the same workspace, with the same store,
 validators and editing operations (`cli/`). `npm run studio -- <command>` runs one command;
-`npm run studio` alone lists them, and `--help` after any command describes it.
+`npm run studio` alone lists them, and `--help` after any command describes it. For an agent, the
+project skill `.claude/skills/studio-cli/SKILL.md` is the operating manual (every command, selectors, plan
+files, exit codes, gotchas; `reference.md` beside it is every `--help` verbatim), and `author-lesson` the
+drawing method.
 
 ```bash
 npm run studio -- status                                   # paths, lessons, what publishing would change

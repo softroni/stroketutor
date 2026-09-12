@@ -259,6 +259,9 @@ OpenRouter stays optional (`--model`). See [web/README.md](web/README.md#the-com
       for byte when reversed twice.
 - [x] The drawing method as a project skill, `author-lesson`, distilled from the prompts and the master plan
       (§7, §18, §23), so every session authors the same way.
+- [x] The command line as a project skill, `studio-cli`: the operating manual for any agent (running it, global
+      options, exit codes, selectors, every command, plan files, recipes, gotchas) with every `--help` verbatim
+      in `reference.md`.
 
 **Done.**
 - **Tests:** web 366 pass (70 for the command line and 7 for the preview module, in-process with a fake
