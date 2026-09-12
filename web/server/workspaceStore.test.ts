@@ -166,12 +166,8 @@ describe('publishing', () => {
   })
 
   it('publishes a new order on its own, touching only paths.json', async () => {
-    await editCatalog((catalog) => ({
-      ...catalog,
-      paths: catalog.paths.map((candidate) =>
-        candidate.id === 'trees' ? { ...candidate, lessonIds: [...candidate.lessonIds].reverse() } : candidate,
-      ),
-    }))
+    // Trees and Houses each have a published lesson, so swapping them changes what the app sees.
+    await editCatalog((catalog) => ({ ...catalog, paths: [...catalog.paths].reverse() }))
     expect((await workspace.readLibrary()).publishing.pending.some((change) => change.kind === 'curriculum')).toBe(true)
     expect((await workspace.publish([])).files).toEqual(['shared/Catalog/paths.json'])
     expect((await workspace.readLibrary()).publishing.pending.some((change) => change.kind === 'curriculum')).toBe(false)

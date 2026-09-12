@@ -78,14 +78,25 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
   lessons still in progress, published lessons with changes, and curriculum changes shown before
   and after. See [Workspace and publishing](#workspace-and-publishing).
 - **Trash** (from the Paths sidebar) holds deleted lessons and paths until they are deleted for good.
-- **Lesson Workspace** puts the reference photo, the drawing and the step list side by side,
-  with an inspector and the debug tools underneath. It is an editor for the teaching structure,
-  not for the drawing (§18): click or shift-click strokes on the canvas or in the step list, then
-  group them into a new step, move them to another step, retime them or delete them; reorder
-  steps and strokes, split a step at any stroke, merge it with the next, and edit its title and
-  instruction. Strokes are coloured by step while editing. Any stroke, step or the whole lesson can
-  be replayed on the real clock, every change is undoable (⌘Z / ⇧⌘Z), and strict validation runs
-  on every edit. **Preview as learner** mounts `TutorialPlayer` with the edited lesson.
+- **Lesson Workspace** fills the window with three panes that scroll on their own, so nothing is
+  below the fold:
+  - **the reference rail** (left; `[` hides it): the photo, with a switch to lay it under the drawing,
+    and the lesson's objective, complexity and notes, edited in place;
+  - **the drawing** (centre): the canvas sized to fit, with a transport bar (previous and next step,
+    replay step or lesson, colour by step);
+  - **the steps** (right): one line per step with its instruction, and the active step open for
+    its title, instruction and strokes.
+
+  It is an editor for the teaching structure, not for the drawing (§18). Click or shift-click strokes
+  on the canvas or in the step list, and a bar floats over the drawing to group them into a new step,
+  move them to another step, retime them or delete them. Reorder steps and strokes, split a step at
+  any stroke, merge it with the next. Any stroke, step or the whole lesson can be replayed on the real
+  clock, every change is undoable (⌘Z / ⇧⌘Z), and strict validation runs on every edit.
+
+  Edits save themselves into the workspace a moment after you stop typing; **⌘S** also keeps the
+  version in History. **Preview** mounts `TutorialPlayer` with the edited lesson. Regenerate, History,
+  the generation record and the debug tools open in a drawer over the steps, and Approve and Publish
+  confirm in a dialog. `?` lists the keyboard shortcuts.
 - **Import & test** is the original loader: any tutorial JSON, validated and played, never saved.
 
 At start-up `studio/library.ts` validates every tutorial and the catalog once. A tutorial whose
@@ -113,8 +124,8 @@ library is read, never queued. The workspace starts as a copy of `shared/Catalog
 Studio opens, and is copied once a day to `../.studio/backups/` (the newest seven are kept), since git
 does not hold it.
 
-- **Save**, **Approve…**, New lesson's **Keep as draft**, photos, path edits, regenerations and history
-  all write the workspace only.
+- Autosave, **⌘S**, **Approve…**, New lesson's **Keep as draft**, photos, path edits, regenerations and
+  history all write the workspace only.
 - **Publish…** (in the workspace, a lesson's ⋯ menu, or the Publish view) shows the quality warnings and
   the §36 checklist, marks the lesson approved and writes, in this order, its photo, its tutorial and
   then `shared/Catalog`. The catalog goes last, so a failure part-way never leaves it pointing at a
@@ -148,8 +159,10 @@ touches `shared/`, and only when publishing or unpublishing:
 Writes must be same-origin and carry an `X-StrokeTutor-Studio` header. In dev the Studio reads the
 working library through `/api/library` rather than bundling it, so saving never reloads the page.
 
-**Save** stores the lesson in the workspace, then reads it back and confirms it matches the preview.
-**Approve…** shows the quality warnings (`studio/quality.ts`: length, stroke count, tiny strokes,
+The workspace saves each edit about a second after the creator stops, one save at a time, naming the
+version it replaces; leaving the lesson saves the last edit too. Autosaves don't add to History, except
+that the version a lesson had before its first change is kept. **⌘S** keeps the current version in
+History. **Approve…** shows the quality warnings (`studio/quality.ts`: length, stroke count, tiny strokes,
 crowded steps, placeholder words, a jump from the previous lesson) with the §36 checklist, then
 saves and marks the lesson approved. Warnings never block. A reference image is stored as
 `<lesson>.jpg|png|webp|svg` with its source and licence recorded with the lesson. An SVG must be a
@@ -221,7 +234,7 @@ For the first three, the model is sent the lesson as ids with positions (never p
 shapes it already has. A new drawing from an SVG traces the file again at the chosen detail.
 
 The result appears beside the current version; **Use the regenerated version** makes it an ordinary edit, so
-**Undo** takes it back and **Save** writes it. Nothing is written by regenerating.
+**Undo** takes it back and autosave keeps it. Nothing else is written by regenerating.
 
 **History.** Every version of a lesson is kept in the workspace, never in its place, so a good one is
 never lost (master plan §24). Each version is one record with an id `<time>-<kind>-<random>`
@@ -230,8 +243,9 @@ note, rationale, the Studio's corrections, the analysis and the cost.
 - **Generated:** New lesson keeps every valid candidate of the session (**Generate another** adds one
   and never replaces), and **Keep as draft** records all of them, the kept one marked.
 - **Regenerated:** each valid regeneration, recorded as it arrives, whether or not it is used.
-- **Saved:** the workspace records every save that changes a lesson. The first time anything is
-  recorded about a lesson, the version it had goes in first, so there is always one to go back to.
+- **Saved:** every ⌘S that changes something since the last recorded version. Autosaves are not
+  recorded, but the first time a lesson changes, the version it had goes in first, so there is always
+  one to go back to.
 - **Published:** each version written into `shared/` by Publish.
 
 The workspace's **History** tab lists every version, newest first, and shows the chosen one beside

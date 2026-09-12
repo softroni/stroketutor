@@ -418,8 +418,12 @@ export async function openWorkspace(options: WorkspaceOptions) {
     readLibrary,
     readTutorial,
 
-    /** Saves a lesson in the workspace. `shared/` is untouched until the lesson is published. */
-    async writeTutorial(id: string, data: unknown, precondition: Precondition) {
+    /**
+     * Saves a lesson in the workspace. `shared/` is untouched until the lesson
+     * is published. A checkpoint also records the version in the lesson's
+     * history; an autosave only makes sure the version it replaces is kept.
+     */
+    async writeTutorial(id: string, data: unknown, precondition: Precondition, { checkpoint = true } = {}) {
       checkTutorial(id, data, validateTutorial)
       const draft = draftRow(id)
       const shared = await writer.readTutorial(id)
@@ -427,7 +431,20 @@ export async function openWorkspace(options: WorkspaceOptions) {
       checkPrecondition(`The lesson “${id}”`, current, precondition)
       const text = formatJSON(data)
       const result = { file: `workspace/${id}`, etag: etagOf(text), created: current === null }
-      if (current?.text === text) return result
+      if (current?.text === text) {
+        // Nothing to write. A checkpoint still keeps this version, when
+        // autosaves have changed the lesson since the last one.
+        if (checkpoint) {
+          transaction(() => {
+            const history = readHistory(id)
+            const lastSaved = history.find((entry) => entry.kind === 'saved' || entry.kind === 'published')
+            if (history.length > 0 && (!lastSaved || formatJSON(lastSaved.tutorial) !== text)) {
+              writeHistoryEntry(id, { kind: 'saved', tutorial: data as Tutorial }, history[0])
+            }
+          })
+        }
+        return result
+      }
 
       transaction(() => {
         // A save that changes a lesson is kept in its history, and so, the
@@ -435,7 +452,7 @@ export async function openWorkspace(options: WorkspaceOptions) {
         if (current) {
           const history = withBaseline(id, current, readHistory(id))
           const lastSaved = history.find((entry) => entry.kind === 'saved' || entry.kind === 'published')
-          if (!lastSaved || formatJSON(lastSaved.tutorial) !== text) {
+          if (checkpoint && (!lastSaved || formatJSON(lastSaved.tutorial) !== text)) {
             writeHistoryEntry(id, { kind: 'saved', tutorial: data as Tutorial }, history[0])
           }
         }

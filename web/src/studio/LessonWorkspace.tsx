@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { DebugPanel } from '../app/DebugPanel'
 import { estimateLearnerSeconds, formatMinutes } from '../catalog/metrics'
@@ -6,13 +6,14 @@ import { findLesson, findPathOfLesson, type Catalog, type Lesson, type LearningP
 import { describeEntry } from '../history/types'
 import { TutorialPlayer } from '../player/TutorialPlayer'
 import { totalDuration, totalStrokes, type Tutorial } from '../schema/types'
-import { parseTutorialJSON, validateTutorial, type ValidationIssue } from '../schema/validate'
+import { validateTutorial, type ValidationIssue } from '../schema/validate'
 
-import { ApiError, publishLessons, readTutorial, saveCatalog, saveTutorial, uploadReference } from './api'
-import { ApprovalDialog } from './ApprovalDialog'
+import { ApiError, publishLessons, saveCatalog, saveTutorial, uploadReference } from './api'
+import { ApprovalChecklist, QualityWarnings } from './ApprovalDialog'
+import { ConfirmDialog } from './ConfirmDialog'
+import { Drawer } from './Drawer'
 import { EditCanvas, type Replay } from './editor/EditCanvas'
 import { commit, createHistory, redo, undo } from './editor/history'
-import { Inspector } from './editor/Inspector'
 import {
   EditError,
   deleteStrokes,
@@ -30,42 +31,43 @@ import {
   updateStrokes,
   type EditableTutorial,
 } from './editor/ops'
+import { SelectionBar } from './editor/SelectionBar'
 import { StepEditor } from './editor/StepEditor'
 import { HistoryPanel } from './HistoryPanel'
 import { IssueList } from './IssueList'
 import { LessonActions } from './LessonActions'
 import type { Library, TutorialEntry } from './library'
+import type { MenuEntry } from './Menu'
 import { AnalysisPanel } from './NewLessonView'
 import { qualityWarnings } from './quality'
 import { ReferencePanel } from './ReferencePanel'
 import { RegeneratePanel } from './RegeneratePanel'
 import { routeHref } from './route'
+import { ShortcutSheet } from './ShortcutSheet'
 import { LifecycleBadge } from './StatusPill'
+import { Toasts, useToasts } from './Toasts'
 
 export interface LessonWorkspaceProps {
   library: Library
   catalog: Catalog | null
   lessonId: string
-  /** Called after anything is written, so the Studio re-reads shared/. */
+  /** Called after anything is written, so the Studio re-reads the library. */
   onSaved: () => Promise<void>
 }
 
 /**
  * The primary Studio surface (master plan §17): the real-world reference, the
- * drawing and the teaching structure side by side, so both the simplification
- * and the teaching order can be judged, corrected and saved without leaving
- * the page.
+ * drawing and the teaching structure side by side, each in a full-height pane
+ * of its own, so both the simplification and the teaching order can be judged
+ * and corrected without scrolling or leaving the page.
  */
 export function LessonWorkspace({ library, catalog, lessonId, onSaved }: LessonWorkspaceProps) {
   const entry = library.tutorials.get(lessonId)
   if (!entry) {
     return (
       <div className="st-empty">
-        <h1>No tutorial called “{lessonId}”</h1>
-        <p>
-          The Studio looks for <code>shared/Tutorials/{lessonId}.json</code>. It may be missing or
-          invalid.
-        </p>
+        <h1>No lesson called “{lessonId}”</h1>
+        <p>It may have been deleted (look in the Trash), or it does not validate.</p>
         <a className="st-button" href={routeHref({ name: 'paths', pathId: null })}>
           Back to paths
         </a>
@@ -85,21 +87,42 @@ export function LessonWorkspace({ library, catalog, lessonId, onSaved }: LessonW
 }
 
 type Mode = 'edit' | 'preview'
-type BottomPanel = 'inspector' | 'generation' | 'history' | 'advanced'
+type DrawerTab = 'regenerate' | 'history' | 'generation' | 'debug'
+type Dialog = 'approve' | 'publish' | 'shortcuts'
 
-interface SaveReport {
-  file: string
-  /** The file read back from disk matches what was previewed. */
-  identical: boolean
-  approved: boolean
-  steps: number
-  strokes: number
+type SaveState =
+  | { kind: 'saved' }
+  | { kind: 'saving' }
+  | { kind: 'failed'; message: string; issues: ValidationIssue[] }
+
+const PREFS_KEY = 'stroketutor.studio.workspace'
+
+interface WorkspacePrefs {
+  rail: boolean
+  overlay: boolean
+  colorBySteps: boolean
 }
 
-interface SaveFailure {
-  message: string
-  issues: ValidationIssue[]
+/** Layout choices, remembered in this browser only. */
+function readPrefs(): WorkspacePrefs {
+  try {
+    const stored = JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as Partial<WorkspacePrefs>
+    return { rail: stored.rail !== false, overlay: stored.overlay === true, colorBySteps: stored.colorBySteps !== false }
+  } catch {
+    return { rail: true, overlay: false, colorBySteps: true }
+  }
 }
+
+function writePrefs(prefs: WorkspacePrefs) {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))
+  } catch {
+    // Storage can be unavailable (a private window); the defaults still work.
+  }
+}
+
+/** How long typing must pause before the lesson saves itself. */
+const AUTOSAVE_MS = 800
 
 function LessonEditor({
   library,
@@ -114,37 +137,115 @@ function LessonEditor({
   path: LearningPath | undefined
   onSaved: () => Promise<void>
 }) {
-  const original = entry.tutorial
-  const [history, setHistory] = useState(() => createHistory(toEditable(original)))
+  const [history, setHistory] = useState(() => createHistory(toEditable(entry.tutorial)))
   const [selection, setSelection] = useState<ReadonlySet<string>>(() => new Set())
   const [activeStep, setActiveStep] = useState(0)
   const [mode, setMode] = useState<Mode>('edit')
-  const [colorBySteps, setColorBySteps] = useState(true)
+  const [prefs, setPrefs] = useState(readPrefs)
   const [replay, setReplay] = useState<Replay | null>(null)
-  const [panel, setPanel] = useState<BottomPanel>('inspector')
-  const [editError, setEditError] = useState<string | null>(null)
-  const [approving, setApproving] = useState(false)
-  const [publishing, setPublishing] = useState(false)
-  /** The files Publish wrote into shared/, to commit. */
-  const [publishReport, setPublishReport] = useState<string[] | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [saveReport, setSaveReport] = useState<SaveReport | null>(null)
-  const [saveFailure, setSaveFailure] = useState<SaveFailure | null>(null)
-  const [regenerating, setRegenerating] = useState(false)
-  /** Said once a regenerated or recorded version is in the editor, until it is saved or undone. */
-  const [editorNotice, setEditorNotice] = useState<string | null>(null)
+  const [drawer, setDrawer] = useState<DrawerTab | null>(null)
+  /** Regenerate stays mounted once opened, so a run in progress survives closing the drawer. */
+  const [regenerateOpened, setRegenerateOpened] = useState(false)
+  const [dialog, setDialog] = useState<Dialog | null>(null)
+  const [issuesOpen, setIssuesOpen] = useState(false)
+  const [saveState, setSaveState] = useState<SaveState>({ kind: 'saved' })
   /** Bumped whenever a version may have been recorded, so the History tab reads it again. */
   const [historyKey, setHistoryKey] = useState(0)
+  const [toasts, toast, dismissToast] = useToasts()
+  const moveRef = useRef<HTMLSelectElement>(null)
+
+  const updatePrefs = (patch: Partial<WorkspacePrefs>) =>
+    setPrefs((current) => {
+      const next = { ...current, ...patch }
+      writePrefs(next)
+      return next
+    })
 
   const doc = history.present
   const tutorial = useMemo(() => toTutorial(doc), [doc])
   const validation = useMemo(() => validateTutorial(tutorial), [tutorial])
-  // Compared with the file as last read from disk, so a save clears it.
-  const changed = useMemo(
-    () => JSON.stringify(tutorial) !== JSON.stringify(original),
-    [tutorial, original],
-  )
+  const text = useMemo(() => JSON.stringify(tutorial), [tutorial])
   const activeStepIndex = Math.min(activeStep, doc.steps.length - 1)
+
+  // ---------- Autosave ----------
+  // What the workspace holds, and the version a save must name to replace it.
+  // Only this editor's own saves move them, so a library re-read can never
+  // hand a save a stale version.
+  const savedText = useRef(JSON.stringify(entry.tutorial))
+  const [savedVersion, setSavedVersion] = useState(savedText.current)
+  const etag = useRef<string | null>(entry.etag ?? null)
+  const queue = useRef<Promise<boolean>>(Promise.resolve(true))
+  const dirty = text !== savedVersion
+
+  /**
+   * Saves the lesson as it is now into the workspace, one save at a time. A
+   * checkpoint also keeps the version in History; an autosave does not.
+   */
+  const persist = (checkpoint: boolean, verdict = validation, snapshot = text): Promise<boolean> => {
+    if (!library.writable || !verdict.ok) return Promise.resolve(false)
+    const run = queue.current.then(async () => {
+      if (!checkpoint && snapshot === savedText.current) return true
+      setSaveState({ kind: 'saving' })
+      try {
+        const written = await saveTutorial(entry.id, verdict.tutorial, etag.current, { checkpoint })
+        etag.current = written.etag
+        savedText.current = snapshot
+        setSavedVersion(snapshot)
+        setSaveState({ kind: 'saved' })
+        if (checkpoint) setHistoryKey((key) => key + 1)
+        void onSaved()
+        return true
+      } catch (error) {
+        setSaveState({
+          kind: 'failed',
+          message: error instanceof Error ? error.message : String(error),
+          issues: error instanceof ApiError ? error.issues : [],
+        })
+        return false
+      }
+    })
+    queue.current = run
+    return run
+  }
+
+  /** Makes sure the latest edit is saved before something reads the saved version. */
+  const flush = () => (dirty ? persist(false) : queue.current)
+
+  useEffect(() => {
+    if (!dirty || !validation.ok || !library.writable) return
+    const timer = window.setTimeout(() => void persist(false, validation, text), AUTOSAVE_MS)
+    return () => window.clearTimeout(timer)
+    // The timer restarts on every edit; persist is read fresh when it fires.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, dirty, validation.ok])
+
+  // Leaving the lesson inside the autosave pause still saves the last edit.
+  const latest = useRef({ dirty, validation, text })
+  latest.current = { dirty, validation, text }
+  useEffect(
+    () => () => {
+      const last = latest.current
+      if (last.dirty && last.validation.ok && library.writable) {
+        void saveTutorial(entry.id, last.validation.tutorial, etag.current, { checkpoint: false }).then(
+          () => onSaved(),
+          () => undefined,
+        )
+      }
+    },
+    // Runs once, when the lesson closes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
+
+  // Closing the tab during a save, or with edits that cannot be saved, asks first.
+  useEffect(() => {
+    if (!dirty && saveState.kind !== 'saving') return
+    const onBeforeUnload = (event: BeforeUnloadEvent) => event.preventDefault()
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [dirty, saveState.kind])
+
+  // ---------- Editing ----------
 
   const position = path ? Math.max(0, path.lessonIds.indexOf(entry.id)) : 0
   const previous = useMemo(
@@ -163,38 +264,6 @@ function LessonEditor({
   }, [doc, selection])
   const selectedInOrder = strokeUids(doc).filter((uid) => liveSelection.has(uid))
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      // Text fields keep their own undo.
-      const target = event.target as HTMLElement | null
-      if (target && (target.closest('input, textarea, select') || target.isContentEditable)) return
-
-      if (event.key === 'Escape') {
-        setSelection(new Set())
-        return
-      }
-      if (!(event.metaKey || event.ctrlKey)) return
-      const key = event.key.toLowerCase()
-      if (key === 'z') {
-        event.preventDefault()
-        setHistory((current) => (event.shiftKey ? redo(current) : undo(current)))
-      } else if (key === 'y') {
-        event.preventDefault()
-        setHistory((current) => redo(current))
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
-
-  // Unsaved edits live only in this page; a reload or close asks first.
-  useEffect(() => {
-    if (!changed) return
-    const onBeforeUnload = (event: BeforeUnloadEvent) => event.preventDefault()
-    window.addEventListener('beforeunload', onBeforeUnload)
-    return () => window.removeEventListener('beforeunload', onBeforeUnload)
-  }, [changed])
-
   /** Runs one editing operation; a refusal is shown, never thrown at the creator. */
   const apply = (
     operation: (current: EditableTutorial) => EditableTutorial,
@@ -205,12 +274,11 @@ function LessonEditor({
       next = operation(history.present)
     } catch (error) {
       if (error instanceof EditError) {
-        setEditError(error.message)
+        toast(error.message, 'error')
         return null
       }
       throw error
     }
-    setEditError(null)
     setHistory(commit(history, next, key))
     return next
   }
@@ -242,95 +310,54 @@ function LessonEditor({
     setMode('edit')
     setReplay((current) => ({ uids, runId: (current?.runId ?? 0) + 1 }))
   }
+  const replayStep = () => playReplay(doc.steps[activeStepIndex]?.strokes.map((stroke) => stroke.uid) ?? [])
+  const replayLesson = () => playReplay(strokeUids(doc))
 
-  /** Puts a whole other version in the editor as one undoable edit, and says so until it is saved or undone. */
+  const group = () => {
+    if (liveSelection.size === 0) return
+    focusStepOf(
+      apply((current) => groupIntoNewStep(current, liveSelection)),
+      selectedInOrder[0],
+    )
+  }
+  const removeSelection = () => {
+    if (liveSelection.size === 0) return
+    if (apply((current) => deleteStrokes(current, liveSelection))) setSelection(new Set())
+  }
+
+  /** Puts a whole other version in the editor as one undoable edit. */
   const putInEditor = (next: Tutorial, message: string) => {
     setSelection(new Set())
     setReplay(null)
     setMode('edit')
     setActiveStep(0)
+    setDrawer(null)
     apply(() => toEditable(next))
-    setEditorNotice(`${message} Nothing is saved yet: review, then Save. Undo (⌘Z) brings back the previous version.`)
+    toast(`${message} Undo (⌘Z) brings back the previous version.`)
   }
 
-  /** Rewrites the catalog as it is on disk with this one lesson changed. */
+  // ---------- The lesson's catalog entry ----------
+
+  /** Rewrites the working curriculum with this one lesson changed. */
   const saveLessonMeta = async (change: (current: Lesson) => Lesson) => {
-    const disk = library.catalog
-    if (!disk || !lesson) throw new ApiError(0, 'This lesson is not in the curriculum.')
+    const current = library.catalog
+    if (!current || !lesson) throw new ApiError(0, 'This lesson is not in the curriculum.')
     await saveCatalog(
-      { catalogVersion: 1, paths: disk.paths },
+      { catalogVersion: 1, paths: current.paths },
       {
         catalogVersion: 1,
-        lessons: disk.lessons.map((candidate) => (candidate.id === lesson.id ? change(candidate) : candidate)),
+        lessons: current.lessons.map((candidate) => (candidate.id === lesson.id ? change(candidate) : candidate)),
       },
       { paths: library.catalogEtags.paths ?? null, lessons: library.catalogEtags.lessons ?? null },
     )
   }
 
-  /** Validate → write → (approve) → read back from disk and compare (§27). */
-  const save = async (approve: boolean) => {
-    if (!validation.ok) return
-    const saved = validation.tutorial
-    setSaving(true)
-    setSaveFailure(null)
-    setSaveReport(null)
-    setPublishReport(null)
-    let wrote = false
+  const editDetails = async (change: (current: Lesson) => Lesson) => {
     try {
-      const written = await saveTutorial(entry.id, saved, entry.etag ?? null)
-      wrote = true
-      const approved = approve && lesson !== undefined && lesson.status !== 'approved'
-      if (approved) await saveLessonMeta((current) => ({ ...current, status: 'approved' }))
-
-      // The proof that what was previewed is what is on disk: read it back.
-      const stored = await readTutorial(entry.id)
-      const reread = parseTutorialJSON(stored.text)
-      setSaveReport({
-        file: written.file,
-        identical: reread.ok && JSON.stringify(reread.tutorial) === JSON.stringify(saved),
-        approved,
-        steps: saved.steps.length,
-        strokes: totalStrokes(saved),
-      })
-      setApproving(false)
-    } catch (error) {
-      setSaveFailure(
-        error instanceof ApiError
-          ? { message: error.message, issues: error.issues }
-          : { message: String(error), issues: [] },
-      )
-    } finally {
-      // Re-read shared/ whenever something was written, even if a later step
-      // failed, so the next save names the right version.
-      if (wrote) {
-        await onSaved()
-        // The server keeps every save in the lesson's history.
-        setHistoryKey((key) => key + 1)
-      }
-      setSaving(false)
-    }
-  }
-
-  /** Approves the saved version and writes it into shared/, with the curriculum as it stands. */
-  const publish = async () => {
-    setSaving(true)
-    setSaveFailure(null)
-    setSaveReport(null)
-    setPublishReport(null)
-    try {
-      const { files } = await publishLessons([entry.id])
-      setPublishReport(files)
-      setPublishing(false)
-    } catch (error) {
-      setSaveFailure(
-        error instanceof ApiError
-          ? { message: error.message, issues: error.issues }
-          : { message: String(error), issues: [] },
-      )
-    } finally {
+      await saveLessonMeta(change)
       await onSaved()
-      setHistoryKey((key) => key + 1)
-      setSaving(false)
+    } catch (error) {
+      toast(error instanceof Error ? error.message : String(error), 'error')
     }
   }
 
@@ -340,6 +367,130 @@ function LessonEditor({
     await onSaved()
   }
 
+  const checkpoint = async () => {
+    if (!validation.ok) {
+      toast('This version has problems, so it cannot be kept yet.', 'error')
+      return
+    }
+    if (await persist(true)) toast('Kept this version in History.')
+  }
+
+  const approve = async () => {
+    if (!(await flush())) throw new Error('The lesson could not be saved, so it was not approved.')
+    if (lesson && lesson.status !== 'approved') await saveLessonMeta((current) => ({ ...current, status: 'approved' }))
+    await onSaved()
+    toast('Approved: it is ready to publish.')
+  }
+
+  const publish = async () => {
+    if (!(await flush())) throw new Error('The lesson could not be saved, so it was not published.')
+    const { files } = await publishLessons([entry.id])
+    setHistoryKey((key) => key + 1)
+    await onSaved()
+    toast(
+      <>
+        Published. {files.length} {files.length === 1 ? 'file' : 'files'} in shared/ changed; commit them:
+        <code className="st-toast__command">git add -- {files.join(' ')}</code>
+      </>,
+      'success',
+      { sticky: true },
+    )
+  }
+
+  const openDrawer = (tab: DrawerTab) => {
+    if (tab === 'regenerate') setRegenerateOpened(true)
+    setDrawer(tab)
+  }
+
+  // ---------- Keyboard ----------
+
+  const onKey = useRef<(event: KeyboardEvent) => void>(() => undefined)
+  onKey.current = (event: KeyboardEvent) => {
+    const command = event.metaKey || event.ctrlKey
+    const key = event.key.toLowerCase()
+    // ⌘S works everywhere, even while typing an instruction.
+    if (command && key === 's') {
+      event.preventDefault()
+      void checkpoint()
+      return
+    }
+    if (document.querySelector('dialog[open]')) return
+    const target = event.target as HTMLElement | null
+    // Text fields keep their own keys, and their own undo.
+    if (target && (target.closest('input, textarea, select') || target.isContentEditable)) return
+
+    if (command) {
+      if (key === 'z') {
+        event.preventDefault()
+        setHistory((current) => (event.shiftKey ? redo(current) : undo(current)))
+      } else if (key === 'y') {
+        event.preventDefault()
+        setHistory((current) => redo(current))
+      }
+      return
+    }
+    if (event.altKey) return
+
+    const stepCount = doc.steps.length
+    switch (event.key) {
+      case 'Escape':
+        if (drawer) setDrawer(null)
+        else setSelection(new Set())
+        return
+      case 'ArrowUp':
+      case 'k':
+        event.preventDefault()
+        setActiveStep(Math.max(0, activeStepIndex - 1))
+        return
+      case 'ArrowDown':
+      case 'j':
+        event.preventDefault()
+        setActiveStep(Math.min(stepCount - 1, activeStepIndex + 1))
+        return
+      case ' ':
+        event.preventDefault()
+        if (event.shiftKey) replayLesson()
+        else replayStep()
+        return
+      case 'p':
+        if (validation.ok) {
+          setReplay(null)
+          setMode((current) => (current === 'edit' ? 'preview' : 'edit'))
+        }
+        return
+      case 'g':
+        group()
+        return
+      case 'm':
+        if (liveSelection.size > 0) {
+          event.preventDefault()
+          moveRef.current?.focus()
+        }
+        return
+      case 'Backspace':
+      case 'Delete':
+        if (liveSelection.size > 0) {
+          event.preventDefault()
+          removeSelection()
+        }
+        return
+      case '[':
+        updatePrefs({ rail: !prefs.rail })
+        return
+      case '?':
+        setDialog('shortcuts')
+        return
+    }
+  }
+
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => onKey.current(event)
+    window.addEventListener('keydown', listener)
+    return () => window.removeEventListener('keydown', listener)
+  }, [])
+
+  // ---------- What the header says ----------
+
   const reference = lesson?.reference
   const referenceUrl = reference ? library.referenceUrl(reference.file) : undefined
   const uploadBlockedBecause = !library.writable
@@ -347,22 +498,55 @@ function LessonEditor({
     : !lesson
       ? 'Photos are recorded with the lesson in the curriculum, so add it there first.'
       : null
-  const canApprove = validation.ok && lesson !== undefined && (changed || lesson.status !== 'approved')
   const publishBlockedBecause = !lesson
     ? 'Only lessons in the curriculum can be published.'
-    : changed
-      ? 'Save first: Publish takes the saved version.'
-      : !validation.ok
-        ? 'Fix the validation problems first.'
-        : entry.state === 'published'
-          ? 'Published, and nothing has changed since.'
-          : null
+    : !validation.ok
+      ? 'Fix the validation problems first.'
+      : entry.state === 'published' && !dirty
+        ? 'Published, and nothing has changed since.'
+        : null
+  const problems = validation.ok ? [] : validation.issues
+
+  const saveStatus = !library.writable ? (
+    <span className="st-save-status">Read-only copy</span>
+  ) : !validation.ok ? (
+    <button type="button" className="st-save-status st-save-status--problem" onClick={() => setIssuesOpen((open) => !open)}>
+      {problems.length} {problems.length === 1 ? 'problem' : 'problems'}: not saved
+    </button>
+  ) : saveState.kind === 'failed' ? (
+    <button type="button" className="st-save-status st-save-status--problem" onClick={() => setIssuesOpen((open) => !open)}>
+      Not saved
+    </button>
+  ) : saveState.kind === 'saving' || dirty ? (
+    <span className="st-save-status">Saving…</span>
+  ) : (
+    <span className="st-save-status" title="Edits save themselves into your workspace. ⌘S keeps a version in History.">
+      ✓ Saved
+    </span>
+  )
+
+  const menuEntries: MenuEntry[] = [
+    { label: 'Keep this version in History (⌘S)', disabled: !validation.ok, onSelect: () => void checkpoint() },
+    { label: 'History', onSelect: () => openDrawer('history') },
+    ...(lesson?.generation ? [{ label: 'How it was generated', onSelect: () => openDrawer('generation') }] : []),
+    { label: 'Debug', onSelect: () => openDrawer('debug') },
+    { label: 'Keyboard shortcuts (?)', onSelect: () => setDialog('shortcuts') },
+  ]
+
+  const drawerTabs: { id: DrawerTab; label: string; shown: boolean }[] = [
+    { id: 'regenerate', label: 'Regenerate', shown: library.writable },
+    { id: 'history', label: 'History', shown: library.writable },
+    { id: 'generation', label: 'Generation', shown: Boolean(lesson?.generation) },
+    { id: 'debug', label: 'Debug', shown: true },
+  ]
+
+  const steps = doc.steps.length
 
   return (
     <div className="st-workspace">
       <header className="st-workspace__bar">
         <nav className="st-crumbs" aria-label="Breadcrumb">
-          <a href={routeHref({ name: 'paths', pathId: path?.id ?? null })}>
+          <a href={path ? routeHref({ name: 'paths', pathId: path.id }) : routeHref({ name: 'unfiled' })}>
             {path?.title ?? 'Not in a path'}
           </a>
           <span className="st-crumbs__sep" aria-hidden="true">
@@ -370,292 +554,265 @@ function LessonEditor({
           </span>
           <span aria-current="page">{tutorial.title}</span>
         </nav>
-        <div className="st-workspace__actions">
-          <LifecycleBadge status={lesson?.status} state={entry.state} />
-          <div className="st-segmented" role="group" aria-label="Mode">
-            <button type="button" aria-pressed={mode === 'edit'} onClick={() => setMode('edit')}>
-              Edit
-            </button>
-            <button
-              type="button"
-              aria-pressed={mode === 'preview'}
-              disabled={!validation.ok}
-              title={validation.ok ? undefined : 'Fix the validation problems first.'}
-              onClick={() => {
-                setReplay(null)
-                setMode('preview')
-              }}
-            >
-              Preview as learner
-            </button>
-          </div>
-          <LessonActions
-            library={library}
-            lessonId={entry.id}
-            onChanged={onSaved}
-            withPublish={false}
-            unsaved={changed}
-            onDeleted={() => {
-              window.location.hash = routeHref({ name: 'paths', pathId: path?.id ?? null })
-            }}
-          />
-        </div>
-      </header>
-
-      {lesson ? <p className="st-workspace__objective">{lesson.objective}</p> : null}
-
-      <div className="st-toolbar" role="toolbar" aria-label="Editing">
+        <LifecycleBadge status={lesson?.status} state={entry.state} />
+        {saveStatus}
+        <span className="st-workspace__spacer" />
         <button
           type="button"
-          className="st-button"
+          className="st-icon-button"
           disabled={history.past.length === 0}
           onClick={() => setHistory(undo(history))}
+          aria-label="Undo (⌘Z)"
           title="Undo (⌘Z)"
         >
-          ↶ Undo
+          ↶
         </button>
         <button
           type="button"
-          className="st-button"
+          className="st-icon-button"
           disabled={history.future.length === 0}
           onClick={() => setHistory(redo(history))}
+          aria-label="Redo (⇧⌘Z)"
           title="Redo (⇧⌘Z)"
         >
-          ↷ Redo
+          ↷
         </button>
-        <button type="button" className="st-button" onClick={() => playReplay(strokeUids(doc))}>
-          ▶ Replay lesson
-        </button>
-        <label className="st-check">
-          <input
-            type="checkbox"
-            checked={colorBySteps}
-            onChange={(event) => setColorBySteps(event.target.checked)}
-          />
-          Colour by step
-        </label>
-        <span className="st-toolbar__spacer" />
-        {validation.ok ? (
-          <span className="st-valid">Valid v{tutorial.schemaVersion} tutorial</span>
-        ) : (
-          <span className="st-invalid">
-            {validation.issues.length} {validation.issues.length === 1 ? 'problem' : 'problems'}
-          </span>
-        )}
-        {changed ? (
+        <div className="st-segmented" role="group" aria-label="Mode">
+          <button type="button" aria-pressed={mode === 'edit'} onClick={() => setMode('edit')}>
+            Edit
+          </button>
           <button
             type="button"
-            className="st-link-button"
+            aria-pressed={mode === 'preview'}
+            disabled={!validation.ok}
+            title={validation.ok ? 'Preview as the learner will see it (P)' : 'Fix the validation problems first.'}
             onClick={() => {
-              setSelection(new Set())
-              apply(() => toEditable(original))
+              setReplay(null)
+              setMode('preview')
             }}
           >
-            Revert to saved
+            Preview
           </button>
-        ) : null}
+        </div>
         {library.writable ? (
           <>
-            <button
-              type="button"
-              className="st-button"
-              disabled={!changed || !validation.ok || saving}
-              onClick={() => void save(false)}
-            >
-              {saving && !approving ? 'Saving…' : 'Save'}
+            <button type="button" className="st-button st-button--compact" onClick={() => openDrawer('regenerate')}>
+              Regenerate…
             </button>
             <button
               type="button"
-              className={`st-button ${approving ? 'st-button--on' : ''}`}
-              aria-expanded={approving}
-              disabled={!canApprove || saving}
-              title={lesson ? undefined : 'Only catalogued lessons can be approved.'}
-              onClick={() => {
-                setPublishing(false)
-                setApproving((open) => !open)
-              }}
+              className="st-button st-button--compact"
+              disabled={!validation.ok || !lesson || (lesson.status === 'approved' && !dirty)}
+              title={lesson ? undefined : 'Only lessons in the curriculum can be approved.'}
+              onClick={() => setDialog('approve')}
             >
               Approve…
             </button>
             <button
               type="button"
-              className={`st-button ${publishing ? 'st-button--on' : ''}`}
-              aria-expanded={publishing}
-              disabled={publishBlockedBecause !== null || saving}
+              className="st-button st-button--primary st-button--compact"
+              disabled={publishBlockedBecause !== null}
               title={publishBlockedBecause ?? 'Approve this version and write it into shared/.'}
-              onClick={() => {
-                setApproving(false)
-                setPublishing((open) => !open)
-              }}
+              onClick={() => setDialog('publish')}
             >
               Publish…
             </button>
-            <button
-              type="button"
-              className={`st-button ${regenerating ? 'st-button--on' : ''}`}
-              aria-expanded={regenerating}
-              onClick={() => setRegenerating((open) => !open)}
-            >
-              Regenerate…
-            </button>
           </>
         ) : null}
-      </div>
-
-      {approving ? (
-        <ApprovalDialog
-          warnings={warnings}
-          busy={saving}
-          onConfirm={() => void save(true)}
-          onCancel={() => setApproving(false)}
+        <LessonActions
+          library={library}
+          lessonId={entry.id}
+          onChanged={onSaved}
+          withPublish={false}
+          unsaved={dirty}
+          extraEntries={menuEntries}
+          onDeleted={() => {
+            window.location.hash = routeHref({ name: 'paths', pathId: path?.id ?? null })
+          }}
         />
-      ) : null}
-      {publishing ? (
-        <ApprovalDialog
-          warnings={warnings}
-          busy={saving}
-          heading={entry.state === 'published-edited' ? 'Approve and publish these changes?' : 'Approve and publish this lesson?'}
-          confirmLabel="Approve & publish"
-          busyLabel="Publishing…"
-          onConfirm={() => void publish()}
-          onCancel={() => setPublishing(false)}
-        >
-          <p className="st-approval__note">
-            Writes <code>shared/Tutorials/{entry.fileName}</code>
-            {reference ? ' and its photo' : ''}, and brings <code>shared/Catalog</code> in line with the
-            curriculum. That is what git tracks and the app ships; commit it yourself afterwards.
-          </p>
-        </ApprovalDialog>
-      ) : null}
 
-      {library.writable ? (
-        // Hidden rather than unmounted, so a regeneration still running is not lost.
-        <div hidden={!regenerating}>
-          <RegeneratePanel
-            library={library}
-            lessonId={entry.id}
-            title={tutorial.title}
-            lesson={lesson}
-            path={path}
-            position={position}
-            current={validation.ok ? validation.tutorial : null}
-            onUse={(next, result) => {
-              const plural = result.layer === 'steps' || result.layer === 'instructions'
-              putInEditor(next, `The new ${result.layer} from ${result.model} ${plural ? 'are' : 'is'} in the editor.`)
-              setRegenerating(false)
-            }}
-            onRecorded={() => setHistoryKey((key) => key + 1)}
-            onClose={() => setRegenerating(false)}
-          />
-        </div>
-      ) : null}
-      {editorNotice && changed ? (
-        <p className="st-notice st-notice--success" role="status">
-          {editorNotice}
-        </p>
-      ) : null}
+        {issuesOpen && (problems.length > 0 || saveState.kind === 'failed') ? (
+          <div className="st-popover" role="dialog" aria-label="Why the lesson is not saved">
+            {problems.length > 0 ? (
+              <IssueList
+                heading="A player would refuse this lesson"
+                note="It saves itself again as soon as these are fixed. Undo (⌘Z) steps back."
+                issues={problems}
+              />
+            ) : saveState.kind === 'failed' ? (
+              saveState.issues.length > 0 ? (
+                <IssueList heading={saveState.message} issues={saveState.issues} />
+              ) : (
+                <p className="st-notice st-notice--error">{saveState.message}</p>
+              )
+            ) : null}
+            <button type="button" className="st-link-button" onClick={() => setIssuesOpen(false)}>
+              Close
+            </button>
+          </div>
+        ) : null}
+      </header>
 
-      {changed ? (
-        <p className="st-notice" role="status">
-          {library.writable
-            ? 'Unsaved changes. Save keeps them in your workspace; nothing reaches shared/ until you publish. Leaving this lesson discards them.'
-            : 'Edited in this session only: this is a read-only copy. Run npm run dev to save.'}
-        </p>
-      ) : null}
-      {saveReport && !changed ? (
-        saveReport.identical ? (
-          <p className="st-notice st-notice--success" role="status">
-            Saved in your workspace and read it back: {saveReport.steps} steps and {saveReport.strokes}{' '}
-            strokes, identical to the preview.
-            {saveReport.approved ? ' Marked approved: it is ready to publish.' : ''}
-          </p>
-        ) : (
-          <p className="st-notice st-notice--error" role="alert">
-            Saved, but the version read back differs from the preview. Reload the Studio and check it before
-            approving.
-          </p>
-        )
-      ) : null}
-      {publishReport && !changed ? (
-        <div className="st-notice st-notice--success" role="status">
-          <p className="st-publish__done">
-            Published. {publishReport.length} {publishReport.length === 1 ? 'file' : 'files'} in{' '}
-            <code>shared/</code> changed. Commit them with git:
-          </p>
-          <pre className="st-publish__command">git add -- {publishReport.join(' ')}</pre>
-        </div>
-      ) : null}
-      {saveFailure ? (
-        saveFailure.issues.length > 0 ? (
-          <IssueList heading={saveFailure.message} issues={saveFailure.issues} />
-        ) : (
-          <p className="st-notice st-notice--error" role="alert">
-            {saveFailure.message}
-          </p>
-        )
-      ) : null}
-      {editError ? (
-        <p className="st-notice st-notice--error" role="alert">
-          {editError}
-        </p>
-      ) : null}
-      {!validation.ok ? (
-        <IssueList
-          heading="A player would refuse this lesson"
-          note="Previewing needs a valid tutorial, and so does saving."
-          issues={validation.issues}
-        />
-      ) : null}
-
-      <div className="st-workspace__grid">
-        <section className="st-panel" aria-labelledby="st-reference-heading">
-          <h2 id="st-reference-heading" className="st-label">
-            Reference
-          </h2>
-          <ReferencePanel
-            title={tutorial.title}
-            reference={reference}
-            url={referenceUrl}
-            uploadBlockedBecause={uploadBlockedBecause}
-            onUpload={addReference}
-          />
-        </section>
-
-        <section className="st-panel" aria-labelledby="st-drawing-heading">
-          <h2 id="st-drawing-heading" className="st-label">
-            {mode === 'preview' ? 'Learner preview' : 'Drawing'}
-          </h2>
-          {mode === 'preview' && validation.ok ? (
-            // The real player, not an imitation (§19): whatever the learner
-            // would see, the creator sees here — edits included.
-            <TutorialPlayer tutorial={validation.tutorial} />
-          ) : (
-            <>
-              <div
-                className="st-workspace__canvas"
-                style={{ aspectRatio: `${doc.canvas.width} / ${doc.canvas.height}` }}
+      <div className={`st-workspace__panes ${prefs.rail ? '' : 'is-rail-closed'}`}>
+        {prefs.rail ? (
+          <aside className="st-rail" aria-label="Reference and lesson details">
+            <div className="st-rail__head">
+              <h2 className="st-label">Reference</h2>
+              <button
+                type="button"
+                className="st-mini-button"
+                aria-label="Hide the reference ([)"
+                title="Hide the reference ([)"
+                onClick={() => updatePrefs({ rail: false })}
               >
-                <EditCanvas
-                  doc={doc}
-                  selection={liveSelection}
-                  colorBySteps={colorBySteps}
-                  replay={replay}
-                  onSelect={pickStroke}
-                />
+                «
+              </button>
+            </div>
+            <ReferencePanel
+              title={tutorial.title}
+              reference={reference}
+              url={referenceUrl}
+              uploadBlockedBecause={uploadBlockedBecause}
+              onUpload={addReference}
+            />
+            <h2 className="st-label">Lesson</h2>
+            {lesson ? (
+              <LessonDetails
+                key={lesson.id}
+                lesson={lesson}
+                path={path}
+                position={position}
+                editable={library.writable}
+                onChange={editDetails}
+              />
+            ) : (
+              <p className="st-field__hint">Not in the curriculum, so it has no objective or notes.</p>
+            )}
+          </aside>
+        ) : (
+          <aside className="st-rail is-closed" aria-label="Reference and lesson details">
+            <button
+              type="button"
+              className="st-mini-button"
+              aria-label="Show the reference ([)"
+              title="Show the reference ([)"
+              onClick={() => updatePrefs({ rail: true })}
+            >
+              »
+            </button>
+          </aside>
+        )}
+
+        <section className="st-stage-pane" aria-label={mode === 'preview' ? 'Learner preview' : 'Drawing'}>
+          <div className="st-stage">
+            {mode === 'preview' && validation.ok ? (
+              // The real player, not an imitation (§19): whatever the learner
+              // would see, the creator sees here — edits included.
+              <div className="st-stage__player">
+                <TutorialPlayer tutorial={validation.tutorial} />
               </div>
-              <p className="st-workspace__meta">
-                {formatMinutes(estimateLearnerSeconds(tutorial))} for a learner ·{' '}
-                {tutorial.steps.length} steps · {totalStrokes(tutorial)} strokes ·{' '}
+            ) : (
+              <div className="st-stage__fit">
+                <div
+                  className="st-stage__paper"
+                  style={{ ['--ratio' as string]: String(doc.canvas.width / doc.canvas.height) }}
+                >
+                  <EditCanvas
+                    doc={doc}
+                    selection={liveSelection}
+                    colorBySteps={prefs.colorBySteps}
+                    replay={replay}
+                    onSelect={pickStroke}
+                  />
+                  {prefs.overlay && referenceUrl ? (
+                    <img className="st-stage__overlay" src={referenceUrl} alt="" />
+                  ) : null}
+                </div>
+              </div>
+            )}
+            {mode === 'edit' && selectedInOrder.length > 0 ? (
+              <SelectionBar
+                doc={doc}
+                selected={selectedInOrder}
+                moveRef={moveRef}
+                onUpdateStrokes={(patch, key) => apply((current) => updateStrokes(current, liveSelection, patch), key)}
+                onGroup={group}
+                onMoveTo={(stepId) =>
+                  focusStepOf(
+                    apply((current) => moveStrokes(current, liveSelection, stepId)),
+                    selectedInOrder[0],
+                  )
+                }
+                onDelete={removeSelection}
+                onReplay={() => playReplay(selectedInOrder)}
+                onClear={() => setSelection(new Set())}
+              />
+            ) : null}
+          </div>
+          {mode === 'edit' ? (
+            <div className="st-transport" role="toolbar" aria-label="Playback">
+              <span className="st-transport__steps">
+                <button
+                  type="button"
+                  className="st-mini-button"
+                  aria-label="Previous step (↑)"
+                  disabled={activeStepIndex === 0}
+                  onClick={() => setActiveStep(activeStepIndex - 1)}
+                >
+                  ‹
+                </button>
+                Step {activeStepIndex + 1} of {steps}
+                <button
+                  type="button"
+                  className="st-mini-button"
+                  aria-label="Next step (↓)"
+                  disabled={activeStepIndex === steps - 1}
+                  onClick={() => setActiveStep(activeStepIndex + 1)}
+                >
+                  ›
+                </button>
+              </span>
+              <button type="button" className="st-button st-button--compact" onClick={replayStep} title="Replay the step (Space)">
+                ▶ Step
+              </button>
+              <button type="button" className="st-button st-button--compact" onClick={replayLesson} title="Replay the lesson (⇧Space)">
+                ▶ Lesson
+              </button>
+              <label className="st-check">
+                <input
+                  type="checkbox"
+                  checked={prefs.colorBySteps}
+                  onChange={(event) => updatePrefs({ colorBySteps: event.target.checked })}
+                />
+                Colour by step
+              </label>
+              {referenceUrl ? (
+                <label className="st-check">
+                  <input
+                    type="checkbox"
+                    checked={prefs.overlay}
+                    onChange={(event) => updatePrefs({ overlay: event.target.checked })}
+                  />
+                  Reference underneath
+                </label>
+              ) : null}
+              <span className="st-transport__meta">
+                {formatMinutes(estimateLearnerSeconds(tutorial))} for a learner · {totalStrokes(tutorial)} strokes ·{' '}
                 {totalDuration(tutorial).toFixed(1)}s of animation
-              </p>
-            </>
-          )}
+              </span>
+            </div>
+          ) : null}
         </section>
 
-        <section className="st-panel" aria-labelledby="st-steps-heading">
-          <h2 id="st-steps-heading" className="st-label">
-            Steps
-          </h2>
+        <section className="st-steps-pane" aria-labelledby="st-steps-heading">
+          <div className="st-steps-pane__head">
+            <h2 id="st-steps-heading" className="st-label">
+              Steps
+            </h2>
+            <span className="st-steps-pane__count">
+              {steps} steps · ? for shortcuts
+            </span>
+          </div>
           <StepEditor
             doc={doc}
             selection={liveSelection}
@@ -667,9 +824,7 @@ function LessonEditor({
                 setActiveStep(to)
               }
             }}
-            onReorderStroke={(stepIndex, from, to) =>
-              apply((current) => reorderStrokes(current, stepIndex, from, to))
-            }
+            onReorderStroke={(stepIndex, from, to) => apply((current) => reorderStrokes(current, stepIndex, from, to))}
             onSplit={(stepIndex, at) => {
               if (apply((current) => splitStep(current, stepIndex, at))) setActiveStep(stepIndex + 1)
             }}
@@ -677,103 +832,53 @@ function LessonEditor({
               if (apply((current) => mergeWithNext(current, stepIndex))) setActiveStep(stepIndex)
             }}
             onReplay={playReplay}
+            onUpdateStep={(stepIndex, patch, key) => apply((current) => updateStep(current, stepIndex, patch), key)}
           />
         </section>
-      </div>
 
-      <section className="st-panel st-workspace__bottom">
-        <div className="st-tabs" role="tablist" aria-label="Details">
-          <button
-            type="button"
-            role="tab"
-            className="st-tab"
-            aria-selected={panel === 'inspector'}
-            onClick={() => setPanel('inspector')}
-          >
-            Inspector
-          </button>
-          {lesson?.generation ? (
-            <button
-              type="button"
-              role="tab"
-              className="st-tab"
-              aria-selected={panel === 'generation'}
-              onClick={() => setPanel('generation')}
-            >
-              Generation
-            </button>
+        <Drawer
+          open={drawer !== null}
+          label="Lesson tools"
+          onClose={() => setDrawer(null)}
+          header={
+            <div className="st-tabs" role="tablist" aria-label="Lesson tools">
+              {drawerTabs
+                .filter((tab) => tab.shown)
+                .map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    className="st-tab"
+                    aria-selected={drawer === tab.id}
+                    onClick={() => openDrawer(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+            </div>
+          }
+        >
+          {library.writable && regenerateOpened ? (
+            <div hidden={drawer !== 'regenerate'}>
+              <RegeneratePanel
+                library={library}
+                lessonId={entry.id}
+                title={tutorial.title}
+                lesson={lesson}
+                path={path}
+                position={position}
+                current={validation.ok ? validation.tutorial : null}
+                onUse={(next, result) => {
+                  const plural = result.layer === 'steps' || result.layer === 'instructions'
+                  putInEditor(next, `The new ${result.layer} from ${result.model} ${plural ? 'are' : 'is'} in the editor.`)
+                }}
+                onRecorded={() => setHistoryKey((key) => key + 1)}
+                onClose={() => setDrawer(null)}
+              />
+            </div>
           ) : null}
-          {library.writable ? (
-            <button
-              type="button"
-              role="tab"
-              className="st-tab"
-              aria-selected={panel === 'history'}
-              onClick={() => setPanel('history')}
-            >
-              History
-            </button>
-          ) : null}
-          <button
-            type="button"
-            role="tab"
-            className="st-tab"
-            aria-selected={panel === 'advanced'}
-            onClick={() => setPanel('advanced')}
-          >
-            Advanced
-          </button>
-        </div>
-        {panel === 'inspector' ? (
-          <div role="tabpanel">
-            <Inspector
-              doc={doc}
-              selection={liveSelection}
-              activeStepIndex={activeStepIndex}
-              onUpdateStep={(stepIndex, patch, key) =>
-                apply((current) => updateStep(current, stepIndex, patch), key)
-              }
-              onUpdateStrokes={(patch, key) =>
-                apply((current) => updateStrokes(current, liveSelection, patch), key)
-              }
-              onGroup={() =>
-                focusStepOf(
-                  apply((current) => groupIntoNewStep(current, liveSelection)),
-                  selectedInOrder[0],
-                )
-              }
-              onMoveTo={(stepId) =>
-                focusStepOf(
-                  apply((current) => moveStrokes(current, liveSelection, stepId)),
-                  selectedInOrder[0],
-                )
-              }
-              onDelete={() => {
-                if (apply((current) => deleteStrokes(current, liveSelection))) setSelection(new Set())
-              }}
-              onReplaySelection={() => playReplay(selectedInOrder)}
-              onClearSelection={() => setSelection(new Set())}
-            />
-          </div>
-        ) : panel === 'generation' && lesson?.generation ? (
-          <div role="tabpanel" className="st-generation">
-            <p className="st-field__hint">
-              Generated {new Date(lesson.generation.createdAt).toLocaleString()} by{' '}
-              <code>{lesson.generation.model}</code> with prompt {lesson.generation.promptVersion}.
-            </p>
-            <p>
-              <strong>Goal:</strong> {lesson.generation.goal}
-              {lesson.generation.constraints ? (
-                <>
-                  <br />
-                  <strong>Constraints:</strong> {lesson.generation.constraints}
-                </>
-              ) : null}
-            </p>
-            <AnalysisPanel analysis={lesson.generation.analysis} />
-          </div>
-        ) : panel === 'history' && library.writable ? (
-          <div role="tabpanel">
+          {drawer === 'history' && library.writable ? (
             <HistoryPanel
               lessonId={entry.id}
               current={validation.ok ? validation.tutorial : null}
@@ -785,13 +890,149 @@ function LessonEditor({
                 )
               }
             />
-          </div>
+          ) : null}
+          {drawer === 'generation' && lesson?.generation ? (
+            <div className="st-generation">
+              <p className="st-field__hint">
+                Generated {new Date(lesson.generation.createdAt).toLocaleString()} by{' '}
+                <code>{lesson.generation.model}</code> with prompt {lesson.generation.promptVersion}.
+              </p>
+              <p>
+                <strong>Goal:</strong> {lesson.generation.goal}
+                {lesson.generation.constraints ? (
+                  <>
+                    <br />
+                    <strong>Constraints:</strong> {lesson.generation.constraints}
+                  </>
+                ) : null}
+              </p>
+              <AnalysisPanel analysis={lesson.generation.analysis} />
+            </div>
+          ) : null}
+          {drawer === 'debug' ? <DebugPanel tutorial={tutorial} onClose={() => setDrawer(null)} /> : null}
+        </Drawer>
+      </div>
+
+      {dialog === 'approve' ? (
+        <ConfirmDialog
+          title="Approve this lesson?"
+          confirmLabel="Approve"
+          busyLabel="Approving…"
+          onClose={() => setDialog(null)}
+          onConfirm={approve}
+        >
+          <p>Marks the saved version approved, ready to publish. Nothing reaches shared/ until you publish.</p>
+          <QualityWarnings warnings={warnings} />
+          <ApprovalChecklist />
+        </ConfirmDialog>
+      ) : null}
+      {dialog === 'publish' ? (
+        <ConfirmDialog
+          title={entry.state === 'published-edited' ? 'Approve and publish these changes?' : 'Approve and publish this lesson?'}
+          confirmLabel="Approve & publish"
+          busyLabel="Publishing…"
+          onClose={() => setDialog(null)}
+          onConfirm={publish}
+        >
+          <p>
+            Writes <code>shared/Tutorials/{entry.fileName}</code>
+            {reference ? ' and its photo' : ''}, and brings <code>shared/Catalog</code> in line with the curriculum.
+            That is what git tracks and the app ships; commit it yourself afterwards.
+          </p>
+          <QualityWarnings warnings={warnings} />
+          <ApprovalChecklist open={false} />
+        </ConfirmDialog>
+      ) : null}
+      {dialog === 'shortcuts' ? <ShortcutSheet onClose={() => setDialog(null)} /> : null}
+
+      <Toasts toasts={toasts} onDismiss={dismissToast} />
+    </div>
+  )
+}
+
+/**
+ * The lesson's own details, edited where they are read. Each field saves when
+ * it loses focus, into the working curriculum.
+ */
+function LessonDetails({
+  lesson,
+  path,
+  position,
+  editable,
+  onChange,
+}: {
+  lesson: Lesson
+  path: LearningPath | undefined
+  position: number
+  editable: boolean
+  onChange: (change: (current: Lesson) => Lesson) => Promise<void>
+}) {
+  const [objective, setObjective] = useState(lesson.objective)
+  const [notes, setNotes] = useState(lesson.notes ?? '')
+
+  return (
+    <div className="st-lesson-details">
+      <p className="st-field__hint">
+        {path ? (
+          <>
+            Lesson {position + 1} of {path.lessonIds.length} in{' '}
+            <a href={routeHref({ name: 'paths', pathId: path.id })}>{path.title}</a>
+          </>
         ) : (
-          <div role="tabpanel">
-            <DebugPanel tutorial={tutorial} onClose={() => setPanel('inspector')} />
-          </div>
-        )}
-      </section>
+          'Not in a path'
+        )}{' '}
+        · id <code>{lesson.id}</code>
+      </p>
+      <label className="st-field">
+        <span className="st-field__label">Objective</span>
+        <textarea
+          className="st-field__input"
+          rows={2}
+          value={objective}
+          disabled={!editable}
+          onChange={(event) => setObjective(event.target.value)}
+          onBlur={() => {
+            const next = objective.trim()
+            if (next && next !== lesson.objective) void onChange((current) => ({ ...current, objective: next }))
+            else setObjective(lesson.objective)
+          }}
+        />
+      </label>
+      <label className="st-field">
+        <span className="st-field__label">Complexity</span>
+        <select
+          className="st-field__input"
+          value={lesson.complexity ?? ''}
+          disabled={!editable}
+          onChange={(event) => {
+            const value = event.target.value ? Number(event.target.value) : undefined
+            void onChange(({ complexity: _drop, ...rest }) => (value ? { ...rest, complexity: value } : rest))
+          }}
+        >
+          <option value="">Not set</option>
+          {[1, 2, 3, 4, 5].map((level) => (
+            <option key={level} value={level}>
+              {level} of 5
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="st-field">
+        <span className="st-field__label">Notes (for you only)</span>
+        <textarea
+          className="st-field__input"
+          rows={3}
+          value={notes}
+          disabled={!editable}
+          placeholder="What to fix before approving, where it came from…"
+          onChange={(event) => setNotes(event.target.value)}
+          onBlur={() => {
+            const next = notes.trim()
+            if (next === (lesson.notes ?? '')) return
+            void onChange(({ notes: _drop, ...rest }) => (next ? { ...rest, notes: next } : rest))
+          }}
+        />
+      </label>
     </div>
   )
 }

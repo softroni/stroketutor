@@ -152,7 +152,7 @@ export function HistoryPanel({ lessonId, current, refreshKey, onUse }: HistoryPa
           >
             Use this version
           </button>
-          <span className="st-field__hint">It goes into the editor like any edit: Undo takes it back, Save writes it.</span>
+          <span className="st-field__hint">It goes into the editor like any edit, and saves itself; Undo takes it back.</span>
         </div>
       </div>
     </div>

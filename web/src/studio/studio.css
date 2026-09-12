@@ -377,25 +377,6 @@
   color: var(--line-strong);
 }
 
-.st-workspace__actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.st-workspace__objective {
-  margin: -6px 0 4px;
-  max-width: 80ch;
-  color: var(--ink-muted);
-}
-
-.st-workspace__grid {
-  display: grid;
-  grid-template-columns: minmax(200px, 0.9fr) minmax(0, 1.8fr) minmax(320px, 1.2fr);
-  gap: 20px;
-  align-items: start;
-}
-
 .st-panel {
   display: flex;
   flex-direction: column;
@@ -437,74 +418,6 @@
   color: var(--ink-faint);
 }
 
-.st-workspace__canvas {
-  width: 100%;
-  max-width: 620px;
-  align-self: center;
-}
-
-.st-workspace__meta {
-  margin: 0;
-  font-size: 14px;
-  color: var(--ink-faint);
-  text-align: center;
-}
-
-.st-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.st-steps__item {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  column-gap: 10px;
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.st-steps__item:hover {
-  background: var(--surface-hover);
-}
-
-.st-steps__item.is-selected {
-  border-color: var(--accent-soft);
-  background: var(--accent-tint);
-}
-
-.st-steps__number {
-  grid-row: span 2;
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #efece5;
-  font-size: 13px;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-}
-
-.st-steps__title {
-  font-weight: 600;
-}
-
-.st-steps__meta {
-  font-size: 13px;
-  color: var(--ink-faint);
-}
-
 .st-tabs {
   display: flex;
   gap: 4px;
@@ -527,29 +440,6 @@
 .st-tab[aria-selected='true'] {
   border-bottom-color: var(--ink);
   color: var(--ink);
-}
-
-.st-instruction h3 {
-  margin: 0;
-  font-size: 17px;
-}
-
-.st-instruction p {
-  margin: 6px 0 0;
-  max-width: 70ch;
-  font-size: 18px;
-  line-height: 1.5;
-  color: var(--ink-muted);
-}
-
-/* The debug panel keeps its own layout but loses its card chrome here. */
-.st-workspace__bottom .st-debug {
-  padding: 0;
-  border: none;
-}
-
-.st-workspace__bottom .st-debug__canvas-frame {
-  max-width: 420px;
 }
 
 /* ---------- Saving ---------- */
@@ -985,8 +875,7 @@
 }
 
 @media (max-width: 1100px) {
-  .st-paths,
-  .st-workspace__grid {
+  .st-paths {
     grid-template-columns: minmax(0, 1fr);
   }
 

@@ -23,7 +23,6 @@ import {
 } from './pathOps'
 import { routeHref } from './route'
 import { LifecycleBadge } from './StatusPill'
-import './paths.css'
 
 export interface PathsViewProps {
   library: Library

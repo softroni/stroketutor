@@ -67,13 +67,13 @@ M6 without the creator.
 
 This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the
 milestones and doesn't unblock M6. The approved plan: a local workspace kept apart from published content, delete with
-confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. **Next: S3.**
+confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. **Next: S4.**
 
 | ID | Work | Status | Commit |
 |---|---|---|---|
 | S1 | Workspace vs published: a local SQLite workspace, Publish, Unpublish, delete with confirmation, Trash | ✅ Done 2026-09-11 | see git log |
 | S2 | Paths view: search and status filters, one ⋯ menu per lesson, Unfiled / Publish / Trash in the sidebar | ✅ Done 2026-09-11 | see git log |
-| S3 | Lesson workspace in three full-height panes, autosave, a drawer for Regenerate and History, shortcuts | ⬜ Not started | |
+| S3 | Lesson workspace in three full-height panes, autosave, a drawer for Regenerate and History, shortcuts | ✅ Done 2026-09-11 | see git log |
 | S4 | New lesson layout, "save as draft" from Import & test, a ⌘K palette | ⬜ Not started | |
 
 #### S1 · Workspace vs published
@@ -139,6 +139,46 @@ confirmation, then a less clumsy Paths view, lesson workspace and New lesson flo
 - **Drag reorders only a whole path shown as a list,** so a filtered or searched list can't be reordered by accident.
   The ⋯ menu's move earlier and later work everywhere.
 - **The sidebar count reads published / total**, so a path nobody would see in the app stands out.
+
+#### S3 · Lesson workspace
+- [x] Three full-height panes that scroll on their own, so the page never does:
+  - the reference and the lesson's details, on the left, collapsible with `[`;
+  - the drawing, sized to fit;
+  - the steps, on the right.
+- [x] The active step opens in place, with its title, instruction and strokes. The other steps show one line each.
+- [x] A bar floats over the drawing for the selected strokes: group, move to a step, seconds, width, replay, delete.
+- [x] A transport bar: previous and next step, replay step or lesson, colour by step, and the reference underneath
+      the drawing.
+- [x] Regenerate, History, the generation record and Debug open in a drawer that slides over the steps.
+      Approve and Publish confirm in a dialog.
+- [x] Autosave into the workspace about a second after an edit, one save at a time, and on leaving the lesson.
+      ⌘S keeps a version in History.
+- [x] Toasts for passing confirmations. The objective, complexity and notes are edited in the rail.
+- [x] Keyboard: ↑ ↓ / J K to change step, Space to replay the step, ⇧Space the lesson, P to preview, G to group,
+      M to move, ⌫ to delete, Esc, `[`, ⌘Z, ⌘S, and `?` for the list.
+
+**Done.**
+- **Tests:** web 280 pass. They include new ones: autosaves keep only the pre-edit version, and ⌘S after an autosave
+  still records one. The build passes.
+- **In the browser,** at 1440 × 900 on Palm Tree 4:
+  - **no page scroll:** the drawing is 658 px square, and the active step's instruction is on screen with it;
+  - **autosave,** on a throwaway copy: typing showed "Saving…", then "✓ Saved". The workspace held the new text,
+    and History held only the baseline;
+  - **⌘S** added one version;
+  - **keys:** J and K moved between steps, and `?` opened the shortcut list;
+  - **selection:** picking a stroke showed the selection bar, and Esc cleared it;
+  - **drawer:** it opened without moving the steps pane, and Esc closed it.
+
+**Found and fixed along the way:**
+- **Stylesheet order.** `paths.css` (S2) was imported from its component, so on a fresh load it came *before*
+  `studio.css` and lost. The override sheets are now imported from `Studio.tsx`, after `studio.css`.
+- **Panes scrolled sideways.** The closed drawer, waiting off to the right, let focus and `scrollIntoView` scroll the
+  panes sideways. They now use `overflow: clip`.
+
+**Decisions:**
+- **Autosave replaces Save.** A lesson can't be lost by leaving it. History stays meaningful because only ⌘S,
+  regenerations and publishes record versions.
+- **The Inspector is gone.** Its step fields moved into the active step, and its selection tools into the floating bar.
 
 ---
 

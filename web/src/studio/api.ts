@@ -49,11 +49,15 @@ export function readTutorial(id: string) {
   return call<{ text: string; etag: string }>(`/api/tutorials/${encodeURIComponent(id)}`)
 }
 
-/** `etag` is the version being replaced, or null to create a new file. */
-export function saveTutorial(id: string, tutorial: Tutorial, etag: string | null) {
+/**
+ * Saves a lesson in the workspace. `etag` is the version being replaced, or
+ * null to create one. An autosave passes `checkpoint: false`, so only
+ * deliberate saves (⌘S) add a version to the lesson's history.
+ */
+export function saveTutorial(id: string, tutorial: Tutorial, etag: string | null, { checkpoint = true } = {}) {
   return call<{ file: string; etag: string; created: boolean }>(
     `/api/tutorials/${encodeURIComponent(id)}`,
-    json('PUT', { tutorial, etag }),
+    json('PUT', { tutorial, etag, checkpoint }),
   )
 }
 

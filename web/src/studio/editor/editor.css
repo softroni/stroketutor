@@ -1,15 +1,4 @@
-/* ---------- Workspace toolbar ---------- */
-
-.st-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.st-toolbar__spacer {
-  flex: 1;
-}
+/* ---------- Segmented control and validity ---------- */
 
 .st-segmented {
   display: inline-flex;
@@ -282,33 +271,7 @@
   cursor: not-allowed;
 }
 
-/* ---------- Inspector ---------- */
-
-.st-inspector-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  gap: 28px;
-}
-
-.st-inspector-panel__column {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-}
-
-.st-inspector-panel__numbers {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.st-inspector-panel__actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* ---------- Fields ---------- */
 
 .st-field {
   display: flex;
@@ -362,10 +325,4 @@
 
 .st-button--danger:hover:not(:disabled) {
   background: var(--danger-tint);
-}
-
-@media (max-width: 900px) {
-  .st-inspector-panel {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

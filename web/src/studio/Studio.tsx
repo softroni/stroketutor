@@ -14,8 +14,12 @@ import { parseRoute, routeHref, type Route } from './route'
 import { SettingsView } from './SettingsView'
 import { loadSources } from './sources'
 import { TrashView } from './TrashView'
+// Imported here, in this order, so each sheet overrides the ones before it:
+// a component's own CSS import would load before studio.css and lose to it.
 import './studio.css'
 import './publishing.css'
+import './paths.css'
+import './workspace.css'
 
 /**
  * StrokeTutor Studio: the private authoring tool built around the existing
@@ -132,7 +136,7 @@ export function Studio() {
   const toPublish = library ? readyCount(library.publishing.pending) : 0
 
   return (
-    <div className="st-studio">
+    <div className={`st-studio ${route.name === 'lesson' ? 'st-studio--fill' : ''}`}>
       <header className="st-studio__bar">
         <a className="st-studio__brand" href={routeHref({ name: 'paths', pathId: null })}>
           <span className="st-studio__mark" aria-hidden="true">

@@ -198,7 +198,13 @@ async function handle(
       }
       if (method === 'PUT') {
         const body = await readJSON(req, MAX_JSON_BYTES)
-        return send(res, 200, await workspace.writeTutorial(name, body.tutorial, preconditionOf(body.etag)))
+        return send(
+          res,
+          200,
+          await workspace.writeTutorial(name, body.tutorial, preconditionOf(body.etag), {
+            checkpoint: body.checkpoint !== false,
+          }),
+        )
       }
     }
 

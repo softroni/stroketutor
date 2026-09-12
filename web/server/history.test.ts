@@ -97,6 +97,33 @@ describe('lesson history', () => {
     expect(await publishedHouse()).toBe(stored.text)
   })
 
+  it('keeps only the version before the first change when autosaving, and a version on each checkpoint', async () => {
+    const { stored, data } = await house()
+    const first = await workspace.writeTutorial('simple-house', reversed(data), { etag: stored.etag }, { checkpoint: false })
+    const second = await workspace.writeTutorial('simple-house', { ...data, title: 'Autosaved' }, { etag: first.etag }, { checkpoint: false })
+    expect((await workspace.readHistory('simple-house')).map((item) => [item.kind, item.baseline ?? false])).toEqual([
+      ['saved', true],
+    ])
+
+    // ⌘S right after an autosave writes nothing new, but keeps the version.
+    await workspace.writeTutorial('simple-house', { ...data, title: 'Autosaved' }, { etag: second.etag })
+    let entries = await workspace.readHistory('simple-house')
+    expect(entries.map((item) => [item.kind, item.baseline ?? false])).toEqual([
+      ['saved', false],
+      ['saved', true],
+    ])
+    expect(entries[0].tutorial.title).toBe('Autosaved')
+
+    // Pressed again with nothing changed, it records nothing more.
+    const third = await workspace.writeTutorial('simple-house', { ...data, title: 'Autosaved' }, { etag: second.etag })
+    expect(await workspace.readHistory('simple-house')).toHaveLength(2)
+
+    await workspace.writeTutorial('simple-house', { ...data, title: 'Checkpoint' }, { etag: third.etag })
+    entries = await workspace.readHistory('simple-house')
+    expect(entries).toHaveLength(3)
+    expect(entries[0].tutorial.title).toBe('Checkpoint')
+  })
+
   it('records nothing for a save that changes nothing, or for a new lesson', async () => {
     const { stored, data } = await house()
     await workspace.writeTutorial('simple-house', data, { etag: stored.etag })
