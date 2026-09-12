@@ -40,7 +40,8 @@ describe('traceSvg', () => {
     expect(line2).toBeGreaterThan(line1)
     // s2 starts at (300, 100): a dot on the point and the label just off it, with a white halo.
     expect(svg).toContain('<circle cx="300" cy="100"')
-    expect(svg).toMatch(/<text x="307\.78" y="92\.22"[^>]*stroke="#FFFFFF"[^>]*paint-order="stroke">s2<\/text>/)
+    expect(svg).toMatch(/<text x="307\.78" y="124\.44"[^>]*stroke="#FFFFFF"[^>]*paint-order="stroke">s2<\/text>/)
+    expect(svg).toMatch(/<text x="107\.78" y="92\.22"[^>]*>s1<\/text>/)
     // f1's label sits at the centre of its box.
     expect(svg).toMatch(/<text x="186\.67" y="207\.78"[^>]*>f1<\/text>/)
     expect(svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"')).toBe(true)

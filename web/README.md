@@ -40,6 +40,7 @@ src/
   catalog/   types.ts, validate.ts, metrics.ts   the curriculum catalog beside the tutorials
   player/    TutorialPlayer.tsx, StrokeCanvas.tsx, usePlayback.ts, svgPath.ts
   studio/    Studio.tsx, PathsView.tsx, LessonWorkspace.tsx, library.ts, route.ts
+             preview.ts                     labelled trace pictures and step contact sheets, as SVG text
     editor/  ops.ts (pure, tested edits), history.ts, EditCanvas.tsx, StepEditor.tsx, Inspector.tsx
   app/       ImportView.tsx, TutorialSource.tsx, DebugPanel.tsx
   samples/   index.ts                       globs the golden files (read-only fallback)
@@ -195,19 +196,25 @@ npm run studio -- svg optimize palm.svg --simplify
 npm run studio -- svg to-steps palm.svg --id palm --title Palm --objective "…" --goal "…" --source … --license …
 npm run studio -- image to-steps house.jpg --id house --title House --objective "…" --goal "…" --source … --license …
 npm run studio -- lessons regenerate palm --layer instructions --note "Say where to start." --use
+npm run studio -- svg trace palm.svg --out palm.trace.json --summary   # the lines and colours as ids
+npm run studio -- svg preview palm.trace.json                            # a picture with every id on it
+npm run studio -- svg to-steps palm.svg --plan plan.json --trace palm.trace.json --id palm --title Palm --objective "…" --source … --license …
+npm run studio -- lessons render palm --sheet                            # one panel per step
+npm run studio -- lessons apply palm --layer order --plan order.json
+npm run studio -- strokes reverse palm 1.1
 ```
 
 | Group | Commands |
 |---|---|
 | the Studio | `status`, `settings`, `models`, `adopt-shared` |
 | `paths` | `list`, `show`, `create`, `rename`, `describe`, `move`, `reorder`, `add`, `delete` |
-| `lessons` | `list`, `show`, `export`, `import`, `set`, `move`, `duplicate`, `delete`, `unpublish`, `approve`, `validate`, `quality`, `reference set`, `reference export`, `generate`, `regenerate` |
+| `lessons` | `list`, `show`, `export`, `import`, `set`, `move`, `duplicate`, `delete`, `unpublish`, `approve`, `validate`, `quality`, `reference set`, `reference export`, `generate`, `regenerate`, `summary`, `apply`, `render` |
 | `steps` | `list`, `set`, `split`, `merge`, `move`, `group` |
-| `strokes` | `list`, `move`, `reorder`, `delete`, `set` (retime, line width) |
+| `strokes` | `list`, `move`, `reorder`, `reverse`, `delete`, `set` (retime, line width) |
 | `history` | `list`, `show`, `use` |
 | `publish` | `pending`, `lessons`, `curriculum`, `all` |
 | `trash` | `list`, `restore`, `purge`, `empty` |
-| `svg` | `trace`, `optimize`, `render`, `to-steps` |
+| `svg` | `trace`, `optimize`, `render`, `preview`, `to-steps` |
 | `image` | `to-steps` |
 
 - **The same workspace.** `cli/studio.mjs` is plain JavaScript that starts Vite in middleware mode as a
@@ -248,6 +255,34 @@ npm run studio -- lessons regenerate palm --layer instructions --note "Say where
   generation record, and the candidate in History. `--no-keep` only shows it, `--out` writes it, and
   `--dry-run` says what would be sent without spending anything. `lessons regenerate --layer` records the
   result in History whether or not `--use` makes it the lesson.
+- **Plans by hand.** An agent (or a person) can be the author instead of a model, in the vocabulary the
+  models answer in, so one language serves the agent, the prompts and the server. `svg trace --summary`
+  prints what a model is told about a trace (each line's id, box, length, open or closed; each colour's
+  id, colour, area, box), and `svg to-steps --plan plan.json` builds the lesson from that trace and a
+  plan of `outlineSteps` and `colourSteps` with `strokeIds` and `fillIds` (`SVG_OUTPUT_SCHEMA`), through
+  the same `assembleTracedLesson` a model's answer goes through: no model, no key, kept exactly as
+  `--no-model` keeps. For an existing lesson, `lessons summary` prints it as ids (s1..sN and f1..fM in
+  drawing order, per step, with box, start, end and length; fills with colour, box and area), and
+  `lessons apply --layer steps|order|instructions --plan p.json` applies a plan of `steps` over those
+  labels (plus `reversedStrokeIds` for `order`), through `applySteps`, `applyOrder` and
+  `applyInstructions` from `server/regenerate.ts`, saved as a checkpoint like an editor save. A plan
+  is checked in full first: a missing list, a step without title or instruction, an id that is not
+  there, an id used twice, a label left out, or a line listed under another step's id in an order plan
+  is refused by name and nothing is written. The method itself is the project skill
+  `.claude/skills/author-lesson/SKILL.md`, distilled from the prompts.
+- **Seeing the drawing.** `svg preview <file>` draws a trace (an SVG traced now, or a trace JSON from
+  `svg trace --out`) on the lesson canvas with colours faint beneath, every line in ink, and each id
+  where the eye needs it: a line's at its start point with a dot on the point, since that is where
+  the animation begins; a colour's at the centre of its area. `lessons render <id>` is the finished
+  drawing, and `--sheet` a contact sheet: one panel per step as the player shows it (the colour so far
+  beneath, earlier steps faded to 0.3, this step's lines full and labelled as `lessons summary` names
+  them, later steps not there yet) and a Finished panel, in a grid of `--columns`. Both are built as
+  SVG text in `src/studio/preview.ts` (pure, tested without a browser) and rendered to PNG through
+  the browser bridge's `renderPng`; `--svg` writes the text instead and needs no browser, `--no-labels`
+  leaves the ids off, `--size` is the PNG's longer side.
+- **`strokes reverse`** draws the selected strokes from their other end: the same shape, animated the
+  other way round (`reversePath` from `server/regenerate.ts`, the same function an order regeneration
+  uses). Reversing twice gives the stroke back byte for byte.
 - **Output.** Tables and sentences by default; `--json` prints one JSON document for scripts, with errors
   as `{ "error", "issues" }`. Exit code 1 means refused (a validation problem, a missing lesson, a model's
   failure), 2 that the command line could not be understood.

@@ -89,12 +89,18 @@ function labelText(text: string, at: Point, size: number, colour: string): strin
   return `<text x="${n(at.x)}" y="${n(at.y)}" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="${n(size)}" fill="${colour}" stroke="#FFFFFF" stroke-width="${halo}" stroke-linejoin="round" paint-order="stroke">${escapeXml(text)}</text>`
 }
 
-/** A line's label sits at its start point, with a dot on the point itself, since that is where the animation begins. */
-function lineLabel(id: string, d: string, box: Box | null, size: number): string {
+/**
+ * A line's label sits at its start point, with a dot on the point itself,
+ * since that is where the animation begins. Neighbouring ids go above and
+ * below the point in turn, so lines that start close together (the leaflets
+ * of a frond) keep their labels apart.
+ */
+function lineLabel(id: string, d: string, box: Box | null, size: number, slot: number): string {
   const start = pathStart(d) ?? (box ? { x: box[0], y: box[1] } : null)
   if (!start) return ''
   const dot = `<circle cx="${n(start.x)}" cy="${n(start.y)}" r="${n(size / 5)}" fill="${LINE_LABEL}" stroke="#FFFFFF" stroke-width="${n(size / 12)}"/>`
-  return dot + labelText(id, { x: start.x + size * 0.35, y: start.y - size * 0.35 }, size, LINE_LABEL)
+  const above = slot % 2 === 0
+  return dot + labelText(id, { x: start.x + size * 0.35, y: above ? start.y - size * 0.35 : start.y + size * 1.1 }, size, LINE_LABEL)
 }
 
 /** A colour's label sits at the centre of its box. */
@@ -123,7 +129,7 @@ export function traceSvg(trace: PreviewTrace, { labels = true, background = DEFA
   const fills = trace.fills.map((fill) => fillPath(fill.d, cssColor(fill.color), 'evenodd', 0.35))
   const strokes = trace.strokes.map((stroke) => strokePath(stroke.d, cssColor(stroke.color ?? DEFAULT_STYLE.strokeColor), stroke.lineWidth))
   const tags = labels
-    ? [...trace.fills.map((fill) => fillLabel(fill.id, fill.box, size)), ...trace.strokes.map((stroke) => lineLabel(stroke.id, stroke.d, null, size))]
+    ? [...trace.fills.map((fill) => fillLabel(fill.id, fill.box, size)), ...trace.strokes.map((stroke, index) => lineLabel(stroke.id, stroke.d, null, size, index))]
     : []
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n(width)} ${n(height)}" width="${n(width)}" height="${n(height)}">`,
@@ -161,7 +167,7 @@ function panelSvg(tutorial: Tutorial, upTo: number, labels: boolean, at: { x: nu
   )
   const tags =
     labels && current
-      ? [...current.fills.map(({ id, item }) => fillLabel(id, pathBox(item.d), size)), ...current.strokes.map(({ id, item }) => lineLabel(id, item.d, pathBox(item.d), size))]
+      ? [...current.fills.map(({ id, item }) => fillLabel(id, pathBox(item.d), size)), ...current.strokes.map(({ id, item }, index) => lineLabel(id, item.d, pathBox(item.d), size, index))]
       : []
   return [
     `<svg x="${n(at.x)}" y="${n(at.y)}" width="${n(at.width)}" height="${n(at.height)}" viewBox="0 0 ${n(width)} ${n(height)}">`,

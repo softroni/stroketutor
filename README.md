@@ -68,7 +68,8 @@ M6 without the creator.
 This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the
 milestones and doesn't unblock M6. The approved plan: a local workspace kept apart from published content, delete with
 confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. A fifth, the command line,
-was asked for on 2026-09-12. **All five are done.**
+was asked for on 2026-09-12, and a sixth the same day: the command line as an agent's authoring tool. **All six
+are done.**
 
 | ID | Work | Status | Commit |
 |---|---|---|---|
@@ -77,6 +78,7 @@ was asked for on 2026-09-12. **All five are done.**
 | S3 | Lesson workspace in three full-height panes, autosave, a drawer for Regenerate and History, shortcuts | ✅ Done 2026-09-11 | see git log |
 | S4 | New lesson layout, "save as draft" from Import & test, a ⌘K palette | ✅ Done 2026-09-11 | see git log |
 | S5 | Command line: every Studio action from the terminal, SVG trace/optimise/render in headless Chromium | ✅ Done 2026-09-12 | see git log |
+| S6 | The agent as author: plans by hand, labelled previews and step sheets, `strokes reverse`, the `author-lesson` skill | ✅ Done 2026-09-12 | see git log |
 
 #### S1 · Workspace vs published
 - [x] A SQLite workspace in `.studio/` (gitignored), on Node's built-in `node:sqlite`, backed up daily (newest seven kept).
@@ -237,6 +239,43 @@ can become a lesson from a script. See [web/README.md](web/README.md#the-command
   from the browser on CSS and transform edge cases; running the same code headless cannot.
 - **`svg optimize` is normalising first.** Without `--simplify` the drawing is unchanged: shapes become
   plain paths the players read, on the lesson's canvas. Simplification is opt-in because it changes lines.
+
+---
+
+#### S6 · The agent as author: plans, previews, the skill
+A Claude Code session, not an OpenRouter model, plans paths, asks for source SVGs and turns each into a lesson
+as a human would draw it: it groups and orders the traced lines, colours last, and looks at the result.
+OpenRouter stays optional (`--model`). See [web/README.md](web/README.md#the-command-line) and
+[.claude/skills/author-lesson/SKILL.md](.claude/skills/author-lesson/SKILL.md).
+- [x] Plans in the models' answer vocabulary: `svg to-steps --plan` builds from a trace and
+      `outlineSteps`/`colourSteps`; `lessons apply --layer steps|order|instructions --plan` reshapes an
+      existing lesson over its labels s1..sN / f1..fM, with `reversedStrokeIds`. Each plan is checked in
+      full and refused by name before anything is written.
+- [x] Seeing the drawing: `svg trace --summary` and `lessons summary` print the ids; `svg preview` draws a
+      trace with every id at its line's start point; `lessons render --sheet` is a contact sheet, one panel
+      per step as the player shows it. Built as SVG text in `src/studio/preview.ts`, rendered through the
+      existing browser bridge.
+- [x] `strokes reverse`: a stroke drawn from its other end; `reversePath` now gives a closed shape back byte
+      for byte when reversed twice.
+- [x] The drawing method as a project skill, `author-lesson`, distilled from the prompts and the master plan
+      (§7, §18, §23), so every session authors the same way.
+
+**Done.**
+- **Tests:** web 366 pass (70 for the command line and 7 for the preview module, in-process with a fake
+  browser and a fake model) and 4 browser smoke tests pass in real Chromium. The build passes.
+- **End to end,** on a scratch workspace over the real `shared/`: the palm SVG was traced with `--summary`
+  (64 lines, 8 colours), previewed with its ids, planned by hand into 11 outline steps (trunk, base, each
+  frond, coconuts, sand) and 6 colour steps, built with `--plan` and no model, rendered as an 18-panel
+  sheet, reordered with an order plan that reversed the trunk edges, and a stroke was reversed twice to a
+  byte-identical export; the draft was deleted and the trash emptied. `shared/` was untouched.
+
+**Decisions:**
+- **One vocabulary for plans.** A plan by hand is the model's answer shape, so the server's assembly and
+  corrections (unplaced ids added to the last step, and reported) serve both, and a session can compare its
+  plan with a model's through History.
+- **Pictures are strings.** Previews are built in pure code and unit-tested; Chromium only turns the final
+  SVG into pixels. Labels sit at a line's start because that is what a plan needs to know: where the
+  animation begins, and so whether to reverse it.
 
 ---
 
