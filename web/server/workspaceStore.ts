@@ -170,6 +170,8 @@ export async function openWorkspace(options: WorkspaceOptions) {
   if (options.file !== ':memory:') await mkdir(path.dirname(options.file), { recursive: true })
   const db: DatabaseSync = new DatabaseSync(options.file)
   db.exec('PRAGMA journal_mode = WAL;')
+  // The command line and a running dev server can share the file: a writer waits its turn instead of failing at once.
+  db.exec('PRAGMA busy_timeout = 5000;')
   db.exec(SCHEMA)
 
   const { writer, validateTutorial, validateCatalog } = options

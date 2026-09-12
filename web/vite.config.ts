@@ -49,7 +49,7 @@ export default defineConfig(({ mode }) => {
       // The parser, conformance, editor, file-writer and generation tests are
       // pure; nothing here needs a DOM.
       environment: 'node',
-      include: ['src/**/*.test.ts', 'server/**/*.test.ts'],
+      include: ['src/**/*.test.ts', 'server/**/*.test.ts', 'cli/**/*.test.ts'],
     },
   }
 })

@@ -1,0 +1,113 @@
+import path from 'node:path'
+
+import type { ViteDevServer } from 'vite'
+
+import type { GenerateDeps } from '../server/generate'
+import { createRepoWriter } from '../server/repoWriter'
+import { openWorkspace, type Workspace } from '../server/workspaceStore'
+import { validateCatalog } from '../src/catalog/validate'
+import { validateTutorial } from '../src/schema/validate'
+import { buildLibrary, type Library } from '../src/studio/library'
+
+import type { GlobalFlags } from './args'
+import type { BrowserBridge } from './bridge'
+import { Reporter, terminalIO, type IO } from './output'
+
+/** What `studio.mjs` (or a test) hands to `run`. */
+export interface RunOptions {
+  /** `web/.env.local` and the process environment, as Vite reads them. */
+  env: Record<string, string | undefined>
+  webDir: string
+  sharedDir: string
+  /** The Vite instance the command line runs under; the browser bridge serves the tracer through it. */
+  vite?: ViteDevServer
+  /** Tests: an open workspace to use instead of the file. */
+  workspace?: Workspace
+  /** Tests: a fake model (`fetch`) or key. */
+  generation?: Partial<GenerateDeps>
+  /** Tests: a fake browser. */
+  browser?: BrowserBridge
+  io?: IO
+}
+
+/**
+ * Everything a command needs: the workspace (opened on first use, so
+ * `svg optimize` never touches it), the validators, the generation
+ * dependencies the Studio server would assemble, the browser bridge, and
+ * where output goes.
+ */
+export interface Context {
+  flags: GlobalFlags
+  out: Reporter
+  env: RunOptions['env']
+  sharedDir: string
+  workspaceFile: string
+  backupDir: string | undefined
+  validateTutorial: typeof validateTutorial
+  validateCatalog: typeof validateCatalog
+  workspace(): Promise<Workspace>
+  /** The working library, validated as the Studio validates it at start-up. */
+  library(): Promise<Library>
+  generation(): Promise<GenerateDeps>
+  browser(): Promise<BrowserBridge>
+  close(): Promise<void>
+}
+
+export function createContext(flags: GlobalFlags, options: RunOptions): Context {
+  const io = options.io ?? terminalIO
+  const out = new Reporter(io, flags.json, flags.quiet)
+  const sharedDir = path.resolve(flags.shared ?? options.sharedDir)
+  const studioDir = path.resolve(options.webDir, '..', '.studio')
+  const workspaceFile = path.resolve(flags.workspace ?? options.env.STUDIO_WORKSPACE ?? path.join(studioDir, 'workspace.sqlite'))
+  const backupDir = options.workspace ? undefined : path.join(studioDir, 'backups')
+
+  let opening: Promise<Workspace> | null = options.workspace ? Promise.resolve(options.workspace) : null
+  let ownsWorkspace = false
+  let bridge: Promise<BrowserBridge> | null = options.browser ? Promise.resolve(options.browser) : null
+
+  const workspace = () => {
+    opening ??= (async () => {
+      const writer = createRepoWriter({ sharedDir, validateTutorial, validateCatalog })
+      const opened = await openWorkspace({ file: workspaceFile, writer, validateTutorial, validateCatalog, backupDir })
+      ownsWorkspace = true
+      // The same daily safety net the Studio server keeps; a failure is worth a line, not a stop.
+      await opened.backup().catch((error: unknown) => out.warn(`The daily workspace backup failed: ${String(error)}`))
+      return opened
+    })()
+    return opening
+  }
+
+  return {
+    flags,
+    out,
+    env: options.env,
+    sharedDir,
+    workspaceFile,
+    backupDir,
+    validateTutorial,
+    validateCatalog,
+    workspace,
+    async library() {
+      const store = await workspace()
+      return buildLibrary({ ...(await store.readLibrary()), writable: true })
+    },
+    async generation() {
+      const store = await workspace()
+      return {
+        apiKey: options.env.OPENROUTER_API_KEY || undefined,
+        defaultModel: flags.model || options.env.OPENROUTER_MODEL || undefined,
+        library: () => store.readLibrary(),
+        validateTutorial,
+        ...options.generation,
+      }
+    },
+    browser() {
+      bridge ??= import('./browser').then(({ openBrowser }) => openBrowser(options.vite))
+      return bridge
+    },
+    async close() {
+      if (bridge) await (await bridge).close().catch(() => undefined)
+      if (opening && ownsWorkspace) (await opening).close()
+    },
+  }
+}
