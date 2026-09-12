@@ -327,8 +327,12 @@ in after all the outlines are drawn.
   closely. 64 strokes follow 83% of the outline length.
 
   **Known limits:**
-  - Where many lines crowd together, the outline still breaks into short pieces. The upright top frond is the example:
-    21 pieces, of which 7 are kept.
+  - **Crowded lines (improved 2026-09-11):** thinning splits a crossing into two junctions joined by a stub, which cut
+    every line through it. Such junctions are now merged and the stubs dropped. On the palm:
+    - 124 pieces instead of 150, with 16 shorter than 16 units instead of 41;
+    - the 64 kept lines follow 84.5% of the outline instead of 83%, and 71% of the crowded top area instead of 53%.
+
+    What is still left out is mostly genuinely short marks: bark, ground specks and the insides of the coconuts.
   - Touching coconuts come out as arcs rather than closed circles.
   - Not yet handled: `<use>`, and group-level opacity. Gradients count as a colour rather than as ink.
 - [x] Generation (`POST /api/generate-from-trace`, prompt `svg-lesson-v1`):
@@ -345,7 +349,10 @@ in after all the outlines are drawn.
     The model placed every line and colour itself, so no corrections were needed.
   - **Cost and time:** 130 s and about $0.09. The model used 24,188 output tokens, mostly reasoning, which cut off the
     first attempt at the photo prompt's 16,000-token limit. This request now allows 32,000.
-  - **Watch the time:** the server gives up at 180 s.
+  - **Time (changed 2026-09-11):** the server used to give up at 180 s. The SVG prompt and layer regeneration now get
+    4 minutes, and photo generation keeps 3.
+    - **Why not cap the reasoning instead:** OpenRouter's reasoning controls differ by model family, and with
+      `require_parameters` they would exclude providers. See `TRACE_TIMEOUT_MS` in `web/server/generateFromTrace.ts`.
 
 ### M5 · AI generation quality (in progress)
 Phase 5 in the plan (p. 33, §23–24): human pen gestures, stage-level regeneration, quality warnings, generation history.

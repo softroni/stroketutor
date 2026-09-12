@@ -24,7 +24,8 @@ export const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
 /** Room for a detailed lesson; a truncated answer is reported, never used. */
 export const MAX_OUTPUT_TOKENS = 16000
 
-const TIMEOUT_MS = 180_000
+/** How long a generation may take before it is stopped, unless a request allows more. */
+export const DEFAULT_TIMEOUT_MS = 180_000
 
 export interface GenerateRequest extends PromptInput {
   model: string
@@ -118,9 +119,18 @@ export interface Completion {
  * and SVG lesson prompts.
  */
 export async function completeJSON(
-  request: { model: string; messages: unknown[]; schemaName: string; schema: unknown; maxTokens?: number },
+  request: {
+    model: string
+    messages: unknown[]
+    schemaName: string
+    schema: unknown
+    maxTokens?: number
+    /** Defaults to {@link DEFAULT_TIMEOUT_MS}. */
+    timeoutMs?: number
+  },
   options: OpenRouterOptions,
 ): Promise<Completion> {
+  const timeoutMs = request.timeoutMs ?? DEFAULT_TIMEOUT_MS
   const body = {
     model: request.model,
     messages: request.messages,
@@ -133,7 +143,7 @@ export async function completeJSON(
   }
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   let response: Response
   try {
     response = await (options.fetch ?? fetch)(OPENROUTER_URL, {
@@ -151,7 +161,7 @@ export async function completeJSON(
     throw new GenerationFailed(
       504,
       controller.signal.aborted
-        ? 'OpenRouter took too long to answer, so the request was stopped. Try again.'
+        ? `OpenRouter took longer than ${describeWait(timeoutMs)} to answer, so the request was stopped. Try again, or choose a faster model in Settings.`
         : 'Could not reach OpenRouter. Check the network connection.',
     )
   } finally {
@@ -286,6 +296,10 @@ function failureFor(status: number, error: ChatError | undefined): GenerationFai
     default:
       return new GenerationFailed(502, `OpenRouter answered ${status}: ${message}`)
   }
+}
+
+function describeWait(ms: number): string {
+  return ms >= 60_000 ? `${Math.round(ms / 60_000)} minutes` : `${Math.round(ms / 1000)} seconds`
 }
 
 /** The model's JSON, tolerating a Markdown fence some providers add anyway. */

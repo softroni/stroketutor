@@ -65,6 +65,19 @@ export const MAX_TRACE_FILLS = 64
  */
 export const TRACE_OUTPUT_TOKENS = 32000
 
+/**
+ * Time allowed for the SVG prompt and for layer regeneration: 4 minutes where
+ * a photo generation gets 3. The model spends most of it reasoning about which
+ * lines belong together (130 s on the palm, 2026-09-11, close to the old 3-minute
+ * limit). Capping the reasoning instead is not safe across models. OpenRouter's
+ * `reasoning` takes `effort` for some model families and `max_tokens` for others
+ * (https://openrouter.ai/docs/use-cases/reasoning-tokens). With
+ * `provider.require_parameters` it would also exclude every provider that
+ * doesn't support it (https://openrouter.ai/docs/features/provider-routing).
+ * Both pages were read on 2026-09-11.
+ */
+export const TRACE_TIMEOUT_MS = 240_000
+
 const round1 = (value: number) => Math.round(value * 10) / 10
 /** About one second per 200 canvas units, as the photo prompt asks of models. */
 export const strokeDuration = (length: number) => round1(Math.min(4, Math.max(0.4, length / 200)))
@@ -98,6 +111,7 @@ export async function generateFromTrace(
       schemaName: 'stroketutor_svg_lesson',
       schema: SVG_OUTPUT_SCHEMA,
       maxTokens: TRACE_OUTPUT_TOKENS,
+      timeoutMs: TRACE_TIMEOUT_MS,
     },
     { apiKey: input.apiKey, fetch: deps.fetch },
   )

@@ -176,12 +176,48 @@ export function traceSkeleton(skeleton: Mask, options: SkeletonOptions): Polylin
     if (!pruned) break
   }
 
+  // Thinning splits a crossing into junctions a few pixels apart, joined by a
+  // stub no pen would draw, and leaves tiny loops at some junctions. Where
+  // lines crowd, those stubs cut every line that passes through. Junctions
+  // joined by a branch shorter than minSpur become one, and both kinds of stub
+  // go, so lines are paired across the whole crossing.
+  const root = nodes.map((_, n) => n)
+  const find = (n: number): number => {
+    let r = n
+    while (root[r] !== r) r = root[r]
+    while (root[n] !== r) [n, root[n]] = [root[n], r]
+    return r
+  }
+  const branchCount = new Array<number>(nodes.length).fill(0)
+  branches.forEach((branch, k) => {
+    if (!alive[k]) return
+    branchCount[branch.from] += 1
+    branchCount[branch.to] += 1
+  })
+  branches.forEach((branch, k) => {
+    if (!alive[k] || branch.pixels.length >= options.minSpur) return
+    if (branch.from === branch.to) {
+      // A loop that is the whole line stays; a loop hanging off a junction goes.
+      if (branchCount[branch.from] > 2) alive[k] = false
+    } else if (branchCount[branch.from] >= 3 && branchCount[branch.to] >= 3) {
+      alive[k] = false
+      root[find(branch.from)] = find(branch.to)
+    }
+  })
+  const merged = nodes.map(() => ({ x: 0, y: 0, n: 0 }))
+  nodes.forEach((node, n) => {
+    const into = merged[find(n)]
+    into.x += node.point[0]
+    into.y += node.point[1]
+    into.n += 1
+  })
+
   // Pair branch ends at each node. End key: branch * 2, +1 for the `to` end.
   const ends: number[][] = nodes.map(() => [])
   branches.forEach((branch, k) => {
     if (!alive[k]) return
-    ends[branch.from].push(k * 2)
-    ends[branch.to].push(k * 2 + 1)
+    ends[find(branch.from)].push(k * 2)
+    ends[find(branch.to)].push(k * 2 + 1)
   })
   const direction = (end: number): Point => {
     const pixelsOf = branches[end >> 1].pixels
@@ -222,8 +258,11 @@ export function traceSkeleton(skeleton: Mask, options: SkeletonOptions): Polylin
     const [x, y] = xy(i)
     return [x + 0.5, y + 0.5]
   }
-  const nodePoint = (n: number): Point => [nodes[n].point[0] + 0.5, nodes[n].point[1] + 0.5]
-  const endNode = (end: number) => (end & 1 ? branches[end >> 1].to : branches[end >> 1].from)
+  const nodePoint = (n: number): Point => {
+    const node = merged[find(n)]
+    return [node.x / node.n + 0.5, node.y / node.n + 0.5]
+  }
+  const endNode = (end: number) => find(end & 1 ? branches[end >> 1].to : branches[end >> 1].from)
 
   // Walk chains of paired branches, starting from ends that stop.
   const walked = new Uint8Array(branches.length)

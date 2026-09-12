@@ -421,8 +421,11 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
 
       {outcome.kind === 'generating' ? (
         <p className="st-notice" role="status">
-          Generating with the photo and your goal… {Math.round((now - outcome.startedAt) / 1000)}s. A detailed
-          lesson can take a minute or two.
+          Generating with the {trace.status === 'done' ? 'traced drawing' : 'photo'} and your goal…{' '}
+          {Math.round((now - outcome.startedAt) / 1000)}s.{' '}
+          {trace.status === 'done'
+            ? 'Ordering a traced drawing can take two or three minutes; the Studio waits up to four.'
+            : 'A detailed lesson can take a minute or two.'}
         </p>
       ) : null}
       {outcome.kind === 'failed' ? (

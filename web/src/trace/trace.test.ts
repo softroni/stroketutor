@@ -50,6 +50,21 @@ describe('outlines: thinning and tracing', () => {
     expect(boxOf(joined[0].points)[2] - boxOf(joined[0].points)[0]).toBeGreaterThan(80)
   })
 
+  it('carries both lines straight through a crossing that thinning splits into two junctions', () => {
+    // Two thick diagonals: thinned, the crossing becomes two junctions a few pixels apart.
+    const cross = mask(120, 120, (x, y) => {
+      const inside = x >= 12 && x < 108 && y >= 12 && y < 108
+      return inside && (Math.abs(x - y) <= 5 || Math.abs(x + y - 119) <= 5)
+    })
+    const lines = traceSkeleton(thin(cross), options)
+    expect(lines).toHaveLength(2)
+    for (const line of lines) {
+      const [x0, y0, x1, y1] = boxOf(line.points)
+      expect(x1 - x0).toBeGreaterThan(70)
+      expect(y1 - y0).toBeGreaterThan(70)
+    }
+  })
+
   it('carries a line straight on through a junction and ends the branch there', () => {
     const tee = mask(100, 100, (x, y) => (y >= 20 && y < 29 && x >= 10 && x < 90) || (x >= 46 && x < 55 && y >= 20 && y < 85))
     const lines = traceSkeleton(thin(tee), options)

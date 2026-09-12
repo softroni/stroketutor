@@ -3,7 +3,7 @@ import { formatPath, parsePath, type PathSegment, type Point } from '../src/play
 import type { Fill, Step, Stroke, Tutorial } from '../src/schema/types'
 
 import { generateCandidate, readModelChoice, readRasterImage, type GenerateDeps } from './generate'
-import { generateFromTrace } from './generateFromTrace'
+import { TRACE_TIMEOUT_MS, generateFromTrace } from './generateFromTrace'
 import { lessonContext } from './lessonContext'
 import { GenerationFailed, completeJSON, parseAnswer } from './openrouter'
 import { count, createPlacer, createStepIds, wasWere } from './placement'
@@ -117,6 +117,8 @@ async function regenerateLayer(
       schemaName: `stroketutor_${layer}`,
       schema: REGENERATE_SCHEMAS[layer],
       maxTokens: REGENERATE_OUTPUT_TOKENS,
+      // Ordering or regrouping many lines reasons at length, like the SVG prompt.
+      timeoutMs: TRACE_TIMEOUT_MS,
     },
     { apiKey, fetch: deps.fetch },
   )
