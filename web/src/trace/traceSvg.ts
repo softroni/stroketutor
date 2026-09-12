@@ -74,18 +74,28 @@ export interface TraceOptions {
   joinGap?: number
 }
 
-interface Paint {
+export interface Paint {
   rgb: Rgb
   alpha: number
+  /** A gradient or pattern, whose colour is not one value; `rgb` is then a grey stand-in. */
   gradient: boolean
 }
 
-interface Drawable {
+/**
+ * One rendered shape of the file, its geometry on the lesson canvas
+ * (absolute M/L/C/Q/Z, transforms applied) and how the browser paints it.
+ * The tracer classifies it as drawn ink, colour, or nothing visible; the
+ * `svg optimize` command rewrites the file from these alone.
+ */
+export interface CollectedShape {
   index: number
   segments: Segment[]
   fill: Paint | null
   stroke: Paint | null
   strokeWidth: number
+  fillRule: 'nonzero' | 'evenodd'
+  lineCap: 'butt' | 'round' | 'square'
+  lineJoin: 'miter' | 'round' | 'bevel'
   kind: 'ink' | 'colour' | 'none'
 }
 
@@ -116,26 +126,10 @@ export async function traceSvg(text: string, options: TraceOptions = {}): Promis
   const maxOutlineWidth = options.maxOutlineWidth ?? 26
   const lineOptions = { minSpur: 12, maxBend: options.maxBend ?? 55, joinGap: options.joinGap ?? 10 }
 
-  const problem = svgProblem(text)
-  if (problem) throw new Error(`This SVG can't be traced: ${problem}`)
-  const parsed = new DOMParser().parseFromString(text, 'image/svg+xml')
-  const root = parsed.documentElement
-  if (parsed.getElementsByTagName('parsererror').length > 0 || root.localName !== 'svg') {
-    throw new Error('This file is not a readable SVG.')
-  }
-
-  const host = document.createElement('div')
-  host.style.cssText = `position:fixed;left:${-3 * size}px;top:0;width:${size}px;height:${size}px;overflow:hidden;pointer-events:none;`
-  // A shadow root keeps the file's own <style> from restyling the Studio while it is traced.
-  const shadow = host.attachShadow({ mode: 'open' })
-  const svg = document.importNode(root, true) as unknown as SVGSVGElement
-  fitToCanvas(svg, size)
-  shadow.appendChild(svg)
-  document.body.appendChild(host)
-
+  const { svg, unmount } = mountSvg(text, size)
   try {
     const notes: string[] = []
-    const drawables = collect(svg, inkMaxChannel)
+    const drawables = collectShapes(svg, inkMaxChannel)
     if (drawables.length === 0) throw new Error('This SVG has no shapes to trace.')
 
     const [inkImage, colourImage] = await Promise.all([
@@ -268,7 +262,42 @@ export async function traceSvg(text: string, options: TraceOptions = {}): Promis
       outlineCoverage,
     }
   } finally {
-    host.remove()
+    unmount()
+  }
+}
+
+/**
+ * Parses the file and mounts it off-screen, fitted to a `size` × `size`
+ * canvas, so the browser resolves its CSS, transforms and rendering. A shadow
+ * root keeps the file's own <style> from restyling the page around it.
+ * `unmount` takes it down again.
+ */
+export function mountSvg(text: string, size: number): { svg: SVGSVGElement; unmount: () => void } {
+  const problem = svgProblem(text)
+  if (problem) throw new Error(`This SVG can't be traced: ${problem}`)
+  const parsed = new DOMParser().parseFromString(text, 'image/svg+xml')
+  const root = parsed.documentElement
+  if (parsed.getElementsByTagName('parsererror').length > 0 || root.localName !== 'svg') {
+    throw new Error('This file is not a readable SVG.')
+  }
+
+  const host = document.createElement('div')
+  host.style.cssText = `position:fixed;left:${-3 * size}px;top:0;width:${size}px;height:${size}px;overflow:hidden;pointer-events:none;`
+  const shadow = host.attachShadow({ mode: 'open' })
+  const svg = document.importNode(root, true) as unknown as SVGSVGElement
+  fitToCanvas(svg, size)
+  shadow.appendChild(svg)
+  document.body.appendChild(host)
+  return { svg, unmount: () => host.remove() }
+}
+
+/** The file's shapes as the tracer sees them, without tracing: mount, collect, unmount. */
+export function collectShapesFromText(text: string, options: { size?: number; inkMaxChannel?: number } = {}): CollectedShape[] {
+  const { svg, unmount } = mountSvg(text, options.size ?? 1000)
+  try {
+    return collectShapes(svg, options.inkMaxChannel ?? 56)
+  } finally {
+    unmount()
   }
 }
 
@@ -288,9 +317,9 @@ function fitToCanvas(svg: SVGSVGElement, size: number) {
 }
 
 /** Every rendered shape, its geometry mapped onto the lesson canvas, and how it is painted. */
-function collect(svg: SVGSVGElement, inkMaxChannel: number): Drawable[] {
+export function collectShapes(svg: SVGSVGElement, inkMaxChannel: number): CollectedShape[] {
   const origin = svg.getBoundingClientRect()
-  const out: Drawable[] = []
+  const out: CollectedShape[] = []
   svg.querySelectorAll<SVGGraphicsElement>(SHAPES).forEach((element) => {
     if (element.closest(NOT_RENDERED)) return
     const style = getComputedStyle(element)
@@ -312,6 +341,9 @@ function collect(svg: SVGSVGElement, inkMaxChannel: number): Drawable[] {
       fill,
       stroke: strokePaint && strokeWidth >= 0.5 ? strokePaint : null,
       strokeWidth,
+      fillRule: style.fillRule === 'evenodd' ? 'evenodd' : 'nonzero',
+      lineCap: style.strokeLinecap === 'round' || style.strokeLinecap === 'square' ? style.strokeLinecap : 'butt',
+      lineJoin: style.strokeLinejoin === 'round' || style.strokeLinejoin === 'bevel' ? style.strokeLinejoin : 'miter',
       kind: fill ? (!fill.gradient && fill.alpha > 0.5 && Math.max(...fill.rgb) <= inkMaxChannel ? 'ink' : 'colour') : 'none',
     })
   })
@@ -358,7 +390,7 @@ function paint(value: string, alpha: number): Paint | null {
   return { rgb: [Number(match[1]), Number(match[2]), Number(match[3])], alpha: own * alpha, gradient: false }
 }
 
-function dominantInk(drawables: Drawable[]): Rgb {
+function dominantInk(drawables: CollectedShape[]): Rgb {
   const counts = new Map<string, { rgb: Rgb; n: number }>()
   for (const drawable of drawables) {
     if (drawable.kind !== 'ink' || !drawable.fill) continue
@@ -383,7 +415,7 @@ function dominantInk(drawables: Drawable[]): Rgb {
  * removed) of the mounted SVG at canvas size. The file's own <style> travels
  * with the clone, so classes resolve exactly as they did on screen.
  */
-async function rasterise(svg: SVGSVGElement, drawables: Drawable[], mode: 'ink' | 'colour', size: number): Promise<ImageData> {
+async function rasterise(svg: SVGSVGElement, drawables: CollectedShape[], mode: 'ink' | 'colour', size: number): Promise<ImageData> {
   const clone = svg.cloneNode(true) as SVGSVGElement
   clone.querySelectorAll<SVGElement>('[data-st-trace]').forEach((element) => {
     const drawable = drawables[Number(element.getAttribute('data-st-trace'))]

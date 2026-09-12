@@ -65,9 +65,8 @@ export const statusCommands: Command[] = [
   command('settings', 'Where the command line reads and writes, and whether generation is possible.', [], {}, async (ctx) => {
     let chromium: string | null = null
     try {
-      const playwright = await import('playwright')
-      const executable = playwright.chromium.executablePath()
       const { existsSync } = await import('node:fs')
+      const executable = process.env.STUDIO_CHROMIUM || (await import('playwright')).chromium.executablePath()
       chromium = existsSync(executable) ? executable : null
     } catch {
       chromium = null
