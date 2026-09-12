@@ -67,12 +67,12 @@ M6 without the creator.
 
 This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the
 milestones and doesn't unblock M6. The approved plan: a local workspace kept apart from published content, delete with
-confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. **Next: S2.**
+confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. **Next: S3.**
 
 | ID | Work | Status | Commit |
 |---|---|---|---|
 | S1 | Workspace vs published: a local SQLite workspace, Publish, Unpublish, delete with confirmation, Trash | ✅ Done 2026-09-11 | see git log |
-| S2 | Paths view: search and status filters, one ⋯ menu per lesson, Unfiled / Publish / Trash in the sidebar | ⬜ Not started | |
+| S2 | Paths view: search and status filters, one ⋯ menu per lesson, Unfiled / Publish / Trash in the sidebar | ✅ Done 2026-09-11 | see git log |
 | S3 | Lesson workspace in three full-height panes, autosave, a drawer for Regenerate and History, shortcuts | ⬜ Not started | |
 | S4 | New lesson layout, "save as draft" from Import & test, a ⌘K palette | ⬜ Not started | |
 
@@ -113,6 +113,32 @@ confirmation, then a less clumsy Paths view, lesson workspace and New lesson flo
   the machine.
 - **Node 22.13 or later** is needed for `node:sqlite` (`engines` in `web/package.json`). Its experimental-feature warning
   is silenced for that one import.
+
+#### S2 · Paths view
+- [x] Search every lesson by title, id or objective. `/` focuses the search and Esc clears it; each result shows its path.
+- [x] Status chips (All, Drafts, Needs review, Approved, Published, Edited), with counts for what's shown.
+- [x] List or grid. Rows are compact (about 87 px, down from about 140), with a drag handle.
+- [x] One ⋯ menu per lesson: open, duplicate, publish or unpublish, move earlier or later, move to another path, take
+      out of the path, delete. ⌥↑ and ⌥↓ move the focused lesson.
+- [x] A path's title is renamed in place. Its ⋯ menu holds the description, its order and deletion. Paths reorder by
+      drag in the sidebar.
+- [x] The sidebar shows how many of each path's lessons are in the app, and links to Not in a path (now its own view),
+      Publish and Trash.
+- [x] The filter, the layout and the last path are remembered in the browser.
+
+**Done.**
+- **Tests:** web 279 pass and the build passes. Nothing in `shared/` or iOS changed.
+- **In the browser,** at 1440 × 900:
+  - the path counts read Trees 1/4 and Houses 1/1;
+  - the Drafts filter left two rows, and they can't be dragged while filtered;
+  - search found lessons across paths, Esc cleared it, and `/` focused it;
+  - grid and list both work;
+  - four lessons fit without the page scrolling.
+
+**Decisions:**
+- **Drag reorders only a whole path shown as a list,** so a filtered or searched list can't be reordered by accident.
+  The ⋯ menu's move earlier and later work everywhere.
+- **The sidebar count reads published / total**, so a path nobody would see in the app stands out.
 
 ---
 

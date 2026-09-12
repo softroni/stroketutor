@@ -324,18 +324,6 @@
   color: var(--ink-faint);
 }
 
-.st-lesson-row__notes {
-  margin: 6px 0 0;
-  font-size: 13.5px;
-  color: #8a5a00;
-}
-
-.st-lesson-row__order {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .st-section-heading {
   margin: 0 0 4px;
   font-size: 16px;
@@ -346,49 +334,6 @@
   margin: 0 0 12px;
   font-size: 14px;
   color: var(--ink-faint);
-}
-
-.st-tile-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.st-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
-}
-
-.st-tile__link {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.st-tile:hover {
-  border-color: var(--line-strong);
-}
-
-.st-tile__thumb {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-}
-
-.st-tile__title {
-  font-weight: 600;
 }
 
 /* ---------- Lesson workspace ---------- */
@@ -693,58 +638,17 @@
 
 /* ---------- Path management ---------- */
 
-.st-paths__row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.st-paths__row .st-paths__link {
-  flex: 1;
-  min-width: 0;
-}
-
-.st-paths__order {
-  display: flex;
-  gap: 3px;
-}
-
 .st-path-form {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.st-path-form__actions,
-.st-path-header__confirm {
+.st-path-form__actions {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-}
-
-.st-path-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-  font-size: 14px;
-}
-
-.st-lesson-row__order {
-  align-items: flex-end;
-}
-
-.st-lesson-row__arrows {
-  display: flex;
-  gap: 6px;
-}
-
-.st-lesson-row__move {
-  width: 132px;
-  padding: 6px 8px;
-  font-size: 13.5px;
 }
 
 /* ---------- New lesson and settings ---------- */
@@ -1103,19 +1007,5 @@
   .st-paths,
   .st-workspace {
     padding: 16px;
-  }
-
-  .st-lesson-row {
-    grid-template-columns: 32px 72px minmax(0, 1fr);
-  }
-
-  .st-lesson-row__thumb {
-    width: 72px;
-  }
-
-  .st-lesson-row__order {
-    grid-column: 1 / -1;
-    flex-direction: row;
-    justify-content: flex-end;
   }
 }

@@ -80,8 +80,15 @@ export function Studio() {
   } else {
     switch (route.name) {
       case 'paths':
+      case 'unfiled':
         screen = (
-          <PathsView library={library} selectedPathId={route.pathId} onEdit={editCatalog} onReload={reload} />
+          <PathsView
+            library={library}
+            selectedPathId={route.name === 'paths' ? route.pathId : null}
+            unfiled={route.name === 'unfiled'}
+            onEdit={editCatalog}
+            onReload={reload}
+          />
         )
         break
       case 'lesson':
@@ -143,7 +150,7 @@ export function Studio() {
             </span>
           ) : null}
           <nav className="st-studio__nav" aria-label="Studio">
-            <a href={routeHref({ name: 'paths', pathId: null })} aria-current={current(['paths', 'lesson', 'trash'])}>
+            <a href={routeHref({ name: 'paths', pathId: null })} aria-current={current(['paths', 'unfiled', 'lesson', 'trash'])}>
               Paths
             </a>
             <a href={routeHref({ name: 'new', pathId: null })} aria-current={current('new')}>

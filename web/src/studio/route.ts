@@ -2,11 +2,12 @@
  * The Studio's screens, addressed by URL hash so a lesson can be bookmarked and
  * the browser's back button works without a router dependency.
  *
- * `#/paths/<pathId>` · `#/lessons/<lessonId>` · `#/new/<pathId>` · `#/publish` · `#/trash` ·
+ * `#/paths/<pathId>` · `#/unfiled` · `#/lessons/<lessonId>` · `#/new/<pathId>` · `#/publish` · `#/trash` ·
  * `#/settings` · `#/import`
  */
 export type Route =
   | { name: 'paths'; pathId: string | null }
+  | { name: 'unfiled' }
   | { name: 'lesson'; lessonId: string }
   | { name: 'new'; pathId: string | null }
   | { name: 'publish' }
@@ -27,6 +28,8 @@ export function parseRoute(hash: string): Route {
       break
     case 'new':
       return { name: 'new', pathId: parts[1] ?? null }
+    case 'unfiled':
+      return { name: 'unfiled' }
     case 'publish':
       return { name: 'publish' }
     case 'trash':
@@ -49,6 +52,8 @@ export function routeHref(route: Route): string {
       return `#/lessons/${encodeURIComponent(route.lessonId)}`
     case 'new':
       return route.pathId ? `#/new/${encodeURIComponent(route.pathId)}` : '#/new'
+    case 'unfiled':
+      return '#/unfiled'
     case 'publish':
       return '#/publish'
     case 'trash':
