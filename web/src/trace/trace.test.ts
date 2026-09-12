@@ -4,6 +4,7 @@ import { parsePath } from '../player/svgPath'
 
 import { createMask, distanceToPaper, thin, type Mask } from './bitmap'
 import { traceContours } from './contours'
+import { PALM_CROP } from './fixtures/palmCrop'
 import { boxOf, loopArea, polylineLength, simplify, smoothPath } from './fit'
 import { growIntoMask, hex, quantize, removeSpecks } from './palette'
 import { traceSkeleton } from './skeleton'
@@ -50,8 +51,7 @@ describe('outlines: thinning and tracing', () => {
     expect(boxOf(joined[0].points)[2] - boxOf(joined[0].points)[0]).toBeGreaterThan(80)
   })
 
-  it('carries both lines straight through a crossing that thinning splits into two junctions', () => {
-    // Two thick diagonals: thinned, the crossing becomes two junctions a few pixels apart.
+  it('carries both lines straight through an X crossing', () => {
     const cross = mask(120, 120, (x, y) => {
       const inside = x >= 12 && x < 108 && y >= 12 && y < 108
       return inside && (Math.abs(x - y) <= 5 || Math.abs(x + y - 119) <= 5)
@@ -63,6 +63,17 @@ describe('outlines: thinning and tracing', () => {
       expect(x1 - x0).toBeGreaterThan(70)
       expect(y1 - y0).toBeGreaterThan(70)
     }
+  })
+
+  it('keeps a line whole where crowded fronds cross, on a crop of the real palm', () => {
+    const crop = mask(PALM_CROP[0].length, PALM_CROP.length, (x, y) => PALM_CROP[y][x] === '#')
+    const lines = traceSkeleton(thin(crop), { minSpur: 12, maxBend: 55, joinGap: 10 })
+    const lengths = lines.map((line) => polylineLength(line.points, line.closed))
+    // Before junctions joined by thinning stubs were merged: 13 pieces, the longest 72 pixels.
+    expect(lines.length).toBeLessThanOrEqual(8)
+    expect(Math.max(...lengths)).toBeGreaterThan(120)
+    // Fewer pieces must not come from losing line: only stubs of a few pixels go.
+    expect(lengths.reduce((sum, length) => sum + length, 0)).toBeGreaterThan(200)
   })
 
   it('carries a line straight on through a junction and ends the branch there', () => {
