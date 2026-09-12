@@ -66,8 +66,8 @@ export function HistoryPanel({ lessonId, current, refreshKey, onUse }: HistoryPa
   if (entries.length === 0 || !selected) {
     return (
       <p className="st-field__hint">
-        No versions recorded yet. Generations, regenerations and saves of this lesson are kept here, beside it in{' '}
-        <code>shared/History/{lessonId}/</code>, so a good version is never lost.
+        No versions recorded yet. Generations, regenerations, saves and publishes of this lesson are kept here, in
+        your workspace, so a good version is never lost.
       </p>
     )
   }

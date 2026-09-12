@@ -1,3 +1,5 @@
+import type { PublishingState } from '../catalog/publishing'
+
 /** A file's text and, when read through the Studio server, its version on disk. */
 export interface SourceFile {
   text: string
@@ -12,12 +14,14 @@ export interface LibrarySources {
   references: { file: string; url: string }[]
   /** True when the Studio's local server is running, so saving is possible. */
   writable: boolean
+  /** From the server: what is published and what publishing would change. Absent in the read-only bundle. */
+  publishing?: PublishingState
 }
 
 /**
- * Reads `shared/` through the Studio server when it is running, straight from
- * disk. Only without a server (a static build) does it fall back to the copy
- * bundled at build time, which is read-only.
+ * Reads the working library through the Studio server when it is running: the
+ * workspace laid over `shared/`. Only without a server (a static build) does it
+ * fall back to the copy of `shared/` bundled at build time, which is read-only.
  *
  * Reading through the server, rather than importing the files, also keeps them
  * out of Vite's module graph: saving a lesson does not reload the page under

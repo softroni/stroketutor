@@ -396,6 +396,6 @@ function Comparison({
 
 async function fetchReference(url: string): Promise<Blob> {
   const response = await fetch(url)
-  if (!response.ok) throw new Error('The lesson’s reference could not be read from shared/Assets/References.')
+  if (!response.ok) throw new Error('The lesson’s reference photo could not be read.')
   return response.blob()
 }

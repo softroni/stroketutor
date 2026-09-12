@@ -2,24 +2,21 @@ import { createHash, randomBytes } from 'node:crypto'
 import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import {
-  HISTORY_LAYERS,
-  HISTORY_VERSION,
-  type HistoryEntry,
-  type HistoryRecord,
-} from '../src/history/types'
 import { formatJSON } from '../src/schema/formatJSON'
-import type { Tutorial } from '../src/schema/types'
 import { isSvgDocument, svgProblem } from '../src/svg/safety'
 
 /**
- * The only code in the Studio that touches disk (master plan §25).
+ * The only code in the Studio that touches `shared/` (master plan §25).
  *
- * Every read and write stays under `shared/`, in one of four folders, at a
- * file name the server derives from a validated id — the browser never
+ * `shared/` holds published content only: what git tracks and the iOS app
+ * bundles. Work in progress lives in the local workspace (`workspaceStore.ts`),
+ * which calls this writer when a lesson is published or unpublished.
+ *
+ * Every read and write stays under `shared/`, in one of three folders, at a
+ * file name the server derives from a validated id: the browser never
  * supplies a path. Documents are strictly validated before they are written,
- * written atomically, and never written over a file that changed on disk since
- * the Studio read it. History files are only ever added, never replaced.
+ * written atomically, and never written over (or deleted from under) a file
+ * that changed on disk since the Studio read it.
  */
 
 export const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
@@ -62,9 +59,6 @@ export const REFERENCE_RESPONSE_HEADERS = {
 
 export const MAX_REFERENCE_BYTES = 8 * 1024 * 1024
 
-/** `<time>-<kind>-<random>.json`: the time first, so names sort in the order things happened. */
-const HISTORY_FILE_PATTERN = /^\d{8}T\d{9}Z-(generated|regenerated|saved)-[0-9a-f]{6}\.json$/
-
 export interface Issue {
   path: string
   message: string
@@ -99,8 +93,8 @@ export class WriteRefused extends Error {
 }
 
 /**
- * What the client believes is on disk: the `etag` of the version it read, or
- * `null` when it believes there is no file yet.
+ * What the client believes is stored: the `etag` of the version it read, or
+ * `null` when it believes there is nothing yet.
  */
 export type Precondition = { etag: string | null } | undefined
 
@@ -109,7 +103,7 @@ export interface Stored {
   etag: string
 }
 
-/** Everything the Studio reads at start-up, straight from disk. */
+/** Everything the Studio reads at start-up. */
 export interface LibrarySnapshot {
   tutorials: (Stored & { fileName: string })[]
   paths: Stored | null
@@ -130,68 +124,13 @@ export function createRepoWriter(options: RepoWriterOptions) {
   const referencesDir = inside(shared, 'Assets', 'References')
   const pathsFile = inside(catalogDir, 'paths.json')
   const lessonsFile = inside(catalogDir, 'lessons.json')
-  const historyDir = inside(shared, 'History')
 
   const tutorialFile = (id: string) => inside(tutorialsDir, `${checkId(id)}.json`)
-  const historyFolder = (lessonId: string) => inside(historyDir, checkId(lessonId))
-
-  /** Every recorded version of a lesson, newest first. A file that cannot be read is skipped, never fatal. */
-  async function readHistory(lessonId: string): Promise<HistoryEntry[]> {
-    const folder = historyFolder(lessonId)
-    let names: string[]
-    try {
-      names = (await readdir(folder)).filter((name) => HISTORY_FILE_PATTERN.test(name))
-    } catch (error) {
-      if (isMissing(error)) return []
-      throw error
+  const referenceFile = (file: string) => {
+    if (!REFERENCE_FILE_PATTERN.test(file)) {
+      throw new WriteRefused(400, `"${file}" is not a reference photo name.`)
     }
-    const entries = await Promise.all(
-      names.map(async (name) => {
-        try {
-          const entry = JSON.parse(await readFile(inside(folder, name), 'utf8')) as HistoryEntry
-          return isHistoryEntry(entry) && `${entry.id}.json` === name ? entry : null
-        } catch {
-          return null
-        }
-      }),
-    )
-    return entries
-      .filter((entry): entry is HistoryEntry => entry !== null)
-      .sort((a, b) => (a.id < b.id ? 1 : -1))
-  }
-
-  /** Adds one version after `newest`. The id starts with the time, so the order on disk is the order of events. */
-  async function writeHistoryEntry(
-    lessonId: string,
-    record: HistoryRecord & { baseline?: boolean },
-    newest: HistoryEntry | undefined,
-  ): Promise<HistoryEntry> {
-    const at = new Date(Math.max(Date.now(), newest ? Date.parse(newest.createdAt) + 1 : 0))
-    const createdAt = at.toISOString()
-    const id = `${createdAt.replace(/[-:.]/g, '')}-${record.kind}-${randomBytes(3).toString('hex')}`
-    const { tutorial, ...about } = record
-    const entry: HistoryEntry = { historyVersion: HISTORY_VERSION, id, lessonId, createdAt, ...about, tutorial }
-    const folder = historyFolder(lessonId)
-    await mkdir(folder, { recursive: true })
-    await atomicWrite(inside(folder, `${id}.json`), formatJSON(entry))
-    return entry
-  }
-
-  /**
-   * The first time anything is recorded about a lesson that already had a
-   * version on disk, that version goes in first, so there is always something
-   * to go back to.
-   */
-  async function withBaseline(lessonId: string, onDisk: Stored, history: HistoryEntry[]): Promise<HistoryEntry[]> {
-    if (history.length > 0) return history
-    let tutorial: unknown
-    try {
-      tutorial = JSON.parse(onDisk.text)
-    } catch {
-      return history
-    }
-    if (!options.validateTutorial(tutorial).ok) return history
-    return [await writeHistoryEntry(lessonId, { kind: 'saved', baseline: true, tutorial: tutorial as Tutorial }, undefined)]
+    return inside(referencesDir, file)
   }
 
   async function tutorialFileNames(): Promise<string[]> {
@@ -235,49 +174,21 @@ export function createRepoWriter(options: RepoWriterOptions) {
 
     async writeTutorial(id: string, data: unknown, precondition: Precondition) {
       const file = tutorialFile(id)
-      const verdict = options.validateTutorial(data)
-      if (!verdict.ok) {
-        throw new WriteRefused(422, 'The tutorial is not valid, so it was not saved.', verdict.issues)
-      }
-      const documentId = (data as { id?: unknown }).id
-      if (documentId !== id) {
-        throw new WriteRefused(422, `The tutorial's id must be "${id}" to be saved as ${id}.json.`, [
-          { path: 'id', message: `Must be "${id}".`, value: documentId },
-        ])
-      }
-
+      checkTutorial(id, data, options.validateTutorial)
       const current = await readStored(file)
       checkPrecondition(`shared/Tutorials/${id}.json`, current, precondition)
       const text = formatJSON(data)
-      // A save that changes an existing lesson is kept in its history, and so,
-      // the first time, is the version it replaces. A new lesson's candidates
-      // are recorded by New lesson itself.
-      const history = current && current.text !== text ? await withBaseline(id, current, await readHistory(id)) : null
       await atomicWrite(file, text)
-      if (history) {
-        const lastSaved = history.find((entry) => entry.kind === 'saved')
-        if (!lastSaved || formatJSON(lastSaved.tutorial) !== text) {
-          await writeHistoryEntry(id, { kind: 'saved', tutorial: data as Tutorial }, history[0])
-        }
-      }
       return { file: `shared/Tutorials/${id}.json`, etag: etagOf(text), created: current === null }
     },
 
-    readHistory,
-
-    /**
-     * Records a generated or regenerated version. Writes only a new history
-     * file; the lesson itself is untouched. Before the first regeneration of a
-     * lesson, the lesson as it was is recorded too.
-     */
-    async appendHistory(lessonId: string, data: unknown): Promise<{ entry: HistoryEntry }> {
-      const file = tutorialFile(lessonId)
-      const record = readHistoryRecord(data, lessonId, options.validateTutorial)
-      const onDisk = await readStored(file)
-      if (!onDisk) throw new WriteRefused(404, `There is no lesson "${lessonId}" to keep history for.`)
-      let history = await readHistory(lessonId)
-      if (record.kind === 'regenerated') history = await withBaseline(lessonId, onDisk, history)
-      return { entry: await writeHistoryEntry(lessonId, record, history[0]) }
+    /** Removes a published tutorial, but only the version the caller read. */
+    async deleteTutorial(id: string, precondition: { etag: string }) {
+      const file = tutorialFile(id)
+      const current = await readStored(file)
+      checkPrecondition(`shared/Tutorials/${id}.json`, current, precondition)
+      await rm(file)
+      return { file: `shared/Tutorials/${id}.json` }
     },
 
     readCatalog,
@@ -308,12 +219,9 @@ export function createRepoWriter(options: RepoWriterOptions) {
     },
 
     async readReference(file: string): Promise<{ bytes: Uint8Array; contentType: string } | null> {
-      if (!REFERENCE_FILE_PATTERN.test(file)) {
-        throw new WriteRefused(400, `"${file}" is not a reference photo name.`)
-      }
       try {
-        const bytes = await readFile(inside(referencesDir, file))
-        return { bytes, contentType: CONTENT_TYPES[file.slice(file.lastIndexOf('.') + 1)] }
+        const bytes = await readFile(referenceFile(file))
+        return { bytes, contentType: contentTypeOf(file) }
       } catch (error) {
         if (isMissing(error)) return null
         throw error
@@ -325,95 +233,65 @@ export function createRepoWriter(options: RepoWriterOptions) {
      * match the file's own signature, so a renamed file cannot slip through.
      */
     async writeReference(lessonId: string, contentType: string, bytes: Uint8Array) {
-      checkId(lessonId)
-      const extension = REFERENCE_TYPES[contentType.split(';')[0].trim().toLowerCase()]
-      if (!extension) {
-        throw new WriteRefused(415, 'Reference images must be JPEG, PNG, WebP or SVG.')
-      }
-      if (bytes.byteLength > MAX_REFERENCE_BYTES) {
-        throw new WriteRefused(
-          413,
-          `Reference images must be ${MAX_REFERENCE_BYTES / 1024 / 1024} MB or smaller.`,
-        )
-      }
-      if (sniffImage(bytes) !== extension) {
-        throw new WriteRefused(415, `The file's contents are not a ${extension.toUpperCase()} image.`)
-      }
-      if (extension === 'svg') {
-        const problem = svgProblem(new TextDecoder().decode(bytes))
-        if (problem) throw new WriteRefused(422, `This SVG was not saved: ${problem}`)
-      }
-
-      const name = `${lessonId}.${extension}`
+      const { file } = checkReference(lessonId, contentType, bytes)
       await mkdir(referencesDir, { recursive: true })
-      await atomicWrite(inside(referencesDir, name), bytes)
-      return { file: name }
+      await atomicWrite(inside(referencesDir, file), bytes)
+      return { file }
+    },
+
+    /** Removes a published photo. Missing already is fine. */
+    async deleteReference(file: string) {
+      await rm(referenceFile(file), { force: true })
+      return { file: `shared/Assets/References/${file}` }
     },
   }
 }
 
-/**
- * A version the Studio asks to record, checked like any document the writer
- * stores: the tutorial must be valid and be this lesson, and only the known
- * fields, of the right types, are kept. Saves record themselves.
- */
-function readHistoryRecord(
-  data: unknown,
-  lessonId: string,
-  validateTutorial: (data: unknown) => Verdict,
-): HistoryRecord {
-  const value = data as Record<string, unknown> | null
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new WriteRefused(400, 'A history entry must be a JSON object.')
-  }
-  if (value.kind !== 'generated' && value.kind !== 'regenerated') {
-    throw new WriteRefused(400, 'Only generated and regenerated versions are recorded this way; saves record themselves.')
-  }
-  const verdict = validateTutorial(value.tutorial)
+/** A tutorial fit to be stored as `<id>.json`: strictly valid, and carrying that id. */
+export function checkTutorial(id: string, data: unknown, validateTutorial: (data: unknown) => Verdict) {
+  checkId(id)
+  const verdict = validateTutorial(data)
   if (!verdict.ok) {
-    throw new WriteRefused(422, 'The version is not a valid tutorial, so it was not recorded.', verdict.issues)
+    throw new WriteRefused(422, 'The tutorial is not valid, so it was not saved.', verdict.issues)
   }
-  const tutorial = value.tutorial as Tutorial
-  if (tutorial.id !== lessonId) {
-    throw new WriteRefused(422, `The version's id must be "${lessonId}" to be kept in its history.`)
+  const documentId = (data as { id?: unknown }).id
+  if (documentId !== id) {
+    throw new WriteRefused(422, `The tutorial's id must be "${id}" to be saved as ${id}.json.`, [
+      { path: 'id', message: `Must be "${id}".`, value: documentId },
+    ])
   }
-
-  const text = (key: keyof HistoryRecord) => {
-    const field = value[key]
-    return typeof field === 'string' && field.trim() ? { [key]: field.trim() } : {}
-  }
-  const notes = value.notes
-  const analysis = value.analysis as Record<string, unknown> | null | undefined
-  return {
-    kind: value.kind,
-    ...(HISTORY_LAYERS.includes(value.layer as never) ? { layer: value.layer } : {}),
-    ...text('model'),
-    ...text('promptVersion'),
-    ...text('goal'),
-    ...text('constraints'),
-    ...text('note'),
-    ...text('rationale'),
-    ...(Array.isArray(notes) && notes.length > 0 && notes.every((note) => typeof note === 'string') ? { notes } : {}),
-    ...(analysis && typeof analysis === 'object' && typeof analysis.drawingStrategy === 'string' ? { analysis } : {}),
-    ...(typeof value.cost === 'number' && Number.isFinite(value.cost) ? { cost: value.cost } : {}),
-    ...(value.kept === true ? { kept: true } : {}),
-    tutorial,
-  } as HistoryRecord
 }
 
-function isHistoryEntry(entry: HistoryEntry | null): boolean {
-  return Boolean(
-    entry &&
-      typeof entry === 'object' &&
-      typeof entry.id === 'string' &&
-      typeof entry.createdAt === 'string' &&
-      ['generated', 'regenerated', 'saved'].includes(entry.kind) &&
-      entry.tutorial &&
-      typeof entry.tutorial === 'object',
-  )
+/**
+ * The checks every stored reference image passes, wherever it is stored:
+ * a known type, a size limit, a signature that matches the declared type, and
+ * no active content in an SVG. Returns the file name, `<lessonId>.<ext>`.
+ */
+export function checkReference(lessonId: string, contentType: string, bytes: Uint8Array) {
+  checkId(lessonId)
+  const type = contentType.split(';')[0].trim().toLowerCase()
+  const extension = REFERENCE_TYPES[type]
+  if (!extension) {
+    throw new WriteRefused(415, 'Reference images must be JPEG, PNG, WebP or SVG.')
+  }
+  if (bytes.byteLength > MAX_REFERENCE_BYTES) {
+    throw new WriteRefused(413, `Reference images must be ${MAX_REFERENCE_BYTES / 1024 / 1024} MB or smaller.`)
+  }
+  if (sniffImage(bytes) !== extension) {
+    throw new WriteRefused(415, `The file's contents are not a ${extension.toUpperCase()} image.`)
+  }
+  if (extension === 'svg') {
+    const problem = svgProblem(new TextDecoder().decode(bytes))
+    if (problem) throw new WriteRefused(422, `This SVG was not saved: ${problem}`)
+  }
+  return { file: `${lessonId}.${extension}`, contentType: CONTENT_TYPES[extension] }
 }
 
-function checkId(id: string): string {
+export function contentTypeOf(file: string): string {
+  return CONTENT_TYPES[file.slice(file.lastIndexOf('.') + 1)] ?? 'application/octet-stream'
+}
+
+export function checkId(id: string): string {
   if (!ID_PATTERN.test(id)) {
     throw new WriteRefused(
       400,
@@ -433,7 +311,7 @@ function inside(root: string, ...segments: string[]): string {
   return resolved
 }
 
-function checkPrecondition(label: string, current: Stored | null, precondition: Precondition) {
+export function checkPrecondition(label: string, current: Stored | null, precondition: Precondition) {
   if (precondition === undefined) {
     if (current !== null) {
       throw new WriteRefused(
@@ -452,7 +330,7 @@ function checkPrecondition(label: string, current: Stored | null, precondition: 
   if (precondition.etag !== null && current !== null && precondition.etag !== current.etag) {
     throw new WriteRefused(
       409,
-      `${label} changed on disk since the Studio read it. Reload to pick up those changes before saving.`,
+      `${label} changed since the Studio read it. Reload to pick up those changes before saving.`,
     )
   }
 }
@@ -499,6 +377,6 @@ export function sniffImage(bytes: Uint8Array): ImageExtension | null {
 // The SVG rules live in src/svg/safety.ts, shared with the browser's tracer.
 export { svgProblem }
 
-function isMissing(error: unknown): boolean {
+export function isMissing(error: unknown): boolean {
   return (error as NodeJS.ErrnoException | null)?.code === 'ENOENT'
 }

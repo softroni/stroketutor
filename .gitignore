@@ -1,4 +1,6 @@
 .DS_Store
 xcuserdata/
+# The Studio's local workspace: drafts, history and trash. Only published lessons reach git (shared/).
+.studio/
 # Lock + heartbeat for the milestone runner (see README "Working on milestones").
 .milestones/

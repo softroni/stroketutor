@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
   "description": "Browser player for StrokeTutor interactive draw-along tutorials.",
   "scripts": {
     "dev": "vite",

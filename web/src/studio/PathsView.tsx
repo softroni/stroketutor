@@ -4,13 +4,15 @@ import { estimateLearnerSeconds, formatMinutes } from '../catalog/metrics'
 import type { Catalog, LearningPath } from '../catalog/types'
 import { totalStrokes } from '../schema/types'
 
+import { removePath } from './api'
+import { ConfirmDialog } from './ConfirmDialog'
 import { FinishedDrawing } from './FinishedDrawing'
 import { IssueList } from './IssueList'
+import { LessonActions } from './LessonActions'
 import type { Library } from './library'
 import {
   assignLesson,
   createPath,
-  deletePath,
   movePath,
   reorderLessons,
   slugify,
@@ -18,13 +20,15 @@ import {
   type PathFields,
 } from './pathOps'
 import { routeHref } from './route'
-import { StatusPill } from './StatusPill'
+import { LifecycleBadge } from './StatusPill'
 
 export interface PathsViewProps {
   library: Library
   selectedPathId: string | null
-  /** Applies one change to the catalog as it is on disk and saves it straight away. */
+  /** Applies one change to the working curriculum and saves it straight away. */
   onEdit: (change: (catalog: Catalog) => Catalog) => Promise<void>
+  /** Re-reads the library after a change made through the server. */
+  onReload: () => Promise<void>
 }
 
 /** Runs one curriculum change; resolves to whether it was saved. */
@@ -35,7 +39,7 @@ type Run = (change: (catalog: Catalog) => Catalog) => Promise<boolean>
  * the selected one, and the controls to reshape both. Every change is saved
  * as soon as it is made, so there is never an unsaved curriculum to lose.
  */
-export function PathsView({ library, selectedPathId, onEdit }: PathsViewProps) {
+export function PathsView({ library, selectedPathId, onEdit, onReload }: PathsViewProps) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
@@ -146,6 +150,11 @@ export function PathsView({ library, selectedPathId, onEdit }: PathsViewProps) {
             + New path
           </button>
         )}
+        {library.writable ? (
+          <a className="st-paths__extra" href={routeHref({ name: 'trash' })}>
+            Trash <span className="st-paths__count">{library.publishing.trashCount}</span>
+          </a>
+        ) : null}
       </nav>
 
       <div className="st-paths__detail">
@@ -164,6 +173,7 @@ export function PathsView({ library, selectedPathId, onEdit }: PathsViewProps) {
             editable={editable}
             busy={busy}
             run={run}
+            onReload={onReload}
           />
         ) : (
           <p className="st-section-note">
@@ -191,7 +201,7 @@ export function PathsView({ library, selectedPathId, onEdit }: PathsViewProps) {
                       <span className="st-tile__title">{entry.tutorial.title}</span>
                     </a>
                     {lesson ? (
-                      <StatusPill status={lesson.status} />
+                      <LifecycleBadge status={lesson.status} state={entry.state} />
                     ) : (
                       <span
                         className="st-pill"
@@ -210,6 +220,7 @@ export function PathsView({ library, selectedPathId, onEdit }: PathsViewProps) {
                         Add to {selected.title}
                       </button>
                     ) : null}
+                    <LessonActions library={library} lessonId={entry.id} onChanged={onReload} withOpen />
                   </li>
                 )
               })}
@@ -237,6 +248,7 @@ function PathDetail({
   editable,
   busy,
   run,
+  onReload,
 }: {
   path: LearningPath
   catalog: Catalog
@@ -244,10 +256,12 @@ function PathDetail({
   editable: boolean
   busy: boolean
   run: Run
+  onReload: () => Promise<void>
 }) {
   const [dropIndex, setDropIndex] = useState<number | null>(null)
   const [editing, setEditing] = useState(false)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [lessonsGo, setLessonsGo] = useState<'unfile' | 'trash'>('unfile')
 
   // Validation guarantees every id resolves to a lesson and a tutorial.
   const rows = path.lessonIds.flatMap((id) => {
@@ -256,6 +270,7 @@ function PathDetail({
     return lesson && entry ? [{ lesson, entry }] : []
   })
   const totalSeconds = rows.reduce((sum, row) => sum + estimateLearnerSeconds(row.entry.tutorial), 0)
+  const publishedCount = rows.filter((row) => row.entry.state !== 'workspace').length
   const otherPaths = catalog.paths.filter((candidate) => candidate.id !== path.id)
 
   const move = (from: number, to: number) => {
@@ -291,46 +306,61 @@ function PathDetail({
             <button type="button" className="st-link-button" disabled={!editable} onClick={() => setEditing(true)}>
               Edit title and description
             </button>
-            {confirmingDelete ? (
-              <span className="st-path-header__confirm" role="alert">
-                Delete the “{path.title}” path?
-                <button
-                  type="button"
-                  className="st-button st-button--danger st-button--compact"
-                  disabled={!editable}
-                  onClick={async () => {
-                    if (await run((current) => deletePath(current, path.id))) {
-                      window.location.hash = routeHref({ name: 'paths', pathId: null })
-                    }
-                  }}
-                >
-                  Delete
-                </button>
-                <button
-                  type="button"
-                  className="st-button st-button--compact"
-                  onClick={() => setConfirmingDelete(false)}
-                >
-                  Cancel
-                </button>
-              </span>
-            ) : rows.length > 0 ? (
-              // Said in words rather than a disabled button with a tooltip, so
-              // everyone can see why the path cannot go yet.
-              <span className="st-field__hint">To delete this path, move its lessons elsewhere first.</span>
-            ) : (
-              <button
-                type="button"
-                className="st-link-button"
-                disabled={!editable}
-                onClick={() => setConfirmingDelete(true)}
-              >
-                Delete path
-              </button>
-            )}
+            <button
+              type="button"
+              className="st-link-button st-link-button--danger"
+              disabled={!editable}
+              onClick={() => {
+                setLessonsGo('unfile')
+                setDeleting(true)
+              }}
+            >
+              Delete path…
+            </button>
           </div>
         ) : null}
       </header>
+
+      {deleting ? (
+        <ConfirmDialog
+          title={`Delete the “${path.title}” path?`}
+          confirmLabel="Delete path"
+          busyLabel="Deleting…"
+          tone="danger"
+          typeToConfirm={lessonsGo === 'trash' && publishedCount > 0 ? path.id : undefined}
+          onClose={() => setDeleting(false)}
+          onConfirm={async () => {
+            await removePath(path.id, lessonsGo)
+            window.location.hash = routeHref({ name: 'paths', pathId: null })
+            await onReload()
+          }}
+        >
+          <p>The path goes to the Trash, where it can be restored.</p>
+          {rows.length > 0 ? (
+            <fieldset className="st-choice">
+              <legend>
+                Its {rows.length} {rows.length === 1 ? 'lesson' : 'lessons'}
+              </legend>
+              <label>
+                <input type="radio" checked={lessonsGo === 'unfile'} onChange={() => setLessonsGo('unfile')} />
+                <span>
+                  Keep them, under “Not in a path”.
+                  {publishedCount > 0 ? ' Published lessons stay published; the app loses the path when you next publish.' : ''}
+                </span>
+              </label>
+              <label>
+                <input type="radio" checked={lessonsGo === 'trash'} onChange={() => setLessonsGo('trash')} />
+                <span>
+                  Move them to the Trash too.
+                  {publishedCount > 0
+                    ? ` ${publishedCount} ${publishedCount === 1 ? 'is' : 'are'} published and will be removed from shared/ now.`
+                    : ''}
+                </span>
+              </label>
+            </fieldset>
+          ) : null}
+        </ConfirmDialog>
+      ) : null}
 
       {rows.length === 0 ? (
         <p className="st-section-note">
@@ -376,7 +406,7 @@ function PathDetail({
                   >
                     {tutorial.title}
                   </a>
-                  <StatusPill status={lesson.status} />
+                  <LifecycleBadge status={lesson.status} state={entry.state} />
                 </div>
                 <p className="st-lesson-row__objective">{lesson.objective}</p>
                 <p className="st-lesson-row__meta">
@@ -407,6 +437,7 @@ function PathDetail({
                     >
                       ↓
                     </button>
+                    <LessonActions library={library} lessonId={lesson.id} onChanged={onReload} />
                   </span>
                   <select
                     className="st-field__input st-lesson-row__move"

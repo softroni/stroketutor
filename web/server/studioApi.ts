@@ -14,6 +14,7 @@ import {
   type Precondition,
   type RepoWriterOptions,
 } from './repoWriter'
+import { openWorkspace, type Workspace } from './workspaceStore'
 
 /**
  * Every writing or spending request must carry this header. A page on another
@@ -35,6 +36,10 @@ const MAX_REGENERATE_BYTES = MAX_TRACE_GENERATE_BYTES + MAX_GENERATE_BYTES + MAX
 
 export interface StudioApiOptions {
   sharedDir: string
+  /** The workspace's SQLite file, outside git. */
+  workspaceFile: string
+  /** Where the workspace's daily copies go. */
+  backupDir?: string
   /** From OPENROUTER_API_KEY. Kept in this process; never sent to the browser. */
   openRouterKey?: string
   /** From OPENROUTER_MODEL, used when the Studio names no model. */
@@ -46,28 +51,60 @@ export interface StudioApiOptions {
  * `/api`, mounted on the Vite dev server and nowhere else. A production build
  * has no server, and the Studio falls back to its bundled, read-only copy.
  *
- * - `GET  /api/library`             every tutorial, both catalog files, photo list
- * - `GET  /api/tutorials/:id`       one tutorial as stored, with its etag
- * - `PUT  /api/tutorials/:id`       `{ tutorial, etag }` → validated, atomic write
- * - `GET  /api/catalog`             both catalog files with their etags
- * - `PUT  /api/catalog`             `{ paths, lessons, etags }`
- * - `GET  /api/references/:file`    a reference photo
- * - `PUT  /api/references/:lesson`  the photo's bytes, typed by Content-Type
- * - `GET  /api/settings`            whether an OpenRouter key is configured (never the key)
- * - `GET  /api/models`              models that take images and honour structured output
- * - `POST /api/generate`            one lesson candidate from a photo and a goal; writes nothing
- * - `POST /api/generate-from-trace` one lesson from a traced SVG: the model orders its lines and colours
- * - `POST /api/regenerate`          one layer of an existing lesson: drawing, order, steps or instructions; writes nothing
- * - `GET  /api/history/:lesson`      every recorded version of a lesson, newest first
- * - `POST /api/history/:lesson`      records a generated or regenerated version (saves record themselves)
+ * Authoring reads and writes the workspace (`workspaceStore.ts`); only
+ * publishing and unpublishing write `shared/`.
+ *
+ * - `GET  /api/library`                   the working library, and what publishing would change
+ * - `GET  /api/tutorials/:id`             one lesson as it stands, with its etag
+ * - `PUT  /api/tutorials/:id`             `{ tutorial, etag }` → validated, saved in the workspace
+ * - `GET  /api/catalog`                   the working curriculum with its etags
+ * - `PUT  /api/catalog`                   `{ paths, lessons, etags }`
+ * - `GET  /api/references/:file`          a reference photo, from the workspace or shared/
+ * - `PUT  /api/references/:lesson`        the photo's bytes, typed by Content-Type, into the workspace
+ * - `GET|POST /api/history/:lesson`       every recorded version of a lesson / record a generated one
+ * - `POST /api/publish`                   `{ lessonIds }` → writes them, and the curriculum, into shared/
+ * - `POST /api/unpublish/:lesson`         takes a lesson out of shared/, keeping it in the workspace
+ * - `POST /api/lessons/:lesson/duplicate` a copy as a new draft
+ * - `DELETE /api/lessons/:lesson`         to the trash (unpublished first)
+ * - `DELETE /api/paths/:path?lessons=unfile|trash`
+ * - `GET /api/trash` · `POST /api/trash/:id/restore` · `DELETE /api/trash/:id` · `DELETE /api/trash`
+ * - `POST /api/adopt-shared`              take shared/Catalog as it now is
+ * - `GET  /api/settings`                  whether an OpenRouter key is configured (never the key)
+ * - `GET  /api/models`                    models that take images and honour structured output
+ * - `POST /api/generate`                  one lesson candidate from a photo and a goal; writes nothing
+ * - `POST /api/generate-from-trace`       one lesson from a traced SVG: the model orders its lines and colours
+ * - `POST /api/regenerate`                one layer of an existing lesson; writes nothing
  */
 export function studioApi(options: StudioApiOptions): Plugin {
+  let opening: Promise<Workspace> | null = null
+  const workspaceFor = (server: ViteDevServer) => {
+    opening ??= (async () => {
+      const checks = await validators(server)
+      const writer = createRepoWriter({ sharedDir: options.sharedDir, ...checks })
+      const workspace = await openWorkspace({
+        file: options.workspaceFile,
+        backupDir: options.backupDir,
+        writer,
+        ...checks,
+      })
+      await workspace.backup().catch((error: unknown) => {
+        server.config.logger.warn(`[studio] the daily workspace backup failed: ${String(error)}`)
+      })
+      server.httpServer?.once('close', () => workspace.close())
+      return workspace
+    })()
+    opening.catch(() => {
+      opening = null
+    })
+    return opening
+  }
+
   return {
     name: 'stroketutor-studio-api',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/api', (req, res) => {
-        handle(server, options, req, res).catch((error: unknown) => {
+        handle(server, options, workspaceFor, req, res).catch((error: unknown) => {
           server.config.logger.error(
             `[studio api] ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`,
           )
@@ -97,6 +134,7 @@ async function validators(server: ViteDevServer) {
 async function handle(
   server: ViteDevServer,
   options: StudioApiOptions,
+  workspaceFor: (server: ViteDevServer) => Promise<Workspace>,
   req: Connect.IncomingMessage,
   res: ServerResponse,
 ) {
@@ -106,7 +144,7 @@ async function handle(
 
   try {
     if (parts.some((part) => part === null)) throw new WriteRefused(400, 'The request path is malformed.')
-    const [resource, name] = parts as string[]
+    const [resource, name, action] = parts as string[]
 
     if (method !== 'GET' && (req.headers[STUDIO_HEADER] !== '1' || !sameOrigin(req))) {
       throw new WriteRefused(403, 'Writes are only accepted from the Studio itself.')
@@ -123,13 +161,14 @@ async function handle(
       return send(res, 200, { models: await listVisionModels() })
     }
 
+    const workspace = await workspaceFor(server)
     const checks = await validators(server)
-    const writer = createRepoWriter({ sharedDir: options.sharedDir, ...checks })
 
     const generation: GenerateDeps = {
       apiKey: options.openRouterKey,
       defaultModel: options.defaultModel,
-      library: () => writer.readLibrary(),
+      // Drafts count: a new lesson's context and id checks see the whole working curriculum.
+      library: () => workspace.readLibrary(),
       validateTutorial: checks.validateTutorial,
     }
 
@@ -149,37 +188,37 @@ async function handle(
     }
 
     if (resource === 'library' && parts.length === 1 && method === 'GET') {
-      return send(res, 200, await writer.readLibrary())
+      return send(res, 200, await workspace.readLibrary())
     }
 
     if (resource === 'tutorials' && parts.length === 2) {
       if (method === 'GET') {
-        const stored = await writer.readTutorial(name)
-        return stored ? send(res, 200, stored) : send(res, 404, { error: `There is no ${name}.json.` })
+        const stored = await workspace.readTutorial(name)
+        return stored ? send(res, 200, stored) : send(res, 404, { error: `There is no lesson ${name}.` })
       }
       if (method === 'PUT') {
         const body = await readJSON(req, MAX_JSON_BYTES)
-        return send(res, 200, await writer.writeTutorial(name, body.tutorial, preconditionOf(body.etag)))
+        return send(res, 200, await workspace.writeTutorial(name, body.tutorial, preconditionOf(body.etag)))
       }
     }
 
     if (resource === 'history' && parts.length === 2) {
-      if (method === 'GET') return send(res, 200, { entries: await writer.readHistory(name) })
+      if (method === 'GET') return send(res, 200, { entries: await workspace.readHistory(name) })
       if (method === 'POST') {
         const body = await readJSON(req, MAX_JSON_BYTES)
-        return send(res, 200, await writer.appendHistory(name, body))
+        return send(res, 200, await workspace.appendHistory(name, body))
       }
     }
 
     if (resource === 'catalog' && parts.length === 1) {
-      if (method === 'GET') return send(res, 200, await writer.readCatalog())
+      if (method === 'GET') return send(res, 200, await workspace.readCatalog())
       if (method === 'PUT') {
         const body = await readJSON(req, MAX_JSON_BYTES)
         const etags = (body.etags ?? {}) as Record<string, unknown>
         return send(
           res,
           200,
-          await writer.writeCatalog(body.paths, body.lessons, {
+          await workspace.writeCatalog(body.paths, body.lessons, {
             paths: preconditionOf(etags.paths),
             lessons: preconditionOf(etags.lessons),
           }),
@@ -189,7 +228,7 @@ async function handle(
 
     if (resource === 'references' && parts.length === 2) {
       if (method === 'GET') {
-        const photo = await writer.readReference(name)
+        const photo = await workspace.readReference(name)
         if (!photo) return send(res, 404, { error: `There is no reference photo ${name}.` })
         res.writeHead(200, {
           'Content-Type': photo.contentType,
@@ -201,8 +240,57 @@ async function handle(
       if (method === 'PUT') {
         const bytes = await readBody(req, MAX_REFERENCE_BYTES + 1)
         const type = String(req.headers['content-type'] ?? '')
-        return send(res, 200, await writer.writeReference(name, type, bytes))
+        return send(res, 200, await workspace.writeReference(name, type, bytes))
       }
+    }
+
+    if (resource === 'publish' && parts.length === 1 && method === 'POST') {
+      const body = await readJSON(req, MAX_JSON_BYTES)
+      const lessonIds = body.lessonIds
+      if (!Array.isArray(lessonIds) || !lessonIds.every((id) => typeof id === 'string')) {
+        throw new WriteRefused(400, '`lessonIds` must be a list of lesson ids.')
+      }
+      return send(res, 200, await workspace.publish(lessonIds))
+    }
+
+    if (resource === 'unpublish' && parts.length === 2 && method === 'POST') {
+      return send(res, 200, await workspace.unpublish(name))
+    }
+
+    if (resource === 'lessons' && parts.length === 3 && action === 'duplicate' && method === 'POST') {
+      return send(res, 200, await workspace.duplicate(name))
+    }
+
+    if (resource === 'lessons' && parts.length === 2 && method === 'DELETE') {
+      return send(res, 200, await workspace.deleteLesson(name))
+    }
+
+    if (resource === 'paths' && parts.length === 2 && method === 'DELETE') {
+      const lessons = url.searchParams.get('lessons')
+      if (lessons !== 'unfile' && lessons !== 'trash') {
+        throw new WriteRefused(400, 'Say what happens to the path’s lessons: ?lessons=unfile or ?lessons=trash.')
+      }
+      return send(res, 200, await workspace.deletePath(name, lessons))
+    }
+
+    if (resource === 'trash') {
+      if (parts.length === 1 && method === 'GET') return send(res, 200, { items: workspace.listTrash() })
+      if (parts.length === 1 && method === 'DELETE') {
+        await workspace.emptyTrash()
+        return send(res, 200, { items: [] })
+      }
+      if (parts.length === 3 && action === 'restore' && method === 'POST') {
+        return send(res, 200, await workspace.restore(name))
+      }
+      if (parts.length === 2 && method === 'DELETE') {
+        await workspace.purge(name)
+        return send(res, 200, { items: workspace.listTrash() })
+      }
+    }
+
+    if (resource === 'adopt-shared' && parts.length === 1 && method === 'POST') {
+      await workspace.adoptShared()
+      return send(res, 200, { ok: true })
     }
 
     return send(res, 404, { error: `There is no Studio endpoint ${method} /api${url.pathname}.` })

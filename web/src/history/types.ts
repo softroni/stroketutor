@@ -3,10 +3,9 @@ import type { Tutorial } from '../schema/types'
 
 /**
  * A lesson's history (M5, master plan §24: "retain good prior versions instead
- * of overwriting blindly"): every version the lesson has had, kept beside it in
- * `shared/History/<lesson>/`, one file per version, never in its place.
- * Studio-only: the iOS target bundles `shared/Tutorials` alone, so the app
- * never sees these files.
+ * of overwriting blindly"): every version the lesson has had, kept in the
+ * Studio's local workspace, never in its place. Studio-only: nothing here
+ * reaches git or the app.
  */
 export const HISTORY_VERSION = 1
 
@@ -15,9 +14,12 @@ export const HISTORY_LAYERS = ['drawing', 'order', 'steps', 'instructions'] as c
 /**
  * - `generated`: a candidate from New lesson, kept or not;
  * - `regenerated`: a layer regeneration, used or not;
- * - `saved`: the lesson as written to `shared/Tutorials` by a save.
+ * - `saved`: the lesson as saved in the workspace;
+ * - `published`: the lesson as written to `shared/Tutorials` by Publish.
  */
-export type HistoryKind = 'generated' | 'regenerated' | 'saved'
+export type HistoryKind = 'generated' | 'regenerated' | 'saved' | 'published'
+
+export const HISTORY_KINDS: readonly HistoryKind[] = ['generated', 'regenerated', 'saved', 'published']
 
 /** One version and how it came about. The Studio sends this; the server adds the id and time. */
 export interface HistoryRecord {
@@ -61,5 +63,7 @@ export function describeEntry(entry: HistoryEntry): string {
       return entry.kept ? 'Generated, kept' : 'Generated, not kept'
     case 'saved':
       return entry.baseline ? 'Saved, before any recorded change' : 'Saved'
+    case 'published':
+      return 'Published'
   }
 }

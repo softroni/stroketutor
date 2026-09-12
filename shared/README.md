@@ -7,17 +7,19 @@ of anything — both sides read these exact files.
 shared/
   tutorial.schema.json     the schema, v1 (frozen)
   tutorial.v2.schema.json  v2: v1 plus stroke colours and fills (web only until M7)
-  Tutorials/               the golden tutorials that ship in the app
+  Tutorials/               published tutorials: what ships in the app
   conformance/             cases both players must agree about
   catalog.schema.json      the curriculum catalog schema, v1
-  Catalog/                 paths.json + lessons.json: where each lesson sits in the curriculum
-  Assets/References/       reference photos, named <lesson>.jpg|png|webp|svg (created by the Studio)
-  History/<lesson>/        every recorded version of a lesson, one file each (Studio only)
+  Catalog/                 paths.json + lessons.json: where each published lesson sits in the curriculum
+  Assets/References/       reference photos of published lessons, named <lesson>.jpg|png|webp|svg
 ```
 
-Everything here except `conformance/` can be written by the Studio's local server
-(`web/server/repoWriter.ts`), which validates strictly and never saves over a file that changed on
-disk. Studio saves are ordinary diffs to review before committing.
+**Only published content lives here.** The Studio works in a local workspace outside git
+(`.studio/workspace.sqlite`): drafts, edits, unpublished photos, every recorded version and the
+Trash. It writes here only when a lesson is published or unpublished, through
+`web/server/repoWriter.ts`, which validates strictly and never writes over or deletes a file that
+changed on disk. `Catalog/` is the working curriculum narrowed to published lessons. Published changes
+are ordinary diffs to review before committing; see [web/README.md](../web/README.md#workspace-and-publishing).
 
 | File | Read by iOS | Read by web |
 |---|---|---|
@@ -27,7 +29,6 @@ disk. Studio saves are ordinary diffs to review before committing.
 | `conformance/` | yes — `ConformanceTests.swift` | yes — `conformance.test.ts` |
 | `catalog.schema.json`, `Catalog/` | not yet — the learner app adopts it in M7 | yes — the Studio validates both files and their cross-references |
 | `Assets/References/` | not yet — M7 | yes — shown beside the lesson, served by the Studio server |
-| `History/` | never — the app bundles `Tutorials/` alone | yes — the workspace's History tab; files are only ever added |
 
 `Tutorials` keeps its capital T because it is also the folder name inside the app
 bundle, which `TutorialLoader.bundleSubdirectory` looks for.

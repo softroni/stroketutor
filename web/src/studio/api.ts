@@ -186,6 +186,68 @@ export function recordHistory(lessonId: string, record: HistoryRecord & { kind: 
   return call<{ entry: HistoryEntry }>(`/api/history/${encodeURIComponent(lessonId)}`, json('POST', record))
 }
 
+const post = (): RequestInit => ({ method: 'POST', headers: WRITE_HEADERS })
+const remove = (): RequestInit => ({ method: 'DELETE', headers: WRITE_HEADERS })
+
+/**
+ * Writes lessons, and the curriculum as it now stands, into `shared/`: what
+ * git tracks and the app ships. Publishing approves them. An empty list
+ * publishes the curriculum alone.
+ */
+export function publishLessons(lessonIds: string[]) {
+  return call<{ files: string[] }>('/api/publish', json('POST', { lessonIds }))
+}
+
+/** Takes a lesson out of `shared/`, keeping it in the workspace. */
+export function unpublishLesson(lessonId: string) {
+  return call<{ files: string[] }>(`/api/unpublish/${encodeURIComponent(lessonId)}`, post())
+}
+
+/** A copy of the lesson as a new draft, right after it in its path. */
+export function duplicateLesson(lessonId: string) {
+  return call<{ lessonId: string }>(`/api/lessons/${encodeURIComponent(lessonId)}/duplicate`, post())
+}
+
+/** Moves a lesson to the trash, unpublishing it first if it is published. */
+export function deleteLesson(lessonId: string) {
+  return call<{ files: string[] }>(`/api/lessons/${encodeURIComponent(lessonId)}`, remove())
+}
+
+/** Moves a path to the trash; its lessons become unfiled, or go to the trash too. */
+export function removePath(pathId: string, lessons: 'unfile' | 'trash') {
+  return call<{ files: string[] }>(`/api/paths/${encodeURIComponent(pathId)}?lessons=${lessons}`, remove())
+}
+
+export interface TrashItem {
+  id: string
+  kind: 'lesson' | 'path'
+  itemId: string
+  title: string
+  deletedAt: string
+  detail: string
+}
+
+export function listTrash() {
+  return call<{ items: TrashItem[] }>('/api/trash')
+}
+
+export function restoreFromTrash(id: string) {
+  return call<{ kind: 'lesson' | 'path'; itemId: string }>(`/api/trash/${encodeURIComponent(id)}/restore`, post())
+}
+
+export function deleteForever(id: string) {
+  return call<{ items: TrashItem[] }>(`/api/trash/${encodeURIComponent(id)}`, remove())
+}
+
+export function emptyTrash() {
+  return call<{ items: TrashItem[] }>('/api/trash', remove())
+}
+
+/** Takes `shared/Catalog` as it now is, after a git pull or a hand edit. */
+export function adoptShared() {
+  return call<{ ok: true }>('/api/adopt-shared', post())
+}
+
 export function uploadReference(lessonId: string, file: File) {
   return call<{ file: string }>(`/api/references/${encodeURIComponent(lessonId)}`, {
     method: 'PUT',

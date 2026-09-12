@@ -29,7 +29,7 @@ import './editor/editor.css'
 export interface NewLessonViewProps {
   library: Library
   initialPathId: string | null
-  /** Called once a kept draft is on disk, to re-read shared/ and open it. */
+  /** Called once a kept draft is in the workspace, to re-read the library and open it. */
   onCreated: (lessonId: string) => Promise<void>
 }
 
@@ -244,7 +244,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
     } catch (error) {
       setKeepError(
         error instanceof ApiError
-          ? `${error.message} Anything already written stays on disk; the Paths view lists it.`
+          ? `${error.message} Anything already kept stays in the workspace; the Paths view lists it.`
           : String(error),
       )
     } finally {
@@ -259,7 +259,8 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
       <h1 className="st-form-page__title">New lesson</h1>
       <p className="st-field__hint">
         Upload a real-world photo, say what the lesson should teach, and generate a first draft. You
-        review and reshape it in the Lesson Workspace; nothing is saved until you keep it.
+        review and reshape it in the Lesson Workspace. Nothing is saved until you keep it, and a kept
+        draft stays in your workspace, out of git, until you publish it.
       </p>
 
       <form className="st-new-lesson" onSubmit={generate}>

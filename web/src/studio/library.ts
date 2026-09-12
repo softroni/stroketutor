@@ -1,3 +1,4 @@
+import type { LessonState, PublishingState } from '../catalog/publishing'
 import type { Catalog } from '../catalog/types'
 import { validateCatalog, type CatalogFile, type CatalogIssue } from '../catalog/validate'
 import type { Sample } from '../samples'
@@ -11,8 +12,10 @@ export interface TutorialEntry {
   id: string
   fileName: string
   tutorial: Tutorial
-  /** The version on disk, which a save must name. Absent in the read-only bundle. */
+  /** The version stored, which a save must name. Absent in the read-only bundle. */
   etag?: string
+  /** In the workspace only, published, or published with changes not yet published. */
+  state: LessonState
 }
 
 export interface BrokenTutorial {
@@ -20,12 +23,12 @@ export interface BrokenTutorial {
   issues: ValidationIssue[]
 }
 
-/** Everything the Studio reads from `shared/`, validated in one pass. */
+/** The working library (the workspace laid over `shared/`), validated in one pass. */
 export interface Library {
   tutorials: Map<string, TutorialEntry>
-  /** Files in `shared/Tutorials` that failed validation. */
+  /** Lessons that failed validation. */
   broken: BrokenTutorial[]
-  /** Null when the catalog files are invalid; `catalogIssues` says why. */
+  /** The working curriculum. Null when it is invalid; `catalogIssues` says why. */
   catalog: Catalog | null
   catalogIssues: CatalogIssue[]
   catalogEtags: { paths?: string; lessons?: string }
@@ -33,12 +36,26 @@ export interface Library {
   samples: Sample[]
   /** True when the Studio server can save. */
   writable: boolean
+  /** What is published, and what publishing would change. */
+  publishing: PublishingState
   referenceUrl: (file: string) => string | undefined
 }
 
 export function buildLibrary(sources: LibrarySources): Library {
   const tutorials = new Map<string, TutorialEntry>()
   const broken: BrokenTutorial[] = []
+  // The read-only bundle is shared/ itself: everything in it is published.
+  const publishing: PublishingState = sources.publishing ?? {
+    publishedIds: sources.tutorials.map((source) => source.fileName.replace(/\.json$/, '')),
+    editedIds: [],
+    pending: [],
+    sharedChangedOutside: false,
+    trashCount: 0,
+  }
+  const published = new Set(publishing.publishedIds)
+  const edited = new Set(publishing.editedIds)
+  const stateOf = (id: string): LessonState =>
+    published.has(id) ? (edited.has(id) ? 'published-edited' : 'published') : 'workspace'
 
   for (const source of sources.tutorials) {
     const id = source.fileName.replace(/\.json$/, '')
@@ -58,7 +75,13 @@ export function buildLibrary(sources: LibrarySources): Library {
         ],
       })
     } else {
-      tutorials.set(id, { id, fileName: source.fileName, tutorial: result.tutorial, etag: source.etag })
+      tutorials.set(id, {
+        id,
+        fileName: source.fileName,
+        tutorial: result.tutorial,
+        etag: source.etag,
+        state: stateOf(id),
+      })
     }
   }
 
@@ -86,6 +109,7 @@ export function buildLibrary(sources: LibrarySources): Library {
     catalogEtags: { paths: sources.paths?.etag, lessons: sources.lessons?.etag },
     samples: sources.tutorials.map((source) => ({ fileName: source.fileName, source: source.text })),
     writable: sources.writable,
+    publishing,
     referenceUrl: (file) => references.get(file),
   }
 }

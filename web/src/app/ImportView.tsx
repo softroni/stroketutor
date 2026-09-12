@@ -19,7 +19,7 @@ interface Loaded {
 }
 
 export interface ImportViewProps {
-  /** The tutorials in shared/Tutorials, as raw text. */
+  /** Every lesson in the working library, as raw text. */
   samples: Sample[]
 }
 

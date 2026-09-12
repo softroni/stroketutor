@@ -12,6 +12,8 @@ import { studioApi } from './server/studioApi'
 // copy of anything.
 const shared = fileURLToPath(new URL('../shared', import.meta.url))
 const webDir = fileURLToPath(new URL('.', import.meta.url))
+// The Studio's local workspace (drafts, history, trash), gitignored. Only published lessons reach shared/.
+const studioDir = fileURLToPath(new URL('../.studio', import.meta.url))
 
 export default defineConfig(({ mode }) => {
   // Read with no prefix filter so OPENROUTER_API_KEY can reach the server
@@ -26,6 +28,8 @@ export default defineConfig(({ mode }) => {
       react(),
       studioApi({
         sharedDir: shared,
+        workspaceFile: env.STUDIO_WORKSPACE || `${studioDir}/workspace.sqlite`,
+        backupDir: `${studioDir}/backups`,
         openRouterKey: env.OPENROUTER_API_KEY || undefined,
         defaultModel: env.OPENROUTER_MODEL || undefined,
       }),

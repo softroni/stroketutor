@@ -63,6 +63,57 @@ against the §36 checklist. The five lessons are:
 The blue two-story house from the M5 tuning round would suit the last one, if a licensed copy can be used. Don't start
 M6 without the creator.
 
+### Studio track
+
+This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the
+milestones and doesn't unblock M6. The approved plan: a local workspace kept apart from published content, delete with
+confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. **Next: S2.**
+
+| ID | Work | Status | Commit |
+|---|---|---|---|
+| S1 | Workspace vs published: a local SQLite workspace, Publish, Unpublish, delete with confirmation, Trash | ✅ Done 2026-09-11 | see git log |
+| S2 | Paths view: search and status filters, one ⋯ menu per lesson, Unfiled / Publish / Trash in the sidebar | ⬜ Not started | |
+| S3 | Lesson workspace in three full-height panes, autosave, a drawer for Regenerate and History, shortcuts | ⬜ Not started | |
+| S4 | New lesson layout, "save as draft" from Import & test, a ⌘K palette | ⬜ Not started | |
+
+#### S1 · Workspace vs published
+- [x] A SQLite workspace in `.studio/` (gitignored), on Node's built-in `node:sqlite`, backed up daily (newest seven kept).
+- [x] Every authoring write goes to the workspace. Only Publish and Unpublish write `shared/`.
+- [x] `shared/Catalog` is the working curriculum narrowed to published lessons. What Publish would change is computed each
+      time, never queued.
+- [x] A Publish view, plus **Publish…** in the lesson workspace and in each lesson's ⋯ menu.
+- [x] Unpublish, Duplicate, and Delete to the Trash. Deleting a published lesson asks for its id to be typed.
+- [x] Deleting a path asks whether its lessons stay (unfiled) or go to the Trash too.
+- [x] A Trash with Restore, Delete forever and Empty trash.
+- [x] **Adopt shared/** when `shared/Catalog` changes outside the Studio.
+- [x] Migration, as the creator chose: palm-tree, tree and coconut-palm moved into the workspace. palm-tree-4,
+      simple-house and cat-face stay published.
+
+**Done.**
+- **Tests:** web 279 pass, including new tests for the store and for the catalog projection. The count went down, not
+  up, because some tests loop over every file in `shared/Tutorials`, which lost three lessons. The build passes. iOS
+  passes 36/36 against the migrated `shared/`.
+- **In the browser,** on the creator's own dev server:
+  1. the Publish view showed the published curriculum before and after;
+  2. Palm Tree was unpublished through its dialog, with its id typed, and stayed editable as a Draft with its photo;
+  3. a duplicate was made, deleted to the Trash, restored, then deleted for good;
+  4. the delete dialog opened with Cancel focused. There were no console errors.
+
+**Departures and decisions:**
+- **Saving no longer writes `shared/`.** "Published" still means validated content in `shared/` (master plan §27 and
+  §39), but now only Publish writes there. Drafts and experiments stay out of git, and history moved from
+  `shared/History/` into the workspace.
+- **An overlay, not a copy.** A published lesson nobody has touched is read from `shared/`. Editing it adds a working
+  copy, shown as **Published · edited**, until it is published again.
+- **A path is published once it holds a published lesson.** Empty paths stay in the workspace.
+- **Publishing takes the curriculum with it.** Any publish rewrites `shared/Catalog` in the working order. The Publish
+  view shows the before and after.
+- **Publishing approves.** It goes through the same warnings and checklist as Approve….
+- **The workspace isn't in git.** Its only copies are the daily backups in `.studio/backups/`, plus whatever backs up
+  the machine.
+- **Node 22.13 or later** is needed for `node:sqlite` (`engines` in `web/package.json`). Its experimental-feature warning
+  is silenced for that one import.
+
 ---
 
 ### M0 · Baseline: protect the PoC

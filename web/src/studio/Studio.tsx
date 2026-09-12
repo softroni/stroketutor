@@ -1,28 +1,34 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { ImportView } from '../app/ImportView'
+import { readyCount } from '../catalog/publishing'
 import type { Catalog } from '../catalog/types'
 
-import { saveCatalog } from './api'
+import { adoptShared, saveCatalog } from './api'
 import { LessonWorkspace } from './LessonWorkspace'
 import { buildLibrary, type Library } from './library'
 import { NewLessonView } from './NewLessonView'
 import { PathsView } from './PathsView'
+import { PublishView } from './PublishView'
 import { parseRoute, routeHref, type Route } from './route'
 import { SettingsView } from './SettingsView'
 import { loadSources } from './sources'
+import { TrashView } from './TrashView'
 import './studio.css'
+import './publishing.css'
 
 /**
  * StrokeTutor Studio: the private authoring tool built around the existing
  * player (master plan Part III). Paths and the Lesson Workspace are the main
- * surfaces; the original importer stays available for testing arbitrary JSON.
+ * surfaces. Work happens in the local workspace; Publish is the one way into
+ * `shared/`. The original importer stays available for testing arbitrary JSON.
  */
 export function Studio() {
   const [library, setLibrary] = useState<Library | null>(null)
+  const [adoptError, setAdoptError] = useState<string | null>(null)
   const route = useHashRoute()
 
-  /** Reads shared/ again: at start-up, and after every save, so the Studio shows what is on disk. */
+  /** Reads the library again: at start-up, and after every change, so the Studio shows what is stored. */
   const reload = useCallback(async () => {
     setLibrary(buildLibrary(await loadSources()))
   }, [])
@@ -32,13 +38,13 @@ export function Studio() {
   }, [reload])
 
   /**
-   * Applies one curriculum change to the catalog as it is on disk and saves it
-   * at once. Nothing is held unsaved, so no other save can sweep a pending
-   * change away, and the writer's version check refuses a stale catalog.
+   * Applies one curriculum change to the working curriculum as it is stored,
+   * and saves it at once. Nothing is held unsaved, so no other save can sweep
+   * a pending change away, and the version check refuses a stale curriculum.
    */
   const editCatalog = useCallback(
     async (change: (catalog: Catalog) => Catalog) => {
-      if (!library?.catalog) throw new Error('The catalog could not be read, so it cannot be changed.')
+      if (!library?.catalog) throw new Error('The curriculum could not be read, so it cannot be changed.')
       const next = change(library.catalog)
       await saveCatalog(
         { catalogVersion: 1, paths: next.paths },
@@ -50,6 +56,16 @@ export function Studio() {
     [library, reload],
   )
 
+  const adopt = useCallback(async () => {
+    setAdoptError(null)
+    try {
+      await adoptShared()
+      await reload()
+    } catch (error) {
+      setAdoptError(error instanceof Error ? error.message : String(error))
+    }
+  }, [reload])
+
   const openCreated = useCallback(
     async (lessonId: string) => {
       await reload()
@@ -60,12 +76,12 @@ export function Studio() {
 
   let screen: ReactNode
   if (!library) {
-    screen = <p className="st-empty">Reading shared/…</p>
+    screen = <p className="st-empty">Reading the workspace…</p>
   } else {
     switch (route.name) {
       case 'paths':
         screen = (
-          <PathsView library={library} selectedPathId={route.pathId} onEdit={editCatalog} />
+          <PathsView library={library} selectedPathId={route.pathId} onEdit={editCatalog} onReload={reload} />
         )
         break
       case 'lesson':
@@ -89,6 +105,12 @@ export function Studio() {
           />
         )
         break
+      case 'publish':
+        screen = <PublishView library={library} onPublished={reload} onAdopt={adopt} />
+        break
+      case 'trash':
+        screen = <TrashView library={library} onChanged={reload} />
+        break
       case 'settings':
         screen = <SettingsView library={library} />
         break
@@ -100,6 +122,7 @@ export function Studio() {
 
   const current = (name: Route['name'] | Route['name'][]) =>
     (Array.isArray(name) ? name : [name]).includes(route.name) ? 'page' : undefined
+  const toPublish = library ? readyCount(library.publishing.pending) : 0
 
   return (
     <div className="st-studio">
@@ -120,12 +143,22 @@ export function Studio() {
             </span>
           ) : null}
           <nav className="st-studio__nav" aria-label="Studio">
-            <a href={routeHref({ name: 'paths', pathId: null })} aria-current={current(['paths', 'lesson'])}>
+            <a href={routeHref({ name: 'paths', pathId: null })} aria-current={current(['paths', 'lesson', 'trash'])}>
               Paths
             </a>
             <a href={routeHref({ name: 'new', pathId: null })} aria-current={current('new')}>
               New lesson
             </a>
+            {library?.writable ? (
+              <a href={routeHref({ name: 'publish' })} aria-current={current('publish')}>
+                Publish
+                {toPublish > 0 ? (
+                  <span className="st-nav-badge" aria-label={`${toPublish} ready`}>
+                    {toPublish}
+                  </span>
+                ) : null}
+              </a>
+            ) : null}
             <a href={routeHref({ name: 'import' })} aria-current={current('import')}>
               Import &amp; test
             </a>
@@ -135,6 +168,18 @@ export function Studio() {
           </nav>
         </div>
       </header>
+      {library?.publishing.sharedChangedOutside ? (
+        <div className="st-banner" role="status">
+          <span>
+            <code>shared/Catalog</code> changed outside the Studio, by a git pull or a hand edit. Publishing waits
+            until the Studio adopts it.
+          </span>
+          <button type="button" className="st-button st-button--compact" onClick={() => void adopt()}>
+            Adopt shared/
+          </button>
+          {adoptError ? <span className="st-banner__error">{adoptError}</span> : null}
+        </div>
+      ) : null}
       <main className="st-studio__main">{screen}</main>
     </div>
   )

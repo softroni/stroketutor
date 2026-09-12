@@ -8,7 +8,7 @@ import { TutorialPlayer } from '../player/TutorialPlayer'
 import { totalDuration, totalStrokes, type Tutorial } from '../schema/types'
 import { parseTutorialJSON, validateTutorial, type ValidationIssue } from '../schema/validate'
 
-import { ApiError, readTutorial, saveCatalog, saveTutorial, uploadReference } from './api'
+import { ApiError, publishLessons, readTutorial, saveCatalog, saveTutorial, uploadReference } from './api'
 import { ApprovalDialog } from './ApprovalDialog'
 import { EditCanvas, type Replay } from './editor/EditCanvas'
 import { commit, createHistory, redo, undo } from './editor/history'
@@ -33,13 +33,14 @@ import {
 import { StepEditor } from './editor/StepEditor'
 import { HistoryPanel } from './HistoryPanel'
 import { IssueList } from './IssueList'
+import { LessonActions } from './LessonActions'
 import type { Library, TutorialEntry } from './library'
 import { AnalysisPanel } from './NewLessonView'
 import { qualityWarnings } from './quality'
 import { ReferencePanel } from './ReferencePanel'
 import { RegeneratePanel } from './RegeneratePanel'
 import { routeHref } from './route'
-import { StatusPill } from './StatusPill'
+import { LifecycleBadge } from './StatusPill'
 
 export interface LessonWorkspaceProps {
   library: Library
@@ -123,6 +124,9 @@ function LessonEditor({
   const [panel, setPanel] = useState<BottomPanel>('inspector')
   const [editError, setEditError] = useState<string | null>(null)
   const [approving, setApproving] = useState(false)
+  const [publishing, setPublishing] = useState(false)
+  /** The files Publish wrote into shared/, to commit. */
+  const [publishReport, setPublishReport] = useState<string[] | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveReport, setSaveReport] = useState<SaveReport | null>(null)
   const [saveFailure, setSaveFailure] = useState<SaveFailure | null>(null)
@@ -252,7 +256,7 @@ function LessonEditor({
   /** Rewrites the catalog as it is on disk with this one lesson changed. */
   const saveLessonMeta = async (change: (current: Lesson) => Lesson) => {
     const disk = library.catalog
-    if (!disk || !lesson) throw new ApiError(0, 'This lesson is not in shared/Catalog/lessons.json.')
+    if (!disk || !lesson) throw new ApiError(0, 'This lesson is not in the curriculum.')
     await saveCatalog(
       { catalogVersion: 1, paths: disk.paths },
       {
@@ -270,6 +274,7 @@ function LessonEditor({
     setSaving(true)
     setSaveFailure(null)
     setSaveReport(null)
+    setPublishReport(null)
     let wrote = false
     try {
       const written = await saveTutorial(entry.id, saved, entry.etag ?? null)
@@ -306,6 +311,29 @@ function LessonEditor({
     }
   }
 
+  /** Approves the saved version and writes it into shared/, with the curriculum as it stands. */
+  const publish = async () => {
+    setSaving(true)
+    setSaveFailure(null)
+    setSaveReport(null)
+    setPublishReport(null)
+    try {
+      const { files } = await publishLessons([entry.id])
+      setPublishReport(files)
+      setPublishing(false)
+    } catch (error) {
+      setSaveFailure(
+        error instanceof ApiError
+          ? { message: error.message, issues: error.issues }
+          : { message: String(error), issues: [] },
+      )
+    } finally {
+      await onSaved()
+      setHistoryKey((key) => key + 1)
+      setSaving(false)
+    }
+  }
+
   const addReference = async (file: File, source: string, license: string) => {
     const stored = await uploadReference(entry.id, file)
     await saveLessonMeta((current) => ({ ...current, reference: { file: stored.file, source, license } }))
@@ -317,9 +345,18 @@ function LessonEditor({
   const uploadBlockedBecause = !library.writable
     ? 'Adding one needs the Studio server (npm run dev).'
     : !lesson
-      ? 'Photos are recorded in shared/Catalog/lessons.json, so add this lesson there first.'
+      ? 'Photos are recorded with the lesson in the curriculum, so add it there first.'
       : null
   const canApprove = validation.ok && lesson !== undefined && (changed || lesson.status !== 'approved')
+  const publishBlockedBecause = !lesson
+    ? 'Only lessons in the curriculum can be published.'
+    : changed
+      ? 'Save first: Publish takes the saved version.'
+      : !validation.ok
+        ? 'Fix the validation problems first.'
+        : entry.state === 'published'
+          ? 'Published, and nothing has changed since.'
+          : null
 
   return (
     <div className="st-workspace">
@@ -334,7 +371,7 @@ function LessonEditor({
           <span aria-current="page">{tutorial.title}</span>
         </nav>
         <div className="st-workspace__actions">
-          {lesson ? <StatusPill status={lesson.status} /> : <span className="st-pill">Not catalogued</span>}
+          <LifecycleBadge status={lesson?.status} state={entry.state} />
           <div className="st-segmented" role="group" aria-label="Mode">
             <button type="button" aria-pressed={mode === 'edit'} onClick={() => setMode('edit')}>
               Edit
@@ -352,6 +389,16 @@ function LessonEditor({
               Preview as learner
             </button>
           </div>
+          <LessonActions
+            library={library}
+            lessonId={entry.id}
+            onChanged={onSaved}
+            withPublish={false}
+            unsaved={changed}
+            onDeleted={() => {
+              window.location.hash = routeHref({ name: 'paths', pathId: path?.id ?? null })
+            }}
+          />
         </div>
       </header>
 
@@ -423,9 +470,25 @@ function LessonEditor({
               aria-expanded={approving}
               disabled={!canApprove || saving}
               title={lesson ? undefined : 'Only catalogued lessons can be approved.'}
-              onClick={() => setApproving((open) => !open)}
+              onClick={() => {
+                setPublishing(false)
+                setApproving((open) => !open)
+              }}
             >
               Approve…
+            </button>
+            <button
+              type="button"
+              className={`st-button ${publishing ? 'st-button--on' : ''}`}
+              aria-expanded={publishing}
+              disabled={publishBlockedBecause !== null || saving}
+              title={publishBlockedBecause ?? 'Approve this version and write it into shared/.'}
+              onClick={() => {
+                setApproving(false)
+                setPublishing((open) => !open)
+              }}
+            >
+              Publish…
             </button>
             <button
               type="button"
@@ -446,6 +509,23 @@ function LessonEditor({
           onConfirm={() => void save(true)}
           onCancel={() => setApproving(false)}
         />
+      ) : null}
+      {publishing ? (
+        <ApprovalDialog
+          warnings={warnings}
+          busy={saving}
+          heading={entry.state === 'published-edited' ? 'Approve and publish these changes?' : 'Approve and publish this lesson?'}
+          confirmLabel="Approve & publish"
+          busyLabel="Publishing…"
+          onConfirm={() => void publish()}
+          onCancel={() => setPublishing(false)}
+        >
+          <p className="st-approval__note">
+            Writes <code>shared/Tutorials/{entry.fileName}</code>
+            {reference ? ' and its photo' : ''}, and brings <code>shared/Catalog</code> in line with the
+            curriculum. That is what git tracks and the app ships; commit it yourself afterwards.
+          </p>
+        </ApprovalDialog>
       ) : null}
 
       {library.writable ? (
@@ -478,23 +558,32 @@ function LessonEditor({
       {changed ? (
         <p className="st-notice" role="status">
           {library.writable
-            ? `Unsaved changes. Save writes shared/Tutorials/${entry.fileName}; leaving this lesson discards them.`
+            ? 'Unsaved changes. Save keeps them in your workspace; nothing reaches shared/ until you publish. Leaving this lesson discards them.'
             : 'Edited in this session only: this is a read-only copy. Run npm run dev to save.'}
         </p>
       ) : null}
       {saveReport && !changed ? (
         saveReport.identical ? (
           <p className="st-notice st-notice--success" role="status">
-            Saved {saveReport.file} and read it back from disk: {saveReport.steps} steps and{' '}
-            {saveReport.strokes} strokes, identical to the preview.
-            {saveReport.approved ? ' Marked approved in shared/Catalog/lessons.json.' : ''}
+            Saved in your workspace and read it back: {saveReport.steps} steps and {saveReport.strokes}{' '}
+            strokes, identical to the preview.
+            {saveReport.approved ? ' Marked approved: it is ready to publish.' : ''}
           </p>
         ) : (
           <p className="st-notice st-notice--error" role="alert">
-            Saved {saveReport.file}, but the file read back from disk differs from the preview.
-            Reload the Studio and check the file before approving.
+            Saved, but the version read back differs from the preview. Reload the Studio and check it before
+            approving.
           </p>
         )
+      ) : null}
+      {publishReport && !changed ? (
+        <div className="st-notice st-notice--success" role="status">
+          <p className="st-publish__done">
+            Published. {publishReport.length} {publishReport.length === 1 ? 'file' : 'files'} in{' '}
+            <code>shared/</code> changed. Commit them with git:
+          </p>
+          <pre className="st-publish__command">git add -- {publishReport.join(' ')}</pre>
+        </div>
       ) : null}
       {saveFailure ? (
         saveFailure.issues.length > 0 ? (

@@ -58,19 +58,26 @@ rather than an imitation of it.
 
 Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<lesson>`, `#/import`.
 
-- **Paths** lists every path in `shared/Catalog/paths.json` and the lessons of the selected one
-  in unlock order, each with its finished drawing, authoring status, objective and an estimated
-  learner time. It is also where the curriculum is shaped (`studio/pathOps.ts`):
+- **Paths** lists every path in the working curriculum and the lessons of the selected one
+  in unlock order, each with its finished drawing, a lifecycle badge (Draft, Needs review,
+  Approved, Published, Published · edited), objective and an estimated learner time. It is also
+  where the curriculum is shaped (`studio/pathOps.ts`):
   - **+ New path** takes a title, an id (fixed once created; lessons and the app refer to paths
     by it) and an optional description;
   - paths reorder with their ↑/↓ buttons; a path's title and description are edited in place;
-  - a path can be deleted only once it is empty;
+  - **Delete path…** moves a path to the Trash, keeping its lessons under “Not in a path” or
+    moving them to the Trash too;
   - lessons reorder by drag or ↑/↓, move to another path or out of every path with **Move to…**,
-    and a catalogued lesson outside every path can be added to the open one.
+    and a catalogued lesson outside every path can be added to the open one;
+  - each lesson's **⋯** menu duplicates it as a draft, publishes or unpublishes it, or deletes it.
 
-  Every change is saved at once through the repository writer, so there is never an unsaved
-  curriculum to lose. Tutorials that no path lists are shown separately, because a learner would
-  never reach them; ones not yet in `lessons.json` must be catalogued before joining a path.
+  Every change is saved at once in the workspace, so there is never an unsaved curriculum to
+  lose. Tutorials that no path lists are shown separately, because a learner would never reach
+  them; ones not yet in the curriculum must be catalogued before joining a path.
+- **Publish** lists everything in the workspace that is not in `shared/` yet: approved lessons,
+  lessons still in progress, published lessons with changes, and curriculum changes shown before
+  and after. See [Workspace and publishing](#workspace-and-publishing).
+- **Trash** (from the Paths sidebar) holds deleted lessons and paths until they are deleted for good.
 - **Lesson Workspace** puts the reference photo, the drawing and the step list side by side,
   with an inspector and the debug tools underneath. It is an editor for the teaching structure,
   not for the drawing (§18): click or shift-click strokes on the canvas or in the step list, then
@@ -87,30 +94,68 @@ At start-up `studio/library.ts` validates every tutorial and the catalog once. A
 The estimated learner time (`catalog/metrics.ts`) is a placeholder formula — animation time
 times three, plus eight seconds per step — until real lessons are timed.
 
-## Saving
+## Workspace and publishing
+
+Content lives in two places:
+
+| | Where | In git | Holds |
+|---|---|---|---|
+| **Workspace** | `../.studio/workspace.sqlite` (`STUDIO_WORKSPACE` overrides) | no | the working curriculum, drafts, edits to published lessons, photos not yet published, every recorded version, the Trash |
+| **Published** | `../shared/` | yes | what the iOS app bundles: published tutorials, their photos, `Catalog/` |
+
+The workspace (`server/workspaceStore.ts`, built-in `node:sqlite`, Node 22.13 or later) is an overlay
+on `shared/`, not a copy. A published lesson nobody has touched is read straight from `shared/`;
+editing it adds a working copy, and the lesson shows **Published · edited** until that is published.
+The working curriculum lists every path and lesson, drafts included; `shared/Catalog` is its
+projection onto published lessons, in the same order, leaving out a path with none
+(`src/catalog/publishing.ts`). What Publish would change is computed from the two each time the
+library is read, never queued. The workspace starts as a copy of `shared/Catalog` the first time the
+Studio opens, and is copied once a day to `../.studio/backups/` (the newest seven are kept), since git
+does not hold it.
+
+- **Save**, **Approve…**, New lesson's **Keep as draft**, photos, path edits, regenerations and history
+  all write the workspace only.
+- **Publish…** (in the workspace, a lesson's ⋯ menu, or the Publish view) shows the quality warnings and
+  the §36 checklist, marks the lesson approved and writes, in this order, its photo, its tutorial and
+  then `shared/Catalog`. The catalog goes last, so a failure part-way never leaves it pointing at a
+  missing file, and publishing again resumes. Curriculum changes are published together with anything
+  else; the Publish view can also publish them alone. The Studio lists the files it wrote as a
+  `git add` line; committing is up to you.
+- **Unpublish…** writes the lesson and its photo into the workspace, reads them back, and only then
+  removes them from `shared/` and from the published curriculum. It stays a lesson you can edit and
+  publish again.
+- **Delete…** moves a lesson to the Trash, with its photo; a published lesson is unpublished first,
+  and that asks for its id to be typed. Its history stays until the Trash is emptied. **Restore**
+  puts it back where it was, as a draft. Deleting a path moves it to the Trash; its lessons stay under
+  “Not in a path”, or go to the Trash too.
+- If `shared/Catalog` changes outside the Studio (a git pull, a hand edit), a banner offers **Adopt
+  shared/**: published lessons and paths then follow `shared/`, and workspace-only lessons keep their
+  places. Publishing waits until then.
+
+## The Studio server
 
 `server/studioApi.ts` mounts a few JSON endpoints under `/api` on the Vite dev server and nowhere
-else. `server/repoWriter.ts` does the disk work, and it is the only code that writes:
+else. `server/workspaceStore.ts` keeps the workspace. `server/repoWriter.ts` is the only code that
+touches `shared/`, and only when publishing or unpublishing:
 
-- only under `shared/Tutorials/`, `shared/Catalog/`, `shared/Assets/References/` and
-  `shared/History/`, at file names the server derives from validated ids — the browser never sends a
-  path;
+- only under `shared/Tutorials/`, `shared/Catalog/` and `shared/Assets/References/`, at file names
+  the server derives from validated ids — the browser never sends a path;
 - only documents that pass the Studio's own strict validators, loaded through Vite;
-- only over the version the Studio read: each write names a SHA-256 of the file it replaces, and a
-  file changed on disk in the meantime is refused rather than overwritten;
+- only over the version the Studio read: each write or delete names a SHA-256 of the file it
+  replaces, and a file changed on disk in the meantime is refused rather than overwritten;
 - atomically (temporary file, then rename), formatted like the hand-written golden files.
 
-Writes must be same-origin and carry an `X-StrokeTutor-Studio` header. In dev the Studio reads
-`shared/` through `/api/library` rather than bundling it, so saving never reloads the page.
+Writes must be same-origin and carry an `X-StrokeTutor-Studio` header. In dev the Studio reads the
+working library through `/api/library` rather than bundling it, so saving never reloads the page.
 
-**Save** writes the lesson, then reads it back from disk and confirms it matches the preview.
+**Save** stores the lesson in the workspace, then reads it back and confirms it matches the preview.
 **Approve…** shows the quality warnings (`studio/quality.ts`: length, stroke count, tiny strokes,
 crowded steps, placeholder words, a jump from the previous lesson) with the §36 checklist, then
-saves and marks the lesson approved. Warnings never block. A reference image is saved as
-`<lesson>.jpg|png|webp|svg` with its source and licence recorded in `lessons.json`. An SVG must be a
+saves and marks the lesson approved. Warnings never block. A reference image is stored as
+`<lesson>.jpg|png|webp|svg` with its source and licence recorded with the lesson. An SVG must be a
 plain drawing: scripts, event handlers, `<foreignObject>`, entity declarations and links to other
 files are refused with a reason, and every reference is served under a sandboxing
-`Content-Security-Policy`. Nothing runs git: saves appear as ordinary diffs to review.
+`Content-Security-Policy`. Nothing runs git: publishing appears as ordinary diffs to review.
 
 ## Generating
 
@@ -145,9 +190,9 @@ photo with its source and licence, the learning goal and optional constraints, a
 4. returns the candidate, the model's analysis of the photo and any issues. It writes nothing.
 
 An invalid candidate is shown with its issues and never reaches the editor. A valid one is
-previewed with its quality warnings; **Keep as draft** writes the tutorial (create-only), the photo
-and a `draft` catalog entry that records the model, prompt version, goal and analysis, then opens
-the lesson in the workspace. Failures of any kind keep everything the creator typed.
+previewed with its quality warnings; **Keep as draft** stores the tutorial (create-only), the photo
+and a `draft` catalog entry that records the model, prompt version, goal and analysis in the
+workspace, then opens the lesson. Nothing reaches `shared/` until it is published. Failures of any kind keep everything the creator typed.
 
 **From an SVG.** When the reference is an SVG, New lesson traces it in the browser as soon as it is
 chosen (`src/trace/traceSvg.ts`) and previews the lines and colours. **Generate tutorial** then
@@ -178,21 +223,22 @@ shapes it already has. A new drawing from an SVG traces the file again at the ch
 The result appears beside the current version; **Use the regenerated version** makes it an ordinary edit, so
 **Undo** takes it back and **Save** writes it. Nothing is written by regenerating.
 
-**History.** Every version of a lesson is kept beside it, never in its place, so a good one is never
-lost (master plan §24). Each version is one file, `shared/History/<lesson>/<time>-<kind>-<random>.json`
+**History.** Every version of a lesson is kept in the workspace, never in its place, so a good one is
+never lost (master plan §24). Each version is one record with an id `<time>-<kind>-<random>`
 (`src/history/types.ts`), holding the whole tutorial and how it came about: model, prompt version,
 note, rationale, the Studio's corrections, the analysis and the cost.
 - **Generated:** New lesson keeps every valid candidate of the session (**Generate another** adds one
   and never replaces), and **Keep as draft** records all of them, the kept one marked.
 - **Regenerated:** each valid regeneration, recorded as it arrives, whether or not it is used.
-- **Saved:** the writer records every save that changes a lesson. The first time anything is recorded
-  about a lesson, the version on disk goes in first, so there is always one to go back to.
+- **Saved:** the workspace records every save that changes a lesson. The first time anything is
+  recorded about a lesson, the version it had goes in first, so there is always one to go back to.
+- **Published:** each version written into `shared/` by Publish.
 
 The workspace's **History** tab lists every version, newest first, and shows the chosen one beside
 the editor's version or beside another recorded one. **Use this version** brings it back as an ordinary
 edit. `GET /api/history/:lesson` lists; `POST /api/history/:lesson` only adds, and only generated or
-regenerated versions that validate and carry the lesson's id. History files are ordinary files, like
-every save: the creator decides whether to commit them. The iOS app never sees them.
+regenerated versions that validate and carry the lesson's id. History lives in the workspace, outside
+git, and the iOS app never sees it. A lesson's history is removed only when it is deleted for good.
 
 The prompt lives in `server/prompts/lessonPrompt.ts` and carries a version (`lesson-v1`) that every
 generated lesson records. `server/fixtures/` holds representative model outputs — one good, one
