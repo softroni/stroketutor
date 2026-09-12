@@ -282,7 +282,8 @@ npm run studio -- strokes reverse palm 1.1
   them, later steps not there yet) and a Finished panel, in a grid of `--columns`. Both are built as
   SVG text in `src/studio/preview.ts` (pure, tested without a browser) and rendered to PNG through
   the browser bridge's `renderPng`; `--svg` writes the text instead and needs no browser, `--no-labels`
-  leaves the ids off, `--size` is the PNG's longer side.
+  leaves the ids off, `--size` is the PNG's longer side. On a busy drawing `svg preview --crop x0,y0,x1,y1
+  --only s30-s40` zooms into one part, labels only those ids and fades the other lines.
 - **`strokes reverse`** draws the selected strokes from their other end: the same shape, animated the
   other way round (`reversePath` from `server/regenerate.ts`, the same function an order regeneration
   uses). Reversing twice gives the stroke back byte for byte.

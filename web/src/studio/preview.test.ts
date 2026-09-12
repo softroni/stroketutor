@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Tutorial } from '../schema/types'
 
-import { lessonSheetSvg, pathBox, pathStart, sheetGrid, traceSvg, type PreviewTrace } from './preview'
+import { lessonSheetSvg, parseIdList, pathBox, pathStart, sheetGrid, traceSvg, type PreviewTrace } from './preview'
 
 const trace: PreviewTrace = {
   canvas: { width: 1000, height: 1000 },
@@ -54,6 +54,23 @@ describe('traceSvg', () => {
     expect(svg).toContain('<rect width="1000" height="1000" fill="#FFFFFF"/>')
   })
 
+  it('labels only the ids asked for and fades the other lines', () => {
+    const svg = traceSvg(trace, { only: ['s2'] })
+    expect(svg).toContain('>s2</text>')
+    expect(svg).not.toContain('>s1</text>')
+    expect(svg).not.toContain('>f1</text>')
+    expect(svg).toMatch(/d="M 100 100 L 300 100"[^>]*opacity="0.3"/)
+    expect(svg).not.toMatch(/d="M 300 100 C[^>]*opacity="0.3"/)
+  })
+
+  it('crops to part of the canvas and scales the labels to what is shown', () => {
+    const svg = traceSvg(trace, { crop: [200, 50, 400, 250] })
+    expect(svg).toContain('viewBox="200 50 200 200" width="200" height="200"')
+    // A 200-unit view: labels are a 45th of it (4.44), not of the 1000 canvas (22.22).
+    expect(svg).toMatch(/<text [^>]*font-size="4\.44"[^>]*>s2<\/text>/)
+    expect(svg).toContain('<rect width="1000" height="1000"')
+  })
+
   it('escapes an id in a label', () => {
     const svg = traceSvg({ ...trace, strokes: [{ id: 'a<b', d: 'M 1 1 L 2 2', lineWidth: 1 }], fills: [] })
     expect(svg).toContain('>a&lt;b</text>')
@@ -103,6 +120,14 @@ describe('lessonSheetSvg', () => {
     expect(sheet).toContain('>2 · Add the roof &lt;fast&gt; &amp; &quot;sure&quot;</text>')
     expect(sheet).toContain('>Finished</text>')
     expect(lessonSheetSvg(house, { labels: false })).not.toContain('>s1</text>')
+  })
+})
+
+describe('parseIdList', () => {
+  it('expands ranges, keeps order and drops repeats', () => {
+    expect(parseIdList('s30,s32-s35,f1, s30')).toEqual(['s30', 's32', 's33', 's34', 's35', 'f1'])
+    expect(parseIdList('s3-s1')).toEqual(['s3-s1'])
+    expect(parseIdList('trunk,s2-4')).toEqual(['trunk', 's2', 's3', 's4'])
   })
 })
 

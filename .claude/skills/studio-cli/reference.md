@@ -450,6 +450,8 @@ Options:
       --no-labels                  Leave the ids off.
       --size <px>                  Pixels on the longer side of the PNG (default 1536; a sheet's own width for --sheet).
       --svg                        Write the picture as SVG text instead of a PNG; no browser is needed.
+      --only <ids>                 Label only these ids, a comma list with ranges (s30-s40,f1); the other lines are faded.
+      --crop <box>                 Show only this part of the canvas, x0,y0,x1,y1 in canvas units; labels scale to it.
       --max-strokes <n>            Lines to keep, longest first: 32 for fewer, 64 as New lesson traces, 96 for more.
       --max-colours <n>            Colours to reduce the file to (default 8).
       --min-stroke-length <units>  Lines shorter than this are texture and are left out (default 16).

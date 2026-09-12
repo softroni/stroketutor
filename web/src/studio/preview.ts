@@ -32,6 +32,10 @@ export interface TraceSvgOptions {
   labels?: boolean
   /** The paper colour; the lesson's default paper when omitted. */
   background?: string
+  /** Label only these ids; every other line is drawn faded, so the chosen ones stand out. */
+  only?: string[]
+  /** Show only this part of the canvas (x0, y0, x1, y1 in canvas units); labels scale to it. */
+  crop?: Box
 }
 
 export interface SheetOptions {
@@ -123,22 +127,46 @@ const labelSize = (canvas: { width: number; height: number }) => Math.max(canvas
  * (or its own colour) in id order, and, with labels, each id where the eye
  * needs it: a line's at its start, a colour's at the middle of its area.
  */
-export function traceSvg(trace: PreviewTrace, { labels = true, background = DEFAULT_STYLE.backgroundColor }: TraceSvgOptions = {}): string {
+export function traceSvg(trace: PreviewTrace, { labels = true, background = DEFAULT_STYLE.backgroundColor, only, crop }: TraceSvgOptions = {}): string {
   const { width, height } = trace.canvas
-  const size = labelSize(trace.canvas)
+  const view = crop ?? [0, 0, width, height]
+  const shown = { width: view[2] - view[0], height: view[3] - view[1] }
+  const size = labelSize(shown)
+  const chosen = only ? new Set(only) : null
+  const wanted = (id: string) => labels && (!chosen || chosen.has(id))
   const fills = trace.fills.map((fill) => fillPath(fill.d, cssColor(fill.color), 'evenodd', 0.35))
-  const strokes = trace.strokes.map((stroke) => strokePath(stroke.d, cssColor(stroke.color ?? DEFAULT_STYLE.strokeColor), stroke.lineWidth))
-  const tags = labels
-    ? [...trace.fills.map((fill) => fillLabel(fill.id, fill.box, size)), ...trace.strokes.map((stroke, index) => lineLabel(stroke.id, stroke.d, null, size, index))]
-    : []
+  const strokes = trace.strokes.map((stroke) =>
+    strokePath(stroke.d, cssColor(stroke.color ?? DEFAULT_STYLE.strokeColor), stroke.lineWidth, chosen && !chosen.has(stroke.id) ? DONE_OPACITY : undefined),
+  )
+  const tags = [
+    ...trace.fills.filter((fill) => wanted(fill.id)).map((fill) => fillLabel(fill.id, fill.box, size)),
+    ...trace.strokes.map((stroke, index) => (wanted(stroke.id) ? lineLabel(stroke.id, stroke.d, null, size, index) : '')),
+  ]
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n(width)} ${n(height)}" width="${n(width)}" height="${n(height)}">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${n(view[0])} ${n(view[1])} ${n(shown.width)} ${n(shown.height)}" width="${n(shown.width)}" height="${n(shown.height)}">`,
     `<rect width="${n(width)}" height="${n(height)}" fill="${cssColor(background)}"/>`,
     ...fills,
     ...strokes,
     ...tags,
     '</svg>',
   ].join('')
+}
+
+/**
+ * `s30,s32-s35,f1` → the ids named, in order, each once. A range runs over the
+ * number after a one-letter prefix; anything else is taken as one id.
+ */
+export function parseIdList(text: string): string[] {
+  const ids: string[] = []
+  for (const part of text.split(',').map((item) => item.trim()).filter(Boolean)) {
+    const range = part.match(/^([a-z])(\d+)-(?:([a-z]))?(\d+)$/)
+    if (range && (range[3] === undefined || range[3] === range[1]) && Number(range[2]) <= Number(range[4])) {
+      for (let k = Number(range[2]); k <= Number(range[4]); k += 1) ids.push(`${range[1]}${k}`)
+    } else {
+      ids.push(part)
+    }
+  }
+  return [...new Set(ids)]
 }
 
 /** Lines are s1, s2, … and colours f1, f2, … in the order the lesson draws them, as `summariseLesson` labels them. */

@@ -168,7 +168,7 @@ committed for you.
 | `svg trace <file> [--out t.json] [--summary] [tracer options]` | Lines and colours as a lesson would be built from them; `--summary` prints ids, boxes, lengths, colours; `--json` with `--summary` gives the summary object plus `notes` and `outlineCoverage` |
 | `svg optimize <file> [--simplify] [--epsilon 1.2] [--min-size 4] [--decimals 1] [--size 1000] [--out]` | One path per shape, absolute M/L/C/Q/Z, transforms applied, fitted to the canvas. Without `--simplify` the drawing is unchanged. Default `<file>.optimized.svg` |
 | `svg render <file> [--size 1536] [--out]` | PNG on white paper, as a model is sent it |
-| `svg preview <file> [--no-labels] [--size 1536] [--svg] [--out] [tracer options]` | The trace with every id drawn on it: a line's at its start point (red dot), a colour's at its centre. `<file>` is an SVG (traced now) or a trace JSON by `.json` extension (no browser with `--svg`). Default `<file>.preview.png`. Here `--size` is the PNG's pixels, not the canvas |
+| `svg preview <file> [--only s30-s40,f1] [--crop x0,y0,x1,y1] [--no-labels] [--size 1536] [--svg] [--out] [tracer options]` | The trace with every id drawn on it: a line's at its start point (red dot), a colour's at its centre. `--only` labels just those ids (ranges allowed) and fades the other lines; `--crop` shows one part of the canvas with labels scaled to it. `<file>` is an SVG (traced now) or a trace JSON by `.json` extension (no browser with `--svg`). Default `<file>.preview.png`. Here `--size` is the PNG's pixels, not the canvas |
 | `svg to-steps <file> --id … --title … --objective … --source … --license … [--goal …] [--path id --position n] [--trace t.json] [--plan p.json \| --no-model \| --model id] [--no-keep] [--out] [--dry-run] [tracer options]` | A new lesson from an SVG; see Generation |
 | `image to-steps <file> --id … --title … --objective … --goal … --source … --license … [--path --position] [--no-keep] [--out] [--dry-run]` | A new lesson from a photo; a model draws it. `--plan`/`--no-model` are refused (a photo has no trace) |
 
@@ -287,6 +287,8 @@ STUDIO_WORKSPACE=/tmp/ws.sqlite npm run studio -- status
 - The default output of `lessons render` and `svg preview` lands in the current directory (`web/`);
   pass `--out` to put pictures elsewhere.
 - `svg preview --size` is pixels; on every other SVG command `--size` is the canvas in units.
+- Labels crowd where many lines start close together (the leaflets of a frond). Read such a region
+  with `svg preview t.json --crop x0,y0,x1,y1 --only s30-s40`, taking the box from `svg trace --summary`.
 - `lessons render --sheet` defaults to the sheet's own width (about 2400 px) so panel labels stay
   legible; `--size` overrides.
 - A published lesson edited in the workspace shows as `published-edited`; `publish` writes it again.

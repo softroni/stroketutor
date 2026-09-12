@@ -56,6 +56,8 @@ would order it.
 3. **Look at it.** `svg preview t.json --out preview.png` draws the trace with each line's id at its
    start point (a red dot marks where the animation begins) and each colour's id at its centre.
    Open the PNG and read the picture: which ids are the trunk, which the fronds, which a leaflet.
+   On a busy drawing, `svg preview t.json --crop x0,y0,x1,y1 --only s30-s40 --out frond.png` zooms
+   into one part and labels only those ids, the rest faded; take the box from `--summary`.
 4. **Write the plan** as `plan.json`, in the models' answer vocabulary:
 
    ```json
