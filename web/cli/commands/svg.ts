@@ -2,6 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { summarise } from '../../server/generateFromTrace'
+import { pathEnd, pathStart } from '../../src/studio/preview'
 import type { TraceOptions } from '../../src/trace/traceSvg'
 
 import { parseNumber, stringValue, type OptionSpecs, type Parsed } from '../args'
@@ -58,7 +59,7 @@ export const svgCommands: Command[] = [
     ['<file>'],
     {
       out: { type: 'string', description: 'Write the trace as JSON here (for `svg to-steps --trace`).', placeholder: 'file' },
-      summary: { type: 'boolean', description: 'Print what a model is told about the trace: each line and colour with its id, box and size, never path data.' },
+      summary: { type: 'boolean', description: 'Print the trace as ids: each line with its box, where it is drawn from and to, its length; each colour with its area and box. Never path data.' },
       ...TRACE_OPTIONS,
     },
     async (ctx, args) => {
@@ -72,13 +73,20 @@ export const svgCommands: Command[] = [
         const summary = summarise(trace)
         const n = (value: number) => String(Math.round(value))
         const box = (b: [number, number, number, number]) => `${n(b[0])} ${n(b[1])} ${n(b[2])} ${n(b[3])}`
-        const colourOf = new Map(trace.strokes.map((stroke) => [stroke.id, stroke.color ?? '']))
-        ctx.out.result({ ...summary, notes: trace.notes, outlineCoverage: trace.outlineCoverage }, () => [
+        const xy = (p: { x: number; y: number } | null) => (p ? `${n(p.x)},${n(p.y)}` : '?')
+        const point = (p: { x: number; y: number } | null): [number, number] | null => (p ? [Math.round(p.x), Math.round(p.y)] : null)
+        const byId = new Map(trace.strokes.map((stroke) => [stroke.id, stroke]))
+        // The model is told boxes and lengths; an author deciding which lines to reverse also needs where each is drawn from and to.
+        const strokes = summary.strokes.map((stroke) => {
+          const own = byId.get(stroke.id)!
+          return { ...stroke, start: point(pathStart(own.d)), end: point(pathEnd(own.d)), ...(own.color ? { color: own.color } : {}) }
+        })
+        ctx.out.result({ ...summary, strokes, notes: trace.notes, outlineCoverage: trace.outlineCoverage }, () => [
           `${plural(summary.strokes.length, 'line')} and ${plural(summary.fills.length, 'colour')} on a ${summary.canvas.width}×${summary.canvas.height} canvas (origin top left, y down).`,
           '',
           ...table(
-            summary.strokes.map((stroke) => [stroke.id, box(stroke.box), n(stroke.length), stroke.closed ? 'closed' : 'open', colourOf.get(stroke.id) ?? '']),
-            ['line', 'box', 'length', 'shape', 'colour'],
+            strokes.map((stroke) => [stroke.id, box(stroke.box), `${xy(pathStart(byId.get(stroke.id)!.d))} → ${xy(pathEnd(byId.get(stroke.id)!.d))}`, n(stroke.length), stroke.closed ? 'closed' : 'open', stroke.color ?? '']),
+            ['line', 'box', 'from → to', 'length', 'shape', 'colour'],
           ),
           ...(summary.fills.length > 0 ? ['', ...table(summary.fills.map((fill) => [fill.id, fill.color, n(fill.area), box(fill.box)]), ['colour', 'value', 'area', 'box'])] : []),
           ...(out ? ['', `Wrote ${out}.`] : []),

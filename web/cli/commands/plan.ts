@@ -79,8 +79,8 @@ function checkIds(named: { id: string; where: string }[], known: Set<string>, wh
   }
 }
 
-/** A plan for `svg to-steps --plan`: the trace's ids grouped into outline steps, then colour steps. */
-export function tracePlan(raw: Raw, trace: TracedDrawing): { outline: TracePlannedStep[]; colour: TracePlannedStep[] } {
+/** A plan for `svg to-steps --plan`: the trace's ids grouped into outline steps, then colour steps, and the lines to draw from the other end. */
+export function tracePlan(raw: Raw, trace: TracedDrawing): { outline: TracePlannedStep[]; colour: TracePlannedStep[]; reversed: string[] } {
   const outlineEntries = entries(raw, 'outlineSteps', { required: true, words: true })
   const colourEntries = entries(raw, 'colourSteps', { required: trace.fills.length > 0, words: true })
   const where = (name: string, entry: Raw, index: number) => `${name}[${index}]${entry.id ? ` ("${String(entry.id)}")` : ''}`
@@ -97,7 +97,11 @@ export function tracePlan(raw: Raw, trace: TracedDrawing): { outline: TracePlann
     'colour id',
   )
   if (outline.length === 0 && trace.strokes.length > 0) throw new CliError('The plan has no outline steps, and the trace has lines to draw.')
-  return { outline, colour }
+  const reversed = raw.reversedStrokeIds === undefined ? [] : ids(raw, 'reversedStrokeIds', 'The plan')
+  const strokeIds = new Set(trace.strokes.map((stroke) => stroke.id))
+  const unknownReversed = reversed.filter((id) => !strokeIds.has(id))
+  if (unknownReversed.length > 0) throw new CliError(`reversedStrokeIds names ${plural(unknownReversed.length, 'line id')} that ${unknownReversed.length === 1 ? 'is' : 'are'} not there: ${unknownReversed.join(', ')}.`)
+  return { outline, colour, reversed: [...new Set(reversed)] }
 }
 
 /** The lesson's labels, per step, as `summariseLesson` assigns them. */

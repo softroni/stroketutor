@@ -272,6 +272,12 @@ OpenRouter stays optional (`--model`). See [web/README.md](web/README.md#the-com
   sheet, reordered with an order plan that reversed the trunk edges, and a stroke was reversed twice to a
   byte-identical export; the draft was deleted and the trash emptied. `shared/` was untouched.
 
+- **Fresh-session trial (2026-09-12):** a cold Opus session given only the two skills and the palm SVG authored an
+  11-step lesson from a 32-line trace, valid with no quality warnings, with two corrections after the first build:
+  reversing 15 lines (the plan could not say direction) and rewording. Its findings became `reversedStrokeIds`
+  in build plans, "from → to" in `svg trace --summary`, a sheet-size fix for narrow sheets, and five sentences in
+  the skill (direction, label renumbering, merging like groups, colour grouping, minutes vs seconds).
+
 **Decisions:**
 - **One vocabulary for plans.** A plan by hand is the model's answer shape, so the server's assembly and
   corrections (unplaced ids added to the last step, and reported) serve both, and a session can compare its

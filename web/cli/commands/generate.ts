@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 
 import { generateCandidate } from '../../server/generate'
 import { assembleTracedLesson, generateFromTrace, type PlannedStep, type Trace } from '../../server/generateFromTrace'
-import { LAYERS, regenerate, type Layer } from '../../server/regenerate'
+import { LAYERS, regenerate, reversePath, type Layer } from '../../server/regenerate'
 import { REFERENCE_TYPES, checkId, sniffImage } from '../../server/repoWriter'
 import { findLesson, findPathOfLesson, type Analysis, type Lesson } from '../../src/catalog/types'
 import type { HistoryRecord } from '../../src/history/types'
@@ -134,7 +134,7 @@ const GENERATE_OPTIONS: OptionSpecs = {
   position: { type: 'string', description: 'Its place in that path, counting from 1 (the end by default).', placeholder: 'n' },
   trace: { type: 'string', description: 'A trace from `svg trace --out`, instead of tracing the SVG again.', placeholder: 'file' },
   'no-model': { type: 'boolean', description: 'SVG only: build the lesson from the trace without asking a model, a few lines per step.' },
-  plan: { type: 'string', description: 'SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids) instead of asking a model.', placeholder: 'file' },
+  plan: { type: 'string', description: 'SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids, plus reversedStrokeIds) instead of asking a model.', placeholder: 'file' },
   'no-keep': { type: 'boolean', description: 'Show (and --out) the candidate; keep nothing in the workspace.' },
   out: { type: 'string', description: 'Write the candidate, its analysis and notes as JSON here.', placeholder: 'file' },
   'dry-run': { type: 'boolean', description: 'Say what would be sent to the model, and stop.' },
@@ -202,11 +202,15 @@ async function generateLesson(ctx: Context, args: Parsed, accepts: 'svg' | 'rast
 
   let candidate: Candidate
   if (withoutModel) {
-    const plan = rawPlan ? tracePlan(rawPlan, trace!) : planWithoutModel(trace!)
-    const built = assembleTracedLesson(trace!, plan.outline, plan.colour, { id, title })
+    const plan = rawPlan ? tracePlan(rawPlan, trace!) : { ...planWithoutModel(trace!), reversed: [] }
+    // A plan may say which lines a hand would draw the other way; the trace's shapes are turned round before assembly.
+    const flip = new Set(plan.reversed)
+    const source = flip.size === 0 ? trace! : { ...trace!, strokes: trace!.strokes.map((stroke) => (flip.has(stroke.id) ? { ...stroke, d: reversePath(stroke.d) } : stroke)) }
+    const built = assembleTracedLesson(source, plan.outline, plan.colour, { id, title })
     const verdict = ctx.validateTutorial(built.tutorial)
     if (!verdict.ok) throw new CliError('The traced lesson is not valid.', verdict.issues)
-    candidate = { tutorial: built.tutorial as unknown as Tutorial, notes: built.notes, planned: Boolean(rawPlan) }
+    const notes = [...(flip.size > 0 ? [`${plural(flip.size, 'line is', 'lines are')} drawn from the other end, as the plan asks.`] : []), ...built.notes]
+    candidate = { tutorial: built.tutorial as unknown as Tutorial, notes, planned: Boolean(rawPlan) }
   } else {
     const deps = await ctx.generation()
     const body = {

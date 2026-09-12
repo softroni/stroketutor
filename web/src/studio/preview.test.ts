@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Tutorial } from '../schema/types'
 
-import { lessonSheetSvg, parseIdList, pathBox, pathStart, sheetGrid, traceSvg, type PreviewTrace } from './preview'
+import { lessonSheetSvg, parseIdList, pathBox, pathEnd, pathStart, sheetGrid, traceSvg, type PreviewTrace } from './preview'
 
 const trace: PreviewTrace = {
   canvas: { width: 1000, height: 1000 },
@@ -135,6 +135,9 @@ describe('path helpers', () => {
   it('find a path’s start and box, and give up quietly on a malformed one', () => {
     expect(pathStart('M 10 20 L 30 40')).toEqual({ x: 10, y: 20 })
     expect(pathBox('M 10 20 Q 50 0 30 40')).toEqual([10, 0, 50, 40])
+    expect(pathEnd('M 10 20 L 30 40 C 1 1 2 2 50 60')).toEqual({ x: 50, y: 60 })
+    expect(pathEnd('M 10 20 L 30 40 Z')).toEqual({ x: 10, y: 20 })
+    expect(pathEnd('nope')).toBeNull()
     expect(pathStart('L 1 1')).toBeNull()
     expect(pathBox('nope')).toBeNull()
   })

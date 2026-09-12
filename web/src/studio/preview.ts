@@ -69,6 +69,23 @@ export function pathStart(d: string): Point | null {
   }
 }
 
+/** Where a path ends: its last point, or the subpath's start after a `Z`. */
+export function pathEnd(d: string): Point | null {
+  let current: Point | null = null
+  let start: Point | null = null
+  try {
+    for (const segment of parsePath(d)) {
+      if (segment.kind === 'move') current = start = segment.to
+      else if (segment.kind === 'line') current = segment.to
+      else if (segment.kind === 'close') current = start
+      else current = segment.end
+    }
+  } catch {
+    return null
+  }
+  return current
+}
+
 /** The box round a path's points (control points included, which is close enough for placing a label). */
 export function pathBox(d: string): Box | null {
   const points: Point[] = []

@@ -53,6 +53,13 @@ describe('lessons render', () => {
     expect([...png.subarray(0, 8)]).toEqual([...PNG_BYTES.subarray(0, 8)])
   })
 
+  it('renders a sheet at its own size, so a tall one-column sheet keeps its width', async () => {
+    await t.studio(['lessons', 'render', 'simple-house', '--sheet', '--columns', '1', '--out', path.join(t.root, 'tall.png')])
+    const [, width, height] = bridge.rendered[0].match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)!
+    expect(Number(height)).toBeGreaterThan(Number(width))
+    expect(bridge.sizes[0]).toBe(Number(height))
+  })
+
   it('refuses a lesson that is not there', async () => {
     const outcome = await t.studio(['lessons', 'render', 'nope', '--svg'])
     expect(outcome.code).toBe(1)

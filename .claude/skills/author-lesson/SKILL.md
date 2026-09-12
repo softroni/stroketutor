@@ -32,16 +32,22 @@ would order it.
   `reversedStrokeIds` in an order plan, or `strokes reverse` afterwards.
 - **One to six lines per step, and they belong together:** the two edges of a trunk, both windows,
   a spine and its first leaflets. Within a step, list the lines in the order to draw them.
-- **4 to 12 steps.** Fewer and each step asks too much; more and the lesson drags.
-- **Colour after every outline.** One colour per step, or two or three small areas together, large
-  areas first. Name the colour in plain words (dark green, sand) and say what it covers.
+- **4 to 12 steps.** Fewer and each step asks too much; more and the lesson drags. When a subject
+  has more natural groups than that (seven fronds), merge the two most alike and least important
+  into one step, keeping the six-line ceiling, before merging anything structural.
+- **Colour after every outline.** One colour per step, or two or three areas together when a hand
+  would not stop between them (two greens on the same fronds); large areas first, both across steps
+  and within a step. Name the colour in plain words (dark green, sand) and say what it covers; when
+  one colour covers two unrelated parts (highlights on the coconuts and specks on the sand), say both.
 - **Titles short and direct:** "Draw the trunk", "Colour the leaves".
 - **Instructions are one or two calm sentences for an adult.** Say what to notice as well as what to
   do: where the line starts, what it lines up with, how big it is next to something already on the
   page. No exclamation marks, no praise, no art jargon, nothing written for a child.
-- **About five minutes in all.** `lessons quality` warns beyond it, on a step with more than six
-  lines, on many tiny lines, and on a complexity jump from the previous lesson in the path. Warnings
-  never block, but each one is a reason to regroup, or to ask the creator for a simpler SVG.
+- **About five minutes in all.** That is the learner's time, not the animation's: `steps list`
+  shows seconds of animation, and `lessons quality` estimates the learner's minutes and warns beyond
+  five, on a step with more than six lines, on many tiny lines, and on a complexity jump from the
+  previous lesson in the path. Warnings never block, but each one is a reason to regroup, or to ask
+  the creator for a simpler SVG.
 - **Prefer a few confident lines to dense tracing.** If the trace has far more lines than a hand
   would draw, trace again with `--max-strokes 32`, or run `svg optimize --simplify` first, before
   planning. A lesson is not a vectorisation.
@@ -51,8 +57,9 @@ would order it.
 1. **Prepare the file.** `svg optimize <file> --simplify` rewrites it as plain paths on the lesson
    canvas and drops specks; work from the optimised file when the source is busy.
 2. **Trace and read it.** `svg trace <file> --out t.json --summary` prints every line (id, box,
-   length, open or closed, colour) and every colour area (id, colour, area, box). `--max-strokes`
-   sets how much detail is kept.
+   where it is drawn from and to, length, open or closed, colour) and every colour area (id, colour,
+   area, box). `--max-strokes` sets how much detail is kept. The "from → to" column is how you decide
+   which lines to reverse: a line is animated from its start.
 3. **Look at it.** `svg preview t.json --out preview.png` draws the trace with each line's id at its
    start point (a red dot marks where the animation begins) and each colour's id at its centre.
    Open the PNG and read the picture: which ids are the trunk, which the fronds, which a leaflet.
@@ -67,21 +74,28 @@ would order it.
      ],
      "colourSteps": [
        { "id": "leaves", "title": "Colour the leaves", "instruction": "…", "fillIds": ["f1", "f2"] }
-     ]
+     ],
+     "reversedStrokeIds": ["s21"]
    }
    ```
 
    Every id must be in the trace and used once; a line or colour left out joins the last step of
    its kind and is reported. An id that is not there is refused before anything is written.
+   `reversedStrokeIds` names the lines a hand would draw from the other end (from the summary's
+   "from → to" and the preview's red start dots); they are turned round in this first build, so
+   direction is planned, not patched afterwards. Instructions may only point at what is already on
+   the page by that step: never measure a frond against coconuts drawn five steps later.
 5. **Build it.** `svg to-steps <file> --plan plan.json --trace t.json --id <id> --title "…"
    --objective "…" --source "…" --license "…" [--path <path> --position <n>]`. No model, no key.
    The lesson is kept as a draft with the SVG as its reference and the build in its History.
 6. **Look again.** `lessons render <id> --sheet --out sheet.png` is a contact sheet: one panel per
    step as the player shows it (earlier steps faded, this step's lines labelled s1..sN, the colour
    so far beneath) and a Finished panel. Judge it as a learner: does each step make sense on its
-   own, does the order feel like drawing, does anything start in empty space?
+   own, does the order feel like drawing, does anything start in empty space? Read the red start
+   dots too: a line running the wrong way looks fine in a still picture, and only the dot shows it.
 7. **Adjust.** `lessons summary <id>` prints the lesson as ids (s1..sN, f1..fM per step, with start
-   and end points). Then:
+   and end points). These are the lesson's labels, numbered in drawing order, not the trace's ids
+   from step 2: after the build, every correction is written in the lesson's labels. Then:
    - `lessons apply <id> --layer steps --plan p.json` regroups and rewords (`steps` with
      `strokeIds`/`fillIds` over the labels, every label once);
    - `lessons apply <id> --layer order --plan p.json` reorders steps and the lines within them and

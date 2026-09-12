@@ -116,6 +116,8 @@ export interface FakeBrowser extends BrowserBridge {
   traced: number
   /** The SVG text of every picture rendered, in order. */
   rendered: string[]
+  /** The longest edge asked for with each picture, in order. */
+  sizes: number[]
 }
 
 /** A browser that traces every SVG to the square and renders every picture to the tiny PNG, recording what it was given. */
@@ -123,12 +125,14 @@ export function fakeBrowser(): FakeBrowser {
   const bridge: FakeBrowser = {
     traced: 0,
     rendered: [],
+    sizes: [],
     async trace() {
       bridge.traced += 1
       return squareTrace()
     },
-    async renderPng(svgText) {
+    async renderPng(svgText, longestEdge) {
       bridge.rendered.push(svgText)
+      bridge.sizes.push(longestEdge)
       return PNG_BYTES.toString('base64')
     },
     async drawingPng() {

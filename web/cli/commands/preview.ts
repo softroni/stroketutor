@@ -17,7 +17,7 @@ const PREVIEW_EDGE = 1536
 const PICTURE_OPTIONS: OptionSpecs = {
   out: { type: 'string', description: 'Where to write the picture.', placeholder: 'file' },
   'no-labels': { type: 'boolean', description: 'Leave the ids off.' },
-  size: { type: 'string', description: `Pixels on the longer side of the PNG (default ${PREVIEW_EDGE}; a sheet's own width for --sheet).`, placeholder: 'px' },
+  size: { type: 'string', description: `Pixels on the longer side of the PNG (default ${PREVIEW_EDGE}; a sheet's own size for --sheet, so its panels stay legible).`, placeholder: 'px' },
   svg: { type: 'boolean', description: 'Write the picture as SVG text instead of a PNG; no browser is needed.' },
 }
 
@@ -117,8 +117,9 @@ export const previewCommands: Command[] = [
       if (args.values.sheet) {
         const columns = args.values.columns === undefined ? 3 : parseIndex(stringValue(args.values, 'columns'), '--columns')
         const svgText = lessonSheetSvg(tutorial, { columns, labels: !args.values['no-labels'] })
-        const width = Number(svgText.match(/ width="([\d.]+)"/)?.[1] ?? PREVIEW_EDGE)
-        await writePicture(ctx, args, svgText, `${id}.sheet`, width, sheetGrid(tutorial, columns))
+        // The PNG's size is its longer edge, so a tall sheet is rendered at its own height: its width then stays as built and panels stay legible.
+        const [, width, height] = svgText.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/) ?? []
+        await writePicture(ctx, args, svgText, `${id}.sheet`, Math.max(Number(width) || PREVIEW_EDGE, Number(height) || 0), sheetGrid(tutorial, columns))
         return
       }
       await writePicture(ctx, args, drawingSvg(tutorial), id, PREVIEW_EDGE)

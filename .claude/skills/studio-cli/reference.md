@@ -182,7 +182,7 @@ Options:
       --position <n>               Its place in that path, counting from 1 (the end by default).
       --trace <file>               A trace from `svg trace --out`, instead of tracing the SVG again.
       --no-model                   SVG only: build the lesson from the trace without asking a model, a few lines per step.
-      --plan <file>                SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids) instead of asking a model.
+      --plan <file>                SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids, plus reversedStrokeIds) instead of asking a model.
       --no-keep                    Show (and --out) the candidate; keep nothing in the workspace.
       --out <file>                 Write the candidate, its analysis and notes as JSON here.
       --dry-run                    Say what would be sent to the model, and stop.
@@ -236,7 +236,7 @@ A picture of a lesson: its finished drawing, or with --sheet one panel per step 
 Options:
       --out <file>   Where to write the picture.
       --no-labels    Leave the ids off.
-      --size <px>    Pixels on the longer side of the PNG (default 1536; a sheet's own width for --sheet).
+      --size <px>    Pixels on the longer side of the PNG (default 1536; a sheet's own size for --sheet, so its panels stay legible).
       --svg          Write the picture as SVG text instead of a PNG; no browser is needed.
       --sheet        A contact sheet: one panel per step, then the finished drawing.
       --columns <n>  Panels across the sheet (default 3).
@@ -382,7 +382,7 @@ Trace an SVG into the lines and colours a lesson would be built from.
 
 Options:
       --out <file>                 Write the trace as JSON here (for `svg to-steps --trace`).
-      --summary                    Print what a model is told about the trace: each line and colour with its id, box and size, never path data.
+      --summary                    Print the trace as ids: each line with its box, where it is drawn from and to, its length; each colour with its area and box. Never path data.
       --max-strokes <n>            Lines to keep, longest first: 32 for fewer, 64 as New lesson traces, 96 for more.
       --max-colours <n>            Colours to reduce the file to (default 8).
       --size <units>               The square canvas the drawing is fitted into (default 1000).
@@ -428,7 +428,7 @@ Options:
       --position <n>               Its place in that path, counting from 1 (the end by default).
       --trace <file>               A trace from `svg trace --out`, instead of tracing the SVG again.
       --no-model                   SVG only: build the lesson from the trace without asking a model, a few lines per step.
-      --plan <file>                SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids) instead of asking a model.
+      --plan <file>                SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids, plus reversedStrokeIds) instead of asking a model.
       --no-keep                    Show (and --out) the candidate; keep nothing in the workspace.
       --out <file>                 Write the candidate, its analysis and notes as JSON here.
       --dry-run                    Say what would be sent to the model, and stop.
@@ -448,7 +448,7 @@ A picture of a trace with every line and colour labelled by its id, to write a p
 Options:
       --out <file>                 Where to write the picture.
       --no-labels                  Leave the ids off.
-      --size <px>                  Pixels on the longer side of the PNG (default 1536; a sheet's own width for --sheet).
+      --size <px>                  Pixels on the longer side of the PNG (default 1536; a sheet's own size for --sheet, so its panels stay legible).
       --svg                        Write the picture as SVG text instead of a PNG; no browser is needed.
       --only <ids>                 Label only these ids, a comma list with ranges (s30-s40,f1); the other lines are faded.
       --crop <box>                 Show only this part of the canvas, x0,y0,x1,y1 in canvas units; labels scale to it.
@@ -476,7 +476,7 @@ Options:
       --position <n>               Its place in that path, counting from 1 (the end by default).
       --trace <file>               A trace from `svg trace --out`, instead of tracing the SVG again.
       --no-model                   SVG only: build the lesson from the trace without asking a model, a few lines per step.
-      --plan <file>                SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids) instead of asking a model.
+      --plan <file>                SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids, plus reversedStrokeIds) instead of asking a model.
       --no-keep                    Show (and --out) the candidate; keep nothing in the workspace.
       --out <file>                 Write the candidate, its analysis and notes as JSON here.
       --dry-run                    Say what would be sent to the model, and stop.

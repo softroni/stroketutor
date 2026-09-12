@@ -208,6 +208,33 @@ describe('svg to-steps', () => {
     expect((await t.workspace.readHistory('square')).map((e) => e.kind)).toEqual(['generated'])
   })
 
+  it('draws the lines a plan lists in reversedStrokeIds from the other end, in the first build', async () => {
+    await open(answer)
+    const svg = path.join(t.root, 'square.svg')
+    await writeFile(svg, SVG)
+    const plan = path.join(t.root, 'plan.json')
+    await writeFile(
+      plan,
+      JSON.stringify({
+        outlineSteps: [{ id: 'all', title: 'Draw it', instruction: 'All three lines.', strokeIds: ['s1', 's2', 's3'] }],
+        colourSteps: [{ id: 'colour', title: 'Colour it in', instruction: 'Both.', fillIds: ['f1', 'f2'] }],
+        reversedStrokeIds: ['s2'],
+      }),
+    )
+    const outcome = await t.studio(['svg', 'to-steps', svg, '--id', 'square', '--plan', plan, '--title', 'Square', '--objective', 'A square', '--source', 'me', '--license', 'CC0'])
+    expect(outcome.stderr).toBe('')
+    expect(outcome.code).toBe(0)
+    expect(outcome.stdout).toContain('1 line is drawn from the other end, as the plan asks.')
+    const stored = JSON.parse((await t.workspace.readTutorial('square'))!.text) as Tutorial
+    expect(stored.steps[0].strokes.map((stroke) => stroke.d)).toEqual(['M 100 100 L 300 100', 'M 100 300 L 100 100', 'M 300 100 L 300 300'])
+
+    await writeFile(plan, JSON.stringify({ outlineSteps: [{ id: 'all', title: 'Draw it', instruction: 'All.', strokeIds: ['s1', 's2', 's3'] }], colourSteps: [], reversedStrokeIds: ['s7'] }))
+    const bad = await t.studio(['svg', 'to-steps', svg, '--id', 'square-2', '--plan', plan, '--title', 'Square', '--objective', 'A square', '--source', 'me', '--license', 'CC0'])
+    expect(bad.code).toBe(1)
+    expect(bad.stderr).toContain('reversedStrokeIds names 1 line id that is not there: s7')
+    expect(await t.workspace.readTutorial('square-2')).toBeNull()
+  })
+
   it('refuses a plan naming an id that is not in the trace before anything is written', async () => {
     await open(answer)
     const svg = path.join(t.root, 'square.svg')
@@ -244,13 +271,13 @@ describe('svg trace --summary', () => {
     await writeFile(svg, SVG)
     const summary = await t.json<{ strokes: { id: string; box: number[] }[]; fills: { id: string; color: string }[]; notes: string[]; outlineCoverage: number }>(['svg', 'trace', svg, '--summary'])
     expect(summary.strokes.map((stroke) => stroke.id)).toEqual(['s1', 's2', 's3'])
-    expect(summary.strokes[0]).toEqual({ id: 's1', box: [100, 100, 300, 300], length: 200, closed: false })
+    expect(summary.strokes[0]).toEqual({ id: 's1', box: [100, 100, 300, 300], length: 200, closed: false, start: [100, 100], end: [300, 100] })
     expect(summary.fills.map((fill) => fill.color)).toEqual(['#E8C872', '#1F3A5F'])
     expect(summary.notes).toEqual(['Traced for the test.'])
     expect(summary.outlineCoverage).toBe(1)
     const outcome = await t.studio(['svg', 'trace', svg, '--summary'])
     expect(outcome.stdout).toContain('3 lines and 2 colours')
-    expect(outcome.stdout).toMatch(/s2 {4}100 100 300 300 {2}200 {5}open/)
+    expect(outcome.stdout).toMatch(/s2 {4}100 100 300 300 {2}100,100 → 100,300 {2}200 {5}open/)
     expect(outcome.stdout).toMatch(/f1 {6}#E8C872 {2}40000/)
   })
 })
