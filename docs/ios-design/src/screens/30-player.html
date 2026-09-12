@@ -1,0 +1,1129 @@
+<style>
+/* ---- Player group: pl-player, pl-ipad, pl-leave ------------------------- */
+#pl-player .pl-head, #pl-leave .pl-head {
+  flex: none; height: 60px; display: grid; grid-template-columns: 44px 1fr 44px;
+  align-items: center; padding: 0 8px;
+}
+/* .nav-btn is only styled inside .navbar in the design system; these headers and
+   sheets use it on its own, so restate it (same values as .navbar .nav-btn). */
+#pl-player .nav-btn, #pl-ipad .nav-btn, #pl-leave .nav-btn {
+  width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center;
+  padding: 0; background: transparent; border: 0; color: var(--ink); font: inherit; cursor: pointer;
+}
+#pl-player .nav-btn svg, #pl-ipad .nav-btn svg, #pl-leave .nav-btn svg { width: 24px; height: 24px; }
+#pl-player .pl-head-mid, #pl-leave .pl-head-mid,
+#pl-ipad .pl-head-mid { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
+#pl-player .dots--compact, #pl-leave .dots--compact { gap: 8px; }
+#pl-player .dots--compact i, #pl-leave .dots--compact i { width: 10px; height: 10px; border-width: 2px; }
+#pl-player .dots--compact i.current, #pl-leave .dots--compact i.current { width: 14px; height: 14px; border-width: 3px; }
+
+#pl-player .pl-body, #pl-leave .pl-body { gap: 10px; padding-top: 2px; }
+
+/* The paper, with two floating overlays in its clear top corners. */
+#pl-player .pl-canvas, #pl-leave .pl-canvas {
+  position: relative; flex: none; margin: 0 auto;
+  width: 328px; height: 328px;          /* same in every play state: the paper never jumps */
+}
+#pl-player .pl-canvas--tight { width: 300px; height: 300px; }
+#pl-player .pl-canvas--intro { width: 353px; height: 353px; }
+#pl-player .pl-canvas .canvas-frame, #pl-leave .pl-canvas .canvas-frame { width: 100%; height: 100%; }
+
+#pl-player .pl-ref, #pl-ipad .pl-ref, #pl-leave .pl-ref {
+  position: absolute; top: 10px; right: 10px; width: 76px; height: 76px; padding: 4px;
+  border: 0; background: rgba(255,255,255,.92); border-radius: 20px;
+  box-shadow: var(--shadow-card); cursor: pointer;
+}
+#pl-player .pl-ref .photo, #pl-leave .pl-ref .photo { width: 100%; height: 100%; border-radius: 16px; }
+#pl-player .pl-ref-badge, #pl-leave .pl-ref-badge {
+  position: absolute; right: -4px; bottom: -4px; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--ink); color: #fff; display: grid; place-items: center;
+}
+#pl-player .pl-ref-badge svg, #pl-leave .pl-ref-badge svg { width: 15px; height: 15px; }
+
+#pl-player .pl-narr, #pl-leave .pl-narr { position: absolute; top: 10px; left: 10px; }
+#pl-player .narration, #pl-ipad .narration, #pl-leave .narration {
+  border: 0; font-family: inherit; cursor: pointer; box-shadow: var(--shadow-card);
+}
+#pl-player .pl-face, #pl-ipad .pl-face, #pl-leave .pl-face {
+  width: 30px; height: 30px; border-radius: 50%; overflow: hidden; position: relative;
+  flex: none; background: #EFC9AE;
+}
+#pl-player .pl-face svg, #pl-ipad .pl-face svg, #pl-leave .pl-face svg {
+  position: absolute; width: 44px; height: 53px; left: -7px; top: -8px;
+}
+#pl-player .narration.is-muted .pl-face, #pl-leave .narration.is-muted .pl-face { filter: grayscale(1); opacity: .7; }
+#pl-player .narration svg.ico, #pl-ipad .narration svg.ico, #pl-leave .narration svg.ico { width: 17px; height: 17px; }
+
+#pl-player .pl-card, #pl-leave .pl-card { padding: 16px 18px; }
+#pl-player .pl-card .t-instruction, #pl-leave .pl-card .t-instruction { margin-top: 8px; }
+#pl-player .pl-note, #pl-leave .pl-note { margin-top: 6px; display: flex; gap: 8px; align-items: flex-start; }
+#pl-player .pl-note svg, #pl-leave .pl-note svg { width: 17px; height: 17px; flex: none; margin-top: 2px; color: var(--ink-35); }
+
+#pl-player .pl-controls .btn, #pl-ipad .pl-controls .btn, #pl-leave .pl-controls .btn { font-size: 16px; gap: 8px; }
+#pl-player .pl-controls .btn svg, #pl-ipad .pl-controls .btn svg, #pl-leave .pl-controls .btn svg { width: 20px; height: 20px; }
+
+/* The pencil tip: one <g> translated along the polyline of the live stroke, at
+   the same linear rate as the dash animation, then faded out at the end. */
+#pl-player .pl-tip circle { fill: var(--ink); }
+#pl-player .pl-tip circle.core { fill: var(--paper); }
+#pl-player .pl-tip { transform-box: view-box; }
+#pl-player .pl-tip--roof { animation: pl-tip-roof 2.2s linear forwards; }
+#pl-player .pl-tip--door { animation: pl-tip-door 1.6s linear forwards; }
+@keyframes pl-tip-roof {
+  0%    { transform: translate(200px, 480px); opacity: 1; }
+  27.7% { transform: translate(500px, 260px); }
+  55.4% { transform: translate(800px, 480px); }
+  99%   { opacity: 1; }
+  100%  { transform: translate(200px, 480px); opacity: 0; }
+}
+@keyframes pl-tip-door {
+  0%    { transform: translate(440px, 850px); opacity: 1; }
+  36.4% { transform: translate(440px, 690px); }
+  63.6% { transform: translate(560px, 690px); }
+  99%   { opacity: 1; }
+  100%  { transform: translate(560px, 850px); opacity: 0; }
+}
+#pl-player .pl-ghost { opacity: .24; }
+
+/* iPad landscape: reference column · paper · instruction and controls. */
+#pl-ipad .pl-pad { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 260px 1fr 340px; gap: 28px; padding: 12px 24px 24px; }
+#pl-ipad .pl-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+#pl-ipad .pl-pad-head { flex: none; height: 52px; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
+#pl-ipad .canvas-frame { width: 476px; height: 476px; margin: 0 auto; }
+#pl-ipad .pl-stage { position: relative; }
+#pl-ipad .pl-photo { width: 100%; height: 196px; }
+#pl-ipad .pl-sketch { width: 100%; height: 260px; }
+
+#pl-leave .pl-dim { position: absolute; inset: 0; }
+#pl-leave .pl-resume-photo { width: 100%; height: 200px; }
+</style>
+
+<article class="screen" id="pl-player" data-title="Player (iPhone)" data-group="Player">
+  <header>
+    <h2>Player — iPhone, portrait</h2>
+    <p class="lede">The heart of the product: one meaningful step animates, the app stops, the learner draws on real paper and decides when to continue. Simple House, rewritten in a calm adult voice.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="orientation">Orientation</button>
+        <button type="button" data-variant="drawing">Drawing (step 2)</button>
+        <button type="button" data-variant="awaiting">Awaiting “I drew it”</button>
+        <button type="button" data-variant="next">Next step (step 3)</button>
+        <button type="button" data-variant="reference">Reference expanded</button>
+        <button type="button" data-variant="muted">Narration muted</button>
+        <button type="button" data-variant="last-step">Last step</button>
+      </nav>
+      <div class="devices">
+
+        <!-- ============================== ORIENTATION ============================== -->
+        <div class="phone" data-variant="orientation">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-head">
+            <button class="nav-btn start" type="button" data-goto="pl-leave" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+            <div class="pl-head-mid">
+              <p class="t-footnote muted">Simple House</p>
+              <div class="dots dots--compact"><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="card card--warm pl-card">
+              <p class="t-eyebrow c-warm">One idea first</p>
+              <p class="t-title2" style="margin-top:6px">A house is a box with a triangle on top.</p>
+              <p class="t-body-reg muted" style="margin-top:8px">Get those two shapes right and everything after them is detail.</p>
+            </div>
+            <div class="row" style="gap:8px">
+              <span class="chip"><svg><use href="#i-pen"/></svg>5 steps</span>
+              <span class="chip"><svg><use href="#i-clock"/></svg>About 4 min</span>
+            </div>
+            <div class="pl-canvas pl-canvas--intro">
+              <div class="canvas-frame">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke draws pl-ghost" pathLength="1" stroke-width="16" style="--dur:.7s;--delay:0s" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke draws pl-ghost" pathLength="1" stroke-width="16" style="--dur:.7s;--delay:.45s" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  <path class="stroke draws pl-ghost" pathLength="1" stroke-width="12" style="--dur:.7s;--delay:.9s" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                  <path class="stroke draws pl-ghost" pathLength="1" stroke-width="12" style="--dur:.7s;--delay:1.35s" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                  <path class="stroke draws pl-ghost" pathLength="1" stroke-width="12" style="--dur:.7s;--delay:1.6s" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                  <path class="stroke draws pl-ghost" pathLength="1" stroke-width="12" style="--dur:.7s;--delay:1.95s" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                </svg>
+              </div>
+              <div class="pl-narr">
+                <button class="narration" type="button" aria-label="Narration on. Lina is speaking. Double tap to mute.">
+                  <span class="pl-face"><svg viewBox="0 0 200 240"><use href="#lina-neutral"/></svg></span>
+                  <span class="wave"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span>Lina</span>
+                </button>
+              </div>
+              <button class="pl-ref" type="button" data-set-variant="reference" aria-label="Reference photo. Double tap to expand.">
+                <span class="photo photo--warm"></span>
+                <span class="pl-ref-badge"><svg><use href="#i-expand"/></svg></span>
+              </button>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-set-variant="drawing">Begin</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== DRAWING (step 2) ============================== -->
+        <div class="phone" data-variant="drawing">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-head">
+            <button class="nav-btn start" type="button" data-goto="pl-leave" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+            <div class="pl-head-mid">
+              <p class="t-footnote muted">Simple House</p>
+              <div class="dots dots--compact"><i class="done"></i><i class="current"></i><i></i><i></i><i></i></div>
+            </div>
+            <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="pl-canvas">
+              <div class="canvas-frame">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke faded" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="16" style="--dur:2.2s" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  <g class="pl-tip pl-tip--roof"><circle r="17"/><circle class="core" r="6"/></g>
+                </svg>
+              </div>
+              <div class="pl-narr">
+                <button class="narration" type="button" data-set-variant="muted" aria-label="Narration on. Lina is speaking. Double tap to mute.">
+                  <span class="pl-face"><svg viewBox="0 0 200 240"><use href="#lina-neutral"/></svg></span>
+                  <span class="wave"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span>Lina</span>
+                </button>
+              </div>
+              <button class="pl-ref" type="button" data-set-variant="reference" aria-label="Reference photo. Double tap to expand.">
+                <span class="photo photo--warm"></span>
+                <span class="pl-ref-badge"><svg><use href="#i-expand"/></svg></span>
+              </button>
+            </div>
+            <div class="card pl-card">
+              <p class="t-subhead muted">Step 2 of 5 · Add the roof</p>
+              <p class="t-instruction">Add a triangle on top of the square.</p>
+              <div class="pl-note"><svg><use href="#i-eye"/></svg><p class="hint">Watch first, then draw. The button appears when Lina has finished.</p></div>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <div class="btn-row pl-controls">
+              <button class="btn btn-secondary" type="button" aria-label="Previous step"><svg><use href="#i-back-step"/></svg>Back</button>
+              <button class="btn btn-secondary" type="button" aria-label="Replay this step"><svg><use href="#i-replay"/></svg>Replay</button>
+              <button class="btn btn-secondary" type="button" aria-label="Speed 1 times. Double tap to change."><svg><use href="#i-speed"/></svg>1×</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== AWAITING ============================== -->
+        <div class="phone" data-variant="awaiting">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-head">
+            <button class="nav-btn start" type="button" data-goto="pl-leave" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+            <div class="pl-head-mid">
+              <p class="t-footnote muted">Simple House</p>
+              <div class="dots dots--compact"><i class="done"></i><i class="current"></i><i></i><i></i><i></i></div>
+            </div>
+            <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="pl-canvas">
+              <div class="canvas-frame">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke faded" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                </svg>
+              </div>
+              <div class="pl-narr">
+                <button class="narration" type="button" data-set-variant="muted" aria-label="Narration on. Double tap to mute.">
+                  <span class="pl-face"><svg viewBox="0 0 200 240"><use href="#lina-neutral"/></svg></span>
+                  <svg class="ico"><use href="#i-speaker"/></svg>
+                  <span>Lina</span>
+                </button>
+              </div>
+              <button class="pl-ref" type="button" data-set-variant="reference" aria-label="Reference photo. Double tap to expand.">
+                <span class="photo photo--warm"></span>
+                <span class="pl-ref-badge"><svg><use href="#i-expand"/></svg></span>
+              </button>
+            </div>
+            <div class="card pl-card">
+              <p class="t-subhead muted">Step 2 of 5 · Add the roof</p>
+              <p class="t-instruction">Add a triangle on top of the square.</p>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-set-variant="next">I drew it</button>
+            <button class="btn btn-secondary" type="button"><svg><use href="#i-replay"/></svg>Watch again</button>
+            <div class="btn-row pl-controls">
+              <button class="btn btn-secondary" type="button" aria-label="Previous step"><svg><use href="#i-back-step"/></svg>Back</button>
+              <button class="btn btn-secondary" type="button" aria-label="Replay this step"><svg><use href="#i-replay"/></svg>Replay</button>
+              <button class="btn btn-secondary" type="button" aria-label="Speed 1 times. Double tap to change."><svg><use href="#i-speed"/></svg>1×</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== NEXT (step 3, drawing) ============================== -->
+        <div class="phone" data-variant="next">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-head">
+            <button class="nav-btn start" type="button" data-goto="pl-leave" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+            <div class="pl-head-mid">
+              <p class="t-footnote muted">Simple House</p>
+              <div class="dots dots--compact"><i class="done"></i><i class="done"></i><i class="current"></i><i></i><i></i></div>
+            </div>
+            <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="pl-canvas">
+              <div class="canvas-frame">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke faded" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke faded" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:1.6s" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                  <g class="pl-tip pl-tip--door"><circle r="14"/><circle class="core" r="5"/></g>
+                </svg>
+              </div>
+              <div class="pl-narr">
+                <button class="narration" type="button" data-set-variant="muted" aria-label="Narration on. Lina is speaking. Double tap to mute.">
+                  <span class="pl-face"><svg viewBox="0 0 200 240"><use href="#lina-neutral"/></svg></span>
+                  <span class="wave"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span>Lina</span>
+                </button>
+              </div>
+              <button class="pl-ref" type="button" data-set-variant="reference" aria-label="Reference photo. Double tap to expand.">
+                <span class="photo photo--warm"></span>
+                <span class="pl-ref-badge"><svg><use href="#i-expand"/></svg></span>
+              </button>
+            </div>
+            <div class="card pl-card">
+              <p class="t-subhead muted">Step 3 of 5 · Put in the door</p>
+              <p class="t-instruction">Draw a tall rectangle at the bottom, centred.</p>
+              <div class="pl-note"><svg><use href="#i-eye"/></svg><p class="hint">Leave the bottom open so the door sits on the ground.</p></div>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <div class="btn-row pl-controls">
+              <button class="btn btn-secondary" type="button" aria-label="Previous step"><svg><use href="#i-back-step"/></svg>Back</button>
+              <button class="btn btn-secondary" type="button" aria-label="Replay this step"><svg><use href="#i-replay"/></svg>Replay</button>
+              <button class="btn btn-secondary" type="button" aria-label="Speed 1 times. Double tap to change."><svg><use href="#i-speed"/></svg>1×</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== REFERENCE EXPANDED ============================== -->
+        <div class="phone" data-variant="reference">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-head">
+            <button class="nav-btn start" type="button" data-goto="pl-leave" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+            <div class="pl-head-mid">
+              <p class="t-footnote muted">Simple House</p>
+              <div class="dots dots--compact"><i class="done"></i><i class="current"></i><i></i><i></i><i></i></div>
+            </div>
+            <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="pl-canvas">
+              <div class="canvas-frame">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke faded" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="card pl-card">
+              <p class="t-subhead muted">Step 2 of 5 · Add the roof</p>
+              <p class="t-instruction">Add a triangle on top of the square.</p>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="overlay">
+            <div class="sheet">
+              <div class="grabber"></div>
+              <div class="row row--between">
+                <p class="t-title2">Reference</p>
+                <button class="nav-btn" type="button" data-set-variant="awaiting" aria-label="Close reference"><svg><use href="#i-close"/></svg></button>
+              </div>
+              <div class="grid-2">
+                <div class="stack-8">
+                  <div class="photo photo--warm" style="height:170px"></div>
+                  <p class="t-footnote muted center">The real house</p>
+                </div>
+                <div class="stack-8">
+                  <div class="thumb" style="height:170px">
+                    <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                      <path class="stroke" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                      <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                      <path class="stroke" stroke-width="12" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                      <path class="stroke" stroke-width="12" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                      <path class="stroke" stroke-width="12" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                      <path class="stroke" stroke-width="12" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                    </svg>
+                  </div>
+                  <p class="t-footnote muted center">What you will draw</p>
+                </div>
+              </div>
+              <p class="t-body-reg muted">See a house as a box with a triangle on top, then place the door, windows and chimney.</p>
+              <button class="btn btn-secondary" type="button" data-set-variant="awaiting">Close</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== MUTED ============================== -->
+        <div class="phone" data-variant="muted">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-head">
+            <button class="nav-btn start" type="button" data-goto="pl-leave" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+            <div class="pl-head-mid">
+              <p class="t-footnote muted">Simple House</p>
+              <div class="dots dots--compact"><i class="done"></i><i class="current"></i><i></i><i></i><i></i></div>
+            </div>
+            <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="pl-canvas pl-canvas--tight">
+              <div class="canvas-frame">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke faded" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                </svg>
+              </div>
+              <div class="pl-narr">
+                <button class="narration is-muted" type="button" data-set-variant="awaiting" aria-label="Narration off. Double tap to turn it on.">
+                  <span class="pl-face"><svg viewBox="0 0 200 240"><use href="#lina-neutral"/></svg></span>
+                  <svg class="ico"><use href="#i-speaker-off"/></svg>
+                  <span>Muted</span>
+                </button>
+              </div>
+              <button class="pl-ref" type="button" data-set-variant="reference" aria-label="Reference photo. Double tap to expand.">
+                <span class="photo photo--warm"></span>
+                <span class="pl-ref-badge"><svg><use href="#i-expand"/></svg></span>
+              </button>
+            </div>
+            <div class="card pl-card">
+              <p class="t-subhead muted">Step 2 of 5 · Add the roof</p>
+              <p class="t-instruction">Add a triangle on top of the square.</p>
+              <div class="pl-note"><svg><use href="#i-speaker-off"/></svg><p class="hint">Narration is off. Tap to turn it on.</p></div>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-set-variant="next">I drew it</button>
+            <button class="btn btn-secondary" type="button"><svg><use href="#i-replay"/></svg>Watch again</button>
+            <div class="btn-row pl-controls">
+              <button class="btn btn-secondary" type="button" aria-label="Previous step"><svg><use href="#i-back-step"/></svg>Back</button>
+              <button class="btn btn-secondary" type="button" aria-label="Replay this step"><svg><use href="#i-replay"/></svg>Replay</button>
+              <button class="btn btn-secondary" type="button" aria-label="Speed 1 times. Double tap to change."><svg><use href="#i-speed"/></svg>1×</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== LAST STEP ============================== -->
+        <div class="phone" data-variant="last-step">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-head">
+            <button class="nav-btn start" type="button" data-goto="pl-leave" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+            <div class="pl-head-mid">
+              <p class="t-footnote muted">Simple House</p>
+              <div class="dots dots--compact"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="current"></i></div>
+            </div>
+            <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="pl-canvas">
+              <div class="canvas-frame">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke faded" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke faded" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  <path class="stroke faded" stroke-width="12" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                  <path class="stroke faded" stroke-width="12" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                  <path class="stroke faded" stroke-width="12" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                  <path class="stroke" stroke-width="12" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                </svg>
+              </div>
+              <div class="pl-narr">
+                <button class="narration" type="button" data-set-variant="muted" aria-label="Narration on. Double tap to mute.">
+                  <span class="pl-face"><svg viewBox="0 0 200 240"><use href="#lina-neutral"/></svg></span>
+                  <svg class="ico"><use href="#i-speaker"/></svg>
+                  <span>Lina</span>
+                </button>
+              </div>
+              <button class="pl-ref" type="button" data-set-variant="reference" aria-label="Reference photo. Double tap to expand.">
+                <span class="photo photo--warm"></span>
+                <span class="pl-ref-badge"><svg><use href="#i-expand"/></svg></span>
+              </button>
+            </div>
+            <div class="card pl-card">
+              <p class="t-subhead muted">Step 5 of 5 · Finish with a chimney</p>
+              <p class="t-instruction">Draw a short chimney on the right slope.</p>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="sk-complete">Finish drawing</button>
+            <button class="btn btn-secondary" type="button"><svg><use href="#i-replay"/></svg>Watch again</button>
+            <div class="btn-row pl-controls">
+              <button class="btn btn-secondary" type="button" aria-label="Previous step"><svg><use href="#i-back-step"/></svg>Back</button>
+              <button class="btn btn-secondary" type="button" aria-label="Replay this step"><svg><use href="#i-replay"/></svg>Replay</button>
+              <button class="btn btn-secondary" type="button" aria-label="Speed 1 times. Double tap to change."><svg><use href="#i-speed"/></svg>1×</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+      </div>
+      <p class="device-caption">Switching variant restarts the CSS draw-on, so “Drawing” and “Next step” replay the stroke each time you select them. The paper never changes size between states: the canvas is 328 pt in every play state, so nothing jumps when “I drew it” appears.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p>Watch → Draw → Confirm → Continue, and nothing else. <span class="tag tag--plan">§4</span> calls this interaction sacred: a step plays, the app stops, the learner copies it onto paper, the learner decides when to move on. There is <b>no countdown and no auto-advance</b> anywhere in this screen <span class="tag tag--plan">§31</span>. The existing <code>PlayerViewModel</code> already guarantees it — <code>.awaitingUser</code> is only left by <code>advanceToNextStep()</code>, which is only called from the primary button. Never add a timer that calls it.</p>
+      <p>M7 <b>wraps</b> the existing player, it does not replace it. <code>DrawingCanvasView</code>, <code>StepProgressDots</code>, <code>BigPrimaryButtonStyle</code>, <code>BigSecondaryButtonStyle</code> and all of <code>Theme</code> stay as they are. What changes is the chrome around them: a lesson header instead of the debug top bar, a persistent reference, a narration chip, an orientation beat, and a leave/resume path.</p>
+
+      <h4>Layout</h4>
+      <p>Order top to bottom follows the plan's visual priority <span class="tag tag--plan">§31</span>: reference (1) → canvas (2) → instruction (3) → progress (4) → primary (5) → quiet controls (6). Progress is folded into the header dots plus the card's “Step 2 of 5 · Add the roof” eyebrow, so it never competes with the instruction for weight.</p>
+      <table>
+        <tr><th>Band</th><th>Height</th><th>Contents</th></tr>
+        <tr><td>Status bar</td><td>54</td><td>System.</td></tr>
+        <tr><td>Header</td><td>60</td><td><code>×</code> (44) · centred stack of lesson title 13 pt muted + compact <code>StepProgressDots</code> · <code>⋯</code> (44). 8 pt side padding.</td></tr>
+        <tr><td>Paper</td><td>328 × 328</td><td><code>DrawingCanvasView</code>, radius <code>Theme.canvasCornerRadius</code> (32), fill <code>style.backgroundColor</code> <code>#FAF7F0</code>. Centred; 12.5 pt bleeds either side of the 20 pt gutter.</td></tr>
+        <tr><td>Card</td><td>≈118</td><td>White, radius <code>Theme.cardCornerRadius</code> (28), padding 16/18. Eyebrow 15 pt semibold at 55 % ink, instruction 22 pt bold, optional 15 pt hint row.</td></tr>
+        <tr><td>Slack</td><td>0–128</td><td>Absorbed below the card, so the canvas and the card sit at the same y in every state.</td></tr>
+        <tr><td>Bottom area</td><td>118 / 270</td><td>12 pt top, 12 pt gaps, <code>safe-bottom</code> + 12 below. Primary 68, secondary 60, control row 60.</td></tr>
+      </table>
+      <ul>
+        <li><b>The canvas does not resize between states.</b> Today <code>ContentView.portraitCanvasSide(in:)</code> shrinks the paper by ~230 pt when the card appears, so the drawing visibly jumps at the exact moment the learner looks away to their own paper. Fix: compute the side once for the <i>awaiting</i> layout (the tallest case) and keep it for <code>.drawing</code> too, letting the spare height fall below the card. One number, computed from the worst case: <code>side = min(width − 40, height − 54 − 60 − 270 − 10 − cardHeight)</code>, floored at 220.</li>
+        <li><b>Two floating overlays sit in the paper's clear corners.</b> Every Studio drawing is centred in a 1000 × 1000 canvas, so the top-left and top-right 25 % squares are reliably empty. Reference thumbnail top-right (76 pt, 4 pt white surround, radius 20, <code>i-expand</code> badge); narration chip top-left. Both cost zero vertical space — which is what buys the 328 pt paper.</li>
+        <li>Control row labels drop to 16 pt with 20 pt glyphs so “Replay” fits a 110 pt third; <code>BigSecondaryButtonStyle</code> already carries <code>minimumScaleFactor(0.6)</code> as a backstop.</li>
+        <li>The instruction card is <b>on screen while the step draws</b>. The current app replaces it with “Watch carefully…”, which hides the very sentence the learner is trying to follow. Keep the card, and put the waiting message in a quiet 15 pt hint row instead: “Watch first, then draw. The button appears when Lina has finished.”</li>
+      </ul>
+
+      <h4>States &amp; interactions</h4>
+      <table>
+        <tr><th>Phase</th><th>Screen</th><th>Card</th><th>Bottom area</th></tr>
+        <tr><td><code>.idle</code> (orientation)</td><td>orientation</td><td>Warm “One idea first” card; paper carries the whole finished drawing at 24 % opacity</td><td><b>Begin</b> only</td></tr>
+        <tr><td><code>.drawing(i)</code></td><td>drawing, next</td><td>Eyebrow + instruction + “Watch first…” hint</td><td>Back · Replay · Speed</td></tr>
+        <tr><td><code>.awaitingUser(i)</code></td><td>awaiting, muted, last-step</td><td>Eyebrow + instruction</td><td><b>I drew it</b> · Watch again · Back · Replay · Speed</td></tr>
+        <tr><td><code>.awaitingUser(last)</code></td><td>last-step</td><td>same</td><td>Primary reads <b>Finish drawing</b> → <code>sk-complete</code></td></tr>
+        <tr><td><code>.finished</code></td><td>—</td><td>—</td><td>Never rendered here: <code>advanceToNextStep()</code> on the last step pushes <code>sk-complete</code> and the player cover is dismissed.</td></tr>
+      </table>
+      <p><b>Adding the orientation pre-state without touching the enum.</b> Do <i>not</i> add a <code>case orientation</code> to <code>PlayerViewModel.Phase</code>: every <code>switch</code> in <code>DrawingCanvasView</code> and <code>ContentView</code> is exhaustive over four cases, and <code>currentStepIndex</code>/<code>canGoToPreviousStep</code>/<code>completedStepUpperBound</code> all have hand-written <code>.idle</code> answers that are already exactly right for “loaded, nothing drawn”. Instead:</p>
+      <pre>// PlayerViewModel — two small additions, both default-compatible.
+func load(_ tutorial: PreparedTutorial, startImmediately: Bool = true) {
+    …                                   // unchanged body
+    guard !tutorial.steps.isEmpty else { phase = .finished; return }
+    guard !isDebugMode else { phase = .awaitingUser(stepIndex: 0); return }
+    if startImmediately { beginStep(0) }   // otherwise stay .idle
+}
+
+/// "Begin" on the orientation beat. Idempotent; a double tap cannot skip a step
+/// because beginStep sets .drawing synchronously (same reason as advanceToNextStep).
+func begin() {
+    guard case .idle = phase, !steps.isEmpty else { return }
+    beginStep(0)
+}</pre>
+      <p>Invariants preserved: the default argument keeps every existing call site and test green; no new case; <code>.idle</code> still means “no step has been begun”; <code>canGoToPreviousStep</code> stays <code>false</code>; <code>DrawingCanvasView</code> already renders nothing for <code>.idle</code>. The faint finished drawing is a <i>render</i> concern, not a phase — add one optional parameter:</p>
+      <pre>DrawingCanvasView(…, ghostAllStepsOpacity: player.phase == .idle ? 0.24 : nil)</pre>
+      <p>which draws every step's strokes at that opacity and suppresses the pencil tip. It reuses the existing <code>debugLayer</code> geometry path with an opacity argument.</p>
+      <ul>
+        <li><b>Header <code>×</code></b> → <code>pl-leave</code> sheet. Cancels narration immediately (see below) but leaves the stroke animation running behind the sheet, so “Keep drawing” returns to an unbroken step.</li>
+        <li><b>Header <code>⋯</code></b> → <code>Menu</code> with <i>Start this lesson over</i> (<code>player.restart()</code>, confirm first — it discards nothing but is surprising mid-lesson), <i>Narration &amp; voice</i> (→ <code>st-voice</code>), <i>Hide the reference</i>. Restart is the plan's sixth-priority control <span class="tag tag--plan">§31</span> and does not deserve a permanent button.</li>
+        <li><b>Reference thumbnail</b> → a <code>.sheet</code> with <code>.presentationDetents([.medium, .large])</code> showing the photo and the finished sketch side by side plus the catalog objective. Playback and narration <b>continue</b> behind the sheet; pausing one but not the other would desync ink and voice, and pausing both would need a resume affordance the plan does not want.</li>
+        <li><b>Narration chip</b> is the mute control. Tapping it toggles <code>@AppStorage("narrationMuted")</code> and, if it was playing, stops the current file. It never re-starts audio mid-step; unmuting takes effect on the next <code>beginStep</code> or on “Watch again”.</li>
+        <li><b>Back / Replay / Speed</b> map 1:1 to <code>goToPreviousStep()</code>, <code>replayCurrentStep()</code>, <code>cycleSpeed()</code>. Back is disabled at 40 % opacity on step 1, exactly as today.</li>
+        <li><b>Haptics.</b> <code>UIImpactFeedbackGenerator(style: .light)</code>, <code>prepare()</code> on entering <code>.awaitingUser</code>, <code>impactOccurred()</code> on “I drew it”. That is the only haptic in the player. The last step fires <code>UINotificationFeedbackGenerator().notificationOccurred(.success)</code> instead, once, as <code>sk-complete</code> appears. No haptic for replay, back, speed, mute or the reference sheet — they are navigational, not achievements <span class="tag tag--plan">§30</span>.</li>
+      </ul>
+
+      <h4>Voice &amp; narration</h4>
+      <p>One recorded file per step, <code>shared/Assets/Voice/&lt;lessonId&gt;/&lt;stepId&gt;.m4a</code> (AAC, mono, 48 kbps — a 12 s line is ~70 KB, so all five Simple House lines ship in under 400 KB). <code>step.voiceover</code> in the schema holds the relative path when the Studio writes one; fall back to the convention when it is <code>null</code>.</p>
+      <pre>@MainActor final class NarrationPlayer: NSObject, AVAudioPlayerDelegate {
+    private var player: AVAudioPlayer?
+    var onFinish: (() -> Void)?
+
+    /// Returns false when there is no audio for this step.
+    @discardableResult
+    func play(lessonId: String, step: PreparedStep, muted: Bool) -> Bool {
+        stop()
+        guard !muted, let url = Self.url(lessonId: lessonId, step: step) else { return false }
+        activateSession()
+        player = try? AVAudioPlayer(contentsOf: url)
+        player?.delegate = self
+        player?.rate = 1.0                     // never touched by the speed control
+        return player?.play() ?? false
+    }
+
+    func stop() { player?.stop(); player = nil }
+
+    private func activateSession() {
+        let s = AVAudioSession.sharedInstance()
+        try? s.setCategory(.ambient, mode: .spokenAudio,
+                           options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers])
+        try? s.setActive(true)
+    }
+    func deactivate() {
+        try? AVAudioSession.sharedInstance()
+              .setActive(false, options: .notifyOthersOnDeactivation)
+    }
+}</pre>
+      <table>
+        <tr><th>Situation</th><th>Behaviour</th></tr>
+        <tr><td>Step starts</td><td><code>beginStep(i)</code> starts the animation and the voice in the same turn of the run loop. The voice describes the line <i>while</i> it is drawn.</td></tr>
+        <tr><td>Replay / Watch again</td><td><code>replayCurrentStep()</code> restarts both from zero.</td></tr>
+        <tr><td>Back, restart, speed change</td><td>Current file is stopped and the new step's file starts. <code>cycleSpeed()</code> already replays while drawing, so the voice restarts with it.</td></tr>
+        <tr><td>Leave, background, sheet dismiss</td><td><code>stop()</code>, then <code>deactivate()</code> when the player cover is dismissed so other apps' music comes back up.</td></tr>
+        <tr><td>Session category</td><td><code>.ambient</code> + <code>.spokenAudio</code> + <code>[.duckOthers, .interruptSpokenAudioAndMixWithOthers]</code>: music ducks rather than stops, podcasts pause and resume, and the voice obeys the silent switch. Decided in the handbook (“Audio session”), and promised on the <code>st-voice</code> screen.</td></tr>
+        <tr><td>Silent switch</td><td><b>Respected</b> (<code>.ambient</code>). A learner who silenced the phone did not consent to a voice, and the written instruction carries the step on its own. The cost: iOS gives no API to read the switch, so the chip animates while nothing is heard. Mitigation: the onboarding line and the <code>st-voice</code> row both say “If your phone is on silent, Lina stays quiet”, and the chip's wave is a small hint, not the only sign a step is playing. The alternative (<code>.playback</code>, as Maps does) is recorded as an open question for the creator.</td></tr>
+        <tr><td>Phone call / Siri</td><td>Observe <code>AVAudioSession.interruptionNotification</code>. On <code>.began</code>: stop the voice, treat it as “voice finished” for the gating rule below, leave the strokes drawing. On <code>.ended</code>: do <b>not</b> auto-resume; the chip returns to idle and “Watch again” is the way back.</td></tr>
+        <tr><td>Route change (headphones out)</td><td><code>AVAudioSession.routeChangeNotification</code> with <code>.oldDeviceUnavailable</code> → stop, same as an interruption.</td></tr>
+        <tr><td><b>File missing</b></td><td><code>play()</code> returns <code>false</code>. The step plays exactly as it does today and the chip is <b>hidden entirely</b> for that step — not greyed, because grey means “you muted this”. Log once per lesson, never alert. A lesson with no voice at all is a valid, shippable lesson.</td></tr>
+      </table>
+      <p><b>Speed affects the animation only.</b> <code>speedMultiplier</code> divides <code>stroke.duration</code> and is never applied to <code>AVAudioPlayer.rate</code>. At 0.5× a recorded voice becomes a drawl and at 1.5× it loses intelligibility for exactly the audience the product is for; pitch correction would still change Lina's character. The voice is the constant, the ink is the variable — so at 0.5× the voice simply finishes first and the button waits for the ink.</p>
+      <p><b>When “I drew it” appears.</b> After the last stroke of the step <i>and</i> after narration has finished — whichever is later. Why both: if the button lands while Lina is still talking, learners tap it and lose the “how” (the written line carries <i>what</i>, the voice carries <i>how</i>); if the voice ends first, showing the button over a half-drawn line invites copying an incomplete shape. Implement inside <code>runStep</code>'s tail rather than in the view:</p>
+      <pre>// PlayerViewModel
+private var strokesFinished = false
+private var voiceFinished   = true      // true when muted or no file
+
+private func beginStep(_ index: Int) {
+    …                                   // unchanged: phase = .drawing set synchronously
+    strokesFinished = false
+    voiceFinished = !narration.play(lessonId: id, step: steps[index], muted: isMuted)
+    narration.onFinish = { [weak self] in self?.voiceFinished = true
+                                          self?.settleIfReady(index) }
+}
+
+// end of runStep(_:)
+strokesFinished = true
+settleIfReady(index)
+
+private func settleIfReady(_ index: Int) {
+    guard case .drawing(index) = phase, strokesFinished, voiceFinished else { return }
+    phase = .awaitingUser(stepIndex: index)
+}</pre>
+      <p>Two safety rails: (1) arm a 6 s watchdog from <code>strokesFinished</code> that forces <code>voiceFinished = true</code>, so a corrupt or over-long file can never trap a learner in <code>.drawing</code>; (2) the <code>guard case .drawing(index)</code> means a late audio callback from an abandoned step cannot flip a step the learner has already left. When narration is muted, <code>voiceFinished</code> starts <code>true</code> and the timing is byte-for-byte today's behaviour.</p>
+      <p><b>Captions are not optional.</b> The written instruction is always on screen, in every state, at 22 pt. Audio is a second channel, never the only one.</p>
+
+      <h4>Narration script — Simple House (the ElevenLabs source)</h4>
+      <p>Adult voice, second person, no praise, no exclamation marks. The written line says <i>what</i>; the spoken line adds <i>how</i> and <i>why</i>. Target 8–14 s so the voice lands inside or just after the stroke duration.</p>
+      <table>
+        <tr><th>#</th><th>stepId</th><th>On screen (22 pt)</th><th>Lina says</th><th>≈</th></tr>
+        <tr><td>1</td><td><code>walls</code></td><td>Draw a square in the middle of your paper.</td><td>“Start with the front wall. One square, roughly in the middle of the page. Keep it a little wider than it is tall, and leave room above it for the roof.”</td><td>11 s</td></tr>
+        <tr><td>2</td><td><code>roof</code></td><td>Add a triangle on top of the square.</td><td>“Now the roof. Begin just outside the wall on the left, rise to a point above the centre, then come down to just outside the wall on the right. A house is a box with a triangle on top.”</td><td>13 s</td></tr>
+        <tr><td>3</td><td><code>door</code></td><td>Draw a tall rectangle at the bottom, centred.</td><td>“The door sits at the bottom, in the middle. Draw it as a tall rectangle and leave the bottom edge open, so the door meets the ground rather than floating above it.”</td><td>11 s</td></tr>
+        <tr><td>4</td><td><code>windows</code></td><td>Add a small square either side of the door.</td><td>“Two windows next, one on each side of the door. Keep them the same size as each other and level across the wall. That evenness is what makes them read as windows.”</td><td>11 s</td></tr>
+        <tr><td>5</td><td><code>chimney</code></td><td>Draw a short chimney on the right slope.</td><td>“Last, a chimney on the right slope of the roof. A short upright box, its sides straight up and down, not square to the roof. One detail like this is what turns a shape into a house.”</td><td>12 s</td></tr>
+      </table>
+      <p>Note step 2's spoken line carries the lesson's one idea verbatim, so the orientation beat and the narration reinforce each other. Voice direction for the Studio: warm, unhurried, mid-register adult woman; ~140 wpm; short pauses at commas; no upward inflection at line ends.</p>
+
+      <h4>Data</h4>
+      <table>
+        <tr><th>UI element</th><th>Source</th></tr>
+        <tr><td>Header title “Simple House”</td><td><code>tutorial.title</code></td></tr>
+        <tr><td>Dots</td><td><code>tutorial.steps.count</code>, <code>player.currentStepIndex</code></td></tr>
+        <tr><td>Eyebrow “Step 2 of 5 · Add the roof”</td><td><code>currentStepIndex + 1</code>, <code>steps.count</code>, <code>step.title</code></td></tr>
+        <tr><td>Instruction (22 pt)</td><td><code>step.instruction</code> — <b>rewrite the shipped child copy</b> per <code>lessons.json.notes</code> (“Great job, your house is done!” must go)</td></tr>
+        <tr><td>Hint row</td><td>proposed <code>step.detail</code> (nullable string). Today's <code>instruction</code> packs two sentences into one field; splitting them is what lets the headline stay two lines at 22 pt.</td></tr>
+        <tr><td>Strokes, tip, timing</td><td><code>step.strokes[].d / .duration / .lineWidth</code>; paper <code>style.backgroundColor</code>, ink <code>style.strokeColor</code></td></tr>
+        <tr><td>Voice file</td><td><code>step.voiceover</code> ?? <code>Assets/Voice/&lt;tutorial.id&gt;/&lt;step.id&gt;.m4a</code></td></tr>
+        <tr><td>Orientation idea</td><td>proposed <code>tutorial.orientation</code> (one sentence) + <code>tutorial.orientationDetail</code>; falls back to <code>lessons.json.objective</code> when absent, in which case the beat is skipped rather than padded</td></tr>
+        <tr><td>Reference photo, objective</td><td><code>lessons.json.reference.file</code>, <code>lessons.json.objective</code></td></tr>
+        <tr><td>“About 4 min”</td><td>computed: Σ <code>stroke.duration</code> + 45 s per step, rounded to the nearest minute. Never stored.</td></tr>
+      </table>
+
+      <h4>Leaving and resuming</h4>
+      <ul>
+        <li>Persist <code>{ lessonId, stepIndex, updatedAt }</code> — nothing else. One JSON file in Application Support behind a tiny <code>ProgressStore</code>, not <code>@AppStorage</code>, because path progress needs the same store.</li>
+        <li>Write on <b>step boundaries only</b>: when <code>.awaitingUser(i)</code> is entered, record <code>stepIndex = i</code>. A step is atomic; a learner interrupted halfway through the roof should be handed the roof again, not a half roof.</li>
+        <li>Also write on leave (belt and braces) and clear on completion.</li>
+        <li>Resume lands on <code>hp-preview</code>, whose Start becomes <b>Continue from step 3</b> plus a quiet <i>Start from the beginning</i>. See <code>pl-leave</code> variant <i>resume</i>.</li>
+        <li>Continue does <code>player.load(tutorial, startImmediately: false)</code> then a new <code>func jump(to index: Int) { beginStep(index) }</code>. Steps 1–2 appear already faded on the paper because <code>completedStepUpperBound</code> derives from the phase, so no extra state is needed.</li>
+        <li>The orientation beat is <b>skipped</b> on resume. It is a “before you start” beat; replaying it on every return would be nagging.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li><b>Dynamic Type.</b> Instruction: <code>.font(.system(size: 22, weight: .bold, design: .rounded))</code> → <code>.custom(…, size: 22, relativeTo: .title3)</code> so it scales. Eyebrow relative to <code>.subheadline</code>, hint to <code>.footnote</code>. Button labels are capped at <code>.accessibility2</code> (<code>.dynamicTypeSize(...DynamicTypeSize.accessibility2)</code>) so a 68 pt primary never wraps to four lines; the instruction itself is <b>not</b> capped.</li>
+        <li><b>The canvas yields height.</b> Recompute <code>side</code> from the measured card height each layout pass, floor at 220 pt (the value already in <code>portraitCanvasSide</code>). Below that floor the column scrolls — the existing <code>ScrollView</code> with <code>.scrollBounceBehavior(.basedOnSize)</code> already does this, so it stays. At <code>dynamicTypeSize.isAccessibilitySize</code> the control row becomes a <code>VStack</code> of three full-width rows and the reference thumbnail grows to 88 pt.</li>
+        <li><b>Reduced motion</b> <span class="tag tag--plan">§31</span>: the stroke still draws — it <i>is</i> the teaching, and removing it removes the lesson. What changes under <code>@Environment(\.accessibilityReduceMotion)</code>: stroke durations × 0.6 (a snappier but still continuous draw); pencil tip rendered without its trailing highlight; the narration wave freezes to five static bars; the card's <code>.move(edge:).combined(with: .opacity)</code> transition becomes a plain 0.15 s crossfade; the canvas never animates its own size (it already never does). Offer <i>stepwise</i> — each stroke appearing in three instant segments with a 0.25 s beat between — as a <code>st-access</code> option for learners who cannot track continuous motion at all.</li>
+        <li><b>VoiceOver.</b> Canvas: <code>.accessibilityLabel("Step 2 of 5, the roof, drawing")</code> while <code>.drawing</code>, flipping to <code>"Step 2 of 5, the roof, drawn"</code> on <code>.awaitingUser</code>; <code>.accessibilityValue(step.instruction)</code>. Post <code>AccessibilityNotification.Announcement("Step drawn. Draw it on your paper, then tap I drew it.")</code> on that transition, because a VoiceOver user gets no visual cue that the animation stopped.</li>
+        <li>Reading order is <b>not</b> the visual order: <code>.accessibilitySortPriority</code> puts the instruction card first, then the canvas, then primary, then the quiet row. Sighted priority is reference-first; non-sighted priority is text-first.</li>
+        <li>Labels: <code>×</code> “Close lesson”; <code>⋯</code> “More options”; thumbnail “Reference photo. Double tap to expand.”; chip “Narration, Lina, on. Double tap to mute.” / “Narration off. Double tap to turn it on.”; primary “I drew it” (no hint needed); “Watch again”; and the three existing labels kept verbatim — “Previous step”, “Replay this step”, “Speed 1×. Tap to change.” <code>StepProgressDots</code> already collapses to one element labelled “Step 2 of 5.”; leave it.</li>
+        <li>Tap targets: every control ≥ 60 pt (<code>Theme.minimumTapTarget</code>). The 76 pt thumbnail and the ~48 pt chip both clear it; the chip gets <code>.contentShape(Rectangle())</code> padded to 60 pt.</li>
+        <li>Contrast: instruction ink <code>#2B2B2B</code> on white is 13.4:1; the 55 % eyebrow is 5.3:1; the warm chip <code>#C4653A</code> on <code>#F8E7DD</code> is 3.6:1 — acceptable for 15 pt bold, and the chip never carries information that is not also in the header menu.</li>
+        <li>No hidden gestures <span class="tag tag--plan">§31</span>: there is no swipe-to-advance, no long press, no pinch. Every action has a visible, labelled control.</li>
+      </ul>
+
+      <h4>Orientation, landscape and iPad</h4>
+      <ul>
+        <li><b>Lock iPhone to portrait.</b> <code>UISupportedInterfaceOrientations</code> = portrait only; <code>UISupportedInterfaceOrientations~ipad</code> = all four. Reasons: in landscape a 393 × 852 device gives 393 pt of height minus 54 + 34 safe area, so the paper can be at most ~270 pt tall while the 68 pt primary, the 60 pt row and a 22 pt instruction fight over the same 700 pt width — every element gets worse. The reference, which is the only thing landscape would buy <span class="tag tag--plan">§31</span>, is already permanently on screen as the thumbnail. And the learner has the phone propped beside paper: an accidental rotation mid-step would re-lay-out and visibly disturb a running animation. §31 says consider landscape “when it materially improves reference + drawing visibility” — on iPhone it does not; on iPad it does, which is <code>pl-ipad</code>.</li>
+        <li><b>iPad split view.</b> Branch on measured width and <code>horizontalSizeClass</code>, never on <code>UIDevice.current.userInterfaceIdiom</code>. ≥ 1000 pt and landscape → the three-column <code>pl-ipad</code> layout. 700–1000 pt (⅔ split) → the iPhone stack with the paper at up to 480 pt and the reference back in its thumbnail. &lt; 700 pt (½ and ⅓ splits, Slide Over) → the iPhone layout verbatim. Never lock orientation on iPad.</li>
+        <li>A size change must <b>not</b> restart the step. The animation is driven by <code>strokeProgress</code>, which is view-model state and survives relayout; <code>DrawingCanvasView</code> recomputes <code>scale</code> from the new rect each pass, so an in-flight <code>withAnimation(.linear)</code> simply continues at the new size. Do not call <code>replayCurrentStep()</code> from <code>onChange(of: geometry.size)</code>.</li>
+        <li>Backgrounding: <code>scenePhase == .background</code> → <code>player.stop()</code> and <code>narration.stop()</code>. Returning shows the step paused mid-draw; resume by <code>replayCurrentStep()</code> on <code>.active</code> only if the phase is still <code>.drawing</code>, so the learner never returns to a frozen half-line.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>PlayerScreen                                    // .fullScreenCover from hp-preview;
+│                                               // .toolbar(.hidden, for: .tabBar)
+├─ @State player: PlayerViewModel               // existing, unchanged except load/begin
+├─ @State narration = NarrationPlayer()
+├─ @AppStorage("narrationMuted") isMuted = false
+├─ @State showReference = false
+├─ @State showLeave = false
+│
+└─ ZStack {
+     Theme.pageBackground.ignoresSafeArea()
+
+     VStack(spacing: 0) {
+
+       PlayerHeader(                                          // 60pt
+         title: player.tutorial?.title ?? "",
+         stepCount: player.steps.count,
+         index: player.currentStepIndex,
+         isFinished: false,
+         onClose: { narration.stop(); showLeave = true },
+         onMore:  { … })                                      // Menu: restart, voice, hide reference
+       // ├ Button(×)  44×44, label "Close lesson"
+       // ├ VStack(spacing: 5) { Text(title).font(.footnote) ; StepProgressDots(compact: true) }
+       // └ Menu(⋯)   44×44
+
+       ScrollView {                                           // scrolls only at AX type sizes
+         VStack(spacing: 10) {
+
+           ZStack(alignment: .top) {                          // the paper + its two corners
+             DrawingCanvasView(tutorial: tutorial,
+                               phase: player.phase,
+                               strokeProgress: player.strokeProgress,
+                               activeStrokeIndex: player.activeStrokeIndex,
+                               isDebugMode: player.isDebugMode,
+                               ghostAllStepsOpacity: player.phase == .idle ? 0.24 : nil)
+             HStack(alignment: .top) {
+               NarrationChip(state: chipState, onTap: toggleMute)   // .speaking/.idle/.muted/.hidden
+               Spacer(minLength: 0)
+               ReferenceThumb(image: lesson.reference) { showReference = true }
+             }
+             .padding(10)
+           }
+           .frame(width: side, height: side)                  // side is constant across phases
+
+           StepInstructionCard(mode: cardMode)                // TEXT ONLY — see below
+         }
+         .padding(.horizontal, 20)
+       }
+       .scrollBounceBehavior(.basedOnSize)
+
+       Spacer(minLength: 0)                                   // the slack lives here
+
+       VStack(spacing: 12) {                                  // bottom-area
+         if player.isAwaitingUser {
+           Button(isLastStep ? "Finish drawing" : "I drew it") {
+             UIImpactFeedbackGenerator(style: .light).impactOccurred()
+             if isLastStep { route = .complete } else { player.advanceToNextStep() }
+           }
+           .buttonStyle(BigPrimaryButtonStyle())
+           Button("Watch again") { player.replayCurrentStep() }
+             .buttonStyle(BigSecondaryButtonStyle())
+         }
+         ControlBar(player: player)                           // Back · Replay · Speed, 16pt labels
+       }
+       .padding(.horizontal, 20).padding(.bottom, 12)
+       .animation(.easeInOut(duration: 0.22), value: player.isAwaitingUser)
+     }
+
+     if player.phase == .idle { OrientationOverlay(onBegin: player.begin) }
+   }
+   .sheet(isPresented: $showReference) { ReferenceSheet(lesson: lesson)
+             .presentationDetents([.medium, .large]) }
+   .sheet(isPresented: $showLeave)     { LeaveSheet(stepNumber: player.currentStepIndex + 1,
+                                                    onKeep: { showLeave = false },
+                                                    onLeave: { save(); dismiss() })
+             .presentationDetents([.height(320)]) }
+   .onChange(of: player.phase) { _, new in
+       if case .awaitingUser(let i) = new { progress.record(lessonId, step: i) }
+   }
+   .onDisappear { player.stop(); narration.stop(); narration.deactivate() }</pre>
+      <p>Two refactors to existing types, both small: (1) <code>StepInstructionCard</code> loses its buttons and gains an <code>eyebrow</code> + optional <code>detail</code> — the buttons move to the bottom area so the card can stay on screen during <code>.drawing</code> without implying an action; the <code>.finished</code> mode moves to <code>sk-complete</code> and can be deleted here. (2) <code>StepProgressDots</code> gains <code>var compact = false</code> (10/14 pt instead of 16/24 pt) for the header; the full size is kept on iPad.</p>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li><b>“Watch again” and “Replay” are the same call.</b> Both run <code>replayCurrentStep()</code>. The brief asks for both and they are both drawn here, but two controls for one action on a screen this deliberate is a flaw. Recommendation: keep <i>Watch again</i> as the card-adjacent secondary in <code>.awaitingUser</code>, and change the quiet row to <b>Back · Speed · Restart</b> — restart is the plan's own sixth-priority control and currently has no home except the <code>⋯</code> menu. Needs your call before build.</li>
+        <li><b>Does every lesson get an orientation beat?</b> Simple House earns one. Lesson 2 (“House With Chimney”) reuses the same idea and would be padding. Proposal: the beat appears only when the tutorial carries a non-empty <code>orientation</code> string, so it is an authoring decision in the Studio, not a runtime one.</li>
+        <li><b>Silent switch.</b> Decided for this design: <code>.ambient</code>, respected (see the handbook). The counter-argument stands and is worth a creator's call: a learner who props the phone beside the paper with the switch on gets a silent lesson and may not know why; <code>.playback</code> (what Maps does for spoken guidance) would avoid that at the cost of speaking on a silenced phone.</li>
+        <li><b>Does speed persist?</b> Today it resets with each <code>PlayerViewModel</code>. A learner who prefers 0.5× will re-set it every lesson. Suggest persisting it; it is a preference, not a per-lesson state.</li>
+        <li><b>Schema additions</b> needed if you accept the layout: <code>step.detail</code> (the hint line) and <code>tutorial.orientation</code> / <code>orientationDetail</code>. Both nullable, both ignorable by v1 players. Studio would also need a sixth voice line per lesson for the orientation beat — or the beat stays silent, which is defensible since it is not a drawing step.</li>
+        <li><b>Reference photos do not exist yet</b> for Simple House (<code>lessons.json</code> has no <code>reference</code> block; M6 is gated on photos). Until one lands, the thumbnail should be replaced by the finished sketch rather than shown as an empty frame — decide whether that is acceptable for a first release or whether Simple House waits for a photo.</li>
+        <li><b>Mid-step interruption on resume.</b> We snap back to the start of the interrupted step. Confirm that is right for a learner who had already drawn most of it — an alternative is to resume at the step <i>after</i> the last confirmed one, which is what the stored index already is.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<article class="screen" id="pl-ipad" data-title="Player (iPad landscape)" data-group="Player">
+  <header>
+    <h2>Player — iPad, landscape</h2>
+    <p class="lede">Where the plan's “reference side-by-side” is actually possible: the real photo and the finished sketch stay permanently on the left, the paper is the centre, the instruction and controls sit on the right.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <div class="devices">
+        <div class="phone phone--ipad">
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-pad">
+
+            <aside class="pl-col">
+              <p class="t-eyebrow muted">Reference</p>
+              <div class="photo photo--warm pl-photo"></div>
+              <p class="t-eyebrow muted" style="margin-top:6px">Finished drawing</p>
+              <div class="thumb pl-sketch">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  <path class="stroke" stroke-width="12" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                  <path class="stroke" stroke-width="12" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                  <path class="stroke" stroke-width="12" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                  <path class="stroke" stroke-width="12" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                </svg>
+              </div>
+              <p class="hint" style="margin-top:6px">See a house as a box with a triangle on top, then place the door, windows and chimney.</p>
+              <div class="spacer"></div>
+            </aside>
+
+            <section class="pl-col">
+              <div class="pl-pad-head">
+                <button class="nav-btn start" type="button" data-goto="pl-leave" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+                <div class="pl-head-mid"><p class="t-headline">Simple House</p></div>
+                <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+              </div>
+              <div class="pl-stage">
+                <div class="canvas-frame">
+                  <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                    <path class="stroke faded" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                    <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="spacer"></div>
+            </section>
+
+            <aside class="pl-col">
+              <p class="t-subhead muted">Step 2 of 5 · Add the roof</p>
+              <p class="t-instruction">Add a triangle on top of the square.</p>
+              <p class="hint">Wider than the wall at the base, with the point above the middle.</p>
+              <div class="dots" style="margin-top:6px"><i class="done"></i><i class="current"></i><i></i><i></i><i></i></div>
+              <div class="spacer"></div>
+              <button class="narration" type="button" style="align-self:flex-start" aria-label="Narration on. Double tap to mute.">
+                <span class="pl-face"><svg viewBox="0 0 200 240"><use href="#lina-neutral"/></svg></span>
+                <svg class="ico"><use href="#i-speaker"/></svg>
+                <span>Lina</span>
+              </button>
+              <button class="btn btn-primary" type="button" data-goto="sk-complete" style="margin-top:6px">I drew it</button>
+              <button class="btn btn-secondary" type="button"><svg><use href="#i-replay"/></svg>Watch again</button>
+              <div class="btn-row pl-controls">
+                <button class="btn btn-secondary" type="button" aria-label="Previous step"><svg><use href="#i-back-step"/></svg>Back</button>
+                <button class="btn btn-secondary" type="button" aria-label="Replay this step"><svg><use href="#i-replay"/></svg>Replay</button>
+                <button class="btn btn-secondary" type="button" aria-label="Speed 1 times. Double tap to change."><svg><use href="#i-speed"/></svg>1×</button>
+              </div>
+            </aside>
+
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">iPad Pro 11″ landscape, 1180 × 820 pt, shown at 72 %. One state is enough: the layout differences are structural, not per-phase — the drawing / awaiting / muted rules are identical to the iPhone.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p>The plan asks for the real-world reference “side-by-side where practical” <span class="tag tag--plan">§31</span>. On iPad it is practical, so the expandable thumbnail and its sheet <b>do not exist here</b>: the photo and the finished sketch are simply always visible. Nothing is hidden behind a tap.</p>
+
+      <h4>Layout</h4>
+      <ul>
+        <li>Three columns inside 24 pt margins, 28 pt gutters: <b>260</b> reference · <b>flexible</b> paper · <b>340</b> instruction and controls. At 1180 pt that leaves 476 pt for a square canvas, which is 1.45× the iPhone paper.</li>
+        <li>The header (<code>×</code>, title, <code>⋯</code>) sits <b>above the canvas only</b>, inside the centre column, so it does not stretch 1180 pt across an otherwise calm screen.</li>
+        <li>Progress moves to the right column as full-size <code>StepProgressDots</code> (16/24 pt) directly under the instruction — it has room here, so it does not need the compact header treatment.</li>
+        <li>The narration chip is a real element in the right column above the primary button, not a canvas overlay. There is no reason to float it over the paper when a column has spare height.</li>
+        <li>Controls keep the iPhone's exact order and sizes: primary 68 pt, secondary 60 pt, quiet row 60 pt. A learner who switches devices should find the same buttons in the same relationship.</li>
+        <li>Left column bottom carries the objective (<code>lessons.json.objective</code>) at 15 pt, 55 % ink — the “why” that the iPhone can only show inside the reference sheet.</li>
+      </ul>
+
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Identical state machine, identical timing rule, identical narration behaviour. The only per-phase difference: while <code>.drawing</code>, the primary and “Watch again” are absent and the right column's spacer grows, exactly as on iPhone.</li>
+        <li>No reference sheet, no expand badge, no <code>showReference</code> state on this layout.</li>
+        <li>Tapping the photo still opens a full-bleed version (<code>.fullScreenCover</code>) for close inspection — optional, and the only hidden affordance on the screen, so it gets a visible <code>i-expand</code> badge on hover/focus and a VoiceOver hint.</li>
+      </ul>
+
+      <h4>Adaptivity</h4>
+      <ul>
+        <li>Choose the layout from the measured container width, not the idiom: <code>width ≥ 1000 &amp;&amp; width &gt; height</code> → three columns; <code>700..&lt;1000</code> → the iPhone stack with an up-to-480 pt paper and the reference back as a thumbnail; <code>&lt; 700</code> → the iPhone layout verbatim. This makes Split View, Slide Over and Stage Manager fall out for free.</li>
+        <li>iPad is never orientation-locked. In portrait (834 × 1194) the two-column split has no room, so it uses the ≥ 700 branch: iPhone stack, bigger paper.</li>
+        <li>A width change must not restart the step — see <code>pl-player</code> → Orientation, landscape and iPad.</li>
+        <li>At accessibility type sizes the three-column layout collapses to the stack even at full width; 340 pt cannot hold a 34 pt instruction plus three buttons.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>PlayerScreen
+└─ GeometryReader { geo in
+     if useWideLayout(geo.size, dynamicTypeSize) {
+       HStack(alignment: .top, spacing: 28) {
+         ReferenceColumn(lesson: lesson).frame(width: 260)
+         VStack(spacing: 10) {
+           PlayerHeader(showsDots: false, …)
+           DrawingCanvasView(…).frame(width: side, height: side)
+           Spacer(minLength: 0)
+         }
+         .frame(maxWidth: .infinity)
+         InstructionColumn(player: player, narration: narration).frame(width: 340)
+       }
+       .padding(.horizontal, 24).padding(.bottom, 24)
+     } else {
+       CompactPlayerLayout(…)          // the pl-player stack, verbatim
+     }
+   }
+
+private func useWideLayout(_ s: CGSize, _ t: DynamicTypeSize) -> Bool {
+    s.width >= 1000 &amp;&amp; s.width > s.height &amp;&amp; !t.isAccessibilitySize
+}</pre>
+      <p><code>ContentView</code> already branches on <code>geometry.size.width > geometry.size.height</code> for iPad; this replaces that two-column arrangement with three and adds the width floor, which is what stops a ⅔ Split View from getting a 300 pt canvas.</p>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Is the finished sketch always appropriate to show during the lesson? It removes surprise, but <span class="tag tag--plan">§7</span> puts “Preview: show the finished pen drawing” before the guided drawing anyway, so the learner has already seen it. Confirm.</li>
+        <li>Should the left column show the <i>photo</i> or a simplified “what to notice” version of it (landmarks marked)? §4's “teach simplification, not tracing” suggests the latter eventually; not for M7.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<article class="screen" id="pl-leave" data-title="Leave &amp; resume" data-group="Player">
+  <header>
+    <h2>Leaving a lesson, and coming back</h2>
+    <p class="lede">Tapping × asks once, promises the place is kept, and keeps it. The second variant shows the promise being honoured — on the lesson preview, not in the player.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="sheet">Leave sheet</button>
+        <button type="button" data-variant="resume">Coming back (step 3)</button>
+      </nav>
+      <div class="devices">
+
+        <!-- ============================== LEAVE SHEET ============================== -->
+        <div class="phone" data-variant="sheet">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="pl-head">
+            <button class="nav-btn start" type="button" aria-label="Close lesson"><svg><use href="#i-close"/></svg></button>
+            <div class="pl-head-mid">
+              <p class="t-footnote muted">Simple House</p>
+              <div class="dots dots--compact"><i class="done"></i><i class="current"></i><i></i><i></i><i></i></div>
+            </div>
+            <button class="nav-btn end" type="button" aria-label="More options"><svg><use href="#i-more"/></svg></button>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="pl-canvas">
+              <div class="canvas-frame">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke faded" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                </svg>
+              </div>
+              <div class="pl-narr">
+                <button class="narration" type="button" aria-label="Narration on. Double tap to mute.">
+                  <span class="pl-face"><svg viewBox="0 0 200 240"><use href="#lina-neutral"/></svg></span>
+                  <svg class="ico" style="width:17px;height:17px"><use href="#i-speaker"/></svg>
+                  <span>Lina</span>
+                </button>
+              </div>
+              <button class="pl-ref" type="button" aria-label="Reference photo. Double tap to expand.">
+                <span class="photo photo--warm"></span>
+                <span class="pl-ref-badge"><svg><use href="#i-expand"/></svg></span>
+              </button>
+            </div>
+            <div class="card pl-card">
+              <p class="t-subhead muted">Step 2 of 5 · Add the roof</p>
+              <p class="t-instruction">Add a triangle on top of the square.</p>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="overlay">
+            <div class="sheet">
+              <div class="grabber"></div>
+              <p class="t-title2">Leave this drawing?</p>
+              <p class="t-body-reg muted">Your place is kept. You can come back to step 2 whenever you like.</p>
+              <button class="btn btn-primary btn-primary--ink" type="button" data-goto="pl-player" data-variant="awaiting">Keep drawing</button>
+              <button class="btn btn-text" type="button" data-goto="hp-preview">Leave</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== RESUME ============================== -->
+        <div class="phone" data-variant="resume">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" aria-label="Back to the Houses path"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Simple House</div>
+            <span></span>
+          </div>
+          <div class="screen-body pl-body">
+            <div class="grid-2">
+              <div class="photo photo--warm pl-resume-photo" style="border-radius:var(--r-card)"></div>
+              <div class="thumb pl-resume-photo">
+                <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                  <path class="stroke" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  <path class="stroke" stroke-width="12" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                  <path class="stroke" stroke-width="12" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                  <path class="stroke" stroke-width="12" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                  <path class="stroke" stroke-width="12" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                </svg>
+              </div>
+            </div>
+            <div class="row" style="gap:8px">
+              <span class="chip"><svg><use href="#i-pen"/></svg>5 steps</span>
+              <span class="chip"><svg><use href="#i-clock"/></svg>About 4 min</span>
+              <span class="chip chip--gold">Houses · 1</span>
+            </div>
+            <p class="t-body-reg muted">See a house as a box with a triangle on top, then place the door, windows and chimney.</p>
+            <div class="card card--green card--tight">
+              <div class="row">
+                <div class="grow">
+                  <p class="t-headline c-green">You left off at step 3</p>
+                  <p class="t-subhead muted" style="margin-top:2px">Put in the door · yesterday</p>
+                </div>
+                <div class="dots dots--compact"><i class="done"></i><i class="done"></i><i class="current"></i><i></i><i></i></div>
+              </div>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="pl-player" data-variant="next">Continue from step 3</button>
+            <button class="btn btn-text btn-text--muted" type="button" data-goto="pl-player" data-variant="orientation">Start from the beginning</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+      </div>
+      <p class="device-caption">The resume screen is <b>not a player screen</b>. It is the lesson preview (<code>hp-preview</code>, Home &amp; paths) with its Start button replaced when a saved place exists. It is mocked here because the behaviour is the player's responsibility to produce.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p>Leaving mid-lesson is normal — most lessons are 3–5 minutes but real life is not <span class="tag tag--plan">§7</span>. The sheet exists to make one promise (“your place is kept”) that the app then keeps, so that leaving never feels like losing work. It is not a guilt gate <span class="tag tag--plan">§30</span>: no “are you sure you want to give up?”, no streak warning, no count of what is unfinished.</p>
+
+      <h4>Layout</h4>
+      <ul>
+        <li><b>Leave sheet.</b> <code>.sheet</code> with <code>.presentationDetents([.height(320)])</code> over the live player. Page-coloured, radius 32 top corners, grabber, 20 pt gutters, <code>safe-bottom</code> + 12 below. Title 22 pt bold, body 17 pt regular at 55 % ink.</li>
+        <li><b>“Keep drawing” is the primary</b> and it is <code>Theme.ink</code>, not green. Green is reserved for the one action that moves a learner forward <span class="tag tag--mobbin">Duolingo</span>; staying put is the safe default here, not progress. “Leave” is a 17 pt text button with no destructive red — nothing is destroyed.</li>
+        <li>The player stays fully rendered behind the 45 % scrim, so it is obvious there is something to come back to.</li>
+        <li><b>Resume.</b> A green tint card between the objective and the buttons: headline “You left off at step 3”, sub-line “<code>step.title</code> · relative date”, and compact dots on the trailing edge so the amount left is visible without reading. Primary becomes “Continue from step 3”; “Start from the beginning” is a quiet muted text button — available, never suggested.</li>
+      </ul>
+
+      <h4>States &amp; interactions</h4>
+      <table>
+        <tr><th>Action</th><th>Effect</th></tr>
+        <tr><td><code>×</code> tapped</td><td><code>narration.stop()</code> immediately (a voice talking under a modal is disorienting); the stroke animation keeps running; sheet presented.</td></tr>
+        <tr><td>Keep drawing</td><td>Dismiss. If the phase is still <code>.drawing</code>, call <code>replayCurrentStep()</code> only when more than ~1.5 s of the step elapsed under the sheet — otherwise the learner returns to a silent, half-finished line with no way to know the voice already played.</td></tr>
+        <tr><td>Leave</td><td><code>progress.record(lessonId, step: player.currentStepIndex)</code>, <code>player.stop()</code>, <code>narration.stop()</code>, <code>narration.deactivate()</code>, dismiss the cover back to <code>hp-preview</code>.</td></tr>
+        <tr><td>Swipe-down on the sheet</td><td>Same as “Keep drawing”. The sheet is not <code>.interactiveDismissDisabled</code> — it is a question, not a barrier.</td></tr>
+        <tr><td>Swipe-to-dismiss the <i>cover</i></td><td>Disabled. <code>.interactiveDismissDisabled(true)</code> on the <code>fullScreenCover</code>, so a lesson can only be left through the × and this sheet. That is the one place a gesture is taken away, and it is taken away to protect the learner's place.</td></tr>
+        <tr><td>Continue from step 3</td><td><code>player.load(tutorial, startImmediately: false)</code> then <code>player.jump(to: 2)</code>. Steps 1–2 render faded automatically from <code>completedStepUpperBound</code>; step 3 draws and its narration plays. The orientation beat is skipped.</td></tr>
+        <tr><td>Start from the beginning</td><td><code>progress.clear(lessonId)</code>, then the normal entry: orientation beat, then step 1. No confirmation — nothing is lost, since the drawing lives on paper.</td></tr>
+      </table>
+
+      <h4>Data</h4>
+      <ul>
+        <li><code>ProgressStore</code> holds <code>{ lessonId: String, stepIndex: Int, updatedAt: Date }</code> per lesson, plus the per-path “furthest unlocked lesson” that <code>hp-path</code> needs. One JSON file in Application Support, written atomically; no CloudKit, no account <span class="tag tag--plan">§32</span>.</li>
+        <li>Written when <code>.awaitingUser(i)</code> is entered (step boundaries only) and again on Leave. Cleared when the lesson completes.</li>
+        <li>“Continue from step 3” shows <code>stepIndex + 1</code>. The stored index is the step the learner was <i>on</i>, not the last one they finished, so the number in the button is the number they will see in the player header — this must match or the promise reads as broken.</li>
+        <li>Relative date via <code>RelativeDateTimeFormatter</code> (“yesterday”, “3 days ago”). If <code>updatedAt</code> is older than 30 days, drop the date rather than saying “2 months ago”, which reads as a reprimand <span class="tag tag--plan">§30</span>.</li>
+        <li>A stored <code>stepIndex</code> that is out of range for a re-authored tutorial (steps removed in an update) clamps to the last valid step; never crash, never silently restart.</li>
+      </ul>
+
+      <h4>Voice &amp; narration</h4>
+      <ul>
+        <li>Narration stops the instant × is tapped and does not resume with the sheet. If the learner taps “Keep drawing” and we replay the step, the voice replays with it — the two are always started together.</li>
+        <li>On Leave, deactivate the audio session with <code>.notifyOthersOnDeactivation</code> so any ducked music returns to full volume.</li>
+        <li>The mute preference is global and survives leaving; it is not per-lesson state.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li>The sheet is a modal: VoiceOver focus moves to “Leave this drawing?” on presentation, and the player behind is <code>.accessibilityHidden(true)</code>.</li>
+        <li>Labels: “Keep drawing” and “Leave this lesson. Your place is kept.” — the reassurance belongs in the label too, because a VoiceOver user reaching the button may not have heard the body text.</li>
+        <li>Escape gesture (two-finger scrub) dismisses the sheet as “Keep drawing”.</li>
+        <li>The resume card is one accessibility element: “You left off at step 3 of 5, Put in the door, yesterday.” The trailing dots are <code>.accessibilityHidden(true)</code> since they repeat it.</li>
+        <li>Dynamic Type: the sheet's detent is <code>.height(320)</code> at default sizes but must become <code>.medium</code> at accessibility sizes, or the two buttons get cropped. Use <code>.presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.medium] : [.height(320)])</code>.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>// In PlayerScreen
+.fullScreenCover(item: $activeLesson) { … }
+.interactiveDismissDisabled(true)
+.sheet(isPresented: $showLeave) {
+    LeaveSheet(stepNumber: player.currentStepIndex + 1,
+               onKeep:  { showLeave = false; resumeIfStale() },
+               onLeave: { progress.record(lessonId, step: player.currentStepIndex)
+                          player.stop(); narration.stop(); narration.deactivate()
+                          dismiss() })
+      .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.medium] : [.height(320)])
+      .presentationDragIndicator(.visible)
+}
+
+struct LeaveSheet: View {
+    let stepNumber: Int
+    let onKeep: () -> Void, onLeave: () -> Void
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("Leave this drawing?").font(Theme.rounded(22, .bold))
+            Text("Your place is kept. You can come back to step \(stepNumber) whenever you like.")
+                .font(Theme.rounded(17, .regular)).foregroundStyle(Theme.ink.opacity(0.55))
+                .multilineTextAlignment(.center)
+            Button("Keep drawing", action: onKeep)
+                .buttonStyle(BigPrimaryButtonStyle(tint: Theme.ink))
+            Button("Leave", action: onLeave)
+                .buttonStyle(.plain).foregroundStyle(Theme.accent)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .accessibilityLabel("Leave this lesson. Your place is kept.")
+        }
+        .padding(.horizontal, 20).padding(.bottom, 12)
+    }
+}
+
+// On hp-preview (Home &amp; paths owns the screen; this is the contract it consumes)
+if let saved = progress.entry(for: lesson.id) {
+    Button("Continue from step \(saved.stepIndex + 1)") { start(at: saved.stepIndex) }
+        .buttonStyle(BigPrimaryButtonStyle())
+    Button("Start from the beginning") { progress.clear(lesson.id); start(at: nil) }
+        .buttonStyle(.plain).foregroundStyle(Theme.ink.opacity(0.55))
+} else {
+    Button("Start drawing") { start(at: nil) }.buttonStyle(BigPrimaryButtonStyle())
+}</pre>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li><b>Where does “Leave” land?</b> Drawn here as <code>hp-preview</code> (the screen the learner came from). The alternative is <code>hp-path</code>, which shows the progress they just made in context. Needs a decision with the Home &amp; paths owner.</li>
+        <li><b>Should the Learn tab's continue card also offer “Continue from step 3”?</b> It would mean two entry points to the same saved place. Recommend yes, using the identical string, since a learner who left mid-lesson will look at the home screen first.</li>
+        <li><b>Confirmation on leaving the very first step?</b> There is nothing to keep at step 1, so the sheet arguably should not appear at all before the first “I drew it”. Cheap to add, and it removes a pointless question from the very first lesson.</li>
+        <li><b>Does a resumed lesson still count as “finished today” for the optional reminder</b> (<code>st-reminder</code>)? Out of scope here, but the store needs to answer it.</li>
+      </ul>
+    </aside>
+  </div>
+</article>

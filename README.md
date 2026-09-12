@@ -63,6 +63,15 @@ against the §36 checklist. The five lessons are:
 The blue two-story house from the M5 tuning round would suit the last one, if a licensed copy can be used. Don't start
 M6 without the creator.
 
+### iOS design track
+
+The screens of the learner app were designed on 2026-09-12, ahead of M7, as an interactive HTML document with
+developer notes: [docs/ios-design/index.html](docs/ios-design/index.html) (open it in a browser; see
+[docs/ios-design/README.md](docs/ios-design/README.md)). It adds two decisions to the master plan, both bounded and
+explained in its handbook: every step is narrated by the tutor's recorded voice (ElevenLabs, produced in the Studio
+later, shipped as optional audio beside the lesson), and a tutor character, Lina, who teaches during onboarding and
+is only a voice in the player. No Studio or Xcode code changed.
+
 ### Studio track
 
 This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the

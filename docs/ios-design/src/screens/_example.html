@@ -1,0 +1,66 @@
+<!-- _example.html — the fragment contract, as a working example. Files starting with "_" are not built. -->
+<article class="screen" id="ex-sample" data-title="Sample screen" data-group="Example">
+  <header>
+    <h2>Sample screen</h2>
+    <p class="lede">One sentence on what this screen is for and where it sits in the flow.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <!-- Optional: variants. One .phone per variant, same data-variant name on the button. First button is shown first. -->
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="default">Default</button>
+        <button type="button" data-variant="sheet">With sheet</button>
+      </nav>
+      <div class="devices">
+        <div class="phone" data-variant="default">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="handbook"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Title</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <div class="tutor-says">
+              <span class="lina lina--md"><svg><use href="#lina-pen"/></svg></span>
+              <div class="speech">Let's draw the walls first. One square, right in the middle.</div>
+            </div>
+            <div class="canvas-frame">
+              <svg viewBox="0 0 1000 1000">
+                <path class="stroke draws" pathLength="1" stroke-width="16" style="--dur:2.4s" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+              </svg>
+            </div>
+            <div class="card stack-8">
+              <p class="t-subhead muted">Step 1 of 5</p>
+              <p class="t-instruction">Draw a big square in the middle of your paper.</p>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-set-variant="sheet">I drew it</button>
+            <button class="btn btn-secondary" type="button"><svg><use href="#i-replay"/></svg>Watch again</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+        <div class="phone" data-variant="sheet">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body"></div>
+          <div class="overlay"><div class="sheet"><div class="grabber"></div><p class="t-title2">Leave this drawing?</p><p class="t-body-reg muted">Your place is kept. You can come back any time.</p><button class="btn btn-primary btn-primary--ink" type="button" data-set-variant="default">Keep drawing</button><button class="btn btn-text" type="button">Leave</button></div></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Optional caption under the device(s).</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4><p>…</p>
+      <h4>Layout</h4><ul><li>…</li></ul>
+      <h4>States &amp; interactions</h4><ul><li>…</li></ul>
+      <h4>Data</h4><ul><li>…</li></ul>
+      <h4>Voice &amp; narration</h4><ul><li>…</li></ul>
+      <h4>Accessibility</h4><ul><li>…</li></ul>
+      <h4>SwiftUI mapping</h4><pre>…</pre>
+      <h4>Open questions</h4><ul><li>…</li></ul>
+    </aside>
+  </div>
+</article>

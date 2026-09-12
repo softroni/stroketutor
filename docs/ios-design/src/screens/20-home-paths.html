@@ -1,0 +1,1410 @@
+<!-- 20-home-paths.html — Learn tab, all paths, path detail, lesson preview. Group: Home & paths. -->
+
+<style>
+/* ---------------------------------------------------------------------------
+   Screen-specific CSS for the "Home & paths" group. Every rule is prefixed with
+   one of the four screen ids so nothing leaks into another agent's fragment.
+   --------------------------------------------------------------------------- */
+
+/* Finished-drawing artwork. The symbols below carry geometry only (no stroke
+   attributes), so stroke properties inherit from this container into the <use>
+   shadow tree. Line weight is a ratio of the 1000 x 1000 canvas: a thumbnail
+   thickens the stroke so the drawing still reads at 44 pt. */
+#hp-home .hp-art, #hp-paths .hp-art, #hp-path .hp-art, #hp-preview .hp-art {
+  display: block; width: 100%; height: 100%;
+  fill: none; stroke: var(--ink); stroke-linecap: round; stroke-linejoin: round;
+}
+#hp-home .hp-art--xs, #hp-path .hp-art--xs, #hp-preview .hp-art--xs { stroke-width: 46; }
+#hp-home .hp-art--sm, #hp-path .hp-art--sm, #hp-preview .hp-art--sm { stroke-width: 34; }
+#hp-home .hp-art--md, #hp-path .hp-art--md, #hp-preview .hp-art--md { stroke-width: 24; }
+#hp-path .hp-art--faint { stroke: var(--ink-35); }
+
+/* .screen-body is a flex column; without this its children shrink to fit the
+   frame instead of scrolling, which silently squashes cards and thumbnails. */
+#hp-home .screen-body > *, #hp-paths .screen-body > *,
+#hp-path .screen-body > *, #hp-preview .screen-body > * { flex: none; }
+
+/* Tappable rows drawn as buttons: reset the UA button look, keep the card look. */
+#hp-home .hp-row, #hp-paths .hp-row, #hp-path .hp-row, #hp-preview .hp-row {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  font-family: inherit; font-size: 17px; color: var(--ink); border: 0; cursor: pointer;
+  background: var(--card); border-radius: var(--r-card); box-shadow: var(--shadow-card);
+  padding: 14px 16px; min-height: var(--tap);
+}
+#hp-paths .hp-row--quiet { background: rgba(255,255,255,.55); box-shadow: none; cursor: default; }
+#hp-paths .hp-row--quiet .hp-ic { opacity: .45; }
+#hp-paths .hp-row--quiet .chip { white-space: nowrap; flex: none; }
+#hp-home .hp-col, #hp-paths .hp-col, #hp-path .hp-col, #hp-preview .hp-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 auto; }
+
+#hp-home .hp-ic, #hp-paths .hp-ic {
+  width: 44px; height: 44px; border-radius: 14px; flex: none;
+  display: grid; place-items: center; background: var(--page); color: var(--ink-70);
+}
+#hp-paths .hp-ic svg, #hp-home .hp-ic svg { width: 26px; height: 26px; }
+
+/* Hero "Continue" card on the Learn tab. */
+#hp-home .hp-hero-thumb { width: 104px; height: 104px; }
+#hp-home .hp-sketch-line { display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: none; border: 0; font-family: inherit; color: var(--ink-55); cursor: pointer;
+  min-height: 44px; font-size: 15px; font-weight: 600; width: 100%; }
+#hp-home .hp-sketch-line svg { width: 18px; height: 18px; }
+
+/* Path detail: the ordered lesson list. */
+#hp-path .hp-lesson {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  font-family: inherit; font-size: 17px; color: var(--ink); cursor: pointer;
+  background: transparent; border: 0; border-top: 1px solid var(--line);
+  padding: 10px 14px; min-height: var(--tap);
+}
+#hp-path .hp-lesson:first-child { border-top: 0; }
+#hp-path .hp-lesson--locked { color: var(--ink-35); cursor: pointer; }
+#hp-path .hp-lesson--next { background: var(--green-soft); border-top-color: transparent; padding: 12px 14px; }
+#hp-path .hp-lesson--next .t-footnote { white-space: nowrap; }
+#hp-path .hp-lesson--next + .hp-lesson { border-top-color: transparent; }
+#hp-path .hp-lthumb { width: 46px; height: 46px; }
+#hp-path .hp-start {
+  min-height: 48px; width: auto; padding: 0 20px; border-radius: 24px;
+  background: var(--green); color: #fff; font-size: 17px; font-weight: 800; box-shadow: none;
+}
+/* "The current lesson is alive" — Duolingo's green current node, as a calm ring. */
+#hp-path .hp-alive { position: relative; }
+#hp-path .hp-alive::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(28,143,92,.35); animation: hp-breathe 2.8s ease-in-out infinite;
+}
+@keyframes hp-breathe { 0%,100% { opacity: .25; transform: scale(.94); } 50% { opacity: .9; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { #hp-path .hp-alive::after { animation: none; opacity: .6; } }
+
+/* Lesson preview: reference photo beside the finished drawing. */
+#hp-preview .hp-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+#hp-preview .hp-photo { aspect-ratio: 1 / 1; }
+#hp-preview .hp-need { display: flex; align-items: center; gap: 10px; color: var(--ink-70); }
+#hp-preview .hp-need svg { width: 22px; height: 22px; flex: none; }
+
+/* iPad: path cards in two columns, content held to a readable measure. */
+#hp-paths .hp-pad-wrap { max-width: 900px; margin: 0 auto; width: 100%; padding-top: 12px; }
+#hp-paths .hp-pad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+</style>
+
+<!-- Finished-drawing geometry for the Houses path (Appendix A, 1–10). Ids are
+     screen-prefixed; they define no lina-* or i-* symbol. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="hp-dr-house1" viewBox="0 0 1000 1000">
+    <path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+    <path d="M 200 480 L 500 260 L 800 480 Z"/>
+    <path d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+    <path d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+    <path d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+    <path d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+  </symbol>
+  <symbol id="hp-dr-house2" viewBox="0 0 1000 1000">
+    <path d="M 270 505 L 730 505 L 730 855 L 270 855 Z"/>
+    <path d="M 215 505 L 500 295 L 785 505 Z"/>
+    <path d="M 625 375 L 625 175 L 725 175 L 725 430"/>
+    <path d="M 450 855 L 450 700 L 560 700 L 560 855"/>
+    <path d="M 315 565 L 405 565 L 405 655 L 315 655 Z"/>
+  </symbol>
+  <symbol id="hp-dr-cottage" viewBox="0 0 1000 1000">
+    <path d="M 200 530 L 800 530 L 800 855 L 200 855 Z"/>
+    <path d="M 150 530 L 500 320 L 850 530 Z"/>
+    <path d="M 445 855 L 445 690 L 565 690 L 565 855"/>
+    <path d="M 255 590 L 385 590 L 385 695 L 255 695 Z"/>
+    <path d="M 630 590 L 760 590 L 760 695 L 630 695 Z"/>
+    <path d="M 320 590 L 320 695"/>
+    <path d="M 695 590 L 695 695"/>
+    <path d="M 665 415 L 665 255 L 750 255 L 750 462"/>
+    <path d="M 120 857 L 890 857"/>
+    <path d="M 880 855 C 848 855 840 812 872 802 C 880 774 926 776 932 802 C 960 812 954 855 924 855"/>
+  </symbol>
+  <symbol id="hp-dr-angle" viewBox="0 0 1000 1000">
+    <path d="M 300 490 L 640 490 L 640 850 L 300 850 Z"/>
+    <path d="M 640 490 L 840 555 L 840 860 L 640 850"/>
+    <path d="M 255 490 L 470 335 L 685 490"/>
+    <path d="M 470 335 L 880 442 L 840 555"/>
+    <path d="M 400 850 L 400 700 L 500 700 L 500 850"/>
+    <path d="M 700 600 L 780 625 L 780 705 L 700 685 Z"/>
+  </symbol>
+  <symbol id="hp-dr-two-story" viewBox="0 0 1000 1000">
+    <path d="M 280 400 L 720 400 L 720 855 L 280 855 Z"/>
+    <path d="M 230 400 L 500 240 L 770 400 Z"/>
+    <path d="M 450 855 L 450 705 L 550 705 L 550 855"/>
+    <path d="M 330 450 L 420 450 L 420 540 L 330 540 Z"/>
+    <path d="M 580 450 L 670 450 L 670 540 L 580 540 Z"/>
+    <path d="M 330 620 L 420 620 L 420 700 L 330 700 Z"/>
+    <path d="M 580 620 L 670 620 L 670 700 L 580 700 Z"/>
+  </symbol>
+  <symbol id="hp-dr-barn" viewBox="0 0 1000 1000">
+    <path d="M 200 520 L 800 520 L 800 860 L 200 860 Z"/>
+    <path d="M 200 520 L 300 400 L 700 400 L 800 520"/>
+    <path d="M 300 400 L 500 320 L 700 400"/>
+    <path d="M 400 860 L 400 620 L 600 620 L 600 860"/>
+    <path d="M 400 620 L 600 860"/>
+    <path d="M 600 620 L 400 860"/>
+  </symbol>
+  <symbol id="hp-dr-farmhouse" viewBox="0 0 1000 1000">
+    <path d="M 300 480 L 700 480 L 700 855 L 300 855 Z"/>
+    <path d="M 260 480 L 500 320 L 740 480 Z"/>
+    <path d="M 700 630 L 880 630 L 880 855 L 700 855"/>
+    <path d="M 668 630 L 790 540 L 912 630"/>
+    <path d="M 450 855 L 450 705 L 550 705 L 550 855"/>
+    <path d="M 340 540 L 420 540 L 420 620 L 340 620 Z"/>
+    <path d="M 580 540 L 660 540 L 660 620 L 580 620 Z"/>
+    <path d="M 600 390 L 600 270 L 670 270 L 670 432"/>
+  </symbol>
+  <symbol id="hp-dr-house-tree" viewBox="0 0 1000 1000">
+    <path d="M 180 545 L 560 545 L 560 855 L 180 855 Z"/>
+    <path d="M 140 545 L 370 375 L 600 545 Z"/>
+    <path d="M 330 855 L 330 715 L 420 715 L 420 855"/>
+    <path d="M 220 605 L 300 605 L 300 680 L 220 680 Z"/>
+    <path d="M 760 855 L 760 645"/>
+    <path d="M 760 655 C 662 655 642 525 726 495 C 736 410 854 405 874 490 C 952 520 938 655 830 655"/>
+    <path d="M 110 857 L 940 857"/>
+  </symbol>
+  <symbol id="hp-dr-foreground" viewBox="0 0 1000 1000">
+    <path d="M 300 480 L 700 480 L 700 730 L 300 730 Z"/>
+    <path d="M 262 480 L 500 332 L 738 480 Z"/>
+    <path d="M 460 730 L 460 610 L 545 610 L 545 730"/>
+    <path d="M 340 532 L 420 532 L 420 602 L 340 602 Z"/>
+    <path d="M 160 820 L 890 820"/>
+    <path d="M 250 872 L 250 772"/>
+    <path d="M 420 872 L 420 772"/>
+    <path d="M 590 872 L 590 772"/>
+    <path d="M 760 872 L 760 772"/>
+    <path d="M 120 880 C 82 880 72 812 120 797 C 132 748 208 751 218 797 C 258 812 252 880 218 880"/>
+  </symbol>
+  <symbol id="hp-dr-street" viewBox="0 0 1000 1000">
+    <path d="M 60 762 L 940 762"/>
+    <path d="M 60 824 L 940 824"/>
+    <path d="M 120 470 L 420 470 L 420 762 L 120 762 Z"/>
+    <path d="M 88 470 L 270 338 L 452 470 Z"/>
+    <path d="M 230 762 L 230 640 L 310 640 L 310 762"/>
+    <path d="M 150 520 L 220 520 L 220 585 L 150 585 Z"/>
+    <path d="M 520 400 L 800 400 L 800 762 L 520 762 Z"/>
+    <path d="M 490 400 L 660 280 L 830 400 Z"/>
+    <path d="M 620 762 L 620 630 L 700 630 L 700 762"/>
+    <path d="M 550 450 L 620 450 L 620 520 L 550 520 Z"/>
+    <path d="M 700 450 L 770 450 L 770 520 L 700 520 Z"/>
+    <path d="M 758 332 L 758 248 L 812 248 L 812 374"/>
+    <path d="M 462 762 L 462 520"/>
+    <path d="M 440 505 L 484 505 L 474 478 L 450 478 Z"/>
+    <path d="M 880 762 L 880 606"/>
+    <path d="M 880 612 C 812 612 800 530 856 512 C 862 456 922 452 936 506 C 976 526 958 612 896 612"/>
+  </symbol>
+</defs></svg>
+
+<!-- ========================================================================= -->
+<article class="screen" id="hp-home" data-title="Learn (home)" data-group="Home &amp; paths">
+  <header>
+    <h2>Learn — the home screen</h2>
+    <p class="lede">The first screen after onboarding and the app's home: one drawing to continue, the learner's paths underneath, and nothing that counts, nags or scores.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="in-progress">In progress</button>
+        <button type="button" data-variant="first-time">First time</button>
+      </nav>
+      <div class="devices">
+
+        <!-- ---------------------------------------------------------- in progress -->
+        <div class="phone" data-variant="in-progress">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:8px;padding-bottom:14px">
+
+            <h1 class="t-large-title">Learn</h1>
+
+            <div class="card stack">
+              <p class="t-eyebrow c-green">Continue</p>
+              <div class="row">
+                <div class="thumb hp-hero-thumb"><svg class="hp-art hp-art--md" viewBox="0 0 1000 1000"><use href="#hp-dr-cottage"/></svg></div>
+                <div class="hp-col">
+                  <h2 class="t-title2">Small Cottage</h2>
+                  <p class="t-subhead muted">Lesson 3 of 10 · Houses</p>
+                  <p class="t-footnote muted-2">About 4 min · 7 steps</p>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="button" data-goto="hp-preview">Start</button>
+            </div>
+
+            <p class="t-eyebrow muted" style="padding-left:4px">Your paths</p>
+
+            <button class="hp-row" type="button" data-goto="hp-path">
+              <span class="hp-ic"><svg><use href="#i-house"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline">Houses</span>
+                <span class="progress progress--thin" style="margin:2px 0 1px"><i style="--value:20%"></i></span>
+                <span class="t-footnote muted">2 of 10 drawn</span>
+              </span>
+              <svg class="chevron" style="width:20px;height:20px;color:var(--ink-35);flex:none"><use href="#i-chevron-right"/></svg>
+            </button>
+
+            <button class="hp-row" type="button" data-goto="hp-paths">
+              <span class="hp-ic"><svg><use href="#i-tree"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline">Trees</span>
+                <span class="progress progress--thin" style="margin:2px 0 1px"><i style="--value:50%"></i></span>
+                <span class="t-footnote muted">4 of 8 drawn</span>
+              </span>
+              <svg class="chevron" style="width:20px;height:20px;color:var(--ink-35);flex:none"><use href="#i-chevron-right"/></svg>
+            </button>
+
+            <button class="btn btn-secondary" type="button" data-goto="hp-paths">More paths<svg><use href="#i-chevron-right"/></svg></button>
+
+            <button class="hp-sketch-line" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>6 drawings in your sketchbook</button>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------------- first time -->
+        <div class="phone" data-variant="first-time">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:8px;padding-bottom:14px">
+
+            <h1 class="t-large-title">Learn</h1>
+            <p class="t-body-reg muted" style="margin-top:-6px">You chose Houses. Here is where it starts.</p>
+
+            <div class="card stack">
+              <p class="t-eyebrow c-green">Start here</p>
+              <div class="row">
+                <div class="thumb hp-hero-thumb"><svg class="hp-art hp-art--md" viewBox="0 0 1000 1000"><use href="#hp-dr-house1"/></svg></div>
+                <div class="hp-col">
+                  <h2 class="t-title2">Simple House</h2>
+                  <p class="t-subhead muted">Lesson 1 of 10 · Houses</p>
+                  <p class="t-footnote muted-2">About 4 min · 5 steps</p>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="button" data-goto="hp-preview">Start</button>
+            </div>
+
+            <p class="t-eyebrow muted" style="padding-left:4px">Your path</p>
+
+            <button class="hp-row" type="button" data-goto="hp-path">
+              <span class="hp-ic"><svg><use href="#i-house"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline">Houses</span>
+                <span class="t-footnote muted">Ten drawings, from a front-facing house to a small street scene.</span>
+              </span>
+              <svg class="chevron" style="width:20px;height:20px;color:var(--ink-35);flex:none"><use href="#i-chevron-right"/></svg>
+            </button>
+
+            <button class="btn btn-secondary" type="button" data-goto="hp-paths">More paths<svg><use href="#i-chevron-right"/></svg></button>
+
+            <p class="t-footnote muted-2 center" style="padding:4px 16px 0">Your sketchbook is empty. Your first finished page goes there.</p>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+
+      </div>
+      <p class="device-caption">Mock state: Houses 2 of 10 drawn (next: Small Cottage), Trees 4 of 8 — the two numbers that make the sketchbook's six pages add up.</p>
+    </div>
+
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p>One screen, one question: <em>what do I draw next?</em> <span class="tag tag--plan">§29</span> asks Home to
+      &ldquo;ask what the learner wants to sketch and show calm progress across subject paths&rdquo;. The hero answers it
+      in one tap; the paths below let the learner change their mind. <span class="tag tag--plan">§30</span> forbids
+      streaks, XP and daily goals, so there is no counter on this screen that can go down.</p>
+
+      <h4>Layout</h4>
+      <ul>
+        <li>Scrolling content (<code>.screen-body--scroll</code>) between the status bar and a three-tab bar with
+          <b>Learn</b> active. 20&nbsp;pt gutters, 12&nbsp;pt between stacked blocks.</li>
+        <li><b>Hero card</b> (<code>.card</code>, radius 28): eyebrow &ldquo;Continue&rdquo; in green 13&nbsp;pt/800, a
+          104&nbsp;pt <code>.thumb</code> of the <em>next</em> lesson's finished drawing, title 22&nbsp;pt/700, then two
+          quiet meta lines, then the single green 68&nbsp;pt primary. The finished drawing is deliberately shown before
+          the lesson starts — it is step 2 of the lesson anatomy <span class="tag tag--plan">§7</span>, not a spoiler.</li>
+        <li><b>Path cards</b>: 44&nbsp;pt icon tile, title, a 6&nbsp;pt <code>.progress--thin</code> bar and
+          &ldquo;<i>n</i> of <i>m</i> drawn&rdquo;. Calm on purpose — no percentage, no badge, no colour coding.</li>
+        <li><b>More paths</b> is a secondary button, not a card, so it never competes with a path the learner owns.</li>
+        <li>The sketchbook line is a 44&nbsp;pt text row at the very bottom: a fact, not a target.</li>
+        <li>Lina does not appear here. She belongs to onboarding, the narration chip and completion; a tutor on the home
+          screen every launch would read as mascot-driven motivation <span class="tag tag--plan">§30</span>.</li>
+      </ul>
+
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li><b>first-time</b> — straight out of <code>ob-ready</code>. Nothing is started, so there is no
+          &ldquo;Continue&rdquo;: the hero is lesson 1 of the chosen path, the path card carries the description instead
+          of a progress bar, and the sketchbook line becomes an honest empty line.</li>
+        <li><b>in-progress</b> — hero = the next unlocked lesson of <code>currentPathId</code>. Tapping <b>Start</b> →
+          <code>hp-preview</code>; a path card → <code>hp-path</code>; <b>More paths</b> → <code>hp-paths</code>.</li>
+        <li><b>Path finished</b> (not drawn): if the current path has no next lesson, the hero becomes &ldquo;You have
+          drawn every house in this path&rdquo; with <b>Choose another path</b> → <code>hp-paths</code>. See
+          <code>hp-path</code> variant <i>complete</i>.</li>
+        <li><b>No content</b>: if the bundle yields zero lessons the hero is replaced by a plain card, &ldquo;No lessons
+          are installed. Reinstalling the app restores them.&rdquo; — never an empty hero.</li>
+        <li>Nothing on this screen animates on appear. Progress bars are static; they change only after a completion.</li>
+      </ul>
+
+      <h4>Data</h4>
+      <ul>
+        <li><b>Where content comes from.</b> Tutorials ship as a <em>folder reference</em> named <code>Tutorials</code>
+          (<code>TutorialLoader.bundleSubdirectory</code>), discovered with
+          <code>bundle.urls(forResourcesWithExtension:"json",subdirectory:)</code> — dropping a new lesson in needs no
+          code change. <code>shared/Catalog/</code> (<code>paths.json</code>, <code>lessons.json</code>) must be added to
+          the same target in <b>M7</b>. <span class="tag tag--warn">today</span> the app does <em>not</em> read the
+          catalog at all: <code>TutorialLibrary</code> loads every bundled file and sorts it alphabetically by title, so
+          there is no path, no order and no unlock rule in the shipped app yet.</li>
+        <li><b>Field by field.</b> Path title ← <code>paths.json.title</code>; path lesson count ←
+          <code>lessonIds.count</code>; lesson title ← <code>tutorial.title</code> (<i>Simple House</i>); step count ←
+          <code>tutorial.steps.count</code>; time ← <code>formatMinutes(estimateLearnerSeconds(tutorial))</code>, the
+          placeholder formula in <code>web/src/catalog/metrics.ts</code>: animation&nbsp;&times;&nbsp;3 +
+          8&nbsp;s&nbsp;&times;&nbsp;steps. Port it to Swift once so Studio and app always agree.</li>
+        <li><b>Progress.</b> A local <code>Progress</code> store keyed by <code>lessonId</code> holding
+          <code>completedAt: Date</code> (plus <code>photoId?</code> for the sketchbook). No account, no sync
+          <span class="tag tag--plan">§32</span>. Suggested storage: one JSON file in Application Support, loaded once
+          into an <code>@Observable ProgressStore</code>. &ldquo;<i>n</i> of <i>m</i> drawn&rdquo; =
+          <code>path.lessonIds.filter(progress.isDone).count</code>.</li>
+        <li><b>Next lesson</b> = the first id in <code>path.lessonIds</code> order that is not done. That single rule
+          drives the hero, the green row in <code>hp-path</code> and the unlock state of everything after it.</li>
+        <li><b>Current path</b> = the path of the most recently completed lesson, falling back to the path chosen in
+          onboarding. Stored as <code>currentPathId</code> in <code>UserDefaults</code>.</li>
+        <li><b>Mock vs catalog.</b> <code>paths.json</code> publishes one lesson per path today
+          (<code>houses: ["simple-house"]</code>, <code>trees: ["palm-tree-4"]</code>); the 10 and 8 shown here are the
+          Appendix&nbsp;A curriculum the catalog is growing into. The screen must read the counts, never hardcode them.</li>
+      </ul>
+
+      <h4>Voice &amp; narration</h4>
+      <ul>
+        <li>Silent screen. No narration, no sound on tap. Lina's voice starts inside the player, at the first step.</li>
+        <li>The mute state lives in settings and is read here only to decide nothing — it is not surfaced on Home.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li><b>Dynamic Type</b>: every label scales (<code>.title2</code>, <code>.subheadline</code>,
+          <code>.footnote</code> via <code>Theme.rounded</code>); the 104&nbsp;pt thumbnail and the 44&nbsp;pt icon tile
+          stay fixed and the row grows around them. At accessibility sizes the hero's thumbnail + text row wraps to a
+          vertical stack (<code>ViewThatFits</code>), and the path rows keep the icon but drop the progress bar's caption
+          onto its own line. Nothing truncates.</li>
+        <li><b>VoiceOver</b>: the hero is one element — &ldquo;Continue. Small Cottage, lesson 3 of 10, Houses, about 4
+          minutes, 7 steps&rdquo;, action &ldquo;Start&rdquo;. Path card: &ldquo;Houses, 2 of 10 drawn&rdquo; with the
+          progress bar hidden (<code>.accessibilityHidden</code>) because the caption already says it. Sketchbook line:
+          &ldquo;6 drawings in your sketchbook&rdquo;, trait <i>button</i>.</li>
+        <li><b>Reduced motion</b>: nothing to disable here; the pulse ring lives on <code>hp-path</code> only.</li>
+        <li>Tap targets: hero primary 68&nbsp;pt, rows and the sketchbook line ≥ 44&nbsp;pt, cards ≥ 60&nbsp;pt
+          (<code>Theme.minimumTapTarget</code>).</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>TabView(selection:) {
+  NavigationStack(path: $learnPath) { LearnHomeView() }      // tag .learn, label "Learn", icon pen
+  NavigationStack { SketchbookView() }                       // tag .sketchbook
+  NavigationStack { SettingsView() }                         // tag .settings
+}
+
+struct LearnHomeView: View {
+  @Environment(Catalog.self) private var catalog          // paths.json + lessons.json + tutorials
+  @Environment(ProgressStore.self) private var progress
+  var body: some View {
+    ScrollView {
+      LazyVStack(alignment: .leading, spacing: 12) {
+        Text("Learn").font(Theme.rounded(.largeTitle, .heavy))
+        if let next = catalog.nextLesson(in: currentPath, progress) {
+          ContinueHeroCard(lesson: next, path: currentPath)   // NavigationLink(value: Route.preview(next.id))
+        } else { PathFinishedCard(path: currentPath) }
+        ForEach(catalog.startedPaths(progress)) { PathRow(path: $0) }  // value: Route.path($0.id)
+        Button("More paths") { route.append(.allPaths) }.buttonStyle(BigSecondaryButtonStyle())
+        SketchbookCountRow(count: progress.photoCount)
+      }.padding(.horizontal, 20)
+    }
+    .background(Theme.pageBackground)
+    .navigationDestination(for: Route.self) { … }   // .preview → LessonPreviewView, .path → PathDetailView
+  }
+}</pre>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>The brief puts the learner on Trees lesson 1 <em>and</em> gives the sketchbook six pages. Six pages needs six
+          finished lessons, so this mock shows Trees 4 of 8. Which is right — and does a lesson drawn twice add a second
+          sketchbook page (the <i>replay</i> case in <code>hp-preview</code>)?</li>
+        <li>Should Home list <em>every</em> started path, or only the two most recent with the rest behind &ldquo;More
+          paths&rdquo;? Shown here: every started path, because a beginner will rarely have more than three.</li>
+        <li>After the last lesson of a path, does Home keep that path as the hero (&ldquo;finished&rdquo;) or
+          automatically move to the next started path? Shown: it keeps it, and asks.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- Five extra subject icons this group needs (the shared sheet has house, tree,
+     flower, mountain, street). Screen-prefixed ids, per the contract. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="hp-i-landscape" viewBox="0 0 24 24">
+    <path d="M3 19 h18 M3 19 L8.5 11 l3.5 4 l3 -4.5 l6 8.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="17.5" cy="6" r="2.4" fill="none" stroke="currentColor" stroke-width="2.2"/>
+  </symbol>
+  <symbol id="hp-i-leaf" viewBox="0 0 24 24">
+    <path d="M20 4 C9 4 4 9.5 4 15.5 C4 18 5.5 19.5 8 19.5 C15 19.5 20 13.5 20 4 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M7 19 C10 14.5 14 10 18.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="hp-i-water" viewBox="0 0 24 24">
+    <path d="M3 8.5 c3 -2 5 2 8 0 s5 -2 8 0 M3 13.5 c3 -2 5 2 8 0 s5 -2 8 0 M3 18.5 c3 -2 5 2 8 0 s5 -2 8 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="hp-i-object" viewBox="0 0 24 24">
+    <path d="M6.5 7 h10.5 l-1.1 12.6 a1.6 1.6 0 0 1 -1.6 1.4 h-5.1 a1.6 1.6 0 0 1 -1.6 -1.4 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M17 10.5 a3.2 3.2 0 0 1 0 6 M6.5 4 h10.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="hp-i-arch" viewBox="0 0 24 24">
+    <path d="M6 21 V11 a6 6 0 0 1 12 0 v10 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M12 5.2 V21 M6.5 14 h11" fill="none" stroke="currentColor" stroke-width="2.2"/>
+  </symbol>
+</defs></svg>
+
+<!-- ========================================================================= -->
+<article class="screen" id="hp-paths" data-title="All paths" data-group="Home &amp; paths">
+  <header>
+    <h2>All paths</h2>
+    <p class="lede">Browse every subject and switch freely. Progress is remembered per path, so switching costs nothing (§6).</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="default">iPhone</button>
+        <button type="button" data-variant="ipad">iPad</button>
+      </nav>
+      <div class="devices">
+
+        <!-- ---------------------------------------------------------- iPhone -->
+        <div class="phone" data-variant="default">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="hp-home"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Paths</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-bottom:14px">
+            <p class="t-body-reg muted">Choose what you want to draw. You can switch any time — each path keeps its own place.</p>
+
+            <p class="t-eyebrow muted" style="padding-left:4px">Open now</p>
+
+            <button class="hp-row" type="button" data-goto="hp-path">
+              <span class="hp-ic"><svg><use href="#i-house"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline">Houses</span>
+                <span class="t-footnote muted">From a front-facing house to a small street scene.</span>
+                <span class="progress progress--thin" style="margin:3px 0 1px"><i style="--value:20%"></i></span>
+                <span class="t-footnote muted-2">10 lessons · 2 drawn</span>
+              </span>
+              <svg style="width:20px;height:20px;color:var(--ink-35);flex:none"><use href="#i-chevron-right"/></svg>
+            </button>
+
+            <button class="hp-row" type="button" data-goto="hp-path">
+              <span class="hp-ic"><svg><use href="#i-tree"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline">Trees</span>
+                <span class="t-footnote muted">Trunk and canopy first, then species character.</span>
+                <span class="progress progress--thin" style="margin:3px 0 1px"><i style="--value:50%"></i></span>
+                <span class="t-footnote muted-2">8 lessons · 4 drawn</span>
+              </span>
+              <svg style="width:20px;height:20px;color:var(--ink-35);flex:none"><use href="#i-chevron-right"/></svg>
+            </button>
+
+            <p class="t-eyebrow muted" style="padding:6px 0 0 4px">Being drawn</p>
+
+            <div class="hp-row hp-row--quiet">
+              <span class="hp-ic"><svg><use href="#i-flower"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline muted">Flowers</span>
+                <span class="t-footnote muted-2">A simple bloom, then stems and layered petals.</span>
+              </span>
+              <span class="chip">Not yet</span>
+            </div>
+            <div class="hp-row hp-row--quiet">
+              <span class="hp-ic"><svg><use href="#i-mountain"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline muted">Mountains</span>
+                <span class="t-footnote muted-2">A silhouette, then layered ranges.</span>
+              </span>
+              <span class="chip">Not yet</span>
+            </div>
+            <div class="hp-row hp-row--quiet">
+              <span class="hp-ic"><svg><use href="#hp-i-landscape"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline muted">Landscapes</span>
+                <span class="t-footnote muted-2">Horizon and ground, then depth.</span>
+              </span>
+              <span class="chip">Not yet</span>
+            </div>
+            <div class="hp-row hp-row--quiet">
+              <span class="hp-ic"><svg><use href="#i-street"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline muted">Streets &amp; Places</span>
+                <span class="t-footnote muted-2">A bench, a lamp, then a street corner.</span>
+              </span>
+              <span class="chip">Not yet</span>
+            </div>
+            <div class="hp-row hp-row--quiet">
+              <span class="hp-ic"><svg><use href="#hp-i-leaf"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline muted">Plants &amp; Leaves</span>
+                <span class="t-footnote muted-2">Leaf shapes, branching, a potted plant.</span>
+              </span>
+              <span class="chip">Not yet</span>
+            </div>
+            <div class="hp-row hp-row--quiet">
+              <span class="hp-ic"><svg><use href="#hp-i-water"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline muted">Water &amp; Coast</span>
+                <span class="t-footnote muted-2">A shoreline, then reflections and boats.</span>
+              </span>
+              <span class="chip">Not yet</span>
+            </div>
+            <div class="hp-row hp-row--quiet">
+              <span class="hp-ic"><svg><use href="#hp-i-object"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline muted">Everyday Objects</span>
+                <span class="t-footnote muted-2">Familiar things and their proportions.</span>
+              </span>
+              <span class="chip">Not yet</span>
+            </div>
+            <div class="hp-row hp-row--quiet">
+              <span class="hp-ic"><svg><use href="#hp-i-arch"/></svg></span>
+              <span class="hp-col">
+                <span class="t-headline muted">Architecture Details</span>
+                <span class="t-footnote muted-2">Windows, doors, arches and roofs.</span>
+              </span>
+              <span class="chip">Not yet</span>
+            </div>
+
+            <p class="t-footnote muted-2 center" style="padding:6px 12px 0">These are being drawn now. They appear here when they are ready — no sign-up, no notification.</p>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------------- iPad landscape -->
+        <div class="phone phone--ipad" data-variant="ipad">
+          <div class="status-bar"><span>9:41 Sat 12 Sep</span><span class="icons"><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll" style="padding-bottom:14px">
+            <div class="hp-pad-wrap stack">
+              <h1 class="t-large-title">Paths</h1>
+              <p class="t-body-reg muted" style="margin-top:-8px">Choose what you want to draw. You can switch any time — each path keeps its own place.</p>
+
+              <p class="t-eyebrow muted" style="padding-left:4px">Open now</p>
+              <div class="hp-pad-grid">
+                <button class="hp-row" type="button" data-goto="hp-path">
+                  <span class="hp-ic"><svg><use href="#i-house"/></svg></span>
+                  <span class="hp-col">
+                    <span class="t-headline">Houses</span>
+                    <span class="t-footnote muted">From a front-facing house to a small street scene.</span>
+                    <span class="progress progress--thin" style="margin:3px 0 1px"><i style="--value:20%"></i></span>
+                    <span class="t-footnote muted-2">10 lessons · 2 drawn</span>
+                  </span>
+                  <svg style="width:20px;height:20px;color:var(--ink-35);flex:none"><use href="#i-chevron-right"/></svg>
+                </button>
+                <button class="hp-row" type="button" data-goto="hp-path">
+                  <span class="hp-ic"><svg><use href="#i-tree"/></svg></span>
+                  <span class="hp-col">
+                    <span class="t-headline">Trees</span>
+                    <span class="t-footnote muted">Trunk and canopy first, then species character.</span>
+                    <span class="progress progress--thin" style="margin:3px 0 1px"><i style="--value:50%"></i></span>
+                    <span class="t-footnote muted-2">8 lessons · 4 drawn</span>
+                  </span>
+                  <svg style="width:20px;height:20px;color:var(--ink-35);flex:none"><use href="#i-chevron-right"/></svg>
+                </button>
+              </div>
+
+              <p class="t-eyebrow muted" style="padding:6px 0 0 4px">Being drawn</p>
+              <div class="hp-pad-grid">
+                <div class="hp-row hp-row--quiet"><span class="hp-ic"><svg><use href="#i-flower"/></svg></span><span class="hp-col"><span class="t-headline muted">Flowers</span><span class="t-footnote muted-2">A simple bloom, then stems and layered petals.</span></span><span class="chip">Not yet</span></div>
+                <div class="hp-row hp-row--quiet"><span class="hp-ic"><svg><use href="#i-mountain"/></svg></span><span class="hp-col"><span class="t-headline muted">Mountains</span><span class="t-footnote muted-2">A silhouette, then layered ranges.</span></span><span class="chip">Not yet</span></div>
+                <div class="hp-row hp-row--quiet"><span class="hp-ic"><svg><use href="#hp-i-landscape"/></svg></span><span class="hp-col"><span class="t-headline muted">Landscapes</span><span class="t-footnote muted-2">Horizon and ground, then depth.</span></span><span class="chip">Not yet</span></div>
+                <div class="hp-row hp-row--quiet"><span class="hp-ic"><svg><use href="#i-street"/></svg></span><span class="hp-col"><span class="t-headline muted">Streets &amp; Places</span><span class="t-footnote muted-2">A bench, a lamp, then a street corner.</span></span><span class="chip">Not yet</span></div>
+                <div class="hp-row hp-row--quiet"><span class="hp-ic"><svg><use href="#hp-i-leaf"/></svg></span><span class="hp-col"><span class="t-headline muted">Plants &amp; Leaves</span><span class="t-footnote muted-2">Leaf shapes and branching.</span></span><span class="chip">Not yet</span></div>
+                <div class="hp-row hp-row--quiet"><span class="hp-ic"><svg><use href="#hp-i-water"/></svg></span><span class="hp-col"><span class="t-headline muted">Water &amp; Coast</span><span class="t-footnote muted-2">A shoreline, then reflections and boats.</span></span><span class="chip">Not yet</span></div>
+                <div class="hp-row hp-row--quiet"><span class="hp-ic"><svg><use href="#hp-i-object"/></svg></span><span class="hp-col"><span class="t-headline muted">Everyday Objects</span><span class="t-footnote muted-2">Familiar things and their proportions.</span></span><span class="chip">Not yet</span></div>
+                <div class="hp-row hp-row--quiet"><span class="hp-ic"><svg><use href="#hp-i-arch"/></svg></span><span class="hp-col"><span class="t-headline muted">Architecture Details</span><span class="t-footnote muted-2">Windows, doors, arches and roofs.</span></span><span class="chip">Not yet</span></div>
+              </div>
+              <p class="t-footnote muted-2 center" style="padding:8px 12px 0">These are being drawn now. They appear here when they are ready.</p>
+            </div>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+
+      </div>
+      <p class="device-caption">Two sections, not one greyed-out mixed list: what you can start today, and what is coming. The catalog publishes Houses and Trees only.</p>
+    </div>
+
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p>Switching subject is a first-class action <span class="tag tag--plan">§6</span> — &ldquo;across paths, users can
+      switch freely&rdquo; — so this is a plain browse list, not a settings screen buried three taps down. It also has to
+      tell the truth about a catalog that is still being written.</p>
+
+      <h4>Layout</h4>
+      <ul>
+        <li>Nav bar with a back chevron to <code>hp-home</code>; the tab bar stays, because this is inside the Learn tab.</li>
+        <li>Rows are cards, 60&nbsp;pt minimum: 44&nbsp;pt icon tile, title 17&nbsp;pt/700, one-line description
+          13&nbsp;pt, then (started paths only) a 6&nbsp;pt progress bar and &ldquo;10 lessons · 2 drawn&rdquo;.</li>
+        <li>Two sections. <b>Open now</b> = paths with at least one published lesson. <b>Being drawn</b> = the rest of the
+          §6 candidate set, on a flat 55&nbsp;% white, icon at 45&nbsp;% opacity, a neutral <code>.chip</code> reading
+          &ldquo;Not yet&rdquo;, no chevron and no tap. Showing them is a promise about direction; greying them is the
+          honest half of that promise.</li>
+        <li>The footnote refuses the obvious dark pattern: no &ldquo;notify me&rdquo;, no e-mail capture
+          <span class="tag tag--plan">§32</span>.</li>
+        <li><b>iPad</b>: the same rows in two columns inside a 900&nbsp;pt measure, centred. One column past
+          ~700&nbsp;pt of width, two above it (<code>AdaptiveColumns</code> / size class).</li>
+      </ul>
+
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Available row → <code>hp-path</code> for that path. Selecting a path does <em>not</em> reset anything; it sets
+          <code>currentPathId</code> only when the learner actually starts a lesson from it.</li>
+        <li>Unavailable row: not a button. <code>allowsHitTesting(false)</code>, no chevron, no highlight. VoiceOver reads
+          it and says &ldquo;not available yet&rdquo;; it is not marked as a button.</li>
+        <li>A path whose lessons are all drawn shows &ldquo;10 of 10 drawn&rdquo; with a gold check instead of the bar.</li>
+        <li>If the catalog fails to load, the whole list is replaced by the content-problem state owned by
+          <code>st-system</code> — never a blank list.</li>
+      </ul>
+
+      <h4>Data</h4>
+      <ul>
+        <li>Rows come from <code>paths.json</code> in file order. <b>Open now</b> = <code>lessonIds</code> non-empty
+          <em>and</em> at least one of those tutorials loaded. <b>Being drawn</b> = the remaining candidate paths.</li>
+        <li><span class="tag tag--warn">gap</span> <code>paths.json</code> today has <code>title</code>,
+          <code>lessonIds</code> and — for Houses only — <code>description</code>. Trees has <b>no description</b>, and
+          the eight future paths are not in the file at all. M7 needs: (a) a required one-line <code>description</code> on
+          every path, (b) an <code>icon</code> name per path so the app stops mapping ids to SF Symbols in code, and
+          (c) unpublished paths present in the catalog with <code>lessonIds: []</code> so this screen is data-driven
+          rather than a hardcoded &ldquo;coming soon&rdquo; array.</li>
+        <li>Descriptions in this mock for the eight unpublished paths are written from the §6 progression-emphasis table;
+          Houses' line is the real <code>paths.json</code> description, shortened to its first clause. The row shows
+          <code>description</code> truncated to one line with <code>.lineLimit(1)</code> — the full text lives on
+          <code>hp-path</code>.</li>
+        <li><span class="tag tag--warn">gap</span> <code>palm-tree-4.json</code> is <code>schemaVersion 2</code> and the
+          shipped app reads version 1 only (<code>TutorialLoader.isForNewerApp</code> silently skips it). Until the app
+          gains v2 (colour fills), <b>Trees would be empty in the real build</b> even though the catalog publishes it.
+          &ldquo;Open now&rdquo; must therefore be computed from tutorials that actually loaded, not from the catalog alone.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li><b>Dynamic Type</b>: descriptions may wrap to two lines at larger sizes; the row grows, the 44&nbsp;pt icon
+          tile does not. At accessibility sizes the icon moves above the title.</li>
+        <li><b>VoiceOver</b>: &ldquo;Houses. From a front-facing house to a small street scene. 10 lessons, 2 drawn.
+          Button.&rdquo; / &ldquo;Flowers. A simple bloom, then stems and layered petals. Not available
+          yet.&rdquo; Section headers use <code>.accessibilityAddTraits(.isHeader)</code>.</li>
+        <li>Rotor: both sections are headings, so a VoiceOver user can jump past the eight unavailable paths.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>List {                                   // or ScrollView + LazyVGrid on iPad
+  Section("Open now") {
+    ForEach(catalog.availablePaths) { path in
+      NavigationLink(value: Route.path(path.id)) { PathRow(path: path, progress: progress) }
+    }
+  }
+  Section("Being drawn") {
+    ForEach(catalog.upcomingPaths) { PathRow(path: $0, style: .unavailable) }
+  }
+}
+.listStyle(.insetGrouped)
+// iPad: LazyVGrid(columns: hSizeClass == .regular ? [.flexible(), .flexible()] : [.flexible()])</pre>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Do the eight unbuilt paths ship in <code>paths.json</code> with empty <code>lessonIds</code>, or does the app
+          carry a static &ldquo;coming&rdquo; list? Catalog-driven is shown here, and is the only version that can change
+          without an app release.</li>
+        <li>Ordering: catalog order (shown), alphabetical, or easiest-first? Houses and Trees are the gentlest starts, so
+          catalog order should be curated deliberately rather than left to whatever the Studio wrote last.</li>
+        <li>Should a path the learner has never opened show its lesson count at all? Shown: yes — the count is part of
+          judging &ldquo;can I finish this?&rdquo;</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ========================================================================= -->
+<article class="screen" id="hp-path" data-title="Path detail (Houses)" data-group="Home &amp; paths">
+  <header>
+    <h2>Path detail — Houses</h2>
+    <p class="lede">Where the path is going, what is done, what is next, and what is still locked — as a numbered list an adult can scan, not a field of floating bubbles.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="default">Default</button>
+        <button type="button" data-variant="locked">Locked lesson tapped</button>
+        <button type="button" data-variant="complete">Path complete</button>
+      </nav>
+      <div class="devices">
+
+        <!-- ---------------------------------------------------------- default -->
+        <div class="phone" data-variant="default">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="hp-home"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-bottom:14px">
+
+            <h1 class="t-title1">Houses</h1>
+            <p class="hint" style="margin-top:-6px">From a front-facing house to a small street scene: the body and roof first, then the details that give a house character, then a side wall and shallow perspective.</p>
+
+            <div class="card stack-8">
+              <span class="chip chip--gold" style="align-self:flex-start">Where this path leads</span>
+              <div class="row">
+                <div class="thumb" style="width:112px;height:112px"><svg class="hp-art hp-art--sm" viewBox="0 0 1000 1000"><use href="#hp-dr-street"/></svg></div>
+                <div class="hp-col">
+                  <p class="t-headline">Small Street Scene</p>
+                  <p class="t-footnote muted">Lesson 10. The same shapes as lesson 1, put together as a place you could stand in.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack-8">
+              <div class="row row--between">
+                <span class="t-subhead muted">2 of 10 drawn</span>
+                <span class="t-footnote muted-2">8 to go</span>
+              </div>
+              <div class="progress progress--thin"><i style="--value:20%"></i></div>
+            </div>
+
+            <div class="list">
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-house1"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Simple House</span><span class="t-footnote muted">Drawn 6 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-house2"/></svg></span>
+                <span class="hp-col"><span class="t-headline">House With Chimney</span><span class="t-footnote muted">Drawn 9 September</span></span>
+              </button>
+              <div class="hp-lesson hp-lesson--next" data-goto="hp-preview">
+                <span class="badge-num next hp-alive">3</span>
+                <span class="hp-col"><span class="t-headline">Small Cottage</span><span class="t-footnote muted">About 4 min · 7 steps</span></span>
+                <button class="btn hp-start" type="button" data-goto="hp-preview">Start</button>
+              </div>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="locked">
+                <span class="badge-num" style="color:var(--ink-35)">4</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">House From an Angle</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="locked">
+                <span class="badge-num" style="color:var(--ink-35)">5</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">Two-Story House</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="locked">
+                <span class="badge-num" style="color:var(--ink-35)">6</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">Barn</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="locked">
+                <span class="badge-num" style="color:var(--ink-35)">7</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">Farmhouse</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="locked">
+                <span class="badge-num" style="color:var(--ink-35)">8</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">House + Tree</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="locked">
+                <span class="badge-num" style="color:var(--ink-35)">9</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">Cottage With Foreground</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="locked">
+                <span class="badge-num" style="color:var(--ink-35)">10</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">Small Street Scene</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+            </div>
+            <p class="t-footnote muted-2 center" style="padding:2px 12px 0">Lessons open one after another. Each one reuses what the last one taught.</p>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------------- locked sheet -->
+        <div class="phone" data-variant="locked">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="hp-home"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses</div>
+            <span></span>
+          </div>
+          <div class="screen-body stack" style="padding-bottom:14px">
+            <div class="stack-8">
+              <div class="row row--between">
+                <span class="t-subhead muted">2 of 10 drawn</span>
+                <span class="t-footnote muted-2">8 to go</span>
+              </div>
+              <div class="progress progress--thin"><i style="--value:20%"></i></div>
+            </div>
+            <div class="list">
+              <button class="hp-lesson" type="button" data-set-variant="default">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-house1"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Simple House</span><span class="t-footnote muted">Drawn 6 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-set-variant="default">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-house2"/></svg></span>
+                <span class="hp-col"><span class="t-headline">House With Chimney</span><span class="t-footnote muted">Drawn 9 September</span></span>
+              </button>
+              <div class="hp-lesson hp-lesson--next" data-set-variant="default">
+                <span class="badge-num next hp-alive">3</span>
+                <span class="hp-col"><span class="t-headline">Small Cottage</span><span class="t-footnote muted">About 4 min · 7 steps</span></span>
+                <button class="btn hp-start" type="button" data-goto="hp-preview">Start</button>
+              </div>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="default" style="background:var(--ink-10)">
+                <span class="badge-num" style="color:var(--ink-35)">4</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">House From an Angle</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="default">
+                <span class="badge-num" style="color:var(--ink-35)">5</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">Two-Story House</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+              <button class="hp-lesson hp-lesson--locked" type="button" data-set-variant="default">
+                <span class="badge-num" style="color:var(--ink-35)">6</span>
+                <span class="hp-col"><span class="t-headline" style="color:var(--ink-35)">Barn</span></span>
+                <svg class="lock" style="width:20px;height:20px;flex:none"><use href="#i-lock"/></svg>
+              </button>
+            </div>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="overlay" data-set-variant="default">
+            <div class="sheet" style="gap:10px">
+              <div class="grabber"></div>
+              <p class="t-eyebrow muted">Lesson 4 · House From an Angle</p>
+              <p class="t-title2">Finish Small Cottage first.</p>
+              <p class="t-body-reg muted">Lessons build on each other.</p>
+              <button class="btn btn-primary" type="button" data-goto="hp-preview">Go to Small Cottage</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------------- complete -->
+        <div class="phone" data-variant="complete">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="hp-home"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-bottom:14px">
+
+            <div class="card stack-8">
+              <span class="chip chip--gold" style="align-self:flex-start"><svg><use href="#i-check"/></svg>10 of 10 drawn</span>
+              <p class="t-title2">You have drawn every house in this path.</p>
+              <p class="t-body-reg muted">Ten pages, from a square with a triangle on top to a street you could stand in.</p>
+              <button class="btn btn-secondary" type="button" data-goto="sk-book" style="margin-top:4px"><svg><use href="#i-book"/></svg>See them in your sketchbook</button>
+            </div>
+
+            <div class="card card--soft stack-8">
+              <span class="chip chip--gold" style="align-self:flex-start">Where this path led</span>
+              <div class="row">
+                <div class="thumb" style="width:96px;height:96px"><svg class="hp-art hp-art--sm" viewBox="0 0 1000 1000"><use href="#hp-dr-street"/></svg></div>
+                <div class="hp-col">
+                  <p class="t-headline">Small Street Scene</p>
+                  <p class="t-footnote muted">Drawn 12 September</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="list">
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-house1"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Simple House</span><span class="t-footnote muted">Drawn 28 August</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-house2"/></svg></span>
+                <span class="hp-col"><span class="t-headline">House With Chimney</span><span class="t-footnote muted">Drawn 30 August</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-cottage"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Small Cottage</span><span class="t-footnote muted">Drawn 1 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-angle"/></svg></span>
+                <span class="hp-col"><span class="t-headline">House From an Angle</span><span class="t-footnote muted">Drawn 2 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-two-story"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Two-Story House</span><span class="t-footnote muted">Drawn 4 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-barn"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Barn</span><span class="t-footnote muted">Drawn 5 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-farmhouse"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Farmhouse</span><span class="t-footnote muted">Drawn 7 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-house-tree"/></svg></span>
+                <span class="hp-col"><span class="t-headline">House + Tree</span><span class="t-footnote muted">Drawn 8 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-foreground"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Cottage With Foreground</span><span class="t-footnote muted">Drawn 10 September</span></span>
+              </button>
+              <button class="hp-lesson" type="button" data-goto="hp-preview" data-variant="replay">
+                <span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+                <span class="thumb hp-lthumb"><svg class="hp-art hp-art--xs" viewBox="0 0 1000 1000"><use href="#hp-dr-street"/></svg></span>
+                <span class="hp-col"><span class="t-headline">Small Street Scene</span><span class="t-footnote muted">Drawn 12 September</span></span>
+              </button>
+            </div>
+            <button class="btn btn-text" type="button" data-goto="hp-paths">Choose another path</button>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+
+      </div>
+      <p class="device-caption">Numbered rows, not floating bubbles <span class="tag tag--mobbin">Duolingo</span> — but the current lesson keeps the green, alive node: a breathing ring on badge 3 and the only Start button on the screen.</p>
+    </div>
+
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§29</span> asks Path Detail for &ldquo;ordered progression, next available lesson,
+      completed lessons, future locked lessons, and destination examples&rdquo;. All five are on the first fold: the
+      destination card, the count, the two gold rows, the green row.</p>
+
+      <h4>Layout</h4>
+      <ul>
+        <li>Title 28&nbsp;pt/800 + <code>paths.json.description</code> at 15&nbsp;pt (the full text — this is the one place
+          it is not truncated).</li>
+        <li><b>Destination card</b>: a gold chip &ldquo;Where this path leads&rdquo;, a 112&nbsp;pt finished drawing of
+          the last lesson, and one line of why. It is not tappable — tapping would land on a locked lesson.</li>
+        <li><b>Count + bar</b>: &ldquo;2 of 10 drawn&rdquo; / &ldquo;8 to go&rdquo;, then a 6&nbsp;pt bar. No percentage.</li>
+        <li><b>Lesson rows</b>, one <code>.list</code>, dividers between: 28&nbsp;pt number badge, 46&nbsp;pt finished
+          drawing (done rows only), title 17&nbsp;pt/700, one meta line.
+          <table>
+            <tr><th>State</th><th>Badge</th><th>Row</th><th>Trailing</th><th>Tap</th></tr>
+            <tr><td>Done</td><td>Gold, white check</td><td>White, its finished drawing</td><td>—</td><td><code>hp-preview</code> variant <i>replay</i></td></tr>
+            <tr><td>Next</td><td>Green, the number, breathing ring</td><td>Green tint <code>--green-soft</code>, no dividers</td><td>&ldquo;Start&rdquo;, 48&nbsp;pt</td><td><code>hp-preview</code></td></tr>
+            <tr><td>Locked</td><td>Grey number at 35&nbsp;%</td><td>Plain</td><td>Lock glyph</td><td>The locked sheet</td></tr>
+          </table>
+        </li>
+        <li>A thumbnail in a row means one thing only: <b>a drawing you have made</b>. The next lesson and the locked ones
+          carry none, so the gold rows read as a record rather than a catalogue — and the destination is shown once, in
+          its own card, instead of twice.</li>
+        <li>The row is 60&nbsp;pt minimum; the green row is taller because of its button. Exactly one green thing on the
+          screen <span class="tag tag--mobbin">Duolingo</span> — that is the whole &ldquo;current node&rdquo; idea,
+          rewritten for an adult who wants to scan.</li>
+      </ul>
+
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li><b>default</b> — 2 done, 3 next, 4–10 locked.</li>
+        <li><b>locked</b> — tapping any locked row raises a detent sheet (<code>.presentationDetents([.height(260)])</code>)
+          naming the lesson that must come first. One action, &ldquo;Go to Small Cottage&rdquo; → <code>hp-preview</code>;
+          swipe down or tap outside dismisses. No &ldquo;unlock&rdquo; offer, no store: locking is a teaching decision, not
+          a paywall <span class="tag tag--plan">§6</span>. The tapped row stays visibly pressed behind the sheet.</li>
+        <li><b>complete</b> — the count block is replaced by a calm card; there is no green primary because there is
+          nothing to start. &ldquo;See them in your sketchbook&rdquo; → <code>sk-book</code>; &ldquo;Choose another
+          path&rdquo; is a quiet text button at the end. The destination card becomes &ldquo;Where this path led&rdquo;.</li>
+        <li>Scroll position on push: top. Returning from a completed lesson, scroll to the new green row
+          (<code>ScrollViewReader.scrollTo(nextLessonId, anchor: .center)</code>) with a 0.3&nbsp;s ease — the one
+          motion on this screen, and it is skipped under Reduce Motion.</li>
+        <li>Appending lessons to a path later must not invalidate prior completion <span class="tag tag--plan">§6</span>:
+          progress is keyed by <code>lessonId</code>, never by index.</li>
+      </ul>
+
+      <h4>Data</h4>
+      <ul>
+        <li><b>The unlock rule</b>, computed, never stored:
+          <pre>func isUnlocked(_ lessonId: String, in path: Path) -> Bool {
+  guard let i = path.lessonIds.firstIndex(of: lessonId) else { return false }
+  return i == 0 || path.lessonIds[..&lt;i].allSatisfy(progress.isDone)   // sequential, per path
+}</pre>
+          The blocking lesson named in the sheet is the first not-done id before the tapped one. Paths are independent:
+          Trees 5 and Houses 2 at the same time is normal <span class="tag tag--plan">§6</span>.</li>
+        <li>Row order = <code>paths.json.lessonIds</code> order. The number badge is the index + 1; it is display only.</li>
+        <li>Title ← <code>tutorial.title</code>; &ldquo;About 4 min · 7 steps&rdquo; ←
+          <code>formatMinutes(estimateLearnerSeconds)</code> + <code>steps.count</code>; &ldquo;Drawn 6 September&rdquo; ←
+          <code>Progress[lessonId].completedAt</code>, <code>.dateTime.day().month(.wide)</code>, no year inside the
+          current year.</li>
+        <li>The done-row thumbnail is the <em>StrokeTutor</em> drawing rendered from the tutorial's strokes (a
+          <code>Canvas</code> at full strength), not the learner's photo — the photo belongs to the sketchbook. Cache by
+          <code>lessonId</code>; ten of them are cheap because they are paths, not bitmaps.</li>
+        <li><span class="tag tag--warn">gap</span> Houses publishes one lesson today, so the real screen currently shows
+          one row and no destination. The destination card must hide itself when the last lesson is also the next one.</li>
+        <li><span class="tag tag--warn">content</span> <code>simple-house.json</code> already ends with a chimney step,
+          which is Appendix&nbsp;A's <em>lesson 2</em> idea. Either lesson 1 should stop after the windows or lesson 2
+          needs a different new idea; otherwise the path teaches the same thing twice.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li><b>VoiceOver</b>: rows are single elements. &ldquo;Small Cottage, lesson 3 of 10, next. About 4 minutes, 7
+          steps. Button.&rdquo; / &ldquo;Simple House, lesson 1 of 10, drawn 6 September. Button.&rdquo; /
+          &ldquo;House From an Angle, lesson 4 of 10, locked. Finish Small Cottage first. Button.&rdquo; — the reason is
+          in the label, so a VoiceOver user never has to open the sheet to learn it.</li>
+        <li>The sheet takes focus on appear and returns it to the tapped row on dismiss.</li>
+        <li><b>Dynamic Type</b>: titles and meta scale; the 46&nbsp;pt thumbnail and 28&nbsp;pt badge stay fixed and rows
+          grow. At accessibility sizes the green row stacks its Start button below the text, full width, 60&nbsp;pt.</li>
+        <li><b>Reduce Motion</b>: the breathing ring becomes a static 3&nbsp;pt green ring; the scroll-to-next jump is
+          instant. The ring is never the only signal — colour, the number and the Start button all carry it, which also
+          covers colour-blind learners.</li>
+        <li><b>iPad</b>: the list holds a 700&nbsp;pt measure centred; on a wide window the destination card moves into a
+          right-hand column beside the list (<code>ViewThatFits</code> / <code>HSplitView</code>-style two-column).</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>struct PathDetailView: View {
+  let path: Path
+  var body: some View {
+    ScrollViewReader { proxy in
+      ScrollView { LazyVStack(spacing: 12) {
+        PathHeader(path: path)
+        if let last = path.lessonIds.last, !progress.isDone(last) { DestinationCard(lessonId: last) }
+        PathProgressRow(done: doneCount, total: path.lessonIds.count)
+        VStack(spacing: 0) {
+          ForEach(Array(path.lessonIds.enumerated()), id: \.element) { i, id in
+            LessonRow(index: i, lesson: catalog.lesson(id), state: state(for: id))
+              .id(id)
+              .onTapGesture { state(for: id) == .locked ? (blocker = firstUnfinished(before: id)) : route.append(.preview(id)) }
+          }
+        }.background(Theme.card).clipShape(.rect(cornerRadius: 28))
+      }.padding(.horizontal, 20) }
+    }
+    .sheet(item: $blocker) { LockedLessonSheet(blocking: $0) }   // .presentationDetents([.height(260)])
+    .navigationTitle(path.title).navigationBarTitleDisplayMode(.inline)
+  }
+}</pre>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Should a done lesson's row show the learner's photographed page instead of the StrokeTutor drawing once one
+          exists? It is more personal, but it makes the list ten photos and the path stops reading as a curriculum.</li>
+        <li>Is the destination always the last lesson, or should the catalog mark one lesson
+          <code>isDestination</code>? Last-lesson is assumed here.</li>
+        <li>Does a learner who drops a path for weeks get anything on return — &ldquo;you stopped at lesson 3&rdquo; — or
+          is the green row enough? Shown: the green row is enough.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ========================================================================= -->
+<article class="screen" id="hp-preview" data-title="Lesson preview" data-group="Home &amp; paths">
+  <header>
+    <h2>Lesson preview</h2>
+    <p class="lede">The last screen before the pen moves: the real subject, the finished drawing, how long it takes, and the one idea the lesson teaches (§29).</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="default">Default</button>
+        <button type="button" data-variant="replay">Already drawn</button>
+      </nav>
+      <div class="devices">
+
+        <!-- ---------------------------------------------------------- default -->
+        <div class="phone" data-variant="default">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="hp-path"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses · 1 of 10</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-bottom:8px">
+
+            <div class="hp-pair">
+              <div class="stack-8">
+                <p class="t-footnote muted">The real thing</p>
+                <div class="photo photo--warm hp-photo" data-label="A small house"></div>
+              </div>
+              <div class="stack-8">
+                <p class="t-footnote muted">What you will draw</p>
+                <div class="canvas-frame" style="border-radius:var(--r-thumb)">
+                  <svg viewBox="0 0 1000 1000">
+                    <path class="stroke" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                    <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                    <path class="stroke" stroke-width="12" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                    <path class="stroke" stroke-width="12" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                    <path class="stroke" stroke-width="12" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                    <path class="stroke" stroke-width="12" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <p class="t-footnote muted-2" style="margin-top:-6px">Photo: Pixabay · Free licence</p>
+
+            <h1 class="t-title1">Simple House</h1>
+            <div class="row" style="gap:8px;margin-top:-4px">
+              <span class="chip"><svg><use href="#i-clock"/></svg>About 4 min</span>
+              <span class="chip">5 steps</span>
+            </div>
+
+            <div class="card card--soft stack-8">
+              <p class="t-eyebrow muted">What this teaches</p>
+              <p class="t-body">See a house as a box with a triangle on top, then place the door, windows and chimney.</p>
+            </div>
+
+            <div class="hp-need">
+              <svg><use href="#i-pen"/></svg><svg><use href="#i-paper"/></svg>
+              <span class="t-subhead">You need a pen and a sheet of paper.</span>
+            </div>
+
+            <div class="tutor-says" style="align-items:center">
+              <span class="lina lina--sm"><svg><use href="#lina-pen"/></svg></span>
+              <div class="speech" style="font-size:16px;line-height:22px">I draw one step, then wait. You copy it, then tap <b>I drew it</b>.</div>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="pl-player" data-variant="drawing">Start drawing</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------------- replay -->
+        <div class="phone" data-variant="replay">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="hp-path"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses · 1 of 10</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-bottom:8px">
+
+            <div class="hp-pair">
+              <div class="stack-8">
+                <p class="t-footnote muted">The real thing</p>
+                <div class="photo photo--warm hp-photo" data-label="A small house"></div>
+              </div>
+              <div class="stack-8">
+                <p class="t-footnote muted">What you will draw</p>
+                <div class="canvas-frame" style="border-radius:var(--r-thumb)">
+                  <svg viewBox="0 0 1000 1000">
+                    <path class="stroke" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                    <path class="stroke" stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+                    <path class="stroke" stroke-width="12" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                    <path class="stroke" stroke-width="12" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                    <path class="stroke" stroke-width="12" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                    <path class="stroke" stroke-width="12" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <p class="t-footnote muted-2" style="margin-top:-6px">Photo: Pixabay · Free licence</p>
+
+            <div class="stack-8">
+              <h1 class="t-title1">Simple House</h1>
+              <div class="row" style="gap:8px">
+                <span class="chip chip--gold"><svg><use href="#i-check"/></svg>Drawn 6 September</span>
+                <span class="chip"><svg><use href="#i-clock"/></svg>About 4 min</span>
+              </div>
+            </div>
+
+            <div class="card card--soft stack-8">
+              <p class="t-eyebrow muted">What this teaches</p>
+              <p class="t-body">See a house as a box with a triangle on top, then place the door, windows and chimney.</p>
+            </div>
+
+            <button class="hp-row" type="button" data-goto="sk-book" style="padding:10px 14px">
+              <span class="photo photo--warm" style="width:52px;height:52px;border-radius:var(--r-thumb);flex:none"></span>
+              <span class="hp-col">
+                <span class="t-headline">Your page</span>
+                <span class="t-footnote muted">Photographed 6 September</span>
+              </span>
+              <svg style="width:20px;height:20px;color:var(--ink-35);flex:none"><use href="#i-chevron-right"/></svg>
+            </button>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="pl-player" data-variant="drawing"><svg><use href="#i-replay"/></svg>Draw it again</button>
+            <button class="btn btn-secondary" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>See it in your sketchbook</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+      </div>
+      <p class="device-caption">Reference and finished drawing side by side, so the learner sees the translation from the real thing to pen before committing four minutes.</p>
+    </div>
+
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p>The four things <span class="tag tag--plan">§29</span> asks for — reference photo, final sketch, approximate
+      time, one concise objective — plus the honest &ldquo;what you need&rdquo;, because the whole product depends on the
+      learner having paper in front of them <span class="tag tag--plan">§4</span>. One green button. Nothing else on this
+      screen moves the learner forward.</p>
+
+      <h4>Layout</h4>
+      <ul>
+        <li><b>The pair</b>: two 1:1 tiles, 170&nbsp;pt each, 12&nbsp;pt apart, each with a 13&nbsp;pt label above.
+          Reference left, drawing right — the reading direction is the lesson's argument: <i>this real thing</i> becomes
+          <i>these lines</i>. Under the photo, the credit at 13&nbsp;pt/35&nbsp;% ink.</li>
+        <li>Title 28&nbsp;pt/800, then chips: clock + time, step count. Objective on a flat card at 17&nbsp;pt/500 —
+          body size, because it is the one sentence worth reading.</li>
+        <li>Lina appears once, small (64&nbsp;pt), to explain the method in one line. She is not on Home or in the path;
+          here she is setting expectations for a first-timer <span class="tag tag--plan">§30</span>.</li>
+        <li>The primary sits in a fixed <code>.bottom-area</code> above the home indicator, never inside the scroll — on
+          the smallest phone the learner can always see it.</li>
+        <li>Portrait only. The player handles landscape <span class="tag tag--plan">§31</span>. On iPad the pair grows to
+          260&nbsp;pt tiles inside a 700&nbsp;pt measure.</li>
+      </ul>
+
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li><b>default</b> — <b>Start drawing</b> → <code>pl-player</code> variant <i>drawing</i>. Back → the path.</li>
+        <li><b>replay</b> — reached from a gold row. The chip states the date, the primary becomes <b>Draw it again</b>
+          with a replay glyph, a secondary offers the sketchbook, and Lina's intro is dropped: a learner who has drawn it
+          does not need the method explained again. Drawing it again does not remove the first page — it adds a second
+          one, so the learner can compare (a &ldquo;valuable future moment&rdquo; in <span class="tag tag--plan">§7</span>).</li>
+        <li><b>No reference photo</b>: the pair collapses to a single full-width finished drawing and the credit line is
+          omitted. The screen must never show an empty grey tile.</li>
+        <li><b>Resume</b>: if a run of this lesson was interrupted (<code>pl-leave</code>), the primary reads
+          &ldquo;Continue from step 3&rdquo; and a quiet text button offers &ldquo;Start over&rdquo;.</li>
+      </ul>
+
+      <h4>Data</h4>
+      <table>
+        <tr><th>On screen</th><th>Source</th></tr>
+        <tr><td>Simple House</td><td><code>Tutorials/simple-house.json → title</code></td></tr>
+        <tr><td>Houses · 1 of 10</td><td><code>paths.json</code> title + index of the id in <code>lessonIds</code></td></tr>
+        <tr><td>5 steps</td><td><code>tutorial.steps.count</code></td></tr>
+        <tr><td>About 4 min</td><td><code>formatMinutes(estimateLearnerSeconds(tutorial))</code> — animation&nbsp;&times;&nbsp;3 + 8&nbsp;s per step</td></tr>
+        <tr><td>What this teaches</td><td><code>lessons.json → objective</code></td></tr>
+        <tr><td>The drawing</td><td>every stroke of every step, drawn at once at full strength (canvas 1000&nbsp;&times;&nbsp;1000, widths 16 / 12)</td></tr>
+        <tr><td>Photo + credit</td><td><code>lessons.json → reference.file</code>, and &ldquo;Photo: <code>reference.source</code> · <code>reference.license</code> licence&rdquo;</td></tr>
+      </table>
+      <ul>
+        <li><span class="tag tag--warn">gap</span> The time is the honest sticking point. On today's
+          <code>simple-house.json</code> the formula gives 10.4&nbsp;s&nbsp;&times;&nbsp;3 + 5&nbsp;&times;&nbsp;8&nbsp;s
+          = 71&nbsp;s, i.e. <b>&ldquo;about 1 min&rdquo;</b>, not the 4 minutes shown here and not the 3–5 minutes
+          <span class="tag tag--plan">§7</span> promises. Either lesson 1 is too small or the placeholder constants are
+          wrong; M6 times real lessons and settles it. Until then the label must be computed, never typed.</li>
+        <li><span class="tag tag--warn">gap</span> <code>simple-house</code> has <b>no <code>reference</code> block</b>
+          and <code>status: "needs-review"</code> (&ldquo;add a reference photo before approving&rdquo;), so today this
+          screen would render the no-photo state. The credit line shown is the shape <code>palm-tree-4</code> already
+          uses (<code>source: "pixabay"</code>, <code>license: "Free"</code>).</li>
+        <li>Reference images ship beside the tutorials (<code>shared/Assets/</code>); the app must render the credit from
+          the catalog, never bake it into the image, so <code>st-about</code> can list every credit in one place.</li>
+        <li>Photo of the learner's page ← the sketchbook entry for this <code>lessonId</code>
+          (<code>Progress[lessonId].photoId</code>), local only <span class="tag tag--plan">§32</span>.</li>
+      </ul>
+
+      <h4>Voice &amp; narration</h4>
+      <ul>
+        <li>Nothing is spoken here, and tapping <b>Start drawing</b> does not start audio: narration begins with the
+          first step's animation inside the player.</li>
+        <li>Lina's line is written, not voiced. If the learner has muted narration, this screen is unchanged — the mute
+          toggle belongs to the player and <code>st-voice</code>.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li><b>VoiceOver</b>: &ldquo;Simple House, lesson 1 of 10 in Houses. About 4 minutes, 5 steps.&rdquo; The photo
+          needs a real <code>accessibilityLabel</code> from the catalog (proposal: a required <code>reference.alt</code>
+          field) — &ldquo;Photograph of a small house with a pitched roof&rdquo; — and the drawing is labelled &ldquo;The
+          finished pen drawing: a house with a roof, door, two windows and a chimney&rdquo;. Neither is decorative.</li>
+        <li><b>Dynamic Type</b>: at accessibility sizes the pair becomes one column (<code>ViewThatFits</code>), tiles
+          full width; the chips wrap; the objective never truncates. The bottom button grows with the text and keeps its
+          68&nbsp;pt floor.</li>
+        <li><b>Reduce Motion</b>: the finished drawing is static in every case — it must not animate itself on appear,
+          however tempting. That is the player's job.</li>
+        <li>Contrast: the credit line at 35&nbsp;% ink is below 4.5:1 on paper — bump it to <code>--ink-55</code> when
+          <i>Increase Contrast</i> is on.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>struct LessonPreviewView: View {
+  let lesson: CatalogLesson            // lessons.json entry + loaded PreparedTutorial
+  var body: some View {
+    VStack(spacing: 0) {
+      ScrollView { VStack(alignment: .leading, spacing: 12) {
+        ViewThatFits(in: .horizontal) {
+          HStack(spacing: 12) { ReferenceTile(lesson.reference); FinishedDrawingTile(lesson.tutorial) }
+          VStack(spacing: 12) { ReferenceTile(lesson.reference); FinishedDrawingTile(lesson.tutorial) }
+        }
+        Text(lesson.tutorial.title).font(Theme.rounded(.title, .heavy))
+        HStack { Chip(systemImage: "clock", formatMinutes(lesson.estimatedSeconds)); Chip("\(lesson.tutorial.steps.count) steps") }
+        ObjectiveCard(lesson.objective)
+        WhatYouNeedRow()
+        if !progress.isDone(lesson.id) { TutorLine("I draw one step, then wait…") }
+        else { SketchbookPageRow(photoId: progress[lesson.id].photoId) }
+      }.padding(.horizontal, 20) }
+      VStack(spacing: 12) {
+        Button(progress.isDone(lesson.id) ? "Draw it again" : "Start drawing") { route.append(.player(lesson.id)) }
+          .buttonStyle(BigPrimaryButtonStyle())
+        if progress.isDone(lesson.id) { Button("See it in your sketchbook") { tab = .sketchbook } .buttonStyle(BigSecondaryButtonStyle()) }
+      }.padding(.horizontal, 20).padding(.bottom, 12)
+    }
+    .background(Theme.pageBackground)
+    .navigationTitle("\(path.title) · \(index + 1) of \(path.lessonIds.count)")
+  }
+}
+// FinishedDrawingTile: Canvas { ctx, size in for step in steps { for stroke in step.strokes { ctx.stroke(path, lineWidth: …) } } }</pre>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Does showing the finished drawing before the lesson reduce the surprise at the end? <span class="tag tag--plan">§7</span>
+          says preview it, and an adult deciding whether to spend four minutes needs to see it. Worth watching in the
+          first user sessions.</li>
+        <li><code>reference.alt</code> does not exist in the catalog schema. Add it as required for any lesson with a
+          reference, or every photo ships unlabelled to VoiceOver.</li>
+        <li>&ldquo;Draw it again&rdquo;: second page in the sketchbook, or replace the first? Shown: add, because
+          comparing the first tree to a later tree is an explicit product moment <span class="tag tag--plan">§7</span>.</li>
+        <li>Should the preview offer &ldquo;Watch the whole drawing once&rdquo; before starting? It would help some
+          learners and would let others treat the lesson as a video. Not included.</li>
+      </ul>
+    </aside>
+  </div>
+</article>

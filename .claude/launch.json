@@ -12,6 +12,18 @@
       ],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "ios-design",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4173",
+        "--directory",
+        "docs/ios-design"
+      ],
+      "port": 4173
     }
   ]
 }

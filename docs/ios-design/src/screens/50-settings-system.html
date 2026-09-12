@@ -1,0 +1,1416 @@
+<!-- 50-settings-system.html — Settings & system. All ids prefixed st-. Styles scoped to article[id^="st-"]. -->
+<style>
+/* ---- scoped to this fragment's screens only (every id in this file starts with "st-") ---- */
+article[id^="st-"] .screen-body--scroll { padding-bottom: calc(var(--safe-bottom) + 16px); }
+/* a settings list must never be squeezed by flexbox — it scrolls instead */
+article[id^="st-"] .screen-body > *:not(.spacer) { flex: none; }
+article[id^="st-"] button.list-row { width: 100%; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+article[id^="st-"] .sec-h { padding: 8px 20px 0; }
+article[id^="st-"] .cap { font-size: 13px; line-height: 18px; font-weight: 500; color: var(--ink-55); padding: 0 20px; }
+article[id^="st-"] .list-row .sub { display: block; font-size: 13px; line-height: 17px; font-weight: 500; color: var(--ink-55); margin-top: 2px; }
+article[id^="st-"] .list-row .lbl { display: block; font-size: 17px; line-height: 22px; font-weight: 600; }
+article[id^="st-"] .danger { color: var(--danger); }
+article[id^="st-"] .is-future { opacity: .45; }
+
+/* segmented control (UISegmentedPicker) */
+article[id^="st-"] .seg { display: flex; gap: 3px; padding: 3px; border-radius: 13px; background: var(--ink-10); }
+article[id^="st-"] .seg > span { flex: 1; display: grid; place-items: center; min-height: 40px; border-radius: 10px; font-size: 16px; font-weight: 700; color: var(--ink-70); }
+article[id^="st-"] .seg > span.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.16); }
+
+/* day picker + time wheel (mocks) */
+article[id^="st-"] .days { display: flex; gap: 7px; }
+article[id^="st-"] .days span { flex: 1; aspect-ratio: 1/1; display: grid; place-items: center; border-radius: 50%; font-size: 15px; font-weight: 700; background: var(--ink-10); color: var(--ink-55); }
+article[id^="st-"] .days span.is-on { background: var(--green); color: #fff; }
+article[id^="st-"] .wheel { position: relative; height: 116px; display: flex; align-items: center; justify-content: center; gap: 18px; }
+article[id^="st-"] .wheel::before { content: ""; position: absolute; left: 8px; right: 8px; top: 38px; height: 40px; border-radius: 10px; background: var(--ink-10); }
+article[id^="st-"] .wheel .col { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 58px; }
+article[id^="st-"] .wheel .col i { font-style: normal; font-size: 19px; font-weight: 600; color: var(--ink-35); }
+article[id^="st-"] .wheel .col b { font-size: 24px; font-weight: 700; }
+
+/* notification banner mock */
+article[id^="st-"] .banner { display: flex; gap: 12px; align-items: flex-start; background: rgba(255,255,255,.97); border-radius: 20px; padding: 12px 14px; box-shadow: var(--shadow-float); }
+article[id^="st-"] .banner .appicon { width: 38px; height: 38px; border-radius: 9px; background: var(--paper); display: grid; place-items: center; flex: none; box-shadow: inset 0 0 0 1px var(--ink-10); }
+article[id^="st-"] .banner .appicon svg { width: 22px; height: 22px; color: var(--ink); }
+article[id^="st-"] .banner .when { font-size: 12px; font-weight: 600; color: var(--ink-35); }
+
+/* left-handed mini diagram */
+article[id^="st-"] .mini { position: relative; background: var(--paper); border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--ink-10); padding: 8px; display: flex; flex-direction: column; gap: 7px; aspect-ratio: 3/4; overflow: hidden; }
+article[id^="st-"] .mini .m-canvas { flex: 1; position: relative; border-radius: 9px; background: #fff; box-shadow: inset 0 0 0 1px var(--ink-10); }
+article[id^="st-"] .mini .m-thumb { position: absolute; top: 6px; left: 6px; width: 34px; height: 26px; border-radius: 6px; background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px rgba(33,120,217,.45); }
+article[id^="st-"] .mini--left .m-thumb { left: auto; right: 6px; }
+article[id^="st-"] .mini .m-ctrls { display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
+article[id^="st-"] .mini--left .m-ctrls { justify-content: flex-start; }
+article[id^="st-"] .mini .m-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--ink-10); flex: none; }
+article[id^="st-"] .mini .m-bar { height: 22px; border-radius: 11px; background: var(--green); }
+article[id^="st-"] .mini .m-hand { position: absolute; bottom: -10px; right: -6px; width: 62px; height: 62px; color: var(--ink); opacity: .22; transform: rotate(-24deg); }
+article[id^="st-"] .mini--left .m-hand { right: auto; left: -6px; transform: rotate(24deg) scaleX(-1); }
+article[id^="st-"] .mini .m-hand svg { width: 100%; height: 100%; }
+
+/* accessibility-size preview + the large-text variant */
+article[id^="st-"] .ax-step { font-size: 19px; line-height: 24px; font-weight: 600; color: var(--ink-55); }
+article[id^="st-"] .ax-instruction { font-size: 34px; line-height: 40px; font-weight: 700; }
+article[id^="st-"] .lt .lbl { font-size: 24px; line-height: 30px; }
+article[id^="st-"] .lt .sub { font-size: 19px; line-height: 25px; }
+article[id^="st-"] .lt .list-row { gap: 12px; padding: 16px 18px; }
+article[id^="st-"] .lt .ax-cell { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+article[id^="st-"] .lt .ax-val { font-size: 19px; line-height: 25px; font-weight: 600; color: var(--ink-55); }
+article[id^="st-"] .lt .chevron { width: 26px; height: 26px; }
+article[id^="st-"] .lt .sec-h { font-size: 15px; }
+article[id^="st-"] .lt .cap { font-size: 17px; line-height: 23px; }
+article[id^="st-"] .lt .tab { font-size: 15px; }
+
+/* developer-only problems report (mirrors TutorialProblemsView.swift) */
+article[id^="st-"] .mono { font: 700 15px/1.4 ui-monospace, Menlo, monospace; }
+article[id^="st-"] .problem { background: #fff; border-radius: 18px; padding: 14px; box-shadow: inset 0 0 0 2px rgba(184,92,13,.35); }
+article[id^="st-"] .pathdata { font: 500 12px/1.5 ui-monospace, Menlo, monospace; color: var(--warning); background: rgba(184,92,13,.08); border-radius: 10px; padding: 8px 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+article[id^="st-"] .swatch-pane { aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; }
+article[id^="st-"] .swatch-pane svg { width: 100%; height: 100%; display: block; }
+article[id^="st-"] .credit-thumb { width: 44px; height: 44px; border-radius: 10px; flex: none; }
+
+/* Two-phone variants (permission primer + system prompt, learner + developer view) sit
+   side by side only when the document is wide enough to keep the notes readable. */
+@media (max-width: 1420px) { article[id^="st-"] .devices { max-width: 393px; } }
+</style>
+
+<!-- ============================================================= st-settings -->
+<article class="screen" id="st-settings" data-title="Settings" data-group="Settings &amp; system">
+  <header>
+    <h2>Settings</h2>
+    <p class="lede">The third tab. Minimal by instruction of the plan: speed, accessibility, privacy and reset, and nothing that asks the learner to manage an account.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <div class="devices">
+        <div class="phone">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack">
+            <h1 class="t-large-title" style="padding:10px 4px 0">Settings</h1>
+
+            <p class="sec-h t-eyebrow muted">Lessons</p>
+            <div class="list">
+              <button class="list-row" type="button" data-goto="st-voice">
+                <span class="leading" style="background:var(--warm-soft);color:var(--warm)"><svg><use href="#i-speaker"/></svg></span>
+                <span class="grow"><span class="lbl">Narration &amp; voice</span></span>
+                <span class="value">On</span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+              <div class="list-row" style="flex-direction:column;align-items:stretch;gap:10px;padding-top:14px;padding-bottom:14px">
+                <span class="row"><span class="grow lbl">Playback speed</span><span class="value">1×</span></span>
+                <span class="seg"><span>0.5×</span><span class="is-on">1×</span><span>1.5×</span></span>
+              </div>
+            </div>
+            <p class="cap">The speed every lesson starts at. You can still change it while you draw.</p>
+
+            <p class="sec-h t-eyebrow muted">The app</p>
+            <div class="list">
+              <button class="list-row" type="button" data-goto="st-access">
+                <span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-eye"/></svg></span>
+                <span class="grow"><span class="lbl">Accessibility</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+              <button class="list-row" type="button" data-goto="st-reminder">
+                <span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-bell"/></svg></span>
+                <span class="grow"><span class="lbl">Practice reminder</span></span>
+                <span class="value">Off</span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Sketchbook</p>
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-photo"/></svg></span>
+                <span class="grow"><span class="lbl">Also save to Photos</span><span class="sub">Your sketchbook keeps its own copy either way.</span></span>
+                <span class="toggle"></span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">About</p>
+            <div class="list">
+              <button class="list-row" type="button" data-goto="ob-1">
+                <span class="leading" style="background:var(--warm-soft);color:var(--warm)"><svg><use href="#i-replay"/></svg></span>
+                <span class="grow"><span class="lbl">Replay the introduction</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+              <button class="list-row" type="button" data-goto="st-about">
+                <span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-info"/></svg></span>
+                <span class="grow"><span class="lbl">About &amp; credits</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+            </div>
+
+            <div class="list" style="margin-top:8px">
+              <button class="list-row" type="button" data-goto="st-system" data-variant="reset">
+                <span class="grow lbl danger">Reset progress</span>
+              </button>
+            </div>
+            <p class="t-footnote muted-2 center" style="padding:14px 0 8px">StrokeTutor 1.0 (12)</p>
+          </div>
+          <nav class="tabbar">
+            <button class="tab" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab is-active" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Scrolls. The first fold carries the two settings a learner actually looks for — narration and speed — and nothing below the fold is destructive except the last row, which is deliberately alone at the bottom.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§29</span>“Minimal; speed/accessibility/privacy/reset where useful.” Settings is not a feature surface. Every row here either changes how a lesson plays, makes the app readable, or answers a question about privacy. Nothing on this screen creates an obligation.</p>
+
+      <h4>Layout</h4>
+      <ul>
+        <li>Inset-grouped list, 20 pt gutters, section headers in 13 pt uppercase at 55% ink. Rows are ≥ 60 pt (<code>Theme.minimumTapTarget</code>).</li>
+        <li>Large navigation title “Settings”, inline on scroll (standard <code>.navigationBarTitleDisplayMode(.large)</code>).</li>
+        <li>Playback speed is a segmented control inside its row, not a push — three values do not deserve a second screen.</li>
+        <li>“Reset progress” sits in its own group at the very bottom, red label, no icon, no chevron — the iOS convention for a destructive row.</li>
+        <li>Version line is 13 pt at 35% ink, centred, below the last group.</li>
+      </ul>
+
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Narration row shows <code>On</code> / <code>Off</code> from the same key the player reads, so the two can never disagree.</li>
+        <li>Practice reminder row shows <code>Off</code>, or the schedule in words: “Weekdays 7:30”, “Mon, Thu 20:00”, “Every day 7:30”. Never a raw date.</li>
+        <li>“Replay the introduction” pushes nothing — it presents onboarding as a full-screen cover from <code>ob-1</code> and sets <code>hasSeenOnboarding = false</code> only after the learner finishes it, so a cancelled replay does not re-arm first-run.</li>
+        <li>“Reset progress” → confirmation alert, see <code>st-system</code> variant <em>reset</em>.</li>
+      </ul>
+
+      <h4>Data — every key, with its default</h4>
+      <table>
+        <tr><th>Key</th><th>Type</th><th>Default</th><th>Read by</th></tr>
+        <tr><td><code>settings.narrationEnabled</code></td><td>Bool</td><td><code>true</code></td><td>player, <code>st-voice</code></td></tr>
+        <tr><td><code>settings.defaultPlaybackSpeed</code></td><td>Double</td><td><code>1.0</code></td><td><code>PlayerViewModel</code> at lesson start</td></tr>
+        <tr><td><code>settings.reduceMotionOverride</code></td><td>Bool</td><td><code>false</code></td><td>canvas animation</td></tr>
+        <tr><td><code>settings.leftHandedLayout</code></td><td>Bool</td><td><code>false</code></td><td>player layout</td></tr>
+        <tr><td><code>settings.highContrastPaper</code></td><td>Bool</td><td><code>false</code></td><td><code>Theme</code></td></tr>
+        <tr><td><code>settings.reminderEnabled</code></td><td>Bool</td><td><code>false</code></td><td><code>st-reminder</code></td></tr>
+        <tr><td><code>settings.reminderWeekdays</code></td><td>[Int] (JSON)</td><td><code>[2,3,4,5,6]</code></td><td><code>st-reminder</code></td></tr>
+        <tr><td><code>settings.reminderHour</code> / <code>…Minute</code></td><td>Int</td><td><code>7</code> / <code>30</code></td><td><code>st-reminder</code></td></tr>
+        <tr><td><code>settings.alsoSaveToPhotos</code></td><td>Bool</td><td><code>false</code></td><td><code>sk-capture</code></td></tr>
+        <tr><td><code>onboarding.hasSeenIntro</code></td><td>Bool</td><td><code>false</code></td><td>app root</td></tr>
+      </table>
+      <p>All are <code>@AppStorage</code> on a single <code>UserDefaults.standard</code>. Prefix every key with <code>settings.</code> so a future <code>entitlements.</code> or <code>progress.</code> namespace can never collide. <code>reminderWeekdays</code> is stored as a JSON string because <code>@AppStorage</code> has no array support; wrap it in a small <code>RawRepresentable</code> conformance rather than sprinkling <code>JSONDecoder</code> at call sites.</p>
+
+      <h4>Deliberately absent</h4>
+      <ul>
+        <li><strong>No account, no sign-in, no restore-purchases, no paywall row.</strong> <span class="tag tag--plan">§30</span> lists “Mandatory accounts/cloud sync” under <em>do not build yet</em>.</li>
+        <li>Monetisation is <strong>M10</strong> and is still an open decision <span class="tag tag--plan">§39</span> (“Whether premium users can unlock all lessons immediately and what monetization model wins”). When it lands, entitlements must live in their <em>own</em> store — a separate <code>entitlements.</code> namespace and its own type — and must never be written into <code>shared/Catalog/lessons.json</code>. The catalog is curriculum metadata that both the Studio and the app read; a <code>tier: "premium"</code> field in it would make every future pricing experiment a content migration.</li>
+        <li>When a paywall does arrive it gets its own screen, not a row here, and it must satisfy App Store Guideline 3.1.2(c): the billed amount is the most prominent pricing element in the purchase flow, with any per-week breakdown or trial wording subordinate in size, colour and position.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Rows are a single VoiceOver element: label = row title, value = the trailing value or toggle state, trait = <code>.button</code>.</li>
+        <li>Reset progress: <code>.accessibilityHint("Clears lesson progress. Sketchbook photos are kept.")</code> and <code>.accessibilityAddTraits(.isButton)</code>; the alert carries the destructive role.</li>
+        <li>Dynamic Type: rows reflow to label-over-value above <code>.accessibility1</code> — see <code>st-access</code> variant <em>large text</em>. The segmented control becomes a <code>Menu</code> picker at accessibility sizes; three 16 pt labels cannot survive AX3 side by side.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>NavigationStack {
+  Form {
+    Section("Lessons") {
+      NavigationLink(value: Route.voice) { LabeledRow("Narration &amp; voice", value: narrationEnabled ? "On" : "Off") }
+      VStack(alignment: .leading, spacing: 10) {
+        HStack { Text("Playback speed"); Spacer(); Text(speedLabel).foregroundStyle(.secondary) }
+        Picker("Playback speed", selection: $defaultSpeed) {
+          Text("0.5×").tag(0.5); Text("1×").tag(1.0); Text("1.5×").tag(1.5)
+        }.pickerStyle(.segmented)
+      }
+    }
+    Section("The app") { … }
+    Section("Sketchbook") { Toggle("Also save to Photos", isOn: $alsoSaveToPhotos) }
+    Section("About") { … }
+    Section { Button("Reset progress", role: .destructive) { isConfirmingReset = true } }
+    Section { } footer: { Text(versionString).frame(maxWidth: .infinity) }
+  }
+  .listStyle(.insetGrouped)
+  .navigationTitle("Settings")
+}</pre>
+      <p><code>versionString</code> = <code>CFBundleShortVersionString</code> + “ (” + <code>CFBundleVersion</code> + “)”. Never hardcode it.</p>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Should the speed segmented control also write back when the learner changes speed inside a lesson? Recommendation: no — the in-lesson change is per-lesson, and silently rewriting a default is the kind of surprise this product avoids. Confirm.</li>
+        <li>Is “Replay the introduction” worth a row, or should it live in About? It is here because it is the only way back to the eight first-run beats.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ============================================================= st-voice -->
+<article class="screen" id="st-voice" data-title="Narration &amp; voice" data-group="Settings &amp; system">
+  <header>
+    <h2>Narration &amp; voice</h2>
+    <p class="lede">One switch, one sample, and honest answers to the two questions a learner actually has: will it talk over my music, and will it ignore my silent switch.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="on">Narration on</button>
+        <button type="button" data-variant="off">Narration off</button>
+      </nav>
+      <div class="devices">
+        <!-- ---------------------------------------------------- on -->
+        <div class="phone" data-variant="on">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Narration &amp; voice</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--warm-soft);color:var(--warm)"><svg><use href="#i-speaker"/></svg></span>
+                <span class="grow"><span class="lbl">Lina talks you through each step</span><span class="sub">A spoken version of the written instruction, while the step draws.</span></span>
+                <span class="toggle is-on" data-set-variant="off"></span>
+              </div>
+            </div>
+
+            <div class="card stack-8">
+              <div class="row row--between">
+                <p class="t-headline">Play a sample</p>
+                <span class="btn btn-secondary btn-icon btn-icon--sm" style="color:var(--warm);box-shadow:inset 0 0 0 2px rgba(196,101,58,.3)"><svg><use href="#i-play"/></svg></span>
+              </div>
+              <div class="row" style="gap:10px">
+                <span class="lina lina--xs"><svg><use href="#lina-neutral"/></svg></span>
+                <span class="narration"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span>Lina</span>
+              </div>
+              <p class="t-body-reg muted">“Draw one square in the middle of the page. This is the front wall.”</p>
+              <p class="t-footnote muted-2">The words you hear are the words on screen.</p>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">While a lesson plays</p>
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-speaker"/></svg></span>
+                <span class="grow"><span class="lbl">Other audio</span><span class="sub">Music and podcasts keep playing, turned down while Lina speaks.</span></span>
+                <span class="value">Lowered</span>
+              </div>
+              <div class="list-row">
+                <span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-speaker-off"/></svg></span>
+                <span class="grow"><span class="lbl">Silent switch</span><span class="sub">If your phone is on silent, Lina stays quiet.</span></span>
+                <span class="value">Respected</span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Voice</p>
+            <div class="list">
+              <div class="list-row is-future">
+                <span class="leading" style="background:var(--warm-soft);color:var(--warm)"><svg><use href="#lina-neutral"/></svg></span>
+                <span class="grow"><span class="lbl">Voice</span><span class="sub">More voices when there are more to choose from.</span></span>
+                <span class="value">Lina (English)</span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </div>
+            </div>
+            <p class="cap">Audio is never the only channel. Every instruction stays on screen, whether Lina is speaking or not.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- off -->
+        <div class="phone" data-variant="off">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Narration &amp; voice</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--ink-10);color:var(--ink-55)"><svg><use href="#i-speaker-off"/></svg></span>
+                <span class="grow"><span class="lbl">Lina talks you through each step</span><span class="sub">A spoken version of the written instruction, while the step draws.</span></span>
+                <span class="toggle" data-set-variant="on"></span>
+              </div>
+            </div>
+
+            <div class="card stack-8">
+              <div class="row row--between">
+                <p class="t-headline muted">Play a sample</p>
+                <span class="btn btn-secondary btn-icon btn-icon--sm is-disabled"><svg><use href="#i-play"/></svg></span>
+              </div>
+              <div class="row" style="gap:10px">
+                <span class="lina lina--xs" style="opacity:.45"><svg><use href="#lina-neutral"/></svg></span>
+                <span class="narration is-muted"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span>Muted</span>
+              </div>
+              <p class="t-body-reg muted">“Draw one square in the middle of the page. This is the front wall.”</p>
+              <p class="t-footnote muted-2">The instruction is unchanged. Nothing else changes.</p>
+            </div>
+
+            <div class="card card--soft stack-8">
+              <p class="t-headline">Nothing is lost</p>
+              <p class="t-body-reg muted">Every lesson works in silence. The narration chip greys out in the player; the step, the drawing and the pace are the same.</p>
+            </div>
+
+            <p class="cap">You can also mute Lina from inside a lesson — the chip in the player is a button. Both places write the same setting.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The toggle in either phone flips the other state. The greyed sample is deliberate: the learner should be able to see what they are switching off before they switch it off.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p>Narration is the one genuinely new thing in this design, so it gets one screen that explains itself. Two decisions a learner cares about are surfaced as read-only rows rather than buried in a privacy policy: what happens to their music, and whether silent means silent.</p>
+
+      <h4>Layout</h4>
+      <ul>
+        <li>Toggle row first — a settings screen answers its own title in the first 60 pt.</li>
+        <li>The sample card is the only interactive demo. Play button is a 48 pt circular secondary; the <code>.narration</code> chip animates while the file plays and returns to rest when it finishes.</li>
+        <li>The “Voice” row is visually future-marked (45% opacity, non-interactive) rather than hidden, so the shape of the screen does not change when a second voice ships. Ship it hidden if the creator would rather not promise it — one <code>if voices.count &gt; 1</code>.</li>
+      </ul>
+
+      <h4>Audio behaviour — the decision</h4>
+      <p><strong>Duck, do not pause — and stay under the silent switch.</strong> Session category <code>.ambient</code> with options <code>[.duckOthers, .interruptSpokenAudioAndMixWithOthers]</code>, activated when a step begins narrating and deactivated with <code>.notifyOthersOnDeactivation</code> when the lesson ends.</p>
+      <ul>
+        <li><em>Why duck:</em> a lesson is a four-minute sequence of 2–3 second clips with long silences while the learner draws. Pausing music would stop and restart it five times in one lesson, which is worse than a short dip. Ducking is also what a navigation app does, and this is the same shape of interruption: short spoken guidance over a continuous background.</li>
+        <li><em>Spoken audio is different.</em> Ducking a podcast just makes it unintelligible under a voice, so <code>.interruptSpokenAudioAndMixWithOthers</code> pauses spoken-audio apps and resumes them on deactivation. Music ducks; podcasts pause.</li>
+        <li><em>Calls:</em> never interrupt. An <code>AVAudioSession.interruptionNotification</code> with <code>.began</code> stops narration and leaves the animation running — the written instruction is still on screen, so the lesson is not blocked.</li>
+        <li><em>Silent switch:</em> honoured, and that is what picks the category. <code>.playback</code> deliberately ignores the ring/silent switch, which is right for a music app and wrong here — a learner who silenced their phone in a waiting room did not consent to a voice. <code>.ambient</code> obeys the switch and stops when the screen locks, and both are correct for this app: a locked screen means nobody is watching the step. The row on screen promises exactly this, so do not quietly change the category later.</li>
+      </ul>
+
+      <h4>The voice asset pipeline</h4>
+      <ol>
+        <li>The creator writes or edits a step instruction in the Studio.</li>
+        <li>The Studio calls ElevenLabs with that instruction and the chosen voice, and writes the result to <code>shared/Assets/Voice/&lt;lessonId&gt;/&lt;stepId&gt;.m4a</code>, alongside a <code>voice.json</code> manifest recording the voice id, model, and a hash of the instruction text.</li>
+        <li>The step's <code>voiceover</code> field (already reserved in <code>tutorial.schema.json</code> v1) carries the bare file name — never a path, for the same reason reference photos are bare names: a relative path can point outside the folder.</li>
+        <li>A changed instruction changes the hash, and the Studio marks that clip stale and offers to regenerate. Nothing regenerates silently: audio costs money and a re-render of an unchanged line wastes it.</li>
+        <li><code>Assets/Voice/</code> ships as a folder reference in the Xcode project, exactly like <code>Tutorials/</code>, so adding a lesson's audio needs no project change.</li>
+      </ol>
+      <p><strong>The app tolerates a missing file.</strong> <code>Bundle.main.url(forResource:)</code> returning nil is not an error: the step plays silently, the narration chip does not appear for that step, and a one-line warning joins <code>PreparedTutorial.warnings</code> (the same array <code>TutorialLoader</code> already fills for clamped durations). <span class="tag tag--warn">Never</span> block a step on audio — the learner has a pen in their hand.</p>
+
+      <h4>Data</h4>
+      <ul>
+        <li><code>settings.narrationEnabled</code> (Bool, default <code>true</code>) — the single source of truth, written from here and from the player's chip.</li>
+        <li>Sample clip: the first step of <code>simple-house</code>. If that file is missing, hide the whole sample card rather than showing a dead button.</li>
+        <li>Transcript line = the same <code>step.instruction</code> string that feeds the clip, read from the tutorial, not duplicated in code.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li>VoiceOver and narration must not talk over each other: when <code>UIAccessibility.isVoiceOverRunning</code>, do not auto-play narration at step start; the chip becomes an explicit “Play narration” button.</li>
+        <li>Toggle label “Lina talks you through each step”, value “On”/“Off”, hint “Turns the spoken instructions on or off. The written instruction stays.”</li>
+        <li>The sample's wave animation is decorative: <code>.accessibilityHidden(true)</code>, and it does not animate under Reduce Motion (the chip just shows a static level).</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>Form {
+  Section {
+    Toggle(isOn: $narrationEnabled) {
+      VStack(alignment: .leading, spacing: 2) {
+        Text("Lina talks you through each step")
+        Text("A spoken version of the written instruction, while the step draws.")
+          .font(.footnote).foregroundStyle(.secondary)
+      }
+    }
+  }
+  Section { SampleClipRow(lessonID: "simple-house", stepIndex: 0) }
+  Section("While a lesson plays") {
+    LabeledContent("Other audio", value: "Lowered")
+    LabeledContent("Silent switch", value: "Respected")
+  }
+  Section("Voice") { LabeledContent("Voice", value: "Lina (English)").disabled(true) }
+}</pre>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Does the creator want a voice <em>speed</em> control as well? Recommendation: no. Playback speed already changes the animation, and re-pitching a recorded clip to match sounds wrong. Instead, at 0.5× the clip plays once at normal rate and the animation simply takes longer.</li>
+        <li>Which ElevenLabs voice is “Lina”, and is the licence for commercial app distribution in place? That has to be settled before any audio ships.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ============================================================= st-access -->
+<article class="screen" id="st-access" data-title="Accessibility" data-group="Settings &amp; system">
+  <header>
+    <h2>Accessibility</h2>
+    <p class="lede">Three settings that change how a lesson is drawn and read, each shown rather than described — plus the whole Settings screen at an accessibility text size, so an engineer can see what has to reflow.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="default">Accessibility</button>
+        <button type="button" data-variant="large-text">Settings at AX2</button>
+      </nav>
+      <div class="devices">
+        <!-- ---------------------------------------------------- default -->
+        <div class="phone" data-variant="default">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Accessibility</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-play"/></svg></span>
+                <span class="grow"><span class="lbl">Reduce motion</span><span class="sub">Following your iPhone’s setting.</span></span>
+                <span class="toggle is-on"></span>
+              </div>
+            </div>
+            <p class="cap">The drawing is the lesson, so it is never removed. With reduce motion on, a step arrives one stroke at a time — each line appears complete instead of gliding across the page. Everything else in the app stops sliding.</p>
+
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--warm-soft);color:var(--warm)"><svg><use href="#i-hand"/></svg></span>
+                <span class="grow"><span class="lbl">Left-handed layout</span><span class="sub">Move the reference and controls to the other side.</span></span>
+                <span class="toggle"></span>
+              </div>
+            </div>
+            <div class="card card--soft">
+              <div class="grid-2">
+                <div class="stack-8">
+                  <div class="mini">
+                    <div class="m-canvas"><div class="m-thumb"></div></div>
+                    <div class="m-ctrls"><span class="m-dot"></span><span class="m-dot"></span><span class="m-bar" style="width:96px"></span></div>
+                    <span class="m-hand"><svg><use href="#i-hand"/></svg></span>
+                  </div>
+                  <p class="t-footnote center">Right-handed</p>
+                </div>
+                <div class="stack-8">
+                  <div class="mini mini--left">
+                    <div class="m-canvas"><div class="m-thumb"></div></div>
+                    <div class="m-ctrls"><span class="m-bar" style="width:96px"></span><span class="m-dot"></span><span class="m-dot"></span></div>
+                    <span class="m-hand"><svg><use href="#i-hand"/></svg></span>
+                  </div>
+                  <p class="t-footnote center">Left-handed</p>
+                </div>
+              </div>
+            </div>
+            <p class="cap">Your hand reaches in from the side you hold the pen. The reference thumbnail moves to the far corner so your arm never sweeps over it, and the controls move under your hand so you can reach them without looking.</p>
+
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-eye"/></svg></span>
+                <span class="grow"><span class="lbl">High contrast paper</span><span class="sub">Darker ink on a whiter page.</span></span>
+                <span class="toggle"></span>
+              </div>
+            </div>
+            <div class="card card--soft">
+              <div class="grid-2">
+                <div class="stack-8">
+                  <div class="swatch-pane" style="background:var(--paper);box-shadow:inset 0 0 0 1.5px var(--ink-10)">
+                    <svg viewBox="0 0 1000 1000"><g fill="none" stroke="#2B2B2B" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/></g><g fill="none" stroke="#2B2B2B" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><path d="M 440 850 L 440 690 L 560 690 L 560 850"/></g></svg>
+                  </div>
+                  <p class="t-footnote center muted">Now</p>
+                </div>
+                <div class="stack-8">
+                  <div class="swatch-pane" style="background:#FFFFFF;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.25)">
+                    <svg viewBox="0 0 1000 1000"><g fill="none" stroke="#0B0B0B" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/></g><g fill="none" stroke="#0B0B0B" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M 440 850 L 440 690 L 560 690 L 560 850"/></g></svg>
+                  </div>
+                  <p class="t-footnote center">High contrast</p>
+                </div>
+              </div>
+            </div>
+            <p class="cap">Near-black ink on white, with slightly heavier lines. The warm paper tone is what goes; the drawing is unchanged.</p>
+
+            <p class="sec-h t-eyebrow muted">Your text size</p>
+            <div class="card stack-8">
+              <p class="t-footnote muted">This is a lesson step at the size you have chosen.</p>
+              <div class="canvas-frame" style="aspect-ratio:16/9;border-radius:18px">
+                <svg viewBox="0 0 1000 1000">
+                  <g fill="none" stroke="#2B2B2B" stroke-linecap="round" stroke-linejoin="round">
+                    <path class="faded stroke" stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                    <path class="stroke draws" pathLength="1" stroke-width="16" style="--dur:2.2s" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  </g>
+                </svg>
+              </div>
+              <p class="ax-step">Step 2 of 5</p>
+              <p class="ax-instruction">Add the roof: two lines up to a point.</p>
+              <span class="btn btn-primary" style="font-size:30px;min-height:76px">I drew it</span>
+            </div>
+            <p class="cap">At accessibility sizes the instruction and the button grow; the canvas gives up height first, and the reference thumbnail becomes a row above it rather than a corner overlay.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- large text -->
+        <div class="phone" data-variant="large-text">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack lt">
+            <h1 style="font-size:44px;line-height:50px;font-weight:800;letter-spacing:-.5px;padding:10px 4px 0">Settings</h1>
+
+            <p class="sec-h t-eyebrow muted">Lessons</p>
+            <div class="list">
+              <div class="list-row">
+                <span class="grow ax-cell"><span class="lbl">Narration &amp; voice</span><span class="ax-val">On</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </div>
+              <div class="list-row">
+                <span class="grow ax-cell"><span class="lbl">Playback speed</span><span class="ax-val">1×</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </div>
+            </div>
+            <p class="cap">The speed every lesson starts at.</p>
+
+            <p class="sec-h t-eyebrow muted">The app</p>
+            <div class="list">
+              <div class="list-row">
+                <span class="grow ax-cell"><span class="lbl">Accessibility</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </div>
+              <div class="list-row">
+                <span class="grow ax-cell"><span class="lbl">Practice reminder</span><span class="ax-val">Off</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Sketchbook</p>
+            <div class="list">
+              <div class="list-row">
+                <span class="grow ax-cell"><span class="lbl">Also save to Photos</span><span class="ax-val">Your sketchbook keeps its own copy either way.</span></span>
+                <span class="toggle"></span>
+              </div>
+            </div>
+          </div>
+          <nav class="tabbar" style="height:calc(64px + var(--safe-bottom))">
+            <button class="tab" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab is-active" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption"><strong>Settings at AX2</strong> is the reflow reference: rows become label-over-value, the segmented speed control has already collapsed into a push row, the icon wells are gone to buy width, and the tab bar keeps its labels by growing rather than truncating. Nothing is clipped and nothing is hidden.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§31</span> names the audience obligation directly: readable type, generous targets, high contrast, Dynamic Type, minimal hidden gestures, reduced motion for non-drawing motion <em>while preserving the essential tutorial animation in a sensible form</em>. This screen is where those become switches, and where the “sensible form” is defined.</p>
+
+      <h4>Reduce motion — what “sensible form” means</h4>
+      <ul>
+        <li>Default state follows <code>UIAccessibility.isReduceMotionEnabled</code>; the toggle shown here is an <em>in-app override</em>, so a learner who wants the whole system animated can still calm down this one app. Store as <code>settings.reduceMotionOverride</code> (Bool, default <code>false</code>) and treat the effective value as <code>system || override</code> — the override can only ever reduce motion, never force it back on against a system preference.</li>
+        <li><strong>Reduced form of a step:</strong> each stroke appears at full length with a 180 ms cross-fade, in order, honouring the stroke's own <code>duration</code> as the delay before the next one. The learner still sees <em>which line comes next and in what order</em>, which is the entire teaching content; only the travelling pencil tip and the dash-offset sweep are dropped.</li>
+        <li>The pencil-tip dot is removed entirely under reduce motion (it is pure motion) and <code>.stroke.draws</code> collapses to a near-zero duration, which the design system already does at <code>prefers-reduced-motion</code>.</li>
+        <li>Everything non-drawing — screen pushes, the completion reveal, the narration wave — uses <code>.animation(nil)</code> or a cross-fade.</li>
+      </ul>
+
+      <h4>Left-handed layout</h4>
+      <ul>
+        <li>Mirrors two things only: the persistent reference thumbnail moves from the leading corner of the canvas to the trailing one, and the quiet control row (Back · Replay · Speed) swaps ends with the primary button's alignment.</li>
+        <li><strong>Why:</strong> the phone sits beside the paper and the learner reaches across it with the hand holding the pen. That arm sweeps over one half of the screen on every “I drew it”. The reference has to be outside the sweep; the controls should be inside it. Mirroring is the only way to serve both hands with one layout.</li>
+        <li>Implement as an environment value, not as scattered <code>if</code>s: <code>\.layoutDirection</code> is wrong (it would mirror text too). Add <code>@Environment(\.handedness)</code> with <code>.right</code>/<code>.left</code> and use it to pick <code>.topLeading</code>/<code>.topTrailing</code> and an <code>HStack</code> ordering. Text, chevrons and back buttons must <em>not</em> flip.</li>
+        <li>The iPad landscape player mirrors the whole reference/canvas split the same way.</li>
+      </ul>
+
+      <h4>High contrast paper</h4>
+      <ul>
+        <li>Swaps <code>Theme.paper</code> <code>#FAF7F0</code> → <code>#FFFFFF</code> and ink <code>#2B2B2B</code> → <code>#0B0B0B</code>, and multiplies every stroke's <code>lineWidth</code> by 1.25 with a floor of 10 pt. Contrast goes from about 11.9:1 to 19:1.</li>
+        <li>It must also switch on automatically when <code>UIAccessibility.isDarkerSystemColorsEnabled</code> is true (Increase Contrast), with the same override rule as reduce motion.</li>
+        <li>A tutorial's own <code>style.strokeColor</code> is respected unless high contrast is on, in which case it is darkened toward <code>#0B0B0B</code> — a lesson author cannot opt a learner out of contrast.</li>
+        <li>Faded earlier steps go from 28% to 45% opacity, or they vanish on a white page.</li>
+      </ul>
+
+      <h4>Dynamic Type — what must reflow</h4>
+      <ul>
+        <li>Support to <code>.accessibility5</code>. Nothing uses <code>.minimumScaleFactor</code> in body copy; shrinking text for an older adult defeats the purpose.</li>
+        <li>Above <code>.accessibility1</code>: list rows become <code>VStack</code>s (label over value), the icon wells are dropped, the segmented speed picker becomes a <code>Menu</code>, and the tab bar grows to fit its labels — do not let it truncate to “Sketch…”.</li>
+        <li>In the player the order of yielding is fixed: <strong>canvas height first</strong>, then the reference thumbnail becomes a full-width row above the canvas, then secondary controls stack. The instruction card and the 68 pt primary button never shrink.</li>
+        <li>Guard rail: an Xcode preview at <code>.accessibility5</code> for every screen, and a snapshot test for the player at <code>.accessibility3</code>.</li>
+      </ul>
+
+      <h4>VoiceOver</h4>
+      <ul>
+        <li>The canvas is one element: label “Drawing in progress, step 2 of 5”, value = the step instruction. It is not a container to explore stroke by stroke — that is noise.</li>
+        <li>Post <code>.announcement</code> when a step finishes drawing: “Step drawn. Ready when you are.” This replaces the visual cue that the animation has stopped.</li>
+        <li>Every toggle here has an explicit hint sentence; the previews are <code>.accessibilityHidden(true)</code> with a text alternative directly beneath, which is what the captions on screen already are.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>@Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+@AppStorage("settings.reduceMotionOverride") private var reduceMotionOverride = false
+var reduceMotion: Bool { systemReduceMotion || reduceMotionOverride }
+
+Form {
+  Section(footer: Text("The drawing is the lesson…")) {
+    Toggle("Reduce motion", isOn: $reduceMotionOverride)
+  }
+  Section(footer: HandednessDiagram()) { Toggle("Left-handed layout", isOn: $leftHanded) }
+  Section(footer: ContrastSwatches()) { Toggle("High contrast paper", isOn: $highContrastPaper) }
+  Section("Your text size") { StepPreviewCard() }   // real StepInstructionCard, real canvas
+}</pre>
+      <p><code>StepPreviewCard</code> must be the production <code>StepInstructionCard</code> and <code>DrawingCanvasView</code>, not a mock — the whole value of the preview is that it breaks when the real card breaks.</p>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Should left-handed layout be offered during onboarding rather than buried here? A left-handed learner meets the problem in lesson one. Recommendation: ask once in <code>ob-voice</code>'s neighbourhood, and keep this row as the place to change it.</li>
+        <li>Is a third contrast step (paper texture off, ink black, lines heavier still) worth it, or does one step cover the need? Needs a real test with the target audience.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ============================================================= st-reminder -->
+<article class="screen" id="st-reminder" data-title="Practice reminder" data-group="Settings &amp; system">
+  <header>
+    <h2>Practice reminder</h2>
+    <p class="lede">Off unless asked for. One notification at a time the learner picks, in Lina’s calm voice, with nothing counted and nothing lost if they skip it.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="off">Off (default)</button>
+        <button type="button" data-variant="on">On</button>
+        <button type="button" data-variant="permission">Asking permission</button>
+      </nav>
+      <div class="devices">
+        <!-- ---------------------------------------------------- off -->
+        <div class="phone" data-variant="off">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Practice reminder</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--ink-10);color:var(--ink-55)"><svg><use href="#i-bell"/></svg></span>
+                <span class="grow"><span class="lbl">Practice reminder</span><span class="sub">Off</span></span>
+                <span class="toggle" data-set-variant="permission"></span>
+              </div>
+            </div>
+            <p class="cap">A reminder exists only if you ask for it.</p>
+
+            <div class="card stack-8">
+              <p class="t-title3">Nothing is counted</p>
+              <p class="t-body-reg muted">There is no streak to break. Skip a day, a week or a month and nothing changes: your place in each path is kept, and your sketchbook is exactly where you left it.</p>
+            </div>
+
+            <div class="card card--soft stack-8">
+              <p class="t-footnote muted">This is all it would ever say</p>
+              <div class="banner" style="opacity:.5;box-shadow:none">
+                <span class="appicon"><svg><use href="#i-pen"/></svg></span>
+                <span class="grow">
+                  <span class="row row--between"><span class="t-footnote">STROKETUTOR</span><span class="when">now</span></span>
+                  <span class="t-body" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
+                  <span class="t-body-reg muted" style="display:block">Your next house is ready.</span>
+                </span>
+              </div>
+            </div>
+            <p class="cap">One notification, at the time you choose. Never a second one, never a nudge because you missed it.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- on -->
+        <div class="phone" data-variant="on">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Practice reminder</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-bell"/></svg></span>
+                <span class="grow"><span class="lbl">Practice reminder</span><span class="sub">Weekdays at 7:30</span></span>
+                <span class="toggle is-on" data-set-variant="off"></span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Days</p>
+            <div class="card card--flat" style="padding:14px 16px">
+              <div class="days"><span class="is-on">M</span><span class="is-on">T</span><span class="is-on">W</span><span class="is-on">T</span><span class="is-on">F</span><span>S</span><span>S</span></div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Time</p>
+            <div class="card card--flat" style="padding:6px 10px">
+              <div class="wheel">
+                <span class="col"><i>6</i><b>7</b><i>8</i></span>
+                <span class="col"><i>15</i><b>30</b><i>45</i></span>
+                <span class="col"><i></i><b>AM</b><i>PM</i></span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">What you’ll see</p>
+            <div class="banner">
+              <span class="appicon"><svg><use href="#i-pen"/></svg></span>
+              <span class="grow">
+                <span class="row row--between"><span class="t-footnote">STROKETUTOR</span><span class="when">7:30</span></span>
+                <span class="t-body" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
+                <span class="t-body-reg muted" style="display:block">Your next house is ready.</span>
+              </span>
+            </div>
+            <p class="cap">Nothing is counted. If you skip it, nothing is lost and the reminder does not mention it next time.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- permission: primer, then the system prompt -->
+        <div class="phone" data-variant="permission">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-set-variant="off"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Practice reminder</div>
+            <span></span>
+          </div>
+          <div class="screen-body stack" style="justify-content:center">
+            <div class="center stack" style="align-items:center;gap:18px">
+              <span style="width:96px;height:96px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center"><svg style="width:44px;height:44px"><use href="#i-bell"/></svg></span>
+              <p class="t-title1">One quiet reminder?</p>
+              <p class="t-body-reg muted" style="max-width:300px">iPhone will ask for permission next. StrokeTutor sends one notification, at a time you choose, and never a second one. No streaks, no counting, no nudging.</p>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-set-variant="permission">Choose a time</button>
+            <button class="btn btn-text btn-text--muted" type="button" data-set-variant="off">Not now</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+        <div class="phone" data-variant="permission">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <span></span><div class="title muted-2">Practice reminder</div><span></span>
+          </div>
+          <div class="screen-body stack" style="justify-content:center;opacity:.4">
+            <div class="center stack" style="align-items:center;gap:18px">
+              <span style="width:96px;height:96px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center"><svg style="width:44px;height:44px"><use href="#i-bell"/></svg></span>
+              <p class="t-title1">One quiet reminder?</p>
+              <p class="t-body-reg muted" style="max-width:300px">iPhone will ask for permission next.</p>
+            </div>
+          </div>
+          <div class="alert-overlay">
+            <div class="alert">
+              <p class="t-headline">“StrokeTutor” Would Like to Send You Notifications</p>
+              <p class="t-footnote muted" style="font-weight:500">Notifications may include alerts and sounds. These can be configured in Settings.</p>
+              <div class="divider" style="margin:8px -20px 0"></div>
+              <div class="btn-row" style="gap:0">
+                <button class="btn btn-text" type="button" data-set-variant="off">Don’t Allow</button>
+                <span style="width:1px;background:var(--line)"></span>
+                <button class="btn btn-text" type="button" style="font-weight:800" data-set-variant="on">Allow</button>
+              </div>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption"><strong>Asking permission</strong> shows both halves: our own primer, which can be declined with no cost, and the system prompt that follows only after “Choose a time”. The one-shot system prompt is never spent on a learner who has not already said yes.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§30</span> forbids “pressure-heavy daily streak mechanics”. A reminder is still useful for an adult with limited time, so the compromise is: opt-in, learner-scheduled, single, and explicitly consequence-free. The copy says so on the screen, not only in a footnote — “Nothing is counted” is the promise the whole feature rests on.</p>
+
+      <h4>Layout &amp; interactions</h4>
+      <ul>
+        <li>Toggle row first; everything below it appears only when it is on, animated with a section insert (cross-fade under reduce motion).</li>
+        <li>Days are seven 44 pt circles, multi-select, at least one required — turning off the last day turns the whole reminder off rather than leaving an impossible schedule.</li>
+        <li>Time is a standard <code>DatePicker(.hourAndMinute)</code> in wheel style; the mock shows it inline because a push for one value is a wasted screen.</li>
+        <li>The notification preview is a real preview of the real string. If the copy changes, this changes.</li>
+        <li>Flipping the toggle on goes to the primer, not straight to the system prompt. Declining the primer leaves the toggle off and nothing is requested, so the learner can change their mind later.</li>
+      </ul>
+
+      <h4>Notifications</h4>
+      <pre>let center = UNUserNotificationCenter.current()
+
+// 1. only after the learner tapped "Choose a time"
+let granted = try await center.requestAuthorization(options: [.alert, .sound])
+
+// 2. schedule one repeating request per selected weekday
+func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
+  center.removePendingNotificationRequests(withIdentifiers: Self.allReminderIDs)
+  guard reminderEnabled, await isAuthorized() else { return }
+  for weekday in weekdays {                      // 1 = Sunday … 7 = Saturday
+    var components = DateComponents()
+    components.weekday = weekday
+    components.hour = hour; components.minute = minute
+    let content = UNMutableNotificationContent()
+    content.title = "A few quiet minutes with a pen?"
+    content.body  = nextLessonTeaser()           // "Your next house is ready."
+    content.sound = .default
+    let request = UNNotificationRequest(
+      identifier: "reminder.weekday.\(weekday)",
+      content: content,
+      trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: true))
+    try? await center.add(request)
+  }
+}</pre>
+      <ul>
+        <li><strong>Cancel on toggle off:</strong> <code>removePendingNotificationRequests</code> for all seven ids, every time. Never leave an orphan request — a notification arriving after the learner turned reminders off is the exact betrayal this design is avoiding.</li>
+        <li>Re-schedule on every change of days or time, and once at launch, because a learner may have revoked permission in iOS Settings since.</li>
+        <li>If <code>getNotificationSettings()</code> reports <code>.denied</code> while the toggle is on, show an inline row “Notifications are off for StrokeTutor · Open Settings” and turn the toggle off. Do not re-request; iOS only asks once.</li>
+        <li><strong>No badge.</strong> <code>.badge</code> is not in the options list: a red dot counting unfinished lessons is a streak by another name.</li>
+        <li><code>nextLessonTeaser()</code> reads the next unlocked lesson from the progress store and produces “Your next house is ready.” / “Your next tree is ready.” from the <em>path</em> title, not the lesson title — a notification should not spoil the subject. If nothing is next (all paths complete), use “Your sketchbook is waiting.”</li>
+      </ul>
+
+      <h4>Data</h4>
+      <ul>
+        <li><code>settings.reminderEnabled</code> Bool, default <code>false</code>. <code>settings.reminderWeekdays</code> [Int] as JSON, default <code>[2,3,4,5,6]</code> (Mon–Fri). <code>settings.reminderHour</code> 7, <code>settings.reminderMinute</code> 30.</li>
+        <li>The Settings row's value string is formatted from these: “Off”, “Weekdays 7:30”, “Every day 7:30”, “Mon, Thu 20:00”. Use <code>Date.FormatStyle</code> so 7:30 and 07:30 follow the locale.</li>
+        <li>Nothing about the reminder is written to the progress store, and no “last opened” date is ever recorded. There is deliberately no data from which a streak could later be computed.</li>
+      </ul>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Day circles: label the full weekday name (“Monday”), not “M”; value “selected” / “not selected”; trait <code>.isButton</code>. Group them with <code>.accessibilityElement(children: .contain)</code> and the label “Days”.</li>
+        <li>The preview banner is one element read as “Notification preview. A few quiet minutes with a pen? Your next house is ready.”</li>
+        <li>At accessibility text sizes the seven circles wrap to two rows rather than shrinking below 44 pt.</li>
+      </ul>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Should the reminder also be offered at the end of the first lesson, where motivation is highest? That is the effective moment, but it is also the moment a learner is least able to judge. Recommendation: offer it once in onboarding (<code>ob-voice</code> mentions “an optional gentle reminder”) and never again unprompted.</li>
+        <li>Time-sensitive or not? Recommendation: no interruption level above <code>.active</code>. A drawing reminder that breaks through Focus is not calm.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ============================================================= st-about -->
+<article class="screen" id="st-about" data-title="About &amp; credits" data-group="Settings &amp; system">
+  <header>
+    <h2>About, credits &amp; privacy</h2>
+    <p class="lede">What the app is, where every reference photograph came from and under what licence, and a privacy page short enough that someone might actually read it.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="about">About</button>
+        <button type="button" data-variant="credits">Photo credits</button>
+        <button type="button" data-variant="privacy">Privacy</button>
+      </nav>
+      <div class="devices">
+        <!-- ---------------------------------------------------- about -->
+        <div class="phone" data-variant="about">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">About</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <div class="center stack-8" style="align-items:center;padding:8px 0 4px">
+              <span class="thumb" style="width:88px;height:88px;border-radius:22px">
+                <svg viewBox="0 0 1000 1000"><g class="stroke" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/></g></svg>
+              </span>
+              <p class="t-title2">StrokeTutor</p>
+              <p class="t-footnote muted">Version 1.0 (12)</p>
+            </div>
+
+            <div class="card stack-8">
+              <p class="t-body-reg">StrokeTutor teaches you to draw on real paper. Each lesson animates one small step, then stops and waits while you draw that step yourself.</p>
+            </div>
+
+            <div class="list">
+              <button class="list-row" type="button" data-set-variant="credits">
+                <span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-photo"/></svg></span>
+                <span class="grow"><span class="lbl">Photo credits &amp; licences</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+              <button class="list-row" type="button" data-set-variant="privacy">
+                <span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-lock"/></svg></span>
+                <span class="grow"><span class="lbl">Privacy</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+            </div>
+
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-info"/></svg></span>
+                <span class="grow"><span class="lbl">Contact</span><span class="sub">hello@stroketutor.app</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </div>
+              <div class="list-row">
+                <span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-paper"/></svg></span>
+                <span class="grow"><span class="lbl">Open-source licences</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </div>
+            </div>
+
+            <div class="card card--soft stack-8">
+              <p class="t-headline">No network needed</p>
+              <p class="t-body-reg muted">Every lesson is already on your iPhone. StrokeTutor does not download anything and does not upload anything.</p>
+            </div>
+            <p class="t-footnote muted-2 center" style="padding:6px 0 4px">Made by Softroni · September 2026</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- credits -->
+        <div class="phone" data-variant="credits">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-set-variant="about"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Photo credits</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <p class="cap" style="padding-top:4px">Every reference photograph used in a lesson, with its source and licence.</p>
+
+            <p class="sec-h t-eyebrow muted">Houses</p>
+            <div class="list">
+              <div class="list-row">
+                <span class="photo photo--warm credit-thumb"></span>
+                <span class="grow"><span class="lbl">House With Chimney</span><span class="sub">Unsplash · Unsplash License</span></span>
+              </div>
+              <div class="list-row">
+                <span class="photo credit-thumb"></span>
+                <span class="grow"><span class="lbl">Small Cottage</span><span class="sub">Pixabay · Pixabay Content License</span></span>
+              </div>
+              <div class="list-row">
+                <span class="photo photo--sky credit-thumb"></span>
+                <span class="grow"><span class="lbl">House From an Angle</span><span class="sub">Wikimedia Commons · CC BY-SA 4.0 · Photo: A. Meier</span></span>
+              </div>
+              <div class="list-row">
+                <span class="thumb credit-thumb"><svg viewBox="0 0 1000 1000"><g class="stroke" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/></g></svg></span>
+                <span class="grow"><span class="lbl">Simple House</span><span class="sub">Drawn from scratch · no photograph</span></span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Trees</p>
+            <div class="list">
+              <div class="list-row">
+                <span class="photo credit-thumb"></span>
+                <span class="grow"><span class="lbl">Palm Tree</span><span class="sub">Pixabay · Free</span></span>
+              </div>
+            </div>
+
+            <p class="cap">Photographs are used as references for the drawings only. Licences are reproduced in full in Open-source licences.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- privacy -->
+        <div class="phone" data-variant="privacy">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-set-variant="about"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Privacy</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <p class="t-title2" style="padding:6px 4px 0">Everything stays on this device.</p>
+
+            <div class="list">
+              <div class="list-row">
+                <span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-lock"/></svg></span>
+                <span class="grow"><span class="lbl">No account, no sign-in</span><span class="sub">There is nothing to create and nothing to log in to.</span></span>
+              </div>
+              <div class="list-row">
+                <span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-book"/></svg></span>
+                <span class="grow"><span class="lbl">Your sketchbook is yours</span><span class="sub">Photos of your pages are stored inside the app on this iPhone. Turn on “Also save to Photos” if you also want them in your photo library.</span></span>
+              </div>
+              <div class="list-row">
+                <span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-eye"/></svg></span>
+                <span class="grow"><span class="lbl">Nothing is measured</span><span class="sub">No analytics, no tracking, no advertising identifiers.</span></span>
+              </div>
+              <div class="list-row">
+                <span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-paper"/></svg></span>
+                <span class="grow"><span class="lbl">Nothing leaves the app</span><span class="sub">StrokeTutor makes no network connection at all.</span></span>
+              </div>
+              <div class="list-row">
+                <span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-trash"/></svg></span>
+                <span class="grow"><span class="lbl">Deleting the app deletes everything</span><span class="sub">Including your sketchbook, unless you saved copies to Photos.</span></span>
+              </div>
+            </div>
+
+            <div class="card card--soft stack-8">
+              <p class="t-headline">The camera</p>
+              <p class="t-body-reg muted">The camera is used in one place: photographing your finished page. The photo goes straight into your sketchbook on this iPhone.</p>
+            </div>
+
+            <p class="cap">Questions: hello@stroketutor.app</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Three pages behind one row. Photo credits is a legal requirement, not a courtesy: the reference photographs are bundled inside the app binary, so their licences travel with every download.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Purpose</h4>
+      <p>Three jobs in one stack: say what the app is in two sentences; discharge the attribution obligations of every bundled photograph; and answer “what happens to my drawings” without a lawyer's paragraph. <span class="tag tag--plan">§32</span> (“Store locally and privately by default”) is the whole privacy page.</p>
+
+      <h4>Photo credits — where the list comes from</h4>
+      <p>Each row is one lesson that has a <code>reference</code> in <code>shared/Catalog/lessons.json</code>:</p>
+      <pre>{ "id": "palm-tree-4", "reference": { "file": "palm-tree-4.svg",
+                                      "source": "pixabay", "license": "Free" } }</pre>
+      <p>Grouping is by path: read <code>Catalog/paths.json</code>, walk <code>lessonIds</code> in order, emit a section per path and a row per lesson. A lesson with no <code>reference</code> still gets a row reading “Drawn from scratch · no photograph”, so the list is a complete audit of what shipped rather than a filtered highlight.</p>
+      <p><strong>Recommendation: read the bundled catalog at runtime, not a generated file.</strong></p>
+      <ul>
+        <li><code>Catalog/</code> already has to be in the bundle for paths, unlock order and objectives; the credits list is three fields off an object that is in memory anyway.</li>
+        <li>A build-time script produces a second artefact that can silently drift from the catalog — exactly the failure mode that makes an attribution list a legal problem instead of a screen. One source, one truth.</li>
+        <li>It also means adding a lesson in the Studio updates the credits with no code change, which is the same property that makes <code>Tutorials/</code> a folder reference.</li>
+      </ul>
+      <p>What the build <em>should</em> do instead is <strong>fail</strong>: add a check to the release script (and a unit test) asserting that every lesson with a <code>reference</code> has a non-empty <code>source</code> and <code>license</code>, and that <code>Assets/References/&lt;file&gt;</code> exists. The Studio validates this already; the app-side test is the backstop for a hand-edited catalog.</p>
+      <ul>
+        <li><code>source</code> today is a bare slug (<code>"pixabay"</code>). Map it through a small display table — <code>pixabay</code> → “Pixabay”, <code>unsplash</code> → “Unsplash” — and fall back to the raw string rather than hiding an unknown source.</li>
+        <li><code>license</code> today is free text (<code>"Free"</code>). It should become an enumeration in the Studio before launch, because “Free” is not a licence name; “Pixabay Content License” is. Flagged as an open question.</li>
+        <li>Add an optional <code>author</code> to <code>reference</code>: CC BY and CC BY-SA <em>require</em> attributing the photographer, and there is nowhere to put a name today. The mock's third Houses row shows what that looks like.</li>
+        <li>The thumbnail is the bundled reference asset itself, drawn at 44 pt. In the mockup those are <code>.photo</code> placeholders — no licensed images live in this document.</li>
+      </ul>
+
+      <h4>Privacy — and what the creator must decide</h4>
+      <p>The page as written makes four claims that the shipped binary must actually satisfy:</p>
+      <table>
+        <tr><th>Claim on screen</th><th>What has to be true</th></tr>
+        <tr><td>No account, no sign-in</td><td>Holds today, and holds through M10 if entitlements use StoreKit's own receipt rather than an account.</td></tr>
+        <tr><td>No analytics, no tracking</td><td>No SDK of any kind is linked. App Privacy “Data Not Collected” on all categories; no <code>NSUserTrackingUsageDescription</code>, no ATT prompt.</td></tr>
+        <tr><td>No network connection</td><td>Verifiable: add a debug assertion or a network-link-conditioner test run with all traffic blocked. It stops being true the moment remote content <span class="tag tag--plan">§39</span> ships.</td></tr>
+        <tr><td>Deleting the app deletes everything</td><td>Sketchbook lives in Application Support, excluded from iCloud backup only if the creator wants that — see below.</td></tr>
+      </table>
+      <p><strong>Decisions the creator owns, not the engineer:</strong></p>
+      <ul>
+        <li><em>Analytics at all?</em> “No analytics by default” is written above. The honest options are none, or a strictly local, opt-in, aggregate-only counter that is never transmitted. Anything else means rewriting this page and filling in App Privacy — and an analytics SDK is the first thing that would break the “no network connection” claim.</li>
+        <li><em>Crash reporting</em> counts as analytics to a reader, even though Apple's own crash reports are opt-in at the OS level and collect nothing for us. Recommendation: rely on Xcode Organizer only, and say nothing, because nothing is collected by us.</li>
+        <li><em>iCloud backup of the sketchbook.</em> Included in the device backup by default, which most people want and which contradicts nothing on this page — but “stays on this device” is then approximately, not literally, true. Recommendation: leave backup on and change the line to “Your drawings stay on this iPhone and in your own iPhone backup.”</li>
+        <li><em>Contact address.</em> <code>hello@stroketutor.app</code> is a placeholder; App Store review requires a real, monitored one.</li>
+        <li><em>Privacy policy URL.</em> The App Store listing requires a hosted policy even when the app collects nothing. That URL is the one piece of this that cannot live only in the app — and opening it is the one thing on this screen that needs the network, which is why it is a listing link rather than a row here.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>struct PhotoCreditsView: View {
+  let catalog: Catalog                       // already loaded for paths/objectives
+  var body: some View {
+    List {
+      ForEach(catalog.paths) { path in
+        Section(path.title) {
+          ForEach(catalog.lessons(in: path)) { lesson in
+            CreditRow(title: lesson.title,
+                      thumbnail: lesson.reference.map(ReferenceImage.init),
+                      detail: lesson.creditLine)   // "Pixabay · Free" or "Drawn from scratch · no photograph"
+          }
+        }
+      }
+    }
+    .listStyle(.insetGrouped)
+    .navigationTitle("Photo credits")
+  }
+}</pre>
+      <p>Open-source licences: a plain <code>Text</code> of a bundled <code>licences.txt</code> generated at build time from the SPM manifest. Empty today — the app has no third-party dependencies — so ship the row only when there is something to show.</p>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Credit rows are one element each: “House With Chimney. Unsplash, Unsplash License.” The thumbnail is decorative.</li>
+        <li>The privacy list is read as five statements; do not make them buttons, they do nothing.</li>
+        <li>Contact row opens Mail via <code>mailto:</code>; label it “Contact, hello@stroketutor.app” with hint “Opens Mail.”</li>
+      </ul>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li><code>reference.license</code> should become an enumeration with an <code>author</code> field before any CC BY photograph ships. Who owns that Studio change?</li>
+        <li>Does the creator want the credits list reachable from a lesson's preview screen as well as here? A learner curious about the photograph in front of them is in the preview, not in Settings.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ============================================================= st-system -->
+<article class="screen" id="st-system" data-title="System states" data-group="Settings &amp; system">
+  <header>
+    <h2>System states</h2>
+    <p class="lede">The five moments where the app has to tell the truth about something going wrong: a destructive confirmation, a lesson the loader skipped, no network, a denied camera, and no curriculum at all.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="reset">Reset progress</button>
+        <button type="button" data-variant="content-problem">Content problem</button>
+        <button type="button" data-variant="offline">Offline</button>
+        <button type="button" data-variant="permissions">Camera denied</button>
+        <button type="button" data-variant="empty-curriculum">No lessons</button>
+      </nav>
+      <div class="devices">
+        <!-- ---------------------------------------------------- reset -->
+        <div class="phone" data-variant="reset">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:8px">
+            <p class="sec-h t-eyebrow muted">The app</p>
+            <div class="list">
+              <div class="list-row"><span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-eye"/></svg></span><span class="grow"><span class="lbl">Accessibility</span></span><svg class="chevron"><use href="#i-chevron-right"/></svg></div>
+              <div class="list-row"><span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-bell"/></svg></span><span class="grow"><span class="lbl">Practice reminder</span></span><span class="value">Off</span><svg class="chevron"><use href="#i-chevron-right"/></svg></div>
+            </div>
+            <p class="sec-h t-eyebrow muted">Sketchbook</p>
+            <div class="list">
+              <div class="list-row"><span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-photo"/></svg></span><span class="grow"><span class="lbl">Also save to Photos</span></span><span class="toggle"></span></div>
+            </div>
+            <p class="sec-h t-eyebrow muted">About</p>
+            <div class="list">
+              <div class="list-row"><span class="leading" style="background:var(--warm-soft);color:var(--warm)"><svg><use href="#i-replay"/></svg></span><span class="grow"><span class="lbl">Replay the introduction</span></span><svg class="chevron"><use href="#i-chevron-right"/></svg></div>
+              <div class="list-row"><span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-info"/></svg></span><span class="grow"><span class="lbl">About &amp; credits</span></span><svg class="chevron"><use href="#i-chevron-right"/></svg></div>
+            </div>
+            <div class="list" style="margin-top:8px">
+              <div class="list-row"><span class="grow lbl danger">Reset progress</span></div>
+            </div>
+            <p class="t-footnote muted-2 center" style="padding:14px 0 8px">StrokeTutor 1.0 (12)</p>
+          </div>
+          <nav class="tabbar">
+            <button class="tab" type="button"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab is-active" type="button"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="alert-overlay">
+            <div class="alert">
+              <p class="t-headline">Reset progress?</p>
+              <p class="t-footnote muted" style="font-weight:500">This clears your lesson progress on this device. Your sketchbook photos are kept.</p>
+              <div class="divider" style="margin:8px -20px 0"></div>
+              <div class="btn-row" style="gap:0">
+                <button class="btn btn-text" type="button" data-goto="st-settings">Cancel</button>
+                <span style="width:1px;background:var(--line)"></span>
+                <button class="btn btn-text danger" type="button" style="font-weight:800">Reset</button>
+              </div>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- content problem: learner view -->
+        <div class="phone" data-variant="content-problem">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="hp-home"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <p class="cap" style="padding-top:2px">9 lessons · 2 finished</p>
+            <div class="list">
+              <div class="list-row"><span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span><span class="grow"><span class="lbl">Simple House</span><span class="sub">About 4 min</span></span></div>
+              <div class="list-row"><span class="badge-num done"><svg style="width:16px;height:16px"><use href="#i-check"/></svg></span><span class="grow"><span class="lbl">House With Chimney</span><span class="sub">About 4 min</span></span></div>
+              <div class="list-row"><span class="badge-num next">3</span><span class="grow"><span class="lbl">Small Cottage</span><span class="sub">About 5 min · next</span></span><svg class="chevron"><use href="#i-chevron-right"/></svg></div>
+              <div class="list-row"><span class="badge-num">4</span><span class="grow"><span class="lbl">House From an Angle</span></span><svg class="chevron lock" style="width:18px;height:18px"><use href="#i-lock"/></svg></div>
+              <div class="list-row"><span class="badge-num">5</span><span class="grow"><span class="lbl">Two-Story House</span></span><svg class="chevron lock" style="width:18px;height:18px"><use href="#i-lock"/></svg></div>
+              <div class="list-row"><span class="badge-num">6</span><span class="grow"><span class="lbl">Farmhouse</span></span><svg class="chevron lock" style="width:18px;height:18px"><use href="#i-lock"/></svg></div>
+              <div class="list-row"><span class="badge-num">7</span><span class="grow"><span class="lbl">House + Tree</span></span><svg class="chevron lock" style="width:18px;height:18px"><use href="#i-lock"/></svg></div>
+              <div class="list-row"><span class="badge-num">8</span><span class="grow"><span class="lbl">Cottage With Foreground</span></span><svg class="chevron lock" style="width:18px;height:18px"><use href="#i-lock"/></svg></div>
+              <div class="list-row"><span class="badge-num">9</span><span class="grow"><span class="lbl">Small Street Scene</span></span><svg class="chevron lock" style="width:18px;height:18px"><use href="#i-lock"/></svg></div>
+            </div>
+            <p class="cap">Finish a lesson to open the next one.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+        <!-- ---------------------------------------------------- content problem: developer view -->
+        <div class="phone" data-variant="content-problem">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:10px">
+            <span class="chip chip--warm" style="align-self:flex-start">DEBUG BUILD ONLY — never visible to a learner</span>
+            <div class="stack-8">
+              <p class="t-title2">Some files could not be loaded</p>
+              <p class="t-subhead muted">2 files failed. Fix the JSON and try again.</p>
+            </div>
+            <div class="problem stack-8">
+              <p class="mono">barn.json</p>
+              <p class="t-subhead" style="font-weight:400">Step “roof”, stroke 2: unexpected command “A” at offset 41. Only M, L, C, Q and Z are supported.</p>
+              <p class="t-footnote muted">Offending path data:</p>
+              <p class="pathdata">M 180 520 L 520 300 A 40 40 0 0 1 860 520</p>
+            </div>
+            <div class="problem stack-8">
+              <p class="mono">two-story-house.json</p>
+              <p class="t-subhead" style="font-weight:400">Missing required field “instruction” in steps[3].</p>
+            </div>
+            <span class="btn btn-secondary" style="margin-top:4px">Close</span>
+            <p class="cap" style="padding-top:4px">Skipped silently in release: <span class="mono" style="font-size:13px">palm-tree-4.json</span> — schemaVersion 2, newer than this app.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- offline -->
+        <div class="phone" data-variant="offline">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg viewBox="0 0 18 12" style="width:15px;height:12px"><path fill="currentColor" d="M17.2 6 L11.2 7.3 L8.2 12 L6.6 12 L8.1 7.7 L4.2 8.5 L2.9 10.2 L1.7 10.2 L2.5 6 L1.7 1.8 L2.9 1.8 L4.2 3.5 L8.1 4.3 L6.6 0 L8.2 0 L11.2 4.7 Z"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">About</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack">
+            <div class="center stack-8" style="align-items:center;padding:8px 0 4px">
+              <span class="thumb" style="width:88px;height:88px;border-radius:22px">
+                <svg viewBox="0 0 1000 1000"><g class="stroke" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/></g></svg>
+              </span>
+              <p class="t-title2">StrokeTutor</p>
+              <p class="t-footnote muted">Version 1.0 (12)</p>
+            </div>
+            <div class="card card--green stack-8">
+              <p class="t-headline c-green">No network needed</p>
+              <p class="t-body-reg">Every lesson is already on your iPhone. StrokeTutor does not download anything and does not upload anything, so it works the same in a plane, a cellar or a garden.</p>
+            </div>
+            <div class="card stack-8">
+              <p class="t-body-reg">StrokeTutor teaches you to draw on real paper. Each lesson animates one small step, then stops and waits while you draw that step yourself.</p>
+            </div>
+            <div class="list">
+              <div class="list-row"><span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-photo"/></svg></span><span class="grow"><span class="lbl">Photo credits &amp; licences</span></span><svg class="chevron"><use href="#i-chevron-right"/></svg></div>
+              <div class="list-row"><span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-lock"/></svg></span><span class="grow"><span class="lbl">Privacy</span></span><svg class="chevron"><use href="#i-chevron-right"/></svg></div>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- camera denied -->
+        <div class="phone" data-variant="permissions">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="sk-book"><svg><use href="#i-close"/></svg></button>
+            <div class="title">Add to sketchbook</div>
+            <span></span>
+          </div>
+          <div class="screen-body stack" style="justify-content:center">
+            <div class="center stack" style="align-items:center;gap:16px">
+              <span style="width:96px;height:96px;border-radius:50%;background:var(--ink-10);color:var(--ink-55);display:grid;place-items:center"><svg style="width:44px;height:44px"><use href="#i-camera"/></svg></span>
+              <p class="t-title2">StrokeTutor can’t use the camera</p>
+              <p class="t-body-reg muted" style="max-width:310px">Camera access is turned off for StrokeTutor. You can turn it on in Settings, or add a photo you have already taken.</p>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary btn-primary--accent" type="button">Open Settings</button>
+            <button class="btn btn-secondary" type="button"><svg><use href="#i-photo"/></svg>Choose an existing photo</button>
+            <button class="btn btn-text btn-text--muted" type="button" data-goto="sk-book">Not now</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- empty curriculum -->
+        <div class="phone" data-variant="empty-curriculum">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body stack">
+            <h1 class="t-large-title" style="padding:10px 4px 0">Learn</h1>
+            <div class="spacer"></div>
+            <div class="center stack" style="align-items:center;gap:16px">
+              <span class="thumb" style="width:110px;height:110px;border-radius:26px;opacity:.5">
+                <svg viewBox="0 0 24 24" style="width:52px;height:52px"><use href="#i-pen"/></svg>
+              </span>
+              <p class="t-title2">No lessons are installed</p>
+              <p class="t-body-reg muted" style="max-width:300px">This copy of StrokeTutor shipped without a curriculum. Nothing you did caused it. Updating the app should put it right.</p>
+              <button class="btn btn-text" type="button" data-goto="st-about" style="width:auto">About &amp; credits</button>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button"><svg><use href="#i-pen"/></svg>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><svg><use href="#i-gear"/></svg>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption"><strong>Content problem</strong> shows both sides of the same failure: the learner sees a path of nine lessons and no sign that a tenth was meant to exist, while the developer build shows the report that already exists in <code>TutorialProblemsView.swift</code>. The learner-facing screen is the point — a broken export is our problem, not theirs.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+
+      <h4>Reset progress</h4>
+      <ul>
+        <li><code>.confirmationDialog</code> is wrong here — a destructive action with a consequence that needs a sentence of explanation belongs in an <code>.alert</code>, where the message is readable. Title “Reset progress?”, message as shown, <code>Button("Reset", role: .destructive)</code> and <code>Button("Cancel", role: .cancel)</code>.</li>
+        <li><strong>What it clears:</strong> the progress store only — completed lesson ids, current lesson per path, and last-played timestamps. One call, <code>ProgressStore.resetAll()</code>, which removes its own file and re-publishes an empty value; do not iterate <code>UserDefaults</code> keys.</li>
+        <li><strong>What it never touches:</strong> the sketchbook (photos and their lesson/path/date metadata), and every <code>settings.*</code> key. The alert message promises the first explicitly. A learner who resets progress to start the Houses path again has not asked to lose eleven photographs of their own drawings.</li>
+        <li>Deleting sketchbook entries is a separate, per-entry action on <code>sk-entry</code>. There is deliberately no “delete everything” button anywhere in Settings.</li>
+        <li>After reset, pop to the root of the Learn tab so the learner is not left looking at a path detail that no longer describes their state.</li>
+      </ul>
+
+      <h4>Content problem — the lenient loader, seen from the learner's side</h4>
+      <p><code>shared/README.md</code> records the divergence deliberately: the device is lenient because it must never strand a learner mid-lesson, and the Studio is strict because catching a bad export before it ships is the tool's entire job. Three behaviours follow, and all three are already implemented in <code>TutorialLoader</code>:</p>
+      <table>
+        <tr><th>Problem</th><th>Loader</th><th>What the learner sees</th></tr>
+        <tr><td>duration or lineWidth of 0</td><td>clamps to 0.8 s / 8, appends a warning</td><td>nothing — the lesson plays</td></tr>
+        <tr><td>unknown property, bad hex</td><td>ignores / falls back to the default colour</td><td>nothing</td></tr>
+        <tr><td>unparseable path, missing field</td><td>throws; the file becomes a <code>TutorialLoadFailure</code></td><td>the lesson is simply not in the list</td></tr>
+        <tr><td><code>schemaVersion</code> 2</td><td><code>isForNewerApp</code> → <code>continue</code>, not even recorded as a failure</td><td>nothing</td></tr>
+      </table>
+      <ul>
+        <li><strong>The path screen filters, it does not apologise.</strong> Build the lesson list from <code>paths.json</code>, drop every id that did not produce a <code>PreparedTutorial</code>, and number the rows by their position in the <em>filtered</em> list. A gap in the numbers is a bug report the learner cannot act on.</li>
+        <li>Lesson counts (“9 lessons”), progress fractions and path-complete detection all use the filtered list, so a path with a skipped lesson still reaches 100%.</li>
+        <li><strong>The Problems view must not ship visible.</strong> Today <code>ContentView</code> shows <code>failureBanner</code> and the full-screen <code>TutorialProblemsView</code> unconditionally. In M7 both move behind <code>#if DEBUG</code> — keep the type, keep the tests, and add an entry point from a debug-only settings row. In release, a failure is written to <code>os_log</code> at <code>.error</code> and nowhere else.</li>
+        <li>Ship-blocking guard: a unit test that loads every file in <code>Tutorials/</code> and fails if any produces a <code>TutorialLoadFailure</code> that is not <code>isForNewerApp</code>. A lesson silently missing from a release is a content bug that must fail CI, not fail quietly on a learner's phone.</li>
+      </ul>
+
+      <h4>Offline — the decision</h4>
+      <p><strong>There is no offline state in version 1, because there is no online state.</strong> The app makes no network request: lessons, catalog, reference photos and voice clips are all bundled. So there is deliberately no reachability check, no spinner, no “no connection” banner, no retry — every one of those would be a lie about how the app works, and each is a surface that can fail.</p>
+      <ul>
+        <li>The only honest place to say it is About, as one positive sentence (“No network needed”) rather than an error state. That line is shown here promoted into a card; in the shipping About it sits where the <em>about</em> variant of <code>st-about</code> puts it.</li>
+        <li>Do not link <code>Network.framework</code> and do not add <code>NSAppTransportSecurity</code> exceptions. If a future build needs neither, reviewers and researchers can both verify the claim.</li>
+        <li>This stops being true the day remote downloadable content <span class="tag tag--plan">§39</span> ships. At that point the first real offline state appears — and it should still be quiet: bundled lessons keep working, and only the “more lessons” surface shows a connection message.</li>
+        <li>One near-miss: the App Store privacy policy link and any <code>mailto:</code> leave the app. Those are the system's problem, not ours, and neither needs a network state inside StrokeTutor.</li>
+      </ul>
+
+      <h4>Camera denied</h4>
+      <ul>
+        <li>Reached from <code>sk-capture</code> when <code>AVCaptureDevice.authorizationStatus(for: .video)</code> is <code>.denied</code> or <code>.restricted</code>. Never present the camera UI first and fail into a black frame.</li>
+        <li>“Open Settings” = <code>UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)</code>. It lands on StrokeTutor's own settings page, where the Camera switch is.</li>
+        <li>“Choose an existing photo” uses <code>PhotosPicker</code>, which needs no permission at all under <code>PHPickerViewController</code>'s out-of-process model — so it is a genuine way out, not a second dead end. Keep it even when the camera is available.</li>
+        <li>Info.plist strings, written as the learner will read them mid-lesson:
+          <pre>NSCameraUsageDescription
+  "StrokeTutor uses the camera to photograph your finished drawing
+   so it can go into your sketchbook on this iPhone."
+
+NSPhotoLibraryAddUsageDescription
+  "Saves a copy of your finished drawing to your photo library when
+   you turn on 'Also save to Photos'."</pre>
+          <code>NSPhotoLibraryUsageDescription</code> (read access) is <strong>not</strong> needed: <code>PhotosPicker</code> does not require it, and asking for library read access in an app that promises nothing leaves the device is a bad trade.</li>
+        <li>If “Also save to Photos” is on and add-access is denied, save to the sketchbook anyway and show a one-line toast: “Saved to your sketchbook. Photos access is off.” Never lose the photograph.</li>
+      </ul>
+
+      <h4>No lessons — the state that should never ship</h4>
+      <ul>
+        <li>Triggered when the catalog resolves to zero playable lessons: an empty <code>paths.json</code>, a missing <code>Catalog/</code> folder, or every tutorial failing to load.</li>
+        <li>Tone: state the fact, remove the blame, offer the one thing that might help. No error code, no “contact support” on a screen the learner cannot act on, and no exclamation mark.</li>
+        <li>The tab bar stays — the Sketchbook and Settings still work, and hiding navigation would make a content bug look like a broken app.</li>
+        <li><strong>Guard rails so it never appears:</strong> a release-script check that <code>paths.json</code> is non-empty and every listed lesson resolves; the loader test above; and an assertion in <code>#if DEBUG</code> at launch. This screen exists so that if all three fail, the learner still sees a sentence instead of a blank tab.</li>
+      </ul>
+
+      <h4>SwiftUI mapping</h4>
+      <pre>.alert("Reset progress?", isPresented: $isConfirmingReset) {
+  Button("Reset", role: .destructive) { progress.resetAll() }   // sketchbook untouched
+  Button("Cancel", role: .cancel) { }
+} message: {
+  Text("This clears your lesson progress on this device. Your sketchbook photos are kept.")
+}
+
+// content problems, release vs debug
+#if DEBUG
+  if !library.failures.isEmpty { DebugProblemsRow(failures: library.failures) }
+#else
+  // logged only: Logger(subsystem:…, category: "content").error("…")
+#endif
+
+// empty curriculum
+if catalog.playableLessons.isEmpty { EmptyCurriculumView() } else { LearnView() }</pre>
+
+      <h4>Accessibility</h4>
+      <ul>
+        <li>The reset alert is announced with its message; the destructive role gives VoiceOver the right verb. Do not add a hint that repeats the message.</li>
+        <li>Camera-denied screen: focus moves to the headline on appear (<code>.accessibilityFocused</code>), so a VoiceOver user hears why they are here before the buttons.</li>
+        <li>Empty-curriculum illustration is <code>.accessibilityHidden(true)</code>; the headline and body are one readable pair.</li>
+      </ul>
+
+      <h4>Open questions</h4>
+      <ul>
+        <li>Should “Reset progress” also offer a second, explicit “Delete my sketchbook” inside the same alert? Recommendation: no. Two destructive actions in one dialog is how people lose photographs.</li>
+        <li>Is the debug Problems view worth an in-app entry point in TestFlight builds, not just DEBUG? The creator will be the main TestFlight user, and a bad export found on device is cheaper than one found by a learner.</li>
+      </ul>
+    </aside>
+  </div>
+</article>

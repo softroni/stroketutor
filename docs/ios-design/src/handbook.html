@@ -1,0 +1,173 @@
+<h2>Developer handbook</h2>
+<p>This document is the layout and behaviour specification for the StrokeTutor iOS learner app: every screen, every state, and the notes an engineer needs to build it in SwiftUI. It was designed from the master plan (<code>docs/StrokeTutor_Master_Plan.pdf</code>, Part VI §29–§32 and Part I §1–§7), from the player that already exists in <code>StrokeTutor/</code>, and from Duolingo's onboarding, home and completion patterns on Mobbin, used for craft only. Nothing in <code>StrokeTutor/</code>, <code>web/</code> or <code>shared/</code> was changed to make it.</p>
+
+<h3>How to read this document</h3>
+<ul>
+  <li><b>One screen</b> mode (default) shows a screen with its developer notes. <b>Gallery</b> shows every phone at once. <span style="font:600 11px/1 ui-monospace,Menlo,monospace">←</span> <span style="font:600 11px/1 ui-monospace,Menlo,monospace">→</span> step through screens.</li>
+  <li>Buttons inside the phones are live where a flow exists: Continue in onboarding walks to the next beat, a lesson card opens its preview, <em>Start drawing</em> opens the player, <em>I drew it</em> moves the player to the next state, the tab bar switches tabs. State chips above a phone switch its variants.</li>
+  <li>Phones are iPhone 16 Pro logical size (393 × 852 pt, 1 CSS px = 1 pt). iPad variants are shown scaled.</li>
+  <li>Source: <code>docs/ios-design/src/</code>. <code>node docs/ios-design/build.mjs</code> rebuilds <code>index.html</code>; <code>--check</code> validates the fragments. Screens are in <code>src/screens/</code>, one file per group; the design tokens are <code>src/design-system.css</code>; the tutor and icons are <code>src/symbols.svg.html</code>.</li>
+</ul>
+
+<h3>Ten rules the whole app follows</h3>
+<ol>
+  <li><b>Watch → draw → confirm → continue.</b> A step animates, stops, and waits. Nothing advances without <em>I drew it</em>. No timers, no countdowns, no auto-advance (§4, §31).</li>
+  <li><b>The paper is the product.</b> There is no digital canvas. The phone demonstrates; the learner draws on real paper; the sketchbook keeps a photo of the page (§7, §32).</li>
+  <li><b>Adult tone.</b> "Nice work. Your cottage is finished." Never "AMAZING!!! +500 XP". No scores, grades, XP, likes, leaderboards or streak pressure (§2, §30).</li>
+  <li><b>Reality stays in view.</b> The reference photo is on the preview, a persistent thumbnail in the player, side by side on iPad (§5, §31).</li>
+  <li><b>One loud button.</b> Green is reserved for the action that moves the learner forward. Everything else is white, outlined or plain text.</li>
+  <li><b>Big and readable.</b> Body 17 pt minimum, instruction 22 pt, tap targets 60 pt (<code>Theme.minimumTapTarget</code>), rounded SF type, high contrast (§31).</li>
+  <li><b>Paths unlock in order; paths switch freely.</b> Progress is per path and never lost by switching (§6).</li>
+  <li><b>Calm progress.</b> Progress is finished drawings: "3 of 10 drawn", a sketchbook page count. Not points.</li>
+  <li><b>Local and private.</b> No account, no cloud, no analytics by default. Everything lives on the device (§32, §38).</li>
+  <li><b>The existing player is kept.</b> <code>PlayerViewModel</code>, <code>DrawingCanvasView</code>, <code>StepInstructionCard</code>, <code>Theme</code> and the lenient loader stay; M7 wraps them in a product shell.</li>
+</ol>
+
+<h3>Two additions that are not in the master plan</h3>
+<h4>Narration: the tutor's voice on every step</h4>
+<p>Every lesson step is narrated: a short recorded sentence that tells the learner how to make the stroke while it draws, the way the Simply Draw app does. The written instruction stays on screen at all times; audio is never the only channel. Narration plays from the start of a step's animation, is replayed together with the animation by <em>Watch again</em>, ignores the speed setting, respects the silent switch, ducks other audio, and can be muted with one tap (persisted in Settings). Onboarding introduces the voice once. The plan reserved <code>step.voiceover</code> for exactly this and deferred the decision (§39); this design takes it. Production is in the Studio with the ElevenLabs API, later; the pipeline is specified below.</p>
+<h4>Lina: a tutor you can see, within limits</h4>
+<p>The plan says to avoid mascot-driven motivation (§30). The creator wants the learner to feel that someone is teaching them. The compromise is <b>Lina</b>, an adult artist drawn in the product's own pen-and-ink language, whose role is bounded:</p>
+<table>
+  <tr><th>Where</th><th>What she does</th><th>What she never does</th></tr>
+  <tr><td>Onboarding</td><td>Guides with a speech bubble; explains the method; introduces her voice</td><td>Cheer, count, promise</td></tr>
+  <tr><td>Player</td><td>Is only a voice: the narration chip carries a 40 pt portrait</td><td>Appear over the canvas, animate, react to taps</td></tr>
+  <tr><td>Completion</td><td>One calm sentence</td><td>Confetti, dancing, "amazing"</td></tr>
+  <tr><td>Reminders</td><td>Writes the notification text, only if the learner opted in</td><td>Guilt, streaks, "don't lose"</td></tr>
+</table>
+<p>The character in this document is placeholder art direction for an illustrator: four poses (neutral, pen, point, wave) as vector assets (PDF in the asset catalog, <em>Preserve Vector Data</em>), drawn with the same 16-unit ink line as the lessons.</p>
+
+<h3>App map</h3>
+<div class="map"><pre>
+Launch ──▶ first run? ──▶ ONBOARDING (full-screen cover)  ob-splash → ob-1 … ob-8 → ob-voice → ob-ready
+                 │                                                                       │
+                 ▼                                                                       ▼
+            TABS (TabView)                                                      Lesson preview
+   ┌──────────────┬──────────────┬──────────────┐
+   │ Learn        │ Sketchbook   │ Settings     │
+   │ hp-home      │ sk-book      │ st-settings  │
+   │  ├ hp-paths  │  └ sk-entry  │  ├ st-voice  │
+   │  ├ hp-path   │              │  ├ st-access │
+   │  └ hp-preview│              │  ├ st-reminder│
+   └──────┬───────┴──────────────┴──┴ st-about  ┘
+          ▼  Start drawing
+     PLAYER (full-screen cover, no tab bar)  pl-player: orientation → drawing ⇄ awaiting → … → last step
+          │  ×  → pl-leave (place is kept)                              │ Finish
+          ▼                                                             ▼
+     back to hp-preview ("Continue from step 3")            sk-complete → sk-capture (primer → camera → review → saved)
+                                                                 │ Next lesson → hp-preview     │ Not now → hp-path
+                                                                 └ last lesson of a path → sk-path-done
+</pre></div>
+<p><b>SwiftUI shape.</b> A root <code>AppRoot</code> switches on <code>hasCompletedOnboarding</code>. Tabs are a <code>TabView</code> with three <code>NavigationStack</code>s (one path per tab, so the back stack survives tab switches). Onboarding and the player are <code>fullScreenCover</code>s presented from the root, not pushed, so neither shows the tab bar and the player owns the whole screen. Sheets (<code>pl-leave</code>, the locked-lesson explanation, delete confirmation) are <code>.sheet</code> with <code>.presentationDetents([.fraction(0.4)])</code> or <code>.alert</code> as each screen's notes say.</p>
+
+<h3>Design tokens</h3>
+<p>Every value below exists in <code>src/design-system.css</code>; those marked <em>Theme.swift</em> already exist in code. New values go into <code>Theme.swift</code> as static members and into the asset catalog as named colours so they adapt if a dark appearance is ever added (it is not designed here: the paper stays light).</p>
+<div class="swatches">
+  <div class="swatch"><i style="background:#FAF7F0"></i><span><b>paper</b> #FAF7F0<br>canvas default</span></div>
+  <div class="swatch"><i style="background:#EDEBE6"></i><span><b>page</b> #EDEBE6<br>Theme.pageBackground</span></div>
+  <div class="swatch"><i style="background:#2B2B2B"></i><span><b>ink</b> #2B2B2B<br>Theme.ink / strokes</span></div>
+  <div class="swatch"><i style="background:#1C8F5C"></i><span><b>green</b> #1C8F5C<br>Theme.success · primary</span></div>
+  <div class="swatch"><i style="background:#2178D9"></i><span><b>accent</b> #2178D9<br>Theme.accent · links</span></div>
+  <div class="swatch"><i style="background:#B85C0D"></i><span><b>warning</b> #B85C0D<br>Theme.warning</span></div>
+  <div class="swatch"><i style="background:#C4653A"></i><span><b>warm</b> #C4653A<br>new · Lina, narration</span></div>
+  <div class="swatch"><i style="background:#B8902B"></i><span><b>gold</b> #B8902B<br>new · finished marks</span></div>
+</div>
+<table>
+  <tr><th>Token</th><th>Value</th><th>Used for</th></tr>
+  <tr><td>Type</td><td>SF Pro Rounded (<code>Theme.rounded(size, weight)</code>)</td><td>Everything. Large title 34/800, title 28/800, title2 22/700, instruction 22/700, body 17/500, subhead 15/600, footnote 13/600, eyebrow 13/800 uppercase</td></tr>
+  <tr><td>Primary button</td><td>68 pt tall, 24–26 pt heavy, radius 28, green</td><td><code>BigPrimaryButtonStyle</code>; tint accent for "Start over"/"Begin", ink for neutral confirmations</td></tr>
+  <tr><td>Secondary button</td><td>60 pt tall, 19 pt bold, radius 22, white 90 %, 2 pt border at 18 % tint</td><td><code>BigSecondaryButtonStyle</code></td></tr>
+  <tr><td>Radii</td><td>canvas 32 · card 28 · control 22 · thumbnail 16</td><td><code>Theme.canvasCornerRadius</code> etc.</td></tr>
+  <tr><td>Spacing</td><td>gutter 20 · stack 12 · section 20 · card padding 20</td><td>all screens</td></tr>
+  <tr><td>Tap target</td><td>60 pt minimum, 44 pt only for nav-bar glyphs</td><td><code>Theme.minimumTapTarget</code></td></tr>
+  <tr><td>Shadows</td><td>card 0 6 18 @ 10 % · floating 0 12 32 @ 18 %</td><td>cards, sheets</td></tr>
+  <tr><td>Tab bar</td><td>3 tabs, 28 pt glyphs, 12 pt labels, green active</td><td>Learn · Sketchbook · Settings</td></tr>
+</table>
+
+<h3>Content the app reads</h3>
+<table>
+  <tr><th>File</th><th>Read today</th><th>M7</th></tr>
+  <tr><td><code>shared/Tutorials/*.json</code></td><td>yes, bundled folder reference, lenient loader</td><td>unchanged; v2 (colour fills) support is part of M7 so Palm Tree plays</td></tr>
+  <tr><td><code>shared/Catalog/paths.json</code>, <code>lessons.json</code></td><td>no</td><td><b>adopt</b>: paths, order, objective, complexity, reference photo + licence. Validate leniently (skip a lesson whose tutorial is missing; never crash)</td></tr>
+  <tr><td><code>shared/Assets/References/</code></td><td>no</td><td>bundled; shown on the preview, in the player, in credits</td></tr>
+  <tr><td><code>shared/Assets/Voice/</code> (new)</td><td>—</td><td>bundled narration; optional per step</td></tr>
+</table>
+<p>Estimated time per lesson uses the Studio's placeholder formula until real lessons are timed: animation seconds × 3 + 8 s per step (<code>web/src/catalog/metrics.ts</code>). Show it as "About 4 min", never seconds.</p>
+
+<h3>On-device data</h3>
+<table>
+  <tr><th>Store</th><th>Shape</th><th>Notes</th></tr>
+  <tr><td>Settings (<code>@AppStorage</code>)</td><td><code>hasCompletedOnboarding</code>, <code>selectedPathId</code>, <code>narrationEnabled</code> (true), <code>defaultSpeed</code> (1.0), <code>reduceMotionOverride</code>, <code>leftHanded</code>, <code>highContrastPaper</code>, <code>reminderEnabled</code> (false), <code>reminderDays</code>, <code>reminderTime</code>, <code>alsoSaveToPhotos</code> (false)</td><td>Defaults are the calm choice; nothing opted in.</td></tr>
+  <tr><td>Progress</td><td><code>LessonProgress { lessonId, pathId, completedAt: Date?, timesCompleted, lastStepIndex: Int?, lastOpenedAt }</code></td><td>SwiftData (or a JSON file in Application Support; SwiftData recommended so the sketchbook can reference it). Unlock = every earlier lesson in <code>paths.json</code> order has <code>completedAt</code>. "Reset progress" clears this store only.</td></tr>
+  <tr><td>Sketchbook</td><td><code>SketchbookPage { id, lessonId, pathId, completedAt, imageFile, note? }</code> + JPEG in <code>Application Support/Sketchbook/</code></td><td>Private by default; "Also save to Photos" is opt-in. Included in device backups. Never deleted by reset.</td></tr>
+</table>
+
+<h3>Voice pipeline (Studio → repo → app)</h3>
+<ol>
+  <li><b>Authoring.</b> In the Studio, a lesson gets a <em>Generate voice</em> action (not built yet). For each step it sends the step's <code>instruction</code> — or a dedicated spoken line if the creator writes one — to the ElevenLabs text-to-speech API with the tutor's fixed voice id, and stores the result in the workspace beside the lesson. Onboarding lines and completion lines are a small fixed script, generated once.</li>
+  <li><b>Publishing.</b> Publish writes <code>shared/Assets/Voice/&lt;lessonId&gt;/&lt;stepId&gt;.m4a</code> (AAC, mono, 48 kbps, about 20–40 KB per step) and a <code>manifest.json</code> beside them: <code>{ voiceId, model, generatedAt, steps: { stepId: { file, text, textHash, durationMs } } }</code>. The tutorial JSON is untouched: v1 stays frozen and <code>voiceover</code> stays null. The manifest's <code>textHash</code> lets the Studio warn when an instruction changed after its audio was made.</li>
+  <li><b>App.</b> <code>NarrationPlayer</code> looks up the manifest at lesson load; a missing manifest or file means the step plays silently and the chip is hidden. Files are bundled with the app (the whole first catalog is a few MB); on-demand resources are a later option.</li>
+  <li><b>Playback rules</b> (repeated in the player notes): start with <code>beginStep</code>; cancel on replay, back, leave; <em>I drew it</em> appears when the animation and the narration have both finished; speed never changes the voice; <code>AVAudioSession</code> category <code>.ambient</code>, mode <code>.spokenAudio</code>, options <code>[.duckOthers, .interruptSpokenAudioAndMixWithOthers]</code> (music ducks, podcasts pause, the silent switch is respected, narration stops on lock — decided after the player and settings notes argued both sides; the counter-argument is in the open questions); the mute toggle persists; VoiceOver users get the written instruction read by VoiceOver, so narration pauses when VoiceOver is speaking.</li>
+</ol>
+
+<h3>Accessibility checklist (§31)</h3>
+<ul>
+  <li>Dynamic Type through the accessibility sizes: text grows, canvases yield height, cards scroll, buttons wrap to two lines before they truncate.</li>
+  <li>Reduce Motion: non-essential motion (transitions, the wave, hero animations) stops; the stroke animation is essential and stays, but the app offers a stepwise "show the whole step" alternative in Accessibility settings.</li>
+  <li>VoiceOver: every control has a label and a hint; the canvas is one element that describes the step ("Step 2 of 5, the roof, drawing" then "drawn"); onboarding bubbles are read before their button; photos in the sketchbook are labelled by lesson and date.</li>
+  <li>Contrast: ink on paper is 12:1; green on white 4.6:1 for 24 pt bold text; muted labels never go below 55 % ink.</li>
+  <li>Tap targets 60 pt; no hidden gestures — everything reachable by a visible button; left-handed layout mirrors the control row and the reference thumbnail corner.</li>
+  <li>Orientation: iPhone locked to portrait in the player (explained in the player notes); iPad supports both, landscape puts the reference beside the canvas.</li>
+</ul>
+
+<h3>Milestone mapping</h3>
+<table>
+  <tr><th>Milestone</th><th>Screens in this document</th></tr>
+  <tr><td>M7 · iOS product shell (§29–31)</td><td>Onboarding, Home &amp; paths, Player (all variants), Settings (narration, speed, accessibility, about), System states. Catalog adoption. Narration playback with whatever audio exists.</td></tr>
+  <tr><td>M8 · Private sketchbook (§32)</td><td>Completion capture flow, Sketchbook tab, entry, path finished; "Also save to Photos".</td></tr>
+  <tr><td>Studio track (later)</td><td><em>Generate voice</em> in the Studio and the CLI; the voice manifest in Publish.</td></tr>
+  <tr><td>M10 · Monetisation</td><td>Not designed here. When it comes, entitlement logic stays separate from curriculum metadata (§37), and any subscription screen must follow App Store Review Guideline 3.1.2 (billed amount the most prominent price element).</td></tr>
+</table>
+
+<h3>What this document deliberately leaves out</h3>
+<ul>
+  <li>Accounts, sign-in, cloud sync, sharing feeds, likes, leaderboards, XP, streak mechanics (§30, §32 "Do not build yet").</li>
+  <li>A digital drawing canvas or any brush tools.</li>
+  <li>AI scoring of the learner's photo.</li>
+  <li>A paywall or trial flow.</li>
+  <li>Dark appearance: the paper is light by design; the document chrome is theme-aware, the phones are not.</li>
+</ul>
+
+<h3>Open questions for the creator</h3>
+<p>Collected from every screen's notes. Each is a call the creator should make before M7 starts; none blocks the design.</p>
+<h4>Content and catalog</h4>
+<ul>
+  <li>Today's <code>simple-house.json</code> plays in about a minute by the placeholder time formula, not the 3–5 minutes §7 promises; it also already ends with a chimney, which Appendix A reserves for lesson 2. M6 decides what Simple House is.</li>
+  <li><code>palm-tree-4</code> is schema v2; iOS reads v1 only, so Trees would be empty in a real build until M7 adds v2 playback. The Trees lessons 2–4 named in the mockups ("Round Tree", "Pine Tree", "Bare Winter Tree") are invented.</li>
+  <li><code>paths.json</code> needs a <code>description</code> and an <code>icon</code> per path, and may list paths with empty <code>lessonIds</code> so "not yet available" stays data-driven.</li>
+  <li><code>lessons.json reference</code> needs <code>alt</code> (VoiceOver), an <code>author</code>, and a licence enumeration instead of free text before any attribution-required photo ships.</li>
+  <li>Proposed nullable additions for a future schema version, ignorable by v1 players: <code>tutorial.orientation</code> (the one learning idea shown before step 1; the beat appears only when it is non-empty), <code>step.detail</code> (a one-line hint under the instruction), and a per-lesson <code>subjectNoun</code> for "Your house is finished" (or a generic headline that survives translation).</li>
+  <li>Beat 7 of onboarding shows a "Cottage With Foreground" drawing that must become a real published lesson before ship.</li>
+</ul>
+<h4>Player</h4>
+<ul>
+  <li>"Watch again" (on the card) and "Replay" (in the quiet row) are the same call. Recommendation from the player notes: the quiet row becomes Back · Speed · Restart.</li>
+  <li>Silent switch: respected (<code>.ambient</code>) in this design; <code>.playback</code> (speak even when silenced, as Maps does) is the alternative for a phone propped beside the paper.</li>
+  <li>Lock iPhone to portrait in the player (recommended in the notes) — confirm.</li>
+  <li>Should the speed chosen inside a lesson persist as the default? Recommendation: persist it; it is a preference.</li>
+  <li>Which ElevenLabs voice is Lina, and is its commercial licence in place? Is the orientation beat narrated (a sixth line per lesson) or silent?</li>
+</ul>
+<h4>Completion and sketchbook</h4>
+<ul>
+  <li>Is "4 min drawing time" a fact the learner wants on the completion screen, or quiet pressure? "Lesson 1 of 10" or the objective would be neutral.</li>
+  <li>"Also save to Photos": a checkbox on the saved screen, or Settings only (calmer)?</li>
+  <li>iCloud device backup carries the sketchbook; soften "stays on this device" in the privacy text, or exclude the folder from backups?</li>
+  <li>The "your first tree vs your latest tree" comparison is drawn as a future variant, marked so on screen; confirm it never leaves the app.</li>
+</ul>
+<h4>Onboarding, settings, legal</h4>
+<ul>
+  <li>Beat 7 implies "in a few weeks" as the pace; is that the promise?</li>
+  <li>Default reminder time (19:30 proposed) and whether the reminder is offered in onboarding at all, or only in Settings.</li>
+  <li>Analytics: none, or local-only and opt-in? The privacy page currently promises none.</li>
+  <li>A real contact address and a hosted privacy-policy URL are needed for review.</li>
+</ul>
