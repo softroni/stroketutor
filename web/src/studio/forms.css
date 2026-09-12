@@ -1,0 +1,259 @@
+/* New lesson, Import & test and the ⌘K palette (Studio S4). */
+
+/* ---------- New lesson: the photo on the left, the words on the right ---------- */
+
+.st-new-lesson {
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  grid-template-areas:
+    'photo place'
+    'photo teach'
+    'footer footer';
+}
+
+.st-new-lesson__photo {
+  grid-area: photo;
+  position: sticky;
+  top: 88px;
+}
+
+.st-new-lesson__place {
+  grid-area: place;
+}
+
+.st-new-lesson__teach {
+  grid-area: teach;
+}
+
+/* The one action and what still blocks it, always in view. */
+.st-new-lesson__footer {
+  grid-area: footer;
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px 12px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 -4px 24px rgba(31, 27, 20, 0.08);
+}
+
+.st-new-lesson__status {
+  margin: 0;
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+.st-new-lesson__status.is-ready {
+  color: #1f6b3a;
+}
+
+.st-new-lesson__footer .st-button {
+  flex: none;
+}
+
+/* ---------- Photo drop zone ---------- */
+
+.st-dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 240px;
+  padding: 18px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 14px;
+  background: var(--page);
+  text-align: center;
+  cursor: pointer;
+}
+
+.st-dropzone:hover,
+.st-dropzone.is-over {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.st-dropzone:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.st-dropzone.has-image {
+  min-height: 0;
+  padding: 8px;
+  border-style: solid;
+}
+
+.st-dropzone__image {
+  display: block;
+  max-width: 100%;
+  max-height: 360px;
+  border-radius: 10px;
+  object-fit: contain;
+}
+
+.st-dropzone__prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 30ch;
+  font-size: 15px;
+  color: var(--ink-muted);
+}
+
+.st-dropzone__types,
+.st-dropzone__name {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+.st-dropzone__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .st-new-lesson {
+    grid-template-areas:
+      'photo'
+      'place'
+      'teach'
+      'footer';
+  }
+
+  .st-new-lesson__photo {
+    position: static;
+  }
+}
+
+/* ---------- Import & test ---------- */
+
+.st-import__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---------- ⌘K palette ---------- */
+
+.st-palette-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 6px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--page);
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.st-palette-button:hover {
+  border-color: var(--ink-faint);
+  color: var(--ink);
+}
+
+.st-palette-button kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.st-palette {
+  width: min(640px, calc(100vw - 32px));
+  margin: 12vh auto auto;
+  overflow: hidden;
+}
+
+.st-palette__input {
+  display: block;
+  width: 100%;
+  padding: 16px 18px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+  outline: none;
+}
+
+.st-palette__list {
+  max-height: 50vh;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.st-palette__item {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.st-palette__item.is-active {
+  background: var(--accent-tint);
+}
+
+.st-palette__kind {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.st-palette__label {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-palette__detail {
+  max-width: 260px;
+  overflow: hidden;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-palette__empty {
+  padding: 14px;
+  color: var(--ink-faint);
+}
+
+.st-palette__hint {
+  margin: 0;
+  padding: 8px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 900px) {
+  .st-palette-button {
+    display: none;
+  }
+}

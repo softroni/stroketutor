@@ -67,14 +67,14 @@ M6 without the creator.
 
 This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the
 milestones and doesn't unblock M6. The approved plan: a local workspace kept apart from published content, delete with
-confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. **Next: S4.**
+confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. **All four are done.**
 
 | ID | Work | Status | Commit |
 |---|---|---|---|
 | S1 | Workspace vs published: a local SQLite workspace, Publish, Unpublish, delete with confirmation, Trash | ✅ Done 2026-09-11 | see git log |
 | S2 | Paths view: search and status filters, one ⋯ menu per lesson, Unfiled / Publish / Trash in the sidebar | ✅ Done 2026-09-11 | see git log |
 | S3 | Lesson workspace in three full-height panes, autosave, a drawer for Regenerate and History, shortcuts | ✅ Done 2026-09-11 | see git log |
-| S4 | New lesson layout, "save as draft" from Import & test, a ⌘K palette | ⬜ Not started | |
+| S4 | New lesson layout, "save as draft" from Import & test, a ⌘K palette | ✅ Done 2026-09-11 | see git log |
 
 #### S1 · Workspace vs published
 - [x] A SQLite workspace in `.studio/` (gitignored), on Node's built-in `node:sqlite`, backed up daily (newest seven kept).
@@ -179,6 +179,30 @@ confirmation, then a less clumsy Paths view, lesson workspace and New lesson flo
 - **Autosave replaces Save.** A lesson can't be lost by leaving it. History stays meaningful because only ⌘S,
   regenerations and publishes record versions.
 - **The Inspector is gone.** Its step fields moved into the active step, and its selection tools into the floating bar.
+
+#### S4 · New lesson, Import & test, ⌘K
+- [x] New lesson in two columns: the photo on the left, in a zone you drop it on or click, shown at once; the
+      curriculum place and what to teach on the right.
+- [x] A footer that stays in view, with Generate and what's still missing, or how long generation has been running.
+- [x] Recently used sources and licences are offered again (kept in the browser). A new candidate scrolls into view.
+- [x] Import & test: **Save as workspace draft…** takes a title, an id, a path and an objective, then opens the
+      draft in the workspace. It never writes `shared/`.
+- [x] ⌘K, or **Jump to…** in the header, opens a palette of every lesson, path and page, filtered as you type.
+
+**Done.**
+- **Tests:** web 280 pass and the build passes.
+- **In the browser,** at 1440 × 900:
+  - **New lesson:** the photo sat on the left and the fields on the right, with the footer at the bottom of the window
+    listing what was still needed.
+  - **⌘K:** it opened the palette with its field focused. "palm" found the three palm lessons, and choosing one
+    opened it.
+  - **Import & test:** "Save as workspace draft…" opened with the title and a free id filled in. It stayed disabled
+    until there was an objective, then opened the draft in Trees. `shared/` was untouched, and the test draft was
+    then deleted for good.
+
+**Decisions:**
+- **The palette covers places, not actions.** Lessons, paths and pages cover the everyday jumps. Actions stay next
+  to what they act on.
 
 ---
 

@@ -5,6 +5,7 @@ import { readyCount } from '../catalog/publishing'
 import type { Catalog } from '../catalog/types'
 
 import { adoptShared, saveCatalog } from './api'
+import { CommandPalette } from './CommandPalette'
 import { LessonWorkspace } from './LessonWorkspace'
 import { buildLibrary, type Library } from './library'
 import { NewLessonView } from './NewLessonView'
@@ -20,6 +21,7 @@ import './studio.css'
 import './publishing.css'
 import './paths.css'
 import './workspace.css'
+import './forms.css'
 
 /**
  * StrokeTutor Studio: the private authoring tool built around the existing
@@ -30,7 +32,19 @@ import './workspace.css'
 export function Studio() {
   const [library, setLibrary] = useState<Library | null>(null)
   const [adoptError, setAdoptError] = useState<string | null>(null)
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const route = useHashRoute()
+
+  // ⌘K opens the palette from anywhere, even while typing.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return
+      event.preventDefault()
+      setPaletteOpen((open) => !open)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   /** Reads the library again: at start-up, and after every change, so the Studio shows what is stored. */
   const reload = useCallback(async () => {
@@ -126,7 +140,7 @@ export function Studio() {
         screen = <SettingsView library={library} />
         break
       case 'import':
-        screen = <ImportView samples={library.samples} />
+        screen = <ImportView samples={library.samples} library={library} onCreated={openCreated} />
         break
     }
   }
@@ -148,6 +162,16 @@ export function Studio() {
           </span>
         </a>
         <div className="st-studio__end">
+          {library ? (
+            <button
+              type="button"
+              className="st-palette-button"
+              title="Jump to a lesson, a path or a page (⌘K)"
+              onClick={() => setPaletteOpen(true)}
+            >
+              Jump to… <kbd>⌘K</kbd>
+            </button>
+          ) : null}
           {library && !library.writable ? (
             <span className="st-pill" title="Saving needs the Studio server: run npm run dev.">
               Read-only copy
@@ -192,6 +216,7 @@ export function Studio() {
         </div>
       ) : null}
       <main className="st-studio__main">{screen}</main>
+      {paletteOpen && library ? <CommandPalette library={library} onClose={() => setPaletteOpen(false)} /> : null}
     </div>
   )
 }

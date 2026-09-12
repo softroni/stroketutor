@@ -97,7 +97,11 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
   version in History. **Preview** mounts `TutorialPlayer` with the edited lesson. Regenerate, History,
   the generation record and the debug tools open in a drawer over the steps, and Approve and Publish
   confirm in a dialog. `?` lists the keyboard shortcuts.
-- **Import & test** is the original loader: any tutorial JSON, validated and played, never saved.
+- **Import & test** is the original loader: any tutorial JSON, validated and played. Nothing is saved
+  unless **Save as workspace draft…** keeps it, with an id, a path and an objective, and opens it in the
+  lesson workspace.
+- **⌘K**, or **Jump to…** in the header, opens a palette to jump to any lesson, path or page by typing
+  a few letters.
 
 At start-up `studio/library.ts` validates every tutorial and the catalog once. A tutorial whose
 `id` does not match its file name is refused, because lessons are found and saved by id.
@@ -191,7 +195,9 @@ the code.
 
 **New lesson** takes a path and position, a title and id, a one-line objective, the reference
 photo with its source and licence, the learning goal and optional constraints, and one
-**Generate tutorial** button. The server (`server/generate.ts`):
+**Generate tutorial** button. The photo is dropped on (or chosen from) a zone that shows it at once;
+recently used sources and licences are offered again. A footer that stays in view says what is still
+missing, or how long generation has been running. The server (`server/generate.ts`):
 
 1. checks the input, and refuses an id that already exists — generation never replaces a lesson;
 2. sends the photo (an SVG reference is rendered to PNG in the browser first, since models are not

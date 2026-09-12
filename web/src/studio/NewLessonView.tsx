@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 
 import type { Analysis, Lesson } from '../catalog/types'
 import { totalStrokes, type Tutorial } from '../schema/types'
@@ -80,6 +80,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
   const [keepError, setKeepError] = useState<string | null>(null)
   const [now, setNow] = useState(Date.now())
   const [model, setModel] = useState(storedModel)
+  const recent = useMemo(readRecentReferences, [])
 
   useEffect(() => {
     if (outcome.kind !== 'generating') return
@@ -240,6 +241,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
         // The lesson is kept either way; only its record of candidates is incomplete.
         console.warn('[studio] the lesson was kept, but not every candidate was recorded in its history:', error)
       }
+      rememberReference(source.trim(), license.trim())
       await onCreated(lessonId)
     } catch (error) {
       setKeepError(
@@ -264,7 +266,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
       </p>
 
       <form className="st-new-lesson" onSubmit={generate}>
-        <section className="st-panel">
+        <section className="st-panel st-new-lesson__place">
           <h2 className="st-label">Place in the curriculum</h2>
           <label className="st-field">
             <span className="st-field__label">Path</span>
@@ -337,18 +339,9 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
           </label>
         </section>
 
-        <section className="st-panel">
+        <section className="st-panel st-new-lesson__photo">
           <h2 className="st-label">Reference photo</h2>
-          {preview ? <img className="st-reference-form__preview" src={preview} alt="" /> : null}
-          <label className="st-field">
-            <span className="st-field__label">Photo ({REFERENCE_TYPES_LABEL}, up to 8 MB)</span>
-            <input
-              className="st-field__input"
-              type="file"
-              accept={REFERENCE_TYPES.join(',')}
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            />
-          </label>
+          <PhotoDrop file={file} preview={preview} onFile={setFile} />
           {trace.status === 'tracing' ? (
             <p className="st-field__hint" role="status">
               Tracing the SVG…
@@ -365,6 +358,7 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
             <input
               className="st-field__input"
               value={source}
+              list="st-recent-sources"
               placeholder="A URL, or “own photo”"
               onChange={(event) => setSource(event.target.value)}
             />
@@ -374,13 +368,24 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
             <input
               className="st-field__input"
               value={license}
+              list="st-recent-licences"
               placeholder="e.g. CC0, Unsplash License, own photo"
               onChange={(event) => setLicense(event.target.value)}
             />
           </label>
+          <datalist id="st-recent-sources">
+            {recent.sources.map((value) => (
+              <option key={value} value={value} />
+            ))}
+          </datalist>
+          <datalist id="st-recent-licences">
+            {recent.licences.map((value) => (
+              <option key={value} value={value} />
+            ))}
+          </datalist>
         </section>
 
-        <section className="st-panel st-new-lesson__wide">
+        <section className="st-panel st-new-lesson__teach">
           <h2 className="st-label">What to teach</h2>
           <label className="st-field">
             <span className="st-field__label">Learning goal</span>
@@ -400,24 +405,26 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
               onChange={(event) => setConstraints(event.target.value)}
             />
           </label>
-          <div className="st-new-lesson__actions">
-            <button
-              type="submit"
-              className="st-button st-button--primary"
-              disabled={problems.length > 0 || busy}
-            >
-              {outcome.kind === 'generating' ? 'Generating…' : 'Generate tutorial'}
-            </button>
-          </div>
           <ModelPicker model={model} onChange={setModel} disabled={busy} />
-          {problems.length > 0 && outcome.kind === 'idle' ? (
-            <ul className="st-new-lesson__todo">
-              {problems.map((problem) => (
-                <li key={problem}>{problem}</li>
-              ))}
-            </ul>
-          ) : null}
         </section>
+
+        {/* Always in view, however long the form: what is still missing, and the one action. */}
+        <div className="st-new-lesson__footer">
+          {outcome.kind === 'generating' ? (
+            <p className="st-new-lesson__status" role="status">
+              Generating… {Math.round((now - outcome.startedAt) / 1000)}s
+            </p>
+          ) : problems.length > 0 ? (
+            <p className="st-new-lesson__status">
+              <strong>Still needed:</strong> {problems.join(' ')}
+            </p>
+          ) : (
+            <p className="st-new-lesson__status is-ready">Ready. One generation, then you choose what to keep.</p>
+          )}
+          <button type="submit" className="st-button st-button--primary" disabled={problems.length > 0 || busy}>
+            {outcome.kind === 'generating' ? 'Generating…' : candidates.length > 0 ? 'Generate another' : 'Generate tutorial'}
+          </button>
+        </div>
       </form>
 
       {outcome.kind === 'generating' ? (
@@ -490,10 +497,16 @@ function CandidatePanel({
   onRegenerate: () => void
   onDiscard: () => void
 }) {
+  const section = useRef<HTMLElement>(null)
+  // A new candidate lands below the form; bring it into view.
+  useEffect(() => {
+    section.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [candidates.length])
+
   const { result, tutorial } = candidates[shown]
   const warnings = qualityWarnings(tutorial, previous)
   return (
-    <section className="st-candidate" aria-labelledby="st-candidate-heading">
+    <section ref={section} className="st-candidate" aria-labelledby="st-candidate-heading">
       <h2 id="st-candidate-heading" className="st-section-heading">
         {candidates.length > 1 ? `Candidate ${shown + 1} of ${candidates.length}` : 'Draft'}: {tutorial.title}
       </h2>
@@ -637,4 +650,82 @@ export function AnalysisPanel({ analysis }: { analysis: Analysis }) {
       </dl>
     </div>
   )
+}
+
+/** The photo: dropped on the zone, or chosen by clicking it. Shown as soon as it is chosen. */
+function PhotoDrop({
+  file,
+  preview,
+  onFile,
+}: {
+  file: File | null
+  preview: string | null
+  onFile: (file: File | null) => void
+}) {
+  const [over, setOver] = useState(false)
+  return (
+    <label
+      className={`st-dropzone ${over ? 'is-over' : ''} ${preview ? 'has-image' : ''}`}
+      onDragOver={(event) => {
+        event.preventDefault()
+        setOver(true)
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(event) => {
+        event.preventDefault()
+        setOver(false)
+        const dropped = event.dataTransfer.files?.[0]
+        if (dropped) onFile(dropped)
+      }}
+    >
+      {preview ? (
+        <img className="st-dropzone__image" src={preview} alt="The chosen reference photo" />
+      ) : (
+        <span className="st-dropzone__prompt">
+          <strong>Drop a photo here</strong>, or click to choose one
+          <span className="st-dropzone__types">
+            {REFERENCE_TYPES_LABEL}, up to 8 MB. An SVG is traced into exact lines and colours.
+          </span>
+        </span>
+      )}
+      {file ? <span className="st-dropzone__name">{file.name} · click or drop to replace</span> : null}
+      <input
+        className="st-dropzone__input"
+        type="file"
+        accept={REFERENCE_TYPES.join(',')}
+        onChange={(event) => onFile(event.target.files?.[0] ?? null)}
+      />
+    </label>
+  )
+}
+
+const RECENT_KEY = 'stroketutor.studio.recentReferences'
+
+interface RecentReferences {
+  sources: string[]
+  licences: string[]
+}
+
+/** Sources and licences used before, offered again, newest first. Kept in this browser only. */
+function readRecentReferences(): RecentReferences {
+  try {
+    const stored = JSON.parse(localStorage.getItem(RECENT_KEY) ?? '{}') as Partial<RecentReferences>
+    const strings = (value: unknown) => (Array.isArray(value) ? value.filter((item) => typeof item === 'string') : [])
+    return { sources: strings(stored.sources), licences: strings(stored.licences) }
+  } catch {
+    return { sources: [], licences: [] }
+  }
+}
+
+function rememberReference(source: string, licence: string) {
+  const recent = readRecentReferences()
+  const add = (list: string[], value: string) => (value ? [value, ...list.filter((item) => item !== value)].slice(0, 8) : list)
+  try {
+    localStorage.setItem(
+      RECENT_KEY,
+      JSON.stringify({ sources: add(recent.sources, source), licences: add(recent.licences, licence) }),
+    )
+  } catch {
+    // Storage can be unavailable (a private window); nothing is lost but the suggestion.
+  }
 }

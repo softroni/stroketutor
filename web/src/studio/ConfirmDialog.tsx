@@ -8,6 +8,10 @@ export interface ConfirmDialogProps {
   tone?: 'primary' | 'danger'
   /** Text the creator must type first, for what is hard to undo. */
   typeToConfirm?: string
+  /** For a dialog that is a small form: keeps the action off until the form is ready. */
+  confirmDisabled?: boolean
+  /** Focus the first field of the body when it opens, rather than a button. */
+  focusField?: boolean
   /** Resolves when done; a thrown error is shown in the dialog, which stays open. */
   onConfirm: () => Promise<void> | void
   onClose: () => void
@@ -25,6 +29,8 @@ export function ConfirmDialog({
   busyLabel = 'Working…',
   tone = 'primary',
   typeToConfirm,
+  confirmDisabled = false,
+  focusField = false,
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
@@ -43,13 +49,16 @@ export function ConfirmDialog({
     // showModal() focuses the first focusable element, whatever React's
     // autoFocus asked for, so focus is placed here: the field to type in,
     // else Cancel for what destroys something, else the action itself.
-    ;(inputRef.current ?? (tone === 'danger' ? cancelRef.current : confirmRef.current))?.focus()
+    const field = focusField
+      ? dialog?.querySelector<HTMLElement>('.st-dialog__body input, .st-dialog__body select, .st-dialog__body textarea')
+      : null
+    ;(inputRef.current ?? field ?? (tone === 'danger' ? cancelRef.current : confirmRef.current))?.focus()
     return () => dialog?.close()
     // Focus is placed once, when the dialog opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const ready = !typeToConfirm || typed.trim() === typeToConfirm
+  const ready = (!typeToConfirm || typed.trim() === typeToConfirm) && !confirmDisabled
 
   const confirm = async (event: FormEvent) => {
     event.preventDefault()
