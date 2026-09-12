@@ -44,7 +44,7 @@ article.screen > header p.lede { margin: 0; color: var(--d-muted); max-width: 70
 .devices .phone[data-variant] { display: none; }
 .devices .phone[data-variant].is-active { display: flex; }
 .device-caption { color: var(--d-muted); font-size: 12.5px; max-width: 393px; }
-.phone--ipad { transform: scale(.72); transform-origin: top left; margin-bottom: calc(-820px * .28); margin-right: calc(-1180px * .28); }
+.phone--ipad { zoom: .72; }
 
 /* ---- developer notes ---- */
 .notes { background: var(--d-panel); border: 1px solid var(--d-line); border-radius: 14px; padding: 6px 22px 18px; min-width: 0; max-width: 760px; }
@@ -70,8 +70,9 @@ body.gallery .screen-layout { display: block; }
 body.gallery .device-column { position: static; }
 body.gallery .devices .phone[data-variant] { display: flex; }
 body.gallery .variants { display: none; }
-body.gallery .devices { transform: scale(.5); transform-origin: top left; margin-bottom: -426px; }
-body.gallery .devices .phone { margin-bottom: 40px; }
+body.gallery .devices { zoom: .5; }
+body.gallery .devices .phone { margin-bottom: 24px; }
+body.gallery .devices .phone--ipad { zoom: .5; }
 body.gallery article.screen > header p.lede { display: none; }
 
 /* ---- handbook ---- */
