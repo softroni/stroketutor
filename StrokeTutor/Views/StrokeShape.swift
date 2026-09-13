@@ -1,33 +1,57 @@
 import CoreGraphics
 import SwiftUI
 
-/// Draws one already-parsed stroke, mapping canvas coordinates into the view
-/// rect with uniform aspect-fit scaling.
+/// Draws one already-parsed stroke, mapping a region of canvas coordinates into
+/// the view rect with uniform aspect-fit scaling.
+///
+/// The region is a `CGRect` rather than the canvas size, because v3 fits the paper
+/// to the drawing's own ink (`PreparedTutorial.drawingBounds`) and not to the square
+/// canvas it was authored in: a wide subject then fills the page instead of floating
+/// in the middle of it. Passing `canvas:` keeps the old behaviour — the whole canvas
+/// is the region.
 struct StrokeShape: Shape {
     /// Parsed once at load time; never re-parsed per frame.
     let basePath: Path
-    let canvas: CGSize
+    /// The region of canvas coordinates fitted into the view.
+    let source: CGRect
+
+    init(basePath: Path, source: CGRect) {
+        self.basePath = basePath
+        self.source = source
+    }
+
+    init(basePath: Path, canvas: CGSize) {
+        self.init(basePath: basePath, source: CGRect(origin: .zero, size: canvas))
+    }
 
     func path(in rect: CGRect) -> Path {
-        basePath.applying(Self.transform(canvas: canvas, in: rect))
+        basePath.applying(Self.transform(source: source, in: rect))
     }
 
     /// The uniform scale factor from canvas units to points.
-    static func scale(canvas: CGSize, in rect: CGRect) -> CGFloat {
-        guard canvas.width > 0, canvas.height > 0 else { return 1 }
-        return min(rect.width / canvas.width, rect.height / canvas.height)
+    static func scale(source: CGRect, in rect: CGRect) -> CGFloat {
+        guard source.width > 0, source.height > 0 else { return 1 }
+        return min(rect.width / source.width, rect.height / source.height)
     }
 
-    /// Aspect-fit and centre the canvas inside `rect`.
+    static func scale(canvas: CGSize, in rect: CGRect) -> CGFloat {
+        scale(source: CGRect(origin: .zero, size: canvas), in: rect)
+    }
+
+    /// Aspect-fit and centre `source` inside `rect`.
     ///
     /// Shared with the pencil-dot maths so the dot always sits exactly on the
     /// stroke it is tracking.
-    static func transform(canvas: CGSize, in rect: CGRect) -> CGAffineTransform {
-        let scale = scale(canvas: canvas, in: rect)
-        let offsetX = rect.minX + (rect.width - canvas.width * scale) / 2
-        let offsetY = rect.minY + (rect.height - canvas.height * scale) / 2
+    static func transform(source: CGRect, in rect: CGRect) -> CGAffineTransform {
+        let scale = scale(source: source, in: rect)
+        let offsetX = rect.minX + (rect.width - source.width * scale) / 2 - source.minX * scale
+        let offsetY = rect.minY + (rect.height - source.height * scale) / 2 - source.minY * scale
         return CGAffineTransform(translationX: offsetX, y: offsetY)
             .scaledBy(x: scale, y: scale)
+    }
+
+    static func transform(canvas: CGSize, in rect: CGRect) -> CGAffineTransform {
+        transform(source: CGRect(origin: .zero, size: canvas), in: rect)
     }
 
     /// The stroke style used everywhere, so faded, animating and debug strokes

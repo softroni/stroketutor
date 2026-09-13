@@ -68,7 +68,16 @@ final class PlayerViewModel {
 
     private var playbackTask: Task<Void, Never>?
 
+    /// The step `begin()` will play, set by `load(startImmediately: false)`.
+    private var pendingStartIndex: Int?
+
     // MARK: - Derived state
+
+    /// True while the lesson is loaded but has not started: the orientation beat.
+    var isAwaitingBegin: Bool {
+        if case .idle = phase { return pendingStartIndex != nil }
+        return false
+    }
 
     var steps: [PreparedStep] { tutorial?.steps ?? [] }
 
@@ -114,8 +123,14 @@ final class PlayerViewModel {
 
     // MARK: - Lifecycle
 
-    /// Loads a tutorial and begins the given step immediately (step one by default).
-    func load(_ tutorial: PreparedTutorial, startingAt stepIndex: Int = 0) {
+    /// Loads a tutorial and begins the given step (step one by default).
+    ///
+    /// `startImmediately: false` loads without playing anything and stays `.idle`,
+    /// which is the player's orientation beat: the whole drawing ghosted, the
+    /// objective, and a **Begin** button that calls `begin()`.
+    func load(_ tutorial: PreparedTutorial,
+              startingAt stepIndex: Int = 0,
+              startImmediately: Bool = true) {
         playbackTask?.cancel()
         playbackTask = nil
         self.tutorial = tutorial
@@ -124,15 +139,49 @@ final class PlayerViewModel {
         setProgressWithoutAnimation(strokes: [], fills: [])
         phase = .idle
         guard !tutorial.steps.isEmpty else {
+            pendingStartIndex = nil
             phase = .finished
             return
         }
         let start = min(max(0, stepIndex), tutorial.steps.count - 1)
+        guard startImmediately else {
+            pendingStartIndex = start
+            return
+        }
+        pendingStartIndex = nil
         guard !isDebugMode else {
             phase = .awaitingUser(stepIndex: start)
             return
         }
         beginStep(start)
+    }
+
+    /// "Begin" — leaves the orientation beat and plays the step the lesson was
+    /// loaded on. Does nothing once the lesson is under way.
+    func begin() {
+        guard case .idle = phase, let start = pendingStartIndex else { return }
+        pendingStartIndex = nil
+        guard !isDebugMode else {
+            phase = .awaitingUser(stepIndex: start)
+            return
+        }
+        beginStep(start)
+    }
+
+    /// The learner tapped the primary while the step was still drawing. The ink
+    /// jumps to the end of the step — nothing is skipped, only hurried — and the
+    /// player settles into `.awaitingUser`, exactly where the animation would have
+    /// left it. Refusing the tap, or disabling the button, would read as broken.
+    func completeCurrentStep() {
+        guard case let .drawing(index) = phase else { return }
+        playbackTask?.cancel()
+        playbackTask = nil
+        activeStrokeIndex = nil
+        activeFillIndex = nil
+        guard steps.indices.contains(index) else { return }
+        setProgressWithoutAnimation(strokes: Array(repeating: 1, count: steps[index].strokes.count),
+                                    fills: Array(repeating: 1, count: steps[index].fills.count))
+        phase = .awaitingUser(stepIndex: index)
     }
 
     func stop() {

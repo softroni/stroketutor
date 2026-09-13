@@ -1,66 +1,190 @@
 import SwiftUI
 
-/// The player's bottom sheet: the instruction 24/800 in a two-line slot, one muted
-/// hint line, then the action row — back a step, watch again, and the wide primary.
-/// White, radius 28 on top, a 2 pt line and a soft upward shadow, so it reads as
-/// floating over the paper.
+/// The player's bottom sheet (`pl-player` `.pl-sheet`): the instruction 24/heavy in a
+/// two-line slot, one muted hint line, then the action row — back a step, watch
+/// again, and the wide primary. White, radius 28 on top, a 2 pt line and a soft
+/// upward shadow, so it reads as the same paper lifting off the page.
+///
+/// Nothing in it moves between states. Only the words and the primary's fill change.
 struct PlayerSheet: View {
     let instruction: String
-    var hint: String?
-    let primaryTitle: String
-    /// True while the step is still drawing: the primary is outlined, not filled,
-    /// and tapping it skips ahead rather than being refused.
-    var isPending: Bool = false
-    var canGoBack: Bool = true
-    let onBack: () -> Void
-    let onReplay: () -> Void
-    let onPrimary: () -> Void
+    let hint: String
+    let actions: PlayerActionRow
+    /// How tall the words may grow before they scroll instead of pushing the paper
+    /// off the screen. The mockup's sentences are two lines; a real lesson's can be
+    /// eight, and at accessibility type sizes more again.
+    var textMaxHeight: CGFloat = 300
+
+    /// The height the sentence and hint actually want, measured as laid out.
+    @State private var naturalTextHeight: CGFloat = 60
 
     var body: some View {
         VStack(spacing: 8) {
-            Text(instruction)
-                .textRole(.instruction)
-                .multilineTextAlignment(.center)
-                .frame(minHeight: 60)
-                .fixedSize(horizontal: false, vertical: true)
+            ScrollView {
+                VStack(spacing: 8) {
+                    PlayerInstructionText(instruction, alignment: .center)
 
-            if let hint {
-                Text(hint)
-                    .textRole(.subhead)
-                    .foregroundStyle(Theme.ink55)
-                    .multilineTextAlignment(.center)
-            }
-
-            HStack(spacing: Theme.stackSpacing) {
-                Button(action: onBack) {
-                    Image(systemName: "backward.end.fill")
+                    Text(hint)
+                        .textRole(.subhead)
+                        .foregroundStyle(Theme.ink55)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel(hint)
                 }
-                .buttonStyle(.roundIcon)
-                .frame(width: 64)
-                .opacity(canGoBack ? 1 : 0.4)
-                .disabled(!canGoBack)
-                .accessibilityLabel("Previous step")
-
-                Button(action: onReplay) {
-                    Image(systemName: "arrow.counterclockwise")
-                }
-                .buttonStyle(.roundIcon)
-                .frame(width: 64)
-                .accessibilityLabel("Watch this step again")
-
-                Button(primaryTitle, action: onPrimary)
-                    .buttonStyle(isPending ? .pending : .primary)
+                .frame(maxWidth: .infinity)
+                .measuredHeight { naturalTextHeight = $0 }
             }
-            .padding(.top, 10)
+            .scrollBounceBehavior(.basedOnSize)
+            // The slot is the words' own height — a two-line minimum, as the mockup
+            // reserves — until they would push the paper below its floor; then it
+            // stops growing and the block scrolls instead.
+            .frame(height: min(max(naturalTextHeight, 84), max(84, textMaxHeight)))
+
+            actions
+                .padding(.top, 10)
         }
         .padding(.top, 22)
         .padding(.horizontal, Theme.gutter)
-        .padding(.bottom, Theme.stackSpacing)
+        .padding(.bottom, 12)
         .frame(maxWidth: .infinity)
-        .background(
+        .background(alignment: .top) {
             UnevenRoundedRectangle(topLeadingRadius: 28, topTrailingRadius: 28, style: .continuous)
                 .fill(Theme.card)
                 .shadow(color: .black.opacity(0.10), radius: 15, y: -10)
-        )
+                .overlay(alignment: .top) {
+                    UnevenRoundedRectangle(topLeadingRadius: 28, topTrailingRadius: 28, style: .continuous)
+                        .strokeBorder(Theme.line, lineWidth: 2)
+                }
+                // The white runs under the home indicator; the mockup's
+                // `padding-bottom: safe-bottom + 12` is the same thing.
+                .ignoresSafeArea(edges: .bottom)
+        }
+    }
+}
+
+/// The instruction, 24/heavy, balanced over at most two lines. It scales with
+/// Dynamic Type — it is the one sentence the lesson is made of.
+struct PlayerInstructionText: View {
+    let text: String
+    let alignment: TextAlignment
+    var size: CGFloat = 24
+
+    init(_ text: String, alignment: TextAlignment = .center, size: CGFloat = 24) {
+        self.text = text
+        self.alignment = alignment
+        self.size = size
+    }
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: size, weight: .heavy, design: .rounded))
+            .tracking(size >= 24 ? -0.4 : -0.3)
+            .foregroundStyle(Theme.ink)
+            .multilineTextAlignment(alignment)
+            .lineSpacing(size >= 24 ? 4 : 3)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: alignment == .center ? .center : .leading)
+    }
+}
+
+/// One row for every state: `◀` and `↻` as round quiet buttons, then the wide
+/// primary. Left-handed mirrors it, so the thumb that holds the pen is never the
+/// thumb that has to reach across.
+struct PlayerActionRow: View {
+    let primaryTitle: String
+    /// True while the step is still drawing: the primary is outlined rather than
+    /// filled, and tapping it hurries the ink rather than being refused.
+    var isPending: Bool = false
+    var canGoBack: Bool = true
+    /// The orientation beat has one button and no quiet controls.
+    var showsQuietControls: Bool = true
+    var isLeftHanded: Bool = false
+    var primaryFontSize: CGFloat?
+    var onBack: () -> Void = {}
+    var onReplay: () -> Void = {}
+    let onPrimary: () -> Void
+
+    var body: some View {
+        HStack(alignment: .bottom, spacing: Theme.stackSpacing) {
+            if isLeftHanded {
+                primary
+                if showsQuietControls {
+                    replayButton
+                    backButton
+                }
+            } else {
+                if showsQuietControls {
+                    backButton
+                    replayButton
+                }
+                primary
+            }
+        }
+    }
+
+    private var primary: some View {
+        Button(action: onPrimary) {
+            Text(primaryTitle)
+                .modifier(PrimaryLabelSize(size: primaryFontSize))
+        }
+        .buttonStyle(isPending ? .pending : .primary)
+        .accessibilityLabel(primaryTitle)
+        .accessibilityValue(isPending ? "Lina is still drawing" : "")
+        .accessibilitySortPriority(70)
+    }
+
+    private var backButton: some View {
+        Button(action: onBack) {
+            Image(systemName: "backward.end.fill")
+        }
+        .buttonStyle(.roundIcon)
+        .opacity(canGoBack ? 1 : 0.4)
+        .disabled(!canGoBack)
+        .accessibilityLabel("Previous step")
+        .accessibilitySortPriority(60)
+    }
+
+    private var replayButton: some View {
+        Button(action: onReplay) {
+            Image(systemName: "arrow.counterclockwise")
+        }
+        .buttonStyle(.roundIcon)
+        .accessibilityLabel("Watch this step again")
+        .accessibilitySortPriority(55)
+    }
+}
+
+/// Reports a view's laid-out height, so a slot can be as tall as its words and no
+/// taller. Used by the player's sentence, which is two lines in the design and can
+/// be eight in a real lesson.
+private struct HeightPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+extension View {
+    func measuredHeight(_ report: @escaping (CGFloat) -> Void) -> some View {
+        background {
+            GeometryReader { proxy in
+                Color.clear.preference(key: HeightPreferenceKey.self, value: proxy.size.height)
+            }
+        }
+        .onPreferenceChange(HeightPreferenceKey.self) { report($0) }
+    }
+}
+
+/// The landscape panel drops the primary's label to 19 pt so "I drew it" fits
+/// beside two round buttons in a 276 pt column.
+private struct PrimaryLabelSize: ViewModifier {
+    let size: CGFloat?
+
+    func body(content: Content) -> some View {
+        if let size {
+            content.font(.system(size: size, weight: .heavy, design: .rounded))
+        } else {
+            content
+        }
     }
 }
