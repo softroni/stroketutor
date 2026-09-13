@@ -51,8 +51,8 @@ describe('the command line', () => {
 
   it('answers --json with one document, errors included', async () => {
     const status = await t.json<{ paths: number; lessons: number }>('status')
-    expect(status.paths).toBe(2)
-    expect(status.lessons).toBe(3)
+    expect(status.paths).toBe(3)
+    expect(status.lessons).toBe(4)
 
     const missing = await t.studio('lessons show nope --json')
     expect(missing.code).toBe(1)
@@ -72,11 +72,11 @@ describe('paths', () => {
     expect((await t.studio(['paths', 'create', '--title', 'Sea Life'])).stdout).toContain('(sea-life)')
     expect((await t.studio('paths rename animals Beasts')).code).toBe(0)
     expect((await t.studio(['paths', 'describe', 'animals', ''])).stdout).toContain('Removed the description')
-    expect((await t.studio('paths move animals --to 1')).stdout).toContain('now path 1 of 4')
-    expect((await t.studio('paths move animals --down')).stdout).toContain('now path 2 of 4')
+    expect((await t.studio('paths move animals --to 1')).stdout).toContain('now path 1 of 5')
+    expect((await t.studio('paths move animals --down')).stdout).toContain('now path 2 of 5')
 
     const { paths } = await catalog()
-    expect(paths.map((p) => p.id)).toEqual(['trees', 'animals', 'houses', 'sea-life'])
+    expect(paths.map((p) => p.id)).toEqual(['trees', 'animals', 'houses', 'cars', 'sea-life'])
     expect(paths[1]).toEqual({ id: 'animals', title: 'Beasts', lessonIds: [] })
 
     const listed = await t.studio('paths list')
@@ -98,9 +98,9 @@ describe('paths', () => {
     expect((await t.studio('paths reorder trees cat-face --earlier')).stdout).toContain('lesson 1 of 2')
     expect((await t.studio('paths reorder trees cat-face --to 2')).stdout).toContain('lesson 2 of 2')
     expect((await t.studio('lessons move cat-face --path houses --position 1')).code).toBe(0)
-    expect((await catalog()).paths.map((p) => p.lessonIds)).toEqual([['palm-tree-4'], ['cat-face', 'simple-house']])
+    expect((await catalog()).paths.map((p) => p.lessonIds)).toEqual([['palm-tree-4'], ['cat-face', 'simple-house'], ['classic-red-car']])
     expect((await t.studio('lessons move cat-face --unfiled')).code).toBe(0)
-    expect((await catalog()).paths.map((p) => p.lessonIds)).toEqual([['palm-tree-4'], ['simple-house']])
+    expect((await catalog()).paths.map((p) => p.lessonIds)).toEqual([['palm-tree-4'], ['simple-house'], ['classic-red-car']])
   })
 
   it('refuses to add a lesson that is not catalogued', async () => {
@@ -111,18 +111,18 @@ describe('paths', () => {
 
   it('deletes a path to the trash, unfiling its lessons, and restores it', async () => {
     expect((await t.studio('paths delete houses')).code).toBe(0)
-    expect((await catalog()).paths.map((p) => p.id)).toEqual(['trees'])
+    expect((await catalog()).paths.map((p) => p.id)).toEqual(['trees', 'cars'])
     const unfiled = await t.json<{ lessons: { id: string }[] }>('lessons list --unfiled')
     expect(unfiled.lessons.map((l) => l.id)).toEqual(['cat-face', 'simple-house'])
     expect((await t.studio('trash restore houses')).stdout).toContain('Restored the path houses')
-    expect((await catalog()).paths.map((p) => p.lessonIds)).toEqual([['palm-tree-4'], ['simple-house']])
+    expect((await catalog()).paths.map((p) => p.lessonIds)).toEqual([['palm-tree-4'], ['simple-house'], ['classic-red-car']])
   })
 
   it('needs --yes to trash a path with its published lessons off a terminal', async () => {
     const refused = await t.studio('paths delete houses --lessons trash')
     expect(refused.code).toBe(1)
     expect(refused.stderr).toContain('Pass --yes')
-    expect((await catalog()).paths).toHaveLength(2)
+    expect((await catalog()).paths).toHaveLength(3)
 
     const done = await t.studio('paths delete houses --lessons trash --yes')
     expect(done.code).toBe(0)
@@ -137,11 +137,12 @@ describe('lessons', () => {
     const all = await t.json<{ lessons: { id: string; state: string; status: string | null }[] }>('lessons list')
     expect(all.lessons.map((l) => [l.id, l.state, l.status])).toEqual([
       ['cat-face', 'published', null],
+      ['classic-red-car', 'published', 'approved'],
       ['palm-tree-4', 'published', 'approved'],
       ['simple-house', 'published', 'needs-review'],
     ])
     const approved = await t.json<{ lessons: { id: string }[] }>('lessons list --status approved')
-    expect(approved.lessons.map((l) => l.id)).toEqual(['palm-tree-4'])
+    expect(approved.lessons.map((l) => l.id)).toEqual(['classic-red-car', 'palm-tree-4'])
     const inPath = await t.json<{ lessons: { id: string }[] }>('lessons list --path houses')
     expect(inPath.lessons.map((l) => l.id)).toEqual(['simple-house'])
 
@@ -311,7 +312,7 @@ describe('publishing', () => {
     const nothing = await t.studio('publish all')
     expect(nothing.stdout).toContain('Published the curriculum')
     const paths = JSON.parse(await readFile(path.join(t.shared, 'Catalog', 'paths.json'), 'utf8')) as { paths: { id: string }[] }
-    expect(paths.paths.map((p) => p.id)).toEqual(['houses', 'trees'])
+    expect(paths.paths.map((p) => p.id)).toEqual(['houses', 'trees', 'cars'])
 
     await t.studio('lessons duplicate simple-house')
     await t.studio('lessons approve simple-house-copy')
