@@ -40,6 +40,16 @@
           "drawingStrategy": "Start with the long curving trunk and its ring bands, then mark the crown point and build the fronds one at a time as a spine with paired leaflets. Finish with the coconut cluster and the sand at the base, so the tree stands on something."
         }
       }
+    },
+    {
+      "id": "classic-red-car",
+      "status": "approved",
+      "objective": "Draw a detailed side-view car with a curved body, divided windows, wheels, lights, and bumpers.",
+      "reference": {
+        "file": "classic-red-car.svg",
+        "source": "https://pixabay.com/vectors/automobile-car-vehicle-motoring-2046959/",
+        "license": "Pixabay Content License"
+      }
     }
   ]
 }
