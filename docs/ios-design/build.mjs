@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-// Assembles docs/ios-design/index.html from src/. No dependencies.
-//   node docs/ios-design/build.mjs          build
+// Assembles docs/ios-design/index.html and v2.html from src/. No dependencies.
+//   node docs/ios-design/build.mjs          build both documents
 //   node docs/ios-design/build.mjs --check  validate fragments only
+// Both documents share the fragments, the design system, the symbols and the handbook;
+// they differ only in the shell (src/shell.html → index.html, src/shell-v2.html → v2.html).
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,7 +12,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const src = join(here, 'src');
 const check = process.argv.includes('--check');
 
-const shell = readFileSync(join(src, 'shell.html'), 'utf8');
+const shells = [['shell.html', 'index.html'], ['shell-v2.html', 'v2.html']];
 const css = readFileSync(join(src, 'design-system.css'), 'utf8');
 const symbols = readFileSync(join(src, 'symbols.svg.html'), 'utf8');
 const handbook = readFileSync(join(src, 'handbook.html'), 'utf8');
@@ -55,10 +57,16 @@ for (const m of screens.matchAll(/href="#([^"]+)"/g)) {
 }
 
 let navHtml = '';
+let navV2 = '';
+const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+let g = 0;
 for (const [group, items] of nav) {
   navHtml += `<div class="group"><b>${group}</b>\n` +
     items.map(i => `  <a class="item" href="#${i.id}" data-target="${i.id}"><span class="n">${String(i.n).padStart(2, '0')}</span><span>${i.title}</span></a>`).join('\n') +
     `\n</div>\n`;
+  navV2 += `<section class="ix-group"><h3><span class="ix-roman">${roman[g++] || ''}</span>${group}<span class="ix-count">${items.length}</span></h3>\n` +
+    items.map(i => `  <a class="ix-item" href="#${i.id}" data-target="${i.id}"><span class="ix-n">${String(i.n).padStart(2, '0')}</span><span class="ix-t">${i.title}</span></a>`).join('\n') +
+    `\n</section>\n`;
 }
 
 if (problems.length) {
@@ -68,12 +76,18 @@ if (problems.length) {
 console.log(`${files.length} fragment file(s), ${seen.size} screen(s), ${nav.size} group(s)`);
 if (check) process.exit(0);
 
-const out = shell
-  .replace('{{DESIGN_SYSTEM_CSS}}', () => css)
-  .replace('{{SYMBOLS}}', () => symbols)
-  .replace('{{HANDBOOK}}', () => handbook)
-  .replace('{{NAV}}', () => navHtml)
-  .replace('{{SCREENS}}', () => screens)
-  .replace('{{DATE}}', () => new Date().toISOString().slice(0, 10));
-writeFileSync(join(here, 'index.html'), out);
-console.log(`wrote ${join(here, 'index.html')} (${(out.length / 1024).toFixed(0)} KB)`);
+const date = new Date().toISOString().slice(0, 10);
+for (const [shellFile, outFile] of shells) {
+  const shell = readFileSync(join(src, shellFile), 'utf8');
+  const out = shell
+    .replace('{{DESIGN_SYSTEM_CSS}}', () => css)
+    .replace('{{SYMBOLS}}', () => symbols)
+    .replace('{{HANDBOOK}}', () => handbook)
+    .replace('{{NAV}}', () => navHtml)
+    .replace('{{NAV_V2}}', () => navV2)
+    .replace('{{SCREENS}}', () => screens)
+    .replace('{{TOTAL}}', () => String(seen.size))
+    .replace('{{DATE}}', () => date);
+  writeFileSync(join(here, outFile), out);
+  console.log(`wrote ${join(here, outFile)} (${(out.length / 1024).toFixed(0)} KB)`);
+}

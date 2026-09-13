@@ -3,9 +3,11 @@
 Interactive layouts of every screen of the StrokeTutor iOS app, with developer notes, made on 2026-09-12 as the
 design input to milestone M7 (iOS product shell, master plan §29–§31) and M8 (private sketchbook, §32).
 
-**Open [`index.html`](index.html) in a browser.** It is one self-contained file: a sidebar of screens, one screen at a
-time with its notes (or every phone at once in Gallery mode), and live flows: Continue walks through onboarding,
-a lesson card opens its preview, Start drawing opens the player, I drew it advances it.
+**Open [`v2.html`](v2.html) in a browser.** It is one file: an index of screens, one screen at a time on a sketch
+mat with its developer notes beside it (or every phone at once as a contact sheet), and live flows: Continue walks
+through onboarding, a lesson card opens its preview, Start drawing opens the player, I drew it advances it.
+`/` finds a screen, `←` `→` step through them. [`index.html`](index.html) is the earlier chrome around the same
+screens and notes; both are built from the same sources.
 
 Start with the **Developer handbook** at the top of the sidebar: the rules the app follows, the app map, the
 SwiftUI shape, the design tokens, the on-device data model and the voice-narration pipeline.
@@ -22,14 +24,16 @@ SwiftUI shape, the design tokens, the on-device data model and the voice-narrati
 ## Layout
 
 ```
-index.html              the built document (commit it; it is what people open)
-build.mjs               node build.mjs [--check]   assembles index.html from src/, validates fragments
+v2.html                 the built document (commit it; it is what people open)
+index.html              the same content in the first document chrome
+build.mjs               node build.mjs [--check]   assembles both from src/, validates fragments
 src/
   BRIEF.md              the product brief the screens were designed from
   CONTRACT.md           the fragment format (one <article> per screen, ids, variants, data-goto links)
   design-system.css     tokens and components; mirrors StrokeTutor/Views/Theme.swift where one exists
   symbols.svg.html      Lina (four poses) and the icon set, inlined once
-  shell.html            the document chrome, navigation and gallery mode
+  shell-v2.html         the document chrome of v2.html: index rail, sketch mat, spec-sheet notes, contact sheet
+  shell.html            the first chrome (index.html)
   handbook.html         the developer handbook
   screens/              one fragment file per group, in sidebar order
 ```

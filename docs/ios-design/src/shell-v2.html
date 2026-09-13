@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StrokeTutor · iOS screens</title>
+<meta name="description" content="Interactive layouts of every screen of the StrokeTutor iOS learner app, with developer notes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   Document chrome, v2. One committed look: a spec sheet laid out on warm paper,
+   editorial type, the phones on a dotted sketch mat. The phones themselves keep
+   the product's own design system (inlined below, unchanged).
+   ========================================================================== */
+:root {
+  --paper: #F3EEE4;          /* the page */
+  --paper-2: #FAF7F1;        /* cards, the notes sheet */
+  --paper-3: #ECE6DA;        /* pressed / hover */
+  --ink: #1F1B16;
+  --ink-2: #5A5347;
+  --ink-3: #8E8577;
+  --rule: rgba(31,27,22,.13);
+  --rule-2: rgba(31,27,22,.07);
+  --terra: #C4653A;          /* the tutor's colour; the one accent of the chrome */
+  --terra-2: #A9502A;
+  --terra-soft: #F4E2D7;
+  --gold: #B8902B;
+  --blue: #2F5D9E;
+  --blue-soft: #E3EAF5;
+  --warn: #A35A12;
+  --warn-soft: #F7E7D3;
+  --serif: "Fraunces", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --rail: 276px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body::before { /* faint grain across the whole page */
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .5;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+a { color: var(--terra-2); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+button { font-family: inherit; }
+::selection { background: var(--terra-soft); }
+
+/* ---------------------------------------------------------------- frame */
+.doc { position: relative; z-index: 1; display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); min-height: 100vh; }
+
+/* ---------------------------------------------------------------- rail (the index) */
+.rail { position: sticky; top: 0; height: 100vh; overflow-y: auto; overscroll-behavior: contain; border-right: 1px solid var(--rule); padding: 26px 18px 60px 22px; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
+.mast { padding: 0 6px 18px; border-bottom: 1px solid var(--ink); margin-bottom: 8px; }
+.mast .eyebrow { font: 600 10.5px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
+.mast h1 { font: 500 30px/1 var(--serif); font-variation-settings: "opsz" 144; letter-spacing: -.02em; margin: 0; }
+.mast h1 em { font-style: italic; font-weight: 400; color: var(--terra); }
+.mast .meta { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.mast .meta b { font-weight: 600; color: var(--ink); }
+
+.find { position: relative; margin: 14px 6px 6px; }
+.find input { width: 100%; font: 500 13px/1 var(--sans); padding: 9px 30px 9px 12px; border-radius: 8px; border: 1px solid var(--rule); background: var(--paper-2); color: var(--ink); outline: none; }
+.find input::placeholder { color: var(--ink-3); }
+.find input:focus { border-color: var(--ink); }
+.find kbd { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font: 600 10.5px/1 var(--mono); color: var(--ink-3); border: 1px solid var(--rule); border-radius: 4px; padding: 3px 5px; background: var(--paper); }
+
+.ix-group { margin-top: 18px; }
+.ix-group h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 6px 4px; padding: 0 0 6px; border-bottom: 1px solid var(--rule); font: 600 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.ix-group h3 .ix-roman { font: italic 500 15px/1 var(--serif); letter-spacing: 0; text-transform: none; color: var(--terra); min-width: 18px; }
+.ix-group h3 .ix-count { margin-left: auto; color: var(--ink-3); font-weight: 400; letter-spacing: 0; }
+a.ix-item { position: relative; display: grid; grid-template-columns: 26px 1fr; align-items: baseline; gap: 8px; padding: 6px 8px 6px 6px; border-radius: 7px; color: var(--ink-2); text-decoration: none; font-size: 13.5px; line-height: 1.3; }
+a.ix-item .ix-n { font: 500 11px/1 var(--mono); color: var(--ink-3); }
+a.ix-item:hover { background: var(--paper-3); color: var(--ink); }
+a.ix-item.is-active { color: var(--ink); font-weight: 600; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--rule); }
+a.ix-item.is-active::before { content: ""; position: absolute; left: -12px; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: var(--terra); }
+a.ix-item.is-active .ix-n { color: var(--terra); font-weight: 600; }
+a.ix-item.is-hidden, .ix-group.is-hidden { display: none; }
+.rail .foot { margin: 28px 6px 0; padding-top: 12px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--ink-3); line-height: 1.6; }
+.rail .foot code { font: 500 11px/1 var(--mono); }
+
+/* ---------------------------------------------------------------- main + spine */
+main { min-width: 0; }
+.spine { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 14px; padding: 12px 40px; border-bottom: 1px solid var(--rule); background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.spine .where { font: 600 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 10px; min-width: 0; }
+.spine .where b { color: var(--ink); font-weight: 600; letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spine .where i { font-style: normal; color: var(--terra); }
+.spine .grow { flex: 1; }
+.seg { display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid var(--rule); background: var(--paper-2); }
+.seg button { font: 600 12px/1 var(--sans); padding: 7px 12px; border-radius: 999px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.seg button.is-active { background: var(--ink); color: var(--paper); }
+.spine .keys { display: flex; gap: 6px; align-items: center; color: var(--ink-3); font-size: 12px; }
+.spine kbd { font: 600 11px/1 var(--mono); border: 1px solid var(--rule); border-radius: 5px; padding: 4px 6px; background: var(--paper-2); color: var(--ink-2); }
+
+/* ---------------------------------------------------------------- one screen */
+article.screen { display: none; padding: 34px 40px 120px; }
+article.screen.is-active { display: block; }
+article.screen > header { margin: 0 0 24px; max-width: 900px; }
+article.screen > header .eyebrow { display: flex; align-items: center; gap: 10px; font: 600 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 12px; }
+article.screen > header .eyebrow .num { font: italic 400 22px/1 var(--serif); letter-spacing: 0; color: var(--terra); }
+article.screen > header .eyebrow .sep { width: 24px; height: 1px; background: var(--rule); }
+article.screen > header h2 { font: 400 40px/1.08 var(--serif); font-variation-settings: "opsz" 144; letter-spacing: -.025em; margin: 0 0 12px; text-wrap: balance; }
+article.screen > header p.lede { margin: 0; font: 400 17.5px/1.5 var(--sans); color: var(--ink-2); max-width: 66ch; text-wrap: pretty; }
+
+.screen-layout { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.device-column { flex: 0 1 auto; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 74px; max-width: 100%; }
+.variants { display: flex; flex-wrap: wrap; gap: 0 2px; border-bottom: 1px solid var(--rule); padding: 0 4px; }
+.variants button { position: relative; font: 600 12.5px/1 var(--sans); padding: 9px 11px 11px; border: 0; background: none; color: var(--ink-3); cursor: pointer; letter-spacing: .01em; }
+.variants button:hover { color: var(--ink); }
+.variants button.is-active { color: var(--ink); }
+.variants button.is-active::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; background: var(--terra); }
+.mat { padding: 28px; border-radius: 22px; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--rule), 0 1px 0 rgba(255,255,255,.7); overflow-x: auto; }
+.mat-inner { position: relative; border-radius: 12px; padding: 22px; background-color: var(--paper); background-image: radial-gradient(rgba(31,27,22,.20) 1px, transparent 1.3px); background-size: 20px 20px; background-position: 10px 10px; box-shadow: inset 0 0 0 1px var(--rule-2); }
+.devices { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; width: max-content; max-width: 100%; }
+.devices .phone[data-variant] { display: none; }
+.devices .phone[data-variant].is-active { display: flex; }
+.device-caption { color: var(--ink-3); font-size: 12.5px; line-height: 1.5; margin: 0 6px; max-width: 420px; }
+.device-caption::before { content: "fig. "; font: italic 400 13px var(--serif); color: var(--terra); }
+.phone--ipad, .phone--ipad-portrait { zoom: .62; }
+
+/* ---------------------------------------------------------------- the notes: a spec sheet */
+.notes { flex: 1 1 380px; min-width: 0; max-width: 760px; background: var(--paper-2); border-radius: 18px; box-shadow: inset 0 0 0 1px var(--rule); padding: 26px 30px 30px; counter-reset: sec; }
+.notes > h3:first-child { font: italic 400 13px/1 var(--serif); color: var(--ink-3); letter-spacing: .04em; margin: 0 0 6px; }
+.notes > h3:first-child::before { content: "— "; }
+.notes h3 { font: 600 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin: 26px 0 8px; }
+.notes h4 { counter-increment: sec; display: flex; align-items: baseline; gap: 12px; font: 500 20px/1.2 var(--serif); font-variation-settings: "opsz" 40; letter-spacing: -.01em; margin: 28px 0 8px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.notes h4::before { content: counter(sec, decimal-leading-zero); font: 500 11px/1 var(--mono); color: var(--terra); letter-spacing: .08em; min-width: 22px; }
+.notes p, .notes li { font-size: 14.5px; line-height: 1.6; color: var(--ink); }
+.notes p { margin: 0 0 10px; text-wrap: pretty; }
+.notes ul, .notes ol { padding-left: 22px; margin: 4px 0 10px; }
+.notes li { margin: 0 0 6px; }
+.notes li::marker { color: var(--ink-3); }
+.notes b { font-weight: 650; }
+.notes em, .notes i { font-style: italic; }
+.notes code { font: 500 12.5px/1.4 var(--mono); background: var(--paper-3); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+.notes pre { font: 400 12.5px/1.55 var(--mono); background: var(--ink); color: #EDE6D8; border-radius: 12px; padding: 14px 16px; overflow-x: auto; margin: 8px 0 12px; }
+.notes pre code { background: none; border: 0; padding: 0; color: inherit; font: inherit; }
+.notes table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 6px 0 12px; }
+.notes th, .notes td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+.notes th { font: 600 11px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom-color: var(--rule); }
+.notes tr:last-child td { border-bottom: 0; }
+.notes .tag { display: inline-block; vertical-align: baseline; font: 600 10.5px/1 var(--mono); letter-spacing: .04em; padding: 4px 6px; border-radius: 5px; background: var(--paper); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--rule); margin: 0 4px 0 0; white-space: nowrap; }
+.notes .tag--plan { background: var(--paper); color: var(--ink); }
+.notes .tag--warn { background: var(--warn-soft); color: var(--warn); box-shadow: none; }
+.notes .tag--mobbin { background: var(--blue-soft); color: var(--blue); box-shadow: none; }
+.notes blockquote { margin: 10px 0; padding: 10px 16px; border-left: 2px solid var(--terra); background: var(--paper); border-radius: 0 10px 10px 0; color: var(--ink-2); font: italic 400 14.5px/1.55 var(--serif); }
+
+/* ---------------------------------------------------------------- contact sheet (every phone at once) */
+body.gallery .spine .keys { visibility: hidden; }
+body.gallery main { padding: 0 40px 120px; }
+body.gallery .sheet-head { display: flex; align-items: baseline; gap: 14px; margin: 44px 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
+body.gallery .sheet-head .roman { font: italic 400 30px/1 var(--serif); color: var(--terra); }
+body.gallery .sheet-head h2 { font: 400 26px/1 var(--serif); letter-spacing: -.02em; margin: 0; }
+body.gallery .sheet-head .count { margin-left: auto; font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.sheet-head { display: none; }
+body.gallery article.screen { display: inline-block; vertical-align: top; padding: 0; margin: 0 22px 26px 0; }
+body.gallery article.screen > header { margin: 0 0 10px; width: 0; min-width: 100%; } /* the title wraps to the mat, never widens it */
+body.gallery article.screen > header .eyebrow { margin: 0; }
+body.gallery article.screen > header .eyebrow .num { font-size: 15px; }
+body.gallery article.screen > header .eyebrow .sep, body.gallery article.screen > header .eyebrow .grp { display: none; }
+body.gallery article.screen > header h2 { font: 500 15px/1.3 var(--sans); letter-spacing: 0; margin: 4px 0 0; }
+body.gallery article.screen > header p.lede { display: none; }
+body.gallery .notes, body.gallery .variants, body.gallery .device-caption { display: none; }
+body.gallery .screen-layout { display: block; }
+body.gallery .device-column { position: static; }
+body.gallery .mat { width: max-content; max-width: calc(100vw - var(--rail) - 80px); padding: 12px; border-radius: 14px; cursor: pointer; transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+body.gallery .mat:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1px var(--rule), 0 16px 32px -14px rgba(31,27,22,.35); }
+body.gallery .mat-inner { padding: 12px; }
+body.gallery .devices { zoom: .34; width: max-content; }
+body.gallery .devices .phone[data-variant] { display: flex; }
+body.gallery .devices .phone { margin: 0; }
+
+/* ---------------------------------------------------------------- handbook */
+article.handbook { display: none; padding: 34px 40px 120px; max-width: 980px; }
+article.handbook.is-active { display: block; }
+article.handbook > h2 { font: 400 46px/1.05 var(--serif); font-variation-settings: "opsz" 144; letter-spacing: -.03em; margin: 0 0 18px; }
+article.handbook > h2 + p { font: 400 18.5px/1.55 var(--sans); color: var(--ink-2); max-width: 70ch; }
+article.handbook > h2 + p::first-letter { font: 400 64px/.8 var(--serif); float: left; padding: 8px 8px 0 0; color: var(--terra); }
+.hb-toc { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2px 24px; margin: 26px 0 8px; padding: 18px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.hb-toc a { display: flex; gap: 10px; align-items: baseline; padding: 5px 0; color: var(--ink-2); text-decoration: none; font-size: 13.5px; }
+.hb-toc a:hover { color: var(--ink); }
+.hb-toc a .n { font: 500 11px/1 var(--mono); color: var(--terra); min-width: 18px; }
+article.handbook h3 { display: flex; align-items: baseline; gap: 14px; font: 400 28px/1.15 var(--serif); font-variation-settings: "opsz" 72; letter-spacing: -.02em; margin: 44px 0 12px; padding-top: 18px; border-top: 1px solid var(--rule); scroll-margin-top: 80px; }
+article.handbook h3 .n { font: 500 12px/1 var(--mono); color: var(--terra); letter-spacing: .08em; }
+article.handbook h4 { font: 600 15px/1.3 var(--sans); margin: 22px 0 6px; }
+article.handbook p, article.handbook li { font-size: 15.5px; line-height: 1.62; text-wrap: pretty; }
+article.handbook p { max-width: 74ch; }
+article.handbook ul, article.handbook ol { padding-left: 22px; }
+article.handbook li { margin-bottom: 6px; }
+article.handbook li::marker { color: var(--ink-3); }
+article.handbook ol > li::marker { font: 500 12px var(--mono); color: var(--terra); }
+article.handbook code { font: 500 13px/1.4 var(--mono); background: var(--paper-2); border: 1px solid var(--rule-2); padding: 1px 5px; border-radius: 5px; }
+article.handbook pre { font: 400 12.5px/1.55 var(--mono); background: var(--ink); color: #EDE6D8; border-radius: 12px; padding: 16px 18px; overflow-x: auto; margin: 0; }
+article.handbook .map { background: var(--ink); border-radius: 14px; padding: 4px; overflow-x: auto; }
+article.handbook table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 10px 0 16px; }
+article.handbook th, article.handbook td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+article.handbook th { font: 600 11px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom-color: var(--ink); }
+article.handbook .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 14px 0 18px; }
+article.handbook .swatch { border-radius: 12px; overflow: hidden; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--rule); font-size: 12px; line-height: 1.45; color: var(--ink-2); }
+article.handbook .swatch i { display: block; height: 64px; }
+article.handbook .swatch span { display: block; padding: 8px 10px 10px; }
+article.handbook .swatch b { display: block; font: 500 14px var(--serif); color: var(--ink); }
+.wide-scroll { overflow-x: auto; }
+
+/* ---------------------------------------------------------------- pager */
+.pager { position: fixed; right: 28px; bottom: 24px; z-index: 60; display: flex; align-items: stretch; border-radius: 14px; background: var(--paper-2); box-shadow: 0 0 0 1px var(--rule), 0 18px 40px -16px rgba(31,27,22,.45); overflow: hidden; }
+.pager button { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 180px; max-width: 260px; padding: 10px 16px; border: 0; background: transparent; color: var(--ink); cursor: pointer; text-align: left; }
+.pager button + button { border-left: 1px solid var(--rule); align-items: flex-end; text-align: right; }
+.pager button:hover { background: var(--paper-3); }
+.pager button:disabled { opacity: .35; cursor: default; background: transparent; }
+.pager .k { font: 600 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.pager .t { font: 500 13.5px/1.25 var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+body.gallery .pager { display: none; }
+
+/* ---------------------------------------------------------------- motion */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+article.screen.is-active > header, article.handbook.is-active > * { animation: rise .55s var(--ease) both; }
+article.screen.is-active .device-column { animation: rise .65s var(--ease) .06s both; }
+article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
+@media (prefers-reduced-motion: reduce) { article.screen.is-active > header, article.handbook.is-active > *, article.screen.is-active .device-column, article.screen.is-active .notes { animation: none; } }
+
+@media (max-width: 1180px) { .device-column { position: static; } }
+@media (max-width: 860px) {
+  .doc { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .spine, article.screen, article.handbook { padding-left: 20px; padding-right: 20px; }
+  body.gallery main { padding: 0 20px 120px; }
+  .pager { left: 16px; right: 16px; }
+  .pager button { min-width: 0; flex: 1; }
+}
+
+/* ---- product design system (the phones) ---- */
+{{DESIGN_SYSTEM_CSS}}
+</style>
+</head>
+<body>
+
+{{SYMBOLS}}
+
+<div class="doc">
+  <nav class="rail" id="rail" aria-label="Screens">
+    <div class="mast">
+      <p class="eyebrow">Design specification · iOS</p>
+      <h1>Stroke<em>Tutor</em></h1>
+      <p class="meta"><b>{{TOTAL}} screens</b> with developer notes · {{DATE}}</p>
+    </div>
+    <div class="find"><input type="search" id="find" placeholder="Find a screen" autocomplete="off" spellcheck="false"><kbd>/</kbd></div>
+    <section class="ix-group">
+      <h3><span class="ix-roman">§</span>Start here</h3>
+      <a class="ix-item" href="#handbook" data-target="handbook"><span class="ix-n">—</span><span class="ix-t">Developer handbook</span></a>
+    </section>
+    {{NAV_V2}}
+    <p class="foot">Built from <code>src/</code> by <code>build.mjs</code>. Phones are iPhone 16 Pro points, 1 px = 1 pt. Buttons inside the phones are live where a flow exists.</p>
+  </nav>
+
+  <main>
+    <div class="spine">
+      <div class="where" id="where"><b>Developer handbook</b></div>
+      <div class="grow"></div>
+      <div class="keys"><kbd>←</kbd><kbd>→</kbd><span>screens</span></div>
+      <div class="seg" role="tablist" aria-label="View">
+        <button type="button" data-mode="single" class="is-active">Screen</button>
+        <button type="button" data-mode="gallery">Contact sheet</button>
+      </div>
+    </div>
+
+    <article class="handbook is-active" id="handbook">
+      {{HANDBOOK}}
+    </article>
+    {{SCREENS}}
+  </main>
+</div>
+
+<div class="pager" aria-label="Previous and next screen">
+  <button type="button" id="prev"><span class="k">← Previous</span><span class="t" id="prev-t"></span></button>
+  <button type="button" id="next"><span class="k">Next →</span><span class="t" id="next-t"></span></button>
+</div>
+
+<script>
+(function () {
+  const articles = Array.from(document.querySelectorAll('main > article'));
+  const ids = articles.map(a => a.id);
+  const navItems = Array.from(document.querySelectorAll('.rail a.ix-item'));
+  const where = document.getElementById('where');
+  const prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next');
+  const prevT = document.getElementById('prev-t'), nextT = document.getElementById('next-t');
+  const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+  let current = null;
+
+  // --- dress the screens: numbered eyebrow, the sketch mat around the devices, contact-sheet group heads
+  const groups = [];
+  let n = 0;
+  articles.forEach(art => {
+    if (!art.classList.contains('screen')) return;
+    n += 1;
+    art.dataset.n = n;
+    const g = art.dataset.group || '';
+    if (!groups.includes(g)) {
+      groups.push(g);
+      const head = document.createElement('div');
+      head.className = 'sheet-head';
+      head.innerHTML = '<span class="roman">' + (roman[groups.length - 1] || '') + '</span><h2></h2><span class="count"></span>';
+      head.querySelector('h2').textContent = g;
+      art.parentNode.insertBefore(head, art);
+    }
+    const header = art.querySelector(':scope > header');
+    if (header) {
+      const eb = document.createElement('p');
+      eb.className = 'eyebrow';
+      eb.innerHTML = '<span class="num">' + String(n).padStart(2, '0') + '</span><span class="sep"></span><span class="grp"></span>';
+      eb.querySelector('.grp').textContent = g;
+      header.prepend(eb);
+    }
+    const devices = art.querySelector('.devices');
+    if (devices) {
+      const mat = document.createElement('div'); mat.className = 'mat';
+      const inner = document.createElement('div'); inner.className = 'mat-inner';
+      devices.parentNode.insertBefore(mat, devices);
+      mat.appendChild(inner); inner.appendChild(devices);
+    }
+  });
+  document.querySelectorAll('.sheet-head').forEach(h => {
+    const g = h.querySelector('h2').textContent;
+    const c = articles.filter(a => a.dataset.group === g).length;
+    h.querySelector('.count').textContent = c + (c === 1 ? ' screen' : ' screens');
+  });
+
+  // --- handbook: number the sections and build a table of contents
+  const hb = document.getElementById('handbook');
+  const h3s = Array.from(hb.querySelectorAll('h3'));
+  if (h3s.length) {
+    const toc = document.createElement('nav'); toc.className = 'hb-toc'; toc.setAttribute('aria-label', 'Handbook contents');
+    h3s.forEach((h, i) => {
+      const num = String(i + 1).padStart(2, '0');
+      h.id = 'hb-' + (i + 1);
+      const s = document.createElement('span'); s.className = 'n'; s.textContent = num; h.prepend(s);
+      const a = document.createElement('a'); a.href = '#' + h.id; a.dataset.hbJump = h.id;
+      a.innerHTML = '<span class="n">' + num + '</span><span></span>';
+      a.lastChild.textContent = h.textContent.slice(num.length).trim();
+      toc.appendChild(a);
+    });
+    const lead = hb.querySelector('h2 + p');
+    (lead || hb.firstElementChild).after(toc);
+  }
+
+  function title(art) { return art.dataset.title || art.querySelector('h2')?.textContent || art.id; }
+  function show(id, opts) {
+    if (!ids.includes(id)) id = ids[0];
+    current = id;
+    articles.forEach(a => a.classList.toggle('is-active', a.id === id));
+    navItems.forEach(x => x.classList.toggle('is-active', x.dataset.target === id));
+    const art = document.getElementById(id);
+    const i = ids.indexOf(id);
+    if (art.classList.contains('screen')) {
+      where.innerHTML = '<span></span><i>·</i><b></b><i>·</i><span>' + art.dataset.n + ' / ' + n + '</span>';
+      where.firstChild.textContent = art.dataset.group || '';
+      where.querySelector('b').textContent = title(art);
+    } else {
+      where.innerHTML = '<b></b>'; where.querySelector('b').textContent = title(art);
+    }
+    prevBtn.disabled = i <= 0; nextBtn.disabled = i >= ids.length - 1;
+    prevT.textContent = i > 0 ? title(articles[i - 1]) : '';
+    nextT.textContent = i < ids.length - 1 ? title(articles[i + 1]) : '';
+    try { if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id); } catch (_) { /* file:// or static hosting */ }
+    const active = navItems.find(x => x.dataset.target === id);
+    if (active && !(opts && opts.noScrollNav)) active.scrollIntoView({ block: 'nearest' });
+    if (!document.body.classList.contains('gallery')) window.scrollTo({ top: 0 });
+  }
+  function setVariant(art, name) {
+    const phones = art.querySelectorAll('.devices .phone[data-variant]');
+    if (!phones.length) return;
+    phones.forEach(p => p.classList.toggle('is-active', p.dataset.variant === name));
+    art.querySelectorAll('.variants button').forEach(b => b.classList.toggle('is-active', b.dataset.variant === name));
+  }
+  articles.forEach(art => {
+    const first = art.querySelector('.variants button');
+    if (first) setVariant(art, first.dataset.variant);
+  });
+  function setMode(mode) {
+    const gallery = mode === 'gallery';
+    document.body.classList.toggle('gallery', gallery);
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('is-active', b.dataset.mode === mode));
+    if (!gallery) show(current);
+    else window.scrollTo({ top: 0 });
+  }
+
+  document.addEventListener('click', e => {
+    const jump = e.target.closest('[data-hb-jump]');
+    if (jump) { e.preventDefault(); document.getElementById(jump.dataset.hbJump)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    const goto = e.target.closest('[data-goto]');
+    if (goto) {
+      e.preventDefault();
+      if (document.body.classList.contains('gallery')) setMode('single');
+      show(goto.dataset.goto);
+      if (goto.dataset.variant) setVariant(document.getElementById(goto.dataset.goto), goto.dataset.variant);
+      return;
+    }
+    const vb = e.target.closest('.variants button');
+    if (vb) { setVariant(vb.closest('article'), vb.dataset.variant); return; }
+    const sv = e.target.closest('[data-set-variant]');
+    if (sv) { e.preventDefault(); setVariant(sv.closest('article'), sv.dataset.setVariant); return; }
+    const item = e.target.closest('.rail a.ix-item');
+    if (item) { e.preventDefault(); if (document.body.classList.contains('gallery')) setMode('single'); show(item.dataset.target, { noScrollNav: true }); return; }
+    const mode = e.target.closest('[data-mode]');
+    if (mode) { setMode(mode.dataset.mode); return; }
+    // in the contact sheet, a click on a mat (not on a live control inside it) opens that screen
+    if (document.body.classList.contains('gallery')) {
+      const mat = e.target.closest('.mat');
+      if (mat && !e.target.closest('button, a')) { const art = mat.closest('article'); setMode('single'); show(art.id); }
+    }
+  });
+  function step(delta) {
+    const i = ids.indexOf(current);
+    show(ids[Math.min(ids.length - 1, Math.max(0, i + delta))]);
+  }
+  prevBtn.addEventListener('click', () => step(-1));
+  nextBtn.addEventListener('click', () => step(1));
+
+  // --- find
+  const find = document.getElementById('find');
+  find.addEventListener('input', () => {
+    const q = find.value.trim().toLowerCase();
+    navItems.forEach(a => a.classList.toggle('is-hidden', !!q && !a.textContent.toLowerCase().includes(q)));
+    document.querySelectorAll('.ix-group').forEach(g => g.classList.toggle('is-hidden', !!q && !g.querySelector('a.ix-item:not(.is-hidden)')));
+  });
+  find.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { find.value = ''; find.dispatchEvent(new Event('input')); find.blur(); }
+    if (e.key === 'Enter') { const first = navItems.find(a => !a.classList.contains('is-hidden')); if (first) { show(first.dataset.target); find.blur(); } }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input, textarea')) return;
+    if (e.key === 'ArrowRight') step(1);
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === '/') { e.preventDefault(); find.focus(); find.select(); }
+  });
+  window.addEventListener('hashchange', () => show(location.hash.slice(1)));
+  show(location.hash.slice(1) || ids[0]);
+})();
+</script>
+</body>
+</html>
