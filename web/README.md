@@ -87,9 +87,11 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
   - **the reference rail** (left; `[` hides it): the photo, with a switch to lay it under the drawing,
     and the lesson's objective, complexity and notes, edited in place;
   - **the drawing** (centre): the canvas sized to fit, with a transport bar (previous and next step,
-    replay step or lesson, colour by step);
+    replay step or lesson at ½× to 4× or instantly, colour by step, lines only, reference underneath).
+    A replay shows what the learner has on the page at that moment and holds its last frame until
+    dismissed;
   - **the steps** (right): one line per step with its instruction, and the active step open for
-    its title, instruction and strokes.
+    its title, instruction and strokes, or folded to see the whole list.
 
   It is an editor for the teaching structure, not for the drawing (§18). Click or shift-click strokes
   on the canvas or in the step list, and a bar floats over the drawing to group them into a new step,

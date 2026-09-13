@@ -222,7 +222,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   min-width: 0;
   padding: 6px 20px 12px;
   white-space: nowrap;
@@ -597,4 +597,89 @@
   .st-stage__fit {
     height: 70vw;
   }
+}
+
+/* ---------- Replay (S7) ---------- */
+
+/* Keeps the paper's box for the SVG; the chip floats over it. */
+.st-replay {
+  display: contents;
+  cursor: pointer;
+}
+
+.st-replay__chip {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: calc(100% - 24px);
+  padding: 6px 12px;
+  transform: translateX(-50%);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 24px rgba(31, 27, 20, 0.12);
+  font-size: 13px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  cursor: default;
+  backdrop-filter: blur(6px);
+}
+
+.st-replay__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-replay__text strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.st-transport__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.st-transport__group + .st-transport__group {
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+
+.st-segmented--tiny {
+  padding: 2px;
+  border-radius: 8px;
+}
+
+.st-segmented--tiny button {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-step-card__chevron {
+  flex: none;
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.st-step-card__play {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.st-step-card:hover .st-step-card__play,
+.st-step-card.is-active .st-step-card__play,
+.st-step-card__play:focus-visible {
+  opacity: 1;
 }

@@ -12,7 +12,7 @@ import { ApiError, publishLessons, saveCatalog, saveTutorial, uploadReference } 
 import { ApprovalChecklist, QualityWarnings } from './ApprovalDialog'
 import { ConfirmDialog } from './ConfirmDialog'
 import { Drawer } from './Drawer'
-import { EditCanvas, type Replay } from './editor/EditCanvas'
+import { EditCanvas, REPLAY_SPEEDS, replaySpeedLabel, type Replay, type ReplaySpeed } from './editor/EditCanvas'
 import { commit, createHistory, redo, undo } from './editor/history'
 import {
   EditError,
@@ -101,15 +101,26 @@ interface WorkspacePrefs {
   rail: boolean
   overlay: boolean
   colorBySteps: boolean
+  /** Paint the colour fills. Off, the drawing is lines only. */
+  fills: boolean
+  speed: ReplaySpeed
 }
+
+const DEFAULT_PREFS: WorkspacePrefs = { rail: true, overlay: false, colorBySteps: true, fills: true, speed: 1 }
 
 /** Layout choices, remembered in this browser only. */
 function readPrefs(): WorkspacePrefs {
   try {
     const stored = JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as Partial<WorkspacePrefs>
-    return { rail: stored.rail !== false, overlay: stored.overlay === true, colorBySteps: stored.colorBySteps !== false }
+    return {
+      rail: stored.rail !== false,
+      overlay: stored.overlay === true,
+      colorBySteps: stored.colorBySteps !== false,
+      fills: stored.fills !== false,
+      speed: REPLAY_SPEEDS.includes(stored.speed as ReplaySpeed) ? (stored.speed as ReplaySpeed) : 1,
+    }
   } catch {
-    return { rail: true, overlay: false, colorBySteps: true }
+    return DEFAULT_PREFS
   }
 }
 
@@ -140,6 +151,8 @@ function LessonEditor({
   const [history, setHistory] = useState(() => createHistory(toEditable(entry.tutorial)))
   const [selection, setSelection] = useState<ReadonlySet<string>>(() => new Set())
   const [activeStep, setActiveStep] = useState(0)
+  /** Whether the active step is open in the steps pane; it can be folded to see the list. */
+  const [stepOpen, setStepOpen] = useState(true)
   const [mode, setMode] = useState<Mode>('edit')
   const [prefs, setPrefs] = useState(readPrefs)
   const [replay, setReplay] = useState<Replay | null>(null)
@@ -166,6 +179,16 @@ function LessonEditor({
   const validation = useMemo(() => validateTutorial(tutorial), [tutorial])
   const text = useMemo(() => JSON.stringify(tutorial), [tutorial])
   const activeStepIndex = Math.min(activeStep, doc.steps.length - 1)
+
+  /**
+   * Makes a step the active one and opens it, so its words are next to the
+   * drawing. A replay is a view of one moment, so moving to a step leaves it.
+   */
+  const activateStep = (stepIndex: number) => {
+    setActiveStep(stepIndex)
+    setStepOpen(true)
+    setReplay(null)
+  }
 
   // ---------- Autosave ----------
   // What the workspace holds, and the version a save must name to replace it.
@@ -285,10 +308,11 @@ function LessonEditor({
 
   const focusStepOf = (next: EditableTutorial | null, uid: string | undefined) => {
     const where = next && uid ? locateStroke(next, uid) : null
-    if (where) setActiveStep(where.stepIndex)
+    if (where) activateStep(where.stepIndex)
   }
 
   const pickStroke = (uid: string | null, additive: boolean) => {
+    setReplay(null)
     if (uid === null) {
       if (!additive) setSelection(new Set())
       return
@@ -305,13 +329,23 @@ function LessonEditor({
     focusStepOf(doc, uid)
   }
 
-  const playReplay = (uids: string[]) => {
-    if (uids.length === 0) return
+  const playReplay = (uids: string[], label: string, wholeSteps: number[] = []) => {
+    if (uids.length === 0 && wholeSteps.length === 0) return
     setMode('edit')
-    setReplay((current) => ({ uids, runId: (current?.runId ?? 0) + 1 }))
+    setSelection(new Set())
+    setReplay((current) => ({ uids, wholeSteps, label, runId: (current?.runId ?? 0) + 1 }))
   }
-  const replayStep = () => playReplay(doc.steps[activeStepIndex]?.strokes.map((stroke) => stroke.uid) ?? [])
-  const replayLesson = () => playReplay(strokeUids(doc))
+  const replayStep = (stepIndex = activeStepIndex) =>
+    playReplay(doc.steps[stepIndex]?.strokes.map((stroke) => stroke.uid) ?? [], `step ${stepIndex + 1}`, [stepIndex])
+  const replayLesson = () =>
+    playReplay(
+      strokeUids(doc),
+      'the lesson',
+      doc.steps.map((_, stepIndex) => stepIndex),
+    )
+  const replayAgain = () => {
+    if (replay) playReplay(replay.uids, replay.label, replay.wholeSteps)
+  }
 
   const group = () => {
     if (liveSelection.size === 0) return
@@ -330,7 +364,7 @@ function LessonEditor({
     setSelection(new Set())
     setReplay(null)
     setMode('edit')
-    setActiveStep(0)
+    activateStep(0)
     setDrawer(null)
     apply(() => toEditable(next))
     toast(`${message} Undo (⌘Z) brings back the previous version.`)
@@ -409,6 +443,9 @@ function LessonEditor({
     setDrawer(tab)
   }
 
+  const reference = lesson?.reference
+  const referenceUrl = reference ? library.referenceUrl(reference.file) : undefined
+
   // ---------- Keyboard ----------
 
   const onKey = useRef<(event: KeyboardEvent) => void>(() => undefined)
@@ -422,9 +459,9 @@ function LessonEditor({
       return
     }
     if (document.querySelector('dialog[open]')) return
-    const target = event.target as HTMLElement | null
-    // Text fields keep their own keys, and their own undo.
-    if (target && (target.closest('input, textarea, select') || target.isContentEditable)) return
+    const target = event.target instanceof HTMLElement ? event.target : null
+    // Text fields keep their own keys, and their own undo. A checkbox does not type.
+    if (target && (target.closest('textarea, select, input:not([type="checkbox"])') || target.isContentEditable)) return
 
     if (command) {
       if (key === 'z') {
@@ -442,23 +479,44 @@ function LessonEditor({
     switch (event.key) {
       case 'Escape':
         if (drawer) setDrawer(null)
+        else if (replay) setReplay(null)
         else setSelection(new Set())
         return
       case 'ArrowUp':
       case 'k':
         event.preventDefault()
-        setActiveStep(Math.max(0, activeStepIndex - 1))
+        activateStep(Math.max(0, activeStepIndex - 1))
         return
       case 'ArrowDown':
       case 'j':
         event.preventDefault()
-        setActiveStep(Math.min(stepCount - 1, activeStepIndex + 1))
+        activateStep(Math.min(stepCount - 1, activeStepIndex + 1))
         return
       case ' ':
         event.preventDefault()
         if (event.shiftKey) replayLesson()
         else replayStep()
         return
+      case 'Enter':
+        if (!(target && target.closest('button, a'))) setStepOpen((open) => !open)
+        return
+      case 'l':
+        updatePrefs({ fills: !prefs.fills })
+        return
+      case 'c':
+        updatePrefs({ colorBySteps: !prefs.colorBySteps })
+        return
+      case 'r':
+        if (referenceUrl) updatePrefs({ overlay: !prefs.overlay })
+        return
+      case '-':
+      case '=':
+      case '+': {
+        const at = REPLAY_SPEEDS.indexOf(prefs.speed)
+        const next = REPLAY_SPEEDS[Math.max(0, Math.min(REPLAY_SPEEDS.length - 1, at + (event.key === '-' ? -1 : 1)))]
+        updatePrefs({ speed: next })
+        return
+      }
       case 'p':
         if (validation.ok) {
           setReplay(null)
@@ -497,9 +555,6 @@ function LessonEditor({
   }, [])
 
   // ---------- What the header says ----------
-
-  const reference = lesson?.reference
-  const referenceUrl = reference ? library.referenceUrl(reference.file) : undefined
   const uploadBlockedBecause = !library.writable
     ? 'Adding one needs the Studio server (npm run dev).'
     : !lesson
@@ -729,8 +784,12 @@ function LessonEditor({
                     doc={doc}
                     selection={liveSelection}
                     colorBySteps={prefs.colorBySteps}
+                    showFills={prefs.fills}
                     replay={replay}
+                    speed={prefs.speed}
                     onSelect={pickStroke}
+                    onStopReplay={() => setReplay(null)}
+                    onReplayAgain={replayAgain}
                   />
                   {prefs.overlay && referenceUrl ? (
                     <img className="st-stage__overlay" src={referenceUrl} alt="" />
@@ -752,7 +811,9 @@ function LessonEditor({
                   )
                 }
                 onDelete={removeSelection}
-                onReplay={() => playReplay(selectedInOrder)}
+                onReplay={() =>
+                  playReplay(selectedInOrder, selectedInOrder.length === 1 ? 'the stroke' : `${selectedInOrder.length} strokes`)
+                }
                 onClear={() => setSelection(new Set())}
               />
             ) : null}
@@ -765,7 +826,7 @@ function LessonEditor({
                   className="st-mini-button"
                   aria-label="Previous step (↑)"
                   disabled={activeStepIndex === 0}
-                  onClick={() => setActiveStep(activeStepIndex - 1)}
+                  onClick={() => activateStep(activeStepIndex - 1)}
                 >
                   ‹
                 </button>
@@ -775,35 +836,64 @@ function LessonEditor({
                   className="st-mini-button"
                   aria-label="Next step (↓)"
                   disabled={activeStepIndex === steps - 1}
-                  onClick={() => setActiveStep(activeStepIndex + 1)}
+                  onClick={() => activateStep(activeStepIndex + 1)}
                 >
                   ›
                 </button>
               </span>
-              <button type="button" className="st-button st-button--compact" onClick={replayStep} title="Replay the step (Space)">
-                ▶ Step
-              </button>
-              <button type="button" className="st-button st-button--compact" onClick={replayLesson} title="Replay the lesson (⇧Space)">
-                ▶ Lesson
-              </button>
-              <label className="st-check">
-                <input
-                  type="checkbox"
-                  checked={prefs.colorBySteps}
-                  onChange={(event) => updatePrefs({ colorBySteps: event.target.checked })}
-                />
-                Colour by step
-              </label>
-              {referenceUrl ? (
-                <label className="st-check">
+              <span className="st-transport__group">
+                <button type="button" className="st-button st-button--compact" onClick={() => replayStep()} title="Replay the step (Space)">
+                  ▶ Step
+                </button>
+                <button type="button" className="st-button st-button--compact" onClick={replayLesson} title="Replay the lesson (⇧Space)">
+                  ▶ Lesson
+                </button>
+                <span className="st-segmented st-segmented--tiny" role="group" aria-label="Replay speed">
+                  {REPLAY_SPEEDS.map((speed) => (
+                    <button
+                      key={speed}
+                      type="button"
+                      aria-pressed={prefs.speed === speed}
+                      title={
+                        speed === 'instant'
+                          ? 'Skip the animation: show the drawing as it stands after the step (− / +)'
+                          : `Replay at ${speed}× the learner's speed (− / +)`
+                      }
+                      onClick={() => updatePrefs({ speed })}
+                    >
+                      {replaySpeedLabel(speed)}
+                    </button>
+                  ))}
+                </span>
+              </span>
+              <span className="st-transport__group">
+                <label className="st-check" title="One colour per step, so the teaching order is visible (C)">
                   <input
                     type="checkbox"
-                    checked={prefs.overlay}
-                    onChange={(event) => updatePrefs({ overlay: event.target.checked })}
+                    checked={prefs.colorBySteps}
+                    onChange={(event) => updatePrefs({ colorBySteps: event.target.checked })}
                   />
-                  Reference underneath
+                  Colour by step
                 </label>
-              ) : null}
+                <label className="st-check" title="Hide the colour fills, so only the lines show (L)">
+                  <input
+                    type="checkbox"
+                    checked={!prefs.fills}
+                    onChange={(event) => updatePrefs({ fills: !event.target.checked })}
+                  />
+                  Lines only
+                </label>
+                {referenceUrl ? (
+                  <label className="st-check" title="Show the reference photo faintly beneath the drawing (R)">
+                    <input
+                      type="checkbox"
+                      checked={prefs.overlay}
+                      onChange={(event) => updatePrefs({ overlay: event.target.checked })}
+                    />
+                    Reference underneath
+                  </label>
+                ) : null}
+              </span>
               <span className="st-transport__meta">
                 {formatMinutes(estimateLearnerSeconds(tutorial))} for a learner · {totalStrokes(tutorial)} strokes ·{' '}
                 {totalDuration(tutorial).toFixed(1)}s of animation
@@ -825,21 +915,29 @@ function LessonEditor({
             doc={doc}
             selection={liveSelection}
             activeStepIndex={activeStepIndex}
-            onActivateStep={setActiveStep}
+            activeOpen={stepOpen}
+            onActivateStep={(stepIndex) => {
+              if (stepIndex === activeStepIndex) setStepOpen((open) => !open)
+              else activateStep(stepIndex)
+            }}
             onPickStroke={pickStroke}
             onReorderSteps={(from, to) => {
               if (apply((current) => reorderSteps(current, from, to)) && activeStepIndex === from) {
-                setActiveStep(to)
+                activateStep(to)
               }
             }}
             onReorderStroke={(stepIndex, from, to) => apply((current) => reorderStrokes(current, stepIndex, from, to))}
             onSplit={(stepIndex, at) => {
-              if (apply((current) => splitStep(current, stepIndex, at))) setActiveStep(stepIndex + 1)
+              if (apply((current) => splitStep(current, stepIndex, at))) activateStep(stepIndex + 1)
             }}
             onMergeWithNext={(stepIndex) => {
-              if (apply((current) => mergeWithNext(current, stepIndex))) setActiveStep(stepIndex)
+              if (apply((current) => mergeWithNext(current, stepIndex))) activateStep(stepIndex)
             }}
-            onReplay={playReplay}
+            onReplayStep={(stepIndex) => {
+              setActiveStep(stepIndex)
+              replayStep(stepIndex)
+            }}
+            onReplayStroke={(uid, stepIndex, strokeIndex) => playReplay([uid], `stroke ${strokeIndex + 1} of step ${stepIndex + 1}`)}
             onUpdateStep={(stepIndex, patch, key) => apply((current) => updateStep(current, stepIndex, patch), key)}
           />
         </section>

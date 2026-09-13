@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export interface ReplayState {
   /** The run these values belong to. */
@@ -13,21 +13,26 @@ export interface ReplayState {
  * a fraction of each stroke's duration, never of its length.
  *
  * `durations` is read when a run starts; pass a new `runId` to start again and
- * `null` to stop.
+ * `null` to stop. `rate` multiplies the clock (2 is twice as fast); `Infinity`
+ * skips the animation and lands on the final frame at once. It is read at each
+ * stroke boundary, so changing it mid-run takes effect from the next stroke.
  */
-export function useReplay(durations: readonly number[], runId: number | null): ReplayState {
+export function useReplay(durations: readonly number[], runId: number | null, rate = 1): ReplayState {
   const [state, setState] = useState<ReplayState>({
     runId: null,
     strokeIndex: 0,
     progress: 0,
     done: false,
   })
+  const rateRef = useRef(rate)
+  rateRef.current = rate
 
   useEffect(() => {
     if (runId === null) return
     const clock = [...durations]
-    if (clock.length === 0) {
-      setState({ runId, strokeIndex: 0, progress: 1, done: true })
+    const last = clock.length - 1
+    if (clock.length === 0 || rateRef.current === Infinity) {
+      setState({ runId, strokeIndex: Math.max(0, last), progress: 1, done: true })
       return
     }
 
@@ -35,19 +40,24 @@ export function useReplay(durations: readonly number[], runId: number | null): R
     let cancelled = false
     let index = 0
     let startedAt: number | null = null
+    let duration = Math.max(0, clock[0]) / rateRef.current
 
     const tick = (now: number) => {
       if (cancelled) return
       if (startedAt === null) startedAt = now
-      const duration = Math.max(0, clock[index])
+      if (rateRef.current === Infinity) {
+        setState({ runId, strokeIndex: last, progress: 1, done: true })
+        return
+      }
       const progress = duration > 0 ? Math.min(1, (now - startedAt) / 1000 / duration) : 1
 
       if (progress < 1) {
         setState({ runId, strokeIndex: index, progress, done: false })
-      } else if (index + 1 < clock.length) {
+      } else if (index < last) {
         // Strictly sequential, as in playback: the next stroke starts only now.
         index += 1
         startedAt = now
+        duration = Math.max(0, clock[index]) / rateRef.current
         setState({ runId, strokeIndex: index, progress: 0, done: false })
       } else {
         setState({ runId, strokeIndex: index, progress: 1, done: true })

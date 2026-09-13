@@ -10,6 +10,9 @@ export interface StepEditorProps {
   doc: EditableTutorial
   selection: ReadonlySet<string>
   activeStepIndex: number
+  /** Whether the active step shows its fields and strokes. Folded, it is one line like the rest. */
+  activeOpen: boolean
+  /** Clicking the active step again folds or unfolds it. */
   onActivateStep: (stepIndex: number) => void
   /** `additive` is a shift/⌘/ctrl click, which toggles instead of replacing. */
   onPickStroke: (uid: string, additive: boolean) => void
@@ -17,7 +20,8 @@ export interface StepEditorProps {
   onReorderStroke: (stepIndex: number, from: number, to: number) => void
   onSplit: (stepIndex: number, atStrokeIndex: number) => void
   onMergeWithNext: (stepIndex: number) => void
-  onReplay: (uids: string[]) => void
+  onReplayStep: (stepIndex: number) => void
+  onReplayStroke: (uid: string, stepIndex: number, strokeIndex: number) => void
   /** `key` coalesces consecutive edits of one field into a single undo step. */
   onUpdateStep: (stepIndex: number, patch: Partial<Pick<Step, 'title' | 'instruction'>>, key: string) => void
 }
@@ -35,13 +39,15 @@ export function StepEditor({
   doc,
   selection,
   activeStepIndex,
+  activeOpen,
   onActivateStep,
   onPickStroke,
   onReorderSteps,
   onReorderStroke,
   onSplit,
   onMergeWithNext,
-  onReplay,
+  onReplayStep,
+  onReplayStroke,
   onUpdateStep,
 }: StepEditorProps) {
   const [dropIndex, setDropIndex] = useState<number | null>(null)
@@ -59,13 +65,14 @@ export function StepEditor({
         const seconds = stepDuration(step)
         const fills = step.fills ?? []
         const active = stepIndex === activeStepIndex
+        const open = active && activeOpen
         const selectedHere = step.strokes.filter((stroke) => selection.has(stroke.uid)).length
         return (
           <li
             key={step.id}
             ref={active ? activeRef : undefined}
             className={`st-step-card ${active ? 'is-active' : ''} ${dropIndex === stepIndex ? 'is-drop-target' : ''}`}
-            draggable={!active}
+            draggable={!open}
             onDragStart={(event) => {
               event.dataTransfer.setData(STEP_DRAG_TYPE, String(stepIndex))
               event.dataTransfer.effectAllowed = 'move'
@@ -90,20 +97,35 @@ export function StepEditor({
               <button
                 type="button"
                 className="st-step-card__title"
-                aria-expanded={active}
+                aria-expanded={open}
+                title={open ? 'Fold this step (Enter)' : active ? 'Unfold this step (Enter)' : 'Open this step'}
                 onClick={() => onActivateStep(stepIndex)}
               >
                 <span className="st-step-card__number">{stepIndex + 1}</span>
                 <span className="st-step-card__name">{step.title}</span>
+                {active ? (
+                  <span className="st-step-card__chevron" aria-hidden="true">
+                    {open ? '▾' : '▸'}
+                  </span>
+                ) : null}
               </button>
               <span className="st-step-card__meta">
                 {selectedHere > 0 ? <span className="st-step-card__selected">{selectedHere} selected · </span> : null}
                 {step.strokes.length}
                 {fills.length > 0 ? ` + ${fills.length}` : ''} · {seconds.toFixed(1)}s
               </span>
+              <button
+                type="button"
+                className="st-mini-button st-step-card__play"
+                aria-label={`Replay step ${stepIndex + 1}`}
+                title="Replay this step"
+                onClick={() => onReplayStep(stepIndex)}
+              >
+                ▶
+              </button>
             </div>
 
-            {!active ? (
+            {!open ? (
               <p className="st-step-card__preview" onClick={() => onActivateStep(stepIndex)}>
                 {step.instruction}
               </p>
@@ -164,7 +186,7 @@ export function StepEditor({
                             type="button"
                             className="st-mini-button"
                             aria-label={`Replay stroke ${strokeIndex + 1} of ${step.title}`}
-                            onClick={() => onReplay([stroke.uid])}
+                            onClick={() => onReplayStroke(stroke.uid, stepIndex, strokeIndex)}
                           >
                             ▶
                           </button>
@@ -211,7 +233,7 @@ export function StepEditor({
                   <button
                     type="button"
                     className="st-link-button"
-                    onClick={() => onReplay(step.strokes.map((stroke) => stroke.uid))}
+                    onClick={() => onReplayStep(stepIndex)}
                   >
                     ▶ Replay step
                   </button>

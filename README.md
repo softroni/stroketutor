@@ -88,6 +88,7 @@ are done.**
 | S4 | New lesson layout, "save as draft" from Import & test, a ⌘K palette | ✅ Done 2026-09-11 | see git log |
 | S5 | Command line: every Studio action from the terminal, SVG trace/optimise/render in headless Chromium | ✅ Done 2026-09-12 | see git log |
 | S6 | The agent as author: plans by hand, labelled previews and step sheets, `strokes reverse`, the `author-lesson` skill | ✅ Done 2026-09-12 | see git log |
+| S7 | Reviewing a lesson: replay speeds up to instant, replays that hold their last frame and show the learner's view, lines only, folding the active step | ✅ Done 2026-09-12 | see git log |
 
 #### S1 · Workspace vs published
 - [x] A SQLite workspace in `.studio/` (gitignored), on Node's built-in `node:sqlite`, backed up daily (newest seven kept).
@@ -169,6 +170,17 @@ are done.**
 - [x] Toasts for passing confirmations. The objective, complexity and notes are edited in the rail.
 - [x] Keyboard: ↑ ↓ / J K to change step, Space to replay the step, ⇧Space the lesson, P to preview, G to group,
       M to move, ⌫ to delete, Esc, `[`, ⌘Z, ⌘S, and `?` for the list.
+
+#### S7 · Reviewing a lesson
+Asked for on 2026-09-12, after reviewing the classic red car.
+- [x] Replay speed: ½×, 1×, 2×, 4× or **Instant**, which lands on the final frame at once. `−` and `+` change it.
+- [x] A replay shows the paper as the learner has it at that moment: earlier steps faded, later steps not yet drawn,
+      and a whole step's colour fills go in after its strokes. It **holds its last frame** with a chip naming what was
+      drawn, ↻ Again and ✕ Done; Esc, a click on the paper, picking a stroke or moving to another step leaves it.
+- [x] **Lines only** (`L`) hides the colour fills so the stroke structure can be read. `C` toggles colour by step,
+      `R` the reference underneath.
+- [x] The active step folds and unfolds (click its title, or Enter), so the whole list is in view while it stays
+      selected. Every step card has a ▶ on its head, so any step replays with one click.
 
 **Done.**
 - **Tests:** web 280 pass. They include new ones: autosaves keep only the pre-edit version, and ⌘S after an autosave
