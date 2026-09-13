@@ -11,6 +11,7 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var isConfirmingReset = false
+    @State private var isConfirmingOnboardingReset = false
 
     var body: some View {
         @Bindable var settings = app.settings
@@ -100,6 +101,22 @@ struct SettingsView: View {
                                 systemImage: "info.circle",
                                 tint: .neutral) { app.push(.about) }
                     RowDivider()
+                    // Presents a cover rather than pushing, so no chevron.
+                    Button {
+                        isConfirmingOnboardingReset = true
+                    } label: {
+                        SettingsCustomRow(title: "Reset onboarding",
+                                          subtitle: "See the introduction again from the start.") {
+                            SettingsIconTile(symbol: "arrow.clockwise", tint: .neutral)
+                        } trailing: {
+                            EmptyView()
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(.isButton)
+                    RowDivider()
                     // Privacy is the same screen scrolled to its privacy section, so
                     // the two rows can never drift apart. It is a destination link
                     // rather than an `AppRoute` because a route carries no argument.
@@ -157,6 +174,12 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("Every path starts again from lesson 1. Your sketchbook is not touched.")
+        }
+        .alert("Reset onboarding?", isPresented: $isConfirmingOnboardingReset) {
+            Button("Reset onboarding") { app.resetOnboarding() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("The introduction plays again from the start. Your progress and sketchbook are kept.")
         }
     }
 

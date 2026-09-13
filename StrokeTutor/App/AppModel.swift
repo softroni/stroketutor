@@ -208,6 +208,16 @@ final class AppModel {
         settings.hasCompletedOnboarding = true
         cover = nil
     }
+
+    /// "Reset onboarding" on `st-settings`: forgets that onboarding was completed
+    /// and shows the flow again from its first beat. The flow itself only rewrites
+    /// the path and the voice when the learner answers those beats, and
+    /// `finishOnboarding` sets the flag back when they reach the end, so nothing
+    /// else stored is touched.
+    func resetOnboarding() {
+        settings.hasCompletedOnboarding = false
+        presentOnboarding()
+    }
 }
 
 #if DEBUG
