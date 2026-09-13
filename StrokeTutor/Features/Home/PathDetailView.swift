@@ -60,7 +60,7 @@ struct PathDetailView: View {
 
                         if let description = path.description {
                             Text(description)
-                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .textRole(.subhead)
                                 .foregroundStyle(Theme.ink55)
                                 .lineSpacing(5)
                                 .fixedSize(horizontal: false, vertical: true)

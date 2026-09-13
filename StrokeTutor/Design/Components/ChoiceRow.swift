@@ -15,7 +15,7 @@ struct ChoiceRow: View {
             HStack(spacing: 14) {
                 if let systemImage {
                     Image(systemName: systemImage)
-                        .font(.system(size: 22, weight: .semibold))
+                        .scaledFont(22, .semibold, design: .default)
                         .foregroundStyle(isSelected ? Theme.green : Theme.ink)
                         .frame(width: 44, height: 44)
                         .background(
@@ -38,7 +38,7 @@ struct ChoiceRow: View {
 
                 if isSelected {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 13, weight: .heavy))
+                        .scaledFont(13, .heavy, design: .default)
                         .foregroundStyle(.white)
                         .frame(width: 26, height: 26)
                         .background(Circle().fill(Theme.green))

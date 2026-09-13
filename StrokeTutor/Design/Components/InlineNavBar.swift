@@ -16,7 +16,7 @@ struct InlineNavBar<Trailing: View>: View {
     var body: some View {
         ZStack {
             Text(title)
-                .font(.system(size: 17, weight: .heavy, design: .rounded))
+                .scaledFont(17, .heavy, relativeTo: .headline)
                 .tracking(-0.2)
                 .foregroundStyle(Theme.ink)
                 .lineLimit(1)
@@ -28,7 +28,7 @@ struct InlineNavBar<Trailing: View>: View {
                 if let onBack {
                     Button(action: onBack) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 19, weight: .bold))
+                            .scaledFont(19, .bold, design: .default)
                             .foregroundStyle(Theme.ink)
                             .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
                             .contentShape(Rectangle())

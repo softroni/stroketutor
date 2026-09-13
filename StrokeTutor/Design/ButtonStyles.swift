@@ -21,7 +21,7 @@ struct TactileButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         let shape = RoundedRectangle(cornerRadius: Theme.controlCornerRadius, style: .continuous)
         return configuration.label
-            .font(.system(size: fontSize, weight: .heavy, design: .rounded))
+            .scaledFont(fontSize, .heavy)
             .tracking(-0.2)
             .lineLimit(2)
             .minimumScaleFactor(0.7)
@@ -130,7 +130,7 @@ struct QuietTextButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 17, weight: .bold, design: .rounded))
+            .textRole(.headline)
             .foregroundStyle(tint)
             .frame(minHeight: 48)
             .padding(.horizontal, 4)
@@ -156,7 +156,7 @@ struct RoundIconButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         let side: CGFloat = size == .regular ? Theme.minimumTapTarget : 48
         return configuration.label
-            .font(.system(size: size == .regular ? 26 : 22, weight: .bold))
+            .scaledFont(size == .regular ? 26 : 22, .bold, design: .default)
             .foregroundStyle(tint)
             .frame(width: side, height: side)
             .background(Circle().fill(Theme.card))

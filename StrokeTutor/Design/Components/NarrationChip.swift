@@ -40,15 +40,15 @@ struct NarrationChip: View {
                     wave
                 case .idle:
                     Image(systemName: "speaker.wave.2.fill")
-                        .font(.system(size: 15, weight: .bold))
+                        .scaledFont(15, .bold, design: .default)
                 case .muted:
                     Image(systemName: "speaker.slash.fill")
-                        .font(.system(size: 15, weight: .bold))
+                        .scaledFont(15, .bold, design: .default)
                 }
 
                 if let label {
                     Text(label)
-                        .font(.system(size: 14, weight: .heavy, design: .rounded))
+                        .scaledFont(14, .heavy)
                 }
             }
             .foregroundStyle(state == .muted ? Theme.ink40 : Theme.clay)

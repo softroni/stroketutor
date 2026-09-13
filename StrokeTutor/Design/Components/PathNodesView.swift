@@ -49,11 +49,11 @@ struct PathNodesView: View {
 
         let label = VStack(alignment: isRight ? .trailing : .leading, spacing: 2) {
             Text(lesson.title)
-                .font(.system(size: 16, weight: .heavy, design: .rounded))
+                .scaledFont(16, .heavy)
                 .tracking(-0.2)
                 .foregroundStyle(state == .locked ? Theme.ink40 : Theme.ink)
             Text(subtitle(for: lesson, at: index, state: state))
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .textRole(.footnote)
                 .foregroundStyle(state == .current ? Theme.green : Theme.ink55)
         }
         .multilineTextAlignment(isRight ? .trailing : .leading)

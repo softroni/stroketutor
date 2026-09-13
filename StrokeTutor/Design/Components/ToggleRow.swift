@@ -14,7 +14,7 @@ struct ToggleRow: View {
         HStack(spacing: 14) {
             if let systemImage {
                 Image(systemName: systemImage)
-                    .font(.system(size: 19, weight: .semibold))
+                    .scaledFont(19, .semibold, design: .default)
                     .foregroundStyle(tint.foreground)
                     .frame(width: 40, height: 40)
                     .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(tint.background))

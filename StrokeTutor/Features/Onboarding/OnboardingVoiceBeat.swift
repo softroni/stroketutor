@@ -50,7 +50,7 @@ struct OnboardingVoiceBeat: View {
         VStack(alignment: .leading, spacing: Theme.stackSpacing) {
             HStack(spacing: Theme.stackSpacing) {
                 Image(systemName: narrationEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
-                    .font(.system(size: 26, weight: .semibold))
+                    .scaledFont(26, .semibold, design: .default)
                     .foregroundStyle(narrationEnabled ? Theme.clay : Theme.ink)
                     .frame(width: 56, height: 56)
                     .background(
@@ -94,7 +94,7 @@ struct OnboardingVoiceBeat: View {
                 .accessibilityHidden(true)
 
             Text(sampleLine)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .scaledFont(20, .bold)
                 .tracking(-0.3)
                 .lineSpacing(5)
                 .foregroundStyle(narrationEnabled ? Theme.ink : Theme.ink55)

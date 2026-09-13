@@ -18,7 +18,7 @@ struct ReferenceSheet: View {
                 Spacer(minLength: 8)
                 Button(action: onClose) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 17, weight: .bold))
+                        .scaledFont(17, .bold, design: .default)
                         .foregroundStyle(Theme.ink)
                         .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
                         .background(Circle().fill(Theme.surface))

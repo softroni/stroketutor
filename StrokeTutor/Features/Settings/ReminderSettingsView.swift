@@ -257,7 +257,7 @@ struct WeekdayPills: View {
             toggle(day)
         } label: {
             Text(PracticeReminder.initial(day))
-                .font(.system(size: 16, weight: .heavy, design: .rounded))
+                .scaledFont(16, .heavy)
                 .foregroundStyle(isOn ? .white : Theme.ink40)
                 .frame(maxWidth: .infinity)
                 .frame(height: 48)
@@ -291,7 +291,7 @@ struct NotificationPreviewBanner: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "pencil")
-                .font(.system(size: 19, weight: .semibold))
+                .scaledFont(19, .semibold, design: .default)
                 .foregroundStyle(.white)
                 .frame(width: 38, height: 38)
                 .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Theme.green))
@@ -303,16 +303,16 @@ struct NotificationPreviewBanner: View {
                         .foregroundStyle(Theme.ink55)
                     Spacer(minLength: 8)
                     Text(when)
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .textRole(.footnote)
                         .foregroundStyle(Theme.ink40)
                 }
                 Text(PracticeReminder.title)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .scaledFont(16, .bold)
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 2)
                 Text(message)
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .scaledFont(15, .medium)
                     .foregroundStyle(Theme.ink55)
                     .fixedSize(horizontal: false, vertical: true)
             }

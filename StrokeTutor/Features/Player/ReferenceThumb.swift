@@ -34,7 +34,7 @@ struct ReferenceThumb: View {
     /// `box-shadow: 0 0 0 3px #fff` draws it.
     private var badge: some View {
         Image(systemName: "arrow.up.left.and.arrow.down.right")
-            .font(.system(size: 12, weight: .bold))
+            .scaledFont(12, .bold, design: .default)
             .foregroundStyle(Color.white)
             .frame(width: 26, height: 26)
             .background(Circle().fill(Theme.ink))

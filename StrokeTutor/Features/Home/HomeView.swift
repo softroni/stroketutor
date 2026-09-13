@@ -95,7 +95,10 @@ struct HomeView: View {
         if let lesson = app.progress.nextLesson(in: path) {
             let drawn = app.progress.drawnCount(in: path)
             let position = path.position(of: lesson.id) ?? 1
-            HeroCard(eyebrow: "\(drawn > 0 ? "Continue" : "Start here") · \(path.title)",
+            // "Continue" once anything in the path is drawn or the next lesson is paused
+            // mid-way; "Start here" only on a path nothing has happened in yet.
+            let hasBegun = drawn > 0 || app.progress.resumeStep(for: lesson.id) != nil
+            HeroCard(eyebrow: "\(hasBegun ? "Continue" : "Start here") · \(path.title)",
                      title: lesson.title,
                      meta: "Lesson \(position) of \(path.lessonCount) · \(lesson.estimatedTimeText)",
                      drawing: lesson.tutorial,
@@ -192,7 +195,7 @@ private struct HomeLink: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .scaledFont(15, .bold)
                 .foregroundStyle(tint)
                 .frame(minHeight: Theme.navTapTarget)
                 .contentShape(Rectangle())

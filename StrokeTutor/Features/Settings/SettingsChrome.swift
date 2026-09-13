@@ -66,7 +66,7 @@ extension SettingsIconTile where Content == AnyView {
         self.init(tint: tint) {
             AnyView(
                 Image(systemName: symbol)
-                    .font(.system(size: 19, weight: .semibold))
+                    .scaledFont(19, .semibold, design: .default)
                     .foregroundStyle(tint.foreground)
             )
         }
@@ -139,7 +139,7 @@ extension View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text(title)
-                        .font(.system(size: 17, weight: .heavy, design: .rounded))
+                        .scaledFont(17, .heavy, relativeTo: .headline)
                         .tracking(-0.2)
                         .foregroundStyle(Theme.ink)
                         .accessibilityAddTraits(.isHeader)

@@ -65,7 +65,7 @@ struct LessonNode: View {
     private var badge: some View {
         if state == .done {
             Image(systemName: "checkmark")
-                .font(.system(size: 15, weight: .heavy))
+                .scaledFont(15, .heavy, design: .default)
                 .foregroundStyle(.white)
                 .frame(width: 28, height: 28)
                 .background(Circle().fill(Theme.goldDeep))
@@ -73,7 +73,7 @@ struct LessonNode: View {
                 .offset(x: 4, y: 2)
         } else if state == .locked {
             Image(systemName: "lock.fill")
-                .font(.system(size: 13, weight: .bold))
+                .scaledFont(13, .bold, design: .default)
                 .foregroundStyle(Theme.ink25)
                 .frame(width: 26, height: 26)
                 .background(Circle().fill(Theme.surface))

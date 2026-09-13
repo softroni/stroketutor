@@ -41,8 +41,8 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M4 | OpenRouter integration | §20–22, §35 Phase 4 | autonomous (live check needs a key) | ✅ Done 2026-09-11 | see git log |
 | M5 | AI generation quality | §23–24, §35 Phase 5 | **gated**: needs creator judgement | ✅ Done 2026-09-11 | see git log |
 | M6 | Houses vertical slice | §35 Phase 6, App. A | **gated**: needs reference photos + approval | ⬜ Not started | |
-| M7 | iOS product shell | §29–31 | **gated** on M6 | ⬜ Not started | |
-| M8 | Private sketchbook | §32 | gated | ⬜ Not started | |
+| M7 | iOS product shell | §29–31 | started ahead of M6 at the creator's request (2026-09-13) | 🟡 Built to the v3 design; awaits M6 content and creator review | see git log |
+| M8 | Private sketchbook | §32 | with M7 | 🟡 Built (photo capture, local pages, notes, delete); crop/straighten pending | see git log |
 | M9 | Content expansion | §33 Phase 9 | gated | ⬜ Not started | |
 | M10 | Monetization / distribution | §33 Phase 10 | gated | ⬜ Not started | |
 
@@ -50,7 +50,8 @@ Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see 
 
 ### Next up
 
-**M6 · Houses vertical slice. It needs the creator.** M5 is done; see below.
+**M6 · Houses vertical slice. It needs the creator.** M5 is done; see below. M7 and M8 were built ahead of it
+(2026-09-13) against the two published lessons, so M6's lessons will appear in the app as soon as they are approved.
 
 M6 needs licensed reference photos, each with its source and licence recorded, and the creator's approval of each lesson
 against the §36 checklist. The five lessons are:
@@ -718,14 +719,26 @@ the lesson's first generation only.
 About five lessons: Simple House → House With Chimney → Small Cottage → House From an Angle → Two-Story House.
 Needs licensed reference photos with source/licence metadata, plus creator approval against the §36 quality checklist.
 
-### M7 · iOS product shell (gated on M6)
+### M7 · iOS product shell (started 2026-09-13, ahead of M6 at the creator's request)
 Onboarding, Home/Paths, Path Detail, Lesson Preview, and the player with the reference photo visible. Reads `shared/Catalog`.
 Rewrite the current kid-oriented copy for an adult audience; accessibility (§31).
 Reference images may be SVG, which `UIImage` can't draw; decide how the app shows them.
 
+**Done 2026-09-13**, implementing `docs/ios-design/v3.html` (plan: `docs/ios-design/v3-ios-implementation.md`).
+The app reads `shared/Catalog` and bundles `shared/Assets/References`; SVG references render in a non-interactive
+`WKWebView`. Tutorial schema v2 (stroke colours, fills) plays on iOS. The Xcode project uses folder-synchronized
+groups. Departures from the plan, with reasons: the tutor "Lina" and per-step narration plumbing are in (design
+decision of 2026-09-12; no audio ships yet, so the narration chip stays hidden); paths with no approved lesson are
+hidden rather than shown empty; the player fits the paper to the drawing's bounds. Still open: crop/straighten in
+capture, a real contact address and privacy URL on About, landscape verified only structurally.
+
 ### M8 · Private sketchbook
 Photograph the finished page and store it locally, linked to the lesson, path and date. No feed, no accounts.
 Read Apple's current camera and photo-library permission guidance before building, and cite it in code.
+
+**Built with M7 (2026-09-13):** capture primer, camera or Photos, review, saved; pages as JPEG + JSON index in
+Application Support; sketchbook tab by month; entry with note, share and delete; opt-in "Also save to Photos".
+Usage strings cite App Store Review Guideline 5.1.1(ii). Crop and straighten is a disabled stub.
 
 ### M9 · Content expansion
 Add paths only once the Studio workflow is repeatable.

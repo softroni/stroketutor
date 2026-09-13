@@ -77,7 +77,7 @@ struct OnboardingIntroBeat: View {
 
     private var arrow: some View {
         Image(systemName: "chevron.right")
-            .font(.system(size: 20, weight: .heavy))
+            .scaledFont(20, .heavy, design: .default)
             .foregroundStyle(.white)
             .frame(width: 44, height: 44)
             .background(Circle().fill(Theme.green))

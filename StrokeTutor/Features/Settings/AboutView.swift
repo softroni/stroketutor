@@ -60,7 +60,7 @@ struct AboutView: View {
                     DrawingThumbnail(tutorial: tutorial, size: 88)
                 } else {
                     Image(systemName: "pencil")
-                        .font(.system(size: 34, weight: .semibold))
+                        .scaledFont(34, .semibold, design: .default)
                         .foregroundStyle(Theme.ink40)
                         .frame(width: 88, height: 88)
                 }

@@ -10,11 +10,10 @@ struct StatTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(value)
-                .font(.system(size: 24, weight: .heavy, design: .rounded))
-                .tracking(-0.5)
+                .textRole(.title2)
                 .foregroundStyle(Theme.ink)
             Text(label)
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .textRole(.footnote)
                 .foregroundStyle(Theme.ink55)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

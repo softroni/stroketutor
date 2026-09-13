@@ -234,9 +234,9 @@ struct LessonPreviewView: View {
     private func needRow(isResuming: Bool) -> some View {
         HStack(spacing: 10) {
             Image(systemName: "pencil")
-                .font(.system(size: 19, weight: .semibold))
+                .scaledFont(19, .semibold, design: .default)
             Image(systemName: "doc")
-                .font(.system(size: 19, weight: .semibold))
+                .scaledFont(19, .semibold, design: .default)
             Text(isResuming
                  ? "Same pen, same sheet of paper."
                  : "You need a pen and a sheet of paper.")
@@ -312,7 +312,7 @@ private struct ComplexityChip: View {
                 }
             }
             Text("Complexity \(complexity) of 5")
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .scaledFont(14, .bold)
         }
         .foregroundStyle(Theme.ink70)
         .padding(.vertical, 7)

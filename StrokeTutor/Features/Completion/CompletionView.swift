@@ -165,7 +165,7 @@ struct CompletionView: View {
         .overlay(alignment: .topTrailing) {
             if isNewest {
                 Image(systemName: "checkmark")
-                    .font(.system(size: 11, weight: .heavy))
+                    .scaledFont(11, .heavy, design: .default)
                     .foregroundStyle(.white)
                     .frame(width: 22, height: 22)
                     .background(Circle().fill(Theme.gold))
@@ -322,7 +322,7 @@ struct CompletionView: View {
     ]
 
     private static let pathDoneLines = [
-        "You know how these are put together now. Try one from your own street.",
+        "You know how these are put together now. Try one from life, wherever you find it.",
         "The method carries over. The next path will feel familiar from the first step.",
         "Every one of them finished. None of that was luck.",
         "You have the shape of the subject now. The rest is time with a pen."

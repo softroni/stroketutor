@@ -41,7 +41,7 @@ struct OnboardingRail: View {
                 onBack?()
             } label: {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 20, weight: .bold))
+                    .scaledFont(20, .bold, design: .default)
                     .foregroundStyle(Theme.ink)
                     .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
                     .contentShape(Rectangle())
@@ -61,7 +61,7 @@ struct OnboardingRail: View {
                     onSkip()
                 } label: {
                     Text("Skip")
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .scaledFont(15, .bold)
                         .foregroundStyle(Theme.ink55)
                         .padding(.horizontal, 8)
                         .frame(minHeight: Theme.navTapTarget)

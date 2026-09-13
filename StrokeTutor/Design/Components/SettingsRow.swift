@@ -55,7 +55,7 @@ struct SettingsRow: View {
         HStack(spacing: 14) {
             if let systemImage {
                 Image(systemName: systemImage)
-                    .font(.system(size: 19, weight: .semibold))
+                    .scaledFont(19, .semibold, design: .default)
                     .foregroundStyle(tint.foreground)
                     .frame(width: 40, height: 40)
                     .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(tint.background))
@@ -76,13 +76,13 @@ struct SettingsRow: View {
 
             if let value {
                 Text(value)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .scaledFont(16, .semibold)
                     .foregroundStyle(Theme.ink55)
             }
 
             if showsChevron {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .bold))
+                    .scaledFont(14, .bold, design: .default)
                     .foregroundStyle(Theme.ink25)
             }
         }

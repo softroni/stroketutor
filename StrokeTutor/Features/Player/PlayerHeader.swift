@@ -18,7 +18,7 @@ struct PlayerHeader<Menu: View>: View {
         HStack(spacing: 0) {
             Button(action: onClose) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 19, weight: .bold))
+                    .scaledFont(19, .bold, design: .default)
                     .foregroundStyle(Theme.ink)
                     .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
                     .contentShape(Rectangle())
@@ -43,7 +43,7 @@ struct PlayerHeader<Menu: View>: View {
                 menu()
             } label: {
                 Image(systemName: "ellipsis")
-                    .font(.system(size: 19, weight: .bold))
+                    .scaledFont(19, .bold, design: .default)
                     .foregroundStyle(Theme.ink)
                     .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
                     .contentShape(Rectangle())

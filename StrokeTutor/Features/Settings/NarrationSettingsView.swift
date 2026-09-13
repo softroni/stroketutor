@@ -115,7 +115,7 @@ struct NarrationSettingsView: View {
                         playSample()
                     } label: {
                         Image(systemName: "play.fill")
-                            .font(.system(size: 22, weight: .bold))
+                            .scaledFont(22, .bold, design: .default)
                     }
                     .buttonStyle(SamplePlayButtonStyle(isEnabled: isOn))
                     .disabled(!isOn)
@@ -126,8 +126,7 @@ struct NarrationSettingsView: View {
                 // rather than allowed to push the card off the screen. The card is
                 // a sample of the voice, not the lesson.
                 Text("“\(sample.line)”")
-                    .font(.system(size: 20, weight: .heavy, design: .rounded))
-                    .tracking(-0.3)
+                    .textRole(.title3)
                     .lineSpacing(2)
                     .lineLimit(3)
                     .truncationMode(.tail)

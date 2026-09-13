@@ -79,7 +79,7 @@ struct CaptureFlow: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.stackSpacing) {
                     Image(systemName: "camera")
-                        .font(.system(size: 28, weight: .semibold))
+                        .scaledFont(28, .semibold, design: .default)
                         .foregroundStyle(Theme.ink)
                         .frame(width: 56, height: 56)
                         .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Theme.surface))
@@ -143,7 +143,7 @@ struct CaptureFlow: View {
     private func promise(_ text: String) -> some View {
         HStack(spacing: 14) {
             Image(systemName: "checkmark")
-                .font(.system(size: 17, weight: .bold))
+                .scaledFont(17, .bold, design: .default)
                 .foregroundStyle(Theme.green)
                 .frame(width: 40, height: 40)
                 .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Theme.greenSoft))
@@ -196,7 +196,7 @@ struct CaptureFlow: View {
 
                     Button {} label: {
                         Label("Crop & straighten", systemImage: "crop")
-                            .font(.system(size: 17, weight: .heavy, design: .rounded))
+                            .scaledFont(17, .heavy)
                     }
                     .buttonStyle(.soft)
                     .disabled(true)
@@ -209,7 +209,7 @@ struct CaptureFlow: View {
                     // The mockup's footnote, made honest: the edit is not built, and
                     // the promise about filters holds either way.
                     Text("Crop and straighten are not ready yet. There are no filters and no touch-ups.")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .textRole(.subhead)
                         .foregroundStyle(Theme.ink55)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
@@ -415,7 +415,7 @@ struct CaptureFlow: View {
         ZStack {
             if let title {
                 Text(title)
-                    .font(.system(size: 17, weight: .heavy, design: .rounded))
+                    .scaledFont(17, .heavy, relativeTo: .headline)
                     .tracking(-0.2)
                     .foregroundStyle(Theme.ink)
                     .lineLimit(1)
@@ -425,7 +425,7 @@ struct CaptureFlow: View {
             HStack {
                 Button(action: action) {
                     Image(systemName: leading.symbol)
-                        .font(.system(size: 20, weight: .bold))
+                        .scaledFont(20, .bold, design: .default)
                         .foregroundStyle(Theme.ink)
                         .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
                         .contentShape(Rectangle())

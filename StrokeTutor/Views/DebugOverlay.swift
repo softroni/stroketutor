@@ -8,6 +8,7 @@ struct DebugOverlay: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("DEBUG — all steps, no animation")
+                // Deliberately fixed: a developer readout, never shown to a learner.
                 .font(.system(size: 13, weight: .heavy, design: .monospaced))
 
             Text("file: \(tutorial.fileName)  (\(tutorial.source.label))")
@@ -27,6 +28,8 @@ struct DebugOverlay: View {
                 }
             }
         }
+        // Deliberately fixed: the numbers below line up in a monospaced column, and
+        // the overlay is a developer tool that never reaches a learner's text size.
         .font(.system(size: 12, weight: .medium, design: .monospaced))
         .foregroundStyle(Theme.ink)
         .padding(12)

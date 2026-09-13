@@ -75,15 +75,27 @@ struct PlayerInstructionText: View {
         self.size = size
     }
 
+    /// The mockup's 24/heavy assumes a sentence of a line or two. Studio-written
+    /// lessons can run to a paragraph; at 24/heavy that swallows the paper. So the
+    /// size follows the length: the designed size for a short sentence, a bolder
+    /// headline for a medium one, and readable left-aligned body text for a paragraph.
+    private var fitted: (size: CGFloat, weight: Font.Weight, tracking: CGFloat, spacing: CGFloat, alignment: TextAlignment) {
+        let count = text.count
+        if count <= 80 { return (size, .heavy, size >= 24 ? -0.4 : -0.3, size >= 24 ? 4 : 3, alignment) }
+        if count <= 160 { return (min(size, 20), .bold, -0.2, 3, alignment) }
+        return (min(size, 17), .semibold, 0, 3, .leading)
+    }
+
     var body: some View {
+        let style = fitted
         Text(text)
-            .font(.system(size: size, weight: .heavy, design: .rounded))
-            .tracking(size >= 24 ? -0.4 : -0.3)
+            .scaledFont(style.size, style.weight, relativeTo: .title2)
+            .tracking(style.tracking)
             .foregroundStyle(Theme.ink)
-            .multilineTextAlignment(alignment)
-            .lineSpacing(size >= 24 ? 4 : 3)
+            .multilineTextAlignment(style.alignment)
+            .lineSpacing(style.spacing)
             .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, alignment: alignment == .center ? .center : .leading)
+            .frame(maxWidth: .infinity, alignment: style.alignment == .center ? .center : .leading)
     }
 }
 
@@ -182,7 +194,7 @@ private struct PrimaryLabelSize: ViewModifier {
 
     func body(content: Content) -> some View {
         if let size {
-            content.font(.system(size: size, weight: .heavy, design: .rounded))
+            content.scaledFont(size, .heavy)
         } else {
             content
         }

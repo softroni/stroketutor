@@ -201,7 +201,8 @@ enum Theme {
     }
 
     /// A rounded system font at an explicit size. Kept from the first player so the
-    /// views written before v3 still compile; new code should use `font(_:)`.
+    /// views written before v3 still compile; new code should use `font(_:)`, or
+    /// `.scaledFont(_:_:relativeTo:design:)` for a size the type scale does not name.
     static func rounded(_ size: CGFloat, _ weight: Font.Weight = .bold) -> Font {
         .system(size: size, weight: weight, design: .rounded)
     }
@@ -218,6 +219,22 @@ extension View {
     /// `Text("Learn").textRole(.largeTitle)` is the whole idiom.
     func textRole(_ role: Theme.TextRole) -> some View {
         modifier(ScaledTextRole(role: role))
+    }
+
+    /// A font at a size the v3 type scale does not name — the 11.5 pt tab label, the
+    /// 16 pt node label, the 19 pt landscape button — scaled with Dynamic Type exactly
+    /// as `.textRole(_:)` is, and capped at the same `Theme.maximumTypeScale`. Use a
+    /// role when the size and weight match one; use this everywhere else, so that no
+    /// text in the app stays at one size while the learner's setting moves.
+    ///
+    /// `design` is `.rounded` because the app's text is; SF Symbols and the few
+    /// non-rounded labels pass `.default`, and a monospaced readout `.monospaced`.
+    /// Tracking is left to the call site, which had it before.
+    func scaledFont(_ size: CGFloat,
+                    _ weight: Font.Weight = .regular,
+                    relativeTo textStyle: Font.TextStyle = .body,
+                    design: Font.Design = .rounded) -> some View {
+        modifier(ScaledFont(size: size, weight: weight, design: design, textStyle: textStyle))
     }
 
     /// The float shadow (`--shadow-float`), for the few things that sit above the paper.
@@ -269,5 +286,29 @@ struct ScaledTextRole: ViewModifier {
         content
             .font(Theme.font(role, scale: scale))
             .tracking(Theme.tracking(role) * scale)
+    }
+}
+
+/// Applies an explicit size and weight scaled with the learner's Dynamic Type setting.
+/// The twin of `ScaledTextRole` for the sizes the type scale does not name: the same
+/// `@ScaledMetric` factor (1 at the default size) under the same `Theme.maximumTypeScale`
+/// cap, so an unnamed size grows in step with the roles around it.
+struct ScaledFont: ViewModifier {
+    let size: CGFloat
+    let weight: Font.Weight
+    let design: Font.Design
+    @ScaledMetric private var factor: CGFloat
+
+    init(size: CGFloat, weight: Font.Weight, design: Font.Design, textStyle: Font.TextStyle) {
+        self.size = size
+        self.weight = weight
+        self.design = design
+        _factor = ScaledMetric(wrappedValue: 1, relativeTo: textStyle)
+    }
+
+    private var scale: CGFloat { min(max(factor, 1), Theme.maximumTypeScale) }
+
+    func body(content: Content) -> some View {
+        content.font(.system(size: size * scale, weight: weight, design: design))
     }
 }

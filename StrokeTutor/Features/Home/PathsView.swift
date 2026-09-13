@@ -122,7 +122,7 @@ private struct PathCard: View {
                 thumbnail
                 details
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 17, weight: .bold))
+                    .scaledFont(17, .bold, design: .default)
                     .foregroundStyle(Theme.ink25)
             }
         }

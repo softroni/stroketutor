@@ -110,10 +110,12 @@ struct PlayerScreen: View {
         }
     }
 
-    /// Header 56 + the paper's 300 pt floor + the action row 78 + the sheet's own
-    /// padding. What is left is the sentence's ceiling.
+    /// Header 56 + the paper's 380 pt floor + the action row 78 + the sheet's own
+    /// padding. What is left is the sentence's ceiling: on an iPhone 17 about 210 pt,
+    /// nine lines of body text, past which the words scroll and the paper keeps
+    /// roughly half the screen.
     private var portraitTextCap: CGFloat {
-        max(84, availableHeight - 56 - 300 - 78 - 56)
+        max(84, availableHeight - 56 - 380 - 78 - 56)
     }
 
     /// The 96 pt band at the top of the paper: narration on one side, the reference

@@ -18,22 +18,22 @@ struct TutorialProblemsView: View {
                 ForEach(failures) { failure in
                     VStack(alignment: .leading, spacing: 8) {
                         Text(failure.fileName)
-                            .font(.system(size: 17, weight: .bold, design: .monospaced))
+                            .scaledFont(17, .bold, design: .monospaced)
                             .foregroundStyle(Theme.ink)
 
                         Text(failure.error.errorDescription ?? "Unknown error.")
-                            .font(.system(size: 15, weight: .regular))
+                            .scaledFont(15, .regular, design: .default)
                             .foregroundStyle(Theme.ink70)
                             .textSelection(.enabled)
                             .fixedSize(horizontal: false, vertical: true)
 
                         if let pathData = failure.error.offendingPathData {
                             Text("Offending path data:")
-                                .font(.system(size: 13, weight: .semibold))
+                                .scaledFont(13, .semibold, design: .default)
                                 .foregroundStyle(Theme.ink55)
                             ScrollView(.horizontal, showsIndicators: true) {
                                 Text(pathData)
-                                    .font(.system(size: 13, design: .monospaced))
+                                    .scaledFont(13, .regular, design: .monospaced)
                                     .foregroundStyle(Theme.danger)
                                     .textSelection(.enabled)
                                     .padding(10)
@@ -70,10 +70,10 @@ struct TutorialProblemsView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(isFullScreen ? "No tutorials could be loaded" : "Some files could not be loaded")
-                .font(Theme.rounded(26, .heavy))
+                .scaledFont(26, .heavy)
                 .foregroundStyle(Theme.ink)
             Text("\(failures.count) file\(failures.count == 1 ? "" : "s") failed. Fix the JSON and try again.")
-                .font(Theme.rounded(16, .medium))
+                .scaledFont(16, .medium)
                 .foregroundStyle(Theme.ink55)
         }
     }

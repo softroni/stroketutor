@@ -34,13 +34,13 @@ struct TabBar: View {
         let isActive = tab == selection
         return VStack(spacing: 2) {
             Image(systemName: tab.symbol)
-                .font(.system(size: 22, weight: .semibold))
+                .scaledFont(22, .semibold, design: .default)
                 .frame(width: 56, height: 30)
                 .background(
                     Capsule().fill(isActive ? Theme.greenSoft : .clear)
                 )
             Text(tab.title)
-                .font(.system(size: 11.5, weight: .heavy, design: .rounded))
+                .scaledFont(11.5, .heavy)
                 .tracking(0.2)
         }
         .foregroundStyle(isActive ? Theme.green : Theme.ink40)

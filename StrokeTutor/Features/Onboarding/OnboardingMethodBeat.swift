@@ -108,7 +108,7 @@ private struct HandDrawnSquare: View {
         ])
         .overlay(alignment: .bottomTrailing) {
             Image(systemName: "pencil")
-                .font(.system(size: 13, weight: .bold))
+                .scaledFont(13, .bold, design: .default)
                 .foregroundStyle(.white)
                 .frame(width: 28, height: 28)
                 .background(Circle().fill(Theme.ink))
@@ -139,9 +139,9 @@ private struct MiniDrewItButton: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: "checkmark")
-                .font(.system(size: 11, weight: .heavy))
+                .scaledFont(11, .heavy, design: .default)
             Text("I drew it")
-                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                .scaledFont(13, .heavy)
                 .fixedSize()
         }
         .foregroundStyle(.white)

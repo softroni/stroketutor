@@ -15,7 +15,7 @@ struct SegmentedPicker<Value: Hashable>: View {
                     selection = option
                 } label: {
                     Text(title(option))
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .scaledFont(15, .bold)
                         .foregroundStyle(isOn ? Theme.ink : Theme.ink55)
                         .frame(maxWidth: .infinity)
                         .frame(minHeight: 40)

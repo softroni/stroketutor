@@ -44,7 +44,7 @@ struct SettingsView: View {
                         } trailing: {
                             HStack(spacing: 14) {
                                 Text("English")
-                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                    .scaledFont(16, .semibold)
                                     .foregroundStyle(Theme.ink55)
                                 chevron
                             }
@@ -163,7 +163,7 @@ struct SettingsView: View {
     /// `.chevron`: 20 pt at 25 % ink, only on a row that pushes.
     private var chevron: some View {
         Image(systemName: "chevron.right")
-            .font(.system(size: 14, weight: .bold))
+            .scaledFont(14, .bold, design: .default)
             .foregroundStyle(Theme.ink25)
     }
 

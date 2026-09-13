@@ -32,7 +32,7 @@ struct OnboardingLaunchBeat: View {
                     .frame(width: 292, height: 292)
 
                 Text("StrokeTutor")
-                    .font(.system(size: 40, weight: .heavy, design: .rounded))
+                    .scaledFont(40, .heavy, relativeTo: .largeTitle)
                     .tracking(-1)
                     .foregroundStyle(Theme.ink)
 

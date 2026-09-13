@@ -39,10 +39,10 @@ struct Chip: View {
         HStack(spacing: 6) {
             if let systemImage {
                 Image(systemName: systemImage)
-                    .font(.system(size: 14, weight: .bold))
+                    .scaledFont(14, .bold, design: .default)
             }
             Text(text)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .scaledFont(14, .bold)
         }
         .foregroundStyle(style.foreground)
         .padding(.vertical, 7)

@@ -107,14 +107,14 @@ struct SketchbookView: View {
                 SketchbookShot(image: app.sketchbook.image(for: page), tutorial: lesson?.tutorial)
 
                 Text(lesson?.title ?? "Lesson removed")
-                    .font(.system(size: 16, weight: .heavy, design: .rounded))
+                    .scaledFont(16, .heavy)
                     .tracking(-0.2)
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 2)
 
                 Text(subtitle(for: page))
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .textRole(.footnote)
                     .foregroundStyle(Theme.ink55)
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 2)
@@ -179,7 +179,7 @@ struct SketchbookView: View {
                     .frame(width: 150)
                     .overlay(alignment: .bottom) {
                         Image(systemName: "camera")
-                            .font(.system(size: 17, weight: .semibold))
+                            .scaledFont(17, .semibold, design: .default)
                             .foregroundStyle(Theme.ink55)
                             .frame(width: 40, height: 40)
                             .background(Circle().fill(Theme.surface))

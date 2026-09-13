@@ -156,7 +156,7 @@ struct SketchbookEntryView: View {
     private var noteField: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "pencil")
-                .font(.system(size: 18, weight: .semibold))
+                .scaledFont(18, .semibold, design: .default)
                 .foregroundStyle(Theme.ink40)
                 .frame(width: 22, height: 22)
                 .padding(.top, 2)
@@ -167,7 +167,7 @@ struct SketchbookEntryView: View {
             ZStack(alignment: .topLeading) {
                 if note.isEmpty {
                     Text("Add a note. What you noticed, what to try next time.")
-                        .font(.system(size: 17, weight: .medium, design: .rounded))
+                        .textRole(.body)
                         .foregroundStyle(Theme.ink40)
                         .fixedSize(horizontal: false, vertical: true)
                         .allowsHitTesting(false)
@@ -176,7 +176,7 @@ struct SketchbookEntryView: View {
 
                 TextField("", text: $note, axis: .vertical)
                     .textFieldStyle(.plain)
-                    .font(.system(size: 17, weight: .medium, design: .rounded))
+                    .textRole(.body)
                     .foregroundStyle(Theme.ink)
                     .tint(Theme.green)
                     .focused($isEditingNote)
@@ -199,7 +199,7 @@ struct SketchbookEntryView: View {
                 if let shareURL {
                     ShareLink(item: shareURL, preview: SharePreview(shareTitle(page))) {
                         Label("Share", systemImage: "square.and.arrow.up")
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                            .textRole(.headline)
                             .foregroundStyle(Theme.ink70)
                             .frame(maxWidth: .infinity, minHeight: 48)
                     }
