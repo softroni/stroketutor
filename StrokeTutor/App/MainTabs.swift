@@ -7,6 +7,11 @@ import SwiftUI
 struct MainTabs: View {
     @Environment(AppModel.self) private var app
 
+    /// Per tab, whether the screen on top of that tab's stack asked for the tab bar
+    /// to step aside (`.hidesTabBar()`). Only the showing tab's answer is used, so a
+    /// hidden bar in one stack cannot follow the learner into another.
+    @State private var tabBarHidden: [MainTab: Bool] = [:]
+
     var body: some View {
         @Bindable var app = app
 
@@ -18,7 +23,9 @@ struct MainTabs: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            TabBar(selection: $app.selectedTab)
+            if tabBarHidden[app.selectedTab] != true {
+                TabBar(selection: $app.selectedTab)
+            }
         }
         .background(Theme.page)
     }
@@ -33,6 +40,9 @@ struct MainTabs: View {
                 .navigationDestination(for: AppRoute.self) { route in
                     AppDestination(route: route)
                 }
+        }
+        .onPreferenceChange(TabBarHiddenKey.self) { hidden in
+            Task { @MainActor in tabBarHidden[tab] = hidden }
         }
         .opacity(isActive ? 1 : 0)
         .allowsHitTesting(isActive)

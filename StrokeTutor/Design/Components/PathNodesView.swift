@@ -8,8 +8,17 @@ import SwiftUI
 /// detail can never disagree: a lesson is unlocked when every earlier lesson in the
 /// same list has been completed.
 struct PathNodesView: View {
+
+    /// How a finished lesson's date is written. Home has little room and says
+    /// "Drawn 3 Sep"; the path detail has the width and says "Drawn 3 September".
+    enum DateStyle {
+        case short
+        case long
+    }
+
     let lessons: [Lesson]
     let progress: ProgressStore
+    var dateStyle: DateStyle = .short
     let onTap: (Lesson) -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -61,7 +70,7 @@ struct PathNodesView: View {
         }
         .offset(x: isRight ? offset : -offset)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(lesson.title). \(subtitle(for: lesson, at: index, state: state))")
+        .accessibilityLabel(accessibilityLabel(for: lesson, at: index, state: state))
         .accessibilityAddTraits(.isButton)
     }
 
@@ -74,12 +83,28 @@ struct PathNodesView: View {
         return earlierAllDone ? .current : .locked
     }
 
+    /// The node's own label, spoken with the lesson's place in the path and, when it
+    /// is locked, the reason — so no one has to raise the sheet to learn it.
+    private func accessibilityLabel(for lesson: Lesson,
+                                    at index: Int,
+                                    state: LessonNode.State) -> String {
+        let place = "lesson \(index + 1) of \(lessons.count)"
+        let detail = subtitle(for: lesson, at: index, state: state)
+        switch state {
+        case .done, .current:
+            return "\(lesson.title), \(place). \(detail)."
+        case .locked:
+            return "\(lesson.title), \(place), locked. \(detail)."
+        }
+    }
+
     /// "Drawn 3 Sep" · "Next · 7 steps" · "After Small Cottage" · "Lesson 5".
     private func subtitle(for lesson: Lesson, at index: Int, state: LessonNode.State) -> String {
         switch state {
         case .done:
             if let date = progress.progress(for: lesson.id)?.completedAt {
-                return "Drawn \(Self.dayFormatter.string(from: date))"
+                let formatter = dateStyle == .short ? Self.dayFormatter : Self.longDayFormatter
+                return "Drawn \(formatter.string(from: date))"
             }
             return "Drawn"
         case .current:
@@ -98,6 +123,12 @@ struct PathNodesView: View {
     private static let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate("d MMM")
+        return formatter
+    }()
+
+    private static let longDayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("d MMMM")
         return formatter
     }()
 }

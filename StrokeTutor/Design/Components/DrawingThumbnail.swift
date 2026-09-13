@@ -17,15 +17,20 @@ struct DrawingThumbnail: View {
     var strokeColor: Color?
     /// Version 2 lessons carry colour; a thumbnail shows it only when asked.
     var showsFills: Bool = false
+    /// Steps from this index on are drawn at 22 %, which is how `hp-preview`'s
+    /// resume tile shows how far the learner got. Nil draws the whole lesson.
+    var fadedFromStep: Int?
 
     init(tutorial: PreparedTutorial?,
          size: CGFloat? = nil,
          strokeColor: Color? = Theme.ink,
-         showsFills: Bool = false) {
+         showsFills: Bool = false,
+         fadedFromStep: Int? = nil) {
         self.tutorial = tutorial
         self.size = size
         self.strokeColor = strokeColor
         self.showsFills = showsFills
+        self.fadedFromStep = fadedFromStep
     }
 
     var body: some View {
@@ -44,21 +49,31 @@ struct DrawingThumbnail: View {
             // detailed lesson legible without flattening its relative weights.
             let floor = max(0.6, min(rect.width, rect.height) / 70)
 
+            // `.stroke.faded` in the mockup: what has not been drawn yet is still
+            // on the page, at 22 %, so the tile shows the whole lesson and the
+            // learner's place in it at the same time.
+            func opacity(ofStep index: Int) -> Double {
+                guard let fadedFromStep, index >= fadedFromStep else { return 1 }
+                return 0.22
+            }
+
             if showsFills {
-                for step in tutorial.steps {
+                for (index, step) in tutorial.steps.enumerated() {
                     for fill in step.fills {
                         context.fill(fill.path.applying(transform),
-                                     with: .color(fill.color),
+                                     with: .color(fill.color.opacity(opacity(ofStep: index))),
                                      style: fill.style)
                     }
                 }
             }
 
-            for step in tutorial.steps {
+            for (index, step) in tutorial.steps.enumerated() {
+                let alpha = opacity(ofStep: index)
                 for stroke in step.strokes {
                     let width = max(floor, CGFloat(stroke.lineWidth) * scale)
+                    let color = strokeColor ?? stroke.color ?? tutorial.strokeColor
                     context.stroke(stroke.path.applying(transform),
-                                   with: .color(strokeColor ?? stroke.color ?? tutorial.strokeColor),
+                                   with: .color(color.opacity(alpha)),
                                    style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round))
                 }
             }
