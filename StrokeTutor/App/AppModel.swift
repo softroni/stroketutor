@@ -39,6 +39,10 @@ final class AppModel {
     var settingsPath = NavigationPath()
     /// The full-screen flow on top of the tabs, if any.
     var cover: AppCover?
+    /// A locked lesson tapped on Home. `hp-home` sends a grey node to `hp-path`
+    /// with the locked sheet already up; the path detail reads this on appear and
+    /// clears it, so the sheet is raised once and never again on a later visit.
+    var pendingLockedLessonId: String?
 
     private let bundle: Bundle
 
