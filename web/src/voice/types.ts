@@ -197,3 +197,29 @@ export interface VoiceReferenceRecord {
   takeId: string
   durationMs: number
 }
+
+/**
+ * A line Lina says in the app itself, outside any lesson: the onboarding sample,
+ * the completion lines. The ids are fixed, because the iOS app asks for them by
+ * name (`NarrationPlayer.playAppLine`); the words are the creator's to edit.
+ */
+export interface AppLine {
+  id: string
+  /** Where in the app it is heard, for the creator: "Onboarding, meet the voice", "Lesson complete, 1 of 4"… */
+  where: string
+  text: string
+}
+
+/** The ids the app asks for. `hello` plays on the onboarding voice beat and in Settings; the others at completion. */
+export const APP_LINE_IDS = ['hello', 'lesson-1', 'lesson-2', 'lesson-3', 'lesson-4', 'path-1', 'path-2', 'path-3', 'path-4'] as const
+export type AppLineId = (typeof APP_LINE_IDS)[number]
+
+/** `shared/Assets/Voice/app/manifest.json`, beside one `<id>.m4a` per line. Same shape as a lesson's manifest, keyed by line id. */
+export interface AppVoiceManifest {
+  manifestVersion: 1
+  voiceId: string
+  voiceName: string
+  model: string
+  generatedAt: string
+  lines: Record<string, { file: string; text: string; textHash: string; durationMs: number }>
+}
