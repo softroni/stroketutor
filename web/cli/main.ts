@@ -16,6 +16,7 @@ import { generateCommands } from './commands/generate'
 import { planCommands } from './commands/plan'
 import { previewCommands } from './commands/preview'
 import { trashCommands } from './commands/trash'
+import { voiceCommands } from './commands/voice'
 import { createContext, type RunOptions } from './context'
 import { CliError, Reporter, terminalIO } from './output'
 
@@ -39,6 +40,7 @@ export const COMMANDS: Command[] = [
   ...generateCommands,
   ...planCommands,
   ...previewCommands,
+  ...voiceCommands,
 ]
 
 export async function run(argv: string[], options: RunOptions): Promise<number> {

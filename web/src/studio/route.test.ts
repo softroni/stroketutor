@@ -18,6 +18,7 @@ describe('parseRoute', () => {
     expect(parseRoute('#/import')).toEqual({ name: 'import' })
     expect(parseRoute('#/settings')).toEqual({ name: 'settings' })
     expect(parseRoute('#/publish')).toEqual({ name: 'publish' })
+    expect(parseRoute('#/voice')).toEqual({ name: 'voice' })
     expect(parseRoute('#/unfiled')).toEqual({ name: 'unfiled' })
     expect(parseRoute('#/trash')).toEqual({ name: 'trash' })
     expect(parseRoute('#/new')).toEqual({ name: 'new', pathId: null })
@@ -37,6 +38,7 @@ describe('parseRoute', () => {
       { name: 'new', pathId: 'houses' },
       { name: 'unfiled' },
       { name: 'publish' },
+      { name: 'voice' },
       { name: 'trash' },
       { name: 'settings' },
       { name: 'import' },

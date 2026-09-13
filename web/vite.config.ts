@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
 
-import { studioApi } from './server/studioApi'
+import { DEFAULT_TTS_MCP_URL, DEFAULT_TTS_URL, studioApi } from './server/studioApi'
 
 // The schema, the golden tutorials and the conformance corpus live one level up
 // in shared/, because the iOS app reads the same files. Nothing in shared/ is a
@@ -32,6 +32,9 @@ export default defineConfig(({ mode }) => {
         backupDir: `${studioDir}/backups`,
         openRouterKey: env.OPENROUTER_API_KEY || undefined,
         defaultModel: env.OPENROUTER_MODEL || undefined,
+        // Lina's voice is made on the creator's own Mac, on their tailnet.
+        ttsUrl: env.STUDIO_TTS_URL || DEFAULT_TTS_URL,
+        ttsMcpUrl: env.STUDIO_TTS_MCP_URL || DEFAULT_TTS_MCP_URL,
       }),
     ],
     resolve: {

@@ -51,6 +51,13 @@ export function CommandPalette({ library, onClose }: { library: Library; onClose
             { id: 'page:trash', kind: 'Page' as const, label: 'Trash', href: routeHref({ name: 'trash' }) },
           ]
         : []),
+      {
+        id: 'page:voice',
+        kind: 'Page',
+        label: 'Voice',
+        detail: 'cast Lina, narrate lessons',
+        href: routeHref({ name: 'voice' }),
+      },
       { id: 'page:unfiled', kind: 'Page', label: 'Not in a path', href: routeHref({ name: 'unfiled' }) },
       { id: 'page:import', kind: 'Page', label: 'Import & test', href: routeHref({ name: 'import' }) },
       { id: 'page:settings', kind: 'Page', label: 'Settings', href: routeHref({ name: 'settings' }) },

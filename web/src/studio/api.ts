@@ -3,6 +3,9 @@ import type { HistoryEntry, HistoryRecord } from '../history/types'
 import type { Tutorial } from '../schema/types'
 import type { ValidationIssue } from '../schema/validate'
 import type { TracedDrawing } from '../trace/traceSvg'
+import type { LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
+
+import { mockVoiceApi } from './voice/mockVoiceApi'
 
 // Every write carries this header; see STUDIO_HEADER in server/studioApi.ts.
 const WRITE_HEADERS = { 'X-StrokeTutor-Studio': '1' }
@@ -76,6 +79,8 @@ export function saveCatalog(
 export interface StudioSettings {
   keyConfigured: boolean
   defaultModel: string | null
+  /** The text-to-speech server speech is made on, from STUDIO_TTS_URL. */
+  ttsUrl: string
 }
 
 export function readSettings() {
@@ -258,4 +263,122 @@ export function uploadReference(lessonId: string, file: File) {
     headers: { ...WRITE_HEADERS, 'Content-Type': file.type },
     body: file,
   })
+}
+
+/* ---------- Voice: casting Lina, and narrating lessons in her voice ---------- */
+
+/**
+ * With `VITE_VOICE_MOCK=1` the Voice page talks to a small fake instead of the
+ * Studio server, so the page can be looked at (and its states walked through)
+ * without the creator's text-to-speech box on the other end. The flag is a
+ * build-time constant, so nothing of the fake survives a normal build.
+ */
+const voiceMock = import.meta.env.VITE_VOICE_MOCK === '1' ? mockVoiceApi : null
+
+/** Everything the Voice page needs at once: the server's health, the voices, the script and every take. */
+export function readVoiceState() {
+  return voiceMock ? voiceMock.readState() : call<VoiceState>('/api/voice')
+}
+
+/** Saves the audition script. Takes are keyed by their words, so editing a line never destroys a recording. */
+export function saveVoiceScript(lines: ScriptLine[]) {
+  return voiceMock
+    ? voiceMock.saveScript(lines)
+    : call<{ script: ScriptLine[] }>('/api/voice/script', json('PUT', { lines }))
+}
+
+export function createVoice(input: VoiceInput) {
+  return voiceMock ? voiceMock.createVoice(input) : call<Voice>('/api/voice/voices', json('POST', input))
+}
+
+/** Changes a voice. The server refuses to restyle a frozen voice until it is unfrozen. */
+export function updateVoice(id: string, input: Partial<VoiceInput>) {
+  return voiceMock
+    ? voiceMock.updateVoice(id, input)
+    : call<Voice>(`/api/voice/voices/${encodeURIComponent(id)}`, json('PUT', input))
+}
+
+/** Deletes a voice and its takes. Refused with 409 while a lesson is narrated in it, unless `force`. */
+export function deleteVoice(id: string, { force = false } = {}) {
+  const url = `/api/voice/voices/${encodeURIComponent(id)}${force ? '?force=1' : ''}`
+  return voiceMock ? voiceMock.deleteVoice(id) : call<{ ok: true }>(url, remove())
+}
+
+/** Makes one voice Lina, or clears the casting with `null`. */
+export function castVoice(voiceId: string | null) {
+  return voiceMock
+    ? voiceMock.cast(voiceId)
+    : call<{ castVoiceId: string | null }>('/api/voice/cast', json('POST', { voiceId }))
+}
+
+/**
+ * Says one line in one voice. The server hands back the recording it already
+ * has for these exact words and settings; `another` asks for a fresh take,
+ * which is how a designed voice is auditioned until one is worth freezing.
+ */
+export function sayLine(voiceId: string, text: string, { another = false } = {}) {
+  return voiceMock
+    ? voiceMock.say(voiceId, text, another)
+    : call<Take>(`/api/voice/voices/${encodeURIComponent(voiceId)}/say`, json('POST', { text, another }))
+}
+
+/** Where a take's audio is. Immutable, so the browser keeps it for as long as the tab lives. */
+export function takeAudioUrl(takeId: string): string {
+  return voiceMock ? voiceMock.takeUrl(takeId) : `/api/voice/takes/${encodeURIComponent(takeId)}`
+}
+
+/** Uploads a take to the speech server as a reference, so this voice stops drifting between takes. */
+export function freezeVoice(id: string, takeId: string) {
+  return voiceMock
+    ? voiceMock.freeze(id, takeId)
+    : call<Voice>(`/api/voice/voices/${encodeURIComponent(id)}/freeze`, json('POST', { takeId }))
+}
+
+export function unfreezeVoice(id: string) {
+  return voiceMock ? voiceMock.unfreeze(id) : call<Voice>(`/api/voice/voices/${encodeURIComponent(id)}/unfreeze`, post())
+}
+
+/** One lesson's steps, what each would say, and what is recorded for it. */
+export function readLessonNarration(lessonId: string) {
+  return voiceMock
+    ? voiceMock.readLesson(lessonId)
+    : call<LessonNarration>(`/api/voice/lessons/${encodeURIComponent(lessonId)}`)
+}
+
+/** Writes a spoken line for a step, or removes it with `null` so the instruction is spoken instead. */
+export function saveNarrationLine(lessonId: string, stepId: string, text: string | null) {
+  return voiceMock
+    ? voiceMock.saveLine(lessonId, stepId, text)
+    : call<LessonNarration>(
+        `/api/voice/lessons/${encodeURIComponent(lessonId)}/lines/${encodeURIComponent(stepId)}`,
+        json('PUT', { text }),
+      )
+}
+
+/**
+ * Records one step in the cast voice. One step per request on purpose: the page
+ * loops over the steps itself, so a long lesson shows its progress and can be
+ * stopped part way.
+ */
+export function narrateStep(lessonId: string, stepId: string, { another = false } = {}) {
+  return voiceMock
+    ? voiceMock.narrate(lessonId, stepId, another)
+    : call<LessonNarration>(
+        `/api/voice/lessons/${encodeURIComponent(lessonId)}/narrate`,
+        json('POST', { stepId, another }),
+      )
+}
+
+/** Writes `shared/Assets/Voice/<lessonId>/`: one m4a per step and the manifest the iOS app reads. */
+export function publishVoice(lessonId: string) {
+  return voiceMock
+    ? voiceMock.publish(lessonId)
+    : call<{ files: string[] }>(`/api/voice/lessons/${encodeURIComponent(lessonId)}/publish`, post())
+}
+
+/** Takes a lesson's audio back out of `shared/`. */
+export function unpublishVoice(lessonId: string) {
+  return voiceMock
+    ? voiceMock.unpublish(lessonId)
+    : call<{ files: string[] }>(`/api/voice/lessons/${encodeURIComponent(lessonId)}/published`, remove())
 }

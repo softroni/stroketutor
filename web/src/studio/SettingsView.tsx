@@ -56,6 +56,25 @@ export function SettingsView({ library }: { library: Library }) {
       </section>
 
       <section className="st-panel">
+        <h2 className="st-label">Voice server</h2>
+        <p className="st-field__hint">
+          Where Lina's speech is made. It is the creator's own machine on their tailnet: nothing spoken in the
+          app is ever sent to an outside provider. The Voice page shows whether it is answering.
+        </p>
+        {settings === null ? (
+          <p className="st-field__hint">Checking…</p>
+        ) : (
+          <p>
+            Making speech at: <strong>{settings.ttsUrl || 'not reported by the Studio server'}</strong>
+          </p>
+        )}
+        <p>
+          Override it with <code>STUDIO_TTS_URL=…</code> (and <code>STUDIO_TTS_MCP_URL=…</code> for freezing a
+          voice) in <code>web/.env.local</code>, then restart <code>npm run dev</code>.
+        </p>
+      </section>
+
+      <section className="st-panel">
         <h2 className="st-label">Model</h2>
         <p className="st-field__hint">
           Models that accept a photo and can be held to the lesson's JSON shape, as OpenRouter lists them

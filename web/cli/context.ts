@@ -3,7 +3,10 @@ import path from 'node:path'
 import type { ViteDevServer } from 'vite'
 
 import type { GenerateDeps } from '../server/generate'
-import { createRepoWriter } from '../server/repoWriter'
+import { createRepoWriter, type RepoWriter } from '../server/repoWriter'
+import { DEFAULT_TTS_MCP_URL, DEFAULT_TTS_URL } from '../server/studioApi'
+import type { TtsDeps } from '../server/tts'
+import type { VoiceDeps } from '../server/voice'
 import { openWorkspace, type Workspace } from '../server/workspaceStore'
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
@@ -25,6 +28,8 @@ export interface RunOptions {
   workspace?: Workspace
   /** Tests: a fake model (`fetch`) or key. */
   generation?: Partial<GenerateDeps>
+  /** Tests: a fake speech server, and a converter that needs no afconvert. */
+  tts?: Partial<TtsDeps>
   /** Tests: a fake browser. */
   browser?: BrowserBridge
   io?: IO
@@ -49,6 +54,8 @@ export interface Context {
   /** The working library, validated as the Studio validates it at start-up. */
   library(): Promise<Library>
   generation(): Promise<GenerateDeps>
+  /** Everything `server/voice.ts` needs: the workspace, `shared/` and the speech server. */
+  voice(): Promise<VoiceDeps>
   browser(): Promise<BrowserBridge>
   close(): Promise<void>
 }
@@ -64,10 +71,11 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
   let opening: Promise<Workspace> | null = options.workspace ? Promise.resolve(options.workspace) : null
   let ownsWorkspace = false
   let bridge: Promise<BrowserBridge> | null = options.browser ? Promise.resolve(options.browser) : null
+  // The one writer the workspace publishes through, which voice commands publish through too.
+  const writer: RepoWriter = createRepoWriter({ sharedDir, validateTutorial, validateCatalog })
 
   const workspace = () => {
     opening ??= (async () => {
-      const writer = createRepoWriter({ sharedDir, validateTutorial, validateCatalog })
       const opened = await openWorkspace({ file: workspaceFile, writer, validateTutorial, validateCatalog, backupDir })
       ownsWorkspace = true
       // The same daily safety net the Studio server keeps; a failure is worth a line, not a stop.
@@ -99,6 +107,17 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
         library: () => store.readLibrary(),
         validateTutorial,
         ...options.generation,
+      }
+    },
+    async voice() {
+      return {
+        workspace: await workspace(),
+        writer,
+        tts: {
+          url: options.env.STUDIO_TTS_URL || DEFAULT_TTS_URL,
+          mcpUrl: options.env.STUDIO_TTS_MCP_URL || DEFAULT_TTS_MCP_URL,
+          ...options.tts,
+        },
       }
     },
     browser() {

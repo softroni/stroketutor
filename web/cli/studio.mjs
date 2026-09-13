@@ -28,8 +28,9 @@ const vite = await createServer({
 
 try {
   const { run } = await vite.ssrLoadModule('/cli/main.ts')
-  // No prefix filter, as in vite.config.ts, so OPENROUTER_API_KEY, OPENROUTER_MODEL
-  // and STUDIO_WORKSPACE from web/.env.local reach the command line.
+  // No prefix filter, as in vite.config.ts, so OPENROUTER_API_KEY, OPENROUTER_MODEL,
+  // STUDIO_WORKSPACE and the voice server's STUDIO_TTS_URL / STUDIO_TTS_MCP_URL
+  // from web/.env.local reach the command line.
   const env = loadEnv('development', webDir, '')
   process.exitCode = await run(process.argv.slice(2), { env, webDir, sharedDir, vite })
 } finally {

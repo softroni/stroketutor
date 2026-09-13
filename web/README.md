@@ -29,7 +29,8 @@ npm run studio   # the Studio from the terminal; see "The command line"
 No accounts and no remote backend. `npm run dev` also mounts the Studio's small local server (see
 [Saving](#saving)); a static build has no server and is read-only. Everything works offline except
 generation, which calls OpenRouter only when **Generate tutorial** is pressed (see
-[Generating](#generating)).
+[Generating](#generating)), and the tutor's voice, which is made on the creator's own Mac on their
+tailnet (see [Voice](#voice)).
 
 ## Layout
 
@@ -180,6 +181,47 @@ plain drawing: scripts, event handlers, `<foreignObject>`, entity declarations a
 files are refused with a reason, and every reference is served under a sandboxing
 `Content-Security-Policy`. Nothing runs git: publishing appears as ordinary diffs to review.
 
+### Voice
+
+The tutor has a voice, Lina, and she is cast here rather than chosen once in code: the Studio keeps
+several candidates, has each read the same audition lines, and the creator picks one. Every lesson is
+then narrated with that voice, one recording per step, and published as
+`shared/Assets/Voice/<lessonId>/<stepId>.m4a` with a `manifest.json` beside it — exactly what
+`StrokeTutor/Features/Player/NarrationPlayer.swift` opens.
+
+Speech is made on the creator's own Mac (an MLX-Audio server on their tailnet), never by an outside
+provider and never with a key. `STUDIO_TTS_URL` is the speech endpoint (default
+`https://m4-1.tail958ea4.ts.net`) and `STUDIO_TTS_MCP_URL` its MCP endpoint, where a reference voice
+is uploaded and where health is read; both are read from `.env.local` exactly as the other settings
+are, and `GET /api/settings` reports the speech one so Settings can show it.
+
+A recording is cached by everything that made it — the engine, the description, the speaker, the
+frozen reference and the words — so the same line in the same voice is never made twice, and changing
+any of them is what makes a step's recording show as **out of date**. A designed voice varies a
+little from take to take; **freezing** it uploads one take to the speech server as a reference and
+clones every later line from it, so Lina sounds the same in the sixteenth lesson as in the first.
+Publishing refuses while a step is missing or out of date, and while the lesson itself is
+unpublished; it writes the audio first and the manifest last, and removes any file the manifest does
+not name. `server/tts.ts` is the client (speech, health on a three-second leash, the `add_voice`
+upload, a pure WAV-duration parser, `afconvert` with an `ffmpeg` fallback for AAC),
+`server/voice.ts` the rules, and `src/voice/types.ts` the contract the page, the server and the
+command line share.
+
+- `GET  /api/voice` — the candidates, the script, every take, and the speech server probed live (it
+  never throws because the Mac is asleep: `reachable: false` and a sentence saying why)
+- `PUT  /api/voice/script` — `{ lines }`
+- `POST /api/voice/voices` · `PUT|DELETE /api/voice/voices/:id` — a candidate; deleting one a lesson
+  is narrated with is refused until `?force=1`
+- `POST /api/voice/cast` — `{ voiceId }`, or `{ voiceId: null }`
+- `POST /api/voice/voices/:id/say` — `{ text, another? }` → a take, reused unless `another`
+- `GET  /api/voice/takes/:id` — a take's audio
+- `POST /api/voice/voices/:id/freeze` — `{ takeId }` · `POST /api/voice/voices/:id/unfreeze`
+- `GET  /api/voice/lessons/:lesson` — its steps, their recordings, what has gone stale, what is published
+- `PUT  /api/voice/lessons/:lesson/lines/:step` — `{ text }` (null speaks the instruction again)
+- `POST /api/voice/lessons/:lesson/narrate` — `{ stepId, another? }`, one step at a time so the page
+  can show progress and be stopped
+- `POST /api/voice/lessons/:lesson/publish` · `DELETE /api/voice/lessons/:lesson/published`
+
 ## The command line
 
 Everything the Studio does can be done from a terminal, on the same workspace, with the same store,
@@ -207,6 +249,8 @@ npm run studio -- svg to-steps palm.svg --plan plan.json --trace palm.trace.json
 npm run studio -- lessons render palm --sheet                            # one panel per step
 npm run studio -- lessons apply palm --layer order --plan order.json
 npm run studio -- strokes reverse palm 1.1
+npm run studio -- voice cast lina-bright && npm run studio -- voice narrate palm-tree-4
+npm run studio -- voice publish palm-tree-4
 ```
 
 | Group | Commands |
@@ -221,6 +265,7 @@ npm run studio -- strokes reverse palm 1.1
 | `trash` | `list`, `restore`, `purge`, `empty` |
 | `svg` | `trace`, `optimize`, `render`, `preview`, `to-steps` |
 | `image` | `to-steps` |
+| `voice` | `status`, `list`, `cast`, `add`, `say`, `freeze`, `unfreeze`, `narrate`, `lines set`, `lines clear`, `script`, `script set`, `publish`, `unpublish` |
 
 - **The same workspace.** `cli/studio.mjs` is plain JavaScript that starts Vite in middleware mode as a
   module loader only (no port, no browser, no watcher), so the Studio's TypeScript, its `@shared` alias and
@@ -286,6 +331,14 @@ npm run studio -- strokes reverse palm 1.1
   the browser bridge's `renderPng`; `--svg` writes the text instead and needs no browser, `--no-labels`
   leaves the ids off, `--size` is the PNG's longer side. On a busy drawing `svg preview --crop x0,y0,x1,y1
   --only s30-s40` zooms into one part, labels only those ids and fades the other lines.
+- **Lina speaks from the terminal too.** `voice list` shows the candidates, `voice cast <id>` picks
+  one, `voice say <id> "…" --out line.wav` has a voice read anything (the take already made for those
+  words is reused; `--another` insists on a new one), and `voice freeze <id> --take <takeId>` stops a
+  designed voice drifting. `voice narrate <lesson>` records every step that has no recording or an
+  out-of-date one, printing each step's length as it goes (`--remake` does them all again), and
+  `voice publish <lesson>` writes the AAC files and the manifest into `shared/` with the usual
+  `git add` line. `voice lines set <lesson> <step> "…"` writes what a step says instead of its
+  instruction. Every one of them calls the same `server/voice.ts` the Voice page calls.
 - **`strokes reverse`** draws the selected strokes from their other end: the same shape, animated the
   other way round (`reversePath` from `server/regenerate.ts`, the same function an order regeneration
   uses). Reversing twice gives the stroke back byte for byte.

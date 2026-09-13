@@ -14,6 +14,7 @@ import {
 } from '../src/history/types'
 import { formatJSON } from '../src/schema/formatJSON'
 import type { Tutorial } from '../src/schema/types'
+import type { FrozenReference, ScriptLine, Take, Voice, VoiceEngine } from '../src/voice/types'
 
 import {
   WriteRefused,
@@ -108,6 +109,46 @@ const SCHEMA = `
     deleted_at TEXT NOT NULL,
     payload TEXT NOT NULL
   );
+  CREATE TABLE IF NOT EXISTS voices (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    tagline TEXT NOT NULL DEFAULT '',
+    engine TEXT NOT NULL,
+    instruct TEXT NOT NULL DEFAULT '',
+    speaker TEXT,
+    frozen TEXT,
+    suggested INTEGER NOT NULL DEFAULT 0,
+    sort INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS voice_takes (
+    id TEXT PRIMARY KEY,
+    voice_id TEXT NOT NULL,
+    text TEXT NOT NULL,
+    text_hash TEXT NOT NULL,
+    content_type TEXT NOT NULL,
+    bytes BLOB NOT NULL,
+    duration_ms INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS voice_takes_by_key ON voice_takes (voice_id, text_hash, created_at);
+  CREATE TABLE IF NOT EXISTS narration_lines (
+    lesson_id TEXT NOT NULL,
+    step_id TEXT NOT NULL,
+    text TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (lesson_id, step_id)
+  );
+  CREATE TABLE IF NOT EXISTS narration (
+    lesson_id TEXT NOT NULL,
+    step_id TEXT NOT NULL,
+    take_id TEXT NOT NULL,
+    voice_id TEXT NOT NULL,
+    text_hash TEXT NOT NULL,
+    generated_at TEXT NOT NULL,
+    PRIMARY KEY (lesson_id, step_id)
+  );
 `
 
 interface DraftRow {
@@ -146,6 +187,56 @@ interface PathTrash {
   path: { id: string; title: string; description?: string; lessonIds: string[] }
   index: number
   lessonsTrashed: boolean
+}
+
+interface VoiceRow {
+  id: string
+  name: string
+  tagline: string
+  engine: string
+  instruct: string
+  speaker: string | null
+  /** A `FrozenReference` as JSON, or null while the voice is still free to vary. */
+  frozen: string | null
+  suggested: number
+  sort: number
+  created_at: string
+  updated_at: string
+}
+
+interface TakeRow {
+  id: string
+  voice_id: string
+  text: string
+  text_hash: string
+  content_type: string
+  bytes: Uint8Array
+  duration_ms: number
+  created_at: string
+}
+
+interface NarrationRow {
+  lesson_id: string
+  step_id: string
+  take_id: string
+  voice_id: string
+  text_hash: string
+  generated_at: string
+}
+
+/** The take chosen for one step of a lesson, and what it was made from. */
+export interface NarrationEntry {
+  stepId: string
+  takeId: string
+  voiceId: string
+  textHash: string
+  generatedAt: string
+}
+
+/** A take with its audio, as stored. */
+export interface StoredTake extends Take {
+  bytes: Uint8Array
+  contentType: string
 }
 
 type Param = null | number | string | Uint8Array
@@ -924,9 +1015,210 @@ export async function openWorkspace(options: WorkspaceOptions) {
       return path.join(dir, name)
     },
 
+    // ---------- Lina's voice ----------
+    //
+    // The candidates for the tutor's voice, the audition script, every
+    // recording made, and which take each step of a lesson is narrated by.
+    // Audio stays here as WAV; only publishing turns it into AAC in `shared/`
+    // (`server/voice.ts`). The feature logic lives there — these are the rows.
+
+    /** The candidates, in the order the page shows them. */
+    listVoices(): Voice[] {
+      return all<VoiceRow>('SELECT * FROM voices ORDER BY sort, created_at, id').map(voiceOf)
+    },
+
+    readVoice(id: string): Voice | null {
+      const row = one<VoiceRow>('SELECT * FROM voices WHERE id = ?', id)
+      return row ? voiceOf(row) : null
+    },
+
+    /** Writes a candidate, new or changed. `sort` keeps the suggestions in their written order. */
+    saveVoice(voice: Voice, sort?: number) {
+      run(
+        `INSERT INTO voices (id, name, tagline, engine, instruct, speaker, frozen, suggested, sort, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET name = excluded.name, tagline = excluded.tagline, engine = excluded.engine,
+           instruct = excluded.instruct, speaker = excluded.speaker, frozen = excluded.frozen,
+           updated_at = excluded.updated_at`,
+        voice.id,
+        voice.name,
+        voice.tagline,
+        voice.engine,
+        voice.instruct,
+        voice.speaker,
+        voice.frozen ? JSON.stringify(voice.frozen) : null,
+        voice.suggested ? 1 : 0,
+        sort ?? nextVoiceSort(),
+        voice.createdAt,
+        voice.updatedAt,
+      )
+      return voice
+    },
+
+    /** Removes a candidate with everything made in it: its takes, and any narration that used them. */
+    deleteVoice(id: string) {
+      transaction(() => {
+        run('DELETE FROM narration WHERE voice_id = ?', id)
+        run('DELETE FROM voice_takes WHERE voice_id = ?', id)
+        run('DELETE FROM voices WHERE id = ?', id)
+      })
+    },
+
+    /** Every take, newest first, without the audio: the page lists what exists before it plays anything. */
+    listTakes(): Take[] {
+      return all<Omit<TakeRow, 'bytes'>>(
+        'SELECT id, voice_id, text, text_hash, content_type, duration_ms, created_at FROM voice_takes ORDER BY created_at DESC, id DESC',
+      ).map(takeOf)
+    },
+
+    /** A take without its audio, for the many places that only need its length and its words. */
+    readTakeInfo(id: string): Take | null {
+      const row = one<Omit<TakeRow, 'bytes'>>(
+        'SELECT id, voice_id, text, text_hash, content_type, duration_ms, created_at FROM voice_takes WHERE id = ?',
+        id,
+      )
+      return row ? takeOf(row) : null
+    },
+
+    readTake(id: string): StoredTake | null {
+      const row = one<TakeRow>('SELECT * FROM voice_takes WHERE id = ?', id)
+      return row ? { ...takeOf(row), bytes: row.bytes, contentType: row.content_type } : null
+    },
+
+    /** The most recent recording of these exact words in this exact voice, which is what `say` reuses. */
+    newestTake(voiceId: string, textHash: string): Take | null {
+      const row = one<Omit<TakeRow, 'bytes'>>(
+        `SELECT id, voice_id, text, text_hash, content_type, duration_ms, created_at FROM voice_takes
+         WHERE voice_id = ? AND text_hash = ? ORDER BY created_at DESC, id DESC LIMIT 1`,
+        voiceId,
+        textHash,
+      )
+      return row ? takeOf(row) : null
+    },
+
+    saveTake(take: Take, bytes: Uint8Array, contentType: string): Take {
+      run(
+        `INSERT INTO voice_takes (id, voice_id, text, text_hash, content_type, bytes, duration_ms, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        take.id,
+        take.voiceId,
+        take.text,
+        take.textHash,
+        contentType,
+        bytes,
+        take.durationMs,
+        take.createdAt,
+      )
+      return take
+    },
+
+    /** Which steps are narrated in this voice, so deleting it can say what it would break. */
+    narrationUsing(voiceId: string): { lessonId: string; stepId: string }[] {
+      return all<NarrationRow>('SELECT * FROM narration WHERE voice_id = ? ORDER BY lesson_id, step_id', voiceId).map(
+        (row) => ({ lessonId: row.lesson_id, stepId: row.step_id }),
+      )
+    },
+
+    readNarration(lessonId: string): NarrationEntry[] {
+      return all<NarrationRow>('SELECT * FROM narration WHERE lesson_id = ?', lessonId).map((row) => ({
+        stepId: row.step_id,
+        takeId: row.take_id,
+        voiceId: row.voice_id,
+        textHash: row.text_hash,
+        generatedAt: row.generated_at,
+      }))
+    },
+
+    saveNarration(lessonId: string, entry: NarrationEntry) {
+      run(
+        `INSERT INTO narration (lesson_id, step_id, take_id, voice_id, text_hash, generated_at) VALUES (?, ?, ?, ?, ?, ?)
+         ON CONFLICT(lesson_id, step_id) DO UPDATE SET take_id = excluded.take_id, voice_id = excluded.voice_id,
+           text_hash = excluded.text_hash, generated_at = excluded.generated_at`,
+        lessonId,
+        entry.stepId,
+        entry.takeId,
+        entry.voiceId,
+        entry.textHash,
+        entry.generatedAt,
+      )
+    },
+
+    /** The lines written for a lesson's steps, instead of speaking their instructions. */
+    readNarrationLines(lessonId: string): Map<string, string> {
+      const rows = all<{ step_id: string; text: string }>(
+        'SELECT step_id, text FROM narration_lines WHERE lesson_id = ?',
+        lessonId,
+      )
+      return new Map(rows.map((row) => [row.step_id, row.text]))
+    },
+
+    /** Writes a spoken line for one step; `null` goes back to speaking the instruction. */
+    saveNarrationLine(lessonId: string, stepId: string, text: string | null) {
+      if (text === null) {
+        run('DELETE FROM narration_lines WHERE lesson_id = ? AND step_id = ?', lessonId, stepId)
+        return
+      }
+      run(
+        `INSERT INTO narration_lines (lesson_id, step_id, text, updated_at) VALUES (?, ?, ?, ?)
+         ON CONFLICT(lesson_id, step_id) DO UPDATE SET text = excluded.text, updated_at = excluded.updated_at`,
+        lessonId,
+        stepId,
+        text,
+        now(),
+      )
+    },
+
+    /** The voice cast as Lina. Null until one is chosen, and after the cast one is deleted. */
+    castVoiceId(): string | null {
+      return getMeta('voice.cast') ?? null
+    },
+
+    setCastVoiceId(id: string | null) {
+      if (id === null) run('DELETE FROM meta WHERE key = ?', 'voice.cast')
+      else setMeta('voice.cast', id)
+    },
+
+    /** The audition script, or null before it is seeded. */
+    readScript(): ScriptLine[] | null {
+      const text = getMeta('voice.script')
+      if (!text) return null
+      try {
+        const lines = JSON.parse(text) as ScriptLine[]
+        return Array.isArray(lines) ? lines : null
+      } catch {
+        return null
+      }
+    },
+
+    saveScript(lines: ScriptLine[]) {
+      setMeta('voice.script', JSON.stringify(lines))
+    },
+
+    /**
+     * Whether the starting suggestions were written. They go in once: a
+     * suggestion the creator deletes stays deleted.
+     */
+    voiceSeeded(): boolean {
+      return getMeta('voice.seeded') === '1'
+    },
+
+    /** Writes the suggestions and the script in one go, and remembers that it happened. */
+    seedVoices(voices: Voice[], script: ScriptLine[]) {
+      transaction(() => {
+        voices.forEach((voice, index) => workspace.saveVoice(voice, index))
+        setMeta('voice.script', JSON.stringify(script))
+        setMeta('voice.seeded', '1')
+      })
+    },
+
     close() {
       db.close()
     },
+  }
+
+  /** New candidates go after everything already there, suggestions included. */
+  function nextVoiceSort(): number {
+    return one<{ next: number | null }>('SELECT MAX(sort) + 1 AS next FROM voices')?.next ?? 0
   }
 
   await seed()
@@ -989,6 +1281,41 @@ function isHistoryEntry(entry: HistoryEntry | null): boolean {
       entry.tutorial &&
       typeof entry.tutorial === 'object',
   )
+}
+
+/** A stored candidate as the contract describes it; the frozen reference is JSON in one column. */
+function voiceOf(row: VoiceRow): Voice {
+  let frozen: FrozenReference | null = null
+  if (row.frozen) {
+    try {
+      frozen = JSON.parse(row.frozen) as FrozenReference
+    } catch {
+      frozen = null
+    }
+  }
+  return {
+    id: row.id,
+    name: row.name,
+    tagline: row.tagline,
+    engine: row.engine as VoiceEngine,
+    instruct: row.instruct,
+    speaker: (row.speaker as Voice['speaker']) ?? null,
+    frozen,
+    suggested: row.suggested === 1,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+function takeOf(row: Omit<TakeRow, 'bytes'>): Take {
+  return {
+    id: row.id,
+    voiceId: row.voice_id,
+    text: row.text,
+    textHash: row.text_hash,
+    durationMs: row.duration_ms,
+    createdAt: row.created_at,
+  }
 }
 
 function stored(text: string): Stored {

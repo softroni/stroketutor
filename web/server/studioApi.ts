@@ -12,8 +12,27 @@ import {
   WriteRefused,
   createRepoWriter,
   type Precondition,
+  type RepoWriter,
   type RepoWriterOptions,
 } from './repoWriter'
+import {
+  castVoice,
+  createVoice,
+  deletePublishedVoice,
+  deleteVoice,
+  freezeVoice,
+  lessonNarration,
+  narrateStep,
+  publishVoice,
+  readTakeAudio,
+  say,
+  setNarrationLine,
+  setScript,
+  unfreezeVoice,
+  updateVoice,
+  voiceState,
+  type VoiceDeps,
+} from './voice'
 import { openWorkspace, type Workspace } from './workspaceStore'
 
 /**
@@ -44,7 +63,15 @@ export interface StudioApiOptions {
   openRouterKey?: string
   /** From OPENROUTER_MODEL, used when the Studio names no model. */
   defaultModel?: string
+  /** The creator's own speech server, from STUDIO_TTS_URL. */
+  ttsUrl?: string
+  /** Its MCP endpoint, from STUDIO_TTS_MCP_URL, where references are uploaded and health is read. */
+  ttsMcpUrl?: string
 }
+
+/** Where Lina's voice is made when nothing says otherwise: the creator's Mac, on their tailnet. */
+export const DEFAULT_TTS_URL = 'https://m4-1.tail958ea4.ts.net'
+export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
 
 /**
  * The Studio's local server (master plan §25): a few JSON endpoints under
@@ -69,15 +96,32 @@ export interface StudioApiOptions {
  * - `DELETE /api/paths/:path?lessons=unfile|trash`
  * - `GET /api/trash` · `POST /api/trash/:id/restore` · `DELETE /api/trash/:id` · `DELETE /api/trash`
  * - `POST /api/adopt-shared`              take shared/Catalog as it now is
- * - `GET  /api/settings`                  whether an OpenRouter key is configured (never the key)
+ * - `GET  /api/settings`                  whether an OpenRouter key is configured (never the key), and the voice server's address
  * - `GET  /api/models`                    models that take images and honour structured output
  * - `POST /api/generate`                  one lesson candidate from a photo and a goal; writes nothing
  * - `POST /api/generate-from-trace`       one lesson from a traced SVG: the model orders its lines and colours
  * - `POST /api/regenerate`                one layer of an existing lesson; writes nothing
+ *
+ * Casting Lina and narrating lessons in her voice (`server/voice.ts`):
+ *
+ * - `GET  /api/voice`                     the candidates, the script, every take, and the speech server probed live
+ * - `PUT  /api/voice/script`              `{ lines }` → the audition script
+ * - `POST /api/voice/voices`              a candidate from `{ name, engine, speaker?, instruct?, tagline? }`
+ * - `PUT|DELETE /api/voice/voices/:id`    change one, or remove it with its takes (`?force=1` when a lesson uses it)
+ * - `POST /api/voice/cast`                `{ voiceId }` → the voice cast as Lina
+ * - `POST /api/voice/voices/:id/say`      `{ text, another? }` → one take, reused unless `another`
+ * - `GET  /api/voice/takes/:id`           a take's audio (WAV)
+ * - `POST /api/voice/voices/:id/freeze`   `{ takeId }` → uploads it as a reference, so the voice stops varying
+ * - `POST /api/voice/voices/:id/unfreeze` lets it vary again
+ * - `GET  /api/voice/lessons/:lesson`     a lesson's steps, their recordings and what has gone stale
+ * - `PUT  /api/voice/lessons/:lesson/lines/:step`  `{ text }` → a spoken line instead of the instruction
+ * - `POST /api/voice/lessons/:lesson/narrate`      `{ stepId, another? }` → records one step
+ * - `POST /api/voice/lessons/:lesson/publish`      the AAC files and the manifest into shared/Assets/Voice/
+ * - `DELETE /api/voice/lessons/:lesson/published`  takes them out again
  */
 export function studioApi(options: StudioApiOptions): Plugin {
-  let opening: Promise<Workspace> | null = null
-  const workspaceFor = (server: ViteDevServer) => {
+  let opening: Promise<{ workspace: Workspace; writer: RepoWriter }> | null = null
+  const studioFor = (server: ViteDevServer) => {
     opening ??= (async () => {
       const checks = await validators(server)
       const writer = createRepoWriter({ sharedDir: options.sharedDir, ...checks })
@@ -91,7 +135,7 @@ export function studioApi(options: StudioApiOptions): Plugin {
         server.config.logger.warn(`[studio] the daily workspace backup failed: ${String(error)}`)
       })
       server.httpServer?.once('close', () => workspace.close())
-      return workspace
+      return { workspace, writer }
     })()
     opening.catch(() => {
       opening = null
@@ -104,7 +148,7 @@ export function studioApi(options: StudioApiOptions): Plugin {
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/api', (req, res) => {
-        handle(server, options, workspaceFor, req, res).catch((error: unknown) => {
+        handle(server, options, studioFor, req, res).catch((error: unknown) => {
           server.config.logger.error(
             `[studio api] ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`,
           )
@@ -134,7 +178,7 @@ async function validators(server: ViteDevServer) {
 async function handle(
   server: ViteDevServer,
   options: StudioApiOptions,
-  workspaceFor: (server: ViteDevServer) => Promise<Workspace>,
+  studioFor: (server: ViteDevServer) => Promise<{ workspace: Workspace; writer: RepoWriter }>,
   req: Connect.IncomingMessage,
   res: ServerResponse,
 ) {
@@ -144,7 +188,8 @@ async function handle(
 
   try {
     if (parts.some((part) => part === null)) throw new WriteRefused(400, 'The request path is malformed.')
-    const [resource, name, action] = parts as string[]
+    const segments = parts as string[]
+    const [resource, name, action] = segments
 
     if (method !== 'GET' && (req.headers[STUDIO_HEADER] !== '1' || !sameOrigin(req))) {
       throw new WriteRefused(403, 'Writes are only accepted from the Studio itself.')
@@ -154,6 +199,7 @@ async function handle(
       return send(res, 200, {
         keyConfigured: Boolean(options.openRouterKey),
         defaultModel: options.defaultModel ?? null,
+        ttsUrl: options.ttsUrl ?? DEFAULT_TTS_URL,
       })
     }
 
@@ -161,7 +207,7 @@ async function handle(
       return send(res, 200, { models: await listVisionModels() })
     }
 
-    const workspace = await workspaceFor(server)
+    const { workspace, writer } = await studioFor(server)
     const checks = await validators(server)
 
     const generation: GenerateDeps = {
@@ -299,6 +345,16 @@ async function handle(
       return send(res, 200, { ok: true })
     }
 
+    if (resource === 'voice') {
+      const voice: VoiceDeps = {
+        workspace,
+        writer,
+        tts: { url: options.ttsUrl ?? DEFAULT_TTS_URL, mcpUrl: options.ttsMcpUrl ?? DEFAULT_TTS_MCP_URL },
+      }
+      const handled = await handleVoice(segments.slice(1), method, url, req, res, voice)
+      if (handled) return
+    }
+
     return send(res, 404, { error: `There is no Studio endpoint ${method} /api${url.pathname}.` })
   } catch (error) {
     if (error instanceof WriteRefused) {
@@ -309,6 +365,113 @@ async function handle(
     }
     throw error
   }
+}
+
+/**
+ * Everything under `/api/voice`, kept apart because these paths go four and
+ * five segments deep and would drown the table above. `parts` is the path after
+ * `voice`. Returns false when nothing matched, so the caller can answer 404 in
+ * the one place it always does.
+ */
+async function handleVoice(
+  parts: string[],
+  method: string,
+  url: URL,
+  req: Connect.IncomingMessage,
+  res: ServerResponse,
+  deps: VoiceDeps,
+): Promise<boolean> {
+  const [group, name, action, second] = parts
+
+  if (parts.length === 0 && method === 'GET') {
+    send(res, 200, await voiceState(deps))
+    return true
+  }
+
+  if (group === 'script' && parts.length === 1 && method === 'PUT') {
+    const body = await readJSON(req, MAX_JSON_BYTES)
+    send(res, 200, setScript(body.lines, deps))
+    return true
+  }
+
+  if (group === 'cast' && parts.length === 1 && method === 'POST') {
+    const body = await readJSON(req, MAX_JSON_BYTES)
+    send(res, 200, castVoice(body.voiceId ?? null, deps))
+    return true
+  }
+
+  if (group === 'voices') {
+    if (parts.length === 1 && method === 'POST') {
+      send(res, 200, createVoice(await readJSON(req, MAX_JSON_BYTES), deps))
+      return true
+    }
+    if (parts.length === 2 && method === 'PUT') {
+      send(res, 200, updateVoice(name, await readJSON(req, MAX_JSON_BYTES), deps))
+      return true
+    }
+    if (parts.length === 2 && method === 'DELETE') {
+      send(res, 200, deleteVoice(name, { force: url.searchParams.get('force') === '1' }, deps))
+      return true
+    }
+    if (parts.length === 3 && action === 'say' && method === 'POST') {
+      const body = await readJSON(req, MAX_JSON_BYTES)
+      send(res, 200, await say(name, body.text, { another: body.another === true }, deps))
+      return true
+    }
+    if (parts.length === 3 && action === 'freeze' && method === 'POST') {
+      const body = await readJSON(req, MAX_JSON_BYTES)
+      send(res, 200, await freezeVoice(name, body.takeId, deps))
+      return true
+    }
+    if (parts.length === 3 && action === 'unfreeze' && method === 'POST') {
+      send(res, 200, unfreezeVoice(name, deps))
+      return true
+    }
+  }
+
+  if (group === 'takes' && parts.length === 2 && method === 'GET') {
+    const audio = readTakeAudio(name, deps)
+    if (!audio) {
+      send(res, 404, { error: `There is no take ${name}.` })
+      return true
+    }
+    // A take never changes: its id is minted when it is recorded, so it can be
+    // cached until the browser forgets it.
+    res.writeHead(200, {
+      'Content-Type': audio.contentType,
+      'Content-Length': String(audio.bytes.byteLength),
+      'Cache-Control': 'private, max-age=31536000, immutable',
+      'X-Content-Type-Options': 'nosniff',
+    })
+    res.end(audio.bytes)
+    return true
+  }
+
+  if (group === 'lessons' && name) {
+    if (parts.length === 2 && method === 'GET') {
+      send(res, 200, await lessonNarration(name, deps))
+      return true
+    }
+    if (parts.length === 4 && action === 'lines' && method === 'PUT') {
+      const body = await readJSON(req, MAX_JSON_BYTES)
+      send(res, 200, await setNarrationLine(name, second, body.text ?? null, deps))
+      return true
+    }
+    if (parts.length === 3 && action === 'narrate' && method === 'POST') {
+      send(res, 200, await narrateStep(name, await readJSON(req, MAX_JSON_BYTES), deps))
+      return true
+    }
+    if (parts.length === 3 && action === 'publish' && method === 'POST') {
+      send(res, 200, await publishVoice(name, deps))
+      return true
+    }
+    if (parts.length === 3 && action === 'published' && method === 'DELETE') {
+      send(res, 200, await deletePublishedVoice(name, deps))
+      return true
+    }
+  }
+
+  return false
 }
 
 function preconditionOf(value: unknown): Precondition {

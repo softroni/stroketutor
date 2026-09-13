@@ -15,6 +15,7 @@ import { parseRoute, routeHref, type Route } from './route'
 import { SettingsView } from './SettingsView'
 import { loadSources } from './sources'
 import { TrashView } from './TrashView'
+import { VoiceView } from './VoiceView'
 // Imported here, in this order, so each sheet overrides the ones before it:
 // a component's own CSS import would load before studio.css and lose to it.
 import './studio.css'
@@ -22,6 +23,7 @@ import './publishing.css'
 import './paths.css'
 import './workspace.css'
 import './forms.css'
+import './voice.css'
 
 /**
  * StrokeTutor Studio: the private authoring tool built around the existing
@@ -133,6 +135,9 @@ export function Studio() {
       case 'publish':
         screen = <PublishView library={library} onPublished={reload} onAdopt={adopt} />
         break
+      case 'voice':
+        screen = <VoiceView library={library} />
+        break
       case 'trash':
         screen = <TrashView library={library} onChanged={reload} />
         break
@@ -194,6 +199,9 @@ export function Studio() {
                 ) : null}
               </a>
             ) : null}
+            <a href={routeHref({ name: 'voice' })} aria-current={current('voice')}>
+              Voice
+            </a>
             <a href={routeHref({ name: 'import' })} aria-current={current('import')}>
               Import &amp; test
             </a>

@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { formatJSON } from '../src/schema/formatJSON'
 import { isSvgDocument, svgProblem } from '../src/svg/safety'
+import type { VoiceManifest } from '../src/voice/types'
 
 /**
  * The only code in the Studio that touches `shared/` (master plan §25).
@@ -12,7 +13,7 @@ import { isSvgDocument, svgProblem } from '../src/svg/safety'
  * bundles. Work in progress lives in the local workspace (`workspaceStore.ts`),
  * which calls this writer when a lesson is published or unpublished.
  *
- * Every read and write stays under `shared/`, in one of three folders, at a
+ * Every read and write stays under `shared/`, in one of four folders, at a
  * file name the server derives from a validated id: the browser never
  * supplies a path. Documents are strictly validated before they are written,
  * written atomically, and never written over (or deleted from under) a file
@@ -122,6 +123,7 @@ export function createRepoWriter(options: RepoWriterOptions) {
   const tutorialsDir = inside(shared, 'Tutorials')
   const catalogDir = inside(shared, 'Catalog')
   const referencesDir = inside(shared, 'Assets', 'References')
+  const voiceDir = inside(shared, 'Assets', 'Voice')
   const pathsFile = inside(catalogDir, 'paths.json')
   const lessonsFile = inside(catalogDir, 'lessons.json')
 
@@ -132,6 +134,10 @@ export function createRepoWriter(options: RepoWriterOptions) {
     }
     return inside(referencesDir, file)
   }
+
+  const voiceFolder = (lessonId: string) => inside(voiceDir, checkId(lessonId))
+  const voiceStepFile = (lessonId: string, stepId: string) =>
+    inside(voiceFolder(lessonId), `${checkStepId(stepId)}.m4a`)
 
   async function tutorialFileNames(): Promise<string[]> {
     return (await readdir(tutorialsDir)).filter((name) => name.endsWith('.json')).sort()
@@ -244,6 +250,64 @@ export function createRepoWriter(options: RepoWriterOptions) {
       await rm(referenceFile(file), { force: true })
       return { file: `shared/Assets/References/${file}` }
     },
+
+    /**
+     * Publishes a lesson's narration: one AAC file per step and the manifest
+     * beside them, in `shared/Assets/Voice/<lessonId>/`, which is what the iOS
+     * app bundles as `Voice/<lessonId>/` (`NarrationPlayer.swift`).
+     *
+     * The audio goes first and the manifest last, so a failure part-way never
+     * leaves the manifest promising a file that is not there. A step that has
+     * left the lesson leaves its file behind, so anything not in the manifest
+     * goes: the folder is the manifest, exactly.
+     */
+    async writeVoice(lessonId: string, steps: { stepId: string; bytes: Uint8Array }[], manifest: VoiceManifest) {
+      const folder = voiceFolder(lessonId)
+      const files: string[] = []
+      await mkdir(folder, { recursive: true })
+      for (const step of steps) {
+        await atomicWrite(voiceStepFile(lessonId, step.stepId), step.bytes)
+        files.push(`shared/Assets/Voice/${lessonId}/${step.stepId}.m4a`)
+      }
+      await atomicWrite(inside(folder, 'manifest.json'), formatJSON(manifest))
+      files.push(`shared/Assets/Voice/${lessonId}/manifest.json`)
+
+      const keep = new Set(Object.keys(manifest.steps).map((stepId) => `${stepId}.m4a`))
+      for (const name of await readdir(folder)) {
+        if (!name.endsWith('.m4a') || keep.has(name)) continue
+        await rm(inside(folder, name), { force: true })
+        files.push(`shared/Assets/Voice/${lessonId}/${name}`)
+      }
+      return { files: [...new Set(files)].sort() }
+    },
+
+    /** What is published for a lesson now, or null when nothing is. */
+    async readVoiceManifest(lessonId: string): Promise<VoiceManifest | null> {
+      try {
+        const text = await readFile(inside(voiceFolder(lessonId), 'manifest.json'), 'utf8')
+        const manifest = JSON.parse(text) as VoiceManifest
+        return manifest && typeof manifest === 'object' && manifest.steps ? manifest : null
+      } catch (error) {
+        if (isMissing(error)) return null
+        // A manifest somebody hand-edited into nonsense reads as "nothing published".
+        if (error instanceof SyntaxError) return null
+        throw error
+      }
+    },
+
+    /** Removes a lesson's whole narration folder. Missing already is fine. */
+    async deleteVoice(lessonId: string) {
+      const folder = voiceFolder(lessonId)
+      let names: string[]
+      try {
+        names = await readdir(folder)
+      } catch (error) {
+        if (isMissing(error)) return { files: [] }
+        throw error
+      }
+      await rm(folder, { recursive: true, force: true })
+      return { files: names.map((name) => `shared/Assets/Voice/${lessonId}/${name}`).sort() }
+    },
   }
 }
 
@@ -289,6 +353,21 @@ export function checkReference(lessonId: string, contentType: string, bytes: Uin
 
 export function contentTypeOf(file: string): string {
   return CONTENT_TYPES[file.slice(file.lastIndexOf('.') + 1)] ?? 'application/octet-stream'
+}
+
+/**
+ * A step id fit to be a file name. The tutorial schema allows any non-empty
+ * string, but a published narration file is named after its step, so the id
+ * has to be as plain as a lesson id before it can reach the disk.
+ */
+export function checkStepId(stepId: string): string {
+  if (!ID_PATTERN.test(stepId)) {
+    throw new WriteRefused(
+      422,
+      `The step id "${stepId}" cannot name an audio file: use lowercase letters, digits and single dashes.`,
+    )
+  }
+  return stepId
 }
 
 export function checkId(id: string): string {

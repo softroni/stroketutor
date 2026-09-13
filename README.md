@@ -78,8 +78,8 @@ is only a voice in the player. No Studio or Xcode code changed.
 This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the
 milestones and doesn't unblock M6. The approved plan: a local workspace kept apart from published content, delete with
 confirmation, then a less clumsy Paths view, lesson workspace and New lesson flow. A fifth, the command line,
-was asked for on 2026-09-12, and a sixth the same day: the command line as an agent's authoring tool. **All six
-are done.**
+was asked for on 2026-09-12, and a sixth the same day: the command line as an agent's authoring tool. An eighth, the
+Voice page, on 2026-09-13. **All eight are done.**
 
 | ID | Work | Status | Commit |
 |---|---|---|---|
@@ -90,6 +90,7 @@ are done.**
 | S5 | Command line: every Studio action from the terminal, SVG trace/optimise/render in headless Chromium | ✅ Done 2026-09-12 | see git log |
 | S6 | The agent as author: plans by hand, labelled previews and step sheets, `strokes reverse`, the `author-lesson` skill | ✅ Done 2026-09-12 | see git log |
 | S7 | Reviewing a lesson: replay speeds up to instant, replays that hold their last frame and show the learner's view, lines only, folding the active step | ✅ Done 2026-09-12 | see git log |
+| S8 | Voice: casting Lina from candidate voices on the creator's private TTS server, freezing the chosen one, narrating lessons and publishing `shared/Assets/Voice/` | ✅ Done 2026-09-13 | see git log |
 
 #### S1 · Workspace vs published
 - [x] A SQLite workspace in `.studio/` (gitignored), on Node's built-in `node:sqlite`, backed up daily (newest seven kept).
@@ -171,6 +172,24 @@ are done.**
 - [x] Toasts for passing confirmations. The objective, complexity and notes are edited in the rail.
 - [x] Keyboard: ↑ ↓ / J K to change step, Space to replay the step, ⇧Space the lesson, P to preview, G to group,
       M to move, ⌫ to delete, Esc, `[`, ⌘Z, ⌘S, and `?` for the list.
+
+#### S8 · Voice: casting Lina
+Asked for on 2026-09-13: a Studio page to configure the iOS tutor's voice, preview it, keep it consistent, and
+choose between several candidates. Speech is made on the creator's own MLX-Audio server on their tailnet
+(`STUDIO_TTS_URL`, `STUDIO_TTS_MCP_URL`), never by an outside provider. See
+[web/README.md](web/README.md#voice) for the endpoints and the `voice` commands.
+- [x] **The cast.** Candidate voices (five suggested: two designed from a description, two Qwen speakers, the
+      Chatterbox house voice) each read the same audition script, and "Try a line" says one sentence in every voice.
+      One is cast as Lina.
+- [x] **Freezing.** A designed voice drifts a little between takes, so one take can be uploaded to the speech
+      server as a reference and every later line is cloned from it. Takes are cached by a hash of the engine, the
+      description, the speaker, the reference and the words.
+- [x] **Narrating a lesson.** One recording per step, of the instruction or of a spoken line written for it; a
+      take goes stale when the words or the voice change. Publish voice converts the takes to AAC (`afconvert`,
+      48 kbps mono) and writes `shared/Assets/Voice/<lessonId>/<stepId>.m4a` with a `manifest.json`, the layout
+      `NarrationPlayer.swift` already looks up.
+- [ ] Not yet: the Xcode project does not bundle `shared/Assets/Voice/` (add the folder reference as `Voice/`), and
+      the onboarding and completion lines are not produced yet.
 
 #### S7 · Reviewing a lesson
 Asked for on 2026-09-12, after reviewing the classic red car.

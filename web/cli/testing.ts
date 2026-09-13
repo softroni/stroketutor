@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 import type { GenerateDeps } from '../server/generate'
 import { createRepoWriter } from '../server/repoWriter'
+import type { TtsDeps } from '../server/tts'
 import { openWorkspace, type Workspace } from '../server/workspaceStore'
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
@@ -38,7 +39,9 @@ export interface Outcome {
 
 const realShared = fileURLToPath(new URL('../../shared/', import.meta.url))
 
-export async function openTestStudio(options: { generation?: Partial<GenerateDeps>; browser?: BrowserBridge } = {}): Promise<TestStudio> {
+export async function openTestStudio(
+  options: { generation?: Partial<GenerateDeps>; browser?: BrowserBridge; tts?: Partial<TtsDeps> } = {},
+): Promise<TestStudio> {
   const root = await mkdtemp(path.join(tmpdir(), 'stroketutor-cli-'))
   const shared = path.join(root, 'shared')
   for (const folder of ['Tutorials', 'Catalog', 'Assets']) {
@@ -67,6 +70,7 @@ export async function openTestStudio(options: { generation?: Partial<GenerateDep
       sharedDir: shared,
       workspace,
       generation: options.generation,
+      tts: options.tts,
       browser: options.browser,
       io,
     })

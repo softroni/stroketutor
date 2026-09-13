@@ -1,0 +1,879 @@
+/*
+ * Voice (Studio S7): casting Lina and narrating lessons in her voice.
+ *
+ * The Studio's tokens carry everything here except one: clay, the warm brown of
+ * Lina's own drawing. It marks what is hers — the badge on the cast voice, the
+ * frozen chip — and nothing else, so the blue accent keeps meaning "an ordinary
+ * action" everywhere it already does.
+ */
+
+:root {
+  --clay: #c4653a;
+  --clay-tint: #fbf1ec;
+  --clay-line: #eccdbc;
+}
+
+/* ---------- The page and its title row ---------- */
+
+.st-voice {
+  gap: 24px;
+}
+
+.st-voice__head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.st-voice__titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.st-lina {
+  flex: none;
+  display: block;
+}
+
+.st-voice__server {
+  flex: none;
+  align-self: center;
+  max-width: 280px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: default;
+}
+
+.st-voice__server.is-up {
+  background: #e5f3ea;
+  color: #1f6b3a;
+}
+
+.st-voice__server.is-busy {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.st-voice__server.is-busy::before {
+  animation: st-voice-pulse 1.4s ease-in-out infinite;
+}
+
+.st-voice__server.is-down {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+
+/* An unreachable server is an outline, not a light: nothing is on. */
+.st-voice__server.is-down::before {
+  background: none;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  opacity: 1;
+}
+
+@keyframes st-voice-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.st-panel__note {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--ink-muted);
+}
+
+.st-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Try a line: the bake-off ---------- */
+
+/* The one sentence that explains a page full of disabled buttons. */
+.st-voice__down {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  border-color: #e6bfc3;
+  background: var(--danger-tint);
+  color: var(--ink-muted);
+}
+
+.st-voice__down strong {
+  color: var(--danger);
+}
+
+.st-voice-try__row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.st-voice-try__input {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.st-voice-try__row .st-button--primary {
+  flex: none;
+  align-self: stretch;
+  font-size: 15px;
+  padding: 10px 22px;
+  white-space: nowrap;
+}
+
+/* ---------- The cast ---------- */
+
+.st-voice-cast {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.st-voice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  /* Cards in a row share a height, so their footers line up and the eye can
+     run along the Cast buttons instead of hunting for them. */
+  align-items: stretch;
+}
+
+.st-voice-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.st-voice-card.is-cast {
+  border-color: var(--clay-line);
+  box-shadow: 0 0 0 3px var(--clay-tint);
+}
+
+.st-voice-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.st-voice-card__identity {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.st-voice-card__name {
+  margin: 0;
+  font-size: 17.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.st-voice-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+
+.st-voice-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--page);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.st-voice-chip--clay {
+  border-color: var(--clay-line);
+  background: var(--clay-tint);
+  color: var(--clay);
+}
+
+.st-voice-chip--quiet {
+  border-color: transparent;
+  background: none;
+  color: var(--ink-faint);
+  padding-left: 0;
+}
+
+.st-voice-chip--ready {
+  border-color: #b9dcc5;
+  background: #eef8f1;
+  color: #1f6b3a;
+}
+
+.st-voice-chip--changed {
+  border-color: #e9d9ad;
+  background: #fdf8ea;
+  color: #8a5a00;
+}
+
+.st-voice-chip--todo {
+  color: var(--ink-faint);
+}
+
+.st-voice-card__tagline {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+
+.st-voice-card__instruct {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+  /* Four lines is enough to recognise a description; the edit form has it all. */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- Audition rows ---------- */
+
+.st-takes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-take {
+  position: relative;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto 28px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 6px;
+  border-radius: 10px;
+}
+
+.st-take:hover {
+  background: var(--surface-hover);
+}
+
+.st-take.is-try {
+  background: var(--accent-tint);
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
+}
+
+.st-take.is-playing {
+  background: var(--clay-tint);
+}
+
+.st-take__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+
+.st-take__time {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.st-take__making {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.st-take__waiting {
+  color: var(--ink-faint);
+}
+
+.st-take.is-making {
+  background: var(--accent-tint);
+}
+
+.st-take__play {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 30px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.st-take__play:hover:not(:disabled) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+
+.st-take__play:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.st-take__play--make {
+  border-style: dashed;
+  color: var(--ink-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.st-take__play--small {
+  width: 30px;
+  flex: none;
+}
+
+.st-take__again,
+.st-take__again-spacer {
+  width: 26px;
+  height: 26px;
+}
+
+.st-take__again {
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.st-take__again:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.st-take__again:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* A hairline that fills as the take plays, under its own row. */
+.st-take__progress {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--clay-line);
+  overflow: hidden;
+}
+
+.st-take__progress span {
+  display: block;
+  height: 100%;
+  background: var(--clay);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+.st-spinner {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: st-spin 0.8s linear infinite;
+}
+
+@keyframes st-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-spinner {
+    animation-duration: 2.4s;
+  }
+
+  .st-voice__server.is-busy::before {
+    animation: none;
+  }
+}
+
+/* ---------- Card footer: casting and freezing ---------- */
+
+.st-voice-card__footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.st-cast-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 6px;
+  border: 1px solid var(--clay-line);
+  border-radius: 999px;
+  background: var(--clay-tint);
+  color: var(--clay);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+/* Its own line under the cast button: a reference, a date and a way out is a
+   sentence, not a badge, and it will not squeeze in beside anything. */
+.st-voice-card__frozen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-basis: 100%;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+.st-voice-card__frozen > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Add a voice ---------- */
+
+/* The invitation keeps its own small height instead of stretching to the row. */
+.st-voice-card--add {
+  align-self: start;
+  justify-content: center;
+  border-style: dashed;
+  border-color: var(--line-strong);
+  background: none;
+}
+
+/* Once the form is open it is a panel like any other, not an invitation. */
+.st-voice-card--add:has(.st-voice-form) {
+  justify-content: flex-start;
+  border-style: solid;
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+.st-voice-card__add {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 4px;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.st-voice-card__add strong {
+  display: block;
+  font-size: 15.5px;
+}
+
+.st-voice-card__add-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  font-size: 20px;
+  color: var(--ink-muted);
+}
+
+.st-voice-card__add:hover .st-voice-card__add-mark {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+
+/* ---------- The voice form ---------- */
+
+.st-voice-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.st-voice-form__engines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.st-voice-form__engines legend {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.st-voice-form__engine {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.st-voice-form__engine.is-chosen {
+  border-color: var(--accent-soft);
+  background: var(--accent-tint);
+}
+
+.st-voice-form__engine strong {
+  display: block;
+  font-size: 14.5px;
+}
+
+.st-voice-form__engine .st-field__hint {
+  display: block;
+  font-size: 12.5px;
+}
+
+.st-voice-form__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Freezing ---------- */
+
+.st-freeze-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.st-freeze-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.st-freeze-option:hover {
+  background: var(--surface-hover);
+}
+
+.st-freeze-option__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+}
+
+.st-freeze-option__time {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.st-freeze-option__time.is-off {
+  color: #8a5a00;
+}
+
+/* ---------- The script ---------- */
+
+.st-script__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.st-script__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: st-script;
+}
+
+.st-script__line {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+}
+
+.st-script__text {
+  resize: vertical;
+  line-height: 1.45;
+  font-size: 14.5px;
+}
+
+.st-script__buttons {
+  display: flex;
+  gap: 4px;
+}
+
+/* ---------- Narrating a lesson ---------- */
+
+.st-narrate__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.st-narrate__picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-narrate__picker .st-field__select {
+  max-width: 340px;
+}
+
+.st-narrate__voice {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--ink-muted);
+}
+
+.st-narrate__warning {
+  color: #8a5a00;
+}
+
+.st-narrate__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--page);
+}
+
+.st-narrate__headline {
+  flex: 1;
+  min-width: 200px;
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+.st-narrate__blocked {
+  flex-basis: 100%;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: right;
+}
+
+.st-narrate__published {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+.st-narrate__behind {
+  color: #8a5a00;
+  font-weight: 600;
+}
+
+.st-narrate__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+
+.st-narrate__table th {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: left;
+}
+
+.st-narrate__table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.st-narrate__table tr.is-making td {
+  background: var(--accent-tint);
+}
+
+.st-narrate__col-num {
+  width: 34px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-narrate__col-state {
+  width: 140px;
+  white-space: nowrap;
+}
+
+.st-narrate__col-do {
+  width: 160px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* The button keeps its width while it spins, so the row does not twitch. */
+.st-narrate__col-do .st-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  min-height: 32px;
+  vertical-align: middle;
+}
+
+.st-narrate__col-do .st-take__play--small {
+  display: inline-grid;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.st-narrate__title {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.st-narrate__instruction {
+  margin: 0 0 2px;
+  color: var(--ink-faint);
+}
+
+.st-narrate__line {
+  margin-bottom: 4px;
+  resize: vertical;
+  line-height: 1.45;
+  font-size: 14.5px;
+}
+
+/* Seven blue links down a table is a lot of shouting; these wait to be looked at. */
+.st-narrate__action {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.st-narrate__action:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.st-narrate__time {
+  margin-left: 8px;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+/* ---------- Narrower windows ---------- */
+
+@media (max-width: 1100px) {
+  .st-script__line {
+    grid-template-columns: 140px minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 860px) {
+  .st-voice__head {
+    flex-wrap: wrap;
+  }
+
+  /* The one sentence that explains a page full of disabled buttons. */
+.st-voice__down {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  border-color: #e6bfc3;
+  background: var(--danger-tint);
+  color: var(--ink-muted);
+}
+
+.st-voice__down strong {
+  color: var(--danger);
+}
+
+.st-voice-try__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .st-script__line {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .st-script__text {
+    grid-column: 1 / -1;
+  }
+}
