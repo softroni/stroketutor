@@ -242,7 +242,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
 <div class="doc">
   <nav class="rail" id="rail" aria-label="Screens">
     <div class="mast">
-      <p class="eyebrow">Design specification · iOS</p>
+      <p class="eyebrow">{{EDITION}}</p>
       <h1>Stroke<em>Tutor</em></h1>
       <p class="meta"><b>{{TOTAL}} screens</b> with developer notes · {{DATE}}</p>
     </div>
@@ -377,6 +377,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
   articles.forEach(art => {
     const first = art.querySelector('.variants button');
     if (first) setVariant(art, first.dataset.variant);
+    else { const p = art.querySelector('.devices .phone[data-variant]'); if (p) setVariant(art, p.dataset.variant); }  // one variant, no tabs
   });
   function setMode(mode) {
     const gallery = mode === 'gallery';

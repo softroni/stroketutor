@@ -1,0 +1,792 @@
+<!-- 10-onboarding.html — v3 · Onboarding: launch, three beats, the path, the voice, the first lesson. -->
+<style>
+/* Scoped to the ob-* articles only. */
+article[id^="ob-"] .ob-skip { background: none; border: 0; padding: 0 8px; min-height: 44px; font: 700 15px/1 var(--font); color: var(--ink-55); cursor: pointer; }
+article[id^="ob-"] .ob-body { gap: 16px; padding-top: 8px; padding-bottom: 8px; }
+article[id^="ob-"] .ob-house { fill: none; stroke: var(--ink); stroke-linecap: round; stroke-linejoin: round; }
+article[id^="ob-"] .ob-tip { fill: var(--green); opacity: 0; offset-rotate: 0deg; animation: ob-follow var(--dur, 1s) linear var(--delay, 0s); }
+@keyframes ob-follow { from { offset-distance: 0%; opacity: 1; } to { offset-distance: 100%; opacity: 1; } }
+
+/* splash */
+#ob-splash .ob-mark { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#ob-splash .ob-mark svg { width: 292px; height: 292px; display: block; }
+#ob-splash .ob-word { font-size: 40px; line-height: 46px; font-weight: 800; letter-spacing: -1px; }
+
+/* beat 1 — photo becomes drawing */
+#ob-1 .ob-pair { position: relative; height: 312px; }
+#ob-1 .ob-pair .photo { position: absolute; left: 4px; top: 0; width: 226px; height: 226px; transform: rotate(-3deg); border-radius: 22px; }
+#ob-1 .ob-pair .photo::after { text-align: left; right: auto; left: 14px; bottom: 12px; }
+#ob-1 .ob-pair .ob-sheet { position: absolute; right: 4px; bottom: 0; width: 226px; height: 226px; border-radius: 22px; background: var(--paper); box-shadow: inset 0 0 0 2px var(--line), var(--shadow-float); transform: rotate(3deg); overflow: hidden; }
+#ob-1 .ob-pair .ob-sheet svg { width: 100%; height: 100%; display: block; }
+#ob-1 .ob-pair .ob-arrow { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; box-shadow: 0 0 0 4px #fff; }
+#ob-1 .ob-pair .ob-arrow svg { width: 22px; height: 22px; }
+
+/* beat 2 — three tiles: watch · draw · tap */
+#ob-2 .ob-tile { display: flex; align-items: center; gap: 16px; padding: 12px 16px 12px 12px; border-radius: 22px; background: var(--surface); }
+#ob-2 .ob-tile-art { width: 88px; height: 88px; border-radius: 18px; background: var(--paper); box-shadow: inset 0 0 0 2px var(--line); position: relative; overflow: hidden; flex: none; display: grid; place-items: center; }
+#ob-2 .ob-tile-art > svg { width: 100%; height: 100%; display: block; }
+#ob-2 .ob-pen-badge { position: absolute; right: 6px; bottom: 6px; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; opacity: 0; animation: ob-pop .3s ease-out 2.9s forwards; }
+#ob-2 .ob-pen-badge svg { width: 16px; height: 16px; }
+#ob-2 .ob-mini-btn { width: 76px; min-height: 40px; padding: 0 8px; font-size: 13px; border-radius: 13px; gap: 4px; margin-bottom: 4px; animation: ob-press .28s ease-in-out 5.6s 1 both; }
+#ob-2 .ob-mini-btn svg { width: 16px; height: 16px; }
+@keyframes ob-pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes ob-press { 0%, 100% { transform: none; box-shadow: 0 4px 0 var(--green-deep); } 50% { transform: translateY(4px); box-shadow: 0 0 0 var(--green-deep); } }
+
+/* beat 3 — what you need */
+#ob-3 .ob-kit { display: flex; align-items: center; gap: 16px; padding: 12px 16px 12px 12px; border-radius: 22px; background: var(--surface); }
+#ob-3 .ob-kit .thumb { width: 84px; height: 84px; }
+#ob-3 .ob-kit .thumb .stroke { stroke-width: 3.4; }
+
+/* voice */
+#ob-voice .ob-sample { display: flex; flex-direction: column; gap: 12px; }
+#ob-voice .ob-quote { font-size: 20px; line-height: 27px; font-weight: 700; letter-spacing: -.3px; }
+
+/* ready */
+#ob-ready .ob-lesson .canvas-frame { aspect-ratio: auto; height: 172px; }
+
+@media (prefers-reduced-motion: reduce) {
+  article[id^="ob-"] .ob-tip { animation: none; opacity: 0; }
+  #ob-2 .ob-pen-badge { animation: none; opacity: 1; }
+  #ob-2 .ob-mini-btn { animation: none; }
+}
+</style>
+
+<!-- ===================================================================== ob-splash -->
+<article class="screen" id="ob-splash" data-title="Launch" data-group="Onboarding">
+  <header>
+    <h2>Launch — a house draws itself</h2>
+    <p class="lede">White page, the wordmark, and the Simple House drawing itself in three seconds with a green pen tip. The whole product before a word of copy.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <div class="devices">
+        <div class="phone">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body" data-goto="ob-1">
+            <div class="spacer"></div>
+            <div class="ob-mark">
+              <svg viewBox="0 0 1000 1000" aria-hidden="true">
+                <path class="ob-house stroke draws" pathLength="1" stroke-width="22" style="--dur:.9s;--delay:.25s" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                <path class="ob-house stroke draws" pathLength="1" stroke-width="22" style="--dur:.7s;--delay:1.2s" d="M 200 480 L 500 260 L 800 480 Z"/>
+                <path class="ob-house stroke draws" pathLength="1" stroke-width="16" style="--dur:.45s;--delay:1.95s" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                <path class="ob-house stroke draws" pathLength="1" stroke-width="16" style="--dur:.35s;--delay:2.45s" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                <path class="ob-house stroke draws" pathLength="1" stroke-width="16" style="--dur:.35s;--delay:2.85s" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                <path class="ob-house stroke draws" pathLength="1" stroke-width="16" style="--dur:.45s;--delay:3.25s" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                <circle class="ob-tip" r="16" style="--dur:.9s;--delay:.25s;offset-path:path('M 250 480 L 750 480 L 750 850 L 250 850 Z')"/>
+                <circle class="ob-tip" r="16" style="--dur:.7s;--delay:1.2s;offset-path:path('M 200 480 L 500 260 L 800 480 Z')"/>
+                <circle class="ob-tip" r="16" style="--dur:.45s;--delay:1.95s;offset-path:path('M 440 850 L 440 690 L 560 690 L 560 850')"/>
+                <circle class="ob-tip" r="16" style="--dur:.35s;--delay:2.45s;offset-path:path('M 320 540 L 420 540 L 420 640 L 320 640 Z')"/>
+                <circle class="ob-tip" r="16" style="--dur:.35s;--delay:2.85s;offset-path:path('M 580 540 L 680 540 L 680 640 L 580 640 Z')"/>
+                <circle class="ob-tip" r="16" style="--dur:.45s;--delay:3.25s;offset-path:path('M 620 348 L 620 200 L 700 200 L 700 407')"/>
+              </svg>
+              <p class="ob-word">StrokeTutor</p>
+              <p class="t-body muted">Pen, paper, five minutes.</p>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Tap the screen to walk into the flow. The six strokes are the real Simple House tutorial, drawn fast, with a green pen tip riding each line.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>Cover the launch gap with the product itself: a drawing appearing on white paper. No gradient, no logo lockup.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Page <code>--page</code> (white). A 292 pt square drawing area centred between two spacers, the 40/800 wordmark 4 pt under it, one 17 pt muted line.</li>
+        <li>Strokes at 22 (walls, roof) and 16 (the rest) in a 1000-unit canvas, i.e. ~6 pt and ~4.5 pt lines: the launch drawing is bolder than a lesson thumbnail on purpose.</li>
+        <li>The pen tip is a 16-unit <code>--green</code> dot that follows the active stroke and vanishes when the stroke ends (<code>offset-path</code> here; <code>.trim</code> + a point along the path in SwiftUI).</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li><code>LaunchScreen.storyboard</code> shows the finished house and the wordmark, static. <code>SplashView</code> is laid out identically and redraws the six strokes in 3.7 s (0.25 → 3.7 s). Strokes play strictly in sequence, as in the player.</li>
+        <li>Hold at least 0.9 s; go on as soon as the catalog is ready after that, mid-drawing if need be. <code>hasCompletedOnboarding == false</code> → <code>ob-1</code>, else <code>hp-home</code>. No tap is needed in the app; the mockup body is tappable so the document can be clicked through.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>White instead of cream paper; the whole house instead of a single swash line — the finished drawing is now the app's signature everywhere (nodes, thumbs), so launch shows the same object.</li>
+        <li>A green pen tip: green is the way forward throughout v3, and the tip is what the learner will follow in the player. <span class="tag tag--plan">§31</span></li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>SplashView: ZStack { TutorialStrokes(.simpleHouse, animated: !reduceMotion, tip: .green) }
+  .frame(width: 292, height: 292)
+  .task { try? await Task.sleep(for: .seconds(0.9)); route() }</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>One VoiceOver element, "StrokeTutor", header trait; the drawing is hidden.</li>
+        <li>Reduce Motion: strokes appear complete with a 0.2 s fade; no pen tip. Wordmark is a vector image so the storyboard is crisp at every scale.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul><li>Animate on every cold launch or only the first of the day? Proposal: first launch of the day, static otherwise.</li></ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ===================================================================== ob-1 -->
+<article class="screen" id="ob-1" data-title="Beat 1 · Draw what you see" data-group="Onboarding">
+  <header>
+    <h2>Beat 1 — "Have you ever wanted to draw what you see?"</h2>
+    <p class="lede">Lina asks the question; a photograph of a cottage and a sheet of paper with the drawing appearing on it answer it.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <div class="devices">
+        <div class="phone">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-splash" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:16%"><i></i></div>
+            <button class="ob-skip" type="button" data-goto="ob-path">Skip</button>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="tutor-says">
+              <span class="lina lina--lg"><svg><use href="#lina-point"/></svg></span>
+              <div class="speech grow">Have you ever looked at something and wanted to draw it?</div>
+            </div>
+            <div class="ob-pair" aria-hidden="true">
+              <div class="photo photo--warm" data-label="A cottage on a lane"></div>
+              <div class="ob-sheet">
+                <svg viewBox="0 0 1000 1000">
+                  <path class="ob-house stroke draws" pathLength="1" stroke-width="18" style="--dur:1.4s;--delay:.6s" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="ob-house stroke draws" pathLength="1" stroke-width="18" style="--dur:1.2s;--delay:2.0s" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  <path class="ob-house stroke draws" pathLength="1" stroke-width="14" style="--dur:.8s;--delay:3.2s" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                  <path class="ob-house stroke draws" pathLength="1" stroke-width="14" style="--dur:.6s;--delay:4.0s" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                  <path class="ob-house stroke draws" pathLength="1" stroke-width="14" style="--dur:.6s;--delay:4.6s" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                  <path class="ob-house stroke draws" pathLength="1" stroke-width="14" style="--dur:.8s;--delay:5.2s" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                </svg>
+              </div>
+              <span class="ob-arrow"><svg><use href="#i-chevron-right"/></svg></span>
+            </div>
+            <p class="t-body muted center balance">This is what you will do. With a real pen, on real paper.</p>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="ob-2">Continue</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The photograph is the real reference for lesson 3 of the Houses path; the sheet draws the real Simple House strokes in six seconds.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>Beat 1 of <span class="tag tag--plan">§30</span>: name the wish before the product. Lina appears on the first beat so the learner knows who is talking from the start.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Rail 56 pt: 44 pt chevron, 14 pt green progress at 16 %, "Skip" 15/700 at <code>--ink-55</code>. <span class="tag tag--mobbin">Duolingo</span></li>
+        <li><code>.tutor-says</code> with <code>lina--lg</code> (160×192, pose <em>point</em>) and the <code>.speech</code> bubble 18/700, tail at 24 pt.</li>
+        <li><code>.ob-pair</code>, 312 pt tall: a 226 pt photograph rotated −3° top-left, a 226 pt white sheet rotated +3° bottom-right with <code>--shadow-float</code> (it floats over the photo), and a 44 pt green chevron badge at the overlap.</li>
+        <li>One 17 pt muted line, then the 64 pt primary pinned in <code>.bottom-area</code>.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>The sheet draws the six strokes on appear (0.6 → 6.0 s) and holds; back and forward replay it. Continue → <code>ob-2</code>; Skip → <code>ob-path</code> and sets nothing. No timer, no auto-advance. <span class="tag tag--plan">§31</span></li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>Lina and the bubble carry the question instead of a headline over a full-bleed photo; the pair composition shows photo → drawing on the first beat, folding v1's beats 3 and 4 into one image.</li>
+        <li>Thick green progress and the white page replace the thin bar and cream paper.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>TutorSays(pose: .point, size: .large) { Text(beat.line) }
+ZStack { ReferenceImage(.smallCottage).rotation(-3°); PaperSheet { TutorialStrokes(.simpleHouse) }.rotation(3°) }</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Order: rail ("Step 1 of 6") → bubble ("Lina says: …") → the caption → Continue. The pair is decorative and hidden.</li>
+        <li>Dynamic Type: at accessibility sizes the row becomes portrait-above-bubble (<code>ViewThatFits</code>) and the pair shrinks to 240 pt before the body scrolls; the button stays pinned.</li>
+        <li>Reduce Motion: the sheet shows the finished house.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ===================================================================== ob-2 -->
+<article class="screen" id="ob-2" data-title="Beat 2 · The method" data-group="Onboarding">
+  <header>
+    <h2>Beat 2 — Watch · Draw · Tap "I drew it"</h2>
+    <p class="lede">The core loop in three tiles that play out in order: a stroke draws itself, the pen copies it on paper, the green button is pressed.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <div class="devices">
+        <div class="phone">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-1" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:33%"><i></i></div>
+            <button class="ob-skip" type="button" data-goto="ob-path">Skip</button>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="tutor-says">
+              <span class="lina lina--md"><svg><use href="#lina-pen"/></svg></span>
+              <div class="speech grow">I draw one small step. You copy it onto your paper. Nothing moves until you say so.</div>
+            </div>
+            <div class="stack">
+              <div class="ob-tile">
+                <div class="ob-tile-art" aria-hidden="true">
+                  <svg viewBox="0 0 1000 1000">
+                    <path class="ob-house stroke draws" pathLength="1" stroke-width="44" style="--dur:1.4s;--delay:.4s" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                    <path class="ob-house stroke draws" pathLength="1" stroke-width="44" style="--dur:1.0s;--delay:1.8s" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  </svg>
+                </div>
+                <div class="grow stack-4">
+                  <p class="t-eyebrow c-green">1 · Watch</p>
+                  <p class="t-headline">One step draws itself.</p>
+                  <p class="t-footnote muted">Then it stops and waits.</p>
+                </div>
+              </div>
+              <div class="ob-tile">
+                <div class="ob-tile-art" aria-hidden="true">
+                  <svg viewBox="0 0 100 100">
+                    <path class="ob-house stroke draws" pathLength="1" stroke-width="4" style="--dur:1.8s;--delay:3.0s" d="M 26 34 C 42 32 58 33 74 33 C 75 48 74 62 73 76 C 58 77 42 76 27 76 C 26 62 27 48 26 34 Z"/>
+                  </svg>
+                  <span class="ob-pen-badge"><svg><use href="#i-pen"/></svg></span>
+                </div>
+                <div class="grow stack-4">
+                  <p class="t-eyebrow c-green">2 · Draw</p>
+                  <p class="t-headline">You copy it on paper.</p>
+                  <p class="t-footnote muted">Take as long as you like.</p>
+                </div>
+              </div>
+              <div class="ob-tile">
+                <div class="ob-tile-art" aria-hidden="true">
+                  <span class="btn btn-primary ob-mini-btn"><svg><use href="#i-check"/></svg>I drew it</span>
+                </div>
+                <div class="grow stack-4">
+                  <p class="t-eyebrow c-green">3 · Tap</p>
+                  <p class="t-headline">Tap "I drew it".</p>
+                  <p class="t-footnote muted">The next step begins.</p>
+                </div>
+              </div>
+            </div>
+            <p class="t-body muted center balance">No timer. No countdown. The pace is yours.</p>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="ob-3">Continue</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The tiles animate in sequence: walls and roof draw (0.4–2.8 s), a hand-drawn square appears with the pen badge (3.0–4.8 s), the mini button presses itself at 5.6 s. Six seconds, once.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>The single most important idea in the product, <span class="tag tag--plan">§4 "Watch → Draw → Confirm → Continue"</span>, shown as three tiles so it is grasped in one glance and remembered as a rhythm.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Rail at 33 %. Lina <code>lina--md</code> (pose <em>pen</em>) with the bubble.</li>
+        <li>Three <code>.ob-tile</code>s: 22 pt radius, <code>--surface</code> fill, 12 pt gap; an 88 pt white paper art on the left, then eyebrow 12/800 green ("1 · Watch"), headline 17/700, footnote 13/600 muted.</li>
+        <li>Tile 3's art is the player's own <code>.btn-primary</code> at 76×40 pt — the learner should recognise the control on sight in the first lesson.</li>
+        <li>One 17 pt muted line under the tiles states the promise; 64 pt Continue pinned.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Tile 1: walls then roof, real tutorial strokes at 44 units. Tile 2: a slightly wobbly square (the learner's hand, not the app's) draws at 3.0 s, the pen badge pops at 2.9 s. Tile 3: the button presses (4 pt down, edge to 0) at 5.6 s for 0.28 s. Then everything holds.</li>
+        <li>Continue is live from the first frame; nothing gates on the animation.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>Three soft tiles replace v1's interactive two-step demo (beat 5) and its triptych (beat 4): shorter flow, one memorable image per idea. <span class="tag tag--mobbin">Duolingo</span> for the tile rhythm, <span class="tag tag--plan">§30</span> for the copy.</li>
+        <li>Tactile mini button, white paper thumbs with 2 pt borders, no outlined cards.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>VStack(spacing: 12) {
+  MethodTile("1 · Watch", "One step draws itself.", "Then it stops and waits.") { TutorialStrokes(.simpleHouse, steps: ["walls","roof"], delay: 0.4) }
+  MethodTile("2 · Draw",  "You copy it on paper.",  "Take as long as you like.") { HandSquare(delay: 3.0) }
+  MethodTile("3 · Tap",   "Tap \"I drew it\".",     "The next step begins.")    { BigPrimaryButton.miniature.pressed(at: 5.6) }
+}</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Each tile is one element: "1, Watch. One step draws itself. Then it stops and waits." Art is hidden. Order: rail → bubble → tiles → promise → Continue.</li>
+        <li>Dynamic Type: tiles grow vertically, the art stays 88 pt; at accessibility sizes the body scrolls under the pinned button.</li>
+        <li>Reduce Motion: all three arts render complete; no press.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul><li>Should tile 3 be tappable and actually press (a rehearsal), or does a tappable thing inside a beat invite the wrong habit? Recommend not tappable.</li></ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ===================================================================== ob-3 -->
+<article class="screen" id="ob-3" data-title="Beat 3 · What you need" data-group="Onboarding">
+  <header>
+    <h2>Beat 3 — A pen, paper, five minutes</h2>
+    <p class="lede">The objection-handling beat. Nothing to buy, nothing to set up; three rows, each drawing itself in pen.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <div class="devices">
+        <div class="phone">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-2" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:50%"><i></i></div>
+            <button class="ob-skip" type="button" data-goto="ob-path">Skip</button>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="stack-8">
+              <h3 class="t-large-title balance">A pen, paper, five minutes.</h3>
+              <p class="t-body muted">Nothing else. The pen you already own is the right pen.</p>
+            </div>
+            <div class="spacer"></div>
+            <div class="stack">
+              <div class="ob-kit">
+                <div class="thumb" aria-hidden="true">
+                  <svg viewBox="0 0 100 100">
+                    <path class="stroke draws" pathLength="1" style="--dur:1.2s;--delay:.3s" d="M 30 70 L 62 26 L 72 33 L 40 77 Z"/>
+                    <path class="stroke draws" pathLength="1" style="--dur:.6s;--delay:1.5s" d="M 30 70 L 40 77 L 26 83 Z"/>
+                    <path class="stroke draws" pathLength="1" style="--dur:.4s;--delay:2.1s" d="M 47 55 L 57 62"/>
+                  </svg>
+                </div>
+                <div class="grow stack-4">
+                  <p class="t-title3">A pen</p>
+                  <p class="t-subhead muted">Any you have. A ballpoint is fine.</p>
+                </div>
+              </div>
+              <div class="ob-kit">
+                <div class="thumb" aria-hidden="true">
+                  <svg viewBox="0 0 100 100">
+                    <path class="stroke draws" pathLength="1" style="--dur:1.4s;--delay:.8s" d="M 28 16 L 60 16 L 76 32 L 76 86 L 28 86 Z"/>
+                    <path class="stroke draws" pathLength="1" style="--dur:.5s;--delay:2.2s" d="M 60 16 L 60 32 L 76 32"/>
+                    <path class="stroke draws" pathLength="1" style="--dur:.4s;--delay:2.7s" d="M 38 52 L 66 52"/>
+                    <path class="stroke draws" pathLength="1" style="--dur:.3s;--delay:3.1s" d="M 38 64 L 58 64"/>
+                  </svg>
+                </div>
+                <div class="grow stack-4">
+                  <p class="t-title3">Paper</p>
+                  <p class="t-subhead muted">One sheet. A notebook works, so does an envelope.</p>
+                </div>
+              </div>
+              <div class="ob-kit">
+                <div class="thumb" aria-hidden="true">
+                  <svg viewBox="0 0 100 100">
+                    <path class="stroke draws" pathLength="1" style="--dur:1.4s;--delay:1.3s" d="M 50 18 C 67.7 18 82 32.3 82 50 C 82 67.7 67.7 82 50 82 C 32.3 82 18 67.7 18 50 C 18 32.3 32.3 18 50 18 Z"/>
+                    <path class="stroke draws" pathLength="1" style="--dur:.6s;--delay:2.7s" d="M 50 30 L 50 51 L 64 58"/>
+                  </svg>
+                </div>
+                <div class="grow stack-4">
+                  <p class="t-title3">Five minutes</p>
+                  <p class="t-subhead muted">Most lessons take about four.</p>
+                </div>
+              </div>
+            </div>
+            <div class="spacer"></div>
+            <p class="t-body muted center balance">Get them now if you like. The app will wait.</p>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="ob-path">Continue</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The three drawings are the product's own pen-and-ink marks, staggered left to right so the eye reads down the list as they appear.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>Beat 3 <span class="tag tag--plan">§30, §2 "may have limited time"</span>: remove the two reasons an adult beginner postpones — time and materials.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Rail at 50 %. <code>.t-large-title</code> 36/800 balanced to two lines, one 17 pt muted line.</li>
+        <li>Three <code>.ob-kit</code> rows in a 12 pt stack, centred between two spacers: 84 pt white <code>.thumb</code> (3.4-unit lines in a 100-unit box ≈ 2.9 pt), <code>.t-title3</code> 20/800, subhead 15/600 muted.</li>
+        <li>A closing 17 pt line above the pinned 64 pt Continue.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Pen draws 0.3–2.5 s, paper 0.8–3.4 s, clock 1.3–3.3 s. Once, then static. Rows are not tappable.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>Full-width rows instead of a three-up grid: 20 pt titles and 15 pt subtitles fit at every Dynamic Type size, and the rows read as the same soft tiles as beat 2. Large title instead of title1; no outlined cards.</li>
+        <li>"About four minutes" moved into the row so the headline's "five" is honest without a footnote card.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>VStack(spacing: 12) { ForEach(kit) { KitRow(art: $0.strokes, title: $0.title, detail: $0.detail, delay: $0.delay) } }</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Each row is one element ("A pen. Any you have. A ballpoint is fine."); drawings hidden.</li>
+        <li>Dynamic Type: rows grow; at accessibility sizes the body scrolls with Continue pinned. Reduce Motion: drawings render complete.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul><li>Derive "about four" from the chosen path's first lesson (<code>estimatedMinutes</code>)? This beat sits before the path choice; Houses' figure is right for every candidate first lesson today.</li></ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ===================================================================== ob-path -->
+<article class="screen" id="ob-path" data-title="Choose a path" data-group="Onboarding">
+  <header>
+    <h2>Choose a path — "What would you like to draw first?"</h2>
+    <p class="lede">The only question onboarding asks. Single-choice rows, Houses pre-selected so Continue is never blocked. Tap Trees to move the selection.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="houses">Houses (default)</button>
+        <button type="button" data-variant="trees">Trees chosen</button>
+      </nav>
+      <div class="devices">
+        <div class="phone" data-variant="houses">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-3" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:66%"><i></i></div>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="tutor-says">
+              <span class="lina lina--md"><svg><use href="#lina-neutral"/></svg></span>
+              <div class="speech grow">What would you like to draw first? You can change this any time.</div>
+            </div>
+            <div class="stack">
+              <button class="choice is-selected" type="button">
+                <span class="leading"><svg><use href="#i-house"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Houses</span><span class="t-footnote muted">10 lessons · starts with a simple house</span></span>
+                <span class="check"><svg><use href="#i-check"/></svg></span>
+              </button>
+              <button class="choice" type="button" data-set-variant="trees">
+                <span class="leading"><svg><use href="#i-tree"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Trees</span><span class="t-footnote muted">8 lessons · starts with a palm</span></span>
+              </button>
+              <button class="choice" type="button">
+                <span class="leading"><svg><use href="#i-flower"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Flowers</span><span class="t-footnote muted">8 lessons · starts with one bloom</span></span>
+              </button>
+              <button class="choice" type="button">
+                <span class="leading"><svg><use href="#i-mountain"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Mountains</span><span class="t-footnote muted">9 lessons · starts with a silhouette</span></span>
+              </button>
+              <button class="choice" type="button">
+                <span class="leading"><svg><use href="#i-street"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Streets &amp; Places</span><span class="t-footnote muted">10 lessons · starts with a bench</span></span>
+              </button>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="ob-voice">Continue</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <div class="phone" data-variant="trees">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-3" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:66%"><i></i></div>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="tutor-says">
+              <span class="lina lina--md"><svg><use href="#lina-neutral"/></svg></span>
+              <div class="speech grow">What would you like to draw first? You can change this any time.</div>
+            </div>
+            <div class="stack">
+              <button class="choice" type="button" data-set-variant="houses">
+                <span class="leading"><svg><use href="#i-house"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Houses</span><span class="t-footnote muted">10 lessons · starts with a simple house</span></span>
+              </button>
+              <button class="choice is-selected" type="button">
+                <span class="leading"><svg><use href="#i-tree"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Trees</span><span class="t-footnote muted">8 lessons · starts with a palm</span></span>
+                <span class="check"><svg><use href="#i-check"/></svg></span>
+              </button>
+              <button class="choice" type="button">
+                <span class="leading"><svg><use href="#i-flower"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Flowers</span><span class="t-footnote muted">8 lessons · starts with one bloom</span></span>
+              </button>
+              <button class="choice" type="button">
+                <span class="leading"><svg><use href="#i-mountain"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Mountains</span><span class="t-footnote muted">9 lessons · starts with a silhouette</span></span>
+              </button>
+              <button class="choice" type="button">
+                <span class="leading"><svg><use href="#i-street"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Streets &amp; Places</span><span class="t-footnote muted">10 lessons · starts with a bench</span></span>
+              </button>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="ob-voice">Continue</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Five paths, not ten: the rest are one tap away in All paths from day one. The mockup wires only Houses and Trees.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>The learner names what they want to draw; the hero card on <code>hp-home</code> and the first lesson follow from this one answer. <span class="tag tag--plan">§30.8, §6</span></p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Rail at 66 %, no Skip: this is where Skip lands. Lina <code>lina--md</code> (neutral) with the question.</li>
+        <li>Five <code>.choice</code> rows, 68 pt min, radius 20, 2 pt <code>--line</code> ring and a 3 pt edge; 44 pt icon tile, title 17/700, subtitle 13/600 muted with the lesson count and the first lesson. <span class="tag tag--mobbin">Duolingo · single-choice rows</span></li>
+        <li>Selected: <code>--green-tint</code> fill, 2.5 pt green ring, green icon tile, and a 26 pt filled check — four cues, never colour alone.</li>
+        <li>64 pt Continue pinned, always enabled.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Radio semantics: a tap moves the selection with a 0.2 s spring; it never advances. Continue writes <code>selectedPathId</code> and pushes <code>ob-voice</code>. Back keeps the selection. Reached by Skip in exactly this state.</li>
+        <li>Rows come from <code>paths.json</code> (<code>id</code>, <code>title</code>, <code>lessonIds.count</code>, first lesson title), in file order.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>Rows are the shared <code>.choice</code> component with a tactile edge and the v3 green tint, replacing v1's custom outlined rows; the check is shown only on the selected row.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>@State private var pending = "houses"
+ForEach(catalog.paths) { PathChoiceRow($0, isSelected: pending == $0.id) { pending = $0.id } }
+BigPrimaryButton("Continue") { selectedPathId = pending; go(.voice) }</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Rows are buttons with <code>.isSelected</code> on the chosen one: "Houses, 10 lessons, starts with a simple house, selected". Order: rail → bubble → rows → Continue.</li>
+        <li>Dynamic Type: rows grow, the list scrolls under the pinned button; the subtitle may take two lines.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul><li>Show the path's last drawing as a thumbnail instead of an icon? Richer, but needs ten finished drawings before launch.</li></ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ===================================================================== ob-voice -->
+<article class="screen" id="ob-voice" data-title="Meet the voice" data-group="Onboarding">
+  <header>
+    <h2>Meet the voice</h2>
+    <p class="lede">Lina introduces the narration and hands over the switch. A sample plays only when asked. Three states: on, sample playing, off.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="on">On (default)</button>
+        <button type="button" data-variant="playing">Sample playing</button>
+        <button type="button" data-variant="off">Turned off</button>
+      </nav>
+      <div class="devices">
+        <div class="phone" data-variant="on">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-path" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:83%"><i></i></div>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="tutor-says">
+              <span class="lina lina--md"><svg><use href="#lina-wave"/></svg></span>
+              <div class="speech grow">I'll talk you through each step while it draws. You can turn my voice off any time.</div>
+            </div>
+            <div class="card stack">
+              <div class="row">
+                <span class="icon-tile icon-tile--clay"><svg><use href="#i-speaker"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Spoken guidance</span><span class="t-footnote muted">On</span></span>
+                <span class="toggle is-on" data-set-variant="off"></span>
+              </div>
+              <p class="t-subhead muted">The written instruction is always on screen too. You never depend on the sound.</p>
+            </div>
+            <div class="card card--soft ob-sample">
+              <span class="narration" style="align-self:flex-start"><span class="face"><svg><use href="#lina-neutral"/></svg></span>Lina</span>
+              <p class="ob-quote">"Draw one square in the middle of the page. This is the front wall."</p>
+              <button class="btn btn-secondary" type="button" data-set-variant="playing"><svg><use href="#i-play"/></svg>Hear a sample</button>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="ob-ready">Continue</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <div class="phone" data-variant="playing">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-path" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:83%"><i></i></div>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="tutor-says">
+              <span class="lina lina--md"><svg><use href="#lina-wave"/></svg></span>
+              <div class="speech grow">I'll talk you through each step while it draws. You can turn my voice off any time.</div>
+            </div>
+            <div class="card stack">
+              <div class="row">
+                <span class="icon-tile icon-tile--clay"><svg><use href="#i-speaker"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Spoken guidance</span><span class="t-footnote muted">On</span></span>
+                <span class="toggle is-on" data-set-variant="off"></span>
+              </div>
+              <p class="t-subhead muted">The written instruction is always on screen too. You never depend on the sound.</p>
+            </div>
+            <div class="card card--soft ob-sample">
+              <span class="narration" style="align-self:flex-start"><span class="face"><svg><use href="#lina-neutral"/></svg></span><span class="wave"><i></i><i></i><i></i><i></i><i></i></span>Lina</span>
+              <p class="ob-quote">"Draw one square in the middle of the page. This is the front wall."</p>
+              <button class="btn btn-secondary" type="button" data-set-variant="on"><svg><use href="#i-replay"/></svg>Play it again</button>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="ob-ready">Continue</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <div class="phone" data-variant="off">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-path" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:83%"><i></i></div>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="tutor-says">
+              <span class="lina lina--md"><svg><use href="#lina-wave"/></svg></span>
+              <div class="speech grow">I'll talk you through each step while it draws. You can turn my voice off any time.</div>
+            </div>
+            <div class="card stack">
+              <div class="row">
+                <span class="icon-tile"><svg><use href="#i-speaker-off"/></svg></span>
+                <span class="grow stack-4"><span class="t-headline">Spoken guidance</span><span class="t-footnote muted">Off</span></span>
+                <span class="toggle" data-set-variant="on"></span>
+              </div>
+              <p class="t-subhead muted">Lessons stay silent. The written instruction is always on screen. Change this in Settings whenever you like.</p>
+            </div>
+            <div class="card card--soft ob-sample">
+              <span class="narration is-muted" style="align-self:flex-start"><span class="face"><svg><use href="#lina-neutral"/></svg></span><svg class="ico"><use href="#i-speaker-off"/></svg>Lina</span>
+              <p class="ob-quote muted">"Draw one square in the middle of the page. This is the front wall."</p>
+              <button class="btn btn-secondary" type="button" data-set-variant="playing"><svg><use href="#i-play"/></svg>Hear a sample</button>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="ob-ready">Continue</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The sample is the first sound the app ever makes, and only because the learner asked. The quote is the step's written instruction, verbatim; audio is a second channel.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>Introduce the recorded voice once and hand over the switch before anything plays on its own. The practice reminder moved to <code>st-reminder</code>; this beat has one subject.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Rail at 83 %. Lina <code>lina--md</code> (pose <em>wave</em>) with the bubble.</li>
+        <li>Card 1: 56 pt clay <code>.icon-tile</code>, title 17/700 with a 13 pt state line, 51×31 toggle; a 15 pt explanation.</li>
+        <li>Card 2 (<code>.card--soft</code>): the <code>.narration</code> chip with Lina's <code>.face</code>, the sample line at 20/700, a 60 pt <code>.btn-secondary</code>. Continue is the only primary.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li><b>on</b> (default) writes <code>narrationEnabled = true</code> at once; no Save. <b>playing</b>: plays <code>simple-house/walls.m4a</code> (~4 s), the chip shows the wave, the button reads "Play it again", then returns to <b>on</b>. <b>off</b>: tile goes neutral with <code>i-speaker-off</code>, chip <code>.is-muted</code>, the sample stays playable so the learner can hear what they turned off.</li>
+        <li>Audio session <code>.playback</code> with <code>.duckOthers</code>: music dips, never stops; never interrupts a call; the silent switch is respected, the caption is then the whole experience.</li>
+        <li>Continue → <code>ob-ready</code>. The toggle is already persisted.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>Reminder card removed (it lives in Settings, off by default), so the screen shows one decision and the sample gets its own soft card with the quote at 20 pt. The chip uses the round <code>.face</code> and clay, the v3 tutor colour.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>@AppStorage("narrationEnabled") private var narrationEnabled = true
+Toggle("Spoken guidance", isOn: $narrationEnabled)
+Button(sample.isPlaying ? "Play it again" : "Hear a sample") { sample.play(.simpleHouse, step: "walls") }</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Order: rail → bubble → "Spoken guidance, on, switch" → explanation → the quote → "Hear a sample, button" → Continue. The chip's wave is hidden; the quote carries the text.</li>
+        <li>Dynamic Type: the bubble grows first; the toggle row wraps title above switch at accessibility sizes; the body scrolls with Continue pinned.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul><li>Narrate beats 1–3 once <code>narrationEnabled</code> is known? Recommend no: a voice that starts before the switch is offered is the surprise this screen exists to avoid.</li></ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ===================================================================== ob-ready -->
+<article class="screen" id="ob-ready" data-title="Your first lesson is ready" data-group="Onboarding">
+  <header>
+    <h2>Your first lesson is ready</h2>
+    <p class="lede">The end of the flow and the only screen that writes <code>hasCompletedOnboarding</code>. The chosen path's first lesson draws itself; one way in, one quiet alternative.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <div class="devices">
+        <div class="phone">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="ob-rail">
+            <button class="nav-btn" type="button" data-goto="ob-voice" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="progress grow" style="--value:100%"><i></i></div>
+          </div>
+          <div class="screen-body stack ob-body">
+            <div class="tutor-says">
+              <span class="lina lina--md"><svg><use href="#lina-pen"/></svg></span>
+              <div class="speech grow">Your first lesson is ready. Get your paper, and I'll meet you there.</div>
+            </div>
+            <div class="card stack ob-lesson">
+              <div class="row" style="gap:8px">
+                <span class="chip chip--green"><svg><use href="#i-house"/></svg>Houses</span>
+                <span class="chip">Lesson 1 of 10</span>
+              </div>
+              <div class="canvas-frame" aria-hidden="true">
+                <svg viewBox="0 0 1000 1000">
+                  <path class="stroke draws" pathLength="1" stroke-width="16" style="--dur:1.2s;--delay:.3s" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="16" style="--dur:1.1s;--delay:1.5s" d="M 200 480 L 500 260 L 800 480 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:.8s;--delay:2.6s" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:.7s;--delay:3.4s" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:.7s;--delay:4.1s" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:.8s;--delay:4.8s" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+                </svg>
+              </div>
+              <div class="stack-4">
+                <p class="t-title2">Simple House</p>
+                <p class="t-subhead muted">See a house as a box with a triangle on top, then place the door, windows and chimney.</p>
+              </div>
+              <div class="row" style="gap:8px">
+                <span class="chip"><svg><use href="#i-clock"/></svg>About 4 min</span>
+                <span class="chip">5 steps</span>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="hp-preview">Start drawing</button>
+            <button class="btn btn-text" type="button" data-goto="hp-home">Look around first</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The drawing draws itself once, in about five seconds: the learner watches the thing they are about to make appear, then goes and makes it.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>Turn the choice into a first act. Not a congratulation: the learner has not done anything yet. One line from Lina, one lesson, one button. <span class="tag tag--plan">§30 tone</span></p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Rail at 100 % with a live back chevron. Lina <code>lina--md</code> (pose <em>pen</em>) carries the headline in the bubble; no separate title.</li>
+        <li>One white <code>.card</code>: path chip (green) + position chip, a 172 pt white <code>.canvas-frame</code>, the lesson name at 24/800, the objective at 15/600, two fact chips (time, steps).</li>
+        <li>Bottom: 64 pt green "Start drawing", then a 48 pt text button. Quiet, not hidden.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Both buttons write <code>hasCompletedOnboarding = true</code> before routing. "Start drawing" → <code>hp-preview</code> for <code>paths[selectedPathId].lessonIds.first</code>; "Look around first" → <code>hp-home</code>, where the hero card shows the same lesson.</li>
+        <li>The cover is dismissed; the tab bar appears for the first time underneath. In replay mode (from Settings) both simply dismiss and leave stored values alone.</li>
+        <li>Everything on the card derives from <code>selectedPathId</code>: Trees shows Palm Tree, 16 steps, here.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>Headline folded into the bubble to make room for the objective on the card, so this screen and <code>hp-preview</code> share the same facts and the hand-off feels continuous. White canvas, 2 pt borders, tactile primary.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>@AppStorage("hasCompletedOnboarding") private var done = false
+BigPrimaryButton("Start drawing") { done = true; route = .preview(firstLesson) }
+Button("Look around first")       { done = true; route = .home }.buttonStyle(.quietText)</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Order: rail → bubble → "Houses, lesson 1 of 10. Simple House. See a house as a box… About 4 minutes, 5 steps." (one element, canvas hidden) → the two buttons.</li>
+        <li>Dynamic Type: the canvas shrinks to a 120 pt floor, then the body scrolls; both buttons stay pinned. Reduce Motion: the drawing appears complete.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul><li>Offer "Remind me instead" for a learner with no pen to hand? Honest, but it hands the last moment of onboarding to a deferral. Recommend not.</li></ul>
+    </aside>
+  </div>
+</article>

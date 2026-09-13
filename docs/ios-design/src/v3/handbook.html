@@ -1,0 +1,55 @@
+<h2>Design handbook · v3</h2>
+<p>This is the third design of the StrokeTutor iOS learner app: the same product, the same flows and the same rules as the first document, with a new visual system built to stand next to Duolingo and Simply Draw on a home screen. White paper, one bold green, tactile buttons, a visible path of lesson nodes, bigger type. Every screen here is interactive: Continue walks through onboarding, a node opens its lesson, <em>Start drawing</em> opens the player, <em>I drew it</em> moves it on.</p>
+
+<h3>What v3 changes, and why</h3>
+<table>
+  <tr><th>v1 / v2</th><th>v3</th><th>Why</th></tr>
+  <tr><td>Off-white page (#EDEBE6) and cream paper (#FAF7F0)</td><td>White page and <b>white paper</b> (#FFFFFF); soft grey-warm tiles (#F5F5F3) for structure</td><td>Reads modern and clean; the pen line is the highest-contrast thing on screen; the app matches the white paper a learner actually draws on.</td></tr>
+  <tr><td>Cards with drop shadows</td><td>Flat cards with 2 pt borders; shadows only on floating things</td><td>Calmer hierarchy; shadows are reserved for the sheet, the reference thumbnail and the narration chip so they read as "on top of the paper".</td></tr>
+  <tr><td>Flat 68 pt green primary</td><td>64 pt primary with a 4 pt pressed edge; white secondary with a border and edge</td><td>The tactile affordance of Duolingo's buttons, in adult colours and copy. One primary per screen still.</td></tr>
+  <tr><td>Paths as rows with thin progress bars</td><td>The current path as round <b>lesson nodes</b> on a gentle zig-zag: gold done, green ringed current, grey locked; the drawing inside each node</td><td>Progress is finished drawings, made visible at a glance. No streaks, XP, hearts or gems.</td></tr>
+  <tr><td>"Continue" card with a small thumbnail</td><td>A filled green <b>hero banner</b> with the next lesson, its drawing on a white page, and the one button</td><td>Duolingo's unit banner pattern, with calm copy: "Lesson 3 of 10 · About 4 min".</td></tr>
+  <tr><td>Type 34/800 titles, 22/700 instruction</td><td>36/800 titles with tight tracking, 24/800 instruction, 17/500 body</td><td>Bolder rhythm, still readable for adults over 40 at arm's length.</td></tr>
+  <tr><td>Step dots</td><td>Step segments (one bar per step) in the player header, dots kept for compact headers</td><td>Shows the shape of the lesson, not just position.</td></tr>
+</table>
+
+<h3>Tokens</h3>
+<div class="swatches">
+  <div class="swatch"><i style="background:#FFFFFF;box-shadow:inset 0 0 0 1px #E7E6E2"></i><span><b>paper / page</b> #FFFFFF<br>canvas and background</span></div>
+  <div class="swatch"><i style="background:#F5F5F3"></i><span><b>surface</b> #F5F5F3<br>tiles, rows, locked nodes</span></div>
+  <div class="swatch"><i style="background:#E7E6E2"></i><span><b>line</b> #E7E6E2<br>2 pt borders</span></div>
+  <div class="swatch"><i style="background:#141414"></i><span><b>ink</b> #141414<br>text, strokes</span></div>
+  <div class="swatch"><i style="background:#1FA463"></i><span><b>green</b> #1FA463<br>primary, current, active</span></div>
+  <div class="swatch"><i style="background:#15804B"></i><span><b>green deep</b> #15804B<br>pressed edge</span></div>
+  <div class="swatch"><i style="background:#E4643B"></i><span><b>clay</b> #E4643B<br>Lina, narration</span></div>
+  <div class="swatch"><i style="background:#E0A32E"></i><span><b>gold</b> #E0A32E<br>finished drawings</span></div>
+  <div class="swatch"><i style="background:#2F6BE8"></i><span><b>blue</b> #2F6BE8<br>links only</span></div>
+</div>
+<table>
+  <tr><th>Token</th><th>Value</th><th>Used for</th></tr>
+  <tr><td>Type</td><td>SF Pro Rounded (<code>Theme.rounded(size, weight)</code>)</td><td>Large title 36/800 −0.8, title1 30/800, title2 24/800, title3 20/800, headline 17/700, body 17/500, instruction 24/800, subhead 15/600, footnote 13/600, eyebrow 12/800 uppercase +1</td></tr>
+  <tr><td>Primary button</td><td>64 pt, 20/800 white on green, radius 20, 4 pt edge in green-deep, presses down 4 pt</td><td><code>BigPrimaryButtonStyle</code> (update: edge + press)</td></tr>
+  <tr><td>Secondary button</td><td>60 pt, 18/800 ink on white, 2 pt border + 4 pt edge in line-strong</td><td><code>BigSecondaryButtonStyle</code></td></tr>
+  <tr><td>Radii</td><td>canvas 28 · card 24 · control 20 · thumbnail 18 · node 50 %</td><td><code>Theme.*CornerRadius</code></td></tr>
+  <tr><td>Spacing</td><td>gutter 20 · stack 12 · section 20 · card padding 20</td><td>all screens</td></tr>
+  <tr><td>Tap target</td><td>60 pt minimum, 44 pt for nav-bar glyphs, nodes 84 pt</td><td><code>Theme.minimumTapTarget</code></td></tr>
+  <tr><td>Node</td><td>84 pt circle, 5 pt edge; done gold, current white + 4 pt green ring + pulsing halo, locked surface</td><td><code>LessonNode</code> (new)</td></tr>
+  <tr><td>Tab bar</td><td>3 tabs, 26 pt glyphs in a 56 × 30 pill (green-soft when active), 11.5 pt labels</td><td>Learn · Sketchbook · Settings</td></tr>
+</table>
+
+<h3>What does not change</h3>
+<ul>
+  <li>The ten rules of the first handbook: watch → draw → confirm → continue; the paper is the product; adult tone; reality stays in view; one loud button; big and readable; paths unlock in order; calm progress; local and private; the existing player is kept and wrapped.</li>
+  <li>Narration and Lina, as specified in the first document (voice pipeline, playback rules, bounded use of the character).</li>
+  <li>The app map, the on-device data model, the content files the app reads, the accessibility checklist and the milestone mapping. Open questions carry over.</li>
+  <li>Screen ids and flow links, so the two documents can be read side by side: <code>index.html#hp-home</code> and <code>v3.html#hp-home</code> are the same screen in two designs.</li>
+</ul>
+
+<h3>Implementation notes for SwiftUI</h3>
+<ul>
+  <li><b>Pressed edge.</b> A <code>ButtonStyle</code> that draws a rounded rectangle offset 4 pt below the label in the edge colour and moves the label down 4 pt while <code>isPressed</code>. One style, three colour sets (green, white, ink).</li>
+  <li><b>Nodes.</b> <code>LessonNode(state:, drawing:)</code>: a 84 pt circle, the lesson's finished drawing rendered from its tutorial JSON at 60 pt (white strokes on gold when done), the halo as a scaling <code>Circle().stroke</code> with <code>.repeatForever</code> unless Reduce Motion.</li>
+  <li><b>The zig-zag.</b> A <code>VStack</code> of rows, each offset by an alternating <code>x</code> in [−54, 54] pt, label on the outer side. Keep the tap target the node itself.</li>
+  <li><b>White paper.</b> <code>tutorial.style.backgroundColor</code> stays in the data; the player ignores it in favour of <code>Theme.paper = .white</code> unless the lesson sets an explicit colour (colour-fill lessons in v2 schema).</li>
+  <li><b>Hero banner.</b> A <code>LinearGradient</code> green card with a 6 pt edge; the drawing thumbnail is a white rounded rectangle with the tutorial rendered into it.</li>
+</ul>

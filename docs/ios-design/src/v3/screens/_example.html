@@ -1,0 +1,106 @@
+<!-- _example.html — a finished v3 screen, as the reference for the screen agents. Files starting with "_" are not built. -->
+<style>
+/* Scoped to this article. Screen agents: prefix every selector with your ids. */
+#ex-home .ex-art { fill: none; stroke: currentColor; stroke-width: 34; stroke-linecap: round; stroke-linejoin: round; }
+#ex-home .ex-hero-thumb { width: 96px; height: 96px; }
+#ex-home .ex-hero-thumb svg { width: 74px; height: 74px; color: var(--ink); }
+#ex-home .ex-hero-thumb .ex-art { stroke-width: 30; }
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- Finished drawings for the nodes, in the same 1000×1000 canvas as the tutorials. Copied from the v1 fragment, prefixed. -->
+  <symbol id="ex-dr-house1" viewBox="0 0 1000 1000"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/><path d="M 440 850 L 440 690 L 560 690 L 560 850"/><path d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/><path d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/></symbol>
+  <symbol id="ex-dr-house2" viewBox="0 0 1000 1000"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/><path d="M 440 850 L 440 690 L 560 690 L 560 850"/><path d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/><path d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/><path d="M 620 348 L 620 200 L 700 200 L 700 407"/></symbol>
+  <symbol id="ex-dr-cottage" viewBox="0 0 1000 1000"><path d="M 200 530 L 800 530 L 800 855 L 200 855 Z"/><path d="M 150 530 L 500 320 L 850 530 Z"/><path d="M 445 855 L 445 690 L 565 690 L 565 855"/><path d="M 255 590 L 385 590 L 385 695 L 255 695 Z"/><path d="M 630 590 L 760 590 L 760 695 L 630 695 Z"/><path d="M 320 590 L 320 695"/><path d="M 695 590 L 695 695"/><path d="M 665 415 L 665 255 L 750 255 L 750 462"/><path d="M 120 857 L 890 857"/></symbol>
+  <symbol id="ex-dr-angle" viewBox="0 0 1000 1000"><path d="M 180 520 L 520 470 L 520 850 L 180 820 Z"/><path d="M 520 470 L 820 540 L 820 850 L 520 850"/><path d="M 150 520 L 420 300 L 560 320 L 520 470"/><path d="M 560 320 L 860 400 L 820 540"/><path d="M 300 840 L 300 660 L 380 650 L 380 845"/><path d="M 620 620 L 720 640 L 720 740 L 620 730 Z"/></symbol>
+  <symbol id="ex-dr-two-story" viewBox="0 0 1000 1000"><path d="M 230 340 L 770 340 L 770 850 L 230 850 Z"/><path d="M 180 340 L 500 160 L 820 340 Z"/><path d="M 440 850 L 440 700 L 560 700 L 560 850"/><path d="M 290 400 L 390 400 L 390 490 L 290 490 Z"/><path d="M 610 400 L 710 400 L 710 490 L 610 490 Z"/><path d="M 290 620 L 390 620 L 390 710 L 290 710 Z"/><path d="M 610 620 L 710 620 L 710 710 L 610 710 Z"/></symbol>
+</defs></svg>
+
+<article class="screen" id="ex-home" data-title="Sample: Learn (home)" data-group="Example">
+  <header>
+    <h2>Learn — the home screen (v3 sample)</h2>
+    <p class="lede">Hero banner for the next lesson, the current path as nodes underneath, three tabs. Nothing that counts against the learner.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="in-progress">In progress</button>
+      </nav>
+      <div class="devices">
+        <div class="phone" data-variant="in-progress">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:6px;padding-bottom:16px">
+
+            <div class="row row--between">
+              <h1 class="t-large-title">Learn</h1>
+              <span class="chip chip--gold"><svg><use href="#i-book"/></svg>6 drawings</span>
+            </div>
+
+            <!-- Hero: the next lesson -->
+            <div class="card card--hero">
+              <div class="row row--top" style="gap:14px">
+                <div class="grow stack-4">
+                  <p class="t-eyebrow">Continue · Houses</p>
+                  <h2 class="t-title2">Small Cottage</h2>
+                  <p class="t-subhead muted">Lesson 3 of 10 · About 4 min</p>
+                </div>
+                <div class="thumb ex-hero-thumb"><svg viewBox="0 0 1000 1000"><use class="ex-art" href="#ex-dr-cottage"/></svg></div>
+              </div>
+              <button class="btn btn-primary btn-primary--white" type="button" data-goto="ex-home" style="margin-top:16px">Start drawing</button>
+            </div>
+
+            <!-- The path -->
+            <div class="row row--between" style="padding:8px 4px 0">
+              <p class="t-eyebrow muted">Houses · 2 of 10 drawn</p>
+              <button class="btn btn-text btn-text--blue" type="button" style="width:auto;min-height:32px;padding:0;font-size:15px">All paths</button>
+            </div>
+            <div class="path">
+              <div class="node-row" style="--x:-40px">
+                <button class="node node--done" type="button"><span class="thumb-art"><svg viewBox="0 0 1000 1000"><use class="stroke ex-art" href="#ex-dr-house1"/></svg></span><span class="badge"><svg><use href="#i-check"/></svg></span></button>
+                <div class="node-label"><b>Simple House</b><span>Drawn 3 Sep</span></div>
+              </div>
+              <div class="node-row node-row--right" style="--x:40px">
+                <button class="node node--done" type="button"><span class="thumb-art"><svg viewBox="0 0 1000 1000"><use class="stroke ex-art" href="#ex-dr-house2"/></svg></span><span class="badge"><svg><use href="#i-check"/></svg></span></button>
+                <div class="node-label"><b>House With Chimney</b><span>Drawn 6 Sep</span></div>
+              </div>
+              <div class="node-row" style="--x:-40px">
+                <button class="node node--current" type="button"><span class="thumb-art"><svg viewBox="0 0 1000 1000"><use class="stroke ex-art" href="#ex-dr-cottage"/></svg></span></button>
+                <div class="node-label"><b>Small Cottage</b><span class="c-green">Next · 7 steps</span></div>
+              </div>
+              <div class="node-row node-row--right node-row--locked" style="--x:40px">
+                <button class="node node--locked" type="button"><span class="thumb-art"><svg viewBox="0 0 1000 1000"><use class="stroke ex-art" href="#ex-dr-angle"/></svg></span></button>
+                <div class="node-label"><b>House From an Angle</b><span>After Small Cottage</span></div>
+              </div>
+              <div class="node-row node-row--locked" style="--x:-40px">
+                <button class="node node--locked" type="button"><span class="thumb-art"><svg viewBox="0 0 1000 1000"><use class="stroke ex-art" href="#ex-dr-two-story"/></svg></span></button>
+                <div class="node-label"><b>Two-Story House</b><span>Lesson 5</span></div>
+              </div>
+            </div>
+          </div>
+          <nav class="tabbar">
+            <button class="tab is-active" type="button" data-goto="ex-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
+            <button class="tab" type="button"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
+            <button class="tab" type="button"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The node art is the lesson's finished drawing at 60 pt; gold nodes carry a check badge, the current node a green ring and a slow halo.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4><p>One question, one answer: what do I draw next? The hero answers it; the path shows where it leads.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Scrolling body; 36 pt title with a gold chip for the sketchbook count on the right (a fact, not a score).</li>
+        <li><code>.card--hero</code>: eyebrow 12/800, title 24/800, meta 15/600 at 78 % white; a 96 pt white <code>.thumb</code>; a white primary button with green text.</li>
+        <li><code>.path</code>: 84 pt nodes, rows alternate <code>--x</code> ±40 pt, labels on the outer side.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul><li>White page, hero banner instead of a bordered card, nodes instead of rows, tactile buttons. <span class="tag tag--mobbin">Duolingo</span> for the banner and node pattern, <span class="tag tag--plan">§30</span> for what is deliberately missing.</li></ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>ScrollView { VStack(spacing: 12) { title; HeroCard(next); PathView(nodes) } }
+LessonNode(state: .done | .current | .locked, drawing: tutorial)</pre>
+    </aside>
+  </div>
+</article>

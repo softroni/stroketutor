@@ -1,0 +1,535 @@
+<!-- 50-settings.html — Settings (v3). Ids: st-settings, st-voice, st-reminder. Styles scoped to article[id^="st-"]. -->
+<style>
+/* ---- scoped to this fragment (every id in this file starts with "st-") ---- */
+article[id^="st-"] .screen-body--scroll { padding-bottom: 16px; }
+article[id^="st-"] .screen-body > *:not(.spacer) { flex: none; }
+article[id^="st-"] .list-row .lbl { display: block; font-size: 17px; line-height: 22px; font-weight: 700; letter-spacing: -.2px; }
+article[id^="st-"] .list-row .sub { display: block; font-size: 13px; line-height: 17px; font-weight: 600; color: var(--ink-55); margin-top: 2px; }
+article[id^="st-"] .list-row .value { font-size: 16px; white-space: nowrap; }
+article[id^="st-"] .list-row--static { cursor: default; }
+article[id^="st-"] .list-row .leading .face { width: 30px; height: 30px; }
+article[id^="st-"] .list-row .leading .face svg { width: 45px; height: 54px; left: -7px; top: -8px; }
+article[id^="st-"] .sec-h { padding: 10px 6px 0; }
+article[id^="st-"] .cap { font-size: 13px; line-height: 18px; font-weight: 600; color: var(--ink-55); padding: 0 6px; }
+article[id^="st-"] .danger-row { justify-content: center; }
+article[id^="st-"] .danger-row .lbl { color: var(--danger); text-align: center; }
+article[id^="st-"] .toggle { cursor: pointer; }
+article[id^="st-"] .seg > button { cursor: pointer; }
+
+/* stacked row: label line, then a control underneath (speed) */
+article[id^="st-"] .list-row--stack { flex-direction: column; align-items: stretch; gap: 10px; padding-top: 14px; padding-bottom: 14px; }
+article[id^="st-"] .list-row--stack .head { display: flex; align-items: center; gap: 14px; }
+
+/* the sample card on st-voice */
+#st-voice .sample .quote { font-size: 20px; line-height: 26px; font-weight: 800; letter-spacing: -.3px; }
+#st-voice .sample .play { width: 56px; min-height: 56px; color: var(--clay); box-shadow: inset 0 0 0 2px var(--clay-soft), 0 4px 0 var(--clay-soft); }
+#st-voice .sample .play:active { box-shadow: inset 0 0 0 2px var(--clay-soft), 0 0 0 var(--clay-soft); }
+#st-voice .sample .play svg { width: 26px; height: 26px; }
+#st-voice .sample:not(.is-playing) .narration .wave i { animation: none; height: 4px; }
+#st-voice .sample.is-playing .play { background: var(--clay); color: #fff; box-shadow: 0 4px 0 var(--clay-deep); }
+#st-voice .sample .say-playing { display: none; }
+#st-voice .sample.is-playing .say-playing { display: inline; }
+#st-voice .sample.is-playing .say-idle { display: none; }
+#st-voice .sample--off .face--lg { filter: grayscale(1); opacity: .6; }
+#st-voice .sample--off .quote, #st-voice .sample--off .t-title3 { color: var(--ink-40); }
+#st-voice .sample--off .play { color: var(--ink-25); box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); pointer-events: none; }
+
+/* day pills and the time on st-reminder */
+#st-reminder .days { display: flex; gap: 6px; }
+#st-reminder .days button { flex: 1 1 0; min-width: 0; height: 48px; border-radius: 14px; border: 0; font-family: inherit; font-size: 16px; font-weight: 800; background: var(--surface); color: var(--ink-40); box-shadow: 0 3px 0 var(--surface-2); margin-bottom: 3px; cursor: pointer; }
+#st-reminder .days button.is-on { background: var(--green); color: #fff; box-shadow: 0 3px 0 var(--green-deep); }
+#st-reminder .time-chip { padding: 8px 14px; border-radius: 12px; background: var(--surface); font-size: 20px; font-weight: 800; letter-spacing: -.3px; }
+
+/* notification banner mock (iOS lock-screen shape) */
+article[id^="st-"] .banner { display: flex; gap: 12px; align-items: flex-start; background: #fff; border-radius: 22px; padding: 12px 14px; box-shadow: var(--shadow-float); }
+article[id^="st-"] .banner--quiet { box-shadow: inset 0 0 0 2px var(--line); }
+article[id^="st-"] .banner .appicon { width: 38px; height: 38px; border-radius: 10px; background: var(--green); color: #fff; display: grid; place-items: center; flex: none; }
+article[id^="st-"] .banner .appicon svg { width: 22px; height: 22px; }
+article[id^="st-"] .banner .when { font-size: 13px; font-weight: 600; color: var(--ink-40); }
+article[id^="st-"] .banner .t-headline { font-size: 16px; }
+</style>
+
+<!-- ============================================================= st-settings -->
+<article class="screen" id="st-settings" data-title="Settings" data-group="Settings">
+  <header>
+    <h2>Settings</h2>
+    <p class="lede">The third tab. Speed, voice, accessibility, privacy and reset. No account, nothing to manage, nothing that creates an obligation.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <div class="devices">
+        <div class="phone">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:6px">
+            <h1 class="t-large-title">Settings</h1>
+
+            <p class="sec-h t-eyebrow muted">Lesson</p>
+            <div class="list">
+              <button class="list-row" type="button" data-goto="st-voice">
+                <span class="leading leading--green"><svg><use href="#i-speaker"/></svg></span>
+                <span class="grow"><span class="lbl">Narration</span></span>
+                <span class="value">On</span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+              <button class="list-row" type="button" data-goto="st-voice">
+                <span class="leading leading--green"><svg><use href="#i-speed"/></svg></span>
+                <span class="grow"><span class="lbl">Speed</span></span>
+                <span class="value">1×</span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+              <button class="list-row" type="button" data-goto="st-voice">
+                <span class="leading leading--clay"><span class="face"><svg><use href="#lina-neutral"/></svg></span></span>
+                <span class="grow"><span class="lbl">Lina’s voice</span></span>
+                <span class="value">English</span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Sketchbook</p>
+            <div class="list">
+              <div class="list-row list-row--static">
+                <span class="leading leading--gold"><svg><use href="#i-photo"/></svg></span>
+                <span class="grow"><span class="lbl">Also save to Photos</span><span class="sub">Your sketchbook keeps its own copy either way.</span></span>
+                <span class="toggle" role="switch" aria-checked="false" aria-label="Also save to Photos"></span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Accessibility</p>
+            <div class="list">
+              <div class="list-row list-row--static">
+                <span class="leading leading--blue"><svg><use href="#i-eye"/></svg></span>
+                <span class="grow"><span class="lbl">Text size</span><span class="sub">Follows the size set on your iPhone.</span></span>
+                <span class="value">Large</span>
+              </div>
+              <div class="list-row list-row--static">
+                <span class="leading leading--blue"><svg><use href="#i-replay"/></svg></span>
+                <span class="grow"><span class="lbl">Reduce motion</span><span class="sub">Steps appear at once instead of drawing on.</span></span>
+                <span class="toggle" role="switch" aria-checked="false" aria-label="Reduce motion"></span>
+              </div>
+              <div class="list-row list-row--static">
+                <span class="leading leading--blue"><svg><use href="#i-hand"/></svg></span>
+                <span class="grow"><span class="lbl">Left-handed layout</span><span class="sub">Moves the controls to the left.</span></span>
+                <span class="toggle" role="switch" aria-checked="false" aria-label="Left-handed layout"></span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">More</p>
+            <div class="list">
+              <button class="list-row" type="button" data-goto="st-reminder">
+                <span class="leading"><svg><use href="#i-bell"/></svg></span>
+                <span class="grow"><span class="lbl">Practice reminder</span></span>
+                <span class="value">Off</span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+              <button class="list-row" type="button">
+                <span class="leading"><svg><use href="#i-info"/></svg></span>
+                <span class="grow"><span class="lbl">About &amp; credits</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+              <button class="list-row" type="button">
+                <span class="leading"><svg><use href="#i-lock"/></svg></span>
+                <span class="grow"><span class="lbl">Privacy</span><span class="sub">Everything stays on this iPhone.</span></span>
+                <svg class="chevron"><use href="#i-chevron-right"/></svg>
+              </button>
+            </div>
+
+            <div class="list" style="margin-top:8px">
+              <button class="list-row danger-row" type="button">
+                <span class="lbl">Reset progress</span>
+              </button>
+            </div>
+            <p class="t-footnote muted-2 center" style="padding:10px 0 4px">StrokeTutor 1.0 (12)</p>
+          </div>
+          <nav class="tabbar">
+            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
+            <button class="tab" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
+            <button class="tab is-active" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Scrolls. The first fold carries the two settings a learner actually looks for, narration and speed. The only destructive row sits alone at the bottom.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§29</span> “Minimal; speed/accessibility/privacy/reset where useful.” Every row changes how a lesson plays, makes the app readable, or answers a privacy question. No account, no sign-in, no paywall row <span class="tag tag--plan">§30</span>.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>36/800 title, then four <code>.list</code> cards (white, 2 pt <code>--line</code> border, radius 24) with 12/800 uppercase eyebrows at 55 % ink. Rows ≥ 60 pt, 18 pt side padding, 14 pt gap.</li>
+        <li>Icon tiles are 40 pt <code>.leading</code> squares, radius 12, one soft colour per section: green for Lesson, clay for Lina, gold for Sketchbook, blue for Accessibility, neutral for More.</li>
+        <li>Values (“On”, “1×”, “English”, “Large”, “Off”) are 16/600 at 55 % ink on the right; chevrons at 25 % ink only on rows that push.</li>
+        <li>Reset progress: its own card, centred, <code>--danger</code> text, no icon, no chevron. Version line 13/600 at 40 % ink below it.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Narration, Speed and Lina’s voice all push <code>st-voice</code>; the values come from <code>settings.narrationEnabled</code> and <code>settings.defaultPlaybackSpeed</code>, the same keys the player reads.</li>
+        <li>Practice reminder shows “Off” or the schedule in words (“Weekdays 7:30”), never a raw date.</li>
+        <li>Toggles write <code>settings.alsoSaveToPhotos</code>, <code>settings.reduceMotionOverride</code>, <code>settings.leftHandedLayout</code> (all Bool, default false). Text size is read-only: it reports the current Dynamic Type category.</li>
+        <li>Reset progress → confirmation alert with a destructive role: “Clears lesson progress. Sketchbook photos are kept.”</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>White page and white cards with 2 pt borders instead of cream inset groups; tinted 40 pt icon tiles per section so the list scans by colour <span class="tag tag--mobbin">Duolingo</span>.</li>
+        <li>Speed is no longer an inline segmented control here; it lives with narration on <code>st-voice</code> so the Lesson group is three clean push rows.</li>
+        <li>Accessibility is inline (three rows) rather than a fourth screen; “Replay the introduction” moved under About.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>Form { Section("Lesson") { NavigationLink(value: .voice) { SettingsRow(tint: .green, icon: "speaker", "Narration", value: narrationEnabled ? "On" : "Off") } … }
+  Section("Sketchbook") { Toggle(isOn: $alsoSaveToPhotos) { SettingsLabel(tint: .gold, icon: "photo", "Also save to Photos", sub: …) } }
+  Section("Accessibility") { … }  Section("More") { … }
+  Section { Button("Reset progress", role: .destructive) { confirmReset = true } } }
+.listStyle(.insetGrouped).navigationTitle("Settings")</pre>
+      <p><code>versionString</code> = <code>CFBundleShortVersionString</code> + “ (” + <code>CFBundleVersion</code> + “)”. Never hardcode it.</p>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Each row is one VoiceOver element: label = title, value = trailing value or switch state, trait <code>.button</code> for pushes.</li>
+        <li>Dynamic Type: rows reflow to label-over-value above <code>.accessibility1</code>; the icon tile keeps 40 pt.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul>
+        <li>About &amp; credits and Privacy are pushes to screens not in the v3 set; reuse the v1 <code>st-about</code> content when they are built.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ============================================================= st-voice -->
+<article class="screen" id="st-voice" data-title="Narration &amp; voice" data-group="Settings">
+  <header>
+    <h2>Narration &amp; voice</h2>
+    <p class="lede">Lina, a sample you can play, one switch, the speed every lesson starts at, and the promise that the words never leave the screen.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="on">Narration on</button>
+        <button type="button" data-variant="off">Narration off</button>
+      </nav>
+      <div class="devices">
+        <!-- ---------------------------------------------------- on -->
+        <div class="phone" data-variant="on">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Narration &amp; voice</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:4px">
+            <div class="card sample stack">
+              <div class="row" style="gap:14px">
+                <span class="face face--lg"><svg><use href="#lina-neutral"/></svg></span>
+                <div class="grow stack-4">
+                  <p class="t-eyebrow c-clay">Your tutor</p>
+                  <p class="t-title3">Lina</p>
+                </div>
+                <button class="btn btn-secondary btn-icon play" type="button" aria-label="Play a sample"><svg><use href="#i-play"/></svg></button>
+              </div>
+              <p class="quote">“Draw one square in the middle of the page. This is the front wall.”</p>
+              <div class="row row--between">
+                <span class="narration"><span class="face"><svg><use href="#lina-neutral"/></svg></span><span class="wave"><i></i><i></i><i></i><i></i><i></i></span><span class="say-idle">Sample</span><span class="say-playing">Speaking</span></span>
+                <span class="t-footnote muted-2">Simple House · Step 1</span>
+              </div>
+            </div>
+
+            <div class="list">
+              <div class="list-row list-row--static">
+                <span class="leading leading--green"><svg><use href="#i-speaker"/></svg></span>
+                <span class="grow"><span class="lbl">Narration</span><span class="sub">Lina reads each step aloud while it draws.</span></span>
+                <span class="toggle is-on" role="switch" aria-checked="true" aria-label="Narration" data-set-variant="off"></span>
+              </div>
+              <div class="list-row list-row--stack">
+                <div class="head">
+                  <span class="leading leading--green"><svg><use href="#i-speed"/></svg></span>
+                  <span class="grow"><span class="lbl">Speed</span><span class="sub">How fast each step draws. You can change it while you draw.</span></span>
+                </div>
+                <div class="seg" role="radiogroup" aria-label="Speed"><button type="button">0.5×</button><button type="button" class="is-on">1×</button><button type="button">1.5×</button></div>
+              </div>
+            </div>
+
+            <div class="card card--soft stack-4">
+              <p class="t-headline">The words stay on screen</p>
+              <p class="t-body-reg muted">Every instruction is written as well as spoken. Turn Lina off and nothing else changes.</p>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">While a lesson plays</p>
+            <div class="list">
+              <div class="list-row list-row--static">
+                <span class="leading"><svg><use href="#i-speaker"/></svg></span>
+                <span class="grow"><span class="lbl">Other audio</span><span class="sub">Music keeps playing, turned down while Lina speaks.</span></span>
+                <span class="value">Lowered</span>
+              </div>
+              <div class="list-row list-row--static">
+                <span class="leading"><svg><use href="#i-speaker-off"/></svg></span>
+                <span class="grow"><span class="lbl">Silent switch</span><span class="sub">If your iPhone is on silent, Lina stays quiet.</span></span>
+                <span class="value">Respected</span>
+              </div>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- off -->
+        <div class="phone" data-variant="off">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Narration &amp; voice</div>
+            <span></span>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:4px">
+            <div class="card sample sample--off stack">
+              <div class="row" style="gap:14px">
+                <span class="face face--lg"><svg><use href="#lina-neutral"/></svg></span>
+                <div class="grow stack-4">
+                  <p class="t-eyebrow muted-2">Your tutor</p>
+                  <p class="t-title3">Lina</p>
+                </div>
+                <button class="btn btn-secondary btn-icon play" type="button" aria-label="Play a sample" disabled><svg><use href="#i-play"/></svg></button>
+              </div>
+              <p class="quote">“Draw one square in the middle of the page. This is the front wall.”</p>
+              <div class="row row--between">
+                <span class="narration is-muted"><span class="face"><svg><use href="#lina-neutral"/></svg></span><span class="wave"><i></i><i></i><i></i><i></i><i></i></span>Off</span>
+                <span class="t-footnote muted-2">Simple House · Step 1</span>
+              </div>
+            </div>
+
+            <div class="list">
+              <div class="list-row list-row--static">
+                <span class="leading"><svg><use href="#i-speaker-off"/></svg></span>
+                <span class="grow"><span class="lbl">Narration</span><span class="sub">Lina reads each step aloud while it draws.</span></span>
+                <span class="toggle" role="switch" aria-checked="false" aria-label="Narration" data-set-variant="on"></span>
+              </div>
+              <div class="list-row list-row--stack">
+                <div class="head">
+                  <span class="leading leading--green"><svg><use href="#i-speed"/></svg></span>
+                  <span class="grow"><span class="lbl">Speed</span><span class="sub">How fast each step draws. You can change it while you draw.</span></span>
+                </div>
+                <div class="seg" role="radiogroup" aria-label="Speed"><button type="button">0.5×</button><button type="button" class="is-on">1×</button><button type="button">1.5×</button></div>
+              </div>
+            </div>
+
+            <div class="card card--soft stack-4">
+              <p class="t-headline">Nothing is lost</p>
+              <p class="t-body-reg muted">Every lesson works in silence. The written instruction stays on screen; the step, the drawing and the pace are the same.</p>
+            </div>
+            <p class="cap">You can also turn Lina back on from inside a lesson. The chip in the player is a button, and both places write the same setting.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Press play to hear the sample: the chip’s wave moves while it speaks. The toggle flips the other state; the greyed sample shows what is being switched off before it is switched off.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>Narration is the one new thing in this design, so it gets one screen that explains itself with a sample rather than a paragraph. The two things a learner worries about, music and the silent switch, are answered as read-only rows.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Inline nav bar (56 pt, back chevron, 17/800 title); the tab bar is hidden on this push (<code>.toolbar(.hidden, for: .tabBar)</code>).</li>
+        <li>Sample card first: 48 pt <code>.face--lg</code>, “Your tutor” eyebrow in clay, a 56 pt clay play button, the transcript in 20/800, and the same <code>.narration</code> chip the player uses.</li>
+        <li>One list: the Narration toggle row, then a stacked Speed row with the 40 pt <code>.seg</code> (0.5× · 1× · 1.5×). Then a soft card stating that the written instruction always stays on screen.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Play: streams <code>Assets/Voice/simple-house/step-1.m4a</code>; the chip reads “Speaking” with the wave moving, the button fills clay until the clip ends. If the file is missing, hide the whole sample card.</li>
+        <li>Toggle → <code>settings.narrationEnabled</code> (Bool, default true), the single key the player’s chip also writes. Off: the face desaturates, the play button disables, the chip reads “Off”.</li>
+        <li>Speed → <code>settings.defaultPlaybackSpeed</code> (0.5 / 1.0 / 1.5, default 1.0), read by <code>PlayerViewModel</code> at lesson start. Speed does not re-pitch the voice; at 0.5× the clip plays once at normal rate and the stroke takes longer.</li>
+        <li>Audio session <code>.ambient</code> with <code>[.duckOthers, .interruptSpokenAudioAndMixWithOthers]</code>: music ducks, podcasts pause, the silent switch is honoured, a call stops narration and leaves the animation running.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>The sample leads the screen and shows Lina’s face; v1 opened with the toggle. A learner should hear the voice before deciding about it.</li>
+        <li>Speed moved here from the Settings root so narration and pace sit together as “how a lesson plays”. White card with 2 pt border; the play button is tactile with a 4 pt clay edge.</li>
+        <li>The future “Voice” picker row is gone; “Lina · English” is shown as a value on the root and stays static until a second voice exists.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>Form { Section { SampleClipCard(lessonID: "simple-house", stepIndex: 0) }
+  Section { Toggle("Narration", isOn: $narrationEnabled); Picker("Speed", selection: $defaultSpeed) { … }.pickerStyle(.segmented) }
+  Section { StaysOnScreenCard() }
+  Section("While a lesson plays") { LabeledContent("Other audio", value: "Lowered"); LabeledContent("Silent switch", value: "Respected") } }</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>When VoiceOver runs, narration never auto-plays at step start; the chip becomes an explicit “Play narration” button. The wave is <code>.accessibilityHidden(true)</code> and does not animate under Reduce Motion.</li>
+        <li>Toggle: label “Narration”, value On/Off, hint “Turns the spoken instructions on or off. The written instruction stays.” Segmented control becomes a Menu at accessibility sizes.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul><li>Which ElevenLabs voice is Lina, and is its commercial licence in place before any audio ships?</li></ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ============================================================= st-reminder -->
+<article class="screen" id="st-reminder" data-title="Practice reminder" data-group="Settings">
+  <header>
+    <h2>Practice reminder</h2>
+    <p class="lede">Off unless asked for. One notification on the days and at the time the learner picks, with nothing counted and nothing lost if they skip it.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="off">Off (default)</button>
+        <button type="button" data-variant="on">On</button>
+      </nav>
+      <div class="devices">
+        <!-- ---------------------------------------------------- off -->
+        <div class="phone" data-variant="off">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Practice reminder</div>
+            <span></span>
+          </div>
+          <div class="screen-body stack" style="padding-top:4px">
+            <div class="list">
+              <div class="list-row list-row--static">
+                <span class="leading"><svg><use href="#i-bell"/></svg></span>
+                <span class="grow"><span class="lbl">Practice reminder</span><span class="sub">Off</span></span>
+                <span class="toggle" role="switch" aria-checked="false" aria-label="Practice reminder" data-set-variant="on"></span>
+              </div>
+            </div>
+
+            <div class="card stack-8" style="margin-top:8px">
+              <p class="t-title3">A reminder is a small note, not a streak.</p>
+              <p class="t-body-reg muted">Nothing is counted. Skip a day, a week or a month and nothing changes: your place in each path is kept, and your sketchbook is where you left it.</p>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">All it would ever say</p>
+            <div class="banner banner--quiet" style="opacity:.6">
+              <span class="appicon"><svg><use href="#i-pen"/></svg></span>
+              <span class="grow">
+                <span class="row row--between"><span class="t-footnote muted">StrokeTutor</span><span class="when">now</span></span>
+                <span class="t-headline" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
+                <span class="t-subhead muted" style="display:block;font-weight:500">Your next house is ready.</span>
+              </span>
+            </div>
+            <p class="cap">One note, at a time you choose. Never a second one, and never a word about a day you missed.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ---------------------------------------------------- on -->
+        <div class="phone" data-variant="on">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" data-goto="st-settings" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Practice reminder</div>
+            <span></span>
+          </div>
+          <div class="screen-body stack" style="padding-top:4px">
+            <div class="list">
+              <div class="list-row list-row--static">
+                <span class="leading leading--green"><svg><use href="#i-bell"/></svg></span>
+                <span class="grow"><span class="lbl">Practice reminder</span><span class="sub">Weekdays at 7:30</span></span>
+                <span class="toggle is-on" role="switch" aria-checked="true" aria-label="Practice reminder" data-set-variant="off"></span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Days</p>
+            <div class="days" role="group" aria-label="Days">
+              <button type="button" class="is-on" aria-label="Monday">M</button>
+              <button type="button" class="is-on" aria-label="Tuesday">T</button>
+              <button type="button" class="is-on" aria-label="Wednesday">W</button>
+              <button type="button" class="is-on" aria-label="Thursday">T</button>
+              <button type="button" class="is-on" aria-label="Friday">F</button>
+              <button type="button" aria-label="Saturday">S</button>
+              <button type="button" aria-label="Sunday">S</button>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">Time</p>
+            <div class="list">
+              <div class="list-row list-row--static">
+                <span class="grow"><span class="lbl">Remind me at</span><span class="sub">Morning works best for most people. Any time is fine.</span></span>
+                <span class="time-chip">7:30</span>
+              </div>
+            </div>
+
+            <p class="sec-h t-eyebrow muted">What you’ll see</p>
+            <div class="banner">
+              <span class="appicon"><svg><use href="#i-pen"/></svg></span>
+              <span class="grow">
+                <span class="row row--between"><span class="t-footnote muted">StrokeTutor</span><span class="when">7:30</span></span>
+                <span class="t-headline" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
+                <span class="t-subhead muted" style="display:block;font-weight:500">Your next house is ready.</span>
+              </span>
+            </div>
+            <p class="cap">If you skip it, nothing is lost, and the next note does not mention it.</p>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Turning the toggle on shows the schedule in place. On a device the system permission prompt appears once, only after the learner has switched it on.</p>
+    </div>
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§30</span> forbids pressure-heavy streaks. A reminder is still useful for an adult with limited time, so it is opt-in, learner-scheduled, single, and explicitly consequence-free. The screen says so in its first card.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Inline nav bar, tab bar hidden. Toggle row first (neutral bell tile off, green tile on), the row’s subtitle is the schedule in words.</li>
+        <li>Off: one white card (20/800 title, 17/400 body) and a dimmed preview of the only notification the app can send.</li>
+        <li>On: seven day pills (flex, 48 pt tall, radius 14, green with a 3 pt deeper edge when selected), a Time row with the time as a 20/800 chip, then the live preview and one caption. Everything fits without scrolling.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Toggle on → <code>requestAuthorization([.alert, .sound])</code>, no badge ever; if denied, the toggle returns to off with an inline row “Notifications are off for StrokeTutor · Open Settings”. iOS asks only once, so never re-request.</li>
+        <li>Days are multi-select, at least one; deselecting the last turns the reminder off. The time chip opens a compact <code>DatePicker(.hourAndMinute)</code>.</li>
+        <li>Every change reschedules: remove all seven <code>reminder.weekday.N</code> requests, then add one repeating <code>UNCalendarNotificationTrigger</code> per selected day. Also reschedule at launch, and cancel everything on toggle off.</li>
+        <li>Body text comes from the path title (“Your next house is ready.” / “…tree…”), never the lesson title. All paths done: “Your sketchbook is waiting.”</li>
+        <li>Keys: <code>settings.reminderEnabled</code> (false), <code>settings.reminderWeekdays</code> (JSON, [2,3,4,5,6]), <code>settings.reminderHour</code> 7 / <code>…Minute</code> 30. No “last opened” date is ever stored; nothing exists from which a streak could be computed.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>The promise (“a small note, not a streak”) is the headline of the off state, in title type, instead of a paragraph under the toggle.</li>
+        <li>Day pills are tactile soft tiles with an edge <span class="tag tag--mobbin">Duolingo</span> rather than grey circles; the wheel picker is replaced by a compact time chip so the on state fits on one screen.</li>
+        <li>The separate permission-primer variant is dropped: the off card already explains what will be sent, so the system prompt can follow the toggle directly.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+      <pre>Form { Section { Toggle("Practice reminder", isOn: $reminderEnabled) }
+  if reminderEnabled { Section("Days") { WeekdayPills(selection: $weekdays) }
+    Section("Time") { DatePicker("Remind me at", selection: $time, displayedComponents: .hourAndMinute) }
+    Section("What you’ll see") { NotificationPreview(title:body:) } }
+  else { PromiseCard(); NotificationPreview().opacity(0.6) } }</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Pills: label the full weekday, value selected / not selected, trait button; grouped as “Days”. At accessibility sizes they wrap to two rows rather than shrink below 44 pt.</li>
+        <li>The preview banner is one element: “Notification preview. A few quiet minutes with a pen? Your next house is ready.”</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul><li>Offer the reminder once at the end of the first lesson, or only in onboarding and here? Recommendation: onboarding and here, never unprompted afterwards.</li></ul>
+    </aside>
+  </div>
+</article>
+
+<script>
+(function () {
+  // Small, local behaviours the shell does not provide: the sample "plays" for a few seconds,
+  // segmented controls and day pills switch, and plain toggles flip. Variant switches are the shell's.
+  var root = document;
+  root.addEventListener('click', function (e) {
+    var play = e.target.closest('#st-voice .sample .play');
+    if (play && !play.disabled) {
+      var card = play.closest('.sample');
+      card.classList.add('is-playing');
+      clearTimeout(card._t);
+      card._t = setTimeout(function () { card.classList.remove('is-playing'); }, 3200);
+      return;
+    }
+    var segBtn = e.target.closest('article[id^="st-"] .seg > button');
+    if (segBtn) {
+      segBtn.parentNode.querySelectorAll('button').forEach(function (b) { b.classList.remove('is-on'); });
+      segBtn.classList.add('is-on');
+      return;
+    }
+    var day = e.target.closest('#st-reminder .days button');
+    if (day) { day.classList.toggle('is-on'); return; }
+    var tg = e.target.closest('article[id^="st-"] .toggle:not([data-set-variant])');
+    if (tg) { tg.classList.toggle('is-on'); tg.setAttribute('aria-checked', tg.classList.contains('is-on')); }
+  });
+})();
+</script>

@@ -1,0 +1,853 @@
+<!-- 40-completion-sketchbook.html — group "Completion & sketchbook" (sk-*), v3.
+     Plan §32: at completion do not grade; help the learner keep evidence of progress. -->
+<style>
+/* ---------------------------------------------------------------------------
+   Completion & sketchbook (sk-*). Every rule is scoped to a screen id.
+   --------------------------------------------------------------------------- */
+
+/* A photographed page: the warm .photo placeholder is the desk, a white sheet sits slightly askew on it,
+   and the lesson's own pen strokes are on the sheet. Used wherever a sketchbook entry is shown. */
+article[id^="sk-"] .sk-shot { position: relative; display: block; aspect-ratio: 3 / 4; border-radius: 16px; overflow: hidden; padding: 0; width: 100%;
+  background: linear-gradient(160deg, #EADCC8, #CDAB80 55%, #A07F56); box-shadow: inset 0 0 0 2px var(--line); }
+article[id^="sk-"] .sk-shot .paper { position: absolute; left: 11%; top: 8%; width: 78%; height: 84%; background: #FFFDF9; border-radius: 3px;
+  transform: rotate(-1.6deg); box-shadow: 0 6px 16px rgba(50,30,10,.28), 0 1px 2px rgba(50,30,10,.2); }
+article[id^="sk-"] .sk-shot .paper svg { position: absolute; inset: 8%; width: 84%; height: 84%; color: #2B2B2B; }
+article[id^="sk-"] .sk-shot::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,.32) 0%, rgba(255,255,255,0) 34%, rgba(0,0,0,0) 62%, rgba(0,0,0,.14) 100%); }
+
+/* sk-complete: the finished drawing on a white page that takes whatever height the text leaves it */
+#sk-complete .sk-hero { flex: 1 1 auto; min-height: 0; display: flex; justify-content: center; padding: 10px 0 6px; }
+#sk-complete .sk-page { height: 100%; width: auto; max-width: 100%; aspect-ratio: 3 / 4;
+  box-shadow: inset 0 0 0 2px rgba(224,163,46,.55), 0 0 0 6px var(--gold-soft); }
+#sk-complete .sk-page svg { color: var(--ink); top: 8%; bottom: 20%; height: 72%; }   /* leave the bottom band to the chip */
+#sk-complete .sk-page .chip { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); white-space: nowrap; }
+#sk-complete .sk-lina { display: flex; align-items: flex-start; gap: 12px; padding: 2px 2px 0; }
+#sk-complete .sk-lina p { padding-top: 1px; color: var(--ink-70); }
+/* path-done: a contact sheet of the ten pages, 5 × 2, each a small white page */
+#sk-complete .sk-sheet { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; --sw-a: 38; --sw-b: 30; --sw-c: 22; padding: 4px 0 2px; }
+#sk-complete .sk-sheet .page-thumb { border-radius: 10px; }
+#sk-complete .sk-sheet .page-thumb svg { color: var(--ink); inset: 8%; width: 84%; height: 84%; }
+#sk-complete .sk-sheet .is-new { box-shadow: inset 0 0 0 2.5px var(--gold), 0 0 0 4px var(--gold-soft); }
+#sk-complete .sk-sheet .badge { position: absolute; right: -6px; top: -6px; width: 22px; height: 22px; border-radius: 50%; background: var(--gold); color: #fff; display: grid; place-items: center; box-shadow: 0 0 0 3px #fff; }
+#sk-complete .sk-sheet .badge svg { position: static; width: 13px; height: 13px; color: #fff; }
+
+/* sk-capture: the mocked viewfinder (no camera runs in this document) */
+#sk-capture .vf { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: #1B1917; }
+#sk-capture .vf-scene { position: absolute; inset: 0;
+  background: radial-gradient(120% 90% at 50% 18%, rgba(255,238,210,.18), transparent 60%), linear-gradient(170deg, #5C4B3B 0%, #3D322A 45%, #26201B 100%); }
+#sk-capture .vf-page { position: absolute; left: 50%; top: 50%; width: 236px; aspect-ratio: 3 / 4; transform: translate(-50%, -50%) rotate(2.4deg);
+  background: #F8F4EC; border-radius: 3px; box-shadow: 0 16px 34px rgba(0,0,0,.5); }
+#sk-capture .vf-page svg { position: absolute; inset: 9%; width: 82%; height: 82%; color: #2B2B2B; }
+#sk-capture .vf-guide { position: absolute; left: 50%; top: 50%; width: 300px; aspect-ratio: 3 / 4; transform: translate(-50%, -50%);
+  border: 1.5px dashed rgba(255,255,255,.38); border-radius: 6px; }
+#sk-capture .vf-guide i { position: absolute; width: 30px; height: 30px; border: 3px solid #fff; }
+#sk-capture .vf-guide i:nth-child(1) { left: -3px; top: -3px; border-right: 0; border-bottom: 0; border-top-left-radius: 8px; }
+#sk-capture .vf-guide i:nth-child(2) { right: -3px; top: -3px; border-left: 0; border-bottom: 0; border-top-right-radius: 8px; }
+#sk-capture .vf-guide i:nth-child(3) { left: -3px; bottom: -3px; border-right: 0; border-top: 0; border-bottom-left-radius: 8px; }
+#sk-capture .vf-guide i:nth-child(4) { right: -3px; bottom: -3px; border-left: 0; border-top: 0; border-bottom-right-radius: 8px; }
+#sk-capture .vf-hint { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); padding: 9px 14px; border-radius: 999px;
+  background: rgba(0,0,0,.52); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; font-size: 14px; font-weight: 700; white-space: nowrap; }
+#sk-capture .vf-ghost { position: absolute; right: 16px; bottom: 34px; width: 64px; height: 64px; border-radius: 14px; padding: 7px;
+  background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.4); }
+#sk-capture .vf-ghost svg { width: 100%; height: 100%; color: rgba(255,255,255,.92); }
+#sk-capture .vf-ghost span { position: absolute; left: -12px; right: -12px; bottom: -22px; text-align: center; font-size: 13px; font-weight: 700; color: rgba(255,255,255,.75); }
+#sk-capture .cam-bar { flex: none; height: calc(108px + var(--safe-bottom)); padding: 0 30px var(--safe-bottom); display: flex; align-items: center; justify-content: space-between; background: #000; color: #fff; }
+#sk-capture .cam-side { width: 64px; display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: 0; padding: 0; color: #fff; font: 700 13px/1 var(--font); cursor: pointer; }
+#sk-capture .cam-side .disc { width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.16); display: grid; place-items: center; }
+#sk-capture .cam-side .disc svg { width: 22px; height: 22px; }
+#sk-capture .shutter { width: 76px; height: 76px; border-radius: 50%; border: 5px solid #fff; background: transparent; padding: 0; display: grid; place-items: center; cursor: pointer; }
+#sk-capture .shutter i { width: 58px; height: 58px; border-radius: 50%; background: #fff; display: block; }
+#sk-capture .shutter:active i { transform: scale(.92); }
+#sk-capture .sk-review .page-thumb svg { color: var(--ink); }
+#sk-capture .sk-saved-shot { width: 196px; margin: 0 auto; }
+
+/* sk-book: 2-column grid of photographed pages, by month */
+#sk-book .sk-month { display: flex; align-items: baseline; justify-content: space-between; padding: 10px 2px 0; }
+#sk-book .sk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+#sk-book .sk-cell { display: flex; flex-direction: column; gap: 8px; min-width: 0; background: none; border: 0; padding: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+#sk-book .sk-cell b { display: block; font-size: 16px; line-height: 20px; font-weight: 800; letter-spacing: -.2px; padding: 0 2px; }
+#sk-book .sk-cell small { display: block; font-size: 13px; line-height: 17px; font-weight: 600; color: var(--ink-55); padding: 0 2px; }
+#sk-book .sk-empty-page { width: 150px; margin: 0 auto; }
+#sk-book .sk-empty-page svg { color: var(--ink-25); }
+#sk-book .sk-empty-page .cam { position: absolute; left: 50%; bottom: -18px; transform: translateX(-50%); width: 40px; height: 40px; border-radius: 50%; background: var(--surface); box-shadow: 0 0 0 4px #fff; display: grid; place-items: center; color: var(--ink-55); }
+#sk-book .sk-empty-page .cam svg { position: static; width: 20px; height: 20px; color: var(--ink-55); }
+
+/* sk-entry: one page, large; a note field; quiet actions */
+#sk-entry .sk-note { display: flex; align-items: flex-start; gap: 12px; min-height: 60px; padding: 14px 16px; border-radius: 20px; background: var(--surface); font: 500 17px/24px var(--font); color: var(--ink); text-align: left; border: 0; width: 100%; cursor: text; }
+#sk-entry .sk-note svg { width: 22px; height: 22px; flex: none; color: var(--ink-40); margin-top: 1px; }
+#sk-entry .sk-note .ph { color: var(--ink-40); }
+#sk-entry .sk-quiet { display: flex; gap: 12px; }
+#sk-entry .sk-quiet .btn { flex: 1 1 0; }
+#sk-entry .alert .divider { margin: 6px -20px 0; }
+</style>
+<!-- Drawing symbols, copied from the v1 fragment (same ids; v3 is a separate document). -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false"><defs>
+  <symbol id="sk-dwg-simple-house" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/>
+      <path stroke-width="16" d="M 200 480 L 500 260 L 800 480 Z"/>
+      <path stroke-width="12" d="M 440 850 L 440 690 L 560 690 L 560 850"/>
+      <path stroke-width="12" d="M 320 540 L 420 540 L 420 640 L 320 640 Z"/>
+      <path stroke-width="12" d="M 580 540 L 680 540 L 680 640 L 580 640 Z"/>
+      <path stroke-width="12" d="M 620 348 L 620 200 L 700 200 L 700 407"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-chimney-house" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 270 500 L 730 500 L 730 850 L 270 850 Z"/>
+      <path stroke-width="16" d="M 220 500 L 500 290 L 780 500 Z"/>
+      <path stroke-width="13" d="M 300 425 L 300 230 L 392 230 L 392 372"/>
+      <path stroke-width="12" d="M 450 850 L 450 700 L 560 700 L 560 850"/>
+      <path stroke-width="12" d="M 330 560 L 415 560 L 415 645 L 330 645 Z"/>
+      <path stroke-width="12" d="M 590 560 L 675 560 L 675 645 L 590 645 Z"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-cottage" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 200 560 L 800 560 L 800 840 L 200 840 Z"/>
+      <path stroke-width="16" d="M 150 560 L 500 330 L 850 560 Z"/>
+      <path stroke-width="12" d="M 455 840 L 455 700 L 565 700 L 565 840"/>
+      <path stroke-width="12" d="M 260 620 L 350 620 L 350 700 L 260 700 Z"/>
+      <path stroke-width="12" d="M 650 620 L 740 620 L 740 700 L 650 700 Z"/>
+      <path stroke-width="11" d="M 455 425 L 545 425 L 545 500 L 455 500 Z"/>
+      <path stroke-width="12" d="M 690 430 L 690 300 L 760 300 L 760 470"/>
+      <path stroke-width="10" d="M 455 840 C 432 886 396 916 348 942"/>
+      <path stroke-width="10" d="M 565 840 C 588 886 624 916 672 942"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-angle-house" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 300 520 L 640 520 L 640 852 L 300 852 Z"/>
+      <path stroke-width="16" d="M 640 520 L 822 572 L 822 828 L 640 852"/>
+      <path stroke-width="16" d="M 262 520 L 470 372 L 680 520"/>
+      <path stroke-width="16" d="M 470 372 L 662 414 L 822 572"/>
+      <path stroke-width="12" d="M 402 852 L 402 702 L 502 702 L 502 852"/>
+      <path stroke-width="12" d="M 540 582 L 612 582 L 612 654 L 540 654 Z"/>
+      <path stroke-width="11" d="M 692 606 L 762 622 L 762 690 L 692 676 Z"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-two-story" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 282 380 L 718 380 L 718 850 L 282 850 Z"/>
+      <path stroke-width="16" d="M 236 380 L 500 202 L 764 380 Z"/>
+      <path stroke-width="12" d="M 452 850 L 452 712 L 552 712 L 552 850"/>
+      <path stroke-width="12" d="M 340 442 L 424 442 L 424 522 L 340 522 Z"/>
+      <path stroke-width="12" d="M 576 442 L 660 442 L 660 522 L 576 522 Z"/>
+      <path stroke-width="12" d="M 340 600 L 424 600 L 424 680 L 340 680 Z"/>
+      <path stroke-width="12" d="M 576 600 L 660 600 L 660 680 L 576 680 Z"/>
+      <path stroke-width="12" d="M 600 300 L 600 216 L 664 216 L 664 320"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-barn" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 230 520 L 770 520 L 770 852 L 230 852 Z"/>
+      <path stroke-width="16" d="M 198 520 L 330 402 L 500 332 L 670 402 L 802 520"/>
+      <path stroke-width="14" d="M 398 852 L 398 608 L 602 608 L 602 852"/>
+      <path stroke-width="10" d="M 398 608 L 602 852 M 602 608 L 398 852"/>
+      <path stroke-width="11" d="M 458 420 L 542 420 L 542 492 L 458 492 Z"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-farmhouse" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 250 500 L 750 500 L 750 850 L 250 850 Z"/>
+      <path stroke-width="16" d="M 210 500 L 500 302 L 790 500 Z"/>
+      <path stroke-width="12" d="M 236 662 L 764 662"/>
+      <path stroke-width="10" d="M 300 662 L 300 850 M 700 662 L 700 850"/>
+      <path stroke-width="12" d="M 460 850 L 460 712 L 560 712 L 560 850"/>
+      <path stroke-width="12" d="M 322 542 L 396 542 L 396 616 L 322 616 Z"/>
+      <path stroke-width="12" d="M 604 542 L 678 542 L 678 616 L 604 616 Z"/>
+      <path stroke-width="11" d="M 430 392 L 430 330 L 570 330 L 570 392"/>
+      <path stroke-width="12" d="M 656 404 L 656 282 L 720 282 L 720 442"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-house-tree" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 180 560 L 520 560 L 520 852 L 180 852 Z"/>
+      <path stroke-width="16" d="M 146 560 L 350 412 L 554 560 Z"/>
+      <path stroke-width="12" d="M 300 852 L 300 722 L 390 722 L 390 852"/>
+      <path stroke-width="12" d="M 212 612 L 276 612 L 276 676 L 212 676 Z"/>
+      <path stroke-width="14" d="M 700 852 L 700 682"/>
+      <path stroke-width="14" d="M 700 682 C 592 682 560 566 648 522 C 658 434 778 424 810 502 C 888 522 878 662 760 682 Z"/>
+      <path stroke-width="10" d="M 120 852 L 900 852"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-foreground" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="14" d="M 320 462 L 680 462 L 680 682 L 320 682 Z"/>
+      <path stroke-width="14" d="M 286 462 L 500 322 L 714 462 Z"/>
+      <path stroke-width="11" d="M 462 682 L 462 582 L 540 582 L 540 682"/>
+      <path stroke-width="11" d="M 362 502 L 422 502 L 422 562 L 362 562 Z"/>
+      <path stroke-width="12" d="M 150 700 C 350 680 650 690 862 702"/>
+      <path stroke-width="10" d="M 700 702 L 700 802 M 760 702 L 760 802 M 820 702 L 820 802 M 678 742 L 842 742"/>
+      <path stroke-width="14" d="M 178 862 C 200 782 262 762 300 802 C 350 752 432 792 420 862"/>
+      <path stroke-width="12" d="M 512 886 C 552 852 618 862 642 894"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-street" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="15" d="M 120 562 L 420 562 L 420 820 L 120 820 Z"/>
+      <path stroke-width="15" d="M 92 562 L 270 422 L 450 562 Z"/>
+      <path stroke-width="11" d="M 240 820 L 240 702 L 310 702 L 310 820"/>
+      <path stroke-width="11" d="M 160 612 L 220 612 L 220 668 L 160 668 Z"/>
+      <path stroke-width="15" d="M 520 482 L 830 482 L 830 820 L 520 820 Z"/>
+      <path stroke-width="15" d="M 494 482 L 675 352 L 856 482 Z"/>
+      <path stroke-width="11" d="M 758 406 L 758 302 L 812 302 L 812 434"/>
+      <path stroke-width="11" d="M 560 532 L 620 532 L 620 592 L 560 592 Z"/>
+      <path stroke-width="11" d="M 730 532 L 790 532 L 790 592 L 730 592 Z"/>
+      <path stroke-width="11" d="M 640 820 L 640 702 L 710 702 L 710 820"/>
+      <path stroke-width="13" d="M 470 820 L 470 700"/>
+      <path stroke-width="13" d="M 470 700 C 408 700 396 630 452 618 C 468 578 520 588 522 628 C 562 646 546 700 470 700 Z"/>
+      <path stroke-width="12" d="M 60 820 L 940 820"/>
+      <path stroke-width="10" d="M 60 890 L 940 890"/>
+      <path stroke-width="9" d="M 300 856 L 384 856 M 560 856 L 644 856"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-palm" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="17" d="M 462 876 C 450 690 482 540 542 432"/>
+      <path stroke-width="8" d="M 468 800 C 490 790 508 794 524 802"/>
+      <path stroke-width="8" d="M 466 716 C 488 706 506 710 522 718"/>
+      <path stroke-width="8" d="M 480 632 C 502 622 520 626 536 634"/>
+      <path stroke-width="12" d="M 548 424 C 470 340 358 318 254 362"/>
+      <path stroke-width="12" d="M 548 424 C 458 402 356 434 288 508"/>
+      <path stroke-width="12" d="M 548 424 C 622 330 734 312 826 360"/>
+      <path stroke-width="12" d="M 548 424 C 642 404 730 444 792 516"/>
+      <path stroke-width="12" d="M 548 424 C 516 324 528 248 562 188"/>
+      <path stroke-width="7" d="M 400 366 L 372 322 M 330 372 L 306 330 M 460 388 L 440 342 M 646 356 L 668 312 M 716 366 L 742 326 M 596 376 L 612 330"/>
+      <circle stroke-width="9" cx="508" cy="470" r="22"/>
+      <circle stroke-width="9" cx="556" cy="486" r="22"/>
+      <circle stroke-width="9" cx="592" cy="458" r="20"/>
+      <path stroke-width="10" d="M 300 900 C 400 878 600 878 720 900"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-round-tree" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 500 884 L 500 648"/>
+      <path stroke-width="11" d="M 500 730 L 416 650 M 500 692 L 580 618"/>
+      <path stroke-width="15" d="M 500 645 C 360 655 280 560 330 470 C 300 370 420 300 520 340 C 640 300 740 380 710 480 C 760 570 650 660 500 645 Z"/>
+      <path stroke-width="8" d="M 430 470 C 470 500 500 520 540 528 M 600 430 C 570 470 556 496 546 528"/>
+      <path stroke-width="10" d="M 330 894 C 420 876 580 876 670 894"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-pine" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="16" d="M 500 900 L 500 806"/>
+      <path stroke-width="14" d="M 500 236 L 382 430 L 618 430 Z"/>
+      <path stroke-width="14" d="M 500 376 L 340 562 L 660 562 Z"/>
+      <path stroke-width="14" d="M 500 516 L 302 700 L 698 700 Z"/>
+      <path stroke-width="14" d="M 500 656 L 262 812 L 738 812 Z"/>
+      <path stroke-width="10" d="M 322 906 C 420 888 580 888 678 906"/>
+    </g>
+  </symbol>
+  <symbol id="sk-dwg-bare-tree" viewBox="0 0 1000 1000">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="18" d="M 500 890 C 492 780 498 700 506 638"/>
+      <path stroke-width="13" d="M 506 638 C 452 578 402 520 352 430"/>
+      <path stroke-width="13" d="M 506 638 C 560 578 622 530 690 450"/>
+      <path stroke-width="11" d="M 502 700 C 452 660 400 630 342 600"/>
+      <path stroke-width="11" d="M 502 690 C 560 660 622 640 690 620"/>
+      <path stroke-width="8" d="M 352 430 C 322 390 302 360 282 320 M 352 430 C 372 380 382 350 392 300"/>
+      <path stroke-width="8" d="M 690 450 C 720 410 740 380 760 340 M 690 450 C 670 400 660 370 650 320"/>
+      <path stroke-width="7" d="M 342 600 C 302 570 282 550 252 520"/>
+      <path stroke-width="7" d="M 690 620 C 730 600 760 580 790 552"/>
+      <path stroke-width="10" d="M 330 896 C 420 878 580 878 670 896"/>
+    </g>
+  </symbol>
+  <!-- one extra icon (crop), drawn locally as the contract allows -->
+  <symbol id="sk-i-crop" viewBox="0 0 24 24"><path d="M6 2 V16 a2 2 0 0 0 2 2 H22 M2 6 H16 a2 2 0 0 1 2 2 V22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="sk-i-flash" viewBox="0 0 24 24"><path d="M13 2 L5 13 h6 l-1 9 l8 -11 h-6 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+
+<!--SK-SYMBOLS-->
+
+<!-- ======================================================================================================
+     sk-complete
+     ====================================================================================================== -->
+<article class="screen" id="sk-complete" data-title="Lesson complete" data-group="Completion &amp; sketchbook">
+  <header>
+    <h2>Lesson complete</h2>
+    <p class="lede">The moment after the last step. The drawing is shown whole on a white page, one line from Lina, two honest facts, and the invitation to keep it. Nothing is graded.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="default">Lesson finished</button>
+        <button type="button" data-variant="path-done">Last lesson of a path</button>
+      </nav>
+      <div class="devices">
+        <!-- ============================== default ============================== -->
+        <div class="phone" data-variant="default">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body stack">
+            <div class="sk-hero">
+              <div class="page-thumb sk-page" role="img" aria-label="Your finished Small Cottage drawing">
+                <svg viewBox="0 0 1000 1000">
+                  <path class="stroke draws" pathLength="1" stroke-width="16" style="--dur:.55s;--delay:.15s" d="M 200 560 L 800 560 L 800 840 L 200 840 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="16" style="--dur:.5s;--delay:.72s" d="M 150 560 L 500 330 L 850 560 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:.35s;--delay:1.24s" d="M 455 840 L 455 700 L 565 700 L 565 840"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:.3s;--delay:1.6s" d="M 260 620 L 350 620 L 350 700 L 260 700 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:.3s;--delay:1.9s" d="M 650 620 L 740 620 L 740 700 L 650 700 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="11" style="--dur:.3s;--delay:2.2s" d="M 455 425 L 545 425 L 545 500 L 455 500 Z"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="12" style="--dur:.35s;--delay:2.5s" d="M 690 430 L 690 300 L 760 300 L 760 470"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="10" style="--dur:.3s;--delay:2.88s" d="M 455 840 C 432 886 396 916 348 942"/>
+                  <path class="stroke draws" pathLength="1" stroke-width="10" style="--dur:.3s;--delay:3.18s" d="M 565 840 C 588 886 624 916 672 942"/>
+                </svg>
+                <span class="chip chip--gold"><svg><use href="#i-check"/></svg>Drawn · 12 Sep</span>
+              </div>
+            </div>
+            <h1 class="t-title1 center balance">Your cottage is finished.</h1>
+            <div class="sk-lina">
+              <span class="face face--lg"><svg><use href="#lina-neutral"/></svg></span>
+              <p class="t-body grow">Look at the chimney. That one detail made it a home.</p>
+            </div>
+            <div class="grid-2">
+              <div class="tile"><b>7</b><span>Steps</span></div>
+              <div class="tile"><b>4 min</b><span>Drawing time</span></div>
+            </div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="sk-capture" data-variant="primer"><svg><use href="#i-camera"/></svg>Add to sketchbook</button>
+            <button class="btn btn-secondary" type="button" data-goto="hp-preview">Next lesson</button>
+            <button class="btn btn-text" type="button" data-goto="hp-path">Not now</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== path-done ============================== -->
+        <div class="phone" data-variant="path-done">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body stack">
+            <div class="spacer" style="flex:0 1 20px"></div>
+            <p class="t-eyebrow c-gold center">Path finished</p>
+            <h1 class="t-title1 center balance">Ten houses. The path is done.</h1>
+            <div class="sk-sheet" role="list" aria-label="Your ten drawings, in lesson order">
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-simple-house"/></svg></div>
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-chimney-house"/></svg></div>
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-cottage"/></svg></div>
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-angle-house"/></svg></div>
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-two-story"/></svg></div>
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-barn"/></svg></div>
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-farmhouse"/></svg></div>
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-house-tree"/></svg></div>
+              <div class="page-thumb" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-foreground"/></svg></div>
+              <div class="page-thumb is-new" role="listitem"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-street"/></svg><span class="badge"><svg><use href="#i-check"/></svg></span></div>
+            </div>
+            <div class="sk-lina">
+              <span class="face face--lg"><svg><use href="#lina-neutral"/></svg></span>
+              <p class="t-body grow">You know how a house is put together now. Try one from your own street.</p>
+            </div>
+            <div class="grid-2">
+              <div class="tile"><b>10</b><span>Drawings</span></div>
+              <div class="tile"><b>5 weeks</b><span>First to last</span></div>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="sk-capture" data-variant="primer"><svg><use href="#i-camera"/></svg>Add to sketchbook</button>
+            <button class="btn btn-secondary" type="button" data-goto="hp-paths">Choose another path</button>
+            <button class="btn btn-text" type="button" data-goto="hp-path">Not now</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The cottage draws itself once, whole, in about 3.5 s, the same strokes the learner just copied. No confetti, no score. In the path-done variant the ten pages sit on one sheet; the tenth, just finished, carries the gold ring.</p>
+    </div>
+
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§32</span> "At completion, do not grade the drawing… the final action is to help the learner keep evidence of progress." The headline is the plan's own sentence, templated from <code>lessons[].subjectNoun</code>; the page card is the evidence; the green button keeps it.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Full-screen cover from the player (<code>state == .finished</code>): no nav bar, no tab bar, no close. The three actions are the only exits.</li>
+        <li>The page: <code>.page-thumb</code> 3 : 4, white, with a soft gold frame (2 pt gold at 55 % inside, 6 pt <code>--gold-soft</code> outside). It takes whatever height the text leaves — about 300 × 400 pt here — so the drawing is the largest thing on screen. The <code>chip--gold</code> "Drawn · 12 Sep" overlaps its foot.</li>
+        <li>Headline 30/800 centred, at most two lines. Lina: <code>.face--lg</code> 48 pt + one 17/500 line at 70 % ink, no bubble. Two <code>.tile</code>s in a 12 pt grid: 24/800 value, 13/600 label.</li>
+        <li>Bottom: primary 64 pt, secondary 60 pt, "Not now" 48 pt text; 12 pt between. The secondary says only "Next lesson" so a long localised title can never break it.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li><b>default</b> — mid-path. "Add to sketchbook" → <code>sk-capture</code> primer (straight to the camera when video access is already authorised); "Next lesson" → <code>hp-preview</code>; "Not now" → <code>hp-path</code>. Completion is written before this screen appears, so "Not now" loses nothing.</li>
+        <li><b>path-done</b> — <code>path.lessonIds.last == lesson.id</code>. Instead of one page, a 5 × 2 contact sheet of all ten drawings (the newest ringed gold, check badge). Secondary becomes "Choose another path" → <code>hp-paths</code>. Cells show the learner's photo when one exists, else the tutorial strokes.</li>
+        <li>No auto-dismiss, no timer <span class="tag tag--plan">§31</span>. One <code>.success</code> haptic on appear; no sound.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>White page card instead of the cream <code>canvas-frame</code>; gold marks the finished drawing (frame and chip), as on the path nodes.</li>
+        <li>Lina is a round portrait with a plain line, not a figure with a speech bubble: quieter, and it lines up with the narration chip in the player.</li>
+        <li>Facts are <code>.tile</code>s; buttons are the tactile 64/60 pt set. <span class="tag tag--mobbin">Duolingo</span> shape (hero, headline, tiles, one primary) without XP or accuracy.</li>
+        <li>v1's separate <code>sk-path-done</code> screen is folded into this one as a variant: the sheet of ten is the graduation, no extra screen or trophy <span class="tag tag--plan">§39</span>.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+<pre>CompletionView(lesson:progress:)              // fullScreenCover from PlayerView
+ ├ FinishedPageView(tutorial:animated:)       // reuses the player's stroke renderer, 3:4 white card
+ │   or PathSheetView(entries:tutorials:)     // path-done: LazyVGrid(5 columns, 8 pt)
+ ├ Text(headline).font(Theme.rounded(30, .heavy))
+ ├ TutorLine(face: .neutral, text: lesson.completionLine)
+ ├ HStack { StatTile("7", "Steps"); StatTile("4 min", "Drawing time") }
+ └ VStack(spacing: 12) { BigPrimaryButton; BigSecondaryButton; TextButton("Not now") }
+progressStore.complete(lesson)                // before presenting; synchronous, local</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>VoiceOver order: headline → page image ("Your finished Small Cottage drawing, drawn 12 September") → Lina's line → tiles ("7 steps", "4 minutes of drawing") → actions.</li>
+        <li>Dynamic Type: the page shrinks first (min 200 pt tall), then the screen becomes a <code>ScrollView</code>; tiles stack above <code>.accessibilityMedium</code>. Buttons never go under 60 pt.</li>
+        <li>Reduce Motion: no draw-on; the drawing is present on appear (<code>UIAccessibility.isReduceMotionEnabled</code>).</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul>
+        <li>Is "Drawing time" a welcome fact or a quiet pressure to be fast? "Lesson 3 of 10" is the neutral alternative.</li>
+        <li>"5 weeks" on the path sheet is computed from first to last completion; confirm it reads as a fact, not a target.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ======================================================================================================
+     sk-capture
+     ====================================================================================================== -->
+<article class="screen" id="sk-capture" data-title="Photograph the page" data-group="Completion &amp; sketchbook">
+  <header>
+    <h2>Photograph the page</h2>
+    <p class="lede">Turning the paper drawing into a sketchbook entry: why we ask for the camera, a viewfinder built for a flat page, a look before keeping, and the confirmation.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="primer">Why the camera</button>
+        <button type="button" data-variant="camera">Viewfinder</button>
+        <button type="button" data-variant="review">Keep this one?</button>
+        <button type="button" data-variant="saved">Saved</button>
+      </nav>
+      <div class="devices">
+        <!-- ============================== primer ============================== -->
+        <div class="phone" data-variant="primer">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" aria-label="Back" data-goto="sk-complete"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title"></div>
+            <span></span>
+          </div>
+          <div class="screen-body stack">
+            <span class="icon-tile" style="margin-top:4px"><svg><use href="#i-camera"/></svg></span>
+            <h1 class="t-title1 balance">A photo of the page</h1>
+            <p class="t-body-reg muted">Your sketchbook keeps photographs of the real pages you drew, so you can look back at them.</p>
+            <div class="list list--soft" style="margin-top:8px">
+              <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">Photos stay on this iPhone, inside StrokeTutor.</p></div>
+              <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">Nothing is uploaded. There is no feed to post to.</p></div>
+              <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">They do not go to your Photos library unless you ask.</p></div>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-set-variant="camera"><svg><use href="#i-camera"/></svg>Use the camera</button>
+            <button class="btn btn-secondary" type="button" data-set-variant="review"><svg><use href="#i-photo"/></svg>Choose from Photos</button>
+            <button class="btn btn-text" type="button" data-goto="hp-path">Not now</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== camera ============================== -->
+        <div class="phone phone--dark" data-variant="camera">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" aria-label="Cancel" style="color:#fff" data-set-variant="primer"><svg><use href="#i-close"/></svg></button>
+            <div class="title">Small Cottage</div>
+            <span></span>
+          </div>
+          <div class="vf">
+            <div class="vf-scene"></div>
+            <div class="vf-page"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-cottage"/></svg></div>
+            <div class="vf-guide" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <p class="vf-hint">Lay the page flat and fill the frame.</p>
+            <div class="vf-ghost" aria-hidden="true"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-cottage"/></svg><span>The lesson</span></div>
+          </div>
+          <div class="cam-bar">
+            <button class="cam-side" type="button" data-set-variant="review"><span class="disc"><svg><use href="#i-photo"/></svg></span>Photos</button>
+            <button class="shutter" type="button" aria-label="Take photo" data-set-variant="review"><i></i></button>
+            <button class="cam-side" type="button"><span class="disc"><svg><use href="#sk-i-flash"/></svg></span>Auto</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== review ============================== -->
+        <div class="phone" data-variant="review">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" aria-label="Back to camera" data-set-variant="camera"><svg><use href="#i-close"/></svg></button>
+            <div class="title">Small Cottage</div>
+            <span></span>
+          </div>
+          <div class="screen-body stack sk-review">
+            <div class="spacer"></div>
+            <h1 class="t-title2 center">Keep this one?</h1>
+            <div class="grid-2" style="margin-top:4px">
+              <div class="stack-8">
+                <div class="sk-shot photo photo--warm" role="img" aria-label="The photo you just took"><div class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-cottage"/></svg></div></div>
+                <p class="t-footnote muted center">Your page</p>
+              </div>
+              <div class="stack-8">
+                <div class="page-thumb" role="img" aria-label="The finished Small Cottage lesson drawing"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-cottage"/></svg></div>
+                <p class="t-footnote muted center">The lesson</p>
+              </div>
+            </div>
+            <button class="btn btn-soft" type="button" style="min-height:52px;font-size:17px;margin-top:8px"><svg><use href="#sk-i-crop"/></svg>Crop &amp; straighten</button>
+            <p class="hint center">No filters and no touch-ups. Straightening is the only edit.</p>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <div class="btn-row">
+              <button class="btn btn-secondary" type="button" data-set-variant="camera"><svg><use href="#i-replay"/></svg>Retake</button>
+              <button class="btn btn-primary" type="button" data-set-variant="saved"><svg><use href="#i-check"/></svg>Keep</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== saved ============================== -->
+        <div class="phone" data-variant="saved">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body stack">
+            <div class="spacer"></div>
+            <span class="chip chip--green" style="align-self:center"><svg><use href="#i-check"/></svg>Saved to your sketchbook</span>
+            <div class="sk-shot photo photo--warm sk-saved-shot" role="img" aria-label="Your Small Cottage page" style="margin-top:8px"><div class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-cottage"/></svg></div></div>
+            <div class="stack-4 center" style="margin-top:8px">
+              <h1 class="t-title2">Small Cottage</h1>
+              <p class="t-subhead muted">Houses · Lesson 3 · Saturday, 12 September 2026</p>
+              <p class="t-footnote muted" style="margin-top:6px">Kept on this iPhone only. Nothing is uploaded.</p>
+            </div>
+            <div class="spacer"></div>
+          </div>
+          <div class="bottom-area">
+            <button class="btn btn-primary" type="button" data-goto="hp-preview">Next lesson</button>
+            <button class="btn btn-secondary" type="button" data-goto="sk-book"><svg><use href="#i-book"/></svg>Open your sketchbook</button>
+            <button class="btn btn-text" type="button" data-goto="hp-path">Done</button>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The viewfinder is a mock. The dashed guide is a 3 : 4 page, the corner brackets are the real target, and the small thumbnail bottom-right is the lesson, so the learner lines the page up the same way every time and two attempts stay comparable later.</p>
+    </div>
+
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§32</span> "Photograph the physical page after a tutorial. Store locally and privately by default." Fast enough to do every time, honest enough that nobody is surprised later about where the picture went.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li><b>primer</b> — 56 pt icon tile, 30/800 title, one 17 pt line, then three promises in a <code>.list--soft</code> with green check tiles (each row 60 pt). Shown before <code>AVCaptureDevice.requestAccess</code> so "Don't Allow" is an informed choice. "Choose from Photos" needs no permission at all.</li>
+        <li><b>camera</b> — dark full-bleed. Guide 300 × 400 pt centred, 1.5 pt dashed at 38 % white, 30 pt corner brackets; hint pill top; lesson ghost 64 pt bottom-right. Bar: Photos · 76 pt shutter · flash, 108 pt + safe area.</li>
+        <li><b>review</b> — photo and lesson side by side, both 3 : 4 in a 12 pt grid, so the learner compares rather than judges. One soft "Crop &amp; straighten". Retake / Keep as a 50-50 row, Keep green.</li>
+        <li><b>saved</b> — the green chip is the whole celebration. The page as it now looks in the sketchbook (196 pt), title, path, full date, the privacy line. Primary "Next lesson", secondary "Open your sketchbook" → <code>sk-book</code>, "Done" → <code>hp-path</code>.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li>Skip <b>primer</b> when video access is <code>.authorized</code>. When <code>.denied</code>, no camera: one line "Camera access is off for StrokeTutor" with a button to Settings; "Choose from Photos" still works.</li>
+        <li>Shutter → freeze → <b>review</b>. Retake keeps the session alive. Keep writes image → <code>fsync</code> → record → navigates; on failure stay on review with the photo in memory.</li>
+        <li>Auto-crop (<code>VNDetectDocumentSegmentationRequest</code>, 300 ms budget, confidence &gt; 0.8) pre-fills the crop and never blocks saving. Only two edits exist: crop and ± 15° straighten. No filters.</li>
+        <li>Storage: <code>Application Support/Sketchbook/&lt;uuid&gt;.jpg</code> (long edge 2048, q 0.8, GPS stripped) plus a 400 px thumb; SwiftData record stores the file <i>name</i>. Not the Photos library by default; "Also save to Photos" is a Settings opt-in. Included in device backup.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>The primer's promises are a grouped <code>.list--soft</code> with check tiles, not a bordered card; the icon tile replaces a chip.</li>
+        <li>Review and saved show the page as a photographed sheet on a warm desk (<code>.sk-shot</code>) inside a white 3 : 4 card, the same cell the sketchbook grid uses, so the learner recognises it there.</li>
+        <li>Saved is a calm static screen with a green chip rather than a toast over a card; tactile 64/60 pt buttons throughout.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+<pre>CaptureFlow(lesson:)
+ ├ CameraPrimerView                     // only when status == .notDetermined
+ ├ CameraView                           // AVCaptureSession(.photo), UIViewRepresentable preview
+ │    overlay: GuideFrame(), GhostDrawing(tutorial:), HintPill()
+ ├ PhotosPicker(selection:matching:.images)
+ ├ ReviewView(image:tutorial:)          // crop / straighten only
+ └ SavedView(entry:)</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Guide and ghost are <code>.accessibilityHidden</code>; the shutter is always enabled ("Take photo"). Photos: "Choose a photo of your page". Flash: "Flash, automatic".</li>
+        <li>Announce "Page detected" when segmentation succeeds. Reduce Motion: 120 ms cross-fade instead of the shutter flash.</li>
+        <li>Primer, review and saved scale with Dynamic Type; the review pair stacks above <code>.accessibilityMedium</code>.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul>
+        <li>Offer "Also save to Photos" once on <b>saved</b>, or only in Settings? A checkbox converts better; Settings is calmer.</li>
+        <li>Two attempts on one sheet: one entry with two photos, or two entries? The schema assumes one image per entry.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ======================================================================================================
+     sk-book
+     ====================================================================================================== -->
+<article class="screen" id="sk-book" data-title="Sketchbook tab" data-group="Completion &amp; sketchbook">
+  <header>
+    <h2>Sketchbook tab</h2>
+    <p class="lede">The learner's private record of finished pages, by month. A gallery, not a feed: no likes, no other people, no sharing prompt.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="filled">Six pages</button>
+        <button type="button" data-variant="empty">Empty</button>
+      </nav>
+      <div class="devices">
+        <!-- ============================== filled ============================== -->
+        <div class="phone" data-variant="filled">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body screen-body--scroll stack" style="padding-top:6px;padding-bottom:20px">
+            <div class="row row--between">
+              <h1 class="t-large-title">Sketchbook</h1>
+              <span class="chip chip--gold"><svg><use href="#i-book"/></svg>6 drawings</span>
+            </div>
+
+            <div class="sk-month"><h2 class="t-title3">September 2026</h2><span class="t-footnote muted">4 pages</span></div>
+            <div class="sk-grid">
+              <button class="sk-cell" type="button" data-goto="sk-entry" aria-label="Your Bare Winter Tree, 11 September. Opens the page">
+                <span class="sk-shot photo photo--warm"><span class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-bare-tree"/></svg></span></span>
+                <b>Bare Winter Tree</b><small>Fri 11 Sep · Trees</small>
+              </button>
+              <button class="sk-cell" type="button" data-goto="sk-entry" aria-label="Your Pine Tree, 8 September. Opens the page">
+                <span class="sk-shot photo photo--warm"><span class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-pine"/></svg></span></span>
+                <b>Pine Tree</b><small>Tue 8 Sep · Trees</small>
+              </button>
+              <button class="sk-cell" type="button" data-goto="sk-entry" aria-label="Your House With Chimney, 6 September. Opens the page">
+                <span class="sk-shot photo photo--warm"><span class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-chimney-house"/></svg></span></span>
+                <b>House With Chimney</b><small>Sun 6 Sep · Houses</small>
+              </button>
+              <button class="sk-cell" type="button" data-goto="sk-entry" aria-label="Your Simple House, 3 September. Opens the page">
+                <span class="sk-shot photo photo--warm"><span class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-simple-house"/></svg></span></span>
+                <b>Simple House</b><small>Thu 3 Sep · Houses</small>
+              </button>
+            </div>
+
+            <div class="sk-month"><h2 class="t-title3">August 2026</h2><span class="t-footnote muted">2 pages</span></div>
+            <div class="sk-grid">
+              <button class="sk-cell" type="button" data-goto="sk-entry" aria-label="Your Round Tree, 31 August. Opens the page">
+                <span class="sk-shot photo photo--warm"><span class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-round-tree"/></svg></span></span>
+                <b>Round Tree</b><small>Mon 31 Aug · Trees</small>
+              </button>
+              <button class="sk-cell" type="button" data-goto="sk-entry" aria-label="Your Palm Tree, 28 August. Opens the page">
+                <span class="sk-shot photo photo--warm"><span class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-palm"/></svg></span></span>
+                <b>Palm Tree</b><small>Fri 28 Aug · Trees</small>
+              </button>
+            </div>
+            <p class="t-footnote muted-2 center" style="padding-top:8px">Kept on this iPhone. Nothing here is uploaded or shared.</p>
+          </div>
+          <nav class="tabbar">
+            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
+            <button class="tab is-active" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== empty ============================== -->
+        <div class="phone" data-variant="empty">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="screen-body stack" style="padding-top:6px">
+            <h1 class="t-large-title">Sketchbook</h1>
+            <p class="t-body-reg muted">Every page you photograph is kept here, on this iPhone.</p>
+            <div class="spacer"></div>
+            <div class="page-thumb sk-empty-page" aria-hidden="true">
+              <svg viewBox="0 0 1000 1000"><use href="#sk-dwg-cottage"/></svg>
+              <span class="cam"><svg><use href="#i-camera"/></svg></span>
+            </div>
+            <div class="stack-4 center" style="margin-top:24px">
+              <p class="t-headline">Nothing here yet.</p>
+              <p class="t-body-reg muted balance">Finish a lesson, photograph the page, and it appears here. Your next one is Small Cottage.</p>
+            </div>
+            <button class="btn btn-secondary" type="button" data-goto="hp-preview" style="margin-top:8px"><svg><use href="#i-pen"/></svg>Start a lesson</button>
+            <div class="spacer"></div>
+          </div>
+          <nav class="tabbar">
+            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
+            <button class="tab is-active" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
+            <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
+          </nav>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">Six pages across Houses and Trees, newest first, grouped by month. Each cell is a photograph of the real sheet on the desk; the empty state is a door, not an apology.</p>
+    </div>
+
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p><span class="tag tag--plan">§32</span> "Allow browsing by path/date without turning it into a social feed." One promise: these are yours, they are here, nobody else can see them.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Scrolling body. 36/800 title with the <code>chip--gold</code> count on the right, the same chip as on Learn (a fact, not a score).</li>
+        <li>Month headers 20/800 with a "4 pages" footnote at 55 % ink, plain text, not sticky.</li>
+        <li>Grid: two columns, 12 pt gutter, 16 pt row gap. Cell = <code>.sk-shot</code> (3 : 4 white card, warm photo, white sheet rotated −1.6°, the lesson's strokes on it) + name 16/800 + "Fri 11 Sep · Trees" 13/600.</li>
+        <li>Tab bar with Sketchbook active; identical markup to every tab screen.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li><b>filled</b> — newest first, grouped by month (<code>Calendar.dateComponents([.year, .month])</code>). A lesson drawn twice produces two cells; do not collapse them.</li>
+        <li><b>empty</b> — one sentence, a blank page with the next lesson's drawing at 25 % ink, and a secondary "Start a lesson" → <code>hp-preview</code>. Never "You haven't drawn anything yet."</li>
+        <li>Tap a cell → <code>sk-entry</code>. Long-press → <code>.contextMenu</code> (Share, Save to Photos, Delete) with the cell as preview. No multi-select, no search, no pull-to-refresh (nothing is fetched).</li>
+        <li>Data: <code>@Query(sort: \.completedAt, order: .reverse)</code>; lesson and path titles joined from the catalog at display time. Thumbnails from <code>&lt;uuid&gt;-thumb.jpg</code>, decoded off the main thread, cached by entry id. An entry whose lesson left the catalog still shows, as "Lesson removed".</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>One grouping (by month) instead of a path/date segmented control: fewer controls, and the date is what a sketchbook page carries. Path stays on the meta line.</li>
+        <li>Cells are white 3 : 4 page cards with the photo inside, matching <code>.page-thumb</code> everywhere else; the v1 pen badge is gone because the sheet itself shows the drawing.</li>
+        <li>The gold count chip mirrors the Learn tab; the empty state uses the tactile secondary button, not a bordered invitation card.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+<pre>SketchbookView
+ └ ScrollView { LazyVGrid(columns: [.flexible(), .flexible()], spacing: 16) {
+       ForEach(monthGroups) { Section(header: MonthHeader) { ForEach(entries) { PageCell($0) } } }
+   }}.navigationTitle("Sketchbook")</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Each cell is one button: "Your Simple House, 3 September", hint "Opens the page". Month headers carry <code>.isHeader</code>.</li>
+        <li>Dynamic Type: one column above <code>.accessibilityMedium</code>; the title row wraps with the chip below. iPad: <code>.adaptive(minimum: 170)</code>, content capped at 900 pt.</li>
+        <li>Reduce Motion: cross-fade into the entry instead of a zoom.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul>
+        <li>Should a finished lesson without a photo appear as a ghost cell offering "Add a photo"? Complete, but it turns an empty slot into a chore.</li>
+        <li>Trees lessons 2–4 are invented names; only <code>palm-tree-4</code> exists in the catalog today.</li>
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<!-- ======================================================================================================
+     sk-entry
+     ====================================================================================================== -->
+<article class="screen" id="sk-entry" data-title="One sketchbook page" data-group="Completion &amp; sketchbook">
+  <header>
+    <h2>One sketchbook page</h2>
+    <p class="lede">A single kept drawing: the photograph large, the lesson it came from, the date, a note, and the quiet actions. Delete always asks.</p>
+  </header>
+  <div class="screen-layout">
+    <div class="device-column">
+      <nav class="variants" aria-label="States">
+        <button type="button" data-variant="default">The page</button>
+        <button type="button" data-variant="delete">Delete confirm</button>
+      </nav>
+      <div class="devices">
+        <!-- ============================== default ============================== -->
+        <div class="phone" data-variant="default">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" aria-label="Back to sketchbook" data-goto="sk-book"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Sketchbook</div>
+            <button class="nav-btn end" type="button" aria-label="Share" data-goto="sk-entry"><svg><use href="#i-share"/></svg></button>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-bottom:46px">
+            <div class="sk-shot photo photo--warm" role="img" aria-label="Your Palm Tree, 28 August"><div class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-palm"/></svg></div></div>
+            <div class="row row--between row--top">
+              <div class="stack-4 grow">
+                <h1 class="t-title2">Palm Tree</h1>
+                <p class="t-subhead muted">Trees · Lesson 1 of 8 · 16 steps</p>
+                <p class="t-footnote muted">Friday, 28 August 2026</p>
+              </div>
+              <span class="chip chip--gold" style="margin-top:2px"><svg><use href="#i-check"/></svg>Drawn</span>
+            </div>
+            <button class="sk-note" type="button" aria-label="Add a note"><svg><use href="#i-pen"/></svg><span class="ph">Add a note. What you noticed, what to try next time.</span></button>
+            <button class="btn btn-secondary" type="button" data-goto="hp-preview" style="margin-top:4px"><svg><use href="#i-pen"/></svg>Draw it again</button>
+            <div class="sk-quiet">
+              <button class="btn btn-text" type="button"><svg><use href="#i-share"/></svg>Share</button>
+              <button class="btn btn-text btn-text--danger" type="button" data-set-variant="delete"><svg><use href="#i-trash"/></svg>Delete</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- ============================== delete ============================== -->
+        <div class="phone" data-variant="delete">
+          <div class="island"></div>
+          <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
+          <div class="navbar">
+            <button class="nav-btn start" type="button" aria-label="Back to sketchbook" data-goto="sk-book"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Sketchbook</div>
+            <button class="nav-btn end" type="button" aria-label="Share"><svg><use href="#i-share"/></svg></button>
+          </div>
+          <div class="screen-body screen-body--scroll stack" style="padding-bottom:46px">
+            <div class="sk-shot photo photo--warm" role="img" aria-label="Your Palm Tree, 28 August"><div class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-palm"/></svg></div></div>
+            <div class="row row--between row--top">
+              <div class="stack-4 grow">
+                <h1 class="t-title2">Palm Tree</h1>
+                <p class="t-subhead muted">Trees · Lesson 1 of 8 · 16 steps</p>
+                <p class="t-footnote muted">Friday, 28 August 2026</p>
+              </div>
+              <span class="chip chip--gold" style="margin-top:2px"><svg><use href="#i-check"/></svg>Drawn</span>
+            </div>
+            <button class="sk-note" type="button" aria-label="Edit note"><svg><use href="#i-pen"/></svg><span>Trunk leans left. Try a lighter first line next time.</span></button>
+            <button class="btn btn-secondary" type="button" style="margin-top:4px"><svg><use href="#i-pen"/></svg>Draw it again</button>
+            <div class="sk-quiet">
+              <button class="btn btn-text" type="button"><svg><use href="#i-share"/></svg>Share</button>
+              <button class="btn btn-text btn-text--danger" type="button"><svg><use href="#i-trash"/></svg>Delete</button>
+            </div>
+          </div>
+          <div class="alert-overlay" data-set-variant="default">
+            <div class="alert" role="alertdialog" aria-labelledby="sk-entry-del-title">
+              <p class="t-title3" id="sk-entry-del-title">Delete this page?</p>
+              <p class="t-footnote muted" style="line-height:19px;font-weight:500">The photo and your note are removed from this iPhone. Finishing the lesson still counts.</p>
+              <div class="divider"></div>
+              <button class="btn btn-text btn-text--danger" type="button" data-set-variant="default">Delete</button>
+              <div class="divider" style="margin-top:0"></div>
+              <button class="btn btn-text" type="button" data-set-variant="default">Cancel</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <p class="device-caption">The body scrolls: the first fold is the photograph and the facts; the note, "Draw it again" and the two quiet actions follow. The delete variant also shows a filled note.</p>
+    </div>
+
+    <aside class="notes">
+      <h3>Developer notes</h3>
+      <h4>Purpose</h4>
+      <p>One kept page, shown large, with the lesson it came from. <span class="tag tag--plan">§32</span> "Associate the image with lesson, path, and completion date." The only forward action is to draw it again; the rest is quiet.</p>
+      <h4>Layout</h4>
+      <ul>
+        <li>Nav bar: back to the sketchbook, title "Sketchbook", share at the trailing edge (44 pt targets). Pushed from the tab; the tab bar hides for the detail.</li>
+        <li>Scrolling body: the <code>.sk-shot</code> full width (353 × 470 pt), then title 24/800, "Trees · Lesson 1 of 8 · 16 steps" 15/600, the full localised date 13/600, and the <code>chip--gold</code> "Drawn" on the right.</li>
+        <li>Note field: a 60 pt <code>--surface</code> row, 17/500, pen icon, placeholder at 40 % ink. Multi-line, grows with content; saves on end editing.</li>
+        <li>"Draw it again" is the 60 pt secondary (not green: the learner already finished this). Share and Delete are 48 pt text buttons in one row, Delete in <code>--danger</code>.</li>
+      </ul>
+      <h4>States &amp; interactions</h4>
+      <ul>
+        <li><b>default</b> — tap or pinch the photo → full-screen zoomable viewer, swipe down to dismiss. "Draw it again" → <code>hp-preview</code> for this lesson.</li>
+        <li><b>Share</b> (row or nav) → system share sheet with the 2048 px JPEG: a private export to Messages, Mail, Files or AirDrop. No in-app sharing, no link, no post.</li>
+        <li><b>delete</b> — always confirmed with a destructive alert whose body says what survives: the photo and note go, the <code>LessonProgress</code> row stays; deleting never re-locks a lesson. Then <code>modelContext.delete(entry)</code>, remove both files, pop to <code>sk-book</code>. Cheap softening if wanted: a 10 s Undo toast before <code>removeItem</code>.</li>
+        <li>Data: one <code>SketchbookEntry</code> (id, lessonId, pathId, completedAt, imageFile, note). "Lesson 1 of 8" from <code>paths[pathId].lessonIds.firstIndex</code>; drop "of 8" if the lesson left the path.</li>
+      </ul>
+      <h4>What changed in v3</h4>
+      <ul>
+        <li>No "Your page / The lesson" toggle: the photo is the page, full width, and the lesson is one tap away in "Draw it again". Less chrome, more drawing.</li>
+        <li>The <code>note</code> field, reserved in v1, now has a UI: one calm row under the facts.</li>
+        <li>Share and Delete are visible quiet buttons instead of an overflow menu, so an older learner never has to discover an ellipsis. The alert is the shared <code>.alert-overlay</code>.</li>
+      </ul>
+      <h4>SwiftUI mapping</h4>
+<pre>SketchbookEntryView(entry:)
+ └ ScrollView { PhotoCard(url:); MetaBlock; NoteField($entry.note)
+               BigSecondaryButton("Draw it again"); HStack { ShareLink; Button(role: .destructive) } }
+   .toolbar { ShareLink(item: url) }
+   .alert("Delete this page?", isPresented: $confirmingDelete, role: .destructive) { … }</pre>
+      <h4>Accessibility</h4>
+      <ul>
+        <li>Photo: "Your Palm Tree, 28 August", trait image; the note reads its content or "Add a note". Delete is <code>.destructive</code>; the alert body is read before its buttons.</li>
+        <li>Dynamic Type: the photo keeps its width; the meta row wraps with the chip below the text. Nothing truncates.</li>
+        <li>iPad: photo left (max 520 pt), meta, note and actions right.</li>
+      </ul>
+      <h4>Open questions</h4>
+      <ul>
+        <li>Does the note invite self-criticism? The placeholder steers it towards observation ("what you noticed"); creator to confirm the field earns its place.</li>
+        <li>Does "Draw it again" open the preview (as here) or restart at step 1?</li>
+      </ul>
+    </aside>
+  </div>
+</article>
