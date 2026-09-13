@@ -226,18 +226,25 @@ struct PlayerScreen: View {
         }
     }
 
-    /// The chip is on the paper only when narration is on *and* this step has a
-    /// recorded line — a greyed chip for a step that has no voice would read as
-    /// broken (`pl-player` notes). A lesson the Studio has not narrated therefore
-    /// plays exactly as it did before any audio shipped: silently, chipless.
+    /// The chip is on the paper whenever this step has a recorded line: speaking,
+    /// idle, or muted when narration is off — because the chip is also the way to
+    /// turn Lina back on without leaving the lesson (`pl-player` variant `muted`).
+    /// A step with no voice gets no chip at all: a greyed chip for a step that has
+    /// no line would read as broken, and a lesson the Studio has not narrated plays
+    /// exactly as it did before any audio shipped, silently and chipless.
     @ViewBuilder
     private var narrationChip: some View {
         if showsNarrationChip {
-            NarrationChip(state: narration.isSpeaking ? .speaking : .idle) {
+            NarrationChip(state: chipState) {
                 toggleNarration()
             }
             .accessibilitySortPriority(50)
         }
+    }
+
+    private var chipState: NarrationChip.State {
+        guard app.settings.narrationEnabled else { return .muted }
+        return narration.isSpeaking ? .speaking : .idle
     }
 
     private var referenceThumb: some View {
@@ -311,7 +318,7 @@ struct PlayerScreen: View {
     }
 
     private var showsNarrationChip: Bool {
-        guard app.settings.narrationEnabled, let step = player.currentStep else { return false }
+        guard let step = player.currentStep else { return false }
         return narration.hasAudio(lessonId: lesson.id, stepId: step.id)
     }
 

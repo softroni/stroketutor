@@ -141,13 +141,18 @@ struct NarrationSettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 HStack(spacing: 12) {
+                    // Off, the chip is the way back on — the same gesture as the
+                    // chip in the player — so the switch is never the only route.
                     NarrationChip(state: isOn ? .speaking : .muted,
                                   label: isOn ? (isSpeakingSample ? "Speaking" : "Sample") : "Off") {
-                        playSample()
+                        if isOn {
+                            playSample()
+                        } else {
+                            app.settings.narrationEnabled = true
+                        }
                     }
-                    .disabled(!isOn)
                     .accessibilityLabel(chipLabel(isOn: isOn))
-                    .accessibilityHint(isOn ? "Plays the sample." : "")
+                    .accessibilityHint(isOn ? "Plays the sample." : "Turns Lina back on.")
 
                     Spacer(minLength: 8)
 
