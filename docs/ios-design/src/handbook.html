@@ -117,7 +117,7 @@ Launch ──▶ first run? ──▶ ONBOARDING (full-screen cover)  ob-splash 
   <li>VoiceOver: every control has a label and a hint; the canvas is one element that describes the step ("Step 2 of 5, the roof, drawing" then "drawn"); onboarding bubbles are read before their button; photos in the sketchbook are labelled by lesson and date.</li>
   <li>Contrast: ink on paper is 12:1; green on white 4.6:1 for 24 pt bold text; muted labels never go below 55 % ink.</li>
   <li>Tap targets 60 pt; no hidden gestures — everything reachable by a visible button; left-handed layout mirrors the control row and the reference thumbnail corner.</li>
-  <li>Orientation: iPhone locked to portrait in the player (explained in the player notes); iPad supports both, landscape puts the reference beside the canvas.</li>
+  <li>Orientation: the player rotates on iPhone and iPad (nowhere else in the app). Portrait draws tall subjects larger, landscape wide ones; the paper is fitted to the drawing's bounds, not the full canvas, so both gain. iPad landscape puts the reference beside the paper.</li>
 </ul>
 
 <h3>Milestone mapping</h3>
@@ -151,9 +151,10 @@ Launch ──▶ first run? ──▶ ONBOARDING (full-screen cover)  ob-splash 
 </ul>
 <h4>Player</h4>
 <ul>
-  <li>"Watch again" (on the card) and "Replay" (in the quiet row) are the same call. Recommendation from the player notes: the quiet row becomes Back · Speed · Restart.</li>
+  <li>The outlined "I drew it" is tappable while the step is still drawing (skip ahead). Recommendation from the player notes: ship it plain; the wording is the check. Alternative: a confirm-tap on the first three lessons.</li>
+  <li>The paper is fitted to the drawing's bounds (union of all strokes + 6 % margin). Should the Studio write an explicit <code>tutorial.fit</code> rectangle, or does the player always compute it?</li>
   <li>Silent switch: respected (<code>.ambient</code>) in this design; <code>.playback</code> (speak even when silenced, as Maps does) is the alternative for a phone propped beside the paper.</li>
-  <li>Lock iPhone to portrait in the player (recommended in the notes) — confirm.</li>
+  <li>iPhone landscape in the player is in; decide whether the iPhone SE class (375 pt tall in landscape) is in scope for it, and whether wide lessons get a "draws larger on its side" line on the preview.</li>
   <li>Should the speed chosen inside a lesson persist as the default? Recommendation: persist it; it is a preference.</li>
   <li>Which ElevenLabs voice is Lina, and is its commercial licence in place? Is the orientation beat narrated (a sixth line per lesson) or silent?</li>
 </ul>
