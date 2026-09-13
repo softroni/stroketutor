@@ -1,0 +1,74 @@
+import Foundation
+
+/// Everywhere the app can go. Pushed routes are values in a tab's
+/// `NavigationPath`; covers are the three full-screen flows `AppRoot` presents.
+/// Ids travel, not models: a route stays valid across a content reload, and a
+/// `NavigationPath` only ever holds small hashable values.
+enum AppRoute: Hashable {
+    /// `hp-paths` — every path.
+    case paths
+    /// `hp-path` — one path, its drawing and all its nodes.
+    case pathDetail(pathId: String)
+    /// `hp-preview` — one lesson before it starts.
+    case lessonPreview(lessonId: String)
+    /// `sk-entry` — one page of the sketchbook.
+    case sketchbookEntry(pageId: UUID)
+    /// `st-voice` — narration and speed.
+    case narrationSettings
+    /// `st-reminder` — the practice reminder.
+    case reminderSettings
+    /// About & credits.
+    case about
+}
+
+/// The flows that take the whole screen: onboarding on first run, and the player,
+/// completion and capture that follow a lesson. They are covers rather than pushes
+/// because none of them belongs to a tab's back stack.
+enum AppCover: Identifiable, Hashable {
+    case onboarding
+    /// `pl-player`. `resumeFrom` is the step a returning learner left off at.
+    case player(lessonId: String, resumeFrom: Int?)
+    /// `sk-complete`.
+    case completion(lessonId: String)
+    /// `sk-capture`.
+    case capture(lessonId: String)
+
+    var id: String {
+        switch self {
+        case .onboarding:
+            return "onboarding"
+        case let .player(lessonId, resumeFrom):
+            return "player-\(lessonId)-\(resumeFrom.map(String.init) ?? "start")"
+        case let .completion(lessonId):
+            return "completion-\(lessonId)"
+        case let .capture(lessonId):
+            return "capture-\(lessonId)"
+        }
+    }
+}
+
+/// The three tabs of `MainTabs`: Learn · Sketchbook · Settings.
+enum MainTab: String, Hashable, CaseIterable, Identifiable {
+    case learn
+    case sketchbook
+    case settings
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .learn: return "Learn"
+        case .sketchbook: return "Sketchbook"
+        case .settings: return "Settings"
+        }
+    }
+
+    /// The SF Symbol shown in the tab's 56 × 30 pill.
+    var symbol: String {
+        switch self {
+        case .learn: return "pencil"
+        case .sketchbook: return "book"
+        case .settings: return "gearshape"
+        }
+    }
+}

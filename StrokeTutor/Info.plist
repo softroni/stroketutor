@@ -23,12 +23,21 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
-	<!-- Lets a tutorial exported by the web authoring tool be dropped into the
-	     app's folder from Finder or the Files app and then imported in-app. -->
-	<key>UIFileSharingEnabled</key>
-	<true/>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
+	<!-- Purpose strings. Apple requires one for every protected resource, and the
+	     App Store Review Guidelines, 5.1.1(ii) Data Collection and Storage
+	     (https://developer.apple.com/app-store/review/guidelines/, read 2026-09-13),
+	     put it plainly: "Ensure your purpose strings clearly and completely describe
+	     your use of the data." Each string below names what is accessed, when, and
+	     what happens to it; the key references are
+	     https://developer.apple.com/documentation/bundleresources/information-property-list/nscamerausagedescription
+	     and .../nsphotolibraryaddusagedescription. Access is requested at the moment
+	     the learner asks for it (the capture flow after a finished lesson), never at
+	     launch, and the photo-library key is the add-only one because the app writes
+	     a photo and never reads the library. -->
+	<key>NSCameraUsageDescription</key>
+	<string>StrokeTutor uses the camera when you choose to photograph a drawing you have finished, so the page can be kept in your sketchbook on this iPhone.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>StrokeTutor saves a photo of a finished drawing to your photo library only while "Also save to Photos" is on. It never reads your library.</string>
 
 	<key>UIApplicationSceneManifest</key>
 	<dict>

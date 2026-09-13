@@ -23,24 +23,24 @@ struct TutorialProblemsView: View {
 
                         Text(failure.error.errorDescription ?? "Unknown error.")
                             .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(Theme.ink.opacity(0.85))
+                            .foregroundStyle(Theme.ink70)
                             .textSelection(.enabled)
                             .fixedSize(horizontal: false, vertical: true)
 
                         if let pathData = failure.error.offendingPathData {
                             Text("Offending path data:")
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(Theme.ink.opacity(0.6))
+                                .foregroundStyle(Theme.ink55)
                             ScrollView(.horizontal, showsIndicators: true) {
                                 Text(pathData)
                                     .font(.system(size: 13, design: .monospaced))
-                                    .foregroundStyle(Theme.warning)
+                                    .foregroundStyle(Theme.danger)
                                     .textSelection(.enabled)
                                     .padding(10)
                             }
                             .background(
                                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .fill(Theme.warning.opacity(0.08))
+                                    .fill(Theme.danger.opacity(0.08))
                             )
                         }
                     }
@@ -52,19 +52,19 @@ struct TutorialProblemsView: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .strokeBorder(Theme.warning.opacity(0.35), lineWidth: 2)
+                            .strokeBorder(Theme.danger.opacity(0.35), lineWidth: 2)
                     )
                 }
 
                 if let onDismiss {
                     Button("Close", action: onDismiss)
-                        .buttonStyle(BigSecondaryButtonStyle())
+                        .buttonStyle(.secondary)
                         .padding(.top, 8)
                 }
             }
             .padding(20)
         }
-        .background(Theme.pageBackground)
+        .background(Theme.page)
     }
 
     private var header: some View {
@@ -74,7 +74,7 @@ struct TutorialProblemsView: View {
                 .foregroundStyle(Theme.ink)
             Text("\(failures.count) file\(failures.count == 1 ? "" : "s") failed. Fix the JSON and try again.")
                 .font(Theme.rounded(16, .medium))
-                .foregroundStyle(Theme.ink.opacity(0.6))
+                .foregroundStyle(Theme.ink55)
         }
     }
 }

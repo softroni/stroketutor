@@ -13,8 +13,8 @@ final class TutorialLibrary {
 
     /// Loads the bundled tutorials. Safe to call more than once; imported
     /// tutorials are preserved.
-    func loadBundledTutorials() {
-        let result = TutorialLoader.loadBundledTutorials()
+    func loadBundledTutorials(in bundle: Bundle = .main) {
+        let result = TutorialLoader.loadBundledTutorials(in: bundle)
         let imported = tutorials.filter { $0.source == .imported }
         tutorials = result.tutorials + imported
         failures = result.failures

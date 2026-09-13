@@ -12,16 +12,17 @@ struct DebugOverlay: View {
 
             Text("file: \(tutorial.fileName)  (\(tutorial.source.label))")
             Text("canvas: \(number(tutorial.canvas.width)) × \(number(tutorial.canvas.height))")
-            Text("steps: \(tutorial.steps.count)   strokes: \(tutorial.totalStrokeCount)")
+            Text("steps: \(tutorial.steps.count)   strokes: \(tutorial.totalStrokeCount)   fills: \(tutorial.totalFillCount)")
+            Text("schemaVersion: \(tutorial.schemaVersion)")
 
             if tutorial.warnings.isEmpty {
                 Text("warnings: none")
             } else {
                 Text("warnings: \(tutorial.warnings.count)")
-                    .foregroundStyle(Theme.warning)
+                    .foregroundStyle(Theme.clay)
                 ForEach(Array(tutorial.warnings.enumerated()), id: \.offset) { _, warning in
                     Text("• \(warning)")
-                        .foregroundStyle(Theme.warning)
+                        .foregroundStyle(Theme.clay)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }

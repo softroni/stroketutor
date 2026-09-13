@@ -1,12 +1,14 @@
 import SwiftUI
 
-/// One dot per step: filled for done, ringed for the step in play, empty ahead.
+/// The compact step indicator of v3 (`.dots`): 12 pt dots, ink for a step already
+/// drawn, green with a soft halo for the step in play, 12 % ink ahead. The player's
+/// header uses its sibling `StepSegments`; dots are for compact headers.
 struct StepProgressDots: View {
     let stepCount: Int
     let currentIndex: Int
     let isFinished: Bool
 
-    private let diameter: CGFloat = 16
+    private let diameter: CGFloat = 12
 
     var body: some View {
         HStack(spacing: 12) {
@@ -28,11 +30,12 @@ struct StepProgressDots: View {
                 .frame(width: diameter, height: diameter)
         } else if index == currentIndex {
             Circle()
-                .strokeBorder(Theme.ink, lineWidth: 4)
-                .frame(width: diameter + 8, height: diameter + 8)
+                .fill(Theme.green)
+                .frame(width: diameter, height: diameter)
+                .overlay(Circle().strokeBorder(Theme.greenSoft, lineWidth: 4).padding(-4))
         } else {
             Circle()
-                .strokeBorder(Theme.ink.opacity(0.22), lineWidth: 3)
+                .fill(Theme.ink12)
                 .frame(width: diameter, height: diameter)
         }
     }

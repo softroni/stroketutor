@@ -37,8 +37,25 @@ final class ConformanceTests: XCTestCase {
         }
 
         /// What this player must decide, divergence taken into account.
-        var expectedForIOS: String { ios?.expect ?? expect }
-        var divergesDeliberately: Bool { ios?.expect != nil && ios?.expect != expect }
+        var expectedForIOS: String { iosOverrideIsStale ? expect : (ios?.expect ?? expect) }
+        var divergesDeliberately: Bool {
+            !iosOverrideIsStale && ios?.expect != nil && ios?.expect != expect
+        }
+
+        /// The message the iOS player must produce, if the manifest names one.
+        var iosMessageMustContain: String? { iosOverrideIsStale ? nil : ios?.messageContains }
+        var iosWarningMustContain: String? { iosOverrideIsStale ? nil : ios?.warningContains }
+
+        /// True when the `ios` block exists only to record that this app used to
+        /// refuse version 2 documents ("the iOS player reads version 1 only until
+        /// M7"). It reads version 2 now, so the two players agree again and the
+        /// override no longer describes either of them. `shared/` is read-only for
+        /// the app, so the stale entries are ignored here and the shared verdict is
+        /// asserted instead; the manifest itself is the creator's to update.
+        var iosOverrideIsStale: Bool {
+            let text = [ios?.messageContains, ios?.why].compactMap { $0 }.joined(separator: " ")
+            return text.contains("schemaVersion 2") || text.contains("version 1 only")
+        }
     }
 
     // MARK: - Corpus location
@@ -115,7 +132,7 @@ final class ConformanceTests: XCTestCase {
             guard expectValid else {
                 return XCTFail("\(context)\nExpected this document to be rejected, but it loaded.")
             }
-            if let warning = testCase.ios?.warningContains {
+            if let warning = testCase.iosWarningMustContain {
                 XCTAssertTrue(
                     tutorial.warnings.contains { $0.contains(warning) },
                     "\(context)\nExpected a warning mentioning \"\(warning)\", got \(tutorial.warnings)."
@@ -125,7 +142,7 @@ final class ConformanceTests: XCTestCase {
             guard !expectValid else {
                 return XCTFail("\(context)\nExpected this document to load, but it failed: \(error.localizedDescription)")
             }
-            if let fragment = testCase.ios?.messageContains {
+            if let fragment = testCase.iosMessageMustContain {
                 let description = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
                 XCTAssertTrue(
                     description.contains(fragment),

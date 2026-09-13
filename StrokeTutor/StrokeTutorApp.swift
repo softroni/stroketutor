@@ -4,7 +4,7 @@ import SwiftUI
 struct StrokeTutorApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppRoot()
         }
     }
 }

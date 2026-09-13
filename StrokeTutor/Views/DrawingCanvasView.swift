@@ -1,22 +1,40 @@
 import CoreGraphics
 import SwiftUI
 
-/// The paper. Three layers over the tutorial's background colour:
+/// The paper (`.canvas-frame` in v3, the full-bleed white paper of `pl-player`).
+/// Layers, bottom to top:
 ///
-/// 1. strokes from completed steps, faded
-/// 2. the current step's strokes, animating in array order
-/// 3. a pencil-tip dot at the head of the stroke being drawn
+/// 1. the paper itself — white, unless a version 2 lesson set a background
+/// 2. fills: every fill already painted, beneath all ink, the current step's fading in
+/// 3. strokes from completed steps, faded
+/// 4. the current step's strokes, animating in array order
+/// 5. a pencil-tip dot at the head of the stroke being drawn
 ///
 /// Strokes from steps that have not been reached yet are not drawn at all.
 struct DrawingCanvasView: View {
     let tutorial: PreparedTutorial
     let phase: PlayerViewModel.Phase
     let strokeProgress: [Double]
+    let fillProgress: [Double]
     let activeStrokeIndex: Int?
     let isDebugMode: Bool
 
-    /// Opacity of strokes the child has already copied.
-    private let completedOpacity: Double = 0.3
+    init(tutorial: PreparedTutorial,
+         phase: PlayerViewModel.Phase,
+         strokeProgress: [Double],
+         fillProgress: [Double] = [],
+         activeStrokeIndex: Int?,
+         isDebugMode: Bool) {
+        self.tutorial = tutorial
+        self.phase = phase
+        self.strokeProgress = strokeProgress
+        self.fillProgress = fillProgress
+        self.activeStrokeIndex = activeStrokeIndex
+        self.isDebugMode = isDebugMode
+    }
+
+    /// Opacity of strokes the learner has already copied.
+    private let completedOpacity: Double = 0.22
 
     var body: some View {
         GeometryReader { geometry in
@@ -27,8 +45,12 @@ struct DrawingCanvasView: View {
                 tutorial.backgroundColor
 
                 if isDebugMode {
+                    debugFillsLayer()
                     debugLayer(scale: scale)
                 } else {
+                    // Colour first: a fill never covers a line.
+                    completedFillsLayer()
+                    currentFillsLayer()
                     // Finished: the whole drawing is the reward, so it is shown
                     // at full strength rather than as faded history.
                     completedStepsLayer(scale: scale,
@@ -41,28 +63,65 @@ struct DrawingCanvasView: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
-                .strokeBorder(tutorial.strokeColor.opacity(0.12), lineWidth: 2)
+                .strokeBorder(Theme.line, lineWidth: 2)
         }
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(accessibilityLabel))
     }
 
-    // MARK: - Layers
+    // MARK: - Fills
 
-    /// Layer 1 — everything drawn in earlier steps, faded so the current step
-    /// stands out but the child can still see the whole picture.
+    /// Colour painted in earlier steps. Kept at full strength: a fill sits under the
+    /// ink already, and fading it would read as a rendering fault rather than history.
+    @ViewBuilder
+    private func completedFillsLayer() -> some View {
+        ForEach(Array(tutorial.steps.prefix(completedStepUpperBound).enumerated()), id: \.offset) { _, step in
+            ForEach(step.fills) { fill in
+                FillShape(basePath: fill.path, canvas: tutorial.canvas)
+                    .fill(fill.color, style: fill.style)
+            }
+        }
+    }
+
+    /// The current step's colour, fading in one shape at a time.
+    @ViewBuilder
+    private func currentFillsLayer() -> some View {
+        if let step = activeStep {
+            ForEach(Array(step.fills.enumerated()), id: \.element.id) { index, fill in
+                FillShape(basePath: fill.path, canvas: tutorial.canvas)
+                    .fill(fill.color, style: fill.style)
+                    .opacity(progressForFill(at: index))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func debugFillsLayer() -> some View {
+        ForEach(Array(tutorial.steps.enumerated()), id: \.offset) { _, step in
+            ForEach(step.fills) { fill in
+                FillShape(basePath: fill.path, canvas: tutorial.canvas)
+                    .fill(fill.color, style: fill.style)
+            }
+        }
+    }
+
+    // MARK: - Strokes
+
+    /// Everything drawn in earlier steps, faded so the current step stands out but
+    /// the whole picture stays visible.
     @ViewBuilder
     private func completedStepsLayer(scale: CGFloat, opacity: Double) -> some View {
         let upperBound = completedStepUpperBound
         ForEach(Array(tutorial.steps.prefix(upperBound).enumerated()), id: \.offset) { _, step in
             ForEach(step.strokes) { stroke in
                 StrokeShape(basePath: stroke.path, canvas: tutorial.canvas)
-                    .stroke(tutorial.strokeColor.opacity(opacity),
+                    .stroke(color(of: stroke).opacity(opacity),
                             style: StrokeShape.style(lineWidth: stroke.lineWidth * scale))
             }
         }
     }
 
-    /// Layer 2 + 3 — the step being drawn (or just finished), plus the pencil tip.
+    /// The step being drawn (or just finished), plus the pencil tip.
     @ViewBuilder
     private func currentStepLayer(scale: CGFloat, rect: CGRect) -> some View {
         if case .finished = phase {
@@ -76,7 +135,7 @@ struct DrawingCanvasView: View {
                     ZStack {
                         StrokeShape(basePath: stroke.path, canvas: tutorial.canvas)
                             .trim(from: 0, to: value)
-                            .stroke(tutorial.strokeColor,
+                            .stroke(color(of: stroke),
                                     style: StrokeShape.style(lineWidth: stroke.lineWidth * scale))
 
                         if index == activeStrokeIndex,
@@ -98,19 +157,20 @@ struct DrawingCanvasView: View {
         ForEach(Array(tutorial.steps.enumerated()), id: \.offset) { _, step in
             ForEach(step.strokes) { stroke in
                 StrokeShape(basePath: stroke.path, canvas: tutorial.canvas)
-                    .stroke(tutorial.strokeColor,
+                    .stroke(color(of: stroke),
                             style: StrokeShape.style(lineWidth: stroke.lineWidth * scale))
             }
         }
     }
 
+    /// The pencil tip of v3: a green dot with a white core, at the head of the line.
     private func pencilDot(diameter: CGFloat) -> some View {
         Circle()
-            .fill(tutorial.strokeColor)
+            .fill(Theme.green)
             .frame(width: diameter, height: diameter)
             .overlay {
                 Circle()
-                    .fill(tutorial.backgroundColor.opacity(0.55))
+                    .fill(Color.white)
                     .frame(width: diameter * 0.34, height: diameter * 0.34)
             }
             .allowsHitTesting(false)
@@ -123,6 +183,10 @@ struct DrawingCanvasView: View {
         let transformed = stroke.path.applying(StrokeShape.transform(canvas: tutorial.canvas, in: rect))
         let clamped = min(max(progress, 0), 1)
         return transformed.trimmedPath(from: 0, to: clamped).currentPoint
+    }
+
+    private func color(of stroke: PreparedStroke) -> Color {
+        stroke.color ?? tutorial.strokeColor
     }
 
     // MARK: - Phase-derived state
@@ -150,12 +214,19 @@ struct DrawingCanvasView: View {
     }
 
     private func progressForStroke(at index: Int) -> Double {
-        // While awaiting the user the step is complete, even if the progress
+        // While awaiting the learner the step is complete, even if the progress
         // array has since been reset.
         if case .awaitingUser = phase, !strokeProgress.indices.contains(index) {
             return 1
         }
         return strokeProgress.indices.contains(index) ? strokeProgress[index] : 0
+    }
+
+    private func progressForFill(at index: Int) -> Double {
+        if case .awaitingUser = phase, !fillProgress.indices.contains(index) {
+            return 1
+        }
+        return fillProgress.indices.contains(index) ? fillProgress[index] : 0
     }
 
     private var accessibilityLabel: String {

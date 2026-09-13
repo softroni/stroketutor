@@ -8,7 +8,8 @@ import SwiftUI
 /// `.idle → .drawing(step) → .awaitingUser(step) → .drawing(step + 1) → … → .finished`
 ///
 /// Playback never advances past a step on its own: `.awaitingUser` is only left
-/// when the child taps a button.
+/// when the learner taps the primary button. Within a step the strokes are drawn
+/// strictly in order, and a version 2 lesson's fills are painted after them.
 @Observable
 @MainActor
 final class PlayerViewModel {
@@ -20,7 +21,7 @@ final class PlayerViewModel {
         case finished
     }
 
-    /// The speeds the toggle cycles through.
+    /// The speeds the player offers (the ⋯ menu and Settings both use this list).
     static let speedOptions: [Double] = [0.5, 1.0, 1.5]
 
     private(set) var tutorial: PreparedTutorial?
@@ -30,11 +31,25 @@ final class PlayerViewModel {
     /// Strokes already finished within the step stay at 1.
     private(set) var strokeProgress: [Double] = []
 
+    /// Paint progress (0...1) for each fill of the *current* step, by index.
+    private(set) var fillProgress: [Double] = []
+
     /// Which stroke of the current step is animating right now, if any. Drives
     /// the pencil-tip dot.
     private(set) var activeStrokeIndex: Int?
 
-    private(set) var speedMultiplier: Double = 1.0
+    /// Which fill of the current step is being painted right now, if any.
+    private(set) var activeFillIndex: Int?
+
+    /// Playback speed. Set it at any time: the value is read again before each
+    /// stroke, so a change applies from the next stroke without restarting the
+    /// step the learner is watching.
+    var speed: Double = 1.0 {
+        didSet {
+            let clamped = min(max(speed, 0.25), 3)
+            if clamped != speed { speed = clamped }
+        }
+    }
 
     /// Debug mode renders the whole drawing at once and suspends playback.
     var isDebugMode: Bool = false {
@@ -44,6 +59,7 @@ final class PlayerViewModel {
                 playbackTask?.cancel()
                 playbackTask = nil
                 activeStrokeIndex = nil
+                activeFillIndex = nil
             } else if tutorial != nil {
                 replayCurrentStep()
             }
@@ -84,44 +100,51 @@ final class PlayerViewModel {
         return false
     }
 
+    var isOnLastStep: Bool {
+        !steps.isEmpty && currentStepIndex == steps.count - 1
+    }
+
     var canGoToPreviousStep: Bool {
         !steps.isEmpty && (currentStepIndex > 0 || isFinished)
     }
 
     var speedLabel: String {
-        speedMultiplier == 1 ? "1×" : String(format: "%g×", speedMultiplier)
+        speed == 1 ? "1×" : String(format: "%g×", speed)
     }
 
     // MARK: - Lifecycle
 
-    /// Loads a tutorial and begins step one immediately.
-    func load(_ tutorial: PreparedTutorial) {
+    /// Loads a tutorial and begins the given step immediately (step one by default).
+    func load(_ tutorial: PreparedTutorial, startingAt stepIndex: Int = 0) {
         playbackTask?.cancel()
         playbackTask = nil
         self.tutorial = tutorial
         activeStrokeIndex = nil
-        setProgressWithoutAnimation([])
+        activeFillIndex = nil
+        setProgressWithoutAnimation(strokes: [], fills: [])
         phase = .idle
         guard !tutorial.steps.isEmpty else {
             phase = .finished
             return
         }
+        let start = min(max(0, stepIndex), tutorial.steps.count - 1)
         guard !isDebugMode else {
-            phase = .awaitingUser(stepIndex: 0)
+            phase = .awaitingUser(stepIndex: start)
             return
         }
-        beginStep(0)
+        beginStep(start)
     }
 
     func stop() {
         playbackTask?.cancel()
         playbackTask = nil
         activeStrokeIndex = nil
+        activeFillIndex = nil
     }
 
     // MARK: - Transitions
 
-    /// "I drew it!" — move to the next step, or finish.
+    /// "I drew it" — move to the next step, or finish.
     func advanceToNextStep() {
         guard case let .awaitingUser(index) = phase else { return }
         let next = index + 1
@@ -150,13 +173,19 @@ final class PlayerViewModel {
         beginStep(0)
     }
 
+    /// Jumps to a step, used when a learner resumes a lesson they left.
+    func jump(to index: Int) {
+        guard !steps.isEmpty else { return }
+        beginStep(min(max(0, index), steps.count - 1))
+    }
+
+    /// Steps through the offered speeds. The new speed applies from the next
+    /// stroke: interrupting the drawing to restart it would lose the learner's
+    /// place, which is worse than a step that changes pace halfway.
     func cycleSpeed() {
         let options = Self.speedOptions
-        let currentIndex = options.firstIndex(of: speedMultiplier) ?? 1
-        speedMultiplier = options[(currentIndex + 1) % options.count]
-        // Restart the current step so the new speed is immediately visible
-        // rather than applying only to the next one.
-        if isDrawing { replayCurrentStep() }
+        let currentIndex = options.firstIndex(of: speed) ?? 1
+        speed = options[(currentIndex + 1) % options.count]
     }
 
     // MARK: - Playback
@@ -165,7 +194,8 @@ final class PlayerViewModel {
         playbackTask?.cancel()
         playbackTask = nil
         activeStrokeIndex = nil
-        setProgressWithoutAnimation([])
+        activeFillIndex = nil
+        setProgressWithoutAnimation(strokes: [], fills: [])
         phase = .finished
     }
 
@@ -176,18 +206,21 @@ final class PlayerViewModel {
         guard !isDebugMode else {
             // Debug mode shows everything at once; just park the state machine.
             activeStrokeIndex = nil
+            activeFillIndex = nil
             phase = .awaitingUser(stepIndex: index)
             return
         }
 
         // Enter .drawing synchronously. If this were deferred into the task
-        // below, a fast double tap on "I drew it!" would still observe
+        // below, a fast double tap on the primary would still observe
         // .awaitingUser and advance twice, skipping a step.
         phase = .drawing(stepIndex: index)
         activeStrokeIndex = nil
-        // Snap every stroke back to zero without animating, so a replay does not
-        // visibly rewind.
-        setProgressWithoutAnimation(Array(repeating: 0, count: steps[index].strokes.count))
+        activeFillIndex = nil
+        // Snap every stroke and fill back to zero without animating, so a replay
+        // does not visibly rewind.
+        setProgressWithoutAnimation(strokes: Array(repeating: 0, count: steps[index].strokes.count),
+                                    fills: Array(repeating: 0, count: steps[index].fills.count))
 
         playbackTask = Task { [weak self] in
             await self?.runStep(index)
@@ -206,7 +239,9 @@ final class PlayerViewModel {
         for strokeIndex in step.strokes.indices {
             if Task.isCancelled { return }
             let stroke = step.strokes[strokeIndex]
-            let duration = max(0.05, stroke.duration / speedMultiplier)
+            // Read the speed here, not once per step: a change made while this
+            // step plays takes effect from the next stroke.
+            let duration = max(0.05, stroke.duration / speed)
 
             activeStrokeIndex = strokeIndex
             withAnimation(.linear(duration: duration)) {
@@ -218,18 +253,36 @@ final class PlayerViewModel {
             do { try await Task.sleep(for: .seconds(duration)) } catch { return }
         }
 
-        if Task.isCancelled { return }
         activeStrokeIndex = nil
+
+        // The step's colour, painted after its outlines and under every stroke.
+        for fillIndex in step.fills.indices {
+            if Task.isCancelled { return }
+            let fill = step.fills[fillIndex]
+            let duration = max(0.05, fill.duration / speed)
+
+            activeFillIndex = fillIndex
+            withAnimation(.easeOut(duration: duration)) {
+                if fillProgress.indices.contains(fillIndex) {
+                    fillProgress[fillIndex] = 1
+                }
+            }
+            do { try await Task.sleep(for: .seconds(duration)) } catch { return }
+        }
+
+        if Task.isCancelled { return }
+        activeFillIndex = nil
         phase = .awaitingUser(stepIndex: index)
     }
 
     /// Writes progress values with animation explicitly disabled, which also
     /// interrupts any in-flight animation on those values.
-    private func setProgressWithoutAnimation(_ values: [Double]) {
+    private func setProgressWithoutAnimation(strokes: [Double], fills: [Double]) {
         var transaction = Transaction()
         transaction.disablesAnimations = true
         withTransaction(transaction) {
-            strokeProgress = values
+            strokeProgress = strokes
+            fillProgress = fills
         }
     }
 }
