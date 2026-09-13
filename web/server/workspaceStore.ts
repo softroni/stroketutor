@@ -14,7 +14,7 @@ import {
 } from '../src/history/types'
 import { formatJSON } from '../src/schema/formatJSON'
 import type { Tutorial } from '../src/schema/types'
-import type { FrozenReference, ScriptLine, Take, Voice, VoiceEngine } from '../src/voice/types'
+import type { AppLine, FrozenReference, ScriptLine, Take, Voice, VoiceEngine } from '../src/voice/types'
 
 import {
   WriteRefused,
@@ -1192,6 +1192,26 @@ export async function openWorkspace(options: WorkspaceOptions) {
 
     saveScript(lines: ScriptLine[]) {
       setMeta('voice.script', JSON.stringify(lines))
+    },
+
+    /**
+     * Lina's own lines — what the app says outside any lesson — or null before
+     * they are seeded. Only the words are stored: the ids and their order are
+     * `APP_LINE_IDS`, which the iOS app depends on and nothing here may change.
+     */
+    readAppLines(): AppLine[] | null {
+      const text = getMeta('voice.appLines')
+      if (!text) return null
+      try {
+        const lines = JSON.parse(text) as AppLine[]
+        return Array.isArray(lines) ? lines : null
+      } catch {
+        return null
+      }
+    },
+
+    saveAppLines(lines: AppLine[]) {
+      setMeta('voice.appLines', JSON.stringify(lines))
     },
 
     /**

@@ -1,4 +1,7 @@
+import { APP_LINES } from '../../voice/suggestions'
 import type {
+  AppLineNarration,
+  AppNarration,
   LessonNarration,
   ScriptLine,
   StepNarration,
@@ -235,6 +238,27 @@ function refresh(lesson: LessonNarration): LessonNarration {
   return structuredClone(lesson)
 }
 
+/* ---------- Lina's own lines ---------- */
+
+const appLines: AppLineNarration[] = APP_LINES.map((line) => ({ ...line, take: null, stale: 'missing' }))
+let appPublished: AppNarration['published'] = null
+
+/** Recomputes the app lines' staleness, the way the server does for a lesson's steps. */
+function refreshAppLines(): AppNarration {
+  for (const line of appLines) {
+    if (!line.take) line.stale = 'missing'
+    else if (line.take.voiceId !== castVoiceId) line.stale = 'voice-changed'
+    else if (line.take.text !== line.text) line.stale = 'text-changed'
+    else line.stale = null
+  }
+  if (appPublished) {
+    appPublished.behind =
+      appLines.some((line) => line.stale !== null) ||
+      (castVoiceId !== null && appPublished.voiceId !== castVoiceId)
+  }
+  return structuredClone({ castVoiceId, lines: appLines, published: appPublished })
+}
+
 /* ---------- The fake API ---------- */
 
 export const mockVoiceApi = {
@@ -437,6 +461,67 @@ export const mockVoiceApi = {
     const lesson = lessonFor(lessonId)
     const files = lesson.published ? [`shared/Assets/Voice/${lessonId}/`] : []
     lesson.published = null
+    return { files }
+  },
+
+  async readAppLines(): Promise<AppNarration> {
+    await delay(around(200))
+    return refreshAppLines()
+  },
+
+  async saveAppLine(id: string, text: string): Promise<AppNarration> {
+    await delay(around(180))
+    const line = appLines.find((candidate) => candidate.id === id)
+    if (!line) throw new Error(`"${id}" is not one of the app’s lines.`)
+    if (!text.trim()) throw new Error(`“${id}” cannot be empty: the app plays it, so it must say something.`)
+    line.text = text.trim()
+    return refreshAppLines()
+  },
+
+  async narrateAppLine(id: string, another: boolean): Promise<AppNarration> {
+    const line = appLines.find((candidate) => candidate.id === id)
+    if (!line) throw new Error(`"${id}" is not one of the app’s lines.`)
+    if (!castVoiceId) throw new Error('No voice is cast as Lina yet.')
+    const target = findVoice(castVoiceId)
+    const hash = await takeHash(target, line.text)
+    const cached = another ? undefined : takes.find((take) => take.voiceId === target.id && take.textHash === hash)
+    if (cached) {
+      await delay(around(150))
+      line.take = cached
+    } else {
+      generating = true
+      try {
+        await delay(speechDelay(target))
+        line.take = await makeTake(target, line.text)
+      } finally {
+        generating = false
+      }
+    }
+    return refreshAppLines()
+  },
+
+  async publishAppLines() {
+    await delay(around(900))
+    const target = castVoiceId ? findVoice(castVoiceId) : null
+    appPublished = {
+      generatedAt: now(),
+      voiceId: target?.id ?? '',
+      voiceName: target?.name ?? '',
+      lineCount: appLines.length,
+      behind: false,
+    }
+    return {
+      files: [
+        ...appLines.map((line) => `shared/Assets/Voice/app/${line.id}.m4a`),
+        'shared/Assets/Voice/app/manifest.json',
+      ],
+    }
+  },
+
+  async unpublishAppLines() {
+    await delay(around(400))
+    const files = appPublished ? ['shared/Assets/Voice/app/'] : []
+    appPublished = null
     return { files }
   },
 }

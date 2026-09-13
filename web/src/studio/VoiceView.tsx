@@ -14,6 +14,7 @@ import {
   updateVoice,
 } from './api'
 import type { Library } from './library'
+import { AppLinesPanel } from './voice/AppLines'
 import { LessonNarrationPanel } from './voice/LessonNarration'
 import { LinaPortrait } from './voice/LinaPortrait'
 import { ScriptEditor } from './voice/ScriptEditor'
@@ -326,6 +327,21 @@ export function VoiceView({ library }: { library: Library }) {
 
           <LessonNarrationPanel
             library={library}
+            voices={voices}
+            castVoiceId={state.castVoiceId}
+            player={player}
+            queue={queue}
+            unavailable={unavailable}
+          />
+
+          {/*
+            Last, and deliberately: the page reads cast → audition script →
+            lessons → the app's own lines, and the two narration tables sit
+            together so a line recorded in one voice can be compared with a
+            step recorded in the same one. They share the page's single queue,
+            so the speech server is still asked for one line at a time.
+          */}
+          <AppLinesPanel
             voices={voices}
             castVoiceId={state.castVoiceId}
             player={player}

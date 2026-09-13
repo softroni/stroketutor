@@ -16,17 +16,22 @@ import {
   type RepoWriterOptions,
 } from './repoWriter'
 import {
+  appLines,
   applySpokenLines,
   castVoice,
   createVoice,
+  deletePublishedAppLines,
   deletePublishedVoice,
   deleteVoice,
   freezeVoice,
   lessonNarration,
+  narrateAppLine,
   narrateStep,
+  publishAppLines,
   publishVoice,
   readTakeAudio,
   say,
+  setAppLine,
   setNarrationLine,
   setScript,
   unfreezeVoice,
@@ -122,6 +127,11 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `POST /api/voice/lessons/:lesson/narrate`      `{ stepId, another? }` → records one step
  * - `POST /api/voice/lessons/:lesson/publish`      the AAC files and the manifest into shared/Assets/Voice/
  * - `DELETE /api/voice/lessons/:lesson/published`  takes them out again
+ * - `GET  /api/voice/app`                 Lina's own lines (onboarding, the eight completions) and their recordings
+ * - `PUT  /api/voice/app/lines/:id`       `{ text }` → the words of one app line; the id is fixed
+ * - `POST /api/voice/app/narrate`         `{ id, another? }` → records one app line
+ * - `POST /api/voice/app/publish`         the AAC files and the manifest into shared/Assets/Voice/app/
+ * - `DELETE /api/voice/app/published`     takes them out again
  */
 export function studioApi(options: StudioApiOptions): Plugin {
   let opening: Promise<{ workspace: Workspace; writer: RepoWriter }> | null = null
@@ -432,6 +442,33 @@ async function handleVoice(
     }
     if (parts.length === 3 && action === 'unfreeze' && method === 'POST') {
       send(res, 200, unfreezeVoice(name, deps))
+      return true
+    }
+  }
+
+  // `app` is Lina's own lines: fixed ids, no lesson behind them, so they sit
+  // beside `lessons` rather than under it.
+  if (group === 'app') {
+    if (parts.length === 1 && method === 'GET') {
+      send(res, 200, await appLines(deps))
+      return true
+    }
+    if (parts.length === 3 && name === 'lines' && method === 'PUT') {
+      const body = await readJSON(req, MAX_JSON_BYTES)
+      send(res, 200, await setAppLine(action, body.text, deps))
+      return true
+    }
+    if (parts.length === 2 && name === 'narrate' && method === 'POST') {
+      const body = await readJSON(req, MAX_JSON_BYTES)
+      send(res, 200, await narrateAppLine(body.id, { another: body.another === true }, deps))
+      return true
+    }
+    if (parts.length === 2 && name === 'publish' && method === 'POST') {
+      send(res, 200, await publishAppLines(deps))
+      return true
+    }
+    if (parts.length === 2 && name === 'published' && method === 'DELETE') {
+      send(res, 200, await deletePublishedAppLines(deps))
       return true
     }
   }

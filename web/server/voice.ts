@@ -1,9 +1,15 @@
 import { createHash, randomBytes } from 'node:crypto'
 
 import type { Step, Tutorial } from '../src/schema/types'
-import { SUGGESTED_SCRIPT, SUGGESTED_VOICES } from '../src/voice/suggestions'
+import { APP_LINES, SUGGESTED_SCRIPT, SUGGESTED_VOICES } from '../src/voice/suggestions'
 import {
+  APP_LINE_IDS,
   QWEN_SPEAKERS,
+  type AppLine,
+  type AppLineId,
+  type AppLineNarration,
+  type AppNarration,
+  type AppVoiceManifest,
   type LessonNarration,
   type ScriptLine,
   type StepNarration,
@@ -45,7 +51,9 @@ import type { NarrationEntry, Workspace } from './workspaceStore'
  * same audition lines, and the creator casts one. Every lesson is then narrated
  * with that voice: one recording per step, of the step's instruction or of a
  * spoken line written for it. Publishing turns those recordings into the AAC
- * files and the manifest the iOS app bundles.
+ * files and the manifest the iOS app bundles. The app's own lines — the voice
+ * introducing herself, the completion screens — are recorded the same way,
+ * under a reserved lesson id, and published as `Voice/app/`.
  *
  * Two ideas carry most of this file:
  *
@@ -111,6 +119,10 @@ export function textHash(voice: VoiceSettings, text: string): string {
  * of reappearing on the next visit.
  */
 function seed(deps: VoiceDeps) {
+  // Lina's own lines have their own guard rather than riding on `voiceSeeded`:
+  // they arrived after it, so a workspace that was seeded before they existed
+  // would otherwise never get them. Once written they are the creator's.
+  if (!deps.workspace.readAppLines()) deps.workspace.saveAppLines(APP_LINES.map((line) => ({ ...line })))
   if (deps.workspace.voiceSeeded()) return
   const at = new Date().toISOString()
   const voices = SUGGESTED_VOICES.map<Voice>((suggestion) => ({
@@ -222,7 +234,8 @@ export function deleteVoice(id: string, options: { force?: boolean }, deps: Voic
   const voice = mustReadVoice(id, deps)
   const used = deps.workspace.narrationUsing(id)
   if (used.length > 0 && !options.force) {
-    const lessons = [...new Set(used.map((step) => step.lessonId))]
+    // The app's own lines are a reserved lesson id, so they are named, not spelled.
+    const lessons = [...new Set(used.map((step) => (step.lessonId === APP_NARRATION_ID ? 'Lina’s own lines' : step.lessonId)))]
     throw new WriteRefused(
       409,
       `“${voice.name}” narrates ${used.length === 1 ? '1 step' : `${used.length} steps`} of ${lessons.join(', ')}. Deleting it removes those recordings too.`,
@@ -738,6 +751,184 @@ export async function publishVoice(lessonId: string, deps: VoiceDeps): Promise<{
   return { files: [...new Set([...written.files, ...reference])].sort() }
 }
 
+// ---------- Lina's own lines ----------
+
+/**
+ * What the app says outside any lesson: the voice introducing herself, and the
+ * eight completion lines.
+ *
+ * The ids are the app's (`APP_LINE_IDS`) and never change; the words are the
+ * creator's and change as often as they like. Everything else is the lesson
+ * narration's machinery reused as it stands — a take is made by `say`, the
+ * chosen one is a row in `narration`, and `stale` means what it means for a
+ * step — so there is one set of rules to know rather than two.
+ *
+ * The recordings are kept under a reserved lesson id, `app`, which
+ * `repoWriter` refuses to let any real lesson take.
+ */
+const APP_NARRATION_ID = 'app'
+
+/** The stored words for every app line, in `APP_LINE_IDS` order, with any gap filled from the seed. */
+function readAppLines(deps: VoiceDeps): AppLine[] {
+  const stored = new Map((deps.workspace.readAppLines() ?? []).map((line) => [line.id, line]))
+  return APP_LINES.map((seeded) => {
+    const line = stored.get(seeded.id)
+    return line && typeof line.text === 'string' && line.text.trim()
+      ? { id: seeded.id, where: line.where || seeded.where, text: line.text }
+      : { ...seeded }
+  })
+}
+
+/** Lina's own lines, what is recorded for each, and what is published. */
+export async function appLines(deps: VoiceDeps): Promise<AppNarration> {
+  seed(deps)
+  const castVoiceId = deps.workspace.castVoiceId()
+  const cast = castVoiceId ? deps.workspace.readVoice(castVoiceId) : null
+  const recorded = new Map(deps.workspace.readNarration(APP_NARRATION_ID).map((entry) => [entry.stepId, entry]))
+
+  const lines = readAppLines(deps).map<AppLineNarration>((line) => {
+    const entry = recorded.get(line.id)
+    const take = entry ? deps.workspace.readTakeInfo(entry.takeId) : null
+    return { ...line, take, stale: stalenessOf(entry, take, line.text, cast) }
+  })
+
+  return { castVoiceId, lines, published: await publishedAppState(lines, castVoiceId, deps) }
+}
+
+async function publishedAppState(
+  lines: AppLineNarration[],
+  castVoiceId: string | null,
+  deps: VoiceDeps,
+): Promise<AppNarration['published']> {
+  const manifest = await deps.writer.readAppVoiceManifest()
+  if (!manifest) return null
+  const published = manifest.lines ?? {}
+  const behind =
+    Object.keys(published).length !== lines.length ||
+    lines.some((line) => published[line.id]?.textHash !== line.take?.textHash) ||
+    (castVoiceId !== null && manifest.voiceId !== castVoiceId)
+  return {
+    generatedAt: manifest.generatedAt,
+    voiceId: manifest.voiceId,
+    voiceName: manifest.voiceName,
+    lineCount: Object.keys(published).length,
+    behind,
+  }
+}
+
+/** The id as one of the app's, or a refusal naming the nine it could have been. */
+function mustBeAppLineId(id: unknown): AppLineId {
+  const wanted = text(id, 'The line id').trim()
+  if (!(APP_LINE_IDS as readonly string[]).includes(wanted)) {
+    throw new WriteRefused(404, `"${wanted}" is not one of the app’s lines: ${APP_LINE_IDS.join(', ')}.`)
+  }
+  return wanted as AppLineId
+}
+
+/**
+ * Rewrites what one of the app's lines says. The id is fixed, so only the words
+ * are written; an empty line would leave a screen silent, and one longer than a
+ * breath does not belong on a completion screen either.
+ */
+export async function setAppLine(id: unknown, spoken: unknown, deps: VoiceDeps): Promise<AppNarration> {
+  seed(deps)
+  const lineId = mustBeAppLineId(id)
+  const wanted = text(spoken, 'The line').trim()
+  if (!wanted) {
+    throw new WriteRefused(422, `“${lineId}” cannot be empty: the app plays it, so it must say something.`)
+  }
+  if (wanted.length > MAX_SPOKEN_LINE) {
+    throw new WriteRefused(
+      422,
+      `“${lineId}” is ${wanted.length} characters; a spoken line must be ${MAX_SPOKEN_LINE} or fewer.`,
+    )
+  }
+  deps.workspace.saveAppLines(readAppLines(deps).map((line) => (line.id === lineId ? { ...line, text: wanted } : line)))
+  return appLines(deps)
+}
+
+/** Records one of the app's lines in the cast voice, exactly as a step is recorded. */
+export async function narrateAppLine(
+  id: unknown,
+  options: { another?: boolean },
+  deps: VoiceDeps,
+): Promise<AppNarration> {
+  seed(deps)
+  const castVoiceId = deps.workspace.castVoiceId()
+  if (!castVoiceId) throw new WriteRefused(409, 'No voice is cast as Lina yet, so there is nothing to narrate with.')
+  const lineId = mustBeAppLineId(id)
+  const line = readAppLines(deps).find((candidate) => candidate.id === lineId)!
+
+  const take = await say(castVoiceId, line.text, { another: options.another === true }, deps)
+  deps.workspace.saveNarration(APP_NARRATION_ID, {
+    stepId: lineId,
+    takeId: take.id,
+    voiceId: take.voiceId,
+    textHash: take.textHash,
+    generatedAt: new Date().toISOString(),
+  })
+  return appLines(deps)
+}
+
+/**
+ * Writes Lina's own lines into `shared/Assets/Voice/app/`: one AAC file per
+ * line and the manifest beside them.
+ *
+ * No lesson gates this one — these lines belong to the app itself, not to
+ * anything in the catalog — but the rest of the rule is the lesson's: it
+ * refuses while a line is missing or out of date, because an app that finds
+ * eight of nine files plays silence on the ninth screen.
+ */
+export async function publishAppLines(deps: VoiceDeps): Promise<{ files: string[] }> {
+  const narration = await appLines(deps)
+  const unready = narration.lines.filter((line) => line.stale !== null)
+  if (unready.length > 0) {
+    const missing = unready.filter((line) => line.stale === 'missing').length
+    const changed = unready.length - missing
+    const parts = [
+      missing > 0 ? `${missing} ${missing === 1 ? 'line has' : 'lines have'} no recording` : '',
+      changed > 0 ? `${changed} ${changed === 1 ? 'is' : 'are'} out of date` : '',
+    ].filter(Boolean)
+    throw new WriteRefused(422, `Lina’s own lines are not ready: ${parts.join(' and ')}. Record what is missing first.`)
+  }
+  const voice = narration.castVoiceId ? deps.workspace.readVoice(narration.castVoiceId) : null
+  if (!voice) throw new WriteRefused(409, 'No voice is cast as Lina yet, so there is nothing to publish.')
+
+  // Every name is checked, and every file converted, before anything is written.
+  for (const line of narration.lines) checkStepId(line.id)
+  const convert = deps.tts.convert ?? convertToM4a
+  const files: { id: string; bytes: Uint8Array }[] = []
+  const lines: AppVoiceManifest['lines'] = {}
+  for (const line of narration.lines) {
+    const stored = deps.workspace.readTake(line.take!.id)
+    if (!stored) throw new WriteRefused(409, `The recording for “${line.id}” is gone. Make it again.`)
+    files.push({ id: line.id, bytes: await convert(stored.bytes) })
+    lines[line.id] = {
+      file: `${line.id}.m4a`,
+      text: stored.text,
+      textHash: stored.textHash,
+      durationMs: stored.durationMs,
+    }
+  }
+
+  const manifest: AppVoiceManifest = {
+    manifestVersion: 1,
+    voiceId: voice.id,
+    voiceName: voice.name,
+    model: voice.frozen ? `qwen-base clone of ${voice.frozen.referenceName}` : voice.engine,
+    generatedAt: new Date().toISOString(),
+    lines,
+  }
+  const written = await deps.writer.writeAppVoice(files, manifest)
+  const reference = await exportReferenceIfStale(voice, deps)
+  return { files: [...new Set([...written.files, ...reference])].sort() }
+}
+
+/** Takes Lina's own lines out of `shared/`. The recordings stay in the workspace. */
+export async function deletePublishedAppLines(deps: VoiceDeps): Promise<{ files: string[] }> {
+  return deps.writer.deleteAppVoice()
+}
+
 // ---------- The reference kept in the repository ----------
 
 /** What `restoreReference` put back, so the caller can say what it did. */
@@ -813,7 +1004,7 @@ export async function restoreReference(voiceId: string, deps: VoiceDeps): Promis
   seed(deps)
   const kept = await deps.writer.readVoiceReference(checkId(voiceId))
   if (!kept) {
-    throw new WriteRefused(404, `shared/Assets/Voice/reference/ has nothing for "${voiceId}".`)
+    throw new WriteRefused(404, `shared/Assets/VoiceReference/ has nothing for "${voiceId}".`)
   }
   const { wav, record } = kept
   const reference = await addReference(record.referenceName, record.referenceText, wav, deps.tts)

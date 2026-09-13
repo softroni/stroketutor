@@ -224,6 +224,10 @@ command line share.
   from a plan; checked in full and refused by name before anything is written
 - `POST /api/voice/lessons/:lesson/lines/generate` — `{ model?, note?, overwrite? }`, a model writes them
 - `POST /api/voice/lessons/:lesson/publish` · `DELETE /api/voice/lessons/:lesson/published`
+- `GET  /api/voice/app` — Lina's own lines, their recordings, what has gone stale, what is published
+- `PUT  /api/voice/app/lines/:id` — `{ text }`, the words of one app line (the id is fixed)
+- `POST /api/voice/app/narrate` — `{ id, another? }`, one line at a time, as a lesson's steps are
+- `POST /api/voice/app/publish` · `DELETE /api/voice/app/published`
 
 **What Lina says.** A step's written instruction is written to be read and re-read; spoken aloud it is
 far too long (Palm Tree's first instruction is seventeen seconds, and its stroke draws in three). So a
@@ -235,11 +239,25 @@ or applied from a plan by an agent or a person, as `lessons apply --plan` does f
 Voice is narrated against the lesson as it stands in the workspace, and published only once the
 lesson itself is published without further edits, so the audio always matches the text the app has.
 
+**Lina's own lines.** Nine of the things Lina says belong to no lesson: `hello`, heard on onboarding's
+"Meet the voice" and behind the sample button in Settings, and `lesson-1`…`lesson-4` and
+`path-1`…`path-4`, the completion screens. **The ids never change** — the iOS app looks each one up by
+exactly that string, so a renamed id is a silent screen — but the words are the creator's, seeded once
+(`src/voice/suggestions.ts`, `meta voice.appLines`) and edited on the Voice page or with
+`voice app set`. Everything else is the lesson narration reused as it stands: a take comes from the
+same cache, the chosen one is a row in `narration` under the reserved lesson id `app` (no lesson may
+take that name), and `missing` / `text-changed` / `voice-changed` mean what they mean for a step.
+Publishing writes `shared/Assets/Voice/app/<id>.m4a` and a `manifest.json` keyed by line id, refuses
+while any line is missing or out of date, and `voice publish --all` takes them along with the
+lessons (saying so when they are not complete).
+
 **The reference in the repo.** A frozen voice's reference lives on the speech server and in the
-gitignored workspace, so publishing a lesson's voice also writes the cast voice's reference to
-`shared/Assets/Voice/reference/<voiceId>.wav` and `.json` (the voice, its description, the reference's
-name and exact words). On a machine that has never heard of Lina, `voice reference restore` uploads
-it again under the same name and the voice speaks exactly as before.
+gitignored workspace, so publishing a lesson's voice — or the app's own lines — also writes the cast
+voice's reference to `shared/Assets/VoiceReference/<voiceId>.wav` and `.json` (the voice, its
+description, the reference's name and exact words). It sits beside `Assets/Voice/` rather than inside
+it because the iOS app bundles all of `Assets/Voice/`, and a reference WAV per voice has no business
+shipping. On a machine that has never heard of Lina, `voice reference restore` uploads it again under
+the same name and the voice speaks exactly as before.
 
 ## The command line
 
@@ -272,6 +290,7 @@ npm run studio -- voice lines apply palm --plan lines.json   # what Lina says at
 npm run studio -- voice narrate --all && npm run studio -- voice publish --all
 npm run studio -- voice cast lina-bright && npm run studio -- voice narrate palm-tree-4
 npm run studio -- voice publish palm-tree-4
+npm run studio -- voice app narrate && npm run studio -- voice app publish   # Lina's own lines
 ```
 
 | Group | Commands |
@@ -286,7 +305,7 @@ npm run studio -- voice publish palm-tree-4
 | `trash` | `list`, `restore`, `purge`, `empty` |
 | `svg` | `trace`, `optimize`, `render`, `preview`, `to-steps` |
 | `image` | `to-steps` |
-| `voice` | `status`, `list`, `add`, `cast`, `say`, `freeze`, `unfreeze`, `narrate [--all]`, `lines list`, `lines set`, `lines clear`, `lines generate`, `lines apply`, `publish [--all]`, `unpublish`, `reference export`, `reference restore`, `script`, `script set` |
+| `voice` | `status`, `list`, `add`, `cast`, `say`, `freeze`, `unfreeze`, `narrate [--all]`, `lines list`, `lines set`, `lines clear`, `lines generate`, `lines apply`, `publish [--all]`, `unpublish`, `app list`, `app set`, `app narrate [--remake]`, `app publish`, `app unpublish`, `reference export`, `reference restore`, `script`, `script set` |
 
 - **The same workspace.** `cli/studio.mjs` is plain JavaScript that starts Vite in middleware mode as a
   module loader only (no port, no browser, no watcher), so the Studio's TypeScript, its `@shared` alias and
@@ -359,7 +378,9 @@ npm run studio -- voice publish palm-tree-4
   out-of-date one, printing each step's length as it goes (`--remake` does them all again), and
   `voice publish <lesson>` writes the AAC files and the manifest into `shared/` with the usual
   `git add` line. `voice lines set <lesson> <step> "…"` writes what a step says instead of its
-  instruction. Every one of them calls the same `server/voice.ts` the Voice page calls.
+  instruction. `voice app list`, `voice app set <id> "…"`, `voice app narrate` and `voice app publish`
+  do the same for Lina's own lines, the ones the app speaks outside any lesson. Every one of them
+  calls the same `server/voice.ts` the Voice page calls.
 - **`strokes reverse`** draws the selected strokes from their other end: the same shape, animated the
   other way round (`reversePath` from `server/regenerate.ts`, the same function an order regeneration
   uses). Reversing twice gives the stroke back byte for byte.

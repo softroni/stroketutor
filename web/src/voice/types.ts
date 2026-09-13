@@ -174,7 +174,7 @@ export interface VoiceManifest {
 }
 
 /**
- * `shared/Assets/Voice/reference/<voiceId>.json`, beside the `.wav` it
+ * `shared/Assets/VoiceReference/<voiceId>.json`, beside the `.wav` it
  * describes: everything needed to put a frozen voice back on a speech server
  * that has never heard of it. The reference itself lives only on the creator's
  * Mac and in the gitignored workspace, so without these two files a wiped
@@ -198,28 +198,82 @@ export interface VoiceReferenceRecord {
   durationMs: number
 }
 
+/* ---------- Lina's own lines: what the app says outside any lesson ---------- */
+
 /**
- * A line Lina says in the app itself, outside any lesson: the onboarding sample,
- * the completion lines. The ids are fixed, because the iOS app asks for them by
- * name (`NarrationPlayer.playAppLine`); the words are the creator's to edit.
+ * The lines the app asks for by name, outside any lesson: the voice
+ * introducing herself, and what she says when a lesson or a path is finished.
+ *
+ * **These ids never change.** The iOS app looks each one up in
+ * `shared/Assets/Voice/app/manifest.json` by exactly this string, so a renamed
+ * id is a silent screen. The words are the creator's to rewrite as often as
+ * they like; only the names are frozen.
  */
+export const APP_LINE_IDS = [
+  'hello',
+  'lesson-1',
+  'lesson-2',
+  'lesson-3',
+  'lesson-4',
+  'path-1',
+  'path-2',
+  'path-3',
+  'path-4',
+] as const
+
+export type AppLineId = (typeof APP_LINE_IDS)[number]
+
+/** One of the app's own lines: a fixed id, where it is heard, and the words. */
 export interface AppLine {
-  id: string
-  /** Where in the app it is heard, for the creator: "Onboarding, meet the voice", "Lesson complete, 1 of 4"… */
+  id: AppLineId
+  /** Where in the app it plays — "Lesson complete, 2 of 4" — so the creator writes for the moment. */
   where: string
   text: string
 }
 
-/** The ids the app asks for. `hello` plays on the onboarding voice beat and in Settings; the others at completion. */
-export const APP_LINE_IDS = ['hello', 'lesson-1', 'lesson-2', 'lesson-3', 'lesson-4', 'path-1', 'path-2', 'path-3', 'path-4'] as const
-export type AppLineId = (typeof APP_LINE_IDS)[number]
+/** One app line as the Voice page sees it: the words, the recording, and whether it still matches. */
+export interface AppLineNarration extends AppLine {
+  /** The recording made for this line, or null if none yet. */
+  take: Take | null
+  /** Why the recording no longer matches, exactly as a step's does. */
+  stale: 'missing' | 'text-changed' | 'voice-changed' | null
+}
 
-/** `shared/Assets/Voice/app/manifest.json`, beside one `<id>.m4a` per line. Same shape as a lesson's manifest, keyed by line id. */
+/** `GET /api/voice/app`: the app's own lines, and what is published for them. */
+export interface AppNarration {
+  castVoiceId: string | null
+  lines: AppLineNarration[]
+  /** What is in `shared/Assets/Voice/app/` now, or null if nothing was published. */
+  published: {
+    generatedAt: string
+    voiceId: string
+    voiceName: string
+    lineCount: number
+    /** True when a published line's text or voice differs from the workspace's current take. */
+    behind: boolean
+  } | null
+}
+
+/**
+ * `shared/Assets/Voice/app/manifest.json`: the same shape as a lesson's
+ * manifest, keyed by app line id instead of step id, so the iOS player reads
+ * both the same way.
+ */
 export interface AppVoiceManifest {
   manifestVersion: 1
   voiceId: string
   voiceName: string
+  /** The engine the audio was made with, for the record. */
   model: string
   generatedAt: string
-  lines: Record<string, { file: string; text: string; textHash: string; durationMs: number }>
+  lines: Record<
+    string,
+    {
+      /** Relative to the manifest: `<id>.m4a`. */
+      file: string
+      text: string
+      textHash: string
+      durationMs: number
+    }
+  >
 }

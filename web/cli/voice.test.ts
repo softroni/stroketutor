@@ -6,7 +6,16 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { fakeConverter, startFakeTts, type FakeTts } from '../server/testing'
 import { wavDurationMs } from '../server/tts'
-import type { LessonNarration, Take, Voice, VoiceManifest, VoiceState } from '../src/voice/types'
+import {
+  APP_LINE_IDS,
+  type AppNarration,
+  type AppVoiceManifest,
+  type LessonNarration,
+  type Take,
+  type Voice,
+  type VoiceManifest,
+  type VoiceState,
+} from '../src/voice/types'
 
 import { openTestStudio, type TestStudio } from './testing'
 
@@ -273,8 +282,10 @@ describe('the voice commands', () => {
     const frozen = await t.json<Voice>(['voice', 'freeze', 'lina-bright', '--take', take.id])
     const exported = await t.studio('voice reference export lina-bright')
     expect(exported.code).toBe(0)
-    expect(exported.stdout).toContain('git add -- shared/Assets/Voice/reference/lina-bright.wav')
-    expect(existsSync(path.join(t.shared, 'Assets', 'Voice', 'reference', 'lina-bright.json'))).toBe(true)
+    expect(exported.stdout).toContain('git add -- shared/Assets/VoiceReference/lina-bright.wav')
+    expect(existsSync(path.join(t.shared, 'Assets', 'VoiceReference', 'lina-bright.json'))).toBe(true)
+    // The app bundles all of Assets/Voice/, so the reference is a sibling of it, not inside it.
+    expect(existsSync(path.join(t.shared, 'Assets', 'Voice', 'reference'))).toBe(false)
 
     tts.addVoiceCalls.length = 0
     const restored = await t.studio('voice reference restore lina-bright')
@@ -287,11 +298,68 @@ describe('the voice commands', () => {
     expect(loose.stderr).toContain('is not frozen')
   })
 
+  it('lists Lina’s own lines, rewrites one, records them and publishes them', async () => {
+    const listed = await t.json<AppNarration>('voice app list')
+    expect(listed.lines.map((line) => line.id)).toEqual([...APP_LINE_IDS])
+    expect(listed.lines.every((line) => line.stale === 'missing')).toBe(true)
+
+    const printed = await t.studio('voice app list')
+    expect(printed.stdout).toContain('Onboarding and Settings: meet the voice')
+    expect(printed.stdout).toContain('9 lines, 9 still to make')
+
+    const written = await t.json<AppNarration>(['voice', 'app', 'set', 'lesson-2', 'You did the hard part twice.'])
+    expect(written.lines.find((line) => line.id === 'lesson-2')!.text).toBe('You did the hard part twice.')
+
+    const strange = await t.studio(['voice', 'app', 'set', 'lesson-9', 'Nope.'])
+    expect(strange.code).toBe(1)
+    expect(strange.stderr).toContain('is not one of the app’s lines')
+
+    await t.studio('voice cast house-chatterbox')
+    const recorded = await t.studio('voice app narrate')
+    expect(recorded.code).toBe(0)
+    expect(recorded.stdout).toContain('1 of 9')
+    expect(recorded.stdout).toContain('Recorded 9 lines of Lina’s own.')
+    expect(tts.speech).toHaveLength(9)
+
+    const again = await t.json<{ recorded: unknown[] }>('voice app narrate')
+    expect(again.recorded).toEqual([])
+
+    const published = await t.studio('voice app publish')
+    expect(published.code).toBe(0)
+    expect(published.stdout).toContain('10 files')
+    expect(published.stdout).toContain('git add -- shared/Assets/Voice/app/hello.m4a')
+
+    const manifest = JSON.parse(
+      await readFile(path.join(t.shared, 'Assets', 'Voice', 'app', 'manifest.json'), 'utf8'),
+    ) as AppVoiceManifest
+    expect(Object.keys(manifest.lines)).toEqual([...APP_LINE_IDS])
+    expect(manifest.lines['lesson-2'].text).toBe('You did the hard part twice.')
+
+    const removed = await t.studio('voice app unpublish --yes')
+    expect(removed.code).toBe(0)
+    expect(existsSync(path.join(t.shared, 'Assets', 'Voice', 'app'))).toBe(false)
+  })
+
+  it('takes Lina’s own lines along with `publish --all`, and says when it cannot', async () => {
+    await narrateHouse()
+    const without = await t.studio('voice publish --all')
+    expect(without.stdout).toContain('Lina’s own lines were skipped: 9 lines still to make')
+    expect(existsSync(path.join(t.shared, 'Assets', 'Voice', 'app'))).toBe(false)
+
+    await t.studio('voice app narrate')
+    const with_ = await t.json<{ appLines: boolean; files: string[] }>('voice publish --all')
+    expect(with_.appLines).toBe(true)
+    expect(with_.files).toContain('shared/Assets/Voice/app/path-4.m4a')
+    expect(with_.files).toContain('shared/Assets/Voice/app/manifest.json')
+    expect(existsSync(path.join(t.shared, 'Assets', 'Voice', 'app', 'manifest.json'))).toBe(true)
+  })
+
   it('describes itself in the overview and with --help', async () => {
     const overview = await t.studio('')
     expect(overview.stdout).toContain('voice narrate')
     expect(overview.stdout).toContain('voice lines generate')
     expect(overview.stdout).toContain('voice reference export')
+    expect(overview.stdout).toContain('voice app narrate')
     const help = await t.studio('voice say --help')
     expect(help.stdout).toContain('--another')
     const lines = await t.studio('voice lines generate --help')

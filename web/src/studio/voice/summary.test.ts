@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import type { StepNarration } from '../../voice/types'
+import type { AppLineNarration, StepNarration } from '../../voice/types'
 
-import { describeStale, narrationHeadline, publishBlocker, stepsNeedingWork, summariseSteps } from './summary'
+import {
+  appLinesNeedingWork,
+  appPublishBlocker,
+  describeStale,
+  narrationHeadline,
+  publishBlocker,
+  stepsNeedingWork,
+  summariseSteps,
+} from './summary'
 
 const step = (stepId: string, stale: StepNarration['stale']): StepNarration => ({
   stepId,
@@ -91,5 +99,43 @@ describe('publishBlocker', () => {
 
   it('is clear when publishing is ready', () => {
     expect(publishBlocker({ summary, lessonPublished: true, castVoiceId: 'lina-bright' })).toBeNull()
+  })
+})
+
+const appLine = (id: string, stale: AppLineNarration['stale']): AppLineNarration => ({
+  id: id as AppLineNarration['id'],
+  where: `Where ${id} plays`,
+  text: 'Something short.',
+  take: null,
+  stale,
+})
+
+describe('Lina’s own lines', () => {
+  const lines = [appLine('hello', null), appLine('lesson-1', 'missing'), appLine('path-1', 'text-changed')]
+
+  it('lists the ones to record, by their app ids', () => {
+    expect(appLinesNeedingWork(lines)).toEqual(['lesson-1', 'path-1'])
+    expect(appLinesNeedingWork([appLine('hello', null)])).toEqual([])
+  })
+
+  it('counts lines, not steps, in the headline', () => {
+    expect(narrationHeadline(summariseSteps(lines), 'line')).toBe(
+      '1 of 3 lines ready · 1 not made yet, 1 with words changed.',
+    )
+    expect(narrationHeadline(summariseSteps([appLine('hello', null)]), 'line')).toBe(
+      'All 1 line recorded in the cast voice.',
+    )
+  })
+
+  it('blocks publishing on the cast voice, then on what is left to make', () => {
+    expect(appPublishBlocker({ summary: summariseSteps(lines), castVoiceId: null })).toBe(
+      'Cast a voice as Lina first.',
+    )
+    expect(appPublishBlocker({ summary: summariseSteps(lines), castVoiceId: 'lina-bright' })).toBe(
+      '2 lines still to make. Publishing takes all of them at once.',
+    )
+    expect(
+      appPublishBlocker({ summary: summariseSteps([appLine('hello', null)]), castVoiceId: 'lina-bright' }),
+    ).toBeNull()
   })
 })

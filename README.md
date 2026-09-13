@@ -193,9 +193,14 @@ choose between several candidates. Speech is made on the creator's own MLX-Audio
       lines kept), or applied from a plan (`voice lines apply --plan`). `voice narrate --all` and
       `voice publish --all` do the catalog in one go. Voice publishes only for a lesson published without edits.
 - [x] **The reference in the repo.** Publishing a lesson's voice also writes the frozen voice's reference WAV and
-      record to `shared/Assets/Voice/reference/`, and `voice reference restore` puts it back on a fresh speech server.
-- [ ] Not yet: the Xcode project does not bundle `shared/Assets/Voice/` (add the folder reference as `Voice/`), and
-      the onboarding and completion lines are not produced yet.
+      record to `shared/Assets/VoiceReference/`, and `voice reference restore` puts it back on a fresh speech server.
+      It is a sibling of `Assets/Voice/`, not inside it, because the app bundles all of `Assets/Voice/`.
+- [x] **Lina's own lines.** The nine things she says outside any lesson: `hello` (onboarding's "Meet the voice" and
+      the Settings sample) and `lesson-1`…`lesson-4`, `path-1`…`path-4` (the completion screens). The ids are fixed —
+      iOS asks for each by name — and the words are the creator's, edited on the Voice page or with `voice app set`.
+      They record and go stale exactly as a step does, publish as `shared/Assets/Voice/app/<id>.m4a` with a
+      `manifest.json`, and `voice publish --all` takes them along with the lessons.
+- [ ] Not yet: the Xcode project does not bundle `shared/Assets/Voice/` (add the folder reference as `Voice/`).
 
 #### S7 · Reviewing a lesson
 Asked for on 2026-09-12, after reviewing the classic red car.

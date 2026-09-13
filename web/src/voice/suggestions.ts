@@ -1,4 +1,4 @@
-import type { ScriptLine, VoiceInput } from './types'
+import type { AppLine, ScriptLine, VoiceInput } from './types'
 
 /**
  * What the Voice page starts with: a few candidate voices for Lina and the
@@ -85,4 +85,64 @@ export const SUGGESTED_SCRIPT: ScriptLine[] = [
     text: "Don't worry if it wobbles. A wobbly line is just a hand learning something new.",
   },
   { id: 'done', label: 'Finished', text: "And that's the whole palm tree. Look at that. You drew it." },
+]
+
+/**
+ * Lina's own lines, as a fresh workspace starts with them: the words the app
+ * speaks outside any lesson. Seeded once (`meta voice.appLines`), then the
+ * creator's to rewrite — the ids belong to the app and never change, the words
+ * do not.
+ *
+ * Each is written for the moment it lands in rather than for a lesson.
+ * `hello` is heard twice (onboarding's "Meet the voice", and the sample button
+ * in Settings). The eight completions are the last thing said on a screen the
+ * learner has just finished, so each hands them the next thing instead of
+ * applauding.
+ */
+export const APP_LINES: AppLine[] = [
+  {
+    id: 'hello',
+    where: 'Onboarding and Settings: meet the voice',
+    text: "Hi, I'm Lina. I'll talk you through each step while it draws. You can turn my voice off any time.",
+  },
+  {
+    id: 'lesson-1',
+    where: 'Lesson complete, 1 of 4',
+    text: 'That is the whole shape, in your hand. The next one starts from here.',
+  },
+  {
+    id: 'lesson-2',
+    where: 'Lesson complete, 2 of 4',
+    text: 'The part you found hard is the part you can now do. That is how it goes.',
+  },
+  {
+    id: 'lesson-3',
+    where: 'Lesson complete, 3 of 4',
+    text: 'Look at it whole. The lines you hesitated over are the ones holding it up.',
+  },
+  {
+    id: 'lesson-4',
+    where: 'Lesson complete, 4 of 4',
+    text: 'Same marks, your own hand. That is all drawing ever is.',
+  },
+  {
+    id: 'path-1',
+    where: 'Path complete, 1 of 4',
+    text: 'You know how these are put together now. Try one from life, wherever you find it.',
+  },
+  {
+    id: 'path-2',
+    where: 'Path complete, 2 of 4',
+    text: 'The method carries over. The next path will feel familiar from the first step.',
+  },
+  {
+    id: 'path-3',
+    where: 'Path complete, 3 of 4',
+    text: 'Every one of them finished. None of that was luck.',
+  },
+  {
+    id: 'path-4',
+    where: 'Path complete, 4 of 4',
+    text: 'You have the shape of the subject now. The rest is time with a pen.',
+  },
 ]

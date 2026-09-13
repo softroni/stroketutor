@@ -3,7 +3,7 @@ import type { HistoryEntry, HistoryRecord } from '../history/types'
 import type { Tutorial } from '../schema/types'
 import type { ValidationIssue } from '../schema/validate'
 import type { TracedDrawing } from '../trace/traceSvg'
-import type { LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
+import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
 import { mockVoiceApi } from './voice/mockVoiceApi'
 
@@ -400,4 +400,33 @@ export function unpublishVoice(lessonId: string) {
   return voiceMock
     ? voiceMock.unpublish(lessonId)
     : call<{ files: string[] }>(`/api/voice/lessons/${encodeURIComponent(lessonId)}/published`, remove())
+}
+
+/** Lina's own lines: what the app says outside any lesson, and what is recorded for each. */
+export function readAppLines() {
+  return voiceMock ? voiceMock.readAppLines() : call<AppNarration>('/api/voice/app')
+}
+
+/** Rewrites one app line. The id is the app's and never changes; only the words are sent. */
+export function saveAppLine(id: string, text: string) {
+  return voiceMock
+    ? voiceMock.saveAppLine(id, text)
+    : call<AppNarration>(`/api/voice/app/lines/${encodeURIComponent(id)}`, json('PUT', { text }))
+}
+
+/** Records one app line in the cast voice, one request at a time as the lesson table does. */
+export function narrateAppLine(id: string, { another = false } = {}) {
+  return voiceMock
+    ? voiceMock.narrateAppLine(id, another)
+    : call<AppNarration>('/api/voice/app/narrate', json('POST', { id, another }))
+}
+
+/** Writes `shared/Assets/Voice/app/`: one m4a per line and the manifest the iOS app reads. */
+export function publishAppLines() {
+  return voiceMock ? voiceMock.publishAppLines() : call<{ files: string[] }>('/api/voice/app/publish', post())
+}
+
+/** Takes Lina's own lines back out of `shared/`. */
+export function unpublishAppLines() {
+  return voiceMock ? voiceMock.unpublishAppLines() : call<{ files: string[] }>('/api/voice/app/published', remove())
 }

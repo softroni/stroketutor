@@ -1,6 +1,13 @@
-import type { StepNarration } from '../../voice/types'
+import type { AppLineNarration, StepNarration } from '../../voice/types'
 
 import { plural } from './format'
+
+/**
+ * Anything with a recording that can go out of date: a lesson's step, or one of
+ * Lina's own lines. Both tables count the same way, so the counting is written
+ * once against the only field it reads.
+ */
+type Recordable = Pick<StepNarration, 'stale'>
 
 /**
  * What the narration table adds up to. The toolbar, the publish button and the
@@ -21,7 +28,7 @@ export interface NarrationSummary {
   needsWork: number
 }
 
-export function summariseSteps(steps: readonly StepNarration[]): NarrationSummary {
+export function summariseSteps(steps: readonly Recordable[]): NarrationSummary {
   const count = (stale: StepNarration['stale']) => steps.filter((step) => step.stale === stale).length
   const missing = count('missing')
   const textChanged = count('text-changed')
@@ -41,6 +48,11 @@ export function stepsNeedingWork(steps: readonly StepNarration[]): string[] {
   return steps.filter((step) => step.stale !== null).map((step) => step.stepId)
 }
 
+/** The same, for Lina's own lines, which are named by `id` rather than `stepId`. */
+export function appLinesNeedingWork(lines: readonly AppLineNarration[]): string[] {
+  return lines.filter((line) => line.stale !== null).map((line) => line.id)
+}
+
 /** The chip beside a step: what it says, and which colour it wears. */
 export function describeStale(stale: StepNarration['stale']): { label: string; tone: 'ready' | 'todo' | 'changed' } {
   switch (stale) {
@@ -55,15 +67,18 @@ export function describeStale(stale: StepNarration['stale']): { label: string; t
   }
 }
 
-/** The line under the table: where this lesson's narration stands, in a sentence. */
-export function narrationHeadline(summary: NarrationSummary): string {
+/**
+ * The line under the table: where this narration stands, in a sentence. `unit`
+ * is what is being counted — a lesson has steps, the app has lines.
+ */
+export function narrationHeadline(summary: NarrationSummary, unit = 'step'): string {
   if (summary.total === 0) return 'This lesson has no steps to narrate.'
-  if (summary.needsWork === 0) return `All ${plural(summary.total, 'step')} recorded in the cast voice.`
+  if (summary.needsWork === 0) return `All ${plural(summary.total, unit)} recorded in the cast voice.`
   const parts: string[] = []
   if (summary.missing > 0) parts.push(`${summary.missing} not made yet`)
   if (summary.textChanged > 0) parts.push(`${summary.textChanged} with words changed`)
   if (summary.voiceChanged > 0) parts.push(`${summary.voiceChanged} in an older voice`)
-  return `${summary.ready} of ${plural(summary.total, 'step')} ready · ${parts.join(', ')}.`
+  return `${summary.ready} of ${plural(summary.total, unit)} ready · ${parts.join(', ')}.`
 }
 
 /**
@@ -82,6 +97,19 @@ export function publishBlocker(input: {
   if (!input.lessonPublished) return 'Publish the lesson itself first, on the Publish page.'
   if (input.summary.needsWork > 0) {
     return `${plural(input.summary.needsWork, 'step')} still to make. Publishing takes the whole lesson at once.`
+  }
+  return null
+}
+
+/**
+ * Why "Publish Lina's lines" is off, or null when it is ready. Shorter than a
+ * lesson's, because these lines belong to no lesson: there is nothing to
+ * publish first, only a voice to cast and nine lines to record.
+ */
+export function appPublishBlocker(input: { summary: NarrationSummary; castVoiceId: string | null }): string | null {
+  if (!input.castVoiceId) return 'Cast a voice as Lina first.'
+  if (input.summary.needsWork > 0) {
+    return `${plural(input.summary.needsWork, 'line')} still to make. Publishing takes all of them at once.`
   }
   return null
 }

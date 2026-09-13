@@ -2,18 +2,23 @@ import { writeFile } from 'node:fs/promises'
 
 import { MAX_SPOKEN_LINE } from '../../server/prompts/spokenLinesPrompt'
 import {
+  appLines,
   applySpokenLines,
   castVoice,
   createVoice,
+  deletePublishedAppLines,
   deletePublishedVoice,
   exportReference,
   freezeVoice,
   lessonNarration,
+  narrateAppLine,
   narrateStep,
+  publishAppLines,
   publishVoice,
   readTakeAudio,
   restoreReference,
   say,
+  setAppLine,
   setNarrationLine,
   setScript,
   unfreezeVoice,
@@ -21,7 +26,7 @@ import {
   writeSpokenLines,
   type VoiceDeps,
 } from '../../server/voice'
-import type { LessonNarration, StepNarration, Voice } from '../../src/voice/types'
+import { APP_LINE_IDS, type AppLineNarration, type AppNarration, type LessonNarration, type StepNarration, type Voice } from '../../src/voice/types'
 
 import { UsageError, stringValue } from '../args'
 import { command, type Command } from '../command'
@@ -47,7 +52,8 @@ function describeVoice(voice: Voice): string {
   return voice.engine === 'qwen-design' ? 'designed' : 'chatterbox'
 }
 
-function stepState(step: StepNarration): string {
+/** The one-word state of any recording, a lesson's step or one of the app's own lines. */
+function stepState(step: Pick<StepNarration, 'stale'>): string {
   if (step.stale === 'missing') return 'not yet'
   if (step.stale === 'text-changed') return 'words changed'
   if (step.stale === 'voice-changed') return 'voice changed'
@@ -81,6 +87,38 @@ function narrationLines(narration: LessonNarration, voices: Voice[]): string[] {
 
 /** The steps a plain `voice narrate` would make: everything not ready. */
 const unready = (narration: LessonNarration) => narration.steps.filter((step) => step.stale !== null)
+
+/** The app's own lines as a table, and where each is heard. */
+function appLineRows(narration: AppNarration): string[] {
+  return table(
+    narration.lines.map((line) => [
+      line.id,
+      stepState(line),
+      line.take ? clock(line.take.durationMs) : '',
+      line.where,
+      line.text,
+    ]),
+    ['id', 'state', 'length', 'where', 'what Lina says'],
+  )
+}
+
+/** What `voice app list` and every `voice app` command print afterwards. */
+function appLinesLines(narration: AppNarration, voices: Voice[]): string[] {
+  const cast = voices.find((voice) => voice.id === narration.castVoiceId)
+  const left = narration.lines.filter((line) => line.stale !== null).length
+  const lines = [
+    `Lina’s own lines: ${plural(narration.lines.length, 'line')}, ${left === 0 ? 'all recorded' : `${left} still to make`}, in ${cast ? `${cast.name}${cast.frozen ? ', frozen' : ''}` : 'nobody yet (studio voice cast <id>)'}.`,
+    '',
+    ...appLineRows(narration),
+  ]
+  if (narration.published) {
+    lines.push(
+      '',
+      `Published ${narration.published.generatedAt.slice(0, 10)}: ${plural(narration.published.lineCount, 'file')} as ${narration.published.voiceName}${narration.published.behind ? ' — behind the workspace' : ''}.`,
+    )
+  }
+  return lines
+}
 
 /** What a step would say, shortened to fit a column. */
 function saying(step: StepNarration, width = 68): string {
@@ -363,7 +401,13 @@ export const voiceCommands: Command[] = [
     'voice publish',
     'Write a lesson’s narration into shared/Assets/Voice/ as AAC files and a manifest, or every ready lesson with --all.',
     ['[lesson]'],
-    { all: { type: 'boolean', description: 'Every published lesson whose narration is complete; the rest are listed with the reason.' } },
+    {
+      all: {
+        type: 'boolean',
+        description:
+          'Every published lesson whose narration is complete, and Lina’s own lines; the rest are listed with the reason.',
+      },
+    },
     async (ctx, args) => {
       const deps = await ctx.voice()
       const only = oneLesson(args, 'publish')
@@ -402,15 +446,37 @@ export const voiceCommands: Command[] = [
         }
       }
 
-      const files = [...new Set(published.flatMap((lesson) => lesson.files))].sort()
+      // Lina's own lines belong to no lesson, so `--all` would miss them
+      // otherwise, and the app would ship a catalog with nothing to say
+      // between the lessons.
+      const app = await appLines(deps)
+      const appLeft = app.lines.filter((line) => line.stale !== null)
+      let appFiles: string[] = []
+      let appReason = `${plural(appLeft.length, 'line')} still to make (studio voice app narrate)`
+      if (appLeft.length === 0) {
+        // A failure here must not throw away the report of sixteen lessons
+        // already published, so it joins the skipped list with its reason.
+        try {
+          appFiles = (await publishAppLines(deps)).files
+          ctx.out.note(`  Lina’s own lines  ${plural(appFiles.length, 'file')}`)
+        } catch (error) {
+          appReason = error instanceof Error ? error.message : String(error)
+        }
+      }
+      if (appFiles.length === 0) ctx.out.note(`  Lina’s own lines  skipped: ${appReason}`)
+
+      const files = [...new Set([...published.flatMap((lesson) => lesson.files), ...appFiles])].sort()
       if (failures.length > 0) {
         throw new CliError(
           `Published ${plural(published.length, 'lesson')}; ${plural(failures.length, 'lesson')} failed.`,
           failures.map((failure) => ({ path: failure.lessonId, message: failure.message })),
         )
       }
-      ctx.out.result({ published, skipped, files }, () => [
+      ctx.out.result({ published, skipped, appLines: appFiles.length > 0, files }, () => [
         `Published the voice of ${plural(published.length, 'lesson')}: ${plural(files.length, 'file')}.`,
+        appFiles.length > 0
+          ? `Lina’s own lines went too: ${plural(appFiles.length, 'file')}.`
+          : `Lina’s own lines were skipped: ${appReason}.`,
         ...(skipped.length > 0 ? ['', `Skipped ${plural(skipped.length, 'lesson')}:`, ...table(skipped.map((lesson) => [`  ${lesson.lessonId}`, lesson.reason]))] : []),
         '',
         gitAddLine(files),
@@ -521,7 +587,7 @@ export const voiceCommands: Command[] = [
 
   command(
     'voice reference export',
-    'Keep a frozen voice’s reference recording in shared/Assets/Voice/reference/, so Lina survives a wiped machine.',
+    'Keep a frozen voice’s reference recording in shared/Assets/VoiceReference/, so Lina survives a wiped machine.',
     ['<id>'],
     {},
     async (ctx, args) => {
@@ -551,6 +617,90 @@ export const voiceCommands: Command[] = [
         ...(restored.restoredTake ? ['Its frozen take is back in the workspace.'] : []),
         `Cast it with \`studio voice cast ${restored.voice.id}\`.`,
       ])
+    },
+  ),
+
+  command(
+    'voice app list',
+    'Lina’s own lines: what the app says outside any lesson, and what is recorded for each.',
+    [],
+    {},
+    async (ctx) => {
+      const deps = await ctx.voice()
+      const narration = await appLines(deps)
+      ctx.out.result(narration, () => appLinesLines(narration, deps.workspace.listVoices()))
+    },
+  ),
+
+  command(
+    'voice app set',
+    `Rewrite one of the app’s lines (at most ${MAX_SPOKEN_LINE} characters). The id is fixed: ${APP_LINE_IDS.join(', ')}.`,
+    ['<id>', '<text>'],
+    {},
+    async (ctx, args) => {
+      const deps = await ctx.voice()
+      const [id, text] = args.positionals
+      const narration = await setAppLine(id, text, deps)
+      ctx.out.result(narration, () => [`${id} now says: “${text}”`, '', ...appLinesLines(narration, deps.workspace.listVoices())])
+    },
+  ),
+
+  command(
+    'voice app narrate',
+    'Record every one of Lina’s own lines that has no recording or an out-of-date one.',
+    [],
+    { remake: { type: 'boolean', description: 'Record every line again, even the ones that are ready.' } },
+    async (ctx, args) => {
+      const deps = await ctx.voice()
+      const remake = args.values.remake === true
+      let narration = await appLines(deps)
+      const todo = (remake ? narration.lines : narration.lines.filter((line) => line.stale !== null)).map(
+        (line: AppLineNarration) => line.id,
+      )
+      const recorded: { id: string; durationMs: number; seconds: number }[] = []
+      for (const [index, id] of todo.entries()) {
+        const started = Date.now()
+        narration = await narrateAppLine(id, { another: remake }, deps)
+        const line = narration.lines.find((candidate) => candidate.id === id)
+        const seconds = (Date.now() - started) / 1000
+        recorded.push({ id, durationMs: line?.take?.durationMs ?? 0, seconds })
+        ctx.out.note(
+          `  ${index + 1} of ${todo.length}  ${id}  ${clock(line?.take?.durationMs ?? 0)}  in ${seconds.toFixed(1)}s`,
+        )
+      }
+      const voices = deps.workspace.listVoices()
+      ctx.out.result({ recorded, lines: narration.lines }, () =>
+        recorded.length === 0
+          ? appLinesLines(narration, voices)
+          : [`Recorded ${plural(recorded.length, 'line')} of Lina’s own.`, '', ...appLinesLines(narration, voices)],
+      )
+    },
+  ),
+
+  command(
+    'voice app publish',
+    'Write Lina’s own lines into shared/Assets/Voice/app/ as AAC files and a manifest.',
+    [],
+    {},
+    async (ctx) => {
+      const deps = await ctx.voice()
+      const { files } = await publishAppLines(deps)
+      ctx.out.result({ files }, () => [`Published Lina’s own lines: ${plural(files.length, 'file')}.`, gitAddLine(files)])
+    },
+  ),
+
+  command(
+    'voice app unpublish',
+    'Remove Lina’s own lines from shared/. The recordings stay in the workspace.',
+    [],
+    {},
+    async (ctx) => {
+      const deps = await ctx.voice()
+      await ctx.out.confirm('This removes shared/Assets/Voice/app/.', 'app', ctx.flags.yes)
+      const { files } = await deletePublishedAppLines(deps)
+      ctx.out.result({ files }, () =>
+        files.length === 0 ? 'Lina’s own lines were not published.' : [`Removed ${plural(files.length, 'file')}.`, gitAddLine(files)],
+      )
     },
   ),
 

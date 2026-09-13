@@ -9,24 +9,29 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
 import type { Tutorial } from '../src/schema/types'
-import type { VoiceManifest, VoiceReferenceRecord } from '../src/voice/types'
+import { APP_LINE_IDS, type AppVoiceManifest, type VoiceManifest, type VoiceReferenceRecord } from '../src/voice/types'
 
 import { GenerationFailed } from './openrouter'
 import { WriteRefused, createRepoWriter, type RepoWriter } from './repoWriter'
 import { fakeConverter, startFakeTts, type FakeTts } from './testing'
 import { silentWav, wavDurationMs } from './tts'
 import {
+  appLines,
   applySpokenLines,
   castVoice,
   createVoice,
+  deletePublishedAppLines,
   deleteVoice,
   exportReference,
   freezeVoice,
   lessonNarration,
+  narrateAppLine,
   narrateStep,
+  publishAppLines,
   publishVoice,
   restoreReference,
   say,
+  setAppLine,
   setNarrationLine,
   textHash,
   unfreezeVoice,
@@ -638,7 +643,7 @@ describe('a plan of spoken lines', () => {
 })
 
 describe('the reference kept in the repository', () => {
-  const referenceFolder = path.join('Assets', 'Voice', 'reference')
+  const referenceFolder = path.join('Assets', 'VoiceReference')
 
   /** Lina, designed, auditioned once and frozen on that take. */
   async function freezeLina() {
@@ -652,8 +657,8 @@ describe('the reference kept in the repository', () => {
     const { take, voice } = await freezeLina()
     const { files, record } = await exportReference('lina-bright', deps)
     expect(files).toEqual([
-      'shared/Assets/Voice/reference/lina-bright.wav',
-      'shared/Assets/Voice/reference/lina-bright.json',
+      'shared/Assets/VoiceReference/lina-bright.wav',
+      'shared/Assets/VoiceReference/lina-bright.json',
     ])
 
     const kept = JSON.parse(await readFile(path.join(shared, referenceFolder, 'lina-bright.json'), 'utf8')) as VoiceReferenceRecord
@@ -729,20 +734,173 @@ describe('the reference kept in the repository', () => {
     const { voice } = await freezeLina()
     await narrateHouse('lina-bright')
     const { files } = await publishVoice('simple-house', deps)
-    expect(files).toContain('shared/Assets/Voice/reference/lina-bright.wav')
-    expect(files).toContain('shared/Assets/Voice/reference/lina-bright.json')
+    expect(files).toContain('shared/Assets/VoiceReference/lina-bright.wav')
+    expect(files).toContain('shared/Assets/VoiceReference/lina-bright.json')
     const kept = JSON.parse(await readFile(path.join(shared, referenceFolder, 'lina-bright.json'), 'utf8')) as VoiceReferenceRecord
     expect(kept.referenceName).toBe(voice.frozen!.referenceName)
 
     // The second publish leaves it alone: what is on disk already matches.
     const again = await publishVoice('simple-house', deps)
-    expect(again.files).not.toContain('shared/Assets/Voice/reference/lina-bright.wav')
+    expect(again.files).not.toContain('shared/Assets/VoiceReference/lina-bright.wav')
   })
 
   it('writes nothing for a voice that was never frozen', async () => {
     await voiceState(deps)
     await narrateHouse()
     const { files } = await publishVoice('simple-house', deps)
-    expect(files.some((file) => file.includes('/reference/'))).toBe(false)
+    expect(files.some((file) => file.includes('VoiceReference'))).toBe(false)
+  })
+})
+
+describe('Lina’s own lines', () => {
+  const appFolder = path.join('Assets', 'Voice', 'app')
+  const readAppManifest = async (): Promise<AppVoiceManifest> =>
+    JSON.parse(await readFile(path.join(shared, appFolder, 'manifest.json'), 'utf8'))
+
+  /** Every app line recorded in the house voice, which is what publishing needs. */
+  async function narrateApp(voiceId = 'house-chatterbox') {
+    castVoice(voiceId, deps)
+    for (const id of APP_LINE_IDS) await narrateAppLine(id, {}, deps)
+    return appLines(deps)
+  }
+
+  it('seeds the app’s own lines, by their fixed ids, with nothing recorded', async () => {
+    const narration = await appLines(deps)
+    expect(narration.lines.map((line) => line.id)).toEqual([...APP_LINE_IDS])
+    expect(narration.lines.every((line) => line.stale === 'missing' && line.take === null)).toBe(true)
+    expect(narration.published).toBe(null)
+
+    const hello = narration.lines[0]
+    expect(hello.where).toBe('Onboarding and Settings: meet the voice')
+    expect(hello.text).toBe(
+      "Hi, I'm Lina. I'll talk you through each step while it draws. You can turn my voice off any time.",
+    )
+    expect(narration.lines.find((line) => line.id === 'path-4')!.text).toBe(
+      'You have the shape of the subject now. The rest is time with a pen.',
+    )
+  })
+
+  it('keeps a rewritten line, and refuses a strange id, an empty line and one too long', async () => {
+    const written = await setAppLine('lesson-2', '  You did the hard part twice.  ', deps)
+    expect(written.lines.find((line) => line.id === 'lesson-2')!.text).toBe('You did the hard part twice.')
+    // The words are the creator's; the label saying where it plays is not touched.
+    expect(written.lines.find((line) => line.id === 'lesson-2')!.where).toBe('Lesson complete, 2 of 4')
+    expect((await appLines(deps)).lines.find((line) => line.id === 'lesson-2')!.text).toBe(
+      'You did the hard part twice.',
+    )
+
+    const unknown = await refusal(() => setAppLine('lesson-5', 'Nope.', deps))
+    expect(unknown.status).toBe(404)
+    expect(unknown.message).toContain('is not one of the app’s lines')
+
+    const empty = await refusal(() => setAppLine('hello', '   ', deps))
+    expect(empty.status).toBe(422)
+    expect(empty.message).toContain('cannot be empty')
+
+    const long = await refusal(() => setAppLine('hello', 'x'.repeat(241), deps))
+    expect(long.status).toBe(422)
+    expect(long.message).toContain('241 characters')
+
+    // None of the refusals wrote anything.
+    expect((await appLines(deps)).lines.find((line) => line.id === 'hello')!.text).toContain("Hi, I'm Lina.")
+  })
+
+  it('records a line, and goes stale when the words or the voice change', async () => {
+    castVoice('house-chatterbox', deps)
+    const recorded = await narrateAppLine('hello', {}, deps)
+    const hello = recorded.lines.find((line) => line.id === 'hello')!
+    expect(hello.stale).toBe(null)
+    expect(hello.take!.durationMs).toBeGreaterThan(0)
+    expect(recorded.lines.filter((line) => line.stale === 'missing')).toHaveLength(APP_LINE_IDS.length - 1)
+
+    const rewritten = await setAppLine('hello', 'Hi, I am Lina, and I will talk you through it.', deps)
+    expect(rewritten.lines.find((line) => line.id === 'hello')!.stale).toBe('text-changed')
+
+    await narrateAppLine('hello', {}, deps)
+    castVoice('lina-serena', deps)
+    expect((await appLines(deps)).lines.find((line) => line.id === 'hello')!.stale).toBe('voice-changed')
+
+    // And it refuses with nobody cast at all.
+    castVoice(null, deps)
+    expect((await refusal(() => narrateAppLine('hello', {}, deps))).status).toBe(409)
+  })
+
+  it('refuses to publish while a line is missing or out of date', async () => {
+    castVoice('house-chatterbox', deps)
+    const nothing = await refusal(() => publishAppLines(deps))
+    expect(nothing.status).toBe(422)
+    expect(nothing.message).toContain('9 lines have no recording')
+
+    await narrateApp()
+    await setAppLine('path-1', 'Now go and find one outside.', deps)
+    const stale = await refusal(() => publishAppLines(deps))
+    expect(stale.message).toContain('1 is out of date')
+    expect(existsSync(path.join(shared, appFolder))).toBe(false)
+  })
+
+  it('writes one file per line and a manifest, and takes them out again', async () => {
+    await narrateApp()
+    const { files } = await publishAppLines(deps)
+    expect(files).toEqual(
+      [
+        ...APP_LINE_IDS.map((id) => `shared/Assets/Voice/app/${id}.m4a`),
+        'shared/Assets/Voice/app/manifest.json',
+      ].sort(),
+    )
+
+    const manifest = await readAppManifest()
+    expect(manifest.manifestVersion).toBe(1)
+    expect(manifest.voiceId).toBe('house-chatterbox')
+    expect(manifest.voiceName).toBe('House voice')
+    expect(manifest.model).toBe('chatterbox')
+    expect(Object.keys(manifest.lines)).toEqual([...APP_LINE_IDS])
+    expect(manifest.lines['lesson-1']).toMatchObject({
+      file: 'lesson-1.m4a',
+      text: 'That is the whole shape, in your hand. The next one starts from here.',
+    })
+    expect(manifest.lines['lesson-1'].durationMs).toBeGreaterThan(0)
+    // The folder is the manifest, exactly: nothing else is in it.
+    expect((await readdir(path.join(shared, appFolder))).sort()).toEqual(
+      [...APP_LINE_IDS.map((id) => `${id}.m4a`), 'manifest.json'].sort(),
+    )
+
+    expect((await appLines(deps)).published).toMatchObject({
+      voiceId: 'house-chatterbox',
+      lineCount: 9,
+      behind: false,
+    })
+
+    // A line rewritten and recorded again after publishing leaves shared/ behind.
+    await setAppLine('path-1', 'Now go and find one outside.', deps)
+    await narrateAppLine('path-1', {}, deps)
+    expect((await appLines(deps)).published!.behind).toBe(true)
+
+    const removed = await deletePublishedAppLines(deps)
+    expect(removed.files).toHaveLength(10)
+    expect(existsSync(path.join(shared, appFolder))).toBe(false)
+    expect((await appLines(deps)).published).toBe(null)
+    // Removing again is fine, and the recordings stayed in the workspace.
+    expect((await deletePublishedAppLines(deps)).files).toEqual([])
+    expect((await appLines(deps)).lines.find((line) => line.id === 'hello')!.take).not.toBe(null)
+  })
+
+  it('exports the frozen cast voice’s reference beside them, as a lesson does', async () => {
+    const take = await say('lina-bright', 'Hi, I am Lina.', {}, deps)
+    await freezeVoice('lina-bright', take.id, deps)
+    await narrateApp('lina-bright')
+
+    const { files } = await publishAppLines(deps)
+    expect(files).toContain('shared/Assets/VoiceReference/lina-bright.wav')
+    expect(files).toContain('shared/Assets/VoiceReference/lina-bright.json')
+    expect((await readAppManifest()).model).toContain('qwen-base clone of')
+
+    // The second publish leaves the reference alone: what is on disk matches.
+    expect((await publishAppLines(deps)).files).not.toContain('shared/Assets/VoiceReference/lina-bright.wav')
+  })
+
+  it('keeps every lesson out of the folder the app’s lines live in', async () => {
+    const clash = await refusal(() => deps.writer.readVoiceManifest('app'))
+    expect(clash.status).toBe(422)
+    expect(clash.message).toContain('Lina’s own lines')
   })
 })

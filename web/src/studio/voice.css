@@ -837,6 +837,18 @@
   color: var(--ink-faint);
 }
 
+/* ---------- Lina's own lines ---------- */
+
+/* The same table as a lesson's, so only what is different is styled here. */
+
+/* The id the app asks for, beside the human label: quiet, but there to copy. */
+.st-app-lines__id {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
 /* ---------- Narrower windows ---------- */
 
 @media (max-width: 1100px) {

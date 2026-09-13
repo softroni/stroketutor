@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { formatJSON } from '../src/schema/formatJSON'
 import { isSvgDocument, svgProblem } from '../src/svg/safety'
-import type { VoiceManifest, VoiceReferenceRecord } from '../src/voice/types'
+import type { AppVoiceManifest, VoiceManifest, VoiceReferenceRecord } from '../src/voice/types'
 
 /**
  * The only code in the Studio that touches `shared/` (master plan §25).
@@ -23,11 +23,16 @@ import type { VoiceManifest, VoiceReferenceRecord } from '../src/voice/types'
 export const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
 
 /**
- * The one folder under `shared/Assets/Voice/` that is not a lesson: the frozen
- * voices' reference recordings, kept in git so Lina survives a wiped Mac. It is
- * a legal lesson id, so no lesson may take the name.
+ * The one folder under `shared/Assets/Voice/` that is not a lesson: Lina's own
+ * lines, the ones the app speaks outside any lesson. It is a legal lesson id,
+ * so no lesson may take the name.
+ *
+ * The frozen references used to live here too, as `Voice/reference/`. They no
+ * longer do: the iOS app bundles the whole of `shared/Assets/Voice/`, and a
+ * 300 kB reference WAV per voice has no business inside the app. They are
+ * `shared/Assets/VoiceReference/` now, a sibling folder the app never sees.
  */
-export const VOICE_REFERENCE_FOLDER = 'reference'
+export const APP_VOICE_FOLDER = 'app'
 
 /** Same rule as `reference.file` in `catalog.schema.json`. */
 export const REFERENCE_FILE_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*\.(jpg|jpeg|png|webp|svg)$/
@@ -131,6 +136,7 @@ export function createRepoWriter(options: RepoWriterOptions) {
   const catalogDir = inside(shared, 'Catalog')
   const referencesDir = inside(shared, 'Assets', 'References')
   const voiceDir = inside(shared, 'Assets', 'Voice')
+  const voiceReferenceDir = inside(shared, 'Assets', 'VoiceReference')
   const pathsFile = inside(catalogDir, 'paths.json')
   const lessonsFile = inside(catalogDir, 'lessons.json')
 
@@ -143,19 +149,21 @@ export function createRepoWriter(options: RepoWriterOptions) {
   }
 
   const voiceFolder = (lessonId: string) => {
-    if (checkId(lessonId) === VOICE_REFERENCE_FOLDER) {
+    if (checkId(lessonId) === APP_VOICE_FOLDER) {
       throw new WriteRefused(
         422,
-        `"${VOICE_REFERENCE_FOLDER}" is where frozen voices are kept, so no lesson can be called that.`,
+        `"${APP_VOICE_FOLDER}" is where Lina’s own lines are kept, so no lesson can be called that.`,
       )
     }
     return inside(voiceDir, lessonId)
   }
-  const voiceReferenceDir = inside(voiceDir, VOICE_REFERENCE_FOLDER)
   const voiceReferenceFile = (voiceId: string, extension: 'wav' | 'json') =>
     inside(voiceReferenceDir, `${checkId(voiceId)}.${extension}`)
   const voiceStepFile = (lessonId: string, stepId: string) =>
     inside(voiceFolder(lessonId), `${checkStepId(stepId)}.m4a`)
+
+  const appVoiceDir = inside(voiceDir, APP_VOICE_FOLDER)
+  const appVoiceFile = (lineId: string) => inside(appVoiceDir, `${checkStepId(lineId)}.m4a`)
 
   async function tutorialFileNames(): Promise<string[]> {
     return (await readdir(tutorialsDir)).filter((name) => name.endsWith('.json')).sort()
@@ -315,7 +323,8 @@ export function createRepoWriter(options: RepoWriterOptions) {
 
     /**
      * Keeps a frozen voice's reference recording in the repository, as
-     * `shared/Assets/Voice/reference/<voiceId>.wav` with `.json` beside it.
+     * `shared/Assets/VoiceReference/<voiceId>.wav` with `.json` beside it —
+     * outside `Assets/Voice/`, all of which the iOS app bundles.
      *
      * The reference otherwise exists only in two places git never sees — the
      * creator's speech server and the local workspace — so a wiped machine
@@ -330,8 +339,8 @@ export function createRepoWriter(options: RepoWriterOptions) {
       await atomicWrite(jsonFile, formatJSON(record))
       return {
         files: [
-          `shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.wav`,
-          `shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.json`,
+          `shared/Assets/VoiceReference/${voiceId}.wav`,
+          `shared/Assets/VoiceReference/${voiceId}.json`,
         ],
       }
     },
@@ -353,13 +362,13 @@ export function createRepoWriter(options: RepoWriterOptions) {
       } catch {
         throw new WriteRefused(
           422,
-          `shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.json is not readable JSON, so the voice cannot be restored from it.`,
+          `shared/Assets/VoiceReference/${voiceId}.json is not readable JSON, so the voice cannot be restored from it.`,
         )
       }
       if (!record || typeof record !== 'object' || typeof record.referenceName !== 'string') {
         throw new WriteRefused(
           422,
-          `shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.json does not describe a frozen voice.`,
+          `shared/Assets/VoiceReference/${voiceId}.json does not describe a frozen voice.`,
         )
       }
       return { wav, record }
@@ -377,9 +386,64 @@ export function createRepoWriter(options: RepoWriterOptions) {
           throw error
         }
         await rm(file, { force: true })
-        files.push(`shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.${extension}`)
+        files.push(`shared/Assets/VoiceReference/${voiceId}.${extension}`)
       }
       return { files }
+    },
+
+    /**
+     * Publishes Lina's own lines into `shared/Assets/Voice/app/`: one AAC file
+     * per line and the manifest beside them, the same layout a lesson gets, so
+     * the iOS app reads the completion and onboarding lines exactly as it reads
+     * a step's.
+     *
+     * As for a lesson: audio first, manifest last, and anything the manifest
+     * does not name goes, so the folder is the manifest exactly.
+     */
+    async writeAppVoice(lines: { id: string; bytes: Uint8Array }[], manifest: AppVoiceManifest) {
+      const files: string[] = []
+      await mkdir(appVoiceDir, { recursive: true })
+      for (const line of lines) {
+        await atomicWrite(appVoiceFile(line.id), line.bytes)
+        files.push(`shared/Assets/Voice/${APP_VOICE_FOLDER}/${line.id}.m4a`)
+      }
+      await atomicWrite(inside(appVoiceDir, 'manifest.json'), formatJSON(manifest))
+      files.push(`shared/Assets/Voice/${APP_VOICE_FOLDER}/manifest.json`)
+
+      const keep = new Set(Object.keys(manifest.lines).map((id) => `${id}.m4a`))
+      for (const name of await readdir(appVoiceDir)) {
+        if (!name.endsWith('.m4a') || keep.has(name)) continue
+        await rm(inside(appVoiceDir, name), { force: true })
+        files.push(`shared/Assets/Voice/${APP_VOICE_FOLDER}/${name}`)
+      }
+      return { files: [...new Set(files)].sort() }
+    },
+
+    /** What is published for the app's own lines now, or null when nothing is. */
+    async readAppVoiceManifest(): Promise<AppVoiceManifest | null> {
+      try {
+        const text = await readFile(inside(appVoiceDir, 'manifest.json'), 'utf8')
+        const manifest = JSON.parse(text) as AppVoiceManifest
+        return manifest && typeof manifest === 'object' && manifest.lines ? manifest : null
+      } catch (error) {
+        if (isMissing(error)) return null
+        // A manifest somebody hand-edited into nonsense reads as "nothing published".
+        if (error instanceof SyntaxError) return null
+        throw error
+      }
+    },
+
+    /** Removes the app's own lines from `shared/`. Missing already is fine. */
+    async deleteAppVoice() {
+      let names: string[]
+      try {
+        names = await readdir(appVoiceDir)
+      } catch (error) {
+        if (isMissing(error)) return { files: [] }
+        throw error
+      }
+      await rm(appVoiceDir, { recursive: true, force: true })
+      return { files: names.map((name) => `shared/Assets/Voice/${APP_VOICE_FOLDER}/${name}`).sort() }
     },
 
     /** Removes a lesson's whole narration folder. Missing already is fine. */
