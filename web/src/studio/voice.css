@@ -877,3 +877,12 @@
     grid-column: 1 / -1;
   }
 }
+
+/* The one checkbox in the spoken-lines dialog: the label beside the box, not above it. */
+.st-narrate__keep {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}

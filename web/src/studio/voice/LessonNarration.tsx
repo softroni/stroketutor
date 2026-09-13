@@ -1,9 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { LessonNarration as Narration, Voice } from '../../voice/types'
-import { narrateStep, publishVoice, readLessonNarration, saveNarrationLine, unpublishVoice } from '../api'
+import {
+  generateSpokenLines,
+  narrateStep,
+  publishVoice,
+  readLessonNarration,
+  readSettings,
+  saveNarrationLine,
+  unpublishVoice,
+} from '../api'
 import { ConfirmDialog } from '../ConfirmDialog'
 import type { Library } from '../library'
+import { ModelPicker } from '../ModelPicker'
+import { storedModel } from '../settings'
 
 import { formatDayAndTime, formatDuration, plural } from './format'
 import { countLessons, groupLessonsByPath } from './lessonGroups'
@@ -48,6 +58,19 @@ export function LessonNarrationPanel({
   const [published, setPublished] = useState<string[] | null>(null)
   const [confirmUnpublish, setConfirmUnpublish] = useState(false)
   const [running, setRunning] = useState(false)
+  const [writingLines, setWritingLines] = useState(false)
+  const [askWriteLines, setAskWriteLines] = useState(false)
+  const [keyConfigured, setKeyConfigured] = useState<boolean | null>(null)
+
+  // Writing spoken lines is the one thing on this page that costs money and
+  // needs the Studio server, so the button says which of the two is missing
+  // rather than failing when it is pressed.
+  useEffect(() => {
+    readSettings().then(
+      (settings) => setKeyConfigured(settings.keyConfigured),
+      () => setKeyConfigured(false),
+    )
+  }, [])
 
   const groups = useMemo(
     () =>
@@ -85,6 +108,14 @@ export function LessonNarrationPanel({
   const summary = summariseSteps(steps)
   const lessonPublished = library.publishing.publishedIds.includes(lessonId)
   const blocked = publishBlocker({ summary, lessonPublished, castVoiceId })
+
+  const linesBlocked = !library.writable
+    ? 'The Studio server is not running, so no model can be asked. Start it with npm run dev.'
+    : keyConfigured === false
+      ? 'Writing spoken lines needs an OpenRouter key: add OPENROUTER_API_KEY to web/.env.local, then restart npm run dev.'
+      : steps.length === 0
+        ? 'This lesson has no steps to speak.'
+        : null
 
   /** Makes one step, through the page's queue, and keeps the newest answer. */
   const makeStep = useCallback(
@@ -225,6 +256,15 @@ export function LessonNarrationPanel({
               onClick={() => void makeAll(steps.map((step) => step.stepId), true)}
             >
               Remake all
+            </button>
+            <button
+              type="button"
+              className="st-button st-button--compact"
+              disabled={writingLines || running || queue.busy || linesBlocked !== null}
+              title={linesBlocked ?? 'Have a model write the one or two sentences Lina says at each step.'}
+              onClick={() => setAskWriteLines(true)}
+            >
+              {writingLines ? 'Writing spoken lines…' : 'Write spoken lines…'}
             </button>
             <span className="st-narrate__headline">{narrationHeadline(summary)}</span>
             <PublishButton blocked={blocked} onPublish={publish} lessonId={lessonId} steps={summary.total} />
@@ -368,6 +408,24 @@ export function LessonNarrationPanel({
         </>
       ) : null}
 
+      {askWriteLines ? (
+        <WriteLinesDialog
+          lessonId={lessonId}
+          steps={steps.length}
+          onClose={() => setAskWriteLines(false)}
+          onWrite={async (request) => {
+            setError(null)
+            setWritingLines(true)
+            try {
+              setNarration(await generateSpokenLines(lessonId, request))
+              setDrafts({})
+            } finally {
+              setWritingLines(false)
+            }
+          }}
+        />
+      ) : null}
+
       {confirmUnpublish ? (
         <ConfirmDialog
           title="Remove this lesson's audio from shared/?"
@@ -390,6 +448,59 @@ export function LessonNarrationPanel({
         </ConfirmDialog>
       ) : null}
     </section>
+  )
+}
+
+/**
+ * Asks a model for the lines Lina speaks. The written instruction is written to
+ * be read and re-read; this is the other piece of writing for the same step,
+ * one or two sentences said while the stroke draws. A note steers the run, and
+ * lines the creator wrote by hand are kept unless the box is cleared.
+ */
+function WriteLinesDialog({
+  lessonId,
+  steps,
+  onWrite,
+  onClose,
+}: {
+  lessonId: string
+  steps: number
+  onWrite(request: { model?: string; note?: string; overwrite?: boolean }): Promise<void>
+  onClose(): void
+}) {
+  const [note, setNote] = useState('')
+  const [keepWritten, setKeepWritten] = useState(true)
+  const [model, setModel] = useState(storedModel)
+
+  return (
+    <ConfirmDialog
+      title="Write the spoken lines?"
+      confirmLabel="Write the lines"
+      busyLabel="Writing spoken lines…"
+      focusField
+      onClose={onClose}
+      onConfirm={() => onWrite({ ...(model ? { model } : {}), note: note.trim(), overwrite: !keepWritten })}
+    >
+      <p>
+        A model writes what Lina says at each of {lessonId}&rsquo;s {plural(steps, 'step')}: one or two
+        sentences said while the stroke draws. The written instruction stays on screen.
+      </p>
+      <label className="st-field">
+        <span className="st-field__label">What to change this time</span>
+        <textarea
+          className="st-field__input"
+          rows={2}
+          value={note}
+          placeholder="Optional. For example: name the colours more plainly."
+          onChange={(event) => setNote(event.target.value)}
+        />
+      </label>
+      <label className="st-narrate__keep">
+        <input type="checkbox" checked={keepWritten} onChange={(event) => setKeepWritten(event.target.checked)} />
+        <span>Keep the lines already written</span>
+      </label>
+      <ModelPicker model={model} onChange={setModel} />
+    </ConfirmDialog>
   )
 }
 

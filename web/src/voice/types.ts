@@ -172,3 +172,28 @@ export interface VoiceManifest {
     }
   >
 }
+
+/**
+ * `shared/Assets/Voice/reference/<voiceId>.json`, beside the `.wav` it
+ * describes: everything needed to put a frozen voice back on a speech server
+ * that has never heard of it. The reference itself lives only on the creator's
+ * Mac and in the gitignored workspace, so without these two files a wiped
+ * machine would lose Lina; with them, `voice reference restore` uploads the WAV
+ * again under the same name and the voice speaks exactly as before.
+ */
+export interface VoiceReferenceRecord {
+  referenceVersion: 1
+  voiceId: string
+  name: string
+  tagline: string
+  engine: VoiceEngine
+  instruct: string
+  speaker: QwenSpeaker | null
+  /** The name the reference is stored under on the speech server. */
+  referenceName: string
+  /** The exact words spoken in the WAV, which the clone needs. */
+  referenceText: string
+  frozenAt: string
+  takeId: string
+  durationMs: number
+}

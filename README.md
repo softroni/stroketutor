@@ -188,6 +188,12 @@ choose between several candidates. Speech is made on the creator's own MLX-Audio
       take goes stale when the words or the voice change. Publish voice converts the takes to AAC (`afconvert`,
       48 kbps mono) and writes `shared/Assets/Voice/<lessonId>/<stepId>.m4a` with a `manifest.json`, the layout
       `NarrationPlayer.swift` already looks up.
+- [x] **Spoken lines.** A step's written instruction is too long to say aloud, so each step can carry a spoken
+      line: typed in the narration table, written by a model (`spoken-lines-v1`, with a note and the hand-written
+      lines kept), or applied from a plan (`voice lines apply --plan`). `voice narrate --all` and
+      `voice publish --all` do the catalog in one go. Voice publishes only for a lesson published without edits.
+- [x] **The reference in the repo.** Publishing a lesson's voice also writes the frozen voice's reference WAV and
+      record to `shared/Assets/Voice/reference/`, and `voice reference restore` puts it back on a fresh speech server.
 - [ ] Not yet: the Xcode project does not bundle `shared/Assets/Voice/` (add the folder reference as `Voice/`), and
       the onboarding and completion lines are not produced yet.
 

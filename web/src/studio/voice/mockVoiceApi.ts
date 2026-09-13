@@ -374,6 +374,21 @@ export const mockVoiceApi = {
     return refresh(lesson)
   },
 
+  /** The fake's stand-in for a model writing the lines: the first clause of each instruction. */
+  async writeLines(
+    lessonId: string,
+    body: { note?: string; overwrite?: boolean },
+  ): Promise<LessonNarration> {
+    await delay(around(1400))
+    const lesson = lessonFor(lessonId)
+    for (const step of lesson.steps) {
+      if (!body.overwrite && step.spokenLine) continue
+      const first = step.instruction.split(/(?<=[.!?])\s/)[0] ?? step.instruction
+      step.spokenLine = first.length > 120 ? `${first.slice(0, 119)}…` : first
+    }
+    return refresh(lesson)
+  },
+
   async narrate(lessonId: string, stepId: string, another: boolean): Promise<LessonNarration> {
     const lesson = lessonFor(lessonId)
     const step = lesson.steps.find((candidate) => candidate.stepId === stepId)

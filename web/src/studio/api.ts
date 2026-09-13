@@ -356,6 +356,25 @@ export function saveNarrationLine(lessonId: string, stepId: string, text: string
 }
 
 /**
+ * Has a model write what Lina says at each step: one or two spoken sentences
+ * said while the stroke animates, with the written instruction still on screen.
+ * `overwrite` false (the default) keeps the lines already written and only
+ * fills the rest; the model is told about every step either way, so the lesson
+ * has one voice.
+ */
+export function generateSpokenLines(
+  lessonId: string,
+  body: { model?: string; note?: string; overwrite?: boolean },
+) {
+  return voiceMock
+    ? voiceMock.writeLines(lessonId, body)
+    : call<LessonNarration>(
+        `/api/voice/lessons/${encodeURIComponent(lessonId)}/lines/generate`,
+        json('POST', body),
+      )
+}
+
+/**
  * Records one step in the cast voice. One step per request on purpose: the page
  * loops over the steps itself, so a long lesson shows its progress and can be
  * stopped part way.

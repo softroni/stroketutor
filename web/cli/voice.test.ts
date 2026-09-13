@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -12,10 +12,26 @@ import { openTestStudio, type TestStudio } from './testing'
 
 let t: TestStudio
 let tts: FakeTts
+/** What the fake model answers `voice lines generate`; set by the test that wants one. */
+let modelAnswer: unknown = null
+let modelCalls: Record<string, unknown>[] = []
 
 beforeEach(async () => {
   tts = await startFakeTts()
-  t = await openTestStudio({ tts: { url: tts.url, mcpUrl: tts.mcpUrl, convert: fakeConverter().convert } })
+  modelAnswer = null
+  modelCalls = []
+  const fetch = (async (_url: string, init: RequestInit) => {
+    modelCalls.push(JSON.parse(String(init.body)) as Record<string, unknown>)
+    const payload = {
+      model: 'vendor/text-model',
+      choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(modelAnswer) } }],
+    }
+    return new Response(JSON.stringify(payload), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  }) as unknown as typeof globalThis.fetch
+  t = await openTestStudio({
+    tts: { url: tts.url, mcpUrl: tts.mcpUrl, convert: fakeConverter().convert },
+    generation: { apiKey: 'test-key', defaultModel: 'vendor/text-model', fetch },
+  })
 })
 
 afterEach(async () => {
@@ -154,10 +170,132 @@ describe('the voice commands', () => {
     expect(changed.script).toHaveLength(4)
   })
 
+  it('narrates every lesson with --all, in curriculum order, and keeps going past a failure', async () => {
+    await t.studio('voice cast house-chatterbox')
+    const all = await t.studio('voice narrate --all')
+    expect(all.code).toBe(0)
+    // The curriculum's own order — trees, houses, cars — then the unfiled lesson.
+    const at = (title: string) => all.stdout.indexOf(title)
+    expect(at('Palm Tree 4 (palm-tree-4)')).toBeGreaterThan(-1)
+    expect(at('Palm Tree 4 (palm-tree-4)')).toBeLessThan(at('Simple House (simple-house)'))
+    expect(at('Simple House (simple-house)')).toBeLessThan(at('Classic Red Car (classic-red-car)'))
+    expect(at('Classic Red Car (classic-red-car)')).toBeLessThan(at('Cat Face (cat-face)'))
+    expect(all.stdout).toContain('Narrated 36 steps across 4 lessons.')
+
+    // A second run has nothing to do.
+    const again = await t.studio('voice narrate --all')
+    expect(again.stdout).toContain('Narrated 0 steps across 4 lessons.')
+
+    // A speech server that has gone down fails every lesson, and says so once at the end.
+    await tts.close()
+    await t.studio(['voice', 'lines', 'set', 'simple-house', 'door', 'A tall door, near the middle.'])
+    const broken = await t.studio('voice narrate --all')
+    expect(broken.code).toBe(1)
+    expect(broken.stderr).toContain('1 lesson failed')
+    expect(broken.stderr).toContain('simple-house:')
+  })
+
+  it('refuses --all together with a lesson, and a bare narrate without either', async () => {
+    const both = await t.studio('voice narrate simple-house --all')
+    expect(both.code).toBe(2)
+    expect(both.stderr).toContain('Name a lesson or pass --all')
+
+    const neither = await t.studio('voice narrate')
+    expect(neither.code).toBe(2)
+    expect(neither.stderr).toContain('Pass --all to narrate every lesson')
+  })
+
+  it('publishes every complete narration with --all, and says why it skipped the rest', async () => {
+    await narrateHouse()
+    const all = await t.json<{
+      published: { lessonId: string; files: string[] }[]
+      skipped: { lessonId: string; reason: string }[]
+    }>('voice publish --all')
+
+    expect(all.published.map((lesson) => lesson.lessonId)).toEqual(['simple-house'])
+    expect(all.published[0].files).toHaveLength(6)
+    expect(all.skipped.map((lesson) => lesson.lessonId)).toEqual(['palm-tree-4', 'classic-red-car', 'cat-face'])
+    expect(all.skipped[0].reason).toContain('not complete')
+    expect(all.skipped[0].reason).toContain('not yet')
+
+    const printed = await t.studio('voice publish --all')
+    expect(printed.stdout).toContain('Published the voice of 1 lesson')
+    expect(printed.stdout).toContain('Skipped 3 lessons')
+    expect(printed.stdout).toContain('git add -- shared/Assets/Voice/simple-house/chimney.m4a')
+  })
+
+  it('lists the spoken lines as a plan, and applies one back', async () => {
+    const listed = await t.json<{ lines: Record<string, string | null> }>('voice lines list simple-house')
+    expect(listed.lines).toEqual({ walls: null, roof: null, door: null, windows: null, chimney: null })
+
+    const plan = path.join(t.root, 'lines.json')
+    await writeFile(plan, JSON.stringify({ lines: { walls: 'Start with the box, low on the page.', door: null } }))
+    const applied = await t.json<LessonNarration>(['voice', 'lines', 'apply', 'simple-house', '--plan', plan])
+    expect(applied.steps.find((step) => step.stepId === 'walls')!.spokenLine).toBe('Start with the box, low on the page.')
+    expect(applied.steps.find((step) => step.stepId === 'door')!.spokenLine).toBe(null)
+
+    const table = await t.studio('voice lines list simple-house')
+    expect(table.stdout).toContain('written line')
+    expect(table.stdout).toContain('(instruction)')
+
+    await writeFile(plan, JSON.stringify({ lines: { chimbley: 'Oops.' } }))
+    const refused = await t.studio(['voice', 'lines', 'apply', 'simple-house', '--plan', plan])
+    expect(refused.code).toBe(1)
+    expect(refused.stderr).toContain('"chimbley"')
+  })
+
+  it('has a model write the spoken lines, and spends nothing with --dry-run', async () => {
+    const dry = await t.json<{ model: string; keyConfigured: boolean; wouldWrite: string[] }>(
+      'voice lines generate simple-house --dry-run',
+    )
+    expect(dry.model).toBe('vendor/text-model')
+    expect(dry.keyConfigured).toBe(true)
+    expect(dry.wouldWrite).toEqual(['walls', 'roof', 'door', 'windows', 'chimney'])
+    expect(modelCalls).toHaveLength(0)
+
+    modelAnswer = {
+      rationale: 'Short lines, said while the stroke draws.',
+      lines: ['walls', 'roof', 'door', 'windows', 'chimney'].map((id) => ({ id, text: `Say ${id}.` })),
+    }
+    const written = await t.json<LessonNarration>('voice lines generate simple-house')
+    expect(modelCalls).toHaveLength(1)
+    expect(written.steps.map((step) => step.spokenLine)).toEqual([
+      'Say walls.',
+      'Say roof.',
+      'Say door.',
+      'Say windows.',
+      'Say chimney.',
+    ])
+  })
+
+  it('keeps a frozen voice’s reference in shared/, and puts it back', async () => {
+    const take = await t.json<Take>(['voice', 'say', 'lina-bright', 'Hi, I am Lina.'])
+    const frozen = await t.json<Voice>(['voice', 'freeze', 'lina-bright', '--take', take.id])
+    const exported = await t.studio('voice reference export lina-bright')
+    expect(exported.code).toBe(0)
+    expect(exported.stdout).toContain('git add -- shared/Assets/Voice/reference/lina-bright.wav')
+    expect(existsSync(path.join(t.shared, 'Assets', 'Voice', 'reference', 'lina-bright.json'))).toBe(true)
+
+    tts.addVoiceCalls.length = 0
+    const restored = await t.studio('voice reference restore lina-bright')
+    expect(restored.code).toBe(0)
+    expect(restored.stdout).toContain('Restored Lina, bright (lina-bright)')
+    expect(tts.addVoiceCalls[0].name).toBe(frozen.frozen!.referenceName)
+
+    const loose = await t.studio('voice reference export house-chatterbox')
+    expect(loose.code).toBe(1)
+    expect(loose.stderr).toContain('is not frozen')
+  })
+
   it('describes itself in the overview and with --help', async () => {
     const overview = await t.studio('')
     expect(overview.stdout).toContain('voice narrate')
+    expect(overview.stdout).toContain('voice lines generate')
+    expect(overview.stdout).toContain('voice reference export')
     const help = await t.studio('voice say --help')
     expect(help.stdout).toContain('--another')
+    const lines = await t.studio('voice lines generate --help')
+    expect(lines.stdout).toContain('--overwrite')
+    expect(lines.stdout).toContain('--dry-run')
   })
 })

@@ -220,7 +220,26 @@ command line share.
 - `PUT  /api/voice/lessons/:lesson/lines/:step` — `{ text }` (null speaks the instruction again)
 - `POST /api/voice/lessons/:lesson/narrate` — `{ stepId, another? }`, one step at a time so the page
   can show progress and be stopped
+- `PUT  /api/voice/lessons/:lesson/lines` — `{ lines: { step: text | null } }`, every spoken line at once,
+  from a plan; checked in full and refused by name before anything is written
+- `POST /api/voice/lessons/:lesson/lines/generate` — `{ model?, note?, overwrite? }`, a model writes them
 - `POST /api/voice/lessons/:lesson/publish` · `DELETE /api/voice/lessons/:lesson/published`
+
+**What Lina says.** A step's written instruction is written to be read and re-read; spoken aloud it is
+far too long (Palm Tree's first instruction is seventeen seconds, and its stroke draws in three). So a
+step can have a **spoken line**, one or two sentences said while the stroke draws, and the narration
+uses it when there is one. Lines come from three places: typed in the narration table, written by a
+model (`prompts/spokenLinesPrompt.ts`, `spoken-lines-v1`, through the same OpenRouter path as the
+lesson prompts, with a note to steer it and the lines already written kept unless asked otherwise),
+or applied from a plan by an agent or a person, as `lessons apply --plan` does for the other layers.
+Voice is narrated against the lesson as it stands in the workspace, and published only once the
+lesson itself is published without further edits, so the audio always matches the text the app has.
+
+**The reference in the repo.** A frozen voice's reference lives on the speech server and in the
+gitignored workspace, so publishing a lesson's voice also writes the cast voice's reference to
+`shared/Assets/Voice/reference/<voiceId>.wav` and `.json` (the voice, its description, the reference's
+name and exact words). On a machine that has never heard of Lina, `voice reference restore` uploads
+it again under the same name and the voice speaks exactly as before.
 
 ## The command line
 
@@ -249,6 +268,8 @@ npm run studio -- svg to-steps palm.svg --plan plan.json --trace palm.trace.json
 npm run studio -- lessons render palm --sheet                            # one panel per step
 npm run studio -- lessons apply palm --layer order --plan order.json
 npm run studio -- strokes reverse palm 1.1
+npm run studio -- voice lines apply palm --plan lines.json   # what Lina says at each step, from a plan
+npm run studio -- voice narrate --all && npm run studio -- voice publish --all
 npm run studio -- voice cast lina-bright && npm run studio -- voice narrate palm-tree-4
 npm run studio -- voice publish palm-tree-4
 ```
@@ -265,7 +286,7 @@ npm run studio -- voice publish palm-tree-4
 | `trash` | `list`, `restore`, `purge`, `empty` |
 | `svg` | `trace`, `optimize`, `render`, `preview`, `to-steps` |
 | `image` | `to-steps` |
-| `voice` | `status`, `list`, `cast`, `add`, `say`, `freeze`, `unfreeze`, `narrate`, `lines set`, `lines clear`, `script`, `script set`, `publish`, `unpublish` |
+| `voice` | `status`, `list`, `add`, `cast`, `say`, `freeze`, `unfreeze`, `narrate [--all]`, `lines list`, `lines set`, `lines clear`, `lines generate`, `lines apply`, `publish [--all]`, `unpublish`, `reference export`, `reference restore`, `script`, `script set` |
 
 - **The same workspace.** `cli/studio.mjs` is plain JavaScript that starts Vite in middleware mode as a
   module loader only (no port, no browser, no watcher), so the Studio's TypeScript, its `@shared` alias and

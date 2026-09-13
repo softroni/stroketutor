@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto'
 
-import type { Tutorial } from '../src/schema/types'
+import type { Step, Tutorial } from '../src/schema/types'
 import { SUGGESTED_SCRIPT, SUGGESTED_VOICES } from '../src/voice/suggestions'
 import {
   QWEN_SPEAKERS,
@@ -12,11 +12,30 @@ import {
   type VoiceEngine,
   type VoiceInput,
   type VoiceManifest,
+  type VoiceReferenceRecord,
   type VoiceState,
 } from '../src/voice/types'
 
+import { readModelChoice, type GenerateDeps } from './generate'
+import { GenerationFailed, completeJSON, parseAnswer } from './openrouter'
+import {
+  MAX_SPOKEN_LINE,
+  SPOKEN_LINES_PROMPT_VERSION,
+  SPOKEN_LINES_SCHEMA,
+  buildSpokenLinesMessages,
+  type SpokenLinesStep,
+} from './prompts/spokenLinesPrompt'
 import { ID_PATTERN, WriteRefused, checkId, checkStepId, type RepoWriter } from './repoWriter'
-import { addReference, convertToM4a, probe, speak, wavDurationMs, type TtsDeps, type VoiceSettings } from './tts'
+import {
+  addReference,
+  convertToM4a,
+  probe,
+  speak,
+  wavDurationMs,
+  type StoredReference,
+  type TtsDeps,
+  type VoiceSettings,
+} from './tts'
 import type { NarrationEntry, Workspace } from './workspaceStore'
 
 /**
@@ -47,6 +66,12 @@ export interface VoiceDeps {
   workspace: Workspace
   writer: RepoWriter
   tts: TtsDeps
+  /**
+   * What writing spoken lines needs from the generation side: the OpenRouter
+   * key and the default model. It stays on the server exactly as it does for
+   * lesson generation, and everything else here works without it.
+   */
+  generation?: Pick<GenerateDeps, 'apiKey' | 'defaultModel' | 'fetch'>
 }
 
 /** The bytes of one take, as `GET /api/voice/takes/:id` serves them. */
@@ -397,6 +422,216 @@ export async function setNarrationLine(
   return lessonNarration(lessonId, deps)
 }
 
+// ---------- The lines Lina speaks ----------
+
+/**
+ * A narration, plus what the model did to get there. Every caller that only
+ * wants the table can treat it as the `LessonNarration` it is.
+ */
+export interface WrittenSpokenLines extends LessonNarration {
+  writing: {
+    model: string
+    promptVersion: string
+    /** The model's own account of how it pitched the lesson. */
+    rationale: string
+    /** The steps whose spoken line this run wrote. */
+    written: string[]
+    /** The steps whose line was already written and was left alone. */
+    kept: string[]
+  }
+}
+
+export interface SpokenLinesRequest {
+  /** The OpenRouter model; the server's default when absent. */
+  model?: unknown
+  /** What the creator wants different this time. */
+  note?: unknown
+  /** True to replace lines the creator already wrote. False (the default) only fills the rest. */
+  overwrite?: unknown
+}
+
+/**
+ * Has a model write what Lina says at each step.
+ *
+ * A step speaks its written instruction unless a line is written for it, and
+ * the written instructions are paragraphs: Palm Tree's first is seventeen
+ * seconds of speech over a stroke that draws in three. This asks for the other
+ * piece of writing — one or two conversational sentences said while the stroke
+ * animates — and leaves the instruction on screen for whoever wants the detail.
+ *
+ * The model is told about every step, including the ones whose lines are being
+ * kept, so the lesson has one voice; `overwrite` decides which of its answers
+ * are saved. Nothing is written until the whole answer is checked.
+ *
+ * The run is not kept in the lesson's History: History holds versions of the
+ * lesson document (`readHistoryRecord` accepts nothing else), and a spoken line
+ * is not part of it — it lives in the workspace beside the narration.
+ */
+export async function writeSpokenLines(
+  lessonId: string,
+  request: SpokenLinesRequest,
+  deps: VoiceDeps,
+): Promise<WrittenSpokenLines> {
+  seed(deps)
+  const generation = deps.generation ?? {}
+  const { apiKey, model } = readModelChoice({ model: request.model }, generation)
+  if (request.overwrite !== undefined && typeof request.overwrite !== 'boolean') {
+    throw new WriteRefused(400, '`overwrite` must be true or false.')
+  }
+  const note = request.note === undefined || request.note === null ? '' : text(request.note, 'The note').trim()
+  const overwrite = request.overwrite === true
+
+  const tutorial = await readLesson(lessonId, deps)
+  if (tutorial.steps.length === 0) throw new WriteRefused(422, `“${tutorial.title}” has no steps to speak.`)
+  const existing = deps.workspace.readNarrationLines(lessonId)
+  const lesson = await catalogEntry(lessonId, deps)
+
+  const completion = await completeJSON(
+    {
+      model,
+      messages: buildSpokenLinesMessages({
+        title: tutorial.title,
+        objective: lesson?.objective ?? '',
+        steps: tutorial.steps.map<SpokenLinesStep>((step) => ({
+          id: step.id,
+          title: step.title,
+          instruction: step.instruction,
+          strokes: step.strokes.length,
+          fills: step.fills?.length ?? 0,
+          spokenLine: existing.get(step.id) ?? null,
+        })),
+        note,
+        keepWritten: !overwrite,
+      }),
+      schemaName: 'stroketutor_spoken_lines',
+      schema: SPOKEN_LINES_SCHEMA,
+    },
+    { apiKey, ...(generation.fetch ? { fetch: generation.fetch } : {}) },
+  )
+
+  const answer = parseAnswer(completion.content) as { rationale?: unknown; lines?: unknown } | null
+  const lines = checkAnswerLines(answer?.lines, tutorial.steps)
+
+  const written: string[] = []
+  const kept: string[] = []
+  for (const step of tutorial.steps) {
+    if (!overwrite && existing.get(step.id)) {
+      kept.push(step.id)
+      continue
+    }
+    deps.workspace.saveNarrationLine(lessonId, step.id, lines.get(step.id)!)
+    written.push(step.id)
+  }
+
+  return {
+    ...(await lessonNarration(lessonId, deps)),
+    writing: {
+      model: completion.model,
+      promptVersion: SPOKEN_LINES_PROMPT_VERSION,
+      rationale: typeof answer?.rationale === 'string' ? answer.rationale.trim() : '',
+      written,
+      kept,
+    },
+  }
+}
+
+/**
+ * The model's answer as a line for every step, or a refusal. A spoken line is
+ * the only thing the app will say at that step, so a half-written answer is
+ * worth nothing: one line per step, each step exactly once, nothing empty and
+ * nothing longer than a breath.
+ */
+function checkAnswerLines(value: unknown, steps: Step[]): Map<string, string> {
+  if (!Array.isArray(value)) throw new GenerationFailed(502, "The model's answer is missing the spoken lines.")
+  const known = new Set(steps.map((step) => step.id))
+  const lines = new Map<string, string>()
+  for (const entry of value) {
+    const line = (entry ?? {}) as { id?: unknown; text?: unknown }
+    const id = typeof line.id === 'string' ? line.id.trim() : ''
+    const spoken = typeof line.text === 'string' ? line.text.trim() : ''
+    if (!known.has(id)) {
+      throw new GenerationFailed(502, `The model wrote a line for "${id || '(no id)'}", which is not a step of this lesson.`)
+    }
+    if (lines.has(id)) throw new GenerationFailed(502, `The model wrote two lines for the step "${id}".`)
+    if (!spoken) throw new GenerationFailed(502, `The model left the step "${id}" with nothing to say.`)
+    if (spoken.length > MAX_SPOKEN_LINE) {
+      throw new GenerationFailed(
+        502,
+        `The model's line for "${id}" is ${spoken.length} characters; a spoken line must be ${MAX_SPOKEN_LINE} or fewer.`,
+      )
+    }
+    lines.set(id, spoken)
+  }
+  const missing = steps.filter((step) => !lines.has(step.id)).map((step) => step.id)
+  if (missing.length > 0) {
+    throw new GenerationFailed(502, `The model wrote nothing for ${missing.length === 1 ? 'the step' : 'the steps'} ${missing.join(', ')}.`)
+  }
+  return lines
+}
+
+/** A plan written by hand (or by an agent): the line for each step it names, or null to clear it. */
+export interface SpokenLinesPlan {
+  lines?: unknown
+}
+
+/**
+ * Applies a plan of spoken lines, the way `lessons apply --plan` applies a
+ * plan of steps: the whole plan is checked first, each refusal names what is
+ * wrong, and nothing is written unless all of it is good.
+ */
+export async function applySpokenLines(
+  lessonId: string,
+  plan: SpokenLinesPlan,
+  deps: VoiceDeps,
+): Promise<LessonNarration> {
+  seed(deps)
+  const tutorial = await readLesson(lessonId, deps)
+  const raw = plan?.lines
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new WriteRefused(400, '`lines` must be an object of step id to the line spoken there, or null to clear it.')
+  }
+
+  const known = new Set(tutorial.steps.map((step) => step.id))
+  const entries = Object.entries(raw as Record<string, unknown>)
+  const unknown = entries.map(([id]) => id).filter((id) => !known.has(id))
+  if (unknown.length > 0) {
+    throw new WriteRefused(
+      404,
+      `“${tutorial.title}” has no ${unknown.length === 1 ? 'step' : 'steps'} ${unknown.map((id) => `"${id}"`).join(', ')}.`,
+    )
+  }
+
+  const checked: [string, string | null][] = entries.map(([id, value]) => {
+    if (value === null) return [id, null]
+    if (typeof value !== 'string') throw new WriteRefused(400, `The line for "${id}" must be text, or null to clear it.`)
+    const spoken = value.trim()
+    if (!spoken) throw new WriteRefused(422, `The line for "${id}" is empty. Use null to speak the instruction instead.`)
+    if (spoken.length > MAX_SPOKEN_LINE) {
+      throw new WriteRefused(
+        422,
+        `The line for "${id}" is ${spoken.length} characters; a spoken line must be ${MAX_SPOKEN_LINE} or fewer.`,
+      )
+    }
+    return [id, spoken]
+  })
+
+  for (const [id, spoken] of checked) deps.workspace.saveNarrationLine(lessonId, id, spoken)
+  return lessonNarration(lessonId, deps)
+}
+
+/** The lesson's catalog entry, when the working curriculum has one. */
+async function catalogEntry(lessonId: string, deps: VoiceDeps) {
+  const { lessons } = await deps.workspace.readCatalog()
+  if (!lessons) return null
+  try {
+    const parsed = JSON.parse(lessons.text) as { lessons?: { id: string; objective?: string }[] }
+    return parsed.lessons?.find((lesson) => lesson.id === lessonId) ?? null
+  } catch {
+    // A curriculum that will not parse is the catalog's problem, not the voice's.
+    return null
+  }
+}
+
 /**
  * Records one step in the cast voice. One step, not the lesson: the page loops
  * over them so it can show what is happening and be stopped, and the server
@@ -447,6 +682,15 @@ export async function publishVoice(lessonId: string, deps: VoiceDeps): Promise<{
       `“${narration.title}” is not published yet. Publish the lesson first; its voice goes beside it.`,
     )
   }
+  // Narration follows the lesson as it stands in the workspace, so a draft
+  // edited since it was published would ship audio for words the app does not
+  // have. The lesson goes first; its voice follows.
+  if ((await deps.workspace.readLibrary()).publishing.editedIds.includes(lessonId)) {
+    throw new WriteRefused(
+      409,
+      `“${narration.title}” has edits that are not published yet. Publish the lesson first, so its voice matches the words the app has.`,
+    )
+  }
   if (narration.steps.length === 0) {
     throw new WriteRefused(422, `“${narration.title}” has no steps to narrate.`)
   }
@@ -489,7 +733,161 @@ export async function publishVoice(lessonId: string, deps: VoiceDeps): Promise<{
     generatedAt: new Date().toISOString(),
     steps,
   }
-  return deps.writer.writeVoice(lessonId, files, manifest)
+  const written = await deps.writer.writeVoice(lessonId, files, manifest)
+  const reference = await exportReferenceIfStale(voice, deps)
+  return { files: [...new Set([...written.files, ...reference])].sort() }
+}
+
+// ---------- The reference kept in the repository ----------
+
+/** What `restoreReference` put back, so the caller can say what it did. */
+export interface RestoredReference {
+  voice: Voice
+  /** What the speech server reports about the reference it now holds. */
+  reference: StoredReference
+  /** True when the workspace had no such voice and it was created from the record. */
+  createdVoice: boolean
+  /** True when the frozen take was put back into the workspace. */
+  restoredTake: boolean
+}
+
+/** Everything about a frozen voice that its record in `shared/` holds. */
+function referenceRecordOf(voice: Voice, take: { id: string; durationMs: number }): VoiceReferenceRecord {
+  return {
+    referenceVersion: 1,
+    voiceId: voice.id,
+    name: voice.name,
+    tagline: voice.tagline,
+    engine: voice.engine,
+    instruct: voice.instruct,
+    speaker: voice.speaker,
+    referenceName: voice.frozen!.referenceName,
+    referenceText: voice.frozen!.referenceText,
+    frozenAt: voice.frozen!.frozenAt,
+    takeId: take.id,
+    durationMs: take.durationMs,
+  }
+}
+
+/**
+ * Writes a frozen voice's reference recording into `shared/`.
+ *
+ * Freezing leaves the reference in two places git never sees — the speech
+ * server's `voices/` directory and the local workspace — so the voice the whole
+ * catalog is narrated in would not survive a wiped Mac. This is the copy that
+ * does.
+ */
+export async function exportReference(
+  voiceId: string,
+  deps: VoiceDeps,
+): Promise<{ files: string[]; record: VoiceReferenceRecord }> {
+  seed(deps)
+  const voice = mustReadVoice(voiceId, deps)
+  if (!voice.frozen) {
+    throw new WriteRefused(422, `“${voice.name}” is not frozen, so there is no reference recording to keep.`)
+  }
+  const stored = deps.workspace.readTake(voice.frozen.takeId)
+  if (!stored) {
+    throw new WriteRefused(
+      409,
+      `The take “${voice.name}” was frozen from is no longer in the workspace, so its reference cannot be written out. Freeze it again from a take you still have.`,
+    )
+  }
+  const record = referenceRecordOf(voice, stored)
+  const { files } = await deps.writer.writeVoiceReference(voice.id, stored.bytes, record)
+  return { files, record }
+}
+
+/**
+ * Puts a frozen voice back from what `shared/` holds: the WAV goes up to the
+ * speech server under the name it had, the take returns to the workspace if it
+ * is missing, and the voice is created from the record if the workspace has
+ * never heard of it. This is what a new machine runs.
+ *
+ * The speech server stores references by name, so uploading again replaces the
+ * one already there rather than making a second: restoring twice is harmless,
+ * and a name that belonged to a different voice would be overwritten (the names
+ * freezing mints end in six random hex digits, so that takes deliberate effort).
+ */
+export async function restoreReference(voiceId: string, deps: VoiceDeps): Promise<RestoredReference> {
+  seed(deps)
+  const kept = await deps.writer.readVoiceReference(checkId(voiceId))
+  if (!kept) {
+    throw new WriteRefused(404, `shared/Assets/Voice/reference/ has nothing for "${voiceId}".`)
+  }
+  const { wav, record } = kept
+  const reference = await addReference(record.referenceName, record.referenceText, wav, deps.tts)
+
+  const frozen = {
+    referenceName: record.referenceName,
+    referenceText: record.referenceText,
+    takeId: record.takeId,
+    frozenAt: record.frozenAt,
+  }
+  const current = deps.workspace.readVoice(record.voiceId)
+  const at = new Date().toISOString()
+  const voice = deps.workspace.saveVoice(
+    current
+      ? { ...current, frozen, updatedAt: at }
+      : {
+          id: record.voiceId,
+          name: record.name,
+          tagline: record.tagline,
+          engine: record.engine,
+          instruct: record.instruct,
+          speaker: record.speaker,
+          frozen,
+          suggested: false,
+          createdAt: record.frozenAt,
+          updatedAt: at,
+        },
+  )
+
+  // The take was recorded before the voice was frozen, so its key is the one
+  // the unfrozen voice had; anything else would leave a duplicate behind.
+  const restoredTake = deps.workspace.readTakeInfo(record.takeId) === null
+  if (restoredTake) {
+    deps.workspace.saveTake(
+      {
+        id: record.takeId,
+        voiceId: voice.id,
+        text: record.referenceText,
+        textHash: textHash({ engine: record.engine, instruct: record.instruct, speaker: record.speaker, frozen: null }, record.referenceText),
+        durationMs: record.durationMs,
+        createdAt: record.frozenAt,
+      },
+      wav,
+      'audio/wav',
+    )
+  }
+
+  return { voice, reference, createdVoice: current === null, restoredTake }
+}
+
+/**
+ * The reference files publishing writes beside the audio, when the cast voice
+ * is frozen and what is on disk is missing or out of date. A publish is the
+ * moment the lesson enters git, so it is also the moment the voice it was
+ * narrated in ought to.
+ *
+ * A frozen voice whose take has left the workspace is passed over rather than
+ * failing the publish: the lesson's audio is already made, and `voice reference
+ * export` says exactly what is wrong when the creator asks for it.
+ */
+async function exportReferenceIfStale(voice: Voice, deps: VoiceDeps): Promise<string[]> {
+  if (!voice.frozen) return []
+  const stored = deps.workspace.readTake(voice.frozen.takeId)
+  if (!stored) return []
+  const record = referenceRecordOf(voice, stored)
+  const kept = await deps.writer.readVoiceReference(voice.id).catch(() => null)
+  if (kept && sameBytes(kept.wav, stored.bytes) && JSON.stringify(kept.record) === JSON.stringify(record)) return []
+  return (await deps.writer.writeVoiceReference(voice.id, stored.bytes, record)).files
+}
+
+function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.byteLength !== b.byteLength) return false
+  for (let index = 0; index < a.byteLength; index += 1) if (a[index] !== b[index]) return false
+  return true
 }
 
 /** Takes a lesson's narration out of `shared/`. The recordings stay in the workspace. */

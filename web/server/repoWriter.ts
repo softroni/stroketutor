@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { formatJSON } from '../src/schema/formatJSON'
 import { isSvgDocument, svgProblem } from '../src/svg/safety'
-import type { VoiceManifest } from '../src/voice/types'
+import type { VoiceManifest, VoiceReferenceRecord } from '../src/voice/types'
 
 /**
  * The only code in the Studio that touches `shared/` (master plan §25).
@@ -21,6 +21,13 @@ import type { VoiceManifest } from '../src/voice/types'
  */
 
 export const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
+
+/**
+ * The one folder under `shared/Assets/Voice/` that is not a lesson: the frozen
+ * voices' reference recordings, kept in git so Lina survives a wiped Mac. It is
+ * a legal lesson id, so no lesson may take the name.
+ */
+export const VOICE_REFERENCE_FOLDER = 'reference'
 
 /** Same rule as `reference.file` in `catalog.schema.json`. */
 export const REFERENCE_FILE_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*\.(jpg|jpeg|png|webp|svg)$/
@@ -135,7 +142,18 @@ export function createRepoWriter(options: RepoWriterOptions) {
     return inside(referencesDir, file)
   }
 
-  const voiceFolder = (lessonId: string) => inside(voiceDir, checkId(lessonId))
+  const voiceFolder = (lessonId: string) => {
+    if (checkId(lessonId) === VOICE_REFERENCE_FOLDER) {
+      throw new WriteRefused(
+        422,
+        `"${VOICE_REFERENCE_FOLDER}" is where frozen voices are kept, so no lesson can be called that.`,
+      )
+    }
+    return inside(voiceDir, lessonId)
+  }
+  const voiceReferenceDir = inside(voiceDir, VOICE_REFERENCE_FOLDER)
+  const voiceReferenceFile = (voiceId: string, extension: 'wav' | 'json') =>
+    inside(voiceReferenceDir, `${checkId(voiceId)}.${extension}`)
   const voiceStepFile = (lessonId: string, stepId: string) =>
     inside(voiceFolder(lessonId), `${checkStepId(stepId)}.m4a`)
 
@@ -293,6 +311,75 @@ export function createRepoWriter(options: RepoWriterOptions) {
         if (error instanceof SyntaxError) return null
         throw error
       }
+    },
+
+    /**
+     * Keeps a frozen voice's reference recording in the repository, as
+     * `shared/Assets/Voice/reference/<voiceId>.wav` with `.json` beside it.
+     *
+     * The reference otherwise exists only in two places git never sees — the
+     * creator's speech server and the local workspace — so a wiped machine
+     * would take Lina with it. The WAV is written first and the record last,
+     * so the pair is never a description of a file that is not there.
+     */
+    async writeVoiceReference(voiceId: string, wav: Uint8Array, record: VoiceReferenceRecord) {
+      const wavFile = voiceReferenceFile(voiceId, 'wav')
+      const jsonFile = voiceReferenceFile(voiceId, 'json')
+      await mkdir(voiceReferenceDir, { recursive: true })
+      await atomicWrite(wavFile, wav)
+      await atomicWrite(jsonFile, formatJSON(record))
+      return {
+        files: [
+          `shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.wav`,
+          `shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.json`,
+        ],
+      }
+    },
+
+    /** The reference kept for a voice, or null when the repository has none. */
+    async readVoiceReference(voiceId: string): Promise<{ wav: Uint8Array; record: VoiceReferenceRecord } | null> {
+      let wav: Uint8Array
+      let text: string
+      try {
+        wav = new Uint8Array(await readFile(voiceReferenceFile(voiceId, 'wav')))
+        text = await readFile(voiceReferenceFile(voiceId, 'json'), 'utf8')
+      } catch (error) {
+        if (isMissing(error)) return null
+        throw error
+      }
+      let record: VoiceReferenceRecord | null
+      try {
+        record = JSON.parse(text) as VoiceReferenceRecord
+      } catch {
+        throw new WriteRefused(
+          422,
+          `shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.json is not readable JSON, so the voice cannot be restored from it.`,
+        )
+      }
+      if (!record || typeof record !== 'object' || typeof record.referenceName !== 'string') {
+        throw new WriteRefused(
+          422,
+          `shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.json does not describe a frozen voice.`,
+        )
+      }
+      return { wav, record }
+    },
+
+    /** Takes a voice's reference back out of the repository. Missing already is fine. */
+    async deleteVoiceReference(voiceId: string) {
+      const files: string[] = []
+      for (const extension of ['wav', 'json'] as const) {
+        const file = voiceReferenceFile(voiceId, extension)
+        try {
+          await readFile(file)
+        } catch (error) {
+          if (isMissing(error)) continue
+          throw error
+        }
+        await rm(file, { force: true })
+        files.push(`shared/Assets/Voice/${VOICE_REFERENCE_FOLDER}/${voiceId}.${extension}`)
+      }
+      return { files }
     },
 
     /** Removes a lesson's whole narration folder. Missing already is fine. */

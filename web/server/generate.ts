@@ -128,7 +128,12 @@ export async function readLessonRequest(
 }
 
 /** The key and the model every generation needs, or a sentence saying which is missing. */
-export function readModelChoice(body: Record<string, unknown>, deps: GenerateDeps): { apiKey: string; model: string } {
+export function readModelChoice(
+  body: Record<string, unknown>,
+  // Only the two fields are wanted, so writing spoken lines can reach the
+  // same refusals without carrying a library and a validator it never uses.
+  deps: Pick<GenerateDeps, 'apiKey' | 'defaultModel'>,
+): { apiKey: string; model: string } {
   if (!deps.apiKey) {
     throw new WriteRefused(
       503,

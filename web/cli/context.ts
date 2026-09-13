@@ -85,6 +85,17 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
     return opening
   }
 
+  const generation = async (): Promise<GenerateDeps> => {
+    const store = await workspace()
+    return {
+      apiKey: options.env.OPENROUTER_API_KEY || undefined,
+      defaultModel: flags.model || options.env.OPENROUTER_MODEL || undefined,
+      library: () => store.readLibrary(),
+      validateTutorial,
+      ...options.generation,
+    }
+  }
+
   return {
     flags,
     out,
@@ -99,17 +110,10 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
       const store = await workspace()
       return buildLibrary({ ...(await store.readLibrary()), writable: true })
     },
-    async generation() {
-      const store = await workspace()
-      return {
-        apiKey: options.env.OPENROUTER_API_KEY || undefined,
-        defaultModel: flags.model || options.env.OPENROUTER_MODEL || undefined,
-        library: () => store.readLibrary(),
-        validateTutorial,
-        ...options.generation,
-      }
-    },
+    generation,
     async voice() {
+      // Writing spoken lines is a generation, so the voice deps carry the same
+      // key and model choice every other generation command uses.
       return {
         workspace: await workspace(),
         writer,
@@ -118,6 +122,7 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
           mcpUrl: options.env.STUDIO_TTS_MCP_URL || DEFAULT_TTS_MCP_URL,
           ...options.tts,
         },
+        generation: await generation(),
       }
     },
     browser() {

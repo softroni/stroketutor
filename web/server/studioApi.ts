@@ -16,6 +16,7 @@ import {
   type RepoWriterOptions,
 } from './repoWriter'
 import {
+  applySpokenLines,
   castVoice,
   createVoice,
   deletePublishedVoice,
@@ -31,6 +32,7 @@ import {
   unfreezeVoice,
   updateVoice,
   voiceState,
+  writeSpokenLines,
   type VoiceDeps,
 } from './voice'
 import { openWorkspace, type Workspace } from './workspaceStore'
@@ -115,6 +117,8 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `POST /api/voice/voices/:id/unfreeze` lets it vary again
  * - `GET  /api/voice/lessons/:lesson`     a lesson's steps, their recordings and what has gone stale
  * - `PUT  /api/voice/lessons/:lesson/lines/:step`  `{ text }` → a spoken line instead of the instruction
+ * - `PUT  /api/voice/lessons/:lesson/lines`        `{ lines }` → every spoken line at once, from a plan
+ * - `POST /api/voice/lessons/:lesson/lines/generate` `{ model?, note?, overwrite? }` → a model writes them
  * - `POST /api/voice/lessons/:lesson/narrate`      `{ stepId, another? }` → records one step
  * - `POST /api/voice/lessons/:lesson/publish`      the AAC files and the manifest into shared/Assets/Voice/
  * - `DELETE /api/voice/lessons/:lesson/published`  takes them out again
@@ -350,6 +354,9 @@ async function handle(
         workspace,
         writer,
         tts: { url: options.ttsUrl ?? DEFAULT_TTS_URL, mcpUrl: options.ttsMcpUrl ?? DEFAULT_TTS_MCP_URL },
+        // Writing spoken lines is a generation like any other, and the key
+        // stays in this process exactly as it does for the lesson prompts.
+        generation,
       }
       const handled = await handleVoice(segments.slice(1), method, url, req, res, voice)
       if (handled) return
@@ -452,9 +459,19 @@ async function handleVoice(
       send(res, 200, await lessonNarration(name, deps))
       return true
     }
+    if (parts.length === 4 && action === 'lines' && second === 'generate' && method === 'POST') {
+      const body = await readJSON(req, MAX_JSON_BYTES)
+      send(res, 200, await writeSpokenLines(name, body, deps))
+      return true
+    }
     if (parts.length === 4 && action === 'lines' && method === 'PUT') {
       const body = await readJSON(req, MAX_JSON_BYTES)
       send(res, 200, await setNarrationLine(name, second, body.text ?? null, deps))
+      return true
+    }
+    if (parts.length === 3 && action === 'lines' && method === 'PUT') {
+      const body = await readJSON(req, MAX_JSON_BYTES)
+      send(res, 200, await applySpokenLines(name, body, deps))
       return true
     }
     if (parts.length === 3 && action === 'narrate' && method === 'POST') {

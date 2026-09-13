@@ -9,25 +9,30 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
 import type { Tutorial } from '../src/schema/types'
-import type { VoiceManifest } from '../src/voice/types'
+import type { VoiceManifest, VoiceReferenceRecord } from '../src/voice/types'
 
+import { GenerationFailed } from './openrouter'
 import { WriteRefused, createRepoWriter, type RepoWriter } from './repoWriter'
 import { fakeConverter, startFakeTts, type FakeTts } from './testing'
 import { silentWav, wavDurationMs } from './tts'
 import {
+  applySpokenLines,
   castVoice,
   createVoice,
   deleteVoice,
+  exportReference,
   freezeVoice,
   lessonNarration,
   narrateStep,
   publishVoice,
+  restoreReference,
   say,
   setNarrationLine,
   textHash,
   unfreezeVoice,
   updateVoice,
   voiceState,
+  writeSpokenLines,
   type VoiceDeps,
 } from './voice'
 import { openWorkspace, type Workspace } from './workspaceStore'
@@ -78,6 +83,37 @@ async function narrateHouse(voiceId = 'house-chatterbox') {
   for (const step of steps) await narrateStep('simple-house', { stepId: step.stepId }, deps)
   return lessonNarration('simple-house', deps)
 }
+
+/** A model that always answers `answer`, recording the request bodies it was sent. */
+function model(answer: unknown) {
+  const calls: { body: Record<string, unknown> }[] = []
+  const fetch = (async (_url: string, init: RequestInit) => {
+    calls.push({ body: JSON.parse(String(init.body)) as Record<string, unknown> })
+    const payload = {
+      model: 'vendor/text-model',
+      choices: [{ finish_reason: 'stop', message: { content: typeof answer === 'string' ? answer : JSON.stringify(answer) } }],
+      usage: { prompt_tokens: 700, completion_tokens: 200, cost: 0.001 },
+    }
+    return new Response(JSON.stringify(payload), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  }) as unknown as typeof globalThis.fetch
+  return { calls, fetch }
+}
+
+/** Points the voice deps at a fake model, as the Studio server points them at OpenRouter. */
+function withModel(answer: unknown) {
+  const router = model(answer)
+  deps.generation = { apiKey: 'test-key', defaultModel: 'vendor/text-model', fetch: router.fetch }
+  return router
+}
+
+const HOUSE_STEPS = ['walls', 'roof', 'door', 'windows', 'chimney']
+const spoken = (ids: string[], text = (id: string) => `Say ${id}.`) => ({
+  rationale: 'Short lines, said while the stroke draws.',
+  lines: ids.map((id) => ({ id, text: text(id) })),
+})
+/** The text of the one user message a spoken-lines request carries. */
+const promptOf = (router: ReturnType<typeof model>, call = 0) =>
+  ((router.calls[call].body.messages as { content: { text: string }[] }[])[1].content[0].text)
 
 const voiceFolder = path.join('Assets', 'Voice', 'simple-house')
 const readManifest = async (): Promise<VoiceManifest> =>
@@ -351,6 +387,19 @@ describe('publishing a lesson’s voice', () => {
     expect(existsSync(path.join(shared, 'Assets', 'Voice', 'house-two'))).toBe(false)
   })
 
+  it('refuses while the lesson has edits that are not published', async () => {
+    await voiceState(deps)
+    await narrateHouse()
+    const stored = (await workspace.readTutorial('simple-house'))!
+    const house = JSON.parse(stored.text) as Tutorial
+    await workspace.writeTutorial('simple-house', { ...house, title: 'House, edited' }, { etag: stored.etag })
+
+    const refused = await refusal(() => publishVoice('simple-house', deps))
+    expect(refused.status).toBe(409)
+    expect(refused.message).toContain('edits that are not published')
+    expect(existsSync(path.join(shared, 'Assets', 'Voice', 'simple-house'))).toBe(false)
+  })
+
   it('writes one AAC file per step and a manifest beside them', async () => {
     await voiceState(deps)
     const narration = await narrateHouse()
@@ -449,5 +498,251 @@ describe('the candidates', () => {
   it('insists a designed voice is described', async () => {
     await voiceState(deps)
     expect((await refusal(() => createVoice({ name: 'Blank', engine: 'qwen-design' }, deps))).status).toBe(422)
+  })
+})
+
+describe('writing the spoken lines', () => {
+  it('tells the model the lesson, its objective and every step, and saves a line for each', async () => {
+    await voiceState(deps)
+    const router = withModel(spoken(HOUSE_STEPS))
+    const written = await writeSpokenLines('simple-house', {}, deps)
+
+    const body = router.calls[0].body
+    expect(body.model).toBe('vendor/text-model')
+    expect((body.response_format as { json_schema: { name: string } }).json_schema.name).toBe('stroketutor_spoken_lines')
+    const system = (body.messages as { content: string }[])[0].content
+    expect(system).toContain('At most 22 words')
+    expect(system).toContain('At most one exclamation mark in the whole lesson')
+    const prompt = promptOf(router)
+    expect(prompt).toContain('Lesson: Simple House')
+    expect(prompt).toContain('What it teaches: See a house as a box')
+    expect(prompt).toContain('Step 1, id "walls": Draw the walls (1 line)')
+    expect(prompt).toContain('Step 4, id "windows": Add two windows (2 lines)')
+    expect(prompt).toContain('Written instruction: Draw a big square')
+
+    expect(written.writing.promptVersion).toBe('spoken-lines-v1')
+    expect(written.writing.model).toBe('vendor/text-model')
+    expect(written.writing.written).toEqual(HOUSE_STEPS)
+    expect(written.writing.kept).toEqual([])
+    expect(written.steps.map((step) => step.spokenLine)).toEqual(HOUSE_STEPS.map((id) => `Say ${id}.`))
+    expect(written.steps[0].text).toBe('Say walls.')
+  })
+
+  it('says which steps colour rather than draw, and passes the creator’s note on', async () => {
+    await voiceState(deps)
+    const car = JSON.parse((await workspace.readTutorial('classic-red-car'))!.text) as Tutorial
+    const router = withModel(spoken(car.steps.map((step) => step.id)))
+    await writeSpokenLines('classic-red-car', { note: 'Name the colours plainly.' }, deps)
+
+    const prompt = promptOf(router)
+    expect(prompt).toContain('id "body": Draw the car body (4 lines)')
+    expect(prompt).toContain('id "red-body"')
+    expect(prompt).toContain('(1 colour area, no lines)')
+    expect(prompt).toContain('Name the colours plainly.')
+  })
+
+  it('keeps the lines already written, and tells the model they are being kept', async () => {
+    await voiceState(deps)
+    await setNarrationLine('simple-house', 'door', 'A tall door, near the middle.', deps)
+    const router = withModel(spoken(HOUSE_STEPS))
+    const written = await writeSpokenLines('simple-house', {}, deps)
+
+    expect(promptOf(router)).toContain('Already spoken here, and being kept: “A tall door, near the middle.”')
+    expect(written.writing.kept).toEqual(['door'])
+    expect(written.steps.find((step) => step.stepId === 'door')!.spokenLine).toBe('A tall door, near the middle.')
+    expect(written.steps.find((step) => step.stepId === 'walls')!.spokenLine).toBe('Say walls.')
+  })
+
+  it('replaces them with --overwrite', async () => {
+    await voiceState(deps)
+    await setNarrationLine('simple-house', 'door', 'A tall door, near the middle.', deps)
+    const router = withModel(spoken(HOUSE_STEPS))
+    const written = await writeSpokenLines('simple-house', { overwrite: true }, deps)
+
+    expect(promptOf(router)).toContain('Spoken here now, and being replaced')
+    expect(written.writing.kept).toEqual([])
+    expect(written.steps.find((step) => step.stepId === 'door')!.spokenLine).toBe('Say door.')
+  })
+
+  it('refuses an answer that does not cover every step exactly once', async () => {
+    await voiceState(deps)
+    const failure = async (answer: unknown) => {
+      withModel(answer)
+      try {
+        await writeSpokenLines('simple-house', {}, deps)
+      } catch (error) {
+        if (error instanceof GenerationFailed) return error.message
+        throw error
+      }
+      throw new Error('Expected a refusal.')
+    }
+
+    expect(await failure(spoken(['walls', 'roof']))).toContain('wrote nothing for the steps door, windows, chimney')
+    expect(await failure(spoken([...HOUSE_STEPS, 'porch']))).toContain('"porch", which is not a step')
+    expect(await failure(spoken(['walls', ...HOUSE_STEPS]))).toContain('two lines for the step "walls"')
+    expect(await failure(spoken(HOUSE_STEPS, (id) => (id === 'roof' ? '   ' : 'Fine.')))).toContain('left the step "roof" with nothing to say')
+    expect(await failure(spoken(HOUSE_STEPS, (id) => (id === 'roof' ? 'x'.repeat(241) : 'Fine.')))).toContain('241 characters')
+    // Nothing was saved by any of them.
+    expect((await lessonNarration('simple-house', deps)).steps.every((step) => step.spokenLine === null)).toBe(true)
+  })
+
+  it('needs an OpenRouter key, like every other generation', async () => {
+    await voiceState(deps)
+    const refused = await refusal(() => writeSpokenLines('simple-house', {}, deps))
+    expect(refused.status).toBe(503)
+    expect(refused.message).toContain('OPENROUTER_API_KEY')
+  })
+})
+
+describe('a plan of spoken lines', () => {
+  it('writes every line it names, and clears one with null', async () => {
+    await voiceState(deps)
+    const written = await applySpokenLines(
+      'simple-house',
+      { lines: { walls: 'Start with the box.', door: '  A tall door, near the middle.  ' } },
+      deps,
+    )
+    expect(written.steps.find((step) => step.stepId === 'walls')!.spokenLine).toBe('Start with the box.')
+    expect(written.steps.find((step) => step.stepId === 'door')!.spokenLine).toBe('A tall door, near the middle.')
+    expect(written.steps.find((step) => step.stepId === 'roof')!.spokenLine).toBe(null)
+
+    const cleared = await applySpokenLines('simple-house', { lines: { walls: null } }, deps)
+    expect(cleared.steps.find((step) => step.stepId === 'walls')!.spokenLine).toBe(null)
+  })
+
+  it('refuses an unknown step by name, and writes nothing at all', async () => {
+    await voiceState(deps)
+    const refused = await refusal(() =>
+      applySpokenLines('simple-house', { lines: { walls: 'Start with the box.', chimbley: 'Oops.' } }, deps),
+    )
+    expect(refused.status).toBe(404)
+    expect(refused.message).toContain('"chimbley"')
+    expect((await lessonNarration('simple-house', deps)).steps.every((step) => step.spokenLine === null)).toBe(true)
+  })
+
+  it('refuses an empty line and one too long to say', async () => {
+    await voiceState(deps)
+    const empty = await refusal(() => applySpokenLines('simple-house', { lines: { walls: '   ' } }, deps))
+    expect(empty.status).toBe(422)
+    expect(empty.message).toContain('Use null')
+
+    const long = await refusal(() => applySpokenLines('simple-house', { lines: { walls: 'x'.repeat(241) } }, deps))
+    expect(long.message).toContain('241 characters')
+    expect((await lessonNarration('simple-house', deps)).steps[0].spokenLine).toBe(null)
+  })
+
+  it('refuses a plan that is not an object of lines', async () => {
+    await voiceState(deps)
+    expect((await refusal(() => applySpokenLines('simple-house', { lines: ['walls'] }, deps))).status).toBe(400)
+  })
+})
+
+describe('the reference kept in the repository', () => {
+  const referenceFolder = path.join('Assets', 'Voice', 'reference')
+
+  /** Lina, designed, auditioned once and frozen on that take. */
+  async function freezeLina() {
+    await voiceState(deps)
+    const take = await say('lina-bright', 'Hi, I am Lina.', {}, deps)
+    const voice = await freezeVoice('lina-bright', take.id, deps)
+    return { take, voice }
+  }
+
+  it('writes the WAV and its record, and puts the voice back on an empty machine', async () => {
+    const { take, voice } = await freezeLina()
+    const { files, record } = await exportReference('lina-bright', deps)
+    expect(files).toEqual([
+      'shared/Assets/Voice/reference/lina-bright.wav',
+      'shared/Assets/Voice/reference/lina-bright.json',
+    ])
+
+    const kept = JSON.parse(await readFile(path.join(shared, referenceFolder, 'lina-bright.json'), 'utf8')) as VoiceReferenceRecord
+    expect(kept).toEqual(record)
+    expect(kept).toMatchObject({
+      referenceVersion: 1,
+      voiceId: 'lina-bright',
+      engine: 'qwen-design',
+      referenceName: voice.frozen!.referenceName,
+      referenceText: 'Hi, I am Lina.',
+      takeId: take.id,
+      durationMs: take.durationMs,
+    })
+    const wav = new Uint8Array(await readFile(path.join(shared, referenceFolder, 'lina-bright.wav')))
+    expect(wavDurationMs(wav)).toBe(take.durationMs)
+
+    // A wiped Mac: a workspace that has never recorded anything, and a speech
+    // server that has never heard of this reference.
+    const fresh = await openWorkspace({ file: ':memory:', writer, validateTutorial, validateCatalog })
+    tts.addVoiceCalls.length = 0
+    const restored = await restoreReference('lina-bright', { ...deps, workspace: fresh })
+
+    expect(tts.addVoiceCalls).toHaveLength(1)
+    expect(tts.addVoiceCalls[0].name).toBe(voice.frozen!.referenceName)
+    expect(tts.addVoiceCalls[0].transcript).toBe('Hi, I am Lina.')
+    expect(Buffer.from(tts.addVoiceCalls[0].audio).toString('base64')).toBe(Buffer.from(wav).toString('base64'))
+
+    expect(restored.voice.frozen).toEqual(voice.frozen)
+    expect(restored.createdVoice).toBe(false)
+    expect(restored.restoredTake).toBe(true)
+    expect(fresh.readTake(take.id)?.text).toBe('Hi, I am Lina.')
+    // And it speaks by cloning that reference again.
+    const after = await say('lina-bright', 'A new line.', {}, { ...deps, workspace: fresh })
+    expect(after.durationMs).toBeGreaterThan(0)
+    expect(tts.speech[tts.speech.length - 1]).toMatchObject({
+      ref_audio: `/Users/kevin/tts/voices/${voice.frozen!.referenceName}.wav`,
+      ref_text: 'Hi, I am Lina.',
+    })
+    fresh.close()
+  })
+
+  it('creates the voice from the record when the workspace has never had it', async () => {
+    const { voice } = await freezeLina()
+    await exportReference('lina-bright', deps)
+    deleteVoice('lina-bright', { force: true }, deps)
+
+    const restored = await restoreReference('lina-bright', deps)
+    expect(restored.createdVoice).toBe(true)
+    expect(restored.voice).toMatchObject({
+      id: 'lina-bright',
+      name: voice.name,
+      engine: 'qwen-design',
+      instruct: voice.instruct,
+      suggested: false,
+    })
+    expect(restored.voice.frozen!.referenceName).toBe(voice.frozen!.referenceName)
+  })
+
+  it('refuses to write out a voice that is not frozen, or one whose take is gone', async () => {
+    await voiceState(deps)
+    const loose = await refusal(() => exportReference('lina-bright', deps))
+    expect(loose.status).toBe(422)
+    expect(loose.message).toContain('is not frozen')
+
+    const { voice } = await freezeLina()
+    workspace.saveVoice({ ...voice, frozen: { ...voice.frozen!, takeId: 'gone' } })
+    expect((await refusal(() => exportReference('lina-bright', deps))).status).toBe(409)
+
+    expect((await refusal(() => restoreReference('nobody', deps))).status).toBe(404)
+  })
+
+  it('publishes the cast voice’s reference beside the lesson’s audio, once', async () => {
+    const { voice } = await freezeLina()
+    await narrateHouse('lina-bright')
+    const { files } = await publishVoice('simple-house', deps)
+    expect(files).toContain('shared/Assets/Voice/reference/lina-bright.wav')
+    expect(files).toContain('shared/Assets/Voice/reference/lina-bright.json')
+    const kept = JSON.parse(await readFile(path.join(shared, referenceFolder, 'lina-bright.json'), 'utf8')) as VoiceReferenceRecord
+    expect(kept.referenceName).toBe(voice.frozen!.referenceName)
+
+    // The second publish leaves it alone: what is on disk already matches.
+    const again = await publishVoice('simple-house', deps)
+    expect(again.files).not.toContain('shared/Assets/Voice/reference/lina-bright.wav')
+  })
+
+  it('writes nothing for a voice that was never frozen', async () => {
+    await voiceState(deps)
+    await narrateHouse()
+    const { files } = await publishVoice('simple-house', deps)
+    expect(files.some((file) => file.includes('/reference/'))).toBe(false)
   })
 })
