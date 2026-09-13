@@ -563,10 +563,21 @@
 }
 
 .st-new-lesson {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.st-new-lesson__columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
   align-items: start;
+}
+
+/* A field reached by Tab scrolls clear of the sticky footer, not under it. */
+.st-new-lesson .st-field__input {
+  scroll-margin-bottom: 110px;
 }
 
 .st-new-lesson__wide {
@@ -868,7 +879,7 @@
 }
 
 @media (max-width: 1100px) {
-  .st-new-lesson,
+  .st-new-lesson__columns,
   .st-candidate__grid {
     grid-template-columns: minmax(0, 1fr);
   }

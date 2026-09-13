@@ -2,12 +2,11 @@
 
 /* ---------- New lesson: the photo on the left, the words on the right ---------- */
 
-.st-new-lesson {
+.st-new-lesson__columns {
   grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
   grid-template-areas:
     'photo place'
-    'photo teach'
-    'footer footer';
+    'photo teach';
 }
 
 .st-new-lesson__photo {
@@ -26,7 +25,6 @@
 
 /* The one action and what still blocks it, always in view. */
 .st-new-lesson__footer {
-  grid-area: footer;
   position: sticky;
   bottom: 12px;
   z-index: 5;
@@ -123,12 +121,11 @@
 }
 
 @media (max-width: 1100px) {
-  .st-new-lesson {
+  .st-new-lesson__columns {
     grid-template-areas:
       'photo'
       'place'
-      'teach'
-      'footer';
+      'teach';
   }
 
   .st-new-lesson__photo {
