@@ -42,7 +42,7 @@ final class Settings {
     /// Whether Lina speaks. A lesson with no recordings is silent either way, and
     /// hides its chip rather than greying it.
     var narrationEnabled: Bool { didSet { write(narrationEnabled, Key.narrationEnabled) } }
-    /// The speed a lesson starts at: 0.5, 1.0 or 1.5.
+    /// The speed a lesson starts at: 0.5, 1, 2 or 4.
     var defaultSpeed: Double { didSet { write(defaultSpeed, Key.defaultSpeed) } }
     /// Turns the app's own motion off even when the system setting is on.
     var reduceMotionOverride: Bool { didSet { write(reduceMotionOverride, Key.reduceMotionOverride) } }
@@ -62,7 +62,10 @@ final class Settings {
         hasCompletedOnboarding = defaults.object(forKey: Key.hasCompletedOnboarding) as? Bool ?? false
         currentPathId = defaults.string(forKey: Key.currentPathId) ?? ""
         narrationEnabled = defaults.object(forKey: Key.narrationEnabled) as? Bool ?? true
-        defaultSpeed = defaults.object(forKey: Key.defaultSpeed) as? Double ?? 1.0
+        // A speed the player no longer offers (1.5× was one) falls back to 1×
+        // rather than leaving the control with nothing selected.
+        let storedSpeed = defaults.object(forKey: Key.defaultSpeed) as? Double ?? 1.0
+        defaultSpeed = PlayerViewModel.speedOptions.contains(storedSpeed) ? storedSpeed : 1.0
         reduceMotionOverride = defaults.object(forKey: Key.reduceMotionOverride) as? Bool ?? false
         leftHanded = defaults.object(forKey: Key.leftHanded) as? Bool ?? false
         alsoSaveToPhotos = defaults.object(forKey: Key.alsoSaveToPhotos) as? Bool ?? false

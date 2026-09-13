@@ -17,8 +17,8 @@ import OSLog
 /// start with the step's animation; cancel on replay, back and leave; the speed
 /// setting never touches the voice (`AVAudioPlayer.rate` is left alone); the session
 /// is `.ambient` with mode `.spokenAudio` and options
-/// `[.duckOthers, .interruptSpokenAudioAndMixWithOthers]`, so the silent switch is
-/// respected, music ducks under Lina, a podcast pauses, and a phone call is never
+/// `[.duckOthers, .interruptSpokenAudioAndMixWithOthers]` with the `.playback`
+/// category, so the ringer switch is not what silences her (the setting is), music ducks under Lina, a podcast pauses, and a phone call is never
 /// interrupted. An interruption stops the voice and counts as "finished speaking".
 @Observable
 @MainActor
@@ -146,7 +146,12 @@ final class NarrationPlayer {
         guard !isSessionActive else { return }
         let session = AVAudioSession.sharedInstance()
         do {
-            try session.setCategory(.ambient,
+            // `.playback`, not `.ambient`: a learner who taps Play, or starts a
+            // lesson with narration on, should hear Lina even with the ringer
+            // switch off — the first thing the creator reported was a moving chip
+            // and no sound. Music still ducks under her and a podcast still pauses;
+            // the volume buttons still apply.
+            try session.setCategory(.playback,
                                     mode: .spokenAudio,
                                     options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers])
             try session.setActive(true)

@@ -3,7 +3,7 @@ import SwiftUI
 /// `st-voice` — narration and voice. The sample leads the screen so a learner can
 /// see what is being switched before switching it, then the one toggle, the promise
 /// that the written instruction never goes away, and the two things people worry
-/// about: their music and the silent switch. The drawing speed lives on the main
+/// about: their music and the ringer switch. The drawing speed lives on the main
 /// Settings screen: it never touches the voice, so it does not belong beside it.
 struct NarrationSettingsView: View {
     @Environment(AppModel.self) private var app
@@ -58,8 +58,8 @@ struct NarrationSettingsView: View {
                                     tint: .neutral)
                         RowDivider()
                         SettingsRow(title: "Silent switch",
-                                    subtitle: "If your iPhone is on silent, Lina stays quiet.",
-                                    value: "Respected",
+                                    subtitle: "Lina plays even when your iPhone is on silent. The volume buttons still apply.",
+                                    value: "Plays",
                                     systemImage: "speaker.slash.fill",
                                     tint: .neutral)
                     }

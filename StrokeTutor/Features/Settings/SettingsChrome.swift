@@ -176,7 +176,7 @@ enum SettingsFormat {
         return "\(short) (\(build))"
     }
 
-    /// "1×", "0.5×", "1.5×" — the value on the Speed row and in the segmented control.
+    /// "1×", "0.5×", "2×", "4×" — the value on the Speed row and in the segmented control.
     static func speed(_ value: Double) -> String {
         value == 1 ? "1×" : String(format: "%g×", value)
     }

@@ -26,13 +26,9 @@ struct SettingsView: View {
                 // ---------------------------------------------------------- Lesson
                 SettingsSectionHeader("Lesson")
                 ListCard {
-                    SettingsRow(title: "Narration",
-                                value: settings.narrationEnabled ? "On" : "Off",
-                                systemImage: "speaker.wave.2.fill",
-                                tint: .green) { app.push(.narrationSettings) }
-                    RowDivider()
-                    speedRow
-                    RowDivider()
+                    // One row for the tutor: her portrait, whether she speaks, and
+                    // the way to the voice screen. Narration and "Lina's voice" used
+                    // to be two rows that opened the same screen.
                     Button {
                         app.push(.narrationSettings)
                     } label: {
@@ -41,7 +37,7 @@ struct SettingsView: View {
                             SettingsIconTile(tint: .clay) { LinaFace(size: 30) }
                         } trailing: {
                             HStack(spacing: 14) {
-                                Text("English")
+                                Text(settings.narrationEnabled ? "On" : "Off")
                                     .scaledFont(16, .semibold)
                                     .foregroundStyle(Theme.ink55)
                                 chevron
@@ -52,6 +48,9 @@ struct SettingsView: View {
                     .buttonStyle(.plain)
                     .accessibilityElement(children: .combine)
                     .accessibilityAddTraits(.isButton)
+                    .accessibilityValue(settings.narrationEnabled ? "On" : "Off")
+                    RowDivider()
+                    speedRow
                 }
 
                 // ------------------------------------------------------ Sketchbook
