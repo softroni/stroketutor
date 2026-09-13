@@ -21,11 +21,25 @@ struct AppRoot: View {
                 if !app.settings.hasCompletedOnboarding {
                     app.presentOnboarding()
                 }
+                await rescheduleReminderIfEnabled()
             }
             .fullScreenCover(item: $app.cover) { cover in
                 content(for: cover)
                     .environment(app)
             }
+    }
+
+    /// Keeps the practice reminder's pending notifications in step with the stored
+    /// settings after an update or a restore, when iOS may have dropped them. The
+    /// reminder screen does the same when it appears; `st-reminder`'s notes ask for both.
+    private func rescheduleReminderIfEnabled() async {
+        let settings = app.settings
+        guard settings.reminderEnabled else { return }
+        let subject = app.currentPath.map { PracticeReminder.subject(fromPathTitle: $0.title) }
+        await PracticeReminderScheduler.reschedule(
+            days: PracticeReminder.days(from: settings.reminderDays),
+            time: PracticeReminder.time(from: settings.reminderTime),
+            body: PracticeReminder.body(subject: subject))
     }
 
     @ViewBuilder

@@ -117,13 +117,42 @@ enum Theme {
         case largeTitle, title1, title2, title3
         case headline, body, bodyRegular, instruction
         case subhead, footnote, eyebrow
+        /// Lina's speech bubble: 18/bold, tracked like a headline.
+        case speech
     }
 
-    /// The font for a role: `.system(size:weight:design: .rounded)`.
+    /// The font for a role at the mockup's size: `.system(size:weight:design: .rounded)`.
+    /// Fixed size; prefer `.textRole(_:)`, which scales the role with Dynamic Type.
     static func font(_ role: TextRole) -> Font {
-        let (size, weight) = metrics(role)
-        return .system(size: size, weight: weight, design: .rounded)
+        font(role, scale: 1)
     }
+
+    /// The font for a role scaled by a Dynamic Type factor (see `ScaledTextRole`).
+    static func font(_ role: TextRole, scale: CGFloat) -> Font {
+        let (size, weight) = metrics(role)
+        return .system(size: size * scale, weight: weight, design: .rounded)
+    }
+
+    /// The text style a role scales with under Dynamic Type. Display roles follow
+    /// the title styles, which grow less than body text at the accessibility sizes.
+    static func textStyle(_ role: TextRole) -> Font.TextStyle {
+        switch role {
+        case .largeTitle: return .largeTitle
+        case .title1: return .title
+        case .title2, .instruction: return .title2
+        case .title3: return .title3
+        case .headline, .speech: return .headline
+        case .body, .bodyRegular: return .body
+        case .subhead: return .subheadline
+        case .footnote: return .footnote
+        case .eyebrow: return .caption
+        }
+    }
+
+    /// The most a role may grow under Dynamic Type. The accessibility sizes can
+    /// triple body text; the phones' layouts survive about 1.6×, beyond which the
+    /// mockup's slots (nodes, the hero, the player sheet) stop reading as designed.
+    static let maximumTypeScale: CGFloat = 1.6
 
     /// The letter spacing for a role, in points. Titles are tracked in, the eyebrow out.
     static func tracking(_ role: TextRole) -> CGFloat {
@@ -132,7 +161,7 @@ enum Theme {
         case .title1: return -0.6
         case .title2, .instruction: return -0.4
         case .title3: return -0.2
-        case .headline: return -0.2
+        case .headline, .speech: return -0.2
         case .eyebrow: return 1
         case .body, .bodyRegular, .subhead, .footnote: return 0
         }
@@ -147,7 +176,7 @@ enum Theme {
         case .title2, .instruction: return 30
         case .title3: return 25
         case .headline: return 22
-        case .body, .bodyRegular: return 24
+        case .speech, .body, .bodyRegular: return 24
         case .subhead: return 20
         case .footnote: return 18
         case .eyebrow: return 16
@@ -161,6 +190,7 @@ enum Theme {
         case .title2: return (24, .heavy)
         case .title3: return (20, .heavy)
         case .headline: return (17, .bold)
+        case .speech: return (18, .bold)
         case .body: return (17, .medium)
         case .bodyRegular: return (17, .regular)
         case .instruction: return (24, .heavy)
@@ -187,7 +217,7 @@ extension View {
     /// Applies a v3 text role: font, tracking, and the role's colour when it has one.
     /// `Text("Learn").textRole(.largeTitle)` is the whole idiom.
     func textRole(_ role: Theme.TextRole) -> some View {
-        font(Theme.font(role)).tracking(Theme.tracking(role))
+        modifier(ScaledTextRole(role: role))
     }
 
     /// The float shadow (`--shadow-float`), for the few things that sit above the paper.
@@ -218,5 +248,26 @@ extension View {
                     .strokeBorder(border, lineWidth: 2)
             }
         }
+    }
+}
+
+/// Applies a text role scaled with the learner's Dynamic Type setting. `@ScaledMetric`
+/// turns the role's text style into a factor (1 at the default size), capped at
+/// `Theme.maximumTypeScale` so the v3 layouts keep their shape; tracking scales with it.
+struct ScaledTextRole: ViewModifier {
+    let role: Theme.TextRole
+    @ScaledMetric private var factor: CGFloat
+
+    init(role: Theme.TextRole) {
+        self.role = role
+        _factor = ScaledMetric(wrappedValue: 1, relativeTo: Theme.textStyle(role))
+    }
+
+    private var scale: CGFloat { min(max(factor, 1), Theme.maximumTypeScale) }
+
+    func body(content: Content) -> some View {
+        content
+            .font(Theme.font(role, scale: scale))
+            .tracking(Theme.tracking(role) * scale)
     }
 }
