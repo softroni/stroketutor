@@ -2,7 +2,6 @@ import { cp, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -10,6 +9,7 @@ import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
 import type { Tutorial } from '../src/schema/types'
 import { APP_LINE_IDS, type AppVoiceManifest, type VoiceManifest, type VoiceReferenceRecord } from '../src/voice/types'
+import { FIXTURE_SHARED } from '../test/fixture'
 
 import { GenerationFailed } from './openrouter'
 import { WriteRefused, createRepoWriter, type RepoWriter } from './repoWriter'
@@ -42,8 +42,6 @@ import {
 } from './voice'
 import { openWorkspace, type Workspace } from './workspaceStore'
 
-const realShared = fileURLToPath(new URL('../../shared/', import.meta.url))
-
 let root: string
 let shared: string
 let writer: RepoWriter
@@ -56,7 +54,7 @@ beforeEach(async () => {
   root = await mkdtemp(path.join(tmpdir(), 'stroketutor-voice-'))
   shared = path.join(root, 'shared')
   for (const folder of ['Tutorials', 'Catalog', 'Assets']) {
-    await cp(path.join(realShared, folder), path.join(shared, folder), { recursive: true })
+    await cp(path.join(FIXTURE_SHARED, folder), path.join(shared, folder), { recursive: true })
   }
   writer = createRepoWriter({ sharedDir: shared, validateTutorial, validateCatalog })
   workspace = await openWorkspace({ file: ':memory:', writer, validateTutorial, validateCatalog })

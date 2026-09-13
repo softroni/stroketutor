@@ -10,15 +10,16 @@ import { openWorkspace, type Workspace } from '../server/workspaceStore'
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
 import type { TracedDrawing } from '../src/trace/traceSvg'
+import { FIXTURE_SHARED } from '../test/fixture'
 
 import type { BrowserBridge } from './bridge'
 import { run } from './main'
 import type { IO } from './output'
 
 /**
- * A Studio for tests: a scratch copy of the real `shared/` and an in-memory
- * workspace, the same fixture the server tests use, with every command run
- * in-process and its output captured.
+ * A Studio for tests: a scratch copy of the frozen `shared/` in
+ * `test/fixtures/` and an in-memory workspace, the same fixture the server
+ * tests use, with every command run in-process and its output captured.
  */
 export interface TestStudio {
   root: string
@@ -37,15 +38,13 @@ export interface Outcome {
   stderr: string
 }
 
-const realShared = fileURLToPath(new URL('../../shared/', import.meta.url))
-
 export async function openTestStudio(
   options: { generation?: Partial<GenerateDeps>; browser?: BrowserBridge; tts?: Partial<TtsDeps> } = {},
 ): Promise<TestStudio> {
   const root = await mkdtemp(path.join(tmpdir(), 'stroketutor-cli-'))
   const shared = path.join(root, 'shared')
   for (const folder of ['Tutorials', 'Catalog', 'Assets']) {
-    await cp(path.join(realShared, folder), path.join(shared, folder), { recursive: true })
+    await cp(path.join(FIXTURE_SHARED, folder), path.join(shared, folder), { recursive: true })
   }
   const writer = createRepoWriter({ sharedDir: shared, validateTutorial, validateCatalog })
   const workspace = await openWorkspace({ file: ':memory:', writer, validateTutorial, validateCatalog })

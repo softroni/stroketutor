@@ -1,0 +1,63 @@
+{
+  "manifestVersion": 1,
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-13T22:36:26.368Z",
+  "lines": {
+    "hello": {
+      "file": "hello.m4a",
+      "text": "Hi, I'm Lina. I'll talk you through each step while it draws. You can turn my voice off any time.",
+      "textHash": "772d4ca918651b878211450997c41b0c1531117a002329b7ffa70d248347b421",
+      "durationMs": 6320
+    },
+    "lesson-1": {
+      "file": "lesson-1.m4a",
+      "text": "That is the whole shape, in your hand. The next one starts from here.",
+      "textHash": "ee99627fa5cdcce586c1d53074663ca40042f0e1cd206167834e56908d3e7a93",
+      "durationMs": 4560
+    },
+    "lesson-2": {
+      "file": "lesson-2.m4a",
+      "text": "The part you found hard is the part you can now do. That is how it goes.",
+      "textHash": "83f9a63067fa9b218e3f7a8c8e844f36350fa1ae5c461a3cd3612ecc6f7fecb3",
+      "durationMs": 4640
+    },
+    "lesson-3": {
+      "file": "lesson-3.m4a",
+      "text": "Look at it whole. The lines you hesitated over are the ones holding it up.",
+      "textHash": "fd9eb20c3a573b8077d81cd74c282bcf13d17ea6e77575776c8cef02a93b0b0c",
+      "durationMs": 4480
+    },
+    "lesson-4": {
+      "file": "lesson-4.m4a",
+      "text": "Same marks, your own hand. That is all drawing ever is.",
+      "textHash": "247f38071ed4ede9fb700a29fc81eba613d67c60afdccf9ca5359645ffd85bc0",
+      "durationMs": 4320
+    },
+    "path-1": {
+      "file": "path-1.m4a",
+      "text": "You know how these are put together now. Try one from life, wherever you find it.",
+      "textHash": "c9e2d8e7c48421fcc7b6634e5bc413dd271e09bd150a1f42ccfb645543ab3279",
+      "durationMs": 4800
+    },
+    "path-2": {
+      "file": "path-2.m4a",
+      "text": "The method carries over. The next path will feel familiar from the first step.",
+      "textHash": "a63dafd86023366573f35b2ae7e55622e747b08f23ad4dfafcd9202e8e38abca",
+      "durationMs": 4800
+    },
+    "path-3": {
+      "file": "path-3.m4a",
+      "text": "Every one of them finished. None of that was luck.",
+      "textHash": "7a741dc34dbd6768bf3a3a5afeda7b25ce11bd35ed74d5d4b017fcccd7237100",
+      "durationMs": 3360
+    },
+    "path-4": {
+      "file": "path-4.m4a",
+      "text": "You have the shape of the subject now. The rest is time with a pen.",
+      "textHash": "3593ef9685c08b9f35b91417d36890f0ff3d53a7eaecd0a63203edd5815ef0e5",
+      "durationMs": 4000
+    }
+  }
+}

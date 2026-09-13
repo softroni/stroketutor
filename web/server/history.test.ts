@@ -1,17 +1,15 @@
 import { cp, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
+import { FIXTURE_SHARED } from '../test/fixture'
 
 import { WriteRefused, createRepoWriter } from './repoWriter'
 import { openWorkspace, type Workspace } from './workspaceStore'
-
-const realShared = fileURLToPath(new URL('../../shared/', import.meta.url))
 
 let root: string
 let shared: string
@@ -20,8 +18,8 @@ let workspace: Workspace
 beforeEach(async () => {
   root = await mkdtemp(path.join(tmpdir(), 'stroketutor-history-'))
   shared = path.join(root, 'shared')
-  await cp(path.join(realShared, 'Tutorials'), path.join(shared, 'Tutorials'), { recursive: true })
-  await cp(path.join(realShared, 'Catalog'), path.join(shared, 'Catalog'), { recursive: true })
+  await cp(path.join(FIXTURE_SHARED, 'Tutorials'), path.join(shared, 'Tutorials'), { recursive: true })
+  await cp(path.join(FIXTURE_SHARED, 'Catalog'), path.join(shared, 'Catalog'), { recursive: true })
   const writer = createRepoWriter({ sharedDir: shared, validateTutorial, validateCatalog })
   workspace = await openWorkspace({ file: ':memory:', writer, validateTutorial, validateCatalog })
 })

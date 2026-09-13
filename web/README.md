@@ -50,6 +50,7 @@ server/      studioApi.ts, repoWriter.ts    the local server: the only code that
              fixtures/                      representative model outputs for tests
 cli/         studio.mjs (bootstrap), main.ts, commands/   the Studio from the terminal, on the same store
              browser.ts, browser/page.ts    the Studio's browser code in headless Chromium, for SVGs
+test/        fixture.ts (FIXTURE_SHARED), fixtures/shared/   a frozen shared/ the tests run on
 ```
 
 `@shared/*` resolves to `../shared/*` — see the alias in `vite.config.ts` and the
@@ -388,9 +389,15 @@ npm run studio -- voice app narrate && npm run studio -- voice app publish   # L
   as `{ "error", "issues" }`. Exit code 1 means refused (a validation problem, a missing lesson, a model's
   failure), 2 that the command line could not be understood.
 
-Every command runs in-process in `cli/*.test.ts` on the server tests' fixture (a scratch copy of `shared/`,
-an in-memory workspace, a fake model), without Vite or a browser. `cli/browser.smoke.test.ts` traces,
-optimises and renders in real Chromium when `STUDIO_BROWSER_TESTS=1`.
+Every command runs in-process in `cli/*.test.ts` on the server tests' fixture (a scratch copy of the
+frozen `shared/` in `test/fixtures/shared/`, an in-memory workspace, a fake model), without Vite or a
+browser. That fixture is a deliberately still copy of the catalog, the tutorials and the reference
+drawings: the creator's own `shared/` moves whenever a path is retired or a lesson redrawn, and a test
+about the code should not break when it does — `test/fixtures/README.md` says when it may change.
+Only the checks that are *about* the shipped content read `shared/` itself — "builds the shipped
+library with no problems" in `src/studio/library.test.ts`, the conformance corpus, the schema and the
+golden formatting — and those assert only what holds for any valid catalog. `cli/browser.smoke.test.ts`
+traces, optimises and renders in real Chromium when `STUDIO_BROWSER_TESTS=1`.
 
 ## Generating
 

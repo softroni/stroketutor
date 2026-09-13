@@ -1,29 +1,27 @@
 import { cp, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
+import { FIXTURE_SHARED } from '../test/fixture'
 
 import { MAX_REFERENCE_BYTES, WriteRefused, createRepoWriter, etagOf, type RepoWriter } from './repoWriter'
-
-const realShared = fileURLToPath(new URL('../../shared/', import.meta.url))
 
 let root: string
 let shared: string
 let writer: RepoWriter
 
 beforeEach(async () => {
-  // A scratch copy of the real shared/, with a sibling file the writer must never reach.
+  // A scratch copy of the frozen shared/, with a sibling file the writer must never reach.
   root = await mkdtemp(path.join(tmpdir(), 'stroketutor-writer-'))
   shared = path.join(root, 'shared')
-  await cp(path.join(realShared, 'Tutorials'), path.join(shared, 'Tutorials'), { recursive: true })
-  await cp(path.join(realShared, 'Catalog'), path.join(shared, 'Catalog'), { recursive: true })
+  await cp(path.join(FIXTURE_SHARED, 'Tutorials'), path.join(shared, 'Tutorials'), { recursive: true })
+  await cp(path.join(FIXTURE_SHARED, 'Catalog'), path.join(shared, 'Catalog'), { recursive: true })
   // The reference images the catalog points at, when there are any.
-  await cp(path.join(realShared, 'Assets'), path.join(shared, 'Assets'), { recursive: true }).catch((error) => {
+  await cp(path.join(FIXTURE_SHARED, 'Assets'), path.join(shared, 'Assets'), { recursive: true }).catch((error) => {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
   })
   await writeFile(path.join(root, 'outside.json'), 'untouched')

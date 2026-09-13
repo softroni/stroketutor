@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "classic-red-car",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-13T22:35:29.693Z",
+  "steps": {
+    "body": {
+      "file": "body.m4a",
+      "text": "Start at the lower back corner and follow the body round: over the boot, the low roof, and down the bonnet.",
+      "textHash": "71f446f973620c099dff57bffae6bb1074512d335bb967320710f3a1c77e12ac",
+      "durationMs": 7200
+    },
+    "windows": {
+      "file": "windows.m4a",
+      "text": "Draw the rear window under the back of the roof, then the front one beside it, leaving a pillar between.",
+      "textHash": "08bc19a438eea5ed746e6d7d89121b66f9045d602e59be564798ecb535d79e55",
+      "durationMs": 6000
+    },
+    "wheels": {
+      "file": "wheels.m4a",
+      "text": "Two matching circles under the body, one near each end. Line up their centres so the car sits level.",
+      "textHash": "c9d4de089a1cf08c7ce6a2bb0f8c6e023d7625fbfce43874e14818365e6ce7c1",
+      "durationMs": 7680
+    },
+    "lights-bumpers": {
+      "file": "lights-bumpers.m4a",
+      "text": "Add a small light at each end, then the two rounded bumpers with their short dark inserts below.",
+      "textHash": "348595f42a4f4dd208d024e3c68913d73b5aaf676c83eb865f0aff1ae9eddb93",
+      "durationMs": 6000
+    },
+    "red-body": {
+      "file": "red-body.m4a",
+      "text": "Colour the body bright red, keeping the windows and wheels clear.",
+      "textHash": "5f73bf704178890ba9616663100c941c534f535707b88249f145ea4f1345c8b9",
+      "durationMs": 4240
+    },
+    "windows-trim": {
+      "file": "windows-trim.m4a",
+      "text": "Pale grey for the glass and the wheel centres, then a medium grey on the reflections and bumper faces.",
+      "textHash": "4c4d0ac16354ea694359df591181d244817f2eaf037c8eccd1d412b6ecdb3857",
+      "durationMs": 7280
+    },
+    "wheels-dark": {
+      "file": "wheels-dark.m4a",
+      "text": "Fill the tyres and hubs dark grey, leaving the pale inner rings showing.",
+      "textHash": "f5196148543216282d392f2927ed6c1c687dcf60d718c3cf90089d22a04c4e8d",
+      "durationMs": 4880
+    },
+    "body-trim": {
+      "file": "body-trim.m4a",
+      "text": "Run a dark red along the slim trim bands on the side.",
+      "textHash": "8b1417e1373ae1bf1e7f054237797415907ed8d5094b46cee116f94ea652695a",
+      "durationMs": 4320
+    },
+    "finishing-colours": {
+      "file": "finishing-colours.m4a",
+      "text": "Yellow for the lamps, black for the bumper inserts, and the car is done.",
+      "textHash": "82d59a53fe89d636422b596155042780f64e2943bd38f66382142ea5effe3aa7",
+      "durationMs": 4640
+    }
+  }
+}

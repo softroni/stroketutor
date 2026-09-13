@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "palm-tree-4",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-13T22:35:28.782Z",
+  "steps": {
+    "trunk": {
+      "file": "trunk.m4a",
+      "text": "Start at the ground and draw the two long sides of the trunk up to the crown, bending gently left.",
+      "textHash": "f3cbbbfae5f16429c5d932b6bf45c3b4cb785492cd045bda3c7305e7143fef24",
+      "durationMs": 6160
+    },
+    "crown": {
+      "file": "crown.m4a",
+      "text": "At the top of the trunk, outline the coconuts as overlapping shapes, and let the first line run on into the lowest frond.",
+      "textHash": "a0da207c6c417e85a53ff399b0621aa808439f5640edb828aea11a8d126c4dc1",
+      "durationMs": 8080
+    },
+    "lower-left-frond": {
+      "file": "lower-left-frond.m4a",
+      "text": "Work outward along that low frond, adding its narrow leaflets close together, all aimed at the tip.",
+      "textHash": "0ba921b848b987eea46e5f0d307a90fc8e7465877acb0220e29db8eac9e107c2",
+      "durationMs": 6320
+    },
+    "middle-left-frond": {
+      "file": "middle-left-frond.m4a",
+      "text": "From the crown, sweep a broad frond to the left, then add its leaflets from the trunk outward.",
+      "textHash": "e15518d1c706cfb45e3f5cfdc627ba9f878ca0e4cce6a219f699ee2e025158f1",
+      "durationMs": 6400
+    },
+    "upper-left-fronds": {
+      "file": "upper-left-fronds.m4a",
+      "text": "Draw the higher frond toward the upper left, then the shorter one rising behind it. Keep the two fans distinct.",
+      "textHash": "561c0368ffccafcf2ae0c08fc7086b6fc0c32998f964acac2c3f001bc9896e8c",
+      "durationMs": 7280
+    },
+    "upper-right-frond": {
+      "file": "upper-right-frond.m4a",
+      "text": "Back to the crown: sweep the top frond out to the right and add its leaflets from the centre outward.",
+      "textHash": "f011d2ac5869894e81cc9e91520dc4aa3687ccbf978a7c277181d914327b894b",
+      "durationMs": 6240
+    },
+    "middle-right-frond": {
+      "file": "middle-right-frond.m4a",
+      "text": "From the crown again, draw the wide frond reaching right. Let the last leaflets droop a little.",
+      "textHash": "189aa24712da04a17d9c2873e847bafc3c8c12c19878bf64a3f52bad0013fd73",
+      "durationMs": 6080
+    },
+    "lower-right-frond": {
+      "file": "lower-right-frond.m4a",
+      "text": "One final frond from the crown down to the right, with hanging leaflets to balance the left side.",
+      "textHash": "d6a5c1cd5bfbd28c4b5bed40938708a9f40b0861685ba8653ed43f95f523af02",
+      "durationMs": 5920
+    },
+    "ground": {
+      "file": "ground.m4a",
+      "text": "Shape a small patch of sand around the trunk, then a few grass tufts and two loose marks near the edges.",
+      "textHash": "fb9a32fff2b971d83ec504ecc7b1eaba46db12e4549a6ed4aa058cc762b48b9e",
+      "durationMs": 6480
+    },
+    "leaf-colour": {
+      "file": "leaf-colour.m4a",
+      "text": "Fill the crown with the two deep greens, then add the pale highlights across the fronds.",
+      "textHash": "d1879434af6ae2e3c3e8ee2a34686b4a49530751cdea5d6064b57904257b9375",
+      "durationMs": 4960
+    },
+    "trunk-coconut-colour": {
+      "file": "trunk-coconut-colour.m4a",
+      "text": "Warm browns for the coconuts and the trunk, with the darker brown along the shaded side.",
+      "textHash": "3c02d793c2ba1663e9a9d1cb2e075223feaf09ba8dd3763a981feff93c6b6875",
+      "durationMs": 5440
+    },
+    "ground-colour": {
+      "file": "ground-colour.m4a",
+      "text": "Light tan for the sand, and the muted brown for the grass and the scattered marks. That's your palm tree.",
+      "textHash": "c3cfb66abcc38218e730a8d5ea491959995f846a07031657d43115363ea7ac1f",
+      "durationMs": 6880
+    }
+  }
+}

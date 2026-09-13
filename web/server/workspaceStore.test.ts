@@ -2,7 +2,6 @@ import { cp, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -10,11 +9,11 @@ import type { Catalog, Lesson } from '../src/catalog/types'
 import { validateCatalog } from '../src/catalog/validate'
 import { formatJSON } from '../src/schema/formatJSON'
 import { validateTutorial } from '../src/schema/validate'
+import { FIXTURE_SHARED } from '../test/fixture'
 
 import { WriteRefused, createRepoWriter, type RepoWriter } from './repoWriter'
 import { openWorkspace, type Workspace } from './workspaceStore'
 
-const realShared = fileURLToPath(new URL('../../shared/', import.meta.url))
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13])
 
 let root: string
@@ -26,7 +25,7 @@ beforeEach(async () => {
   root = await mkdtemp(path.join(tmpdir(), 'stroketutor-workspace-'))
   shared = path.join(root, 'shared')
   for (const folder of ['Tutorials', 'Catalog', 'Assets']) {
-    await cp(path.join(realShared, folder), path.join(shared, folder), { recursive: true })
+    await cp(path.join(FIXTURE_SHARED, folder), path.join(shared, folder), { recursive: true })
   }
   writer = createRepoWriter({ sharedDir: shared, validateTutorial, validateCatalog })
   workspace = await openWorkspace({ file: ':memory:', writer, validateTutorial, validateCatalog })

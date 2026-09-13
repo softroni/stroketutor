@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import { validateTutorial } from '../src/schema/validate'
+import { FIXTURE_SHARED } from '../test/fixture'
 
 import { GENERATION_CANVAS, GenerationFailed, generateCandidate, type GenerateDeps } from './generate'
 import { lessonContext } from './lessonContext'
@@ -11,18 +12,17 @@ import { MAX_OUTPUT_TOKENS, OPENROUTER_URL } from './openrouter'
 import { PROMPT_VERSION } from './prompts/lessonPrompt'
 import { WriteRefused, etagOf, type LibrarySnapshot } from './repoWriter'
 
-const sharedDir = fileURLToPath(new URL('../../shared/', import.meta.url))
 const fixture = (name: string) =>
   readFileSync(fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url)), 'utf8')
 
-/** shared/ as the Studio server reads it. */
+/** The frozen shared/ as the Studio server reads it. */
 function snapshot(): LibrarySnapshot {
   const stored = (file: string) => {
-    const text = readFileSync(`${sharedDir}${file}`, 'utf8')
+    const text = readFileSync(`${FIXTURE_SHARED}${file}`, 'utf8')
     return { text, etag: etagOf(text) }
   }
   return {
-    tutorials: readdirSync(`${sharedDir}Tutorials`)
+    tutorials: readdirSync(`${FIXTURE_SHARED}Tutorials`)
       .filter((name) => name.endsWith('.json'))
       .map((fileName) => ({ fileName, ...stored(`Tutorials/${fileName}`) })),
     paths: stored('Catalog/paths.json'),

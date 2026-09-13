@@ -1,0 +1,14 @@
+{
+  "referenceVersion": 1,
+  "voiceId": "lina-bright",
+  "name": "Lina, bright",
+  "tagline": "Warm and genuinely excited to teach you",
+  "engine": "qwen-design",
+  "instruct": "A warm, bright woman around thirty, an art teacher who is genuinely excited to show you how to draw. Friendly and encouraging, smiling as she speaks, clear diction, a little playful, never rushed.",
+  "speaker": null,
+  "referenceName": "lina-lina-bright-09cf35",
+  "referenceText": "Don't worry if it wobbles. A wobbly line is just a hand learning something new.",
+  "frozenAt": "2026-09-13T20:21:02.347Z",
+  "takeId": "mu092f72-237e31b1",
+  "durationMs": 5600
+}
