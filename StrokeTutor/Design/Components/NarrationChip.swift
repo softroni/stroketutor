@@ -19,6 +19,9 @@ struct NarrationChip: View {
     }
 
     let state: State
+    /// Her name beside the glyph, as the chip carries it on `ob-voice`. The player's
+    /// chip has no room for it and leaves this nil.
+    var label: String?
     let action: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -40,6 +43,11 @@ struct NarrationChip: View {
                 case .muted:
                     Image(systemName: "speaker.slash.fill")
                         .font(.system(size: 15, weight: .bold))
+                }
+
+                if let label {
+                    Text(label)
+                        .font(.system(size: 14, weight: .heavy, design: .rounded))
                 }
             }
             .foregroundStyle(state == .muted ? Theme.ink40 : Theme.clay)
