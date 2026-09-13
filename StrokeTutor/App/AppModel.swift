@@ -144,6 +144,15 @@ final class AppModel {
         settings.currentPathId = path.id
     }
 
+    /// Makes the lesson's path the current one, if it is not already. A lesson the
+    /// catalog no longer names leaves the choice alone rather than pointing Home at
+    /// a path that is not in `paths`.
+    private func selectPath(ofLesson lesson: Lesson) {
+        guard lesson.pathId != settings.currentPathId,
+              let lessonPath = path(id: lesson.pathId) else { return }
+        select(lessonPath)
+    }
+
     // MARK: - Pushed navigation
 
     /// Pushes a route onto the current tab's stack, so a back stack survives a tab
@@ -177,7 +186,13 @@ final class AppModel {
     }
 
     /// Opens the player. `resumeFrom` starts on a saved step instead of step one.
+    ///
+    /// Starting a lesson is also what moves the learner to its path (`hp-paths`:
+    /// opening a path card does *not* change `currentPathId`, drawing in it does),
+    /// so Home and the green outline on the cards follow the pen instead of staying
+    /// on whichever path onboarding chose.
     func presentPlayer(_ lesson: Lesson, resumeFrom: Int? = nil) {
+        selectPath(ofLesson: lesson)
         progress.markOpened(lesson.id, pathId: lesson.pathId, step: resumeFrom)
         cover = .player(lessonId: lesson.id, resumeFrom: resumeFrom)
     }
