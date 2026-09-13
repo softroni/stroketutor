@@ -31,10 +31,7 @@ struct SettingsView: View {
                                 systemImage: "speaker.wave.2.fill",
                                 tint: .green) { app.push(.narrationSettings) }
                     RowDivider()
-                    SettingsRow(title: "Speed",
-                                value: SettingsFormat.speed(settings.defaultSpeed),
-                                systemImage: "speedometer",
-                                tint: .green) { app.push(.narrationSettings) }
+                    speedRow
                     RowDivider()
                     Button {
                         app.push(.narrationSettings)
@@ -203,4 +200,38 @@ struct SettingsView: View {
     }
     .environment(model)
     .task { model.loadContent() }
+}
+
+
+// MARK: - Speed
+
+private extension SettingsView {
+    /// The speed a lesson starts at, set right here rather than on the voice screen:
+    /// it is how fast each step draws, and it never changes Lina's voice, so a
+    /// learner who came to change it should not have to pass her card to find it.
+    var speedRow: some View {
+        @Bindable var settings = app.settings
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 14) {
+                SettingsIconTile(symbol: "speedometer", tint: .green)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Speed")
+                        .textRole(.headline)
+                        .foregroundStyle(Theme.ink)
+                    Text("How fast each step draws. You can change it while you draw.")
+                        .textRole(.footnote)
+                        .foregroundStyle(Theme.ink55)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            SegmentedPicker(options: PlayerViewModel.speedOptions,
+                            title: SettingsFormat.speed,
+                            selection: $settings.defaultSpeed)
+                .accessibilityLabel("Speed")
+        }
+        .padding(.vertical, 14)
+        .padding(.horizontal, 18)
+    }
 }

@@ -1,9 +1,10 @@
 import SwiftUI
 
 /// `st-voice` — narration and voice. The sample leads the screen so a learner can
-/// see what is being switched before switching it, then the one toggle, the speed a
-/// lesson starts at, the promise that the written instruction never goes away, and
-/// the two things people worry about: their music and the silent switch.
+/// see what is being switched before switching it, then the one toggle, the promise
+/// that the written instruction never goes away, and the two things people worry
+/// about: their music and the silent switch. The drawing speed lives on the main
+/// Settings screen: it never touches the voice, so it does not belong beside it.
 struct NarrationSettingsView: View {
     @Environment(AppModel.self) private var app
     @State private var narration = NarrationPlayer()
@@ -32,8 +33,6 @@ struct NarrationSettingsView: View {
                               systemImage: isOn ? "speaker.wave.2.fill" : "speaker.slash.fill",
                               tint: isOn ? .green : .neutral,
                               isOn: $settings.narrationEnabled)
-                    RowDivider()
-                    speedRow(settings: settings)
                 }
 
                 if isOn {
@@ -202,32 +201,6 @@ struct NarrationSettingsView: View {
     // MARK: - Speed
 
     /// `.list-row--stack`: the label line, then the segmented control under it.
-    private func speedRow(settings: Settings) -> some View {
-        @Bindable var settings = settings
-        return VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 14) {
-                SettingsIconTile(symbol: "speedometer", tint: .green)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Speed")
-                        .textRole(.headline)
-                        .foregroundStyle(Theme.ink)
-                    Text("How fast each step draws. You can change it while you draw.")
-                        .textRole(.footnote)
-                        .foregroundStyle(Theme.ink55)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
-            SegmentedPicker(options: PlayerViewModel.speedOptions,
-                            title: SettingsFormat.speed,
-                            selection: $settings.defaultSpeed)
-                .accessibilityLabel("Speed")
-        }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 18)
-    }
-
     // MARK: - Where the sample comes from
 
     /// Nothing on this screen is invented copy. The line is Lina's own recorded
