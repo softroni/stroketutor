@@ -14,6 +14,9 @@ struct CompletionView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
+    /// Lina reads her closing line once, if it was recorded and narration is on.
+    @State private var narration = NarrationPlayer()
+
     /// The path this lesson belongs to, if it is still in the catalog.
     private var path: PathModel? { app.path(id: lesson.pathId) }
 
@@ -36,10 +39,13 @@ struct CompletionView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.page.ignoresSafeArea())
         .onAppear {
-            // One .success haptic, no sound and no timer (sk-complete: "No
-            // auto-dismiss, no timer").
+            // One .success haptic and no timer (sk-complete: "No auto-dismiss, no
+            // timer"). The only sound is Lina's line, said once, the same sentence
+            // that is written beside her face — and only if narration is on.
             UINotificationFeedbackGenerator().notificationOccurred(.success)
+            speakLinaLine()
         }
+        .onDisappear { narration.deactivate() }
     }
 
     // MARK: - The body
@@ -305,28 +311,21 @@ struct CompletionView: View {
         return "Your finished \(lesson.title) drawing, drawn \(Self.spokenDate.string(from: date))"
     }
 
-    /// One calm line from Lina. Four of them, chosen by the lesson's place in its
-    /// path, so a learner working through a path does not read the same sentence
-    /// every time. Nothing here grades the drawing.
-    private var linaText: String {
-        let lines = isPathDone ? Self.pathDoneLines : Self.lessonLines
-        let index = path?.position(of: lesson.id).map { $0 - 1 } ?? 0
-        return lines[abs(index) % lines.count]
+    /// One calm line from Lina, chosen by the lesson's place in its path
+    /// (`CompletionLines`), and the recording of that same line when one shipped.
+    private var linaLineChoice: CompletionLines.Line {
+        CompletionLines.line(isPathDone: isPathDone, position: path?.position(of: lesson.id))
     }
 
-    private static let lessonLines = [
-        "That is the whole shape, in your hand. The next one starts from here.",
-        "The part you found hard is the part you can now do. That is how it goes.",
-        "Look at it whole. The lines you hesitated over are the ones holding it up.",
-        "Same marks, your own hand. That is all drawing ever is."
-    ]
+    private var linaText: String { linaLineChoice.text }
 
-    private static let pathDoneLines = [
-        "You know how these are put together now. Try one from life, wherever you find it.",
-        "The method carries over. The next path will feel familiar from the first step.",
-        "Every one of them finished. None of that was luck.",
-        "You have the shape of the subject now. The rest is time with a pen."
-    ]
+    /// Said once, when the screen arrives. A learner who has turned Lina off, or a
+    /// line that was never recorded, ends the lesson in silence.
+    private func speakLinaLine() {
+        let line = linaLineChoice
+        guard app.settings.narrationEnabled, narration.hasAppLine(line.id) else { return }
+        narration.playAppLine(line.id)
+    }
 
     // MARK: - Dates
 

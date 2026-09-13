@@ -4,9 +4,8 @@ import SwiftUI
 /// wave while she speaks, a speaker glyph when she has finished, and a grey speaker
 /// with a slash when narration is off. Tapping it mutes or unmutes.
 ///
-/// It appears only when narration is on *and* the step has an audio file. No audio
-/// ships yet, so today the player hides it — the component exists so the pipeline
-/// has somewhere to land.
+/// It appears only when narration is on *and* the step has an audio file, so a
+/// lesson the Studio has not narrated shows no chip at all.
 struct NarrationChip: View {
 
     enum State {

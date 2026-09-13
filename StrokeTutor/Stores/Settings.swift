@@ -39,7 +39,8 @@ final class Settings {
     var hasCompletedOnboarding: Bool { didSet { write(hasCompletedOnboarding, Key.hasCompletedOnboarding) } }
     /// The path Home shows. Empty until a path is chosen; the first path then wins.
     var currentPathId: String { didSet { write(currentPathId, Key.currentPathId) } }
-    /// Whether Lina speaks. No audio ships yet, so the chip stays hidden either way.
+    /// Whether Lina speaks. A lesson with no recordings is silent either way, and
+    /// hides its chip rather than greying it.
     var narrationEnabled: Bool { didSet { write(narrationEnabled, Key.narrationEnabled) } }
     /// The speed a lesson starts at: 0.5, 1.0 or 1.5.
     var defaultSpeed: Double { didSet { write(defaultSpeed, Key.defaultSpeed) } }

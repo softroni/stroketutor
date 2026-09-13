@@ -6,6 +6,7 @@ import SwiftUI
 /// the two things people worry about: their music and the silent switch.
 struct NarrationSettingsView: View {
     @Environment(AppModel.self) private var app
+    @State private var narration = NarrationPlayer()
     @State private var isPlayingSample = false
     @State private var sampleTask: Task<Void, Never>?
 
@@ -17,9 +18,12 @@ struct NarrationSettingsView: View {
             VStack(alignment: .leading, spacing: Theme.stackSpacing) {
                 if let sample {
                     sampleCard(sample, isOn: isOn)
-                    // No recordings ship yet, and the screen must not imply that
-                    // they do. The button shows the chip moving; it plays nothing.
-                    SettingsCaption("No recordings ship with this build. Play shows how the chip moves while Lina speaks. The words above are the real first step of the first lesson in your path.")
+                    // With her hello recorded, Play plays it. Without it the screen
+                    // must not imply otherwise: the button then only shows the chip
+                    // moving, and says so.
+                    SettingsCaption(sample.isRecorded
+                                    ? "Play plays Lina's own recording, the voice a lesson speaks in. Every instruction is written as well, so nothing here is only a sound."
+                                    : "No recordings ship with this build. Play shows how the chip moves while Lina speaks. The words above are the real first step of the first lesson in your path.")
                 }
 
                 ListCard {
@@ -85,7 +89,10 @@ struct NarrationSettingsView: View {
         .onChange(of: isOn) { _, newValue in
             if !newValue { stopSample() }
         }
-        .onDisappear { stopSample() }
+        .onDisappear {
+            stopSample()
+            narration.deactivate()
+        }
     }
 
     // MARK: - The sample
@@ -135,7 +142,7 @@ struct NarrationSettingsView: View {
 
                 HStack(spacing: 12) {
                     NarrationChip(state: isOn ? .speaking : .muted,
-                                  label: isOn ? (isPlayingSample ? "Speaking" : "Sample") : "Off") {
+                                  label: isOn ? (isSpeakingSample ? "Speaking" : "Sample") : "Off") {
                         playSample()
                     }
                     .disabled(!isOn)
@@ -154,12 +161,18 @@ struct NarrationSettingsView: View {
 
     private func chipLabel(isOn: Bool) -> String {
         guard isOn else { return "Narration off" }
-        return isPlayingSample ? "Speaking" : "Sample"
+        return isSpeakingSample ? "Speaking" : "Sample"
     }
 
-    /// The chip moves for about three seconds, as it would while a line plays.
+    /// Plays her hello. Without a recording the chip moves for about three seconds
+    /// instead, as it would while a line plays.
     private func playSample() {
         sampleTask?.cancel()
+        sampleTask = nil
+        if sample?.isRecorded == true {
+            narration.playAppLine("hello")
+            return
+        }
         isPlayingSample = true
         sampleTask = Task {
             try? await Task.sleep(for: .seconds(3.2))
@@ -172,6 +185,13 @@ struct NarrationSettingsView: View {
         sampleTask?.cancel()
         sampleTask = nil
         isPlayingSample = false
+        narration.stop()
+    }
+
+    /// What the chip's word and its VoiceOver label report: the recording's own
+    /// state when there is one.
+    private var isSpeakingSample: Bool {
+        sample?.isRecorded == true ? narration.isSpeaking : isPlayingSample
     }
 
     // MARK: - Speed
@@ -205,17 +225,24 @@ struct NarrationSettingsView: View {
 
     // MARK: - Where the sample comes from
 
-    /// The line and the caption are real: the first step of the first lesson of the
-    /// path the learner is in. Nothing on this screen is invented copy.
+    /// Nothing on this screen is invented copy. The line is Lina's own recorded
+    /// hello when that shipped — the same one the onboarding beat plays — and
+    /// otherwise the first step of the first lesson of the path the learner is in,
+    /// which is what she would read.
     private struct Sample {
         let line: String
         let caption: String
+        /// True when there is a file behind the words and Play really plays it.
+        let isRecorded: Bool
     }
 
     private var sample: Sample? {
+        if narration.hasAppLine("hello"), let hello = narration.appLineText("hello") {
+            return Sample(line: hello, caption: "Lina's hello", isRecorded: true)
+        }
         let lesson = app.currentPath?.lessons.first ?? app.paths.first(where: { !$0.isEmpty })?.lessons.first
         guard let lesson, let step = lesson.tutorial.steps.first else { return nil }
-        return Sample(line: step.instruction, caption: "\(lesson.title) · Step 1")
+        return Sample(line: step.instruction, caption: "\(lesson.title) · Step 1", isRecorded: false)
     }
 }
 

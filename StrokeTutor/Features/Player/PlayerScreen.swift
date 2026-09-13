@@ -227,8 +227,9 @@ struct PlayerScreen: View {
     }
 
     /// The chip is on the paper only when narration is on *and* this step has a
-    /// recorded line. No audio ships yet, so today it never appears — a greyed chip
-    /// for a step that has no voice would read as broken (`pl-player` notes).
+    /// recorded line — a greyed chip for a step that has no voice would read as
+    /// broken (`pl-player` notes). A lesson the Studio has not narrated therefore
+    /// plays exactly as it did before any audio shipped: silently, chipless.
     @ViewBuilder
     private var narrationChip: some View {
         if showsNarrationChip {

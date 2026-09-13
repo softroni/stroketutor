@@ -7,23 +7,33 @@ import SwiftUI
 /// The switch writes `narrationEnabled` at once: there is no Save here, and Continue
 /// commits nothing.
 ///
-/// No recordings ship in this build. Rather than a button that claims to play a
-/// sound and then does not, the sample shows what Lina will say and animates her
-/// chip while it does — and the card says plainly that the recordings are not here
-/// yet. The written instruction is the channel that always works, which is the point
-/// this beat is making anyway.
+/// The sample is Lina's own `hello` line from `Voice/app/`, played when the learner
+/// asks for it. When that recording was not published — the app builds perfectly
+/// well without it — the card keeps the honest fallback it had before any audio
+/// shipped: the words she would say, her chip moving for three seconds, and a line
+/// saying the recordings are not here yet. The written instruction is the channel
+/// that always works, which is the point this beat is making anyway.
 struct OnboardingVoiceBeat: View {
 
     @Binding var narrationEnabled: Bool
     let rail: OnboardingRail
     let onContinue: () -> Void
 
-    /// The step's written instruction, verbatim: audio is a second channel, never
-    /// the only one.
-    private let sampleLine = "\"Draw one square in the middle of the page. This is the front wall.\""
-
+    @State private var narration = NarrationPlayer()
     @State private var isPlayingSample = false
     @State private var playCount = 0
+
+    /// Lina's recorded hello, or nil when it was not published.
+    private var recordedLine: String? {
+        narration.hasAppLine("hello") ? narration.appLineText("hello") : nil
+    }
+
+    /// What the card quotes: her own words when they were recorded, otherwise a
+    /// step's written instruction, verbatim — audio is a second channel, never the
+    /// only one.
+    private var sampleLine: String {
+        recordedLine ?? "Draw one square in the middle of the page. This is the front wall."
+    }
 
     var body: some View {
         OnboardingBeatFrame(rail: rail) {
@@ -37,11 +47,17 @@ struct OnboardingVoiceBeat: View {
                 .buttonStyle(.primary)
         }
         .task(id: playCount) {
-            guard playCount > 0 else { return }
+            // Only the written sample needs a timer; a recording ends when it ends.
+            guard playCount > 0, recordedLine == nil else { return }
             try? await Task.sleep(for: .seconds(3))
             guard !Task.isCancelled else { return }
             isPlayingSample = false
         }
+        .onChange(of: narrationEnabled) { _, isOn in
+            // Turning her off mid-sentence stops the sentence.
+            if !isOn { stopSample() }
+        }
+        .onDisappear { narration.deactivate() }
     }
 
     // MARK: - The switch
@@ -93,7 +109,7 @@ struct OnboardingVoiceBeat: View {
                 // The chip is decoration here: the quote below carries the words.
                 .accessibilityHidden(true)
 
-            Text(sampleLine)
+            Text("“\(sampleLine)”")
                 .scaledFont(20, .bold)
                 .tracking(-0.3)
                 .lineSpacing(5)
@@ -101,20 +117,20 @@ struct OnboardingVoiceBeat: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text("Lina's recordings are not in this build yet. This is the line she reads.")
+            Text(recordedLine == nil
+                 ? "Lina's recordings are not in this build yet. This is the line she reads."
+                 : "This is her own voice, the one you hear in a lesson.")
                 .textRole(.footnote)
                 .foregroundStyle(Theme.ink55)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Button {
-                isPlayingSample = true
-                playCount += 1
-            } label: {
-                Label(isPlayingSample ? "Show it again" : "Show a sample",
+            Button(action: playSample) {
+                Label(sampleButtonTitle,
                       systemImage: isPlayingSample ? "arrow.counterclockwise" : "waveform")
             }
             .buttonStyle(.secondary)
+            .disabled(recordedLine != nil && !narrationEnabled)
         }
         .padding(Theme.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -126,6 +142,31 @@ struct OnboardingVoiceBeat: View {
 
     private var chipState: NarrationChip.State {
         if !narrationEnabled { return .muted }
-        return isPlayingSample ? .speaking : .idle
+        return isSpeaking ? .speaking : .idle
+    }
+
+    /// The recording's own state while one is playing; the three-second pretence
+    /// otherwise.
+    private var isSpeaking: Bool {
+        recordedLine == nil ? isPlayingSample : narration.isSpeaking
+    }
+
+    private var sampleButtonTitle: String {
+        if recordedLine == nil { return isPlayingSample ? "Show it again" : "Show a sample" }
+        return narration.isSpeaking ? "Play it again" : "Play a sample"
+    }
+
+    private func playSample() {
+        if recordedLine == nil {
+            isPlayingSample = true
+            playCount += 1
+        } else {
+            narration.playAppLine("hello")
+        }
+    }
+
+    private func stopSample() {
+        narration.stop()
+        isPlayingSample = false
     }
 }

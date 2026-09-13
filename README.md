@@ -200,7 +200,17 @@ choose between several candidates. Speech is made on the creator's own MLX-Audio
       iOS asks for each by name — and the words are the creator's, edited on the Voice page or with `voice app set`.
       They record and go stale exactly as a step does, publish as `shared/Assets/Voice/app/<id>.m4a` with a
       `manifest.json`, and `voice publish --all` takes them along with the lessons.
-- [ ] Not yet: the Xcode project does not bundle `shared/Assets/Voice/` (add the folder reference as `Voice/`).
+- [x] **In the app.** The Xcode project bundles `shared/Assets/Voice/` as the folder reference `Voice/`, so a
+      lesson narrated tomorrow needs no change to the project file. `VoiceLibrary` reads a lesson's manifest the
+      first time that lesson asks for a line, and a step is spoken only when the manifest names it *and* the file
+      is there — a lesson nobody has narrated is silent and hides its chip, as every lesson did before. The player
+      speaks a step's line when its animation starts and stops on replay, back, skip, close and leave; the speed
+      setting never touches the voice. `Voice/app/` carries Lina's own lines — `hello` on the onboarding beat and
+      in Settings, `lesson-1`…`path-4` on the completion screen — and every one of those screens keeps its written
+      fallback for a line that was not published. Xcode refuses to build when `shared/Assets/Voice/` is missing
+      altogether, so the folder is kept in a checkout by its README.
+- [ ] Not yet: nothing is published under `shared/Assets/Voice/` — the creator publishes the lessons, then their
+      voice and Lina's own lines, and the app speaks from the next build.
 
 #### S7 · Reviewing a lesson
 Asked for on 2026-09-12, after reviewing the classic red car.
