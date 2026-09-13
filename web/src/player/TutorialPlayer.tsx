@@ -1,13 +1,19 @@
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { cssColor, resolveStyle, type Tutorial } from '../schema/types'
 
 import { StrokeCanvas, type RenderFill, type RenderStroke } from './StrokeCanvas'
-import { usePlayback } from './usePlayback'
+import { SPEEDS, speedLabel, usePlayback } from './usePlayback'
 import './player.css'
 
 export interface TutorialPlayerProps {
   tutorial: Tutorial
+  /**
+   * Fit the whole player to its container's height, shrinking the paper so
+   * the instruction and controls never scroll out of view. The container must
+   * have a definite height; without one the player flows at its natural size.
+   */
+  fill?: boolean
 }
 
 /** Stable identity for a stroke across the whole document. */
@@ -50,7 +56,7 @@ function upTo(tutorial: Tutorial, end: number) {
  * an editor can drop it in, hand it a document, and get identical behaviour to
  * this app without wiring anything up.
  */
-export function TutorialPlayer({ tutorial }: TutorialPlayerProps) {
+export function TutorialPlayer({ tutorial, fill = false }: TutorialPlayerProps) {
   const playback = usePlayback(tutorial)
   const { state, currentStep, currentStepIndex, stepCount } = playback
   const style = useMemo(() => resolveStyle(tutorial.style), [tutorial.style])
@@ -79,12 +85,14 @@ export function TutorialPlayer({ tutorial }: TutorialPlayerProps) {
   const activeProgress = finished || awaiting ? 1 : playback.strokeProgress
   const painting = !finished && !awaiting && playback.strokeIndex >= currentStep.strokes.length
 
-  const handleSpeed = useCallback(() => playback.cycleSpeed(), [playback])
+  let hint = 'Watch the stroke, then copy it onto your paper.'
+  if (awaiting) hint = 'Your turn. Draw it on your paper, then tap “I drew it!”.'
+  else if (painting) hint = 'Watch where the colour goes, then colour it in on your paper.'
 
   return (
-    <section className="st-player">
+    <section className={`st-player ${fill ? 'st-player--fill' : ''}`}>
       <header className="st-player__header">
-        <div>
+        <div className="st-player__heading">
           <h1 className="st-player__title">{tutorial.title}</h1>
           <p className="st-player__step-title">
             {finished ? 'All steps finished' : `Step ${currentStepIndex + 1} of ${stepCount} · ${currentStep.title}`}
@@ -106,11 +114,12 @@ export function TutorialPlayer({ tutorial }: TutorialPlayerProps) {
         </ol>
       </header>
 
-      <div
-        className="st-canvas-frame"
-        style={{ aspectRatio: `${tutorial.canvas.width} / ${tutorial.canvas.height}` }}
-      >
-        <StrokeCanvas
+      <div className="st-player__stage">
+        <div
+          className="st-canvas-frame"
+          style={{ ['--ratio' as string]: String(tutorial.canvas.width / tutorial.canvas.height) }}
+        >
+          <StrokeCanvas
           className="st-canvas"
           canvas={tutorial.canvas}
           strokeColor={style.strokeColor}
@@ -122,71 +131,55 @@ export function TutorialPlayer({ tutorial }: TutorialPlayerProps) {
           activeIndex={activeIndex}
           activeProgress={activeProgress}
           showPencil={state.phase === 'drawing'}
-          title={`${tutorial.title} — ${finished ? 'complete' : currentStep.title}`}
-        />
+            title={`${tutorial.title} — ${finished ? 'complete' : currentStep.title}`}
+          />
+        </div>
       </div>
 
-      {finished ? (
-        <div className="st-card st-card--active">
-          <p className="st-card__instruction">
-            That is the whole drawing. Nicely done!
-          </p>
-          <div className="st-card__actions">
-            <button type="button" className="st-button st-button--primary" onClick={playback.restart}>
-              Start over
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className={`st-card ${awaiting ? 'st-card--active' : ''}`}>
-          <p className="st-card__instruction">{currentStep.instruction}</p>
-          {awaiting ? (
-            <div className="st-card__actions">
-              <button
-                type="button"
-                className="st-button st-button--primary"
-                onClick={playback.next}
-              >
-                I drew it!
-              </button>
-              <button
-                type="button"
-                className="st-button st-button--secondary"
-                onClick={playback.replayStep}
-              >
-                Watch again
-              </button>
-            </div>
-          ) : (
-            <p className="st-card__hint">
-              {painting
-                ? 'Watch where the colour goes, then colour it in on your paper.'
-                : 'Watch the stroke, then copy it onto your paper.'}
-            </p>
-          )}
-        </div>
-      )}
+      <div className={`st-card ${awaiting || finished ? 'st-card--active' : ''}`} aria-live="polite">
+        <p className="st-card__instruction">
+          {finished ? 'That is the whole drawing. Nicely done!' : currentStep.instruction}
+        </p>
+        {finished ? null : <p className="st-card__hint">{hint}</p>}
+      </div>
 
-      <div className="st-controls">
+      <div className="st-controls" role="toolbar" aria-label="Lesson controls">
         <button
           type="button"
           className="st-button"
           onClick={playback.previous}
           disabled={!playback.canGoPrevious}
+          title="Go back a step"
         >
-          ‹ Previous step
+          ‹ Back
         </button>
-        <button type="button" className="st-button" onClick={playback.replayStep}>
+        <button type="button" className="st-button" onClick={playback.replayStep} title="Watch this step again">
           ↻ Replay step
         </button>
-        <button
-          type="button"
-          className="st-button st-button--speed"
-          onClick={handleSpeed}
-          title="Cycle playback speed"
-        >
-          {playback.speed}× speed
-        </button>
+        <span className="st-speeds" role="group" aria-label="Playback speed">
+          {SPEEDS.map((speed) => (
+            <button
+              key={speed}
+              type="button"
+              aria-pressed={playback.speed === speed}
+              title={speed === 'instant' ? 'Skip the animation and show each step at once' : `Play at ${speed}× speed`}
+              onClick={() => playback.setSpeed(speed)}
+            >
+              {speedLabel(speed)}
+            </button>
+          ))}
+        </span>
+        {finished ? (
+          <button type="button" className="st-button st-button--primary" onClick={playback.restart}>
+            Start over
+          </button>
+        ) : (
+          // Always available: a learner who has already drawn it, or wants to
+          // skip ahead, need not wait for the animation to end.
+          <button type="button" className="st-button st-button--primary" onClick={playback.next}>
+            I drew it!
+          </button>
+        )}
       </div>
     </section>
   )

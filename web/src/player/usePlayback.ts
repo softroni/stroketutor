@@ -2,8 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { Step, Tutorial } from '../schema/types'
 
-export const SPEEDS = [0.5, 1, 1.5] as const
+/** The Studio's replay speeds; `instant` skips to the end of each step at once. */
+export const SPEEDS = [0.5, 1, 2, 4, 'instant'] as const
 export type Speed = (typeof SPEEDS)[number]
+
+export const speedLabel = (speed: Speed) => (speed === 'instant' ? 'Instant' : `${speed}×`)
 
 /**
  * `idle -> drawing(step) -> awaitingUser(step) -> drawing(next) -> ... -> finished`
@@ -37,8 +40,6 @@ export interface Playback {
   replayStep: () => void
   restart: () => void
   setSpeed: (speed: Speed) => void
-  /** Cycles 0.5x -> 1x -> 1.5x -> 0.5x. */
-  cycleSpeed: () => void
   canGoPrevious: boolean
   canGoNext: boolean
 }
@@ -84,11 +85,6 @@ export function usePlayback(tutorial: Tutorial): Playback {
     setSpeedState(value)
   }, [])
 
-  const cycleSpeed = useCallback(() => {
-    const index = SPEEDS.indexOf(speedRef.current)
-    setSpeed(SPEEDS[(index + 1) % SPEEDS.length])
-  }, [setSpeed])
-
   const transition = useCallback((make: (runId: number) => PlaybackState) => {
     setState((previous) => make(previous.runId + 1))
   }, [])
@@ -118,12 +114,14 @@ export function usePlayback(tutorial: Tutorial): Playback {
     if (state.phase !== 'drawing') return
 
     const durations = stepDurations(tutorial.steps[state.stepIndex])
-    if (durations.length === 0) {
+    const finishStep = () =>
       setState((previous) => ({
         phase: 'awaitingUser',
         stepIndex: state.stepIndex,
         runId: previous.runId,
       }))
+    if (durations.length === 0 || speedRef.current === 'instant') {
+      finishStep()
       return
     }
 
@@ -134,14 +132,20 @@ export function usePlayback(tutorial: Tutorial): Playback {
     let duration = 0
 
     const beginStroke = (strokeIndex: number, now: number) => {
+      const speed = speedRef.current
       index = strokeIndex
       startedAt = now
-      duration = Math.max(0, durations[strokeIndex]) / speedRef.current
+      duration = speed === 'instant' ? 0 : Math.max(0, durations[strokeIndex]) / speed
       setCursor({ strokeIndex, progress: 0 })
     }
 
     const tick = (now: number) => {
       if (cancelled) return
+      // Switching to Instant mid-step lands on the step's last frame now.
+      if (speedRef.current === 'instant') {
+        finishStep()
+        return
+      }
       const elapsed = (now - startedAt) / 1000
       const progress = duration > 0 ? Math.min(1, elapsed / duration) : 1
       setCursor({ strokeIndex: index, progress })
@@ -151,11 +155,7 @@ export function usePlayback(tutorial: Tutorial): Playback {
           // Strictly sequential: the next stroke starts only now.
           beginStroke(index + 1, now)
         } else {
-          setState((previous) => ({
-            phase: 'awaitingUser',
-            stepIndex: state.stepIndex,
-            runId: previous.runId,
-          }))
+          finishStep()
           return
         }
       }
@@ -217,7 +217,6 @@ export function usePlayback(tutorial: Tutorial): Playback {
     replayStep,
     restart,
     setSpeed,
-    cycleSpeed,
     canGoPrevious: state.phase === 'finished' ? stepCount > 0 : currentStepIndex > 0,
     canGoNext: state.phase !== 'finished',
   }

@@ -772,7 +772,7 @@ function LessonEditor({
               // The real player, not an imitation (§19): whatever the learner
               // would see, the creator sees here — edits included.
               <div className="st-stage__player">
-                <TutorialPlayer tutorial={validation.tutorial} />
+                <TutorialPlayer tutorial={validation.tutorial} fill />
               </div>
             ) : (
               <div className="st-stage__fit">

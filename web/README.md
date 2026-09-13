@@ -414,8 +414,15 @@ changes land on the frame they are asked for. Progress is a fraction of the stro
 however long their paths are, which is what makes timing parity with iOS checkable.
 
 Strokes within a step are strictly sequential. Completed steps stay on the paper at
-0.3 opacity; upcoming steps are not drawn at all. A speed change applies from the
-next stroke, leaving the one in flight on its original clock.
+0.3 opacity; upcoming steps are not drawn at all. Speeds match the Studio's replay
+speeds (0.5×, 1×, 2×, 4×, Instant). A speed change applies from the next stroke,
+leaving the one in flight on its original clock; Instant lands on the step's last
+frame at once. **I drew it!** is always available, so a learner can move on before
+a step finishes animating.
+
+The controls sit on one row beneath the instruction. With `fill`, as in the
+Studio's preview, the player fits its container's height and the paper shrinks to
+leave room for them, so nothing scrolls.
 
 ## Debug panel
 
