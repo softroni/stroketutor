@@ -418,6 +418,74 @@
   color: var(--ink-faint);
 }
 
+.st-reference__credits {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 6px 12px;
+  margin: 0;
+}
+
+.st-reference__credits dt {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.st-reference__credits dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+
+.st-reference__source {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.st-reference__source:hover .st-reference__host,
+.st-reference__source:focus-visible .st-reference__host {
+  text-decoration: underline;
+}
+
+.st-reference__host {
+  flex: none;
+  font-weight: 600;
+}
+
+.st-reference__path {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-faint);
+}
+
+.st-reference__external {
+  flex: none;
+}
+
+.st-reference__license {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--page);
+  color: var(--ink-muted);
+}
+
+.st-reference__actions {
+  display: flex;
+  justify-content: center;
+}
+
 .st-tabs {
   display: flex;
   gap: 4px;
@@ -524,6 +592,10 @@
 .st-reference-form__actions {
   display: flex;
   gap: 10px;
+}
+
+.st-reference-form__actions .st-button {
+  white-space: nowrap;
 }
 
 /* ---------- Path management ---------- */
