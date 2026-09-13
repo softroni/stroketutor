@@ -8,9 +8,19 @@ import SwiftUI
 struct FillShape: Shape {
     /// Parsed once at load time; never re-parsed per frame.
     let basePath: Path
-    let canvas: CGSize
+    /// The region of canvas coordinates fitted into the view.
+    let source: CGRect
+
+    init(basePath: Path, source: CGRect) {
+        self.basePath = basePath
+        self.source = source
+    }
+
+    init(basePath: Path, canvas: CGSize) {
+        self.init(basePath: basePath, source: CGRect(origin: .zero, size: canvas))
+    }
 
     func path(in rect: CGRect) -> Path {
-        basePath.applying(StrokeShape.transform(canvas: canvas, in: rect))
+        basePath.applying(StrokeShape.transform(source: source, in: rect))
     }
 }
