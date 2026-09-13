@@ -18,6 +18,18 @@ struct PlayerSheet: View {
     /// The height the sentence and hint actually want, measured as laid out.
     @State private var naturalTextHeight: CGFloat = 60
 
+    /// How tall the slot actually is: the words' own height, floored at two lines and
+    /// capped so the paper above is never pushed off the screen.
+    private var slotHeight: CGFloat {
+        min(max(naturalTextHeight, 84), max(84, textMaxHeight))
+    }
+
+    /// True when the sentence is taller than its slot, so what is on screen is only
+    /// part of it. Everything that says "there is more" is switched on by this.
+    private var isScrollable: Bool {
+        naturalTextHeight > slotHeight + 1
+    }
+
     var body: some View {
         VStack(spacing: 8) {
             ScrollView {
@@ -38,7 +50,17 @@ struct PlayerSheet: View {
             // The slot is the words' own height — a two-line minimum, as the mockup
             // reserves — until they would push the paper below its floor; then it
             // stops growing and the block scrolls instead.
-            .frame(height: min(max(naturalTextHeight, 84), max(84, textMaxHeight)))
+            .frame(height: slotHeight)
+            // A long instruction stops at a hard edge, which reads as the end of the
+            // sentence rather than the end of the slot. Fading the last 28 pt — and
+            // flashing the indicator as the step appears — says the words continue.
+            .mask(alignment: .top) { slotMask }
+            .scrollIndicators(isScrollable ? .visible : .automatic)
+            // The sentence's height is only known after the first layout pass, so
+            // the flash is triggered when the slot *becomes* scrollable as well as
+            // on appear — and again on every step whose words overflow.
+            .scrollIndicatorsFlash(onAppear: true)
+            .scrollIndicatorsFlash(trigger: instruction + (isScrollable ? "\u{2022}" : ""))
 
             actions
                 .padding(.top, 10)
@@ -58,6 +80,23 @@ struct PlayerSheet: View {
                 // The white runs under the home indicator; the mockup's
                 // `padding-bottom: safe-bottom + 12` is the same thing.
                 .ignoresSafeArea(edges: .bottom)
+        }
+    }
+
+    /// Opaque over the slot, transparent over its last 28 pt — and plain opaque when
+    /// the words fit, so a short instruction is never dimmed for no reason.
+    @ViewBuilder
+    private var slotMask: some View {
+        if isScrollable {
+            VStack(spacing: 0) {
+                Rectangle().fill(.black)
+                LinearGradient(colors: [.black, .black.opacity(0)],
+                               startPoint: .top,
+                               endPoint: .bottom)
+                    .frame(height: 28)
+            }
+        } else {
+            Rectangle().fill(.black)
         }
     }
 }

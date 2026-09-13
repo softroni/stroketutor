@@ -209,3 +209,24 @@ final class AppModel {
         cover = nil
     }
 }
+
+#if DEBUG
+extension AppModel {
+    /// Screenshot-harness only (`DebugScreenHarness`): inserts a synthetic lesson
+    /// after a path's shipped lessons. The bundled catalog carries exactly one
+    /// lesson per path today, so nothing can ever actually be "locked" behind
+    /// another lesson, or have a "next lesson" to offer after it finishes — both
+    /// states `v3.html` shows and this app will grow into. This is the one place
+    /// that fakes a second lesson so those two screens can still be reviewed;
+    /// `paths` is rebuilt from the bundle on every launch, so nothing here is ever
+    /// written to disk.
+    func debugAppendLesson(_ lesson: Lesson, toPathId pathId: String) {
+        guard let index = paths.firstIndex(where: { $0.id == pathId }) else { return }
+        let existing = paths[index]
+        paths[index] = PathModel(id: existing.id,
+                                 title: existing.title,
+                                 description: existing.description,
+                                 lessons: existing.lessons + [lesson])
+    }
+}
+#endif

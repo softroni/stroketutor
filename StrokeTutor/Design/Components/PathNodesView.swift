@@ -98,7 +98,8 @@ struct PathNodesView: View {
         }
     }
 
-    /// "Drawn 3 Sep" · "Next · 7 steps" · "After Small Cottage" · "Lesson 5".
+    /// "Drawn 3 Sep" · "Paused at step 9" · "Next · 7 steps" · "After Small Cottage"
+    /// · "Lesson 5".
     private func subtitle(for lesson: Lesson, at index: Int, state: LessonNode.State) -> String {
         switch state {
         case .done:
@@ -108,6 +109,11 @@ struct PathNodesView: View {
             }
             return "Drawn"
         case .current:
+            // A lesson left part-drawn says where it stopped, not where it starts:
+            // "Start here" under a lesson the learner is nine steps into is wrong.
+            if let resumeStep = progress.resumeStep(for: lesson.id) {
+                return "Paused at step \(resumeStep + 1)"
+            }
             let nothingDrawnYet = lessons.allSatisfy { !progress.isCompleted($0.id) }
             return "\(nothingDrawnYet ? "Start here" : "Next") · \(lesson.stepCountText)"
         case .locked:

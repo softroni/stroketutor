@@ -74,8 +74,12 @@ struct LessonPreviewView: View {
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 8)
             }
-
-            bottomArea(for: lesson, resumeStep: resumeStep)
+            // As a safe-area inset rather than a sibling, so the scroll view knows
+            // how tall the pinned buttons are and every last line — "Same pen, same
+            // sheet of paper." — can still be scrolled clear of them.
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                bottomArea(for: lesson, resumeStep: resumeStep)
+            }
         }
     }
 
@@ -281,7 +285,18 @@ struct LessonPreviewView: View {
         .padding(.horizontal, Theme.gutter)
         .padding(.top, Theme.stackSpacing)
         .padding(.bottom, Theme.stackSpacing)
-        .background(Theme.page)
+        .background(alignment: .top) {
+            Theme.page
+                // A soft edge above the buttons, so a line scrolling under them
+                // fades out rather than being cut off in mid-word.
+                .overlay(alignment: .top) {
+                    LinearGradient(colors: [Theme.page.opacity(0), Theme.page],
+                                   startPoint: .top,
+                                   endPoint: .bottom)
+                        .frame(height: 16)
+                        .offset(y: -16)
+                }
+        }
     }
 
     private var missingLesson: some View {

@@ -11,10 +11,21 @@ struct ReferenceSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.stackSpacing) {
             HStack(alignment: .center) {
-                Text("The real \(lesson.subject)")
-                    .textRole(.title2)
-                    .foregroundStyle(Theme.ink)
-                    .fixedSize(horizontal: false, vertical: true)
+                // The lesson's own title, not a lower-cased subject: "The real palm
+                // tree 4" reads as a mistake. The title belongs underneath, where it
+                // names the lesson without being bent into a sentence.
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("The real thing")
+                        .textRole(.title2)
+                        .foregroundStyle(Theme.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(lesson.title)
+                        .textRole(.subhead)
+                        .foregroundStyle(Theme.ink55)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
                 Spacer(minLength: 8)
                 Button(action: onClose) {
                     Image(systemName: "xmark")

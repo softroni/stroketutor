@@ -108,11 +108,16 @@ struct PathDetailView: View {
         return RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
             .fill(isComplete ? Theme.goldSoft : Theme.paper)
             .frame(height: 214)
-            .overlay(alignment: .top) {
+            // The drawing is fitted to its own bounds, so unlike the mockup's
+            // street scene it fills whatever box it is given right to the edges.
+            // It therefore takes the band *between* the chip and the label rather
+            // than the whole card, and nothing is ever drawn under either of them.
+            .overlay {
                 DrawingThumbnail(tutorial: last?.tutorial,
-                                 size: 200,
                                  strokeColor: isComplete ? Theme.goldDeep : Theme.ink)
-                    .padding(.top, 2)
+                    .padding(.top, 44)
+                    .padding(.bottom, 34)
+                    .padding(.horizontal, 16)
             }
             .overlay(alignment: .topLeading) {
                 Chip(text: isComplete

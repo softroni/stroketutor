@@ -19,6 +19,11 @@ struct FinishedPageView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    /// The chip's laid-out height, so the band the drawing keeps clear at the foot of
+    /// the page is the height of the chip that actually sits there, not a guess that
+    /// only holds at the default type size.
+    @State private var chipHeight: CGFloat = 34
+
     var body: some View {
         PageThumb(tutorial: nil)
             .overlay {
@@ -26,11 +31,17 @@ struct FinishedPageView: View {
                     DrawOnDrawing(tutorial: tutorial, animated: !reduceMotion)
                         .padding(.horizontal, geometry.size.width * 0.10)
                         .padding(.top, geometry.size.height * 0.08)
-                        .padding(.bottom, geometry.size.height * 0.20)
+                        .padding(.bottom, max(geometry.size.height * 0.20, chipHeight + 24))
                 }
             }
             .overlay(alignment: .bottom) {
+                // One line, always: wrapped to two it climbs into the drawing. It
+                // may shrink a fifth before it is allowed to grow taller.
                 Chip(text: chipText, systemImage: "checkmark", style: .gold)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .minimumScaleFactor(0.8)
+                    .measuredHeight { chipHeight = $0 }
                     .padding(.bottom, 14)
             }
             // inset 0 0 0 2px rgba(gold, .55)

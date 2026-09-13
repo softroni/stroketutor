@@ -6,6 +6,15 @@ import SwiftUI
 ///
 /// Covers rather than pushes, because none of these belongs to a tab's back stack
 /// (`v3.html`: `ob-*`, `pl-player`, `sk-complete`, `sk-capture`).
+///
+/// A DEBUG-only screenshot harness lives beside this file, in
+/// `DebugScreenHarness.swift`. Launched with `-STScreen <name>` (`xcrun simctl
+/// launch … -STScreen home-progress`), it seeds the stores and navigates to one
+/// named screen for a design review — `xcrun simctl` can screenshot but cannot
+/// tap. It is called once below, right after `loadContent()`, and is inert on
+/// every other launch; see that file for the full list of names and how a couple
+/// of screens whose state lives in a private `@State` (`PlayerScreen`,
+/// `CaptureFlow`) are reached anyway.
 struct AppRoot: View {
     @State private var app = AppModel()
 
@@ -18,6 +27,9 @@ struct AppRoot: View {
             .task {
                 guard !app.hasLoadedContent else { return }
                 app.loadContent()
+                #if DEBUG
+                DebugScreenHarness.applyIfRequested(to: app)
+                #endif
                 if !app.settings.hasCompletedOnboarding {
                     app.presentOnboarding()
                 }
@@ -53,7 +65,13 @@ struct AppRoot: View {
 
         case let .player(lessonId, resumeFrom):
             if let lesson = app.lesson(id: lessonId) {
+                #if DEBUG
+                PlayerScreen(lesson: lesson,
+                            resumeFrom: resumeFrom,
+                            harnessState: DebugScreenHarness.pendingPlayerHarnessState)
+                #else
                 PlayerScreen(lesson: lesson, resumeFrom: resumeFrom)
+                #endif
             } else {
                 missingLesson
             }
@@ -67,7 +85,13 @@ struct AppRoot: View {
 
         case let .capture(lessonId):
             if let lesson = app.lesson(id: lessonId) {
+                #if DEBUG
+                CaptureFlow(lesson: lesson,
+                           debugReviewImage: DebugScreenHarness.pendingCaptureReviewImage,
+                           debugSavedPage: DebugScreenHarness.pendingCaptureSavedPage)
+                #else
                 CaptureFlow(lesson: lesson)
+                #endif
             } else {
                 missingLesson
             }

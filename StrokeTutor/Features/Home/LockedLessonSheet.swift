@@ -48,9 +48,11 @@ struct LockedLessonSheet: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            // Why, in the lesson's own words: the catalog's objective is the single
-            // new idea it teaches, which is exactly what the order protects.
-            Text("Lessons build on each other. \(locked.objective)")
+            // Why, in the order's own terms. The catalog's objective is written as a
+            // label for a lesson ("A palm tree") and reads as a sentence fragment
+            // here, so the reason names the lesson that comes first instead — which
+            // is the thing the order actually protects.
+            Text("Lessons build on each other. This one uses what \(blocking.title) teaches.")
                 .textRole(.bodyRegular)
                 .foregroundStyle(Theme.ink55)
                 .fixedSize(horizontal: false, vertical: true)

@@ -24,7 +24,23 @@ struct SketchbookEntryView: View {
     private var page: SketchbookPage? { app.sketchbook.page(id: pageId) }
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
+            // The v3 bar (`sk-entry`): a bare chevron, "Sketchbook" 17/heavy, and
+            // the share button as the one trailing control — the same bar the Home
+            // group draws, rather than the system one.
+            InlineNavBar(title: "Sketchbook", onBack: { dismiss() }) {
+                if let shareURL, let page {
+                    ShareLink(item: shareURL, preview: SharePreview(shareTitle(page))) {
+                        Image(systemName: "square.and.arrow.up")
+                            .scaledFont(19, .semibold, design: .default)
+                            .foregroundStyle(Theme.ink)
+                            .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel("Share")
+                }
+            }
+
             if let page {
                 content(page)
             } else {
@@ -32,18 +48,19 @@ struct SketchbookEntryView: View {
             }
         }
         .background(Theme.page.ignoresSafeArea())
-        .navigationTitle("Sketchbook")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if let shareURL, let page {
-                ToolbarItem(placement: .topBarTrailing) {
-                    ShareLink(item: shareURL, preview: SharePreview(shareTitle(page))) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                    .accessibilityLabel("Share")
-                }
-            }
+        .toolbar(.hidden, for: .navigationBar)
+        // The page owns the bottom of the screen, as `sk-entry` does in v3.
+        .hidesTabBar()
+        #if DEBUG
+        // Screenshot-harness only: `DebugScreenHarness`'s `entry-delete` case sets
+        // this flag because the confirmation alert is behind this view's own
+        // private `@State`, which a launch argument cannot reach directly.
+        .onAppear {
+            guard DebugScreenHarness.raiseDeleteConfirmation else { return }
+            DebugScreenHarness.raiseDeleteConfirmation = false
+            isConfirmingDelete = true
         }
+        #endif
     }
 
     // MARK: - The page
@@ -75,7 +92,8 @@ struct SketchbookEntryView: View {
                 quietActions(page)
             }
             .padding(.horizontal, Theme.gutter)
-            .padding(.top, Theme.stackSpacing)
+            // The same 20 pt under the bar that `hp-preview` leaves.
+            .padding(.top, 20)
             .padding(.bottom, 46)
         }
         .scrollDismissesKeyboard(.interactively)

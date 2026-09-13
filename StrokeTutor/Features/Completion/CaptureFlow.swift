@@ -21,6 +21,27 @@ struct CaptureFlow: View {
     }
 
     @State private var stage: Stage = .primer
+
+    init(lesson: Lesson) {
+        self.lesson = lesson
+    }
+
+    #if DEBUG
+    /// Screenshot-harness only (`DebugScreenHarness`, via `AppRoot`): lands
+    /// straight on **review** or **saved** instead of **primer**, for the two
+    /// stages this flow normally reaches only through the camera or Photos
+    /// picker, which `xcrun simctl` cannot drive. At most one of the two debug
+    /// images should be passed; passing neither behaves exactly like the plain
+    /// initialiser above.
+    init(lesson: Lesson, debugReviewImage: UIImage?, debugSavedPage: SketchbookPage?) {
+        self.lesson = lesson
+        if let debugReviewImage {
+            _stage = State(initialValue: .review(debugReviewImage))
+        } else if let debugSavedPage {
+            _stage = State(initialValue: .saved(debugSavedPage))
+        }
+    }
+    #endif
     @State private var isShowingCamera = false
     @State private var photoItem: PhotosPickerItem?
     @State private var isPickingFromPhotos = false

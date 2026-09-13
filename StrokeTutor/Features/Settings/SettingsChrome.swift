@@ -128,23 +128,34 @@ struct SettingsCard<Content: View>: View {
 
 // MARK: - Navigation bar
 
+/// The 56 pt inline nav bar of the three pushed Settings screens: the same
+/// `InlineNavBar` the Home group draws — a bare chevron and a 17/heavy title on the
+/// white page — in place of the system bar, whose iOS 26 glass circles are not v3's.
+///
+/// Like `hp-preview` and `sk-entry`, these screens own the bottom of the screen, so
+/// they take the tab bar down with them (`st-voice`, `st-reminder` in v3; About is
+/// the same kind of page and is treated the same way).
+private struct SettingsNavigationBar: ViewModifier {
+    let title: String
+
+    @Environment(\.dismiss) private var dismiss
+
+    func body(content: Content) -> some View {
+        VStack(spacing: 0) {
+            InlineNavBar(title: title) { dismiss() }
+            content
+        }
+        .background(Theme.page)
+        .toolbar(.hidden, for: .navigationBar)
+        .hidesTabBar()
+    }
+}
+
 extension View {
     /// The 56 pt inline nav bar of the three pushed Settings screens: a back
     /// chevron in ink and a 17/heavy rounded title, on the white page.
     func settingsNavigationBar(_ title: String) -> some View {
-        navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Theme.page, for: .navigationBar)
-            .tint(Theme.ink)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text(title)
-                        .scaledFont(17, .heavy, relativeTo: .headline)
-                        .tracking(-0.2)
-                        .foregroundStyle(Theme.ink)
-                        .accessibilityAddTraits(.isHeader)
-                }
-            }
+        modifier(SettingsNavigationBar(title: title))
     }
 }
 

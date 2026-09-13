@@ -44,15 +44,21 @@ struct HomeView: View {
 
     /// "Learn", with the gold sketchbook chip beside it — or, the first time, one
     /// line of context under it instead, because there is nothing to count yet.
+    ///
+    /// The line says where the path *starts*, so it is only true before anything in
+    /// the path has begun: once a lesson is part-drawn the title stands alone rather
+    /// than pointing at a beginning the learner has already left.
     @ViewBuilder
     private func title(for path: PathModel?) -> some View {
         if isFirstTime, let path {
             VStack(alignment: .leading, spacing: 6) {
                 learnTitle
-                Text("You chose \(path.title). Here is where it starts.")
-                    .textRole(.bodyRegular)
-                    .foregroundStyle(Theme.ink55)
-                    .fixedSize(horizontal: false, vertical: true)
+                if !hasBegun(in: path) {
+                    Text("You chose \(path.title). Here is where it starts.")
+                        .textRole(.bodyRegular)
+                        .foregroundStyle(Theme.ink55)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         } else {
             HStack(alignment: .center, spacing: 8) {
@@ -88,17 +94,22 @@ struct HomeView: View {
             && app.paths.allSatisfy { app.progress.drawnCount(in: $0) == 0 }
     }
 
+    /// Whether anything in this path has happened yet: a drawing finished, or the
+    /// next lesson left paused part-way. "Continue" rather than "Start here" on the
+    /// hero, and no "here is where it starts" line under the title.
+    private func hasBegun(in path: PathModel) -> Bool {
+        guard let next = app.progress.nextLesson(in: path) else { return true }
+        return app.progress.drawnCount(in: path) > 0
+            || app.progress.resumeStep(for: next.id) != nil
+    }
+
     // MARK: - Hero
 
     @ViewBuilder
     private func hero(for path: PathModel) -> some View {
         if let lesson = app.progress.nextLesson(in: path) {
-            let drawn = app.progress.drawnCount(in: path)
             let position = path.position(of: lesson.id) ?? 1
-            // "Continue" once anything in the path is drawn or the next lesson is paused
-            // mid-way; "Start here" only on a path nothing has happened in yet.
-            let hasBegun = drawn > 0 || app.progress.resumeStep(for: lesson.id) != nil
-            HeroCard(eyebrow: "\(hasBegun ? "Continue" : "Start here") · \(path.title)",
+            HeroCard(eyebrow: "\(hasBegun(in: path) ? "Continue" : "Start here") · \(path.title)",
                      title: lesson.title,
                      meta: "Lesson \(position) of \(path.lessonCount) · \(lesson.estimatedTimeText)",
                      drawing: lesson.tutorial,

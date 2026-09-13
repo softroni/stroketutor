@@ -18,6 +18,12 @@ struct PlayerScreen: View {
     /// The step a returning learner left off at, if any. Resuming skips the
     /// orientation beat: they have already been told what they are drawing.
     var resumeFrom: Int?
+    #if DEBUG
+    /// Screenshot-harness only (`DebugScreenHarness`, via `AppRoot`): jumps
+    /// straight to an exact step and phase instead of the one `resumeFrom` and a
+    /// tap sequence would produce. Nil on every real launch.
+    var harnessState: PlayerHarnessState?
+    #endif
 
     @Environment(AppModel.self) private var app
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
@@ -315,6 +321,12 @@ struct PlayerScreen: View {
         guard !hasLoaded else { return }
         hasLoaded = true
         player.speed = app.settings.defaultSpeed
+        #if DEBUG
+        if let harnessState {
+            applyHarnessState(harnessState)
+            return
+        }
+        #endif
         // Resuming skips the orientation beat and lands on the saved step, with the
         // earlier ones already faded.
         player.load(lesson.tutorial,
@@ -323,6 +335,21 @@ struct PlayerScreen: View {
         app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: resumeFrom)
         if isOrientation { runGhost() }
     }
+
+    #if DEBUG
+    /// Drives the player straight to `state`'s step: mid-stroke at a crawl if
+    /// `isDrawing`, else settled into `.awaitingUser` via the same
+    /// `completeCurrentStep()` the "skip ahead" tap uses, so the ink is exactly
+    /// what a learner would see rather than an unfilled debug stand-in.
+    private func applyHarnessState(_ state: PlayerHarnessState) {
+        if state.isDrawing { player.speed = 0.05 }
+        player.load(lesson.tutorial, startingAt: state.stepIndex, startImmediately: true)
+        if !state.isDrawing { player.completeCurrentStep() }
+        app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: state.stepIndex)
+        if state.showsReference { showReference = true }
+        if state.showsLeaveSheet { showLeave = true }
+    }
+    #endif
 
     private func disappear() {
         player.stop()
