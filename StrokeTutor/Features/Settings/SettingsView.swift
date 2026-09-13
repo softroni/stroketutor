@@ -3,8 +3,13 @@ import SwiftUI
 /// `st-settings` — the third tab: narration and speed, the sketchbook's one option,
 /// accessibility, the reminder, About and Privacy, and the single destructive row.
 /// No account, nothing to manage, nothing that creates an obligation.
+///
+/// Four white list cards with 2 pt borders, each opened by a 40 pt tinted icon tile
+/// so the list scans by colour, then the one destructive row alone on its own card
+/// and the version line under it.
 struct SettingsView: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var isConfirmingReset = false
 
     var body: some View {
@@ -15,21 +20,44 @@ struct SettingsView: View {
                 Text("Settings")
                     .textRole(.largeTitle)
                     .foregroundStyle(Theme.ink)
+                    .accessibilityAddTraits(.isHeader)
 
-                sectionHeader("Lesson")
+                // ---------------------------------------------------------- Lesson
+                SettingsSectionHeader("Lesson")
                 ListCard {
                     SettingsRow(title: "Narration",
                                 value: settings.narrationEnabled ? "On" : "Off",
-                                systemImage: "speaker.wave.2",
+                                systemImage: "speaker.wave.2.fill",
                                 tint: .green) { app.push(.narrationSettings) }
                     RowDivider()
                     SettingsRow(title: "Speed",
-                                value: speedLabel,
-                                systemImage: "gauge.with.dots.needle.50percent",
+                                value: SettingsFormat.speed(settings.defaultSpeed),
+                                systemImage: "speedometer",
                                 tint: .green) { app.push(.narrationSettings) }
+                    RowDivider()
+                    Button {
+                        app.push(.narrationSettings)
+                    } label: {
+                        SettingsCustomRow(title: "Lina’s voice") {
+                            // Her portrait sits in the tile at 30 pt, as `.leading .face` does.
+                            SettingsIconTile(tint: .clay) { LinaFace(size: 30) }
+                        } trailing: {
+                            HStack(spacing: 14) {
+                                Text("English")
+                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(Theme.ink55)
+                                chevron
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(.isButton)
                 }
 
-                sectionHeader("Sketchbook")
+                // ------------------------------------------------------ Sketchbook
+                SettingsSectionHeader("Sketchbook")
                 ListCard {
                     ToggleRow(title: "Also save to Photos",
                               subtitle: "Your sketchbook keeps its own copy either way.",
@@ -38,18 +66,60 @@ struct SettingsView: View {
                               isOn: $settings.alsoSaveToPhotos)
                 }
 
-                sectionHeader("More")
+                // --------------------------------------------------- Accessibility
+                SettingsSectionHeader("Accessibility")
+                ListCard {
+                    SettingsRow(title: "Text size",
+                                subtitle: "Follows the size set on your iPhone.",
+                                value: SettingsFormat.textSize(dynamicTypeSize),
+                                systemImage: "eye",
+                                tint: .blue)
+                    RowDivider()
+                    ToggleRow(title: "Reduce motion",
+                              subtitle: "Steps appear at once instead of drawing on.",
+                              systemImage: "arrow.counterclockwise",
+                              tint: .blue,
+                              isOn: $settings.reduceMotionOverride)
+                    RowDivider()
+                    ToggleRow(title: "Left-handed layout",
+                              subtitle: "Moves the controls to the left.",
+                              systemImage: "hand.raised",
+                              tint: .blue,
+                              isOn: $settings.leftHanded)
+                }
+
+                // ------------------------------------------------------------ More
+                SettingsSectionHeader("More")
                 ListCard {
                     SettingsRow(title: "Practice reminder",
-                                value: settings.reminderEnabled ? settings.reminderTime : "Off",
+                                value: reminderValue,
                                 systemImage: "bell",
                                 tint: .neutral) { app.push(.reminderSettings) }
                     RowDivider()
                     SettingsRow(title: "About & credits",
                                 systemImage: "info.circle",
                                 tint: .neutral) { app.push(.about) }
+                    RowDivider()
+                    // Privacy is the same screen scrolled to its privacy section, so
+                    // the two rows can never drift apart. It is a destination link
+                    // rather than an `AppRoute` because a route carries no argument.
+                    NavigationLink {
+                        AboutView(opensAt: .privacy)
+                    } label: {
+                        SettingsCustomRow(title: "Privacy",
+                                          subtitle: "Everything stays on this iPhone.") {
+                            SettingsIconTile(symbol: "lock.fill", tint: .neutral)
+                        } trailing: {
+                            chevron
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(.isButton)
                 }
 
+                // ------------------------------------------------- Reset progress
                 ListCard {
                     Button {
                         isConfirmingReset = true
@@ -57,19 +127,24 @@ struct SettingsView: View {
                         Text("Reset progress")
                             .textRole(.headline)
                             .foregroundStyle(Theme.danger)
+                            .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 18)
                             .frame(minHeight: Theme.minimumTapTarget)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityHint("Clears how far you are through every path. Your sketchbook is kept.")
                 }
                 .padding(.top, 8)
 
-                Text(Self.versionString)
+                Text(SettingsFormat.versionLine())
                     .textRole(.footnote)
                     .foregroundStyle(Theme.ink40)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+                    .padding(.top, 10)
+                    .padding(.bottom, 4)
             }
             .padding(.horizontal, Theme.gutter)
             .padding(.top, 6)
@@ -77,34 +152,32 @@ struct SettingsView: View {
         }
         .background(Theme.page)
         .toolbar(.hidden, for: .navigationBar)
-        .confirmationDialog("Reset progress?",
-                            isPresented: $isConfirmingReset,
-                            titleVisibility: .visible) {
+        .alert("Reset your progress?", isPresented: $isConfirmingReset) {
             Button("Reset progress", role: .destructive) { app.progress.resetAll() }
-            Button("Keep it", role: .cancel) { }
+            Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Clears lesson progress. Sketchbook photos are kept.")
+            Text("Every path starts again from lesson 1. Your sketchbook is not touched.")
         }
     }
 
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title.uppercased())
-            .textRole(.eyebrow)
-            .foregroundStyle(Theme.ink55)
-            .padding(.horizontal, 6)
-            .padding(.top, 10)
+    /// `.chevron`: 20 pt at 25 % ink, only on a row that pushes.
+    private var chevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.system(size: 14, weight: .bold))
+            .foregroundStyle(Theme.ink25)
     }
 
-    private var speedLabel: String {
-        let speed = app.settings.defaultSpeed
-        return speed == 1 ? "1×" : String(format: "%g×", speed)
+    /// "Off", or the schedule in words — never a raw date.
+    private var reminderValue: String {
+        PracticeReminder.summary(for: app.settings)
     }
+}
 
-    /// Read from the bundle, never hardcoded.
-    private static var versionString: String {
-        let info = Bundle.main.infoDictionary
-        let short = info?["CFBundleShortVersionString"] as? String ?? "1.0"
-        let build = info?["CFBundleVersion"] as? String ?? "1"
-        return "StrokeTutor \(short) (\(build))"
+#Preview {
+    let model = AppModel()
+    return NavigationStack {
+        SettingsView()
     }
+    .environment(model)
+    .task { model.loadContent() }
 }

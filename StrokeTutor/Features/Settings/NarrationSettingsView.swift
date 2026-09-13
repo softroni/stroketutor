@@ -1,42 +1,257 @@
 import SwiftUI
 
-/// `st-voice` — narration and voice: the toggle, the speed control and a sample of
-/// Lina's line. The speed here is the speed a lesson starts at.
+/// `st-voice` — narration and voice. The sample leads the screen so a learner can
+/// see what is being switched before switching it, then the one toggle, the speed a
+/// lesson starts at, the promise that the written instruction never goes away, and
+/// the two things people worry about: their music and the silent switch.
 struct NarrationSettingsView: View {
     @Environment(AppModel.self) private var app
+    @State private var isPlayingSample = false
+    @State private var sampleTask: Task<Void, Never>?
 
     var body: some View {
         @Bindable var settings = app.settings
+        let isOn = settings.narrationEnabled
 
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.stackSpacing) {
-                ListCard {
-                    ToggleRow(title: "Narration",
-                              subtitle: "Lina reads each step aloud.",
-                              systemImage: "speaker.wave.2",
-                              tint: .green,
-                              isOn: $settings.narrationEnabled)
+                if let sample {
+                    sampleCard(sample, isOn: isOn)
+                    // No recordings ship yet, and the screen must not imply that
+                    // they do. The button shows the chip moving; it plays nothing.
+                    SettingsCaption("No recordings ship with this build. Play shows how the chip moves while Lina speaks. The words above are the real first step of the first lesson in your path.")
                 }
 
-                Text("Speed".uppercased())
-                    .textRole(.eyebrow)
-                    .foregroundStyle(Theme.ink55)
-                    .padding(.horizontal, 6)
+                ListCard {
+                    ToggleRow(title: "Narration",
+                              subtitle: "Lina reads each step aloud while it draws.",
+                              systemImage: isOn ? "speaker.wave.2.fill" : "speaker.slash.fill",
+                              tint: isOn ? .green : .neutral,
+                              isOn: $settings.narrationEnabled)
+                    RowDivider()
+                    speedRow(settings: settings)
+                }
 
-                SegmentedPicker(options: PlayerViewModel.speedOptions,
-                                title: { $0 == 1 ? "1×" : String(format: "%g×", $0) },
-                                selection: $settings.defaultSpeed)
+                if isOn {
+                    SettingsCard(isSoft: true) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("The words stay on screen")
+                                .textRole(.headline)
+                                .foregroundStyle(Theme.ink)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text("Every instruction is written as well as spoken. Turn Lina off and nothing else changes.")
+                                .textRole(.bodyRegular)
+                                .foregroundStyle(Theme.ink55)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
 
-                Text("A lesson starts at this speed. You can change it while you draw.")
-                    .textRole(.footnote)
-                    .foregroundStyle(Theme.ink55)
-                    .padding(.horizontal, 6)
+                    SettingsSectionHeader("While a lesson plays")
+                    ListCard {
+                        SettingsRow(title: "Other audio",
+                                    subtitle: "Music keeps playing, turned down while Lina speaks.",
+                                    value: "Lowered",
+                                    systemImage: "speaker.wave.2.fill",
+                                    tint: .neutral)
+                        RowDivider()
+                        SettingsRow(title: "Silent switch",
+                                    subtitle: "If your iPhone is on silent, Lina stays quiet.",
+                                    value: "Respected",
+                                    systemImage: "speaker.slash.fill",
+                                    tint: .neutral)
+                    }
+                } else {
+                    SettingsCard(isSoft: true) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Nothing is lost")
+                                .textRole(.headline)
+                                .foregroundStyle(Theme.ink)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text("Every lesson works in silence. The written instruction stays on screen; the step, the drawing and the pace are the same.")
+                                .textRole(.bodyRegular)
+                                .foregroundStyle(Theme.ink55)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    SettingsCaption("You can also turn Lina back on from inside a lesson. The chip in the player is a button, and both places write the same setting.")
+                }
             }
             .padding(.horizontal, Theme.gutter)
-            .padding(.vertical, Theme.stackSpacing)
+            .padding(.top, 4)
+            .padding(.bottom, 16)
         }
         .background(Theme.page)
-        .navigationTitle("Narration & voice")
-        .navigationBarTitleDisplayMode(.inline)
+        .settingsNavigationBar("Narration & voice")
+        .onChange(of: isOn) { _, newValue in
+            if !newValue { stopSample() }
+        }
+        .onDisappear { stopSample() }
     }
+
+    // MARK: - The sample
+
+    /// `.card.sample`: Lina at 48 pt, the clay play button, the line she would read,
+    /// and the same chip the player shows while she speaks.
+    private func sampleCard(_ sample: Sample, isOn: Bool) -> some View {
+        SettingsCard {
+            VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+                HStack(spacing: 14) {
+                    LinaFace(size: 48)
+                        .grayscale(isOn ? 0 : 1)
+                        .opacity(isOn ? 1 : 0.6)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        // `.t-eyebrow` is uppercased by the stylesheet, not by the copy.
+                        Text("Your tutor".uppercased())
+                            .textRole(.eyebrow)
+                            .foregroundStyle(isOn ? Theme.clay : Theme.ink40)
+                        Text("Lina")
+                            .textRole(.title3)
+                            .foregroundStyle(isOn ? Theme.ink : Theme.ink40)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Button {
+                        playSample()
+                    } label: {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 22, weight: .bold))
+                    }
+                    .buttonStyle(SamplePlayButtonStyle(isEnabled: isOn))
+                    .disabled(!isOn)
+                    .accessibilityLabel("Play a sample")
+                }
+
+                // A real instruction, not invented copy — and a long one is cut
+                // rather than allowed to push the card off the screen. The card is
+                // a sample of the voice, not the lesson.
+                Text("“\(sample.line)”")
+                    .font(.system(size: 20, weight: .heavy, design: .rounded))
+                    .tracking(-0.3)
+                    .lineSpacing(2)
+                    .lineLimit(3)
+                    .truncationMode(.tail)
+                    .foregroundStyle(isOn ? Theme.ink : Theme.ink40)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                HStack(spacing: 12) {
+                    NarrationChip(state: isOn ? .speaking : .muted,
+                                  label: isOn ? (isPlayingSample ? "Speaking" : "Sample") : "Off") {
+                        playSample()
+                    }
+                    .disabled(!isOn)
+                    .accessibilityLabel(chipLabel(isOn: isOn))
+                    .accessibilityHint(isOn ? "Plays the sample." : "")
+
+                    Spacer(minLength: 8)
+
+                    Text(sample.caption)
+                        .textRole(.footnote)
+                        .foregroundStyle(Theme.ink40)
+                }
+            }
+        }
+    }
+
+    private func chipLabel(isOn: Bool) -> String {
+        guard isOn else { return "Narration off" }
+        return isPlayingSample ? "Speaking" : "Sample"
+    }
+
+    /// The chip moves for about three seconds, as it would while a line plays.
+    private func playSample() {
+        sampleTask?.cancel()
+        isPlayingSample = true
+        sampleTask = Task {
+            try? await Task.sleep(for: .seconds(3.2))
+            guard !Task.isCancelled else { return }
+            isPlayingSample = false
+        }
+    }
+
+    private func stopSample() {
+        sampleTask?.cancel()
+        sampleTask = nil
+        isPlayingSample = false
+    }
+
+    // MARK: - Speed
+
+    /// `.list-row--stack`: the label line, then the segmented control under it.
+    private func speedRow(settings: Settings) -> some View {
+        @Bindable var settings = settings
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 14) {
+                SettingsIconTile(symbol: "speedometer", tint: .green)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Speed")
+                        .textRole(.headline)
+                        .foregroundStyle(Theme.ink)
+                    Text("How fast each step draws. You can change it while you draw.")
+                        .textRole(.footnote)
+                        .foregroundStyle(Theme.ink55)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            SegmentedPicker(options: PlayerViewModel.speedOptions,
+                            title: SettingsFormat.speed,
+                            selection: $settings.defaultSpeed)
+                .accessibilityLabel("Speed")
+        }
+        .padding(.vertical, 14)
+        .padding(.horizontal, 18)
+    }
+
+    // MARK: - Where the sample comes from
+
+    /// The line and the caption are real: the first step of the first lesson of the
+    /// path the learner is in. Nothing on this screen is invented copy.
+    private struct Sample {
+        let line: String
+        let caption: String
+    }
+
+    private var sample: Sample? {
+        let lesson = app.currentPath?.lessons.first ?? app.paths.first(where: { !$0.isEmpty })?.lessons.first
+        guard let lesson, let step = lesson.tutorial.steps.first else { return nil }
+        return Sample(line: step.instruction, caption: "\(lesson.title) · Step 1")
+    }
+}
+
+// MARK: - The play button
+
+/// `#st-voice .sample .play`: a 56 pt round button in clay, with a 2 pt clay-soft
+/// ring and the 4 pt clay-soft edge that presses down. Disabled it goes to ink 25 %
+/// on the plain line colour, as the greyed sample does.
+struct SamplePlayButtonStyle: ButtonStyle {
+    var isEnabled: Bool = true
+
+    func makeBody(configuration: Configuration) -> some View {
+        let tint = isEnabled ? Theme.clay : Theme.ink25
+        let edge = isEnabled ? Theme.claySoft : Theme.line
+        return configuration.label
+            .foregroundStyle(tint)
+            .frame(width: 56, height: 56)
+            .background(Circle().fill(Theme.card))
+            .overlay(Circle().strokeBorder(edge, lineWidth: 2))
+            .background(alignment: .bottom) {
+                Circle()
+                    .fill(edge)
+                    .frame(width: 56, height: 56)
+                    .offset(y: configuration.isPressed ? 0 : 4)
+            }
+            .offset(y: configuration.isPressed ? 4 : 0)
+            .padding(.bottom, 4)
+            .contentShape(Circle())
+            .animation(.easeOut(duration: 0.08), value: configuration.isPressed)
+    }
+}
+
+#Preview {
+    let model = AppModel()
+    return NavigationStack { NarrationSettingsView() }
+        .environment(model)
+        .task { model.loadContent() }
 }

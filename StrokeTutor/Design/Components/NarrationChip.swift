@@ -19,6 +19,10 @@ struct NarrationChip: View {
     }
 
     let state: State
+    /// The word beside the wave, when the chip is used to explain itself rather
+    /// than to mute: "Sample", "Speaking", "Off" on `st-voice`. The player passes
+    /// nothing and gets the glyph alone.
+    var label: String?
     let action: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -40,6 +44,11 @@ struct NarrationChip: View {
                 case .muted:
                     Image(systemName: "speaker.slash.fill")
                         .font(.system(size: 15, weight: .bold))
+                }
+
+                if let label {
+                    Text(label)
+                        .font(.system(size: 14, weight: .heavy, design: .rounded))
                 }
             }
             .foregroundStyle(state == .muted ? Theme.ink40 : Theme.clay)
