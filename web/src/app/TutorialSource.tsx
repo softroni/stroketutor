@@ -179,7 +179,7 @@ export function TutorialSource({
       ) : null}
 
       {dropping ? (
-        <div className="st-dropzone">
+        <div className="st-drop-overlay">
           <span>Drop a .json tutorial to load it</span>
         </div>
       ) : null}

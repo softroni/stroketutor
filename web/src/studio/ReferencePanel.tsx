@@ -9,9 +9,21 @@ export interface ReferencePanelProps {
   /** Null when uploading is possible; otherwise the reason it is not. */
   uploadBlockedBecause: string | null
   onUpload: (file: File, source: string, license: string) => Promise<void>
+  /** Changes where the current photo came from and its licence, keeping the photo. */
+  onUpdateDetails: (source: string, license: string) => Promise<void>
 }
 
 import { REFERENCE_TYPES, REFERENCE_TYPES_LABEL } from './referenceImage'
+
+/** The source as a web address when it is one, so it can be opened. */
+function sourceLink(source: string): URL | null {
+  try {
+    const parsed = new URL(source)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed : null
+  } catch {
+    return null
+  }
+}
 
 /**
  * The real-world photo the lesson simplifies (§6: reality → interpretation →
@@ -24,6 +36,7 @@ export function ReferencePanel({
   url,
   uploadBlockedBecause,
   onUpload,
+  onUpdateDetails,
 }: ReferencePanelProps) {
   const [editing, setEditing] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -37,15 +50,27 @@ export function ReferencePanel({
     if (preview) URL.revokeObjectURL(preview)
   }, [preview])
 
-  const ready = file !== null && source.trim().length > 0 && license.trim().length > 0
+  const detailsFilled = source.trim().length > 0 && license.trim().length > 0
+  const detailsChanged = source.trim() !== reference?.source || license.trim() !== reference?.license
+  // With a photo already stored, the details can be corrected without choosing it again.
+  const ready = detailsFilled && (file !== null || (reference !== undefined && detailsChanged))
+
+  const startEditing = () => {
+    setSource(reference?.source ?? '')
+    setLicense(reference?.license ?? '')
+    setFile(null)
+    setError(null)
+    setEditing(true)
+  }
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (!file || !ready) return
+    if (!ready) return
     setBusy(true)
     setError(null)
     try {
-      await onUpload(file, source.trim(), license.trim())
+      if (file) await onUpload(file, source.trim(), license.trim())
+      else await onUpdateDetails(source.trim(), license.trim())
       setEditing(false)
       setFile(null)
     } catch (caught) {
@@ -57,9 +82,15 @@ export function ReferencePanel({
 
   const form = (
     <form className="st-reference-form" onSubmit={submit}>
-      {preview ? <img className="st-reference-form__preview" src={preview} alt="" /> : null}
+      {preview ? (
+        <img className="st-reference-form__preview" src={preview} alt="" />
+      ) : url ? (
+        <img className="st-reference-form__preview" src={url} alt="" />
+      ) : null}
       <label className="st-field">
-        <span className="st-field__label">Photo ({REFERENCE_TYPES_LABEL}, up to 8 MB)</span>
+        <span className="st-field__label">
+          {reference ? 'New photo (optional)' : 'Photo'} ({REFERENCE_TYPES_LABEL}, up to 8 MB)
+        </span>
         <input
           className="st-field__input"
           type="file"
@@ -92,7 +123,7 @@ export function ReferencePanel({
       ) : null}
       <div className="st-reference-form__actions">
         <button type="submit" className="st-button st-button--primary" disabled={!ready || busy}>
-          {busy ? 'Saving…' : reference ? 'Replace photo' : 'Add photo'}
+          {busy ? 'Saving…' : !reference ? 'Add photo' : file ? 'Replace photo' : 'Save details'}
         </button>
         {reference ? (
           <button type="button" className="st-button" disabled={busy} onClick={() => setEditing(false)}>
@@ -104,16 +135,45 @@ export function ReferencePanel({
   )
 
   if (reference && url && !editing) {
+    const link = sourceLink(reference.source)
+    const path = link ? decodeURIComponent(link.pathname).replace(/^\/+|\/+$/g, '').split('/').join(' › ') : ''
     return (
       <figure className="st-reference">
         <img src={url} alt={`Reference photo for ${title}`} />
         <figcaption>
-          {reference.source} · {reference.license}
+          <dl className="st-reference__credits">
+            <dt>Source</dt>
+            <dd>
+              {link ? (
+                <a
+                  className="st-reference__source"
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={link.href}
+                >
+                  <span className="st-reference__host">{link.hostname.replace(/^www\./, '')}</span>
+                  {path ? <span className="st-reference__path">{path}</span> : null}
+                  <span aria-hidden="true" className="st-reference__external">
+                    ↗
+                  </span>
+                </a>
+              ) : (
+                reference.source
+              )}
+            </dd>
+            <dt>Licence</dt>
+            <dd>
+              <span className="st-reference__license">{reference.license}</span>
+            </dd>
+          </dl>
         </figcaption>
         {uploadBlockedBecause === null ? (
-          <button type="button" className="st-link-button" onClick={() => setEditing(true)}>
-            Replace photo…
-          </button>
+          <div className="st-reference__actions">
+            <button type="button" className="st-link-button" onClick={startEditing}>
+              Edit source &amp; licence…
+            </button>
+          </div>
         ) : null}
       </figure>
     )

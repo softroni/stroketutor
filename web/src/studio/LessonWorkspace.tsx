@@ -367,6 +367,13 @@ function LessonEditor({
     await onSaved()
   }
 
+  const updateReferenceDetails = async (source: string, license: string) => {
+    await saveLessonMeta((current) =>
+      current.reference ? { ...current, reference: { ...current.reference, source, license } } : current,
+    )
+    await onSaved()
+  }
+
   const checkpoint = async () => {
     if (!validation.ok) {
       toast('This version has problems, so it cannot be kept yet.', 'error')
@@ -674,6 +681,7 @@ function LessonEditor({
               url={referenceUrl}
               uploadBlockedBecause={uploadBlockedBecause}
               onUpload={addReference}
+              onUpdateDetails={updateReferenceDetails}
             />
             <h2 className="st-label">Lesson</h2>
             {lesson ? (

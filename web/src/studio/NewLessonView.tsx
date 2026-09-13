@@ -266,147 +266,150 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
       </p>
 
       <form className="st-new-lesson" onSubmit={generate}>
-        <section className="st-panel st-new-lesson__place">
-          <h2 className="st-label">Place in the curriculum</h2>
-          <label className="st-field">
-            <span className="st-field__label">Path</span>
-            <select
-              className="st-field__input"
-              value={pathId}
-              onChange={(event) => {
-                const next = catalog?.paths.find((candidate) => candidate.id === event.target.value)
-                setPathId(event.target.value)
-                // A different path starts the new lesson at its end.
-                setPosition(next?.lessonIds.length ?? 0)
-              }}
-            >
-              {(catalog?.paths ?? []).map((candidate) => (
-                <option key={candidate.id} value={candidate.id}>
-                  {candidate.title}
-                </option>
-              ))}
-              <option value="">No path yet</option>
-            </select>
-          </label>
-          {path ? (
+        {/* The footer stays outside this grid, so the sticky photo column stops above it. */}
+        <div className="st-new-lesson__columns">
+          <section className="st-panel st-new-lesson__place">
+            <h2 className="st-label">Place in the curriculum</h2>
             <label className="st-field">
-              <span className="st-field__label">Position</span>
+              <span className="st-field__label">Path</span>
               <select
                 className="st-field__input"
-                value={position}
-                onChange={(event) => setPosition(Number(event.target.value))}
+                value={pathId}
+                onChange={(event) => {
+                  const next = catalog?.paths.find((candidate) => candidate.id === event.target.value)
+                  setPathId(event.target.value)
+                  // A different path starts the new lesson at its end.
+                  setPosition(next?.lessonIds.length ?? 0)
+                }}
               >
-                {path.lessonIds.map((id, index) => (
-                  <option key={id} value={index}>
-                    Lesson {index + 1}, before “{library.tutorials.get(id)?.tutorial.title ?? id}”
+                {(catalog?.paths ?? []).map((candidate) => (
+                  <option key={candidate.id} value={candidate.id}>
+                    {candidate.title}
                   </option>
                 ))}
-                <option value={path.lessonIds.length}>Lesson {path.lessonIds.length + 1}, at the end</option>
+                <option value="">No path yet</option>
               </select>
             </label>
-          ) : null}
-          <label className="st-field">
-            <span className="st-field__label">Title</span>
-            <input
-              className="st-field__input"
-              value={title}
-              placeholder="e.g. Small Cottage"
-              onChange={(event) => {
-                setTitle(event.target.value)
-                if (!idEdited) setLessonId(slugify(event.target.value))
-              }}
-            />
-          </label>
-          <label className="st-field">
-            <span className="st-field__label">Id (also the file name)</span>
-            <input
-              className="st-field__input"
-              value={lessonId}
-              onChange={(event) => {
-                setIdEdited(true)
-                setLessonId(event.target.value)
-              }}
-            />
-          </label>
-          <label className="st-field">
-            <span className="st-field__label">Objective (one line, shown in the path)</span>
-            <input
-              className="st-field__input"
-              value={objective}
-              placeholder="e.g. Add character with a chimney and a few selective details"
-              onChange={(event) => setObjective(event.target.value)}
-            />
-          </label>
-        </section>
+            {path ? (
+              <label className="st-field">
+                <span className="st-field__label">Position</span>
+                <select
+                  className="st-field__input"
+                  value={position}
+                  onChange={(event) => setPosition(Number(event.target.value))}
+                >
+                  {path.lessonIds.map((id, index) => (
+                    <option key={id} value={index}>
+                      Lesson {index + 1}, before “{library.tutorials.get(id)?.tutorial.title ?? id}”
+                    </option>
+                  ))}
+                  <option value={path.lessonIds.length}>Lesson {path.lessonIds.length + 1}, at the end</option>
+                </select>
+              </label>
+            ) : null}
+            <label className="st-field">
+              <span className="st-field__label">Title</span>
+              <input
+                className="st-field__input"
+                value={title}
+                placeholder="e.g. Small Cottage"
+                onChange={(event) => {
+                  setTitle(event.target.value)
+                  if (!idEdited) setLessonId(slugify(event.target.value))
+                }}
+              />
+            </label>
+            <label className="st-field">
+              <span className="st-field__label">Id (also the file name)</span>
+              <input
+                className="st-field__input"
+                value={lessonId}
+                onChange={(event) => {
+                  setIdEdited(true)
+                  setLessonId(event.target.value)
+                }}
+              />
+            </label>
+            <label className="st-field">
+              <span className="st-field__label">Objective (one line, shown in the path)</span>
+              <input
+                className="st-field__input"
+                value={objective}
+                placeholder="e.g. Add character with a chimney and a few selective details"
+                onChange={(event) => setObjective(event.target.value)}
+              />
+            </label>
+          </section>
 
-        <section className="st-panel st-new-lesson__photo">
-          <h2 className="st-label">Reference photo</h2>
-          <PhotoDrop file={file} preview={preview} onFile={setFile} />
-          {trace.status === 'tracing' ? (
-            <p className="st-field__hint" role="status">
-              Tracing the SVG…
-            </p>
-          ) : null}
-          {trace.status === 'failed' ? (
-            <p className="st-notice st-notice--error">
-              {trace.message} Generation will work from the picture instead.
-            </p>
-          ) : null}
-          {trace.status === 'done' ? <TracePreview drawing={trace.drawing} /> : null}
-          <label className="st-field">
-            <span className="st-field__label">Source</span>
-            <input
-              className="st-field__input"
-              value={source}
-              list="st-recent-sources"
-              placeholder="A URL, or “own photo”"
-              onChange={(event) => setSource(event.target.value)}
-            />
-          </label>
-          <label className="st-field">
-            <span className="st-field__label">Licence</span>
-            <input
-              className="st-field__input"
-              value={license}
-              list="st-recent-licences"
-              placeholder="e.g. CC0, Unsplash License, own photo"
-              onChange={(event) => setLicense(event.target.value)}
-            />
-          </label>
-          <datalist id="st-recent-sources">
-            {recent.sources.map((value) => (
-              <option key={value} value={value} />
-            ))}
-          </datalist>
-          <datalist id="st-recent-licences">
-            {recent.licences.map((value) => (
-              <option key={value} value={value} />
-            ))}
-          </datalist>
-        </section>
+          <section className="st-panel st-new-lesson__photo">
+            <h2 className="st-label">Reference photo</h2>
+            <PhotoDrop file={file} preview={preview} onFile={setFile} />
+            {trace.status === 'tracing' ? (
+              <p className="st-field__hint" role="status">
+                Tracing the SVG…
+              </p>
+            ) : null}
+            {trace.status === 'failed' ? (
+              <p className="st-notice st-notice--error">
+                {trace.message} Generation will work from the picture instead.
+              </p>
+            ) : null}
+            {trace.status === 'done' ? <TracePreview drawing={trace.drawing} /> : null}
+            <label className="st-field">
+              <span className="st-field__label">Source</span>
+              <input
+                className="st-field__input"
+                value={source}
+                list="st-recent-sources"
+                placeholder="A URL, or “own photo”"
+                onChange={(event) => setSource(event.target.value)}
+              />
+            </label>
+            <label className="st-field">
+              <span className="st-field__label">Licence</span>
+              <input
+                className="st-field__input"
+                value={license}
+                list="st-recent-licences"
+                placeholder="e.g. CC0, Unsplash License, own photo"
+                onChange={(event) => setLicense(event.target.value)}
+              />
+            </label>
+            <datalist id="st-recent-sources">
+              {recent.sources.map((value) => (
+                <option key={value} value={value} />
+              ))}
+            </datalist>
+            <datalist id="st-recent-licences">
+              {recent.licences.map((value) => (
+                <option key={value} value={value} />
+              ))}
+            </datalist>
+          </section>
 
-        <section className="st-panel st-new-lesson__teach">
-          <h2 className="st-label">What to teach</h2>
-          <label className="st-field">
-            <span className="st-field__label">Learning goal</span>
-            <textarea
-              className="st-field__input st-field__input--long"
-              value={goal}
-              placeholder="e.g. Introduce a visible side wall and shallow perspective while staying beginner-friendly."
-              onChange={(event) => setGoal(event.target.value)}
-            />
-          </label>
-          <label className="st-field">
-            <span className="st-field__label">Constraints (optional)</span>
-            <textarea
-              className="st-field__input"
-              value={constraints}
-              placeholder="e.g. Under five minutes. Ignore the garden. Keep the chimney and the two main windows."
-              onChange={(event) => setConstraints(event.target.value)}
-            />
-          </label>
-          <ModelPicker model={model} onChange={setModel} disabled={busy} />
-        </section>
+          <section className="st-panel st-new-lesson__teach">
+            <h2 className="st-label">What to teach</h2>
+            <label className="st-field">
+              <span className="st-field__label">Learning goal</span>
+              <textarea
+                className="st-field__input st-field__input--long"
+                value={goal}
+                placeholder="e.g. Introduce a visible side wall and shallow perspective while staying beginner-friendly."
+                onChange={(event) => setGoal(event.target.value)}
+              />
+            </label>
+            <label className="st-field">
+              <span className="st-field__label">Constraints (optional)</span>
+              <textarea
+                className="st-field__input"
+                value={constraints}
+                placeholder="e.g. Under five minutes. Ignore the garden. Keep the chimney and the two main windows."
+                onChange={(event) => setConstraints(event.target.value)}
+              />
+            </label>
+            <ModelPicker model={model} onChange={setModel} disabled={busy} />
+          </section>
+        </div>
 
         {/* Always in view, however long the form: what is still missing, and the one action. */}
         <div className="st-new-lesson__footer">
@@ -682,7 +685,9 @@ function PhotoDrop({
         <img className="st-dropzone__image" src={preview} alt="The chosen reference photo" />
       ) : (
         <span className="st-dropzone__prompt">
-          <strong>Drop a photo here</strong>, or click to choose one
+          <span>
+            <strong>Drop a photo here</strong>, or click to choose one
+          </span>
           <span className="st-dropzone__types">
             {REFERENCE_TYPES_LABEL}, up to 8 MB. An SVG is traced into exact lines and colours.
           </span>
