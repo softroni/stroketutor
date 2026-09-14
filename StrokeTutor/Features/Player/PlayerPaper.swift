@@ -7,8 +7,10 @@ import SwiftUI
 ///
 /// In portrait the top 96 pt is the chip band — the narration chip at the top left,
 /// the reference thumbnail at the top right — and the drawing sits below it. In
-/// landscape the chips move into the side panel and the drawing takes the whole
-/// paper, inset 62 pt on the island side so no stroke hides behind it.
+/// landscape the chips move into the side panel and the drawing takes the paper
+/// beside it, inset 62 pt on the island side so no stroke hides behind it; on the
+/// wide page (`PlayerScreen`) the insets open up and the drawing grows into the
+/// whole paper above `PlayerWideBar`. The insets are what a caller animates.
 struct PlayerPaper<Chips: View>: View {
     let tutorial: PreparedTutorial
     let phase: PlayerViewModel.Phase

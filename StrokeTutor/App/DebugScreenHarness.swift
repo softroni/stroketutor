@@ -117,6 +117,17 @@ enum DebugScreenHarness {
                                                            showsLeaveSheet: true)
             app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
 
+        // The car is the wide drawing. Captured on its side this is the wide page
+        // (`PlayerWideBar`, the panel gone); captured upright, step one with the
+        // "Turn sideways" nudge at the bottom of the paper.
+        case "player-wide":
+            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: carsLesson))
+            app.cover = .player(lessonId: carsLesson.id, resumeFrom: nil)
+
+        case "player-nudge":
+            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: 0)
+            app.cover = .player(lessonId: carsLesson.id, resumeFrom: nil)
+
         case "completion-default":
             // Same reason as `path-locked`: with one lesson per path this lesson
             // is always the last one, so "Next lesson" never has anything to

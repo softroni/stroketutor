@@ -17,6 +17,9 @@ struct TactileButtonStyle: ButtonStyle {
     }
 
     var variant: Variant = .primary
+    /// The 48 pt version with a 17 pt label, for the one row that has to fit under
+    /// a full-height paper: the player's wide-page bar.
+    var isCompact = false
 
     func makeBody(configuration: Configuration) -> some View {
         let shape = RoundedRectangle(cornerRadius: Theme.controlCornerRadius, style: .continuous)
@@ -49,6 +52,7 @@ struct TactileButtonStyle: ButtonStyle {
     // MARK: - The variant's paint
 
     private var minHeight: CGFloat {
+        if isCompact { return 48 }
         switch variant {
         case .primary, .ink, .whiteOnGreen, .pending: return 64
         case .secondary, .soft: return 60
@@ -56,6 +60,7 @@ struct TactileButtonStyle: ButtonStyle {
     }
 
     private var fontSize: CGFloat {
+        if isCompact { return 17 }
         switch variant {
         case .primary, .ink, .whiteOnGreen, .pending: return 20
         case .secondary, .soft: return 18
@@ -121,6 +126,10 @@ extension ButtonStyle where Self == TactileButtonStyle {
     /// White with a 2.5 pt green ring: the player's primary while a step is drawing.
     /// Tappable, never disabled — a greyed green reads as broken.
     static var pending: TactileButtonStyle { TactileButtonStyle(variant: .pending) }
+    /// `.primary` at 48 pt with a 17 pt label, for the player's wide-page bar.
+    static var primaryCompact: TactileButtonStyle { TactileButtonStyle(variant: .primary, isCompact: true) }
+    /// `.pending` at 48 pt, beside `.primaryCompact`.
+    static var pendingCompact: TactileButtonStyle { TactileButtonStyle(variant: .pending, isCompact: true) }
 }
 
 /// The quiet text button of v3 (`.btn-text`): 17/bold, 48 pt tall, no fill and no

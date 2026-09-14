@@ -151,6 +151,9 @@ struct PlayerActionRow: View {
     var showsQuietControls: Bool = true
     var isLeftHanded: Bool = false
     var primaryFontSize: CGFloat?
+    /// The 48 pt version for the wide page's bar (`PlayerWideBar`): small round
+    /// buttons and a primary that takes its label's width rather than the row's.
+    var isCompact: Bool = false
     var onBack: () -> Void = {}
     var onReplay: () -> Void = {}
     let onPrimary: () -> Void
@@ -173,22 +176,36 @@ struct PlayerActionRow: View {
         }
     }
 
+    @ViewBuilder
     private var primary: some View {
-        Button(action: onPrimary) {
-            Text(primaryTitle)
-                .modifier(PrimaryLabelSize(size: primaryFontSize))
+        if isCompact {
+            Button(action: onPrimary) {
+                Text(primaryTitle)
+                    // Wide enough that "Finish" is as easy to hit as "I drew it".
+                    .frame(minWidth: 96)
+            }
+            .buttonStyle(isPending ? .pendingCompact : .primaryCompact)
+            .fixedSize(horizontal: true, vertical: false)
+            .accessibilityLabel(primaryTitle)
+            .accessibilityValue(isPending ? "Lina is still drawing" : "")
+            .accessibilitySortPriority(70)
+        } else {
+            Button(action: onPrimary) {
+                Text(primaryTitle)
+                    .modifier(PrimaryLabelSize(size: primaryFontSize))
+            }
+            .buttonStyle(isPending ? .pending : .primary)
+            .accessibilityLabel(primaryTitle)
+            .accessibilityValue(isPending ? "Lina is still drawing" : "")
+            .accessibilitySortPriority(70)
         }
-        .buttonStyle(isPending ? .pending : .primary)
-        .accessibilityLabel(primaryTitle)
-        .accessibilityValue(isPending ? "Lina is still drawing" : "")
-        .accessibilitySortPriority(70)
     }
 
     private var backButton: some View {
         Button(action: onBack) {
             Image(systemName: "backward.end.fill")
         }
-        .buttonStyle(.roundIcon)
+        .buttonStyle(isCompact ? .roundIconSmall : .roundIcon)
         .opacity(canGoBack ? 1 : 0.4)
         .disabled(!canGoBack)
         .accessibilityLabel("Previous step")
@@ -199,7 +216,7 @@ struct PlayerActionRow: View {
         Button(action: onReplay) {
             Image(systemName: "arrow.counterclockwise")
         }
-        .buttonStyle(.roundIcon)
+        .buttonStyle(isCompact ? .roundIconSmall : .roundIcon)
         .accessibilityLabel("Watch this step again")
         .accessibilitySortPriority(55)
     }

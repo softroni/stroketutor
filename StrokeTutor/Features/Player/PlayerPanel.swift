@@ -4,6 +4,10 @@ import SwiftUI
 /// column on the trailing edge with a 2 pt line, radius 28 on its leading corners and
 /// the shadow falling over the paper. Same header, same chips, same sentence, same
 /// one action row — nothing is added and nothing is removed by turning the phone.
+///
+/// The one exception is a wide drawing (`PageShape.wide`): once its step is drawn
+/// the panel slides away and `PlayerWideBar` takes over, so the ink can have the
+/// whole paper while it is copied. A tap on the paper brings the panel back.
 struct PlayerPanel<Header: View, Chips: View>: View {
     let instruction: String
     let hint: String

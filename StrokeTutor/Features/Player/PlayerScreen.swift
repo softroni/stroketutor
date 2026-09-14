@@ -13,6 +13,14 @@ import UIKit
 /// Turned on its side the same parts become `pl-landscape`: the paper takes the full
 /// height on the left, the sheet becomes a 312 pt panel on the right. Rotation is
 /// allowed here and nowhere else (`PlayerOrientation`).
+///
+/// A wide drawing (`PageShape.wide`) gets one more state on its side, the wide page:
+/// once Lina has drawn the step the panel slides off, a bar takes the bottom edge
+/// (`PlayerWideBar`) and the ink grows into the whole paper — on an iPhone about
+/// 600 pt of car instead of 425. Watching a step and reading its sentence happen in
+/// the panel as before; the wide page is for the copying. Tapping the paper or the
+/// step label brings the panel back. Held upright, the same drawing shows a one-line
+/// nudge to turn the phone, the sketchbook rule made visible.
 struct PlayerScreen: View {
     let lesson: Lesson
     /// The step a returning learner left off at, if any. Resuming skips the
@@ -44,6 +52,14 @@ struct PlayerScreen: View {
     /// "the sheet grows and the paper yields down to 300 pt, then the column
     /// scrolls"). Everything left over is what the sentence may use.
     @State private var availableHeight: CGFloat = 0
+    @State private var availableWidth: CGFloat = 0
+    /// True once the screen has changed between upright and on its side while the
+    /// lesson was open: the learner knows the phone turns, so the nudge is done.
+    @State private var hasTurned = false
+    @State private var nudgeDismissed = false
+    /// The learner tapped the wide page to read the sentence again: the panel is
+    /// back until the next step starts drawing.
+    @State private var wantsWords = false
 
     var body: some View {
         GeometryReader { proxy in
@@ -55,8 +71,15 @@ struct PlayerScreen: View {
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
-            .onAppear { availableHeight = proxy.size.height }
-            .onChange(of: proxy.size.height) { _, new in availableHeight = new }
+            .onAppear {
+                availableHeight = proxy.size.height
+                availableWidth = proxy.size.width
+            }
+            .onChange(of: proxy.size) { old, new in
+                availableHeight = new.height
+                availableWidth = new.width
+                if (old.width > old.height) != (new.width > new.height) { hasTurned = true }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.paper.ignoresSafeArea())
@@ -107,6 +130,16 @@ struct PlayerScreen: View {
                 chipBand
             }
             .accessibilitySortPriority(80)
+            // A wide drawing is fitted by width upright, so the bottom of the paper
+            // is always clear of ink: the nudge sits there, touching nothing.
+            .overlay(alignment: .bottom) {
+                if showsRotateNudge {
+                    rotateNudge
+                        .padding(.bottom, 14)
+                        .transition(.opacity)
+                }
+            }
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: showsRotateNudge)
 
             PlayerSheet(instruction: instruction,
                         hint: hint,
@@ -140,8 +173,12 @@ struct PlayerScreen: View {
 
     // MARK: - Landscape
 
+    /// The paper spans the whole width and the panel lies over its trailing 312 pt;
+    /// the drawing is fitted beside the panel by its insets. On the wide page the
+    /// panel is gone, the bar is along the bottom, and the same insets open up — so
+    /// the ink grows in place rather than being swapped for a different paper.
     private var landscape: some View {
-        HStack(spacing: 0) {
+        ZStack(alignment: .trailing) {
             PlayerPaper(tutorial: lesson.tutorial,
                         phase: player.phase,
                         strokeProgress: player.strokeProgress,
@@ -149,43 +186,158 @@ struct PlayerScreen: View {
                         activeStrokeIndex: player.activeStrokeIndex,
                         ghostProgress: isOrientation ? ghostProgress : nil,
                         showsPencilTip: true,
-                        drawingInsets: landscapeDrawingInsets,
+                        drawingInsets: isWidePage ? wideDrawingInsets : landscapeDrawingInsets,
                         accessibilityText: canvasAccessibilityText) {
                 EmptyView()
             }
             .accessibilitySortPriority(80)
+            .contentShape(Rectangle())
+            .onTapGesture { paperTapped() }
+            .overlay(alignment: .bottom) {
+                if isWidePage {
+                    wideBar
+                        .transition(.move(edge: .bottom))
+                }
+            }
 
-            PlayerPanel(instruction: instruction,
-                        hint: hint,
-                        actions: actions,
-                        textMaxHeight: max(80, availableHeight - 44 - 64 - 78 - 44),
-                        header: { header(isCompact: true) },
-                        chips: {
-                            Color.clear
-                                .allowsHitTesting(false)
-                                .frame(height: 64)
-                                .overlay(alignment: isLeftHanded ? .trailing : .leading) { narrationChip }
-                                .overlay(alignment: isLeftHanded ? .leading : .trailing) {
-                                    ReferenceThumb(reference: lesson.reference, side: 64) {
-                                        showReference = true
+            if !isWidePage {
+                PlayerPanel(instruction: instruction,
+                            hint: hint,
+                            actions: actions,
+                            textMaxHeight: max(80, availableHeight - 44 - 64 - 78 - 44),
+                            header: { header(isCompact: true) },
+                            chips: {
+                                Color.clear
+                                    .allowsHitTesting(false)
+                                    .frame(height: 64)
+                                    .overlay(alignment: isLeftHanded ? .trailing : .leading) { narrationChip }
+                                    .overlay(alignment: isLeftHanded ? .leading : .trailing) {
+                                        ReferenceThumb(reference: lesson.reference, side: 64) {
+                                            showReference = true
+                                        }
                                     }
-                                }
-                        })
+                            })
+                    .transition(.move(edge: .trailing))
+            }
         }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.45), value: isWidePage)
         .ignoresSafeArea(.container, edges: .horizontal)
     }
 
     /// The drawing keeps clear of the Dynamic Island: 62 pt in on the island side, or
-    /// the real safe inset when the device asks for more. 10 pt on the panel side.
+    /// the real safe inset when the device asks for more. 10 pt on the panel side,
+    /// beyond the panel itself.
     private var landscapeDrawingInsets: EdgeInsets {
-        EdgeInsets(top: 16, leading: max(62, safeAreaLeading), bottom: 16, trailing: 10)
+        EdgeInsets(top: 16,
+                   leading: islandClearance(safeAreaInsets.left),
+                   bottom: 16,
+                   trailing: PlayerPanel.width + 10)
     }
 
-    private var safeAreaLeading: CGFloat {
+    /// The wide page: 16 pt all round, the island's clearance on whichever side it
+    /// is, and the bar's height along the bottom.
+    private var wideDrawingInsets: EdgeInsets {
+        EdgeInsets(top: 16,
+                   leading: islandClearance(safeAreaInsets.left),
+                   bottom: PlayerWideBar.height + 12,
+                   trailing: islandClearance(safeAreaInsets.right))
+    }
+
+    /// 62 pt on a side that has an island or notch (or the real inset when the
+    /// device asks for more), a plain 16 pt margin on a side that has not.
+    private func islandClearance(_ safeInset: CGFloat) -> CGFloat {
+        safeInset > 0 ? max(62, safeInset) : 16
+    }
+
+    private var safeAreaInsets: UIEdgeInsets {
         guard let window = UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
-            .first?.keyWindow else { return 0 }
-        return window.safeAreaInsets.left
+            .first?.keyWindow else { return .zero }
+        return window.safeAreaInsets
+    }
+
+    // MARK: - The wide page
+
+    /// A wide drawing, on its side, once Lina has drawn the step: the paper is the
+    /// learner's to copy from, so the panel gives way. Watching the step and the
+    /// beat before the lesson keep the panel, and so does a tap asking for the words.
+    private var isWidePage: Bool {
+        isLandscape
+            && lesson.tutorial.pageShape == .wide
+            && !isOrientation
+            && !player.isDrawing
+            && !wantsWords
+    }
+
+    private var wideBar: some View {
+        PlayerWideBar(stepIndex: player.currentStepIndex,
+                      stepCount: max(lesson.stepCount, 1),
+                      actions: actions,
+                      isLeftHanded: isLeftHanded,
+                      leadingInset: safeAreaInsets.left,
+                      trailingInset: safeAreaInsets.right,
+                      onClose: close,
+                      onWords: { wantsWords = true },
+                      menu: { moreMenu },
+                      chip: { narrationChip },
+                      reference: {
+                          ReferenceThumb(reference: lesson.reference, side: 48) {
+                              showReference = true
+                          }
+                      })
+            .accessibilitySortPriority(70)
+    }
+
+    /// On a wide drawing's side, the paper itself toggles the words: a tap on the
+    /// wide page brings the panel back, a tap on the paper beside it lets it go.
+    /// Nowhere else does the paper answer a tap.
+    private func paperTapped() {
+        guard isLandscape,
+              lesson.tutorial.pageShape == .wide,
+              !isOrientation,
+              !player.isDrawing else { return }
+        wantsWords.toggle()
+    }
+
+    // MARK: - The rotate nudge
+
+    /// A wide drawing held upright is fitted by width, so a sideways phone would
+    /// show it much larger. Say so once: through the beat before the lesson and
+    /// step one, until the phone turns, the learner taps it away, or step two
+    /// starts — a returning learner deep in the lesson is never told. Not at
+    /// accessibility type sizes, where the layout stays upright whatever the phone
+    /// does. The phone's own rotation lock is not knowable here; the tap covers it.
+    private var showsRotateNudge: Bool {
+        availableWidth < availableHeight
+            && lesson.tutorial.pageShape == .wide
+            && !hasTurned
+            && !nudgeDismissed
+            && !dynamicTypeSize.isAccessibilitySize
+            && (isOrientation || player.currentStepIndex == 0)
+    }
+
+    private var rotateNudge: some View {
+        Button {
+            nudgeDismissed = true
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "rotate.right")
+                    .scaledFont(14, .bold, design: .default)
+                Text("Turn sideways to draw it bigger")
+                    .scaledFont(14, .heavy)
+                    .lineLimit(1)
+            }
+            .foregroundStyle(Theme.ink70)
+            .padding(.vertical, 9)
+            .padding(.horizontal, 14)
+            .background(Capsule().fill(Theme.card))
+            .overlay(Capsule().strokeBorder(Theme.line, lineWidth: 2))
+            .chipShadow()
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("This drawing is wide. Turn the phone sideways to draw it bigger. Double tap to dismiss.")
+        .accessibilitySortPriority(40)
     }
 
     // MARK: - Shared parts
@@ -259,6 +411,7 @@ struct PlayerScreen: View {
                         showsQuietControls: !isOrientation,
                         isLeftHanded: isLeftHanded,
                         primaryFontSize: isLandscape ? 19 : nil,
+                        isCompact: isWidePage,
                         onBack: goBack,
                         onReplay: replay,
                         onPrimary: primaryTapped)
@@ -379,6 +532,9 @@ struct PlayerScreen: View {
     private func phaseChanged(to phase: PlayerViewModel.Phase) {
         switch phase {
         case let .drawing(index):
+            // A new step, or the same one again: it is watched with the words, and
+            // the wide page is offered afresh once it is drawn.
+            wantsWords = false
             app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: index)
             speak(stepAt: index)
         case let .awaitingUser(index):
@@ -494,8 +650,9 @@ struct PlayerScreen: View {
 
 // MARK: - Previews
 
-/// A tiny two-step house, so the player can be looked at without the bundle.
-private func previewLesson() -> Lesson {
+/// A tiny two-step house, so the player can be looked at without the bundle. `wide`
+/// declares the ink oblong, which is enough to see the wide page and the nudge.
+private func previewLesson(wide: Bool = false) -> Lesson {
     func stroke(_ build: (inout Path) -> Void, width: Double) -> PreparedStroke {
         var path = Path()
         build(&path)
@@ -527,7 +684,9 @@ private func previewLesson() -> Lesson {
             PreparedStep(id: "roof", title: "the roof", instruction: "Put a triangle on top for the roof.", strokes: [roof], fills: []),
             PreparedStep(id: "door", title: "the door", instruction: "Draw a tall rectangle at the bottom for the door.", strokes: [door], fills: [])
         ],
-        drawingBounds: CGRect(x: 152, y: 152, width: 696, height: 746),
+        drawingBounds: wide
+            ? CGRect(x: 100, y: 260, width: 800, height: 400)
+            : CGRect(x: 152, y: 152, width: 696, height: 746),
         source: .bundled,
         fileName: "simple-house.json",
         warnings: []
@@ -554,5 +713,15 @@ private func previewLesson() -> Lesson {
 
 #Preview("Player · landscape", traits: .landscapeLeft) {
     PlayerScreen(lesson: previewLesson(), resumeFrom: 1)
+        .environment(AppModel())
+}
+
+#Preview("Player · wide page", traits: .landscapeLeft) {
+    PlayerScreen(lesson: previewLesson(wide: true), resumeFrom: 1)
+        .environment(AppModel())
+}
+
+#Preview("Player · rotate nudge") {
+    PlayerScreen(lesson: previewLesson(wide: true))
         .environment(AppModel())
 }
