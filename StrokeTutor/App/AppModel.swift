@@ -144,6 +144,14 @@ final class AppModel {
         settings.currentPathId = path.id
     }
 
+    /// Makes a path the learner's current choice, then opens its detail screen.
+    /// Keeping those actions together prevents Home and the path-card outline from
+    /// lagging behind the detail screen the learner just chose.
+    func open(_ path: PathModel) {
+        select(path)
+        push(.pathDetail(pathId: path.id))
+    }
+
     /// Makes the lesson's path the current one, if it is not already. A lesson the
     /// catalog no longer names leaves the choice alone rather than pointing Home at
     /// a path that is not in `paths`.
@@ -187,10 +195,9 @@ final class AppModel {
 
     /// Opens the player. `resumeFrom` starts on a saved step instead of step one.
     ///
-    /// Starting a lesson is also what moves the learner to its path (`hp-paths`:
-    /// opening a path card does *not* change `currentPathId`, drawing in it does),
-    /// so Home and the green outline on the cards follow the pen instead of staying
-    /// on whichever path onboarding chose.
+    /// Starting a lesson also confirms its path as current. This keeps deep links,
+    /// resumed lessons, and previews that proceed into the player aligned with the
+    /// immediate path-card selection handled by `open(_:)`.
     func presentPlayer(_ lesson: Lesson, resumeFrom: Int? = nil) {
         selectPath(ofLesson: lesson)
         progress.markOpened(lesson.id, pathId: lesson.pathId, step: resumeFrom)

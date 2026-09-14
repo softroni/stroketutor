@@ -1,10 +1,9 @@
 import XCTest
 @testable import StrokeTutor
 
-/// `hp-paths`: "Tapping a card does *not* change `currentPathId`; starting a lesson
-/// does." Home and the green outline on the path cards both read `currentPath`, so
-/// a learner who leaves one path and draws in another has to see the app follow
-/// them — otherwise Home keeps offering the path they left.
+/// Home and the green outline on the path cards both read `currentPath`. Choosing a
+/// path must update that value before its detail screen opens, so Back returns to a
+/// Home screen that reflects the learner's new choice.
 @MainActor
 final class CurrentPathTests: XCTestCase {
 
@@ -32,15 +31,15 @@ final class CurrentPathTests: XCTestCase {
         XCTAssertEqual(model.progress.resumeStep(for: "palm-tree-4"), 1)
     }
 
-    /// Browsing is not choosing: opening another path's lesson preview leaves Home
-    /// where it was until the pen actually moves.
-    func testOpeningAPreviewLeavesTheCurrentPathAlone() throws {
+    func testOpeningAPathMakesItCurrentBeforeShowingItsDetail() throws {
         let model = makeModel()
         model.select(try XCTUnwrap(model.path(id: "cars")))
 
-        model.showPreview(of: try XCTUnwrap(model.lesson(id: "palm-tree-4")))
+        model.open(try XCTUnwrap(model.path(id: "trees")))
 
-        XCTAssertEqual(model.currentPath?.id, "cars")
+        XCTAssertEqual(model.currentPath?.id, "trees")
+        XCTAssertEqual(model.settings.currentPathId, "trees")
+        XCTAssertEqual(model.learnPath.count, 1)
     }
 
     private func makeModel() -> AppModel {

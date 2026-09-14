@@ -4,8 +4,8 @@ import SwiftUI
 /// drawn in it, and the current path outlined in green.
 ///
 /// Switching costs nothing: progress is kept per path, so a learner can leave one
-/// half-drawn and come back to it (BRIEF §6). Opening a card does *not* change the
-/// current path — starting a lesson does.
+/// half-drawn and come back to it (BRIEF §6). Opening a card makes that path current
+/// immediately, so Back returns to a Home screen that reflects the new choice.
 ///
 /// The mockup also shows a soft "Coming later" list under the cards. The catalog has
 /// no way to declare an unpublished path (`shared/catalog.schema.json`), and the app
@@ -38,7 +38,7 @@ struct PathsView: View {
                                      drawn: app.progress.drawnCount(in: path),
                                      nextTitle: app.progress.nextLesson(in: path)?.title,
                                      isCurrent: path.id == app.currentPath?.id) {
-                                app.push(.pathDetail(pathId: path.id))
+                                app.open(path)
                             }
                         }
                     }

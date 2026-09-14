@@ -212,7 +212,7 @@ struct PlayerScreen: View {
                         Spacer(minLength: 0)
                     }
                     .padding(.leading, islandClearance(safeAreaInsets.left))
-                    .padding(.trailing, PlayerPanel.width)
+                    .padding(.trailing, PlayerPanel<EmptyView, EmptyView>.width)
                     .padding(.bottom, 14)
                     .transition(.opacity)
                 }
@@ -250,7 +250,7 @@ struct PlayerScreen: View {
         EdgeInsets(top: 16,
                    leading: islandClearance(safeAreaInsets.left),
                    bottom: 16,
-                   trailing: PlayerPanel.width + 10)
+                   trailing: PlayerPanel<EmptyView, EmptyView>.width + 10)
     }
 
     /// The wide page: 16 pt all round, the island's clearance on whichever side it
@@ -258,7 +258,7 @@ struct PlayerScreen: View {
     private var wideDrawingInsets: EdgeInsets {
         EdgeInsets(top: 16,
                    leading: islandClearance(safeAreaInsets.left),
-                   bottom: PlayerWideBar.height + 12,
+                   bottom: PlayerWideBar<EmptyView, EmptyView, EmptyView>.height + 12,
                    trailing: islandClearance(safeAreaInsets.right))
     }
 
