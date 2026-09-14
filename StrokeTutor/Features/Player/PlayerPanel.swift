@@ -5,9 +5,10 @@ import SwiftUI
 /// the shadow falling over the paper. Same header, same chips, same sentence, same
 /// one action row — nothing is added and nothing is removed by turning the phone.
 ///
-/// The one exception is a wide drawing (`PageShape.wide`): once its step is drawn
-/// the panel slides away and `PlayerWideBar` takes over, so the ink can have the
-/// whole paper while it is copied. A tap on the paper brings the panel back.
+/// The one exception is a wide drawing (`PageShape.wide`), which the learner may
+/// swap for the wide page — `PlayerWideBar` along the bottom and the ink over the
+/// whole paper — by tapping the paper. The choice is kept, and only a tap on the
+/// paper changes it back.
 struct PlayerPanel<Header: View, Chips: View>: View {
     let instruction: String
     let hint: String

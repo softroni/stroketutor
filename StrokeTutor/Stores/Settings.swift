@@ -25,11 +25,12 @@ final class Settings {
         static let reminderEnabled = "reminderEnabled"
         static let reminderDays = "reminderDays"
         static let reminderTime = "reminderTime"
+        static let landscapeWidePage = "landscapeWidePage"
 
         static let all = [
             hasCompletedOnboarding, currentPathId, narrationEnabled, defaultSpeed,
             reduceMotionOverride, leftHanded, alsoSaveToPhotos, reminderEnabled,
-            reminderDays, reminderTime
+            reminderDays, reminderTime, landscapeWidePage
         ]
     }
 
@@ -56,6 +57,20 @@ final class Settings {
     var reminderDays: String { didSet { write(reminderDays, Key.reminderDays) } }
     /// The reminder time as "HH:mm", 24-hour, formatted for display at the point of use.
     var reminderTime: String { didSet { write(reminderTime, Key.reminderTime) } }
+    /// How the player lays out a wide drawing with the phone on its side: true is
+    /// the wide page (the paper alone, a bar along the bottom), false the panel.
+    /// Nil until the learner first taps the paper to switch; the player treats it
+    /// as the panel and, once, points at the tap. Set only by that tap, never by a
+    /// step or a phase, so the layout holds still until the learner changes it.
+    var landscapeWidePage: Bool? {
+        didSet {
+            if let landscapeWidePage {
+                write(landscapeWidePage, Key.landscapeWidePage)
+            } else {
+                defaults.removeObject(forKey: Key.landscapeWidePage)
+            }
+        }
+    }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -72,6 +87,7 @@ final class Settings {
         reminderEnabled = defaults.object(forKey: Key.reminderEnabled) as? Bool ?? false
         reminderDays = defaults.string(forKey: Key.reminderDays) ?? "12345"
         reminderTime = defaults.string(forKey: Key.reminderTime) ?? "07:30"
+        landscapeWidePage = defaults.object(forKey: Key.landscapeWidePage) as? Bool
     }
 
     /// Puts every key back to its default. Used by tests and by nothing in the UI:
@@ -88,6 +104,7 @@ final class Settings {
         reminderEnabled = false
         reminderDays = "12345"
         reminderTime = "07:30"
+        landscapeWidePage = nil
     }
 
     private func write(_ value: Any, _ key: String) {

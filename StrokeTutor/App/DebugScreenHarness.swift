@@ -118,9 +118,12 @@ enum DebugScreenHarness {
             app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
 
         // The car is the wide drawing. Captured on its side this is the wide page
-        // (`PlayerWideBar`, the panel gone); captured upright, step one with the
-        // "Turn sideways" nudge at the bottom of the paper.
+        // (`PlayerWideBar`, the panel gone), the layout a learner chose by tapping
+        // the paper; `player-nudge` captured on its side is the panel with the
+        // "Tap the drawing" pill, and upright, step one with the "Turn sideways"
+        // nudge at the bottom of the paper.
         case "player-wide":
+            app.settings.landscapeWidePage = true
             pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: carsLesson))
             app.cover = .player(lessonId: carsLesson.id, resumeFrom: nil)
 

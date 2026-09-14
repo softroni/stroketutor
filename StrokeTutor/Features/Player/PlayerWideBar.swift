@@ -10,8 +10,8 @@ import SwiftUI
 /// sheet, small. Left-handed mirrors the whole row, so the primary is under the
 /// thumb that is free and the pen hand covers nothing on the way there.
 struct PlayerWideBar<Menu: View, Chip: View, Reference: View>: View {
-    /// The step in play, zero-based.
-    let stepIndex: Int
+    /// The step in play, zero-based. Nil before the lesson starts.
+    let stepIndex: Int?
     let stepCount: Int
     let actions: PlayerActionRow
     var isLeftHanded: Bool = false
@@ -108,7 +108,7 @@ struct PlayerWideBar<Menu: View, Chip: View, Reference: View>: View {
     private var stepButton: some View {
         Button(action: onWords) {
             HStack(spacing: 6) {
-                Text("Step \(min(stepIndex + 1, max(stepCount, 1))) of \(max(stepCount, 1))")
+                Text(label)
                     .textRole(.subhead)
                     .lineLimit(1)
                 Image(systemName: "text.quote")
@@ -119,7 +119,13 @@ struct PlayerWideBar<Menu: View, Chip: View, Reference: View>: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Step \(stepIndex + 1) of \(stepCount). Double tap to read the instruction.")
+        .accessibilityLabel("\(label). Double tap to read the instruction.")
         .accessibilitySortPriority(65)
+    }
+
+    /// The header's words, as `PlayerHeader` writes them.
+    private var label: String {
+        guard let stepIndex else { return "Before you start" }
+        return "Step \(min(stepIndex + 1, max(stepCount, 1))) of \(max(stepCount, 1))"
     }
 }

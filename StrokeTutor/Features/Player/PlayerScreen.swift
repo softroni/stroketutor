@@ -14,13 +14,15 @@ import UIKit
 /// height on the left, the sheet becomes a 312 pt panel on the right. Rotation is
 /// allowed here and nowhere else (`PlayerOrientation`).
 ///
-/// A wide drawing (`PageShape.wide`) gets one more state on its side, the wide page:
-/// once Lina has drawn the step the panel slides off, a bar takes the bottom edge
-/// (`PlayerWideBar`) and the ink grows into the whole paper — on an iPhone about
-/// 600 pt of car instead of 425. Watching a step and reading its sentence happen in
-/// the panel as before; the wide page is for the copying. Tapping the paper or the
-/// step label brings the panel back. Held upright, the same drawing shows a one-line
-/// nudge to turn the phone, the sketchbook rule made visible.
+/// A wide drawing (`PageShape.wide`) has a second landscape layout, the wide page:
+/// the panel gone, a bar along the bottom edge (`PlayerWideBar`) and the ink grown
+/// into the whole paper — on an iPhone about 600 pt of car instead of 425. Which of
+/// the two the learner sees is their own choice, `Settings.landscapeWidePage`: a tap
+/// on the paper switches between them and the choice is kept, and nothing else —
+/// no step, no phase — ever switches it, so the page holds still while they draw.
+/// Until they have chosen, the panel shows and a pill on the paper points at the
+/// tap. Held upright, the same drawing shows a one-line nudge to turn the phone,
+/// the sketchbook rule made visible.
 struct PlayerScreen: View {
     let lesson: Lesson
     /// The step a returning learner left off at, if any. Resuming skips the
@@ -57,9 +59,9 @@ struct PlayerScreen: View {
     /// lesson was open: the learner knows the phone turns, so the nudge is done.
     @State private var hasTurned = false
     @State private var nudgeDismissed = false
-    /// The learner tapped the wide page to read the sentence again: the panel is
-    /// back until the next step starts drawing.
-    @State private var wantsWords = false
+    /// The "tap the drawing" pill was tapped away this visit, before any tap on the
+    /// paper itself settled the choice for good.
+    @State private var tapHintDismissed = false
 
     var body: some View {
         GeometryReader { proxy in
@@ -199,6 +201,23 @@ struct PlayerScreen: View {
                         .transition(.move(edge: .bottom))
                 }
             }
+            // The paper runs under the panel; the pill is centred on the part
+            // that shows. A wide drawing beside the panel is fitted by width, so
+            // the bottom of that part is clear of ink.
+            .overlay(alignment: .bottom) {
+                if showsTapHint {
+                    HStack {
+                        Spacer(minLength: 0)
+                        tapHint
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.leading, islandClearance(safeAreaInsets.left))
+                    .padding(.trailing, PlayerPanel.width)
+                    .padding(.bottom, 14)
+                    .transition(.opacity)
+                }
+            }
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: showsTapHint)
 
             if !isWidePage {
                 PlayerPanel(instruction: instruction,
@@ -258,26 +277,24 @@ struct PlayerScreen: View {
 
     // MARK: - The wide page
 
-    /// A wide drawing, on its side, once Lina has drawn the step: the paper is the
-    /// learner's to copy from, so the panel gives way. Watching the step and the
-    /// beat before the lesson keep the panel, and so does a tap asking for the words.
+    /// A wide drawing, on its side, laid out the way the learner last chose. Until
+    /// they choose, the panel: the words are on it, and the pill says where the
+    /// wide page is. The choice is theirs alone — no step or phase touches it.
     private var isWidePage: Bool {
         isLandscape
             && lesson.tutorial.pageShape == .wide
-            && !isOrientation
-            && !player.isDrawing
-            && !wantsWords
+            && (app.settings.landscapeWidePage ?? false)
     }
 
     private var wideBar: some View {
-        PlayerWideBar(stepIndex: player.currentStepIndex,
+        PlayerWideBar(stepIndex: isOrientation ? nil : player.currentStepIndex,
                       stepCount: max(lesson.stepCount, 1),
                       actions: actions,
                       isLeftHanded: isLeftHanded,
                       leadingInset: safeAreaInsets.left,
                       trailingInset: safeAreaInsets.right,
                       onClose: close,
-                      onWords: { wantsWords = true },
+                      onWords: { choosePage(wide: false) },
                       menu: { moreMenu },
                       chip: { narrationChip },
                       reference: {
@@ -288,15 +305,36 @@ struct PlayerScreen: View {
             .accessibilitySortPriority(70)
     }
 
-    /// On a wide drawing's side, the paper itself toggles the words: a tap on the
-    /// wide page brings the panel back, a tap on the paper beside it lets it go.
-    /// Nowhere else does the paper answer a tap.
+    /// On a wide drawing's side the paper itself is the switch: a tap on the paper
+    /// beside the panel opens the wide page, a tap on the wide page brings the
+    /// panel back. Nowhere else does the paper answer a tap.
     private func paperTapped() {
-        guard isLandscape,
-              lesson.tutorial.pageShape == .wide,
-              !isOrientation,
-              !player.isDrawing else { return }
-        wantsWords.toggle()
+        guard isLandscape, lesson.tutorial.pageShape == .wide else { return }
+        choosePage(wide: !isWidePage)
+    }
+
+    /// Remembered across lessons and launches, so the page is the way the learner
+    /// left it the next time the phone goes on its side.
+    private func choosePage(wide: Bool) {
+        tapHintDismissed = true
+        app.settings.landscapeWidePage = wide
+    }
+
+    /// Shown beside the panel until the learner has switched once, or tapped the
+    /// pill away for this visit.
+    private var showsTapHint: Bool {
+        isLandscape
+            && lesson.tutorial.pageShape == .wide
+            && app.settings.landscapeWidePage == nil
+            && !tapHintDismissed
+    }
+
+    private var tapHint: some View {
+        nudge(icon: "hand.tap",
+              text: "Tap the drawing for a bigger page",
+              accessibilityLabel: "The drawing can have the whole screen. Tap the drawing to switch, and again to come back. Double tap to dismiss.") {
+            tapHintDismissed = true
+        }
     }
 
     // MARK: - The rotate nudge
@@ -317,13 +355,24 @@ struct PlayerScreen: View {
     }
 
     private var rotateNudge: some View {
-        Button {
+        nudge(icon: "rotate.right",
+              text: "Turn sideways to draw it bigger",
+              accessibilityLabel: "This drawing is wide. Turn the phone sideways to draw it bigger. Double tap to dismiss.") {
             nudgeDismissed = true
-        } label: {
+        }
+    }
+
+    /// One quiet pill on the paper: a glyph and a line, white with the 2 pt line
+    /// and the chip shadow. Tapping it is how it goes away.
+    private func nudge(icon: String,
+                       text: String,
+                       accessibilityLabel: String,
+                       action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             HStack(spacing: 8) {
-                Image(systemName: "rotate.right")
+                Image(systemName: icon)
                     .scaledFont(14, .bold, design: .default)
-                Text("Turn sideways to draw it bigger")
+                Text(text)
                     .scaledFont(14, .heavy)
                     .lineLimit(1)
             }
@@ -336,7 +385,7 @@ struct PlayerScreen: View {
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("This drawing is wide. Turn the phone sideways to draw it bigger. Double tap to dismiss.")
+        .accessibilityLabel(accessibilityLabel)
         .accessibilitySortPriority(40)
     }
 
@@ -532,9 +581,6 @@ struct PlayerScreen: View {
     private func phaseChanged(to phase: PlayerViewModel.Phase) {
         switch phase {
         case let .drawing(index):
-            // A new step, or the same one again: it is watched with the words, and
-            // the wide page is offered afresh once it is drawn.
-            wantsWords = false
             app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: index)
             speak(stepAt: index)
         case let .awaitingUser(index):

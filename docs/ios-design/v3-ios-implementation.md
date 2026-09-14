@@ -175,13 +175,15 @@ use `Image`. A missing file shows the warm placeholder from v3 (`.photo--warm`) 
   Before step 1: the orientation state (whole drawing ghosted at 20 %, the objective, "Begin"). Close → `LeaveSheet`
   (Keep drawing / Leave; Leave stores `lastStepIndex`). Speed applies from the next stroke and persists as the default.
   iPhone landscape: paper left full height, the sheet as a 312 pt right panel. Rotation is allowed on the player only.
-  A wide drawing (`PageShape`: ink wider than 4:3, e.g. the car) adds the *wide page* on its side: once the step is
-  drawn the panel slides off, a 64 pt bar (`PlayerWideBar`: close, ⋯, "Step n of m" as the way back to the words,
-  narration chip · reference thumb 48 pt, back · replay · a 48 pt primary) takes the bottom, and the ink grows into
-  the whole paper (about 600 pt of car on an iPhone instead of 425). Watching a step and the beat before the lesson
-  keep the panel; a tap on the paper or the step label brings it back. Held upright, the same drawing shows one
-  dismissable pill at the bottom of the paper, "Turn sideways to draw it bigger", through the orientation beat and
-  step one, gone once the phone has turned. Tall and square drawings change nothing.
+  A wide drawing (`PageShape`: ink wider than 4:3, e.g. the car) has a second layout on its side, the *wide page*:
+  the panel gone, a 64 pt bar (`PlayerWideBar`: close, ⋯, "Step n of m" as the way back to the words, narration
+  chip · reference thumb 48 pt, back · replay · a 48 pt primary) along the bottom, and the ink over the whole paper
+  (about 600 pt of car on an iPhone instead of 425). Which layout shows is the learner's own choice,
+  `Settings.landscapeWidePage`: a tap on the paper switches and is remembered across lessons and launches, and
+  nothing else — no step, no phase — switches it. Until they have chosen, the panel shows with one dismissable pill
+  on the paper, "Tap the drawing for a bigger page". Held upright, the same drawing shows a pill at the bottom of
+  the paper, "Turn sideways to draw it bigger", through the orientation beat and step one, gone once the phone has
+  turned. Tall and square drawings change nothing.
 - **Completion** `sk-complete`: the finished drawing on a white page with the gold "Drawn · date" chip, headline
   "Your <subject> is finished." (subject = lesson title lower-cased; a generic "Your drawing is finished." if awkward),
   one line from Lina with her face, two tiles (steps, minutes drawn), Add to sketchbook → capture; Next lesson;
