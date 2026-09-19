@@ -16,6 +16,7 @@ import {
   type RepoWriterOptions,
 } from './repoWriter'
 import {
+  adoptKeptReferences,
   appLines,
   applySpokenLines,
   castVoice,
@@ -368,6 +369,9 @@ async function handle(
         // stays in this process exactly as it does for the lesson prompts.
         generation,
       }
+      // A freeze lives in shared/, so a clone or a pull is all it takes to change
+      // which recording Lina is cloned from; every request looks before it acts.
+      await adoptKeptReferences(voice)
       const handled = await handleVoice(segments.slice(1), method, url, req, res, voice)
       if (handled) return
     }
@@ -427,7 +431,7 @@ async function handleVoice(
       return true
     }
     if (parts.length === 2 && method === 'DELETE') {
-      send(res, 200, deleteVoice(name, { force: url.searchParams.get('force') === '1' }, deps))
+      send(res, 200, await deleteVoice(name, { force: url.searchParams.get('force') === '1' }, deps))
       return true
     }
     if (parts.length === 3 && action === 'say' && method === 'POST') {
@@ -441,7 +445,7 @@ async function handleVoice(
       return true
     }
     if (parts.length === 3 && action === 'unfreeze' && method === 'POST') {
-      send(res, 200, unfreezeVoice(name, deps))
+      send(res, 200, await unfreezeVoice(name, deps))
       return true
     }
   }

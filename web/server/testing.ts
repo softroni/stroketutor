@@ -104,6 +104,10 @@ export async function startFakeTts(): Promise<FakeTts> {
           const args = message.params.arguments ?? {}
           const audio = new Uint8Array(Buffer.from(args.audio_base64 ?? '', 'base64'))
           fake.addVoiceCalls.push({ name: args.name ?? '', transcript: args.transcript ?? '', audio })
+          // As the real server does: a stored reference is one its health lists.
+          if (!fake.failAddVoice && Array.isArray(fake.health.voices) && !fake.health.voices.includes(args.name)) {
+            fake.health.voices.push(args.name)
+          }
           const content = fake.failAddVoice
             ? { content: [{ type: 'text', text: fake.failAddVoice }], isError: true }
             : {

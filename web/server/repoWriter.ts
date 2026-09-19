@@ -374,6 +374,22 @@ export function createRepoWriter(options: RepoWriterOptions) {
       return { wav, record }
     },
 
+    /**
+     * The ids of every voice the repository keeps a reference for: the ones a
+     * workspace that has never heard of them is frozen to on its first look.
+     */
+    async listVoiceReferenceIds(): Promise<string[]> {
+      try {
+        return (await readdir(voiceReferenceDir))
+          .filter((name) => name.endsWith('.json') && ID_PATTERN.test(name.slice(0, -5)))
+          .map((name) => name.slice(0, -5))
+          .sort()
+      } catch (error) {
+        if (isMissing(error)) return []
+        throw error
+      }
+    },
+
     /** Takes a voice's reference back out of the repository. Missing already is fine. */
     async deleteVoiceReference(voiceId: string) {
       const files: string[] = []

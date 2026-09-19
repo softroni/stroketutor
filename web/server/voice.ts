@@ -229,7 +229,7 @@ export function updateVoice(id: string, input: unknown, deps: VoiceDeps): Voice 
  * narrated with is refused until `force`, because deleting it silently would
  * leave those steps with nothing to play.
  */
-export function deleteVoice(id: string, options: { force?: boolean }, deps: VoiceDeps): { ok: true } {
+export async function deleteVoice(id: string, options: { force?: boolean }, deps: VoiceDeps): Promise<{ ok: true }> {
   seed(deps)
   const voice = mustReadVoice(id, deps)
   const used = deps.workspace.narrationUsing(id)
@@ -241,6 +241,8 @@ export function deleteVoice(id: string, options: { force?: boolean }, deps: Voic
       `“${voice.name}” narrates ${used.length === 1 ? '1 step' : `${used.length} steps`} of ${lessons.join(', ')}. Deleting it removes those recordings too.`,
     )
   }
+  // A frozen voice's record goes with it, or the repository would bring it back.
+  if (voice.frozen) await deps.writer.deleteVoiceReference(voice.id)
   deps.workspace.deleteVoice(id)
   if (deps.workspace.castVoiceId() === id) deps.workspace.setCastVoiceId(null)
   return { ok: true }
@@ -283,6 +285,7 @@ export async function say(
     if (cached) return { ...cached, cached: true }
   }
 
+  await ensureReferenceOnServer(voice, deps)
   const wav = await speak(voice, line, deps.tts)
   const take: Take = {
     id: `${Date.now().toString(36)}-${randomBytes(4).toString('hex')}`,
@@ -322,7 +325,7 @@ export async function freezeVoice(id: string, takeId: unknown, deps: VoiceDeps):
 
   const name = `lina-${voice.id}-${randomBytes(3).toString('hex')}`
   const reference = await addReference(name, stored.text, stored.bytes, deps.tts)
-  return deps.workspace.saveVoice({
+  const frozen: Voice = {
     ...voice,
     frozen: {
       referenceName: reference.name,
@@ -331,14 +334,23 @@ export async function freezeVoice(id: string, takeId: unknown, deps: VoiceDeps):
       frozenAt: new Date().toISOString(),
     },
     updatedAt: new Date().toISOString(),
-  })
+  }
+  // The repository is what remembers a freeze: the record is written before the
+  // workspace hears of it, so a voice is never frozen here and nowhere else.
+  await deps.writer.writeVoiceReference(voice.id, stored.bytes, referenceRecordOf(frozen, stored))
+  return deps.workspace.saveVoice(frozen)
 }
 
-/** Lets a designed voice vary again. The reference stays on the speech server, harmlessly. */
-export function unfreezeVoice(id: string, deps: VoiceDeps): Voice {
+/**
+ * Lets a designed voice vary again, and takes its record out of `shared/` so
+ * the next look at the repository does not freeze it straight back. The
+ * reference stays on the speech server, harmlessly.
+ */
+export async function unfreezeVoice(id: string, deps: VoiceDeps): Promise<Voice> {
   seed(deps)
   const voice = mustReadVoice(id, deps)
   if (!voice.frozen) return voice
+  await deps.writer.deleteVoiceReference(voice.id)
   return deps.workspace.saveVoice({ ...voice, frozen: null, updatedAt: new Date().toISOString() })
 }
 
@@ -963,10 +975,10 @@ function referenceRecordOf(voice: Voice, take: { id: string; durationMs: number 
 /**
  * Writes a frozen voice's reference recording into `shared/`.
  *
- * Freezing leaves the reference in two places git never sees — the speech
- * server's `voices/` directory and the local workspace — so the voice the whole
- * catalog is narrated in would not survive a wiped Mac. This is the copy that
- * does.
+ * Freezing does this itself, so this is for a voice frozen before it did, or
+ * one whose files were lost: the speech server's `voices/` directory and the
+ * local workspace are places git never sees, and this is the copy that
+ * survives a wiped Mac.
  */
 export async function exportReference(
   voiceId: string,
@@ -1008,7 +1020,19 @@ export async function restoreReference(voiceId: string, deps: VoiceDeps): Promis
   }
   const { wav, record } = kept
   const reference = await addReference(record.referenceName, record.referenceText, wav, deps.tts)
+  return { reference, ...adoptRecord(record, wav, deps) }
+}
 
+/**
+ * Freezes the workspace's voice to a record from `shared/`, without a word to
+ * the speech server: the take returns to the workspace if it is missing, and
+ * the voice is created from the record if the workspace has never heard of it.
+ */
+function adoptRecord(
+  record: VoiceReferenceRecord,
+  wav: Uint8Array,
+  deps: VoiceDeps,
+): Pick<RestoredReference, 'voice' | 'createdVoice' | 'restoredTake'> {
   const frozen = {
     referenceName: record.referenceName,
     referenceText: record.referenceText,
@@ -1052,7 +1076,53 @@ export async function restoreReference(voiceId: string, deps: VoiceDeps): Promis
     )
   }
 
-  return { voice, reference, createdVoice: current === null, restoredTake }
+  return { voice, createdVoice: current === null, restoredTake }
+}
+
+/**
+ * Brings the workspace in line with the freezes `shared/` remembers, so a fresh
+ * clone speaks in the same Lina without being told to. Every voice with a
+ * record is frozen to it, unless it already is; the repository wins, because
+ * it is the copy every machine shares. Nothing here needs the speech server:
+ * `say` uploads a reference the server turns out not to have.
+ *
+ * A record that cannot be read is passed over rather than taking the whole
+ * Voice page down with it: `voice reference restore` says what is wrong with it.
+ */
+export async function adoptKeptReferences(deps: VoiceDeps): Promise<Voice[]> {
+  seed(deps)
+  const adopted: Voice[] = []
+  for (const voiceId of await deps.writer.listVoiceReferenceIds()) {
+    const kept = await deps.writer.readVoiceReference(voiceId).catch(() => null)
+    if (!kept || kept.record.voiceId !== voiceId) continue
+    if (deps.workspace.readVoice(voiceId)?.frozen?.referenceName === kept.record.referenceName) continue
+    adopted.push(adoptRecord(kept.record, kept.wav, deps).voice)
+  }
+  return adopted
+}
+
+/** References known to be on a speech server, so each is asked after once a process. */
+const confirmedReferences = new Set<string>()
+
+/**
+ * Uploads a frozen voice's reference when the speech server does not have it,
+ * which is the case on a server this freeze was never made against. A server
+ * that will not say what it holds is left to `speak`, whose error is the better one.
+ */
+async function ensureReferenceOnServer(voice: Voice, deps: VoiceDeps): Promise<void> {
+  if (!voice.frozen) return
+  const key = `${deps.tts.mcpUrl}#${voice.frozen.referenceName}`
+  if (confirmedReferences.has(key)) return
+  const server = await probe(deps.tts)
+  if (!server.reachable) return
+  if (!server.references.includes(voice.frozen.referenceName)) {
+    const wav =
+      deps.workspace.readTake(voice.frozen.takeId)?.bytes ??
+      (await deps.writer.readVoiceReference(voice.id).catch(() => null))?.wav
+    if (!wav) return
+    await addReference(voice.frozen.referenceName, voice.frozen.referenceText, wav, deps.tts)
+  }
+  confirmedReferences.add(key)
 }
 
 /**

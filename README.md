@@ -192,8 +192,9 @@ choose between several candidates. Speech is made on the creator's own MLX-Audio
       line: typed in the narration table, written by a model (`spoken-lines-v1`, with a note and the hand-written
       lines kept), or applied from a plan (`voice lines apply --plan`). `voice narrate --all` and
       `voice publish --all` do the catalog in one go. Voice publishes only for a lesson published without edits.
-- [x] **The reference in the repo.** Publishing a lesson's voice also writes the frozen voice's reference WAV and
-      record to `shared/Assets/VoiceReference/`, and `voice reference restore` puts it back on a fresh speech server.
+- [x] **The freeze in the repo.** `voice freeze` writes the frozen voice's reference WAV and record to
+      `shared/Assets/VoiceReference/` (unfreeze removes them), and a fresh clone freezes itself to what is there:
+      the workspace on its first voice command, the speech server on the first line spoken.
       It is a sibling of `Assets/Voice/`, not inside it, because the app bundles all of `Assets/Voice/`.
 - [x] **Lina's own lines.** The nine things she says outside any lesson: `hello` (onboarding's "Meet the voice" and
       the Settings sample) and `lesson-1`…`lesson-4`, `path-1`…`path-4` (the completion screens). The ids are fixed —

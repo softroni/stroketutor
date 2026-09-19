@@ -16,6 +16,7 @@ import { WriteRefused, createRepoWriter, type RepoWriter } from './repoWriter'
 import { fakeConverter, startFakeTts, type FakeTts } from './testing'
 import { silentWav, wavDurationMs } from './tts'
 import {
+  adoptKeptReferences,
   appLines,
   applySpokenLines,
   castVoice,
@@ -175,7 +176,7 @@ describe('seeding', () => {
 
   it('does not bring back a suggestion that was deleted', async () => {
     await voiceState(deps)
-    deleteVoice('lina-spark', {}, deps)
+    await deleteVoice('lina-spark', {}, deps)
     const again = await voiceState(deps)
     expect(again.voices.map((voice) => voice.id)).not.toContain('lina-spark')
   })
@@ -273,7 +274,7 @@ describe('freezing a voice', () => {
     expect(refused.status).toBe(422)
     expect(refused.message).toContain('Unfreeze it first')
 
-    unfreezeVoice('lina-bright', deps)
+    await unfreezeVoice('lina-bright', deps)
     expect(updateVoice('lina-bright', { instruct: 'Someone else.' }, deps).instruct).toBe('Someone else.')
   })
 
@@ -356,7 +357,7 @@ describe('deleting a voice', () => {
     expect(refused.status).toBe(409)
     expect(refused.message).toContain('simple-house')
 
-    deleteVoice('house-chatterbox', { force: true }, deps)
+    await deleteVoice('house-chatterbox', { force: true }, deps)
     const after = await lessonNarration('simple-house', deps)
     expect(after.steps.every((step) => step.stale === 'missing')).toBe(true)
     expect(after.castVoiceId).toBe(null)
@@ -700,8 +701,8 @@ describe('the reference kept in the repository', () => {
 
   it('creates the voice from the record when the workspace has never had it', async () => {
     const { voice } = await freezeLina()
-    await exportReference('lina-bright', deps)
-    deleteVoice('lina-bright', { force: true }, deps)
+    // Straight out of the workspace: `deleteVoice` would take the record with it.
+    workspace.deleteVoice('lina-bright')
 
     const restored = await restoreReference('lina-bright', deps)
     expect(restored.createdVoice).toBe(true)
@@ -728,8 +729,62 @@ describe('the reference kept in the repository', () => {
     expect((await refusal(() => restoreReference('nobody', deps))).status).toBe(404)
   })
 
-  it('publishes the cast voice’s reference beside the lesson’s audio, once', async () => {
+  it('remembers a freeze in shared/ the moment it is made, and forgets it on unfreeze', async () => {
+    const { take, voice } = await freezeLina()
+    const kept = JSON.parse(await readFile(path.join(shared, referenceFolder, 'lina-bright.json'), 'utf8')) as VoiceReferenceRecord
+    expect(kept).toMatchObject({ voiceId: 'lina-bright', referenceName: voice.frozen!.referenceName, takeId: take.id })
+    expect(await writer.listVoiceReferenceIds()).toEqual(['lina-bright'])
+
+    await unfreezeVoice('lina-bright', deps)
+    expect(await writer.listVoiceReferenceIds()).toEqual([])
+    // Nothing is left to freeze it back.
+    expect(await adoptKeptReferences(deps)).toEqual([])
+    expect(workspace.readVoice('lina-bright')!.frozen).toBe(null)
+  })
+
+  it('takes a deleted voice’s record out of shared/ with it', async () => {
+    await freezeLina()
+    await deleteVoice('lina-bright', { force: true }, deps)
+    expect(await writer.listVoiceReferenceIds()).toEqual([])
+  })
+
+  it('freezes a fresh clone’s workspace to what shared/ remembers, and uploads the reference when first spoken', async () => {
+    const { take, voice } = await freezeLina()
+
+    // Another machine: the same shared/, a workspace that has recorded nothing,
+    // and a speech server that has never been sent this reference.
+    const fresh = await openWorkspace({ file: ':memory:', writer, validateTutorial, validateCatalog })
+    const elsewhere = await startFakeTts()
+    const there: VoiceDeps = { ...deps, workspace: fresh, tts: { ...deps.tts, url: elsewhere.url, mcpUrl: elsewhere.mcpUrl } }
+
+    const adopted = await adoptKeptReferences(there)
+    expect(adopted.map((one) => one.id)).toEqual(['lina-bright'])
+    expect(fresh.readVoice('lina-bright')!.frozen).toEqual(voice.frozen)
+    expect(fresh.readTake(take.id)?.text).toBe('Hi, I am Lina.')
+    expect(elsewhere.addVoiceCalls).toHaveLength(0)
+    // Looking again changes nothing.
+    expect(await adoptKeptReferences(there)).toEqual([])
+
+    await say('lina-bright', 'A new line.', {}, there)
+    expect(elsewhere.addVoiceCalls.map((call) => call.name)).toEqual([voice.frozen!.referenceName])
+    expect(elsewhere.speech[0]).toMatchObject({ ref_audio: `/Users/kevin/tts/voices/${voice.frozen!.referenceName}.wav` })
+    await say('lina-bright', 'And another.', {}, there)
+    expect(elsewhere.addVoiceCalls).toHaveLength(1)
+
+    fresh.close()
+    await elsewhere.close()
+  })
+
+  it('lets the repository win when it remembers a different freeze', async () => {
     const { voice } = await freezeLina()
+    workspace.saveVoice({ ...voice, frozen: { ...voice.frozen!, referenceName: 'lina-lina-bright-000000' } })
+    await adoptKeptReferences(deps)
+    expect(workspace.readVoice('lina-bright')!.frozen!.referenceName).toBe(voice.frozen!.referenceName)
+  })
+
+  it('publishes the cast voice’s reference beside the lesson’s audio when shared/ has lost it, once', async () => {
+    const { voice } = await freezeLina()
+    await writer.deleteVoiceReference('lina-bright')
     await narrateHouse('lina-bright')
     const { files } = await publishVoice('simple-house', deps)
     expect(files).toContain('shared/Assets/VoiceReference/lina-bright.wav')
@@ -885,6 +940,7 @@ describe('Lina’s own lines', () => {
   it('exports the frozen cast voice’s reference beside them, as a lesson does', async () => {
     const take = await say('lina-bright', 'Hi, I am Lina.', {}, deps)
     await freezeVoice('lina-bright', take.id, deps)
+    await writer.deleteVoiceReference('lina-bright')
     await narrateApp('lina-bright')
 
     const { files } = await publishAppLines(deps)

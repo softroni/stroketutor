@@ -317,13 +317,17 @@ export const voiceCommands: Command[] = [
     async (ctx, args) => {
       const deps = await ctx.voice()
       const voice = await freezeVoice(args.positionals[0], stringValue(args.values, 'take'), deps)
-      ctx.out.result(voice, () => `Froze ${voice.name} as ${voice.frozen?.referenceName}. Every later line is cloned from that recording.`)
+      ctx.out.result(voice, () => [
+        `Froze ${voice.name} as ${voice.frozen?.referenceName}. Every later line is cloned from that recording.`,
+        'The freeze is kept in shared/, so commit it and every clone of the repository speaks in this voice:',
+        gitAddLine([`shared/Assets/VoiceReference/${voice.id}.wav`, `shared/Assets/VoiceReference/${voice.id}.json`]),
+      ])
     },
   ),
 
-  command('voice unfreeze', 'Let a frozen voice vary again. The reference stays on the speech server.', ['<id>'], {}, async (ctx, args) => {
+  command('voice unfreeze', 'Let a frozen voice vary again, and take its record out of shared/. The reference stays on the speech server.', ['<id>'], {}, async (ctx, args) => {
     const deps = await ctx.voice()
-    const voice = unfreezeVoice(args.positionals[0], deps)
+    const voice = await unfreezeVoice(args.positionals[0], deps)
     ctx.out.result(voice, () => `${voice.name} is free to vary again.`)
   }),
 

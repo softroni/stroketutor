@@ -252,13 +252,16 @@ Publishing writes `shared/Assets/Voice/app/<id>.m4a` and a `manifest.json` keyed
 while any line is missing or out of date, and `voice publish --all` takes them along with the
 lessons (saying so when they are not complete).
 
-**The reference in the repo.** A frozen voice's reference lives on the speech server and in the
-gitignored workspace, so publishing a lesson's voice — or the app's own lines — also writes the cast
-voice's reference to `shared/Assets/VoiceReference/<voiceId>.wav` and `.json` (the voice, its
-description, the reference's name and exact words). It sits beside `Assets/Voice/` rather than inside
-it because the iOS app bundles all of `Assets/Voice/`, and a reference WAV per voice has no business
-shipping. On a machine that has never heard of Lina, `voice reference restore` uploads it again under
-the same name and the voice speaks exactly as before.
+**The freeze in the repo.** The repository is what remembers a freeze. `voice freeze` writes the
+reference to `shared/Assets/VoiceReference/<voiceId>.wav` and `.json` (the voice, its description, the
+reference's name and exact words) the moment it is made, so committing those two files is all it takes
+to share it; `voice unfreeze`, and deleting the voice, take them out again. On any machine, the first
+voice command or Voice page request freezes the workspace to what `shared/` holds — creating the voice
+if it has never heard of it — and the first line spoken uploads the reference to a speech server that
+does not have it. A fresh clone therefore speaks exactly as before with nothing to run. Publishing still
+writes the files when they have gone missing, and `voice reference export` / `restore` remain for doing
+either half by hand. The folder sits beside `Assets/Voice/` rather than inside it because the iOS app
+bundles all of `Assets/Voice/`, and a reference WAV per voice has no business shipping.
 
 ## The command line
 
