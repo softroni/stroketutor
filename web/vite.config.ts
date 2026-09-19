@@ -44,7 +44,14 @@ export default defineConfig(({ mode }) => {
       // Honours PORT when something else assigns one; plain `npm run dev` uses
       // Vite's usual 5173.
       port: Number(process.env.PORT) || 5173,
-      open: true,
+      // Listen on every interface so the tailnet can reach the Studio from an
+      // iPad or a phone; the host allow-list below keeps it to this machine's
+      // own names.
+      host: true,
+      allowedHosts: ['localhost', '.tail958ea4.ts.net'],
+      // Opens a browser for a hand-started `npm run dev`, but not for the
+      // launchd agent that keeps the Studio up on the tailnet.
+      open: !process.env.STUDIO_HEADLESS,
       // Lets the dev server read shared/, which sits outside the Vite root.
       fs: { allow: ['..'] },
     },
