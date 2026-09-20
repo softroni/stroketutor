@@ -242,6 +242,16 @@
       }
     },
     {
+      "id": "soda-can",
+      "status": "approved",
+      "objective": "Cylinder with a rim, tab and label band",
+      "reference": {
+        "file": "soda-can.svg",
+        "source": "Generated picture: OpenAI image model, style-v2 prompt (docs/curriculum/forms-prompts.md), 2026-09-20; traced with svg from-image",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

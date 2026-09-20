@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "soda-can",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:31:18.499Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Psst. That's the sound of a can opening. A soda can is a cylinder with a few extras on it. Watch them go on, then draw a can of your own.",
+      "textHash": "61663cf7c3ebef763ee8efbbcabcbe5bf8cab5d0d80c5ba6a7141cfaca7efd49",
+      "durationMs": 9520
+    },
+    "rim-back": {
+      "file": "rim-back.m4a",
+      "text": "The rim comes first, a flat oval. Curve over the back from left to right.",
+      "textHash": "ca3edb12ce9dd85bc46542d375985721233fd2591b87ae35b3ffb1d1d59af28e",
+      "durationMs": 5200
+    },
+    "rim-front": {
+      "file": "rim-front.m4a",
+      "text": "Swing back along the front to finish the rim.",
+      "textHash": "4d3feefdb1ad8118a93890332525d12ebfa19783553c5664cb8cfa4c4870add7",
+      "durationMs": 2480
+    },
+    "ring": {
+      "file": "ring.m4a",
+      "text": "Draw a second oval just inside the first. Now the rim is a thin ring.",
+      "textHash": "9e60e91c300af19f24c9433aee101379d8b529ec645be44ad93da9a14200cf50",
+      "durationMs": 5120
+    },
+    "tab": {
+      "file": "tab.m4a",
+      "text": "Add the pull tab, a small rounded shape lying on the lid.",
+      "textHash": "16953ae891648839648f4c86df3d6020880a7b4b91eef469d1dd3c8384e008a3",
+      "durationMs": 4080
+    },
+    "sides": {
+      "file": "sides.m4a",
+      "text": "Now the sides. From each end of the rim, slope out a little, then go straight down.",
+      "textHash": "ad6b167b04763e6bde26c3c9f3dbb9aba17623154e82673895b55e0d6ffa5db6",
+      "durationMs": 5680
+    },
+    "bottom": {
+      "file": "bottom.m4a",
+      "text": "Close the can with a curve. It sags the same way as the rim.",
+      "textHash": "004bd7e7972c752c24715e21bb094fb567a14986e4ee3283702ae075292beb32",
+      "durationMs": 4240
+    },
+    "band": {
+      "file": "band.m4a",
+      "text": "The label is a band. Draw two curves across the middle, sagging like the bottom.",
+      "textHash": "6ccb2896f554d887cde526859142110419facf6f0e412acd5abc4d899603f9c4",
+      "durationMs": 5200
+    },
+    "color-can": {
+      "file": "color-can.m4a",
+      "text": "Color the can red, above and below the band.",
+      "textHash": "ada128ba0e2d99d1ff4eedbe31c93b9bd05f104233045c0986f33b43f05c5002",
+      "durationMs": 3680
+    },
+    "color-band": {
+      "file": "color-band.m4a",
+      "text": "Color the band cream.",
+      "textHash": "91a691433880f35066d0e519e5636a12e9b8f1ad79f9d42c42e09db035ef08ec",
+      "durationMs": 1680
+    },
+    "color-lid": {
+      "file": "color-lid.m4a",
+      "text": "The lid is gray.",
+      "textHash": "6074e40cc53092db8437c37b841edc70875e6d48f678e1cdec8894734aadfaf3",
+      "durationMs": 1600
+    },
+    "color-ring": {
+      "file": "color-ring.m4a",
+      "text": "Color the ring and the tab blue.",
+      "textHash": "312daf24dab6065428a93ab8a0fe29bb8eea63acc3051bd0d1d4a8aba88dbd4d",
+      "durationMs": 2480
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A cold can of soda with a label waiting for a name. What flavor is inside?",
+      "textHash": "6369433705f008bdb57009d9fe5a29b4430bc9665acb8cfbe2cd539d17a6495c",
+      "durationMs": 5200
+    }
+  }
+}
