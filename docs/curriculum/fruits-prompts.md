@@ -15,9 +15,11 @@ curriculum; only the **lesson prompt** changes.
   accept image input, and this does more for consistency than any wording.
 - Generate 3–4 candidates per lesson and keep the one with the fewest, cleanest lines, not the
   prettiest. A lesson is drawn with a pen, one line at a time.
-- Record model, date and the prompt version (`style-v1`) for each kept image; that is its provenance.
+- Record model, date and the prompt version (`style-v2`) for each kept image; that is its provenance.
+- `style-v2` (2026-09-19) came from building the first lesson, the apple, out of a `style-v1` picture: it looks the
+  same, and adds the three DRAWABLE rules, so the published apple is still the right reference image.
 
-## Style prompt (`style-v1`) — identical for all 13 paths
+## Style prompt (`style-v2`) — identical for all 13 paths
 
 ```text
 You are illustrating a drawing course. Every image is the finished drawing that a beginner will
@@ -33,6 +35,17 @@ LINE
 - Every shape is fully closed. Where two lines meet, they touch exactly: no gaps, no overshoot.
 - Use as few lines as possible. If a detail is not named in the subject description, leave it out.
   When a number of details is given (five seeds, eight segments), draw exactly that number.
+
+DRAWABLE
+A child of eight will copy this with a pen, one line at a time, so it must be made of lines a child can draw.
+- Every outline is one smooth, simple curve or a few straight sides: no small bumps, notches, frills or
+  zigzags unless the subject description asks for them.
+- Separate things do not touch. Two parts touch only where one is attached to the other (a stem on a
+  fruit, a leaf on a stem) or where the description says one overlaps the other. Otherwise leave a
+  clear gap of white between them, at least three line-widths wide: a leaf does not rest on the fruit
+  below it.
+- Detail lines inside a shape (a leaf's vein, ridge lines, crosshatching, seeds) float: each starts and
+  ends a little inside the shape's outline and touches nothing, except where the description says otherwise.
 
 COLOUR
 - Flat, solid colour inside the outlines, like a marker laid down evenly. No gradients, no shading,
@@ -79,8 +92,8 @@ SUBJECT: one apple.
   centre where the stem sits and a very slight dip at the bottom. Colour: red.
 - Stem: a short, slightly curved stem rising from the top dip, drawn as a narrow closed shape.
   Colour: brown.
-- Leaf: one simple pointed leaf attached to the stem, leaning to the right, with a single centre
-  vein line. Colour: leaf green.
+- Leaf: one simple pointed leaf attached to the stem, pointing up and to the right, clear of the
+  apple's body, with a single centre vein line. Colour: leaf green.
 Nothing else. About 6 lines in total.
 ```
 
@@ -90,11 +103,12 @@ Nothing else. About 6 lines in total.
 SUBJECT: two cherries joined at the stem.
 - Two round cherries side by side near the bottom, the same size, the right one overlapping the
   left one slightly so part of the left outline is hidden. Colour: red.
-- Two thin stems, each a single curved line rising from the top of a cherry and meeting at one
-  point above and between them.
-- One simple pointed leaf at the point where the stems meet, with a single centre vein line.
-  Colour: leaf green.
-Nothing else. About 7 lines in total.
+- Two thin stems, each a single gently curved line rising from the top centre of a cherry. They lean
+  towards each other and meet at one point high above and between the cherries, like an upside-down V.
+  The stems are lines, not shapes: the same charcoal line as everything else, with no colour.
+- One simple pointed leaf attached at the point where the stems meet, pointing up and to the right,
+  well clear of both cherries, with a single centre vein line. Colour: leaf green.
+Nothing else: no shine spots on the cherries. About 6 lines in total.
 ```
 
 ### 3 · `pear`
@@ -105,8 +119,8 @@ SUBJECT: one pear.
   rounded bottom. The widest point is in the lower third. Colour: pale green.
 - Stem: a short stem from the top, leaning slightly left, drawn as a narrow closed shape.
   Colour: brown.
-- Leaf: one small pointed leaf at the base of the stem, leaning right, with a single centre
-  vein line. Colour: leaf green.
+- Leaf: one small pointed leaf attached halfway up the stem, pointing up and to the right, clear of
+  the pear's body, with a single centre vein line. Colour: leaf green.
 Nothing else. About 6 lines in total.
 ```
 
@@ -119,7 +133,8 @@ SUBJECT: one banana, unpeeled, lying as a curve like a smile: both ends higher t
 - Stem tip: a short blunt stem at the left end, as its own small closed shape. Colour: brown.
 - Bottom tip: a very small dark blunt tip at the right end. Colour: brown.
 - Ridge lines: exactly two long lines running along the length of the body, following its curve,
-  from near the stem to near the tip, dividing the body into three bands.
+  from near the stem to near the tip, dividing the body into three bands. They touch neither the
+  outline nor each other.
 Nothing else. About 7 lines in total.
 ```
 
@@ -147,8 +162,9 @@ SUBJECT: one strawberry.
 - Leafy top: a cap of exactly five short pointed leaves sitting on the top of the berry, fanning
   outwards like a small star, overlapping the top edge of the body. Colour: leaf green.
 - Stem: a very short stem from the centre of the leaves. Colour: dark green.
-- Seeds: exactly six small teardrop seeds on the body, evenly spread in rows of one, two and
-  three from the bottom up. Each seed is a small closed shape. Colour: yellow.
+- Seeds: exactly six small teardrop seeds on the body, evenly spread in rows of three, two and one
+  from the top down, points facing down. Each seed is a small solid mark in the dark charcoal line
+  colour, the same as the watermelon's seeds, well inside the outline.
 Nothing else.
 ```
 
@@ -160,11 +176,12 @@ perfect circle.
 - Peel rim: an outer circle and, just inside it, a second circle, making a narrow ring.
   Colour of the ring: orange.
 - Pith: a thin ring between the peel and the segments. Colour: cream.
-- Segments: exactly eight equal wedge-shaped segments arranged like a wheel around the centre,
-  each with slightly rounded corners, separated from each other by thin cream gaps.
-  Colour of the segments: yellow.
-- Centre: one small circle where the segments meet. Colour: cream.
-Nothing else. No juice drops, no leaf, no second half.
+- Flesh: everything inside the pith ring is one flat area. Colour: yellow.
+- Centre: one small circle in the middle of the flesh. Colour: cream.
+- Segments: exactly eight straight lines dividing the flesh like the spokes of a wheel, evenly
+  spaced. Each spoke starts just outside the centre circle and stops just short of the pith ring,
+  touching neither. The eight spaces between them are the eight segments.
+Nothing else. No juice drops, no leaf, no second half, no outlines around the single segments.
 ```
 
 ### 8 · `grapes`
@@ -175,7 +192,8 @@ SUBJECT: one bunch of grapes hanging from a vine.
   of four at the top, then three, then two, then one at the bottom. Each grape overlaps the
   grapes in the row above it, so the hidden parts of the circles are not drawn. Colour: purple.
 - Stem: a short thick stem rising from the top centre of the bunch. Colour: brown.
-- Vine: exactly one curly tendril, a single spiral line, coming off the stem to the right.
+- Vine: exactly one curly tendril, a single loose spiral line with one and a half turns, coming off
+  the stem to the right and touching nothing else.
 - Leaf: one simple broad leaf with three points, attached to the stem on the left, with a single
   centre vein line. Colour: leaf green.
 Nothing else. Count the grapes: ten.
@@ -187,8 +205,8 @@ Nothing else. Count the grapes: ten.
 SUBJECT: one pineapple, upright.
 - Body: a tall oval, slightly flattened at the top and bottom. Colour: yellow.
 - Crosshatch: exactly three diagonal lines leaning left and exactly three diagonal lines leaning
-  right across the body, evenly spaced, each running from edge to edge of the oval and gently
-  curved to follow its roundness, forming a diamond grid. No dots or marks inside the diamonds.
+  right across the body, evenly spaced, gently curved to follow the roundness of the body, forming a diamond grid.
+  Each line stops just short of the oval's outline at both ends. No dots or marks inside the diamonds.
 - Crown: exactly seven long pointed leaves growing from the top of the body, fanning upwards and
   outwards: one straight up in the centre and three curving away on each side, the inner leaves
   overlapping the outer ones. Colour: leaf green for the centre and the two outermost leaves,
@@ -211,7 +229,8 @@ the bowl is a flat ellipse.
   3. a banana (yellow, brown tips) lying across the back, curving over the top of the other
      fruit, with its two ridge lines;
   4. a bunch of exactly six purple grapes hanging over the rim at the far right.
-  The rim of the bowl passes in front of the lower part of every fruit.
+  The rim of the bowl passes in front of the lower part of every fruit. Here the fruits do overlap
+  one another: that is what this lesson teaches.
 - Cast shadow: one flat, soft-cornered ellipse on the table under the bowl, shifted slightly to
   the right. Colour: grey, with no outline. This is the only shadow in the image.
 Nothing else: no table edge, no cloth, no background.
