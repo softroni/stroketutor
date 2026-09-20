@@ -106,6 +106,16 @@
       }
     },
     {
+      "id": "fruit-bowl",
+      "status": "approved",
+      "objective": "Four fruits overlapping in a bowl with a cast shadow",
+      "reference": {
+        "file": "fruit-bowl.svg",
+        "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v2, fruit-bowl), 2026-09-19; vectorized with svg from-image",
+        "license": "Generated for StrokeTutor; owned by the creator"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

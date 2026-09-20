@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "fruit-bowl",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T05:05:49.103Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "You know these fruits already. Now they all share one bowl. Watch who goes in front, then you try.",
+      "textHash": "2f5910f6ef3aa7088960a1bc22a3e5ba1ededb4ed3a443d71cebb23bc62711ae",
+      "durationMs": 6240
+    },
+    "rim-pear": {
+      "file": "rim-pear.m4a",
+      "text": "Begin with the bowl's front rim, one long curve. Then the pear: two sides and a stem.",
+      "textHash": "3ae424635016dbce3727a2cca9322136f3e893ff06d8d8438b561ef01b279ed9",
+      "durationMs": 6080
+    },
+    "apple": {
+      "file": "apple.m4a",
+      "text": "The apple leans on the pear. Curve up each side, then a dip at the top and a stem.",
+      "textHash": "b5ea495c77caab1f683e2bb0893e545709bfa3ce6e89d0a4e652d45b4aa8362e",
+      "durationMs": 6160
+    },
+    "leaf": {
+      "file": "leaf.m4a",
+      "text": "A leaf points left from the stem. Go out and back, then a line up its middle.",
+      "textHash": "5fc291c27fa6320c75e9e579b7552a3eb8feed08b283ba30dfad3ce6ab2d416c",
+      "durationMs": 5840
+    },
+    "grapes": {
+      "file": "grapes.m4a",
+      "text": "Grapes fill the right side. Draw five curves, each one tucked in behind.",
+      "textHash": "eaad75b723471d8942189a5280e2ca123c212b1d9c142942c6978ebb5d114d1e",
+      "durationMs": 5040
+    },
+    "grape-stem": {
+      "file": "grape-stem.m4a",
+      "text": "The bunch needs a stem. Go up and over to the right, then close the little gap.",
+      "textHash": "5a72f70587b11cdc7e25c71a5322e750ebc742a976cf3ac89ab737f109586021",
+      "durationMs": 5440
+    },
+    "banana": {
+      "file": "banana.m4a",
+      "text": "A banana lies across the back. From the leaf, go up and over, then cap each end.",
+      "textHash": "efcbea2a63865b7f7298da4cef210ea4cb03da2eae7f09e2d36272f050d99781",
+      "durationMs": 7200
+    },
+    "banana-lines": {
+      "file": "banana-lines.m4a",
+      "text": "Fill in the bits of banana between the fruit. Add three long lines, one carrying on past the stem.",
+      "textHash": "b62363b2ab1de068961f34eaad12c7332b9d27c640b89af83b7ee557f3a54ee5",
+      "durationMs": 6240
+    },
+    "bowl": {
+      "file": "bowl.m4a",
+      "text": "Back to the bowl. Draw the rim, the sides and a foot. Add a short curve by the grapes.",
+      "textHash": "0edf81931aa2499a64fad7c8dde0433d059431c9604c7539893460a48d5a2bf7",
+      "durationMs": 5600
+    },
+    "blue": {
+      "file": "blue.m4a",
+      "text": "Color the bowl blue, darker on the inside.",
+      "textHash": "5fd33f8c2f7e1332a3453b8e1141e63f55608beb2de6358708a7a1791a4667ea",
+      "durationMs": 3520
+    },
+    "red-green": {
+      "file": "red-green.m4a",
+      "text": "The apple is red and the pear is light green.",
+      "textHash": "59102badd3b4a456c650484b3115a7dd50159d948384ae4d10602e7d322408c4",
+      "durationMs": 3360
+    },
+    "yellow-purple": {
+      "file": "yellow-purple.m4a",
+      "text": "Color the banana yellow and the grapes purple.",
+      "textHash": "33b971bf9cb5d96de5f8cd0815838b99393e5618b150e6ea295d88e738414566",
+      "durationMs": 3120
+    },
+    "last-bits": {
+      "file": "last-bits.m4a",
+      "text": "Stems and banana ends are brown, the leaves green. Then a soft gray shadow.",
+      "textHash": "f114aa93702cc073a04050a435ceb1ae4b4a85ef501aebb8efc532042ff7233b",
+      "durationMs": 6000
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A whole bowl of fruit, and you drew every piece. That's the Fruits path, finished.",
+      "textHash": "809538f6992b381011ab753ca8312fa9b0bf8a08412d9c25c3463c6fe250e1d3",
+      "durationMs": 5280
+    }
+  }
+}
