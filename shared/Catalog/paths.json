@@ -2,12 +2,24 @@
   "catalogVersion": 1,
   "levels": [
     {
+      "id": "starter",
+      "title": "Starter",
+      "description": "Flat shapes and clean lines. Start here if you are new to drawing."
+    },
+    {
       "id": "core",
       "title": "Core",
       "description": "Detail, overlap and 3D form. Forms comes first: everything after it builds on it."
     }
   ],
   "paths": [
+    {
+      "id": "fruits",
+      "title": "Fruits",
+      "description": "Round, curved and clustered shapes, ending with four fruits overlapping in a bowl.",
+      "level": "starter",
+      "lessonIds": ["apple"]
+    },
     {
       "id": "plants",
       "title": "Plants",
