@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "big-oak",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:44:51.343Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "An oak can live for hundreds of years. Ours has a thick trunk, three strong branches and a treetop like a big green cloud. See it spread out, then raise your own.",
+      "textHash": "a99e9be5f009b5c07e7b3119b0b507227e75ccc8849a2b451ca20a0c7daac8bf",
+      "durationMs": 11040
+    },
+    "trunk-left": {
+      "file": "trunk-left.m4a",
+      "text": "Begin at the ground on the left. Go up the trunk, then swing out and up to the left branch's tip.",
+      "textHash": "a54b9c18132ce5c6c795af5a8cee6f084bb28f6e31d361c208962de3646e20c4",
+      "durationMs": 6240
+    },
+    "trunk-right": {
+      "file": "trunk-right.m4a",
+      "text": "Now a flat line for the foot. From its end, go up the trunk and swing out to the right.",
+      "textHash": "65170de740a936c062e7ab764a499c960c26f4c77857b9e723e9242a7a48fbb9",
+      "durationMs": 6080
+    },
+    "left-branch": {
+      "file": "left-branch.m4a",
+      "text": "Round off the left branch's tip and come back down its inside to a sharp V.",
+      "textHash": "b0b4f06b773ca89812fd4f2103d2a93172fbc1e879a9c1628f3785132c1595df",
+      "durationMs": 5120
+    },
+    "middle-branch": {
+      "file": "middle-branch.m4a",
+      "text": "The middle branch is a tall thumb. From the V, go up, round the top, and down to a second V.",
+      "textHash": "aec470c800773d373f13965f17eda706f07c33f8a83210d47bb4fa095bc5d838",
+      "durationMs": 6560
+    },
+    "right-branch": {
+      "file": "right-branch.m4a",
+      "text": "From that V, run up the inside of the right branch and round its tip to close it.",
+      "textHash": "1c1df6483f40deca2b9a5227f85d3c80fa58267c558a6a17adbf5b29fae04e99",
+      "durationMs": 4720
+    },
+    "canopy-left": {
+      "file": "canopy-left.m4a",
+      "text": "The treetop is a ring of big bumps. Start at the trunk on the left and bump your way up to the top.",
+      "textHash": "1b2ae8abf2f9736bd1f34cfd1165b35731f3a3c1cbd261fa7f80e509b8f8072b",
+      "durationMs": 6000
+    },
+    "canopy-right": {
+      "file": "canopy-right.m4a",
+      "text": "Carry on down the right side, bump by bump, until you reach the trunk again.",
+      "textHash": "a1f8771c31539ef0148c2f693437524dee3d8473afb1d89c4a18434b17949ef6",
+      "durationMs": 4880
+    },
+    "green": {
+      "file": "green.m4a",
+      "text": "Color the treetop green, all around the branches.",
+      "textHash": "8562668551019a6c9dfd682b9374f77c9cd44bcf7059a86e621a73df77734524",
+      "durationMs": 3360
+    },
+    "brown": {
+      "file": "brown.m4a",
+      "text": "Color the trunk and branches brown.",
+      "textHash": "c73c0089de1745e4ed4d3425f09b3822c805282976ac2419aa9f253b02923819",
+      "durationMs": 2400
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "From the ground to the highest bump, that oak is yours. Imagine the shade under it.",
+      "textHash": "76da9835cdced3f01c01d7b462371858f0320f124d686a210b9abeb1c36cd345",
+      "durationMs": 5440
+    }
+  }
+}
