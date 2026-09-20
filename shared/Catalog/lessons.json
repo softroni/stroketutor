@@ -56,6 +56,16 @@
       }
     },
     {
+      "id": "pear",
+      "status": "approved",
+      "objective": "Bottom-heavy shape with a stem",
+      "reference": {
+        "file": "pear.svg",
+        "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v2, pear), 2026-09-19; vectorised with svg from-image",
+        "license": "Generated for StrokeTutor; owned by the creator"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

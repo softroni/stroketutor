@@ -18,7 +18,7 @@
       "title": "Fruits",
       "description": "Round, curved and clustered shapes, ending with four fruits overlapping in a bowl.",
       "level": "starter",
-      "lessonIds": ["apple", "cherries"]
+      "lessonIds": ["apple", "cherries", "pear"]
     },
     {
       "id": "plants",

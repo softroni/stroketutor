@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "pear",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T03:05:54.337Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "In this lesson we're drawing a pear. It's like an apple that sat down and got comfy. Watch how it comes together, then it's your turn.",
+      "textHash": "3f6732c54d49b854ebaea0d16dad477b9a2d6289c25d82aa3bd1548f97d3518b",
+      "durationMs": 7680
+    },
+    "left-side": {
+      "file": "left-side.m4a",
+      "text": "Start at the top. Curve down and out, wide at the bottom.",
+      "textHash": "679e797e6da597dbedd8a06d4d34b29cfcdd7dfb0f26af5a48f94d701216b4b5",
+      "durationMs": 4320
+    },
+    "right-side": {
+      "file": "right-side.m4a",
+      "text": "Go back to the top. Mirror that curve down the other side.",
+      "textHash": "64ada0437b2258703fe3204b5d7941b67aada291547d4a972af287d7c5f85989",
+      "durationMs": 3600
+    },
+    "stem": {
+      "file": "stem.m4a",
+      "text": "Start in the dip. Go up and left, over the top, back down.",
+      "textHash": "5c2378dbbe22caa00d816c739b8d93e3abfdb1e78b9f35d84cb0382e0b1ce012",
+      "durationMs": 4560
+    },
+    "leaf": {
+      "file": "leaf.m4a",
+      "text": "Start high on the stem. Sweep out to a point, then curve back.",
+      "textHash": "a2dcb6500984defe5b9d0cb0cb0b528799443e619374a34fbf74f7003cc782e4",
+      "durationMs": 4640
+    },
+    "vein": {
+      "file": "vein.m4a",
+      "text": "Draw one line along the middle of the leaf. Stop before the tip.",
+      "textHash": "ad91ad9c409a1cda203f212e1a1c617e07782b1c66983686138b8881cd18b11c",
+      "durationMs": 4320
+    },
+    "pear-green": {
+      "file": "pear-green.m4a",
+      "text": "Color the pear light green.",
+      "textHash": "342facede263469c5e00f0a77ea644a569389ac00e37d7ac46e6e02aac16710c",
+      "durationMs": 1920
+    },
+    "leaf-green": {
+      "file": "leaf-green.m4a",
+      "text": "Color the leaf green.",
+      "textHash": "f0468673f7ab02957274c66358409f512b75fc9e177d180b583279f879636c58",
+      "durationMs": 1440
+    },
+    "stem-brown": {
+      "file": "stem-brown.m4a",
+      "text": "Color the stem brown.",
+      "textHash": "bb4313fd841e0b74b00594ac1ecae516ceed19efe4f3a61fc23ce8d17358d09b",
+      "durationMs": 1920
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "There it is. A pear of your very own, round and heavy and ready for the fruit bowl.",
+      "textHash": "e52544e2ad199d10e6ab95b71eab5c87264608f7b1ed91d33f1563c040c5f99a",
+      "durationMs": 5440
+    }
+  }
+}
