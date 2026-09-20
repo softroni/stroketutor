@@ -312,6 +312,16 @@
       }
     },
     {
+      "id": "mushroom",
+      "status": "approved",
+      "objective": "Cap with three spots and gill lines under the rim",
+      "reference": {
+        "file": "mushroom.svg",
+        "source": "OpenAI image model, prompt style-v2 (docs/curriculum/plants-prompts.md), generated 2026-09-20",
+        "license": "AI-generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

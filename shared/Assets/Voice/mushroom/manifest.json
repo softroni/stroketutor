@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "mushroom",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:41:24.025Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Here is the mushroom from every fairy tale, red on top with pale spots. We'll peek under the cap too. Watch where the gills go, then it's time for yours.",
+      "textHash": "a8d8a2784a574a3ecf38c67e981684dceaba0bce0eddaa7c4338769955c29f48",
+      "durationMs": 9600
+    },
+    "cap-left": {
+      "file": "cap-left.m4a",
+      "text": "The cap is a wide dome. From the top, curve down to the left like half a rainbow.",
+      "textHash": "704f96a4d17b98cb7d2ecb3239058a58c872140b4c6ab984fbe2882726de97b5",
+      "durationMs": 5760
+    },
+    "cap-right": {
+      "file": "cap-right.m4a",
+      "text": "Now the other half of the rainbow, from the top down to the right.",
+      "textHash": "47bcca1b13afdaad7acc74e9da8e1692f09249ba1e3770f78102f6ca2d46b5d2",
+      "durationMs": 4320
+    },
+    "rim": {
+      "file": "rim.m4a",
+      "text": "Join the two ends with a long line that lifts a little in the middle.",
+      "textHash": "9f4a3d4582d5ab96beb75ef3b9a44659f0cd35e00c12039fe8358044c9320661",
+      "durationMs": 4000
+    },
+    "spots": {
+      "file": "spots.m4a",
+      "text": "Three spots float on the cap. A big oval up high, then a smaller one on each side.",
+      "textHash": "cb5932129fdf798f06ef6348932cba8c42f9610f7228ec78bff2032ddd7fba06",
+      "durationMs": 6320
+    },
+    "stem": {
+      "file": "stem.m4a",
+      "text": "The stem hangs from the middle of the rim. It widens on the way down and ends in a round foot.",
+      "textHash": "fb22d3f07fc07b055a4610c16ea827a3a6a638c0b286ddeeef4e137e4bb0b23f",
+      "durationMs": 6240
+    },
+    "underside": {
+      "file": "underside.m4a",
+      "text": "Under the rim, draw a shallow curve from each end of the cap in to the stem.",
+      "textHash": "48b1d26cea0ffe8a04166eae1491c57e0fed900c687dc07f2158d6b04c9e6a8b",
+      "durationMs": 4880
+    },
+    "gills-left": {
+      "file": "gills-left.m4a",
+      "text": "Gills are short lines under the cap. Draw three on the left, fanning out like umbrella ribs.",
+      "textHash": "fa5817cd0fe3786111e14a5af4226b1fab556b1042127953e742a7a0a30981d0",
+      "durationMs": 6560
+    },
+    "gills-right": {
+      "file": "gills-right.m4a",
+      "text": "Three more on the right, fanning the other way.",
+      "textHash": "979229ea6d916643981eaa2f116906e36e8da88439e3286280335dfd356629cd",
+      "durationMs": 2800
+    },
+    "cap-color": {
+      "file": "cap-color.m4a",
+      "text": "Color the cap red, around the spots.",
+      "textHash": "3655106a15ce8c59090827e7bc4aa15f6788cc52d7f1d453d59acbb2b8d867a0",
+      "durationMs": 2800
+    },
+    "cream": {
+      "file": "cream.m4a",
+      "text": "Color the three spots cream, and the underside too.",
+      "textHash": "a22037fa4c8be5922c16ce31f94efa0eb2807b2073776420f83bcc43f21c5e07",
+      "durationMs": 3360
+    },
+    "stem-color": {
+      "file": "stem-color.m4a",
+      "text": "Color the stem gray.",
+      "textHash": "e2a775f45ea8516a5563d1adb7e559af929dc86cdaa89992689a1b26a36f6fe0",
+      "durationMs": 1840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Spots on top and gills underneath. Your mushroom belongs in a storybook.",
+      "textHash": "9584176e265e8b4d5ae63e51db57736f7e2c479603086d9dd97f366f7619b3fe",
+      "durationMs": 4720
+    }
+  }
+}
