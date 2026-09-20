@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "rain-cloud",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:53:16.081Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Uh-oh, that cloud is full. Five raindrops are already on their way down, blown sideways by the wind. Watch them fall in two rows, then make it rain.",
+      "textHash": "c240d7dc3c729384465d377811b5aa81d98caef37a2b973ea7c42b7cd821468d",
+      "durationMs": 9600
+    },
+    "base": {
+      "file": "base.m4a",
+      "text": "Begin underneath the cloud. One long flat line, left to right.",
+      "textHash": "03dd24d37db8c55e9e6603d333993b2cd41a6fea73c19e351d65c768f349668d",
+      "durationMs": 5360
+    },
+    "left-bumps": {
+      "file": "left-bumps.m4a",
+      "text": "Puff up the left half. A small bump first, then a tall one.",
+      "textHash": "9a853b8f4b1d6df38b4b1dfe1493a157a6133b43437bffcadf5a84a6b4506e0c",
+      "durationMs": 4320
+    },
+    "right-bumps": {
+      "file": "right-bumps.m4a",
+      "text": "Two more puffs bring the cloud back down to the line.",
+      "textHash": "2185dd47045e7a8c2f3b76a204979b11663a4d2a06ae464fbeb9daafd5af1eb3",
+      "durationMs": 3680
+    },
+    "top-row": {
+      "file": "top-row.m4a",
+      "text": "A raindrop is a slanted teardrop, pointed on top and round below. Draw three in a row.",
+      "textHash": "146f4f40fb5b833ce1007f2d42eff2da2852f782456706ca611e858f5a915f1b",
+      "durationMs": 6480
+    },
+    "bottom-row": {
+      "file": "bottom-row.m4a",
+      "text": "Two more drops fall lower, under the gaps.",
+      "textHash": "724a358cf85157ec1e880352b7ccfc285572e535364b51e9fb43cbb4541b71cd",
+      "durationMs": 3200
+    },
+    "cloud": {
+      "file": "cloud.m4a",
+      "text": "Color the cloud gray.",
+      "textHash": "04bfd32ea93e22933241c4039e89161bec34a4b2543c472c14f5598cfe0c10bd",
+      "durationMs": 1680
+    },
+    "drops": {
+      "file": "drops.m4a",
+      "text": "The raindrops are blue.",
+      "textHash": "70d777c589cbe5d7044d4fcf23da6280681e661ac9a60a3d7a4929fe898dd976",
+      "durationMs": 2080
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Five drops, all slanting the same way. Good thing paper doesn't get wet.",
+      "textHash": "03fd7ec8189d1120530951269cd76ee075daa533e16df505923d4cf3d58eaa53",
+      "durationMs": 5120
+    }
+  }
+}

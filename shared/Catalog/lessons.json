@@ -32,6 +32,16 @@
       }
     },
     {
+      "id": "rain-cloud",
+      "status": "approved",
+      "objective": "Cloud with five slanted drops",
+      "reference": {
+        "file": "rain-cloud.svg",
+        "source": "Generated with OpenAI image model (ChatGPT), prompt style-v2, 2026-09-20; docs/curriculum/sky-weather/rain-cloud-openai.png",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "cherries",
       "status": "approved",
       "objective": "Two cherries joined at the stem",
