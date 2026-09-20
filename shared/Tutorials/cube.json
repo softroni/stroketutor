@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 2,
+  "id": "cube",
+  "title": "Cube",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "top-back",
+      "title": "Draw the top",
+      "instruction": "The top is a diamond lying flat. From the far corner, draw one edge out to each side.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 500 99 C 496 99 492 101 488 103 C 435 133 235 248 182 279 C 176.291 281.8545 172.3927 285.6144 169.4437 290.2796",
+          "duration": 2,
+          "lineWidth": 5
+        },
+        {
+          "d": "M 500 99 C 504 99 508 101 513 104 C 565 133 762 246 814 276 C 818 278 821 280 824 282 C 825.841 284.7615 828.5293 285.8284 829.7251 289.1004",
+          "duration": 2,
+          "lineWidth": 5
+        }
+      ]
+    },
+    {
+      "id": "top-front",
+      "title": "Close the top",
+      "instruction": "Close the diamond. Bring both edges in to meet at the near corner.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 172 289 C 224 318 429 437 484 468 C 489 471 494 472 498 473",
+          "duration": 2,
+          "lineWidth": 5
+        },
+        {
+          "d": "M 828 288 C 774 318 562 439 507 470 C 504 472 501 473 498 473",
+          "duration": 2,
+          "lineWidth": 5
+        }
+      ]
+    },
+    {
+      "id": "uprights",
+      "title": "Draw the uprights",
+      "instruction": "Now the upright edges. Drop a straight line from the left, near and right corners.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 169.4437 290.2796 C 169.2934 290.5174 169.1455 290.7575 169 291 C 167 295 167 301 167 308 C 166 369 166 597 167 658 C 167 665 166 670 169 675",
+          "duration": 2,
+          "lineWidth": 5
+        },
+        {
+          "d": "M 498 475 L 497 867",
+          "duration": 2,
+          "lineWidth": 5
+        },
+        {
+          "d": "M 829.7251 289.1004 C 829.8284 289.383 829.9205 289.682 830 290 C 832 293 832 298 832 305 C 833 366 833 598 832 659 C 832 665 833 670 831 673 C 830.9216 673.3136 830.8309 673.6149 830.7289 673.9049",
+          "duration": 2,
+          "lineWidth": 5
+        }
+      ]
+    },
+    {
+      "id": "base",
+      "title": "Draw the base",
+      "instruction": "Join the bottoms with two edges. Each runs the same way as the top edge above it.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 169 675 C 173 679 179 683 186 688 C 233 716 402 815 452 844 C 465 852 477 859 485 863 C 489 865 493 866 497 866 C 498.248 866 499.1499 866 499.9936 865.928",
+          "duration": 2,
+          "lineWidth": 5
+        },
+        {
+          "d": "M 830.7289 673.9049 C 829.5296 677.3136 826.7648 679.1568 824 681 C 771 712 567 829 514 860 C 510 862 507 864 504 865 C 502.248 865.584 501.1781 865.8269 499.9936 865.928",
+          "duration": 2,
+          "lineWidth": 5
+        }
+      ]
+    },
+    {
+      "id": "top-color",
+      "title": "Color the top",
+      "instruction": "Color the top light green.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 499 94 C 519 105 535 113 559 126 C 615 158 787 256 833 283 C 835 284 836 286 835 287 C 834 288 830 286 827 287 C 823 289 817 296 809 300 C 774 320 663 381 614 408 C 575 430 535 453 516 464 C 509 468 505 472 499 476 C 398 418 249 334 195 303 C 187 298 180 292 175 289 C 171 287 166 289 164 288 C 163 288 163 286 164 285 C 165 284 166 283 168 282 C 224 250 389 157 499 94 Z",
+          "color": "#B9DC8A",
+          "duration": 3,
+          "fillRule": "evenodd"
+        }
+      ]
+    },
+    {
+      "id": "left-color",
+      "title": "Color the left side",
+      "instruction": "Color the left side green.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 164 288 C 168 288 171 287 175 289 C 180 292 187 298 195 303 C 249 334 397 418 498 476 C 498 608 497 740 497 872 C 483 865 471 860 455 850 C 400 818 262 735 165 678 C 165 548 164 418 164 288 Z",
+          "color": "#4F9D4A",
+          "duration": 3,
+          "fillRule": "evenodd"
+        }
+      ]
+    },
+    {
+      "id": "right-color",
+      "title": "Color the right side",
+      "instruction": "The right side is away from the light. Make it dark green.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 827 287 C 830 285 833 287 836 287 C 836 417 836 547 836 677 C 723 742 609 808 496 873 C 497 866 498 860 498 851 C 498 785 498 601 498 476 C 537 453 567 434 614 408 C 666 379 774 320 809 300 C 817 296 823 289 827 287 Z",
+          "color": "#2F6B3A",
+          "duration": 3,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}

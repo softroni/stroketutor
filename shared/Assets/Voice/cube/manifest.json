@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cube",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:25:29.126Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Every box you'll ever draw starts here, with a cube. It's only nine straight lines. Watch where each one goes, then draw your own cube.",
+      "textHash": "092b555ac913535df281dfdaf9592c9445aaece0d48ca489a9e76b48f268e339",
+      "durationMs": 9040
+    },
+    "top-back": {
+      "file": "top-back.m4a",
+      "text": "The top is a diamond lying flat. From the far corner, draw one edge out to each side.",
+      "textHash": "10a4aa1a9d8d146b7aef33dc8dd9b7dcc7af7bbee600a89af16fad08f47ee787",
+      "durationMs": 6160
+    },
+    "top-front": {
+      "file": "top-front.m4a",
+      "text": "Close the diamond. Bring both edges in to meet at the near corner.",
+      "textHash": "97c9a9c73b00232ff0221eebb9c0622b47d3a3fb318a04a1ae1bc450a4f26ba1",
+      "durationMs": 4320
+    },
+    "uprights": {
+      "file": "uprights.m4a",
+      "text": "Now the upright edges. Drop a straight line from the left, near and right corners.",
+      "textHash": "1d1a81e976a52cee6098dac3e5ebfa60353a513dc6f32dd96370c59ef06e6976",
+      "durationMs": 5760
+    },
+    "base": {
+      "file": "base.m4a",
+      "text": "Join the bottoms with two edges. Each runs the same way as the top edge above it.",
+      "textHash": "fbadf85b420d602fc8674479e9a1294ea758d94c5ad5372c84166215161c1276",
+      "durationMs": 5520
+    },
+    "top-color": {
+      "file": "top-color.m4a",
+      "text": "Color the top light green.",
+      "textHash": "1c54bb3da2dcacad8d92549e8c54e46b7be18a7c76e8b4fe1aee4dd39adb33d7",
+      "durationMs": 1920
+    },
+    "left-color": {
+      "file": "left-color.m4a",
+      "text": "Color the left side green.",
+      "textHash": "321e78c9df5afb752c8d581df3a1dc5f69994da42b6393211cf546d679c1b8ed",
+      "durationMs": 1920
+    },
+    "right-color": {
+      "file": "right-color.m4a",
+      "text": "The right side is away from the light. Make it dark green.",
+      "textHash": "bb581192732ef5ab2a16b0b409d947ae73026c55fc4e85c1839f5cd2a8f543cc",
+      "durationMs": 3840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Nine lines, three faces, one solid cube. It looks like you could pick it up.",
+      "textHash": "88ffd541ae390a4339d73874fa00a42d2b194ce50edc8e74fe95abc684824041",
+      "durationMs": 5200
+    }
+  }
+}
