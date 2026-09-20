@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "grapes",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T05:08:54.731Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Grapes are just circles, lots of them, snuggled together. Watch the bunch fill up row by row, then pick up your pen.",
+      "textHash": "af5992de85abd9842ce5e2226488ecd9f60285683d4afb99bfac287aca541931",
+      "durationMs": 7920
+    },
+    "top-row": {
+      "file": "top-row.m4a",
+      "text": "Start with the top row. Draw four circles side by side, just touching.",
+      "textHash": "58e0802b06912898c62ef8d369e1c03082b6baa5e31d9db228550b0483911015",
+      "durationMs": 5360
+    },
+    "second-row": {
+      "file": "second-row.m4a",
+      "text": "The next row has three grapes. Each one sits in the dip between two above.",
+      "textHash": "93b743f0305a95f29f041d25d63522ebc2926f1343106d7f47177a4c4221d679",
+      "durationMs": 4960
+    },
+    "last-grapes": {
+      "file": "last-grapes.m4a",
+      "text": "Then a row of two, and one last grape to make the point.",
+      "textHash": "2ba5cc6aa265f763f45e05fc588f94dccf5767762b642593c9272c02f9552846",
+      "durationMs": 3920
+    },
+    "stalk": {
+      "file": "stalk.m4a",
+      "text": "The grapes hang from a stalk. Trace around its outside, up from the left grape.",
+      "textHash": "8b333ec913fd962544eba3381753b026967f86c7184470909593e75e2293c062",
+      "durationMs": 5280
+    },
+    "branches": {
+      "file": "branches.m4a",
+      "text": "Little branches reach down to the other grapes. Draw the arches between them.",
+      "textHash": "9e433a94c10f10bde40f01f74dcfc55c3a0cfea0dff4fb51b9cad1c0e7b20316",
+      "durationMs": 4480
+    },
+    "leaf": {
+      "file": "leaf.m4a",
+      "text": "A vine leaf has three points. From the stalk, draw up and around all three.",
+      "textHash": "3a52dc4b6a0ca9d71424535cf6881e6e3f52c158989dbb403ffa127bdcea31f3",
+      "durationMs": 5600
+    },
+    "vein": {
+      "file": "vein.m4a",
+      "text": "Give the leaf one vein. Start just below the top point and run down.",
+      "textHash": "4d82a63471a94f489456c20a85e644129639a2b94cb84cdeb1d364caaa5b3017",
+      "durationMs": 4880
+    },
+    "tendril": {
+      "file": "tendril.m4a",
+      "text": "Last, a curly tendril. From the stalk, swing out, loop once and wiggle away.",
+      "textHash": "8c3605236799ef257cc8fac97b69e734892118ecc3a04a642b39f40a9ffec1c5",
+      "durationMs": 7200
+    },
+    "purple": {
+      "file": "purple.m4a",
+      "text": "Color every grape purple.",
+      "textHash": "f598ecdd273876bd13bfcbb337f3d0434dd7b25f31db1bde0675f9bde9354fcb",
+      "durationMs": 2000
+    },
+    "shine": {
+      "file": "shine.m4a",
+      "text": "Add a little shine on each grape in light purple. It has no outline.",
+      "textHash": "c745a3720684f650159acc38730a1ef2e8151a16d86d45337abc4ee147908466",
+      "durationMs": 5040
+    },
+    "brown": {
+      "file": "brown.m4a",
+      "text": "Color the stalk brown.",
+      "textHash": "9fc6c52b25d18f90783e051520d660762653dccab94c857d580074985cf09104",
+      "durationMs": 1680
+    },
+    "green": {
+      "file": "green.m4a",
+      "text": "The leaf is green.",
+      "textHash": "5aa1d27a3fa8a794f149cd065eae742af70ad06444c2928982220f24fabdae86",
+      "durationMs": 1520
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "What a bunch. Every grape in it is yours.",
+      "textHash": "cb8cbffc4a1188a90bd6eec01c6c9dca5f69dfed2a92e440d4e7ada3cbc496ef",
+      "durationMs": 3440
+    }
+  }
+}
