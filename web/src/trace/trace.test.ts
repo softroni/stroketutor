@@ -189,3 +189,23 @@ describe('relaxing a traced line', () => {
     for (const [x, y] of calm.slice(10, 70)) expect(Math.abs(y - (100 - x / 3 + 0.33))).toBeLessThan(0.6)
   })
 })
+
+describe('outlines: no nick where shapes touch', () => {
+  it('keeps both rings round across the place they touch, given the width of the ink', () => {
+    const ringAt = (cx: number, x: number, y: number) => {
+      const r = Math.hypot(x + 0.5 - cx, y + 0.5 - 60)
+      return r >= 26 && r <= 34
+    }
+    const rings = mask(200, 120, (x, y) => ringAt(60, x, y) || ringAt(126, x, y))
+    const nick = (lines: { points: [number, number][] }[]) =>
+      Math.max(...lines.flatMap((line) => line.points.map(([x, y]) => Math.min(Math.abs(Math.hypot(x - 60, y - 60) - 30), Math.abs(Math.hypot(x - 126, y - 60) - 30)))))
+    const pulled = traceSkeleton(thin(rings), { minSpur: 12, maxBend: 55 })
+    const clean = traceSkeleton(thin(rings), { minSpur: 12, maxBend: 55, halfWidth: distanceToPaper(rings) })
+    expect(clean).toHaveLength(2)
+    expect(clean.every((line) => line.closed)).toBe(true)
+    // Without the widths each ring is dragged to the middle of the pair, three units off its circle.
+    expect(nick(pulled)).toBeGreaterThan(2.5)
+    // With them the rings step over the touch; the chord across it strays less than the pull did.
+    expect(nick(clean)).toBeLessThan(nick(pulled))
+  })
+})

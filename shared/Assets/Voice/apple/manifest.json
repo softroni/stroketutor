@@ -4,13 +4,13 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T02:09:54.262Z",
+  "generatedAt": "2026-09-20T02:19:09.810Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "Hi, it's Lina. Today we're drawing an apple, the kind you'd find in your lunchbox. Watch how it comes together, then it's your turn.",
-      "textHash": "cfbfd6a02ae12fb907b49c2f9dcd79a7a62cf0879c7836bb36e865123dcb37fe",
-      "durationMs": 8720
+      "text": "Today we're drawing an apple, the kind you'd find in your lunchbox. Watch how it comes together, then it's your turn.",
+      "textHash": "5483dcdb96a8470494b903dc0cd09f35590dc52cb7bcdef8ad4bc0c1e47f2212",
+      "durationMs": 7120
     },
     "left-side": {
       "file": "left-side.m4a",

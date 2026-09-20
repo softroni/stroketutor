@@ -19,6 +19,14 @@ export interface SkeletonOptions {
    * other lines crowd it; a pen would not lift there.
    */
   joinGap?: number
+  /**
+   * Half the width of the ink at each pixel (the distance to paper). Where two
+   * lines touch, a leaf resting on an apple, their ink runs together and the
+   * skeleton is pulled to the middle of the pair, a nick in both lines. With
+   * this, the stretch either side of such a crossing where the ink is fatter
+   * than the line's own width is left out, and the line carries on across it.
+   */
+  halfWidth?: ArrayLike<number>
 }
 
 const ORTHOGONAL: Point[] = [
@@ -264,13 +272,32 @@ export function traceSkeleton(skeleton: Mask, options: SkeletonOptions): Polylin
   }
   const endNode = (end: number) => find(end & 1 ? branches[end >> 1].to : branches[end >> 1].from)
 
+  // Where lines touch or cross (four ends or more at a node), each branch is followed only as far as
+  // its ink is its own: see `halfWidth`. The gap is closed afterwards, straight across.
+  const touching = (n: number) => ends[n].length >= 4
+  const body = branches.map((branch, k) => {
+    const width = options.halfWidth
+    if (!width || !alive[k]) return branch.pixels
+    const head = touching(find(branch.from))
+    const tail = touching(find(branch.to))
+    if (!head && !tail) return branch.pixels
+    const widths = branch.pixels.map((pixel) => width[pixel]).sort((a, b) => a - b)
+    const fat = widths[widths.length >> 1] * 1.2 + 0.5
+    const most = Math.min(80, Math.floor(branch.pixels.length * 0.35))
+    let from = 0
+    let to = branch.pixels.length
+    if (head) while (from < most && width[branch.pixels[from]] > fat) from += 1
+    if (tail) while (branch.pixels.length - to < most && width[branch.pixels[to - 1]] > fat) to -= 1
+    return branch.pixels.slice(from, to)
+  })
+
   // Walk chains of paired branches, starting from ends that stop.
   const walked = new Uint8Array(branches.length)
   const polylines: Polyline[] = []
   const walk = (entry: number) => {
     const points: Point[] = []
     const startNode = endNode(entry)
-    if (ends[startNode].length >= 3) points.push(nodePoint(startNode))
+    if (ends[startNode].length >= 3 && !touching(startNode)) points.push(nodePoint(startNode))
     let end = entry
     let closed = false
     // Where two shapes touch (a leaf resting on an apple), a line carried straight
@@ -285,7 +312,9 @@ export function traceSkeleton(skeleton: Mask, options: SkeletonOptions): Polylin
       const found = passed.findIndex((p) => Math.hypot(p.at[0] - at[0], p.at[1] - at[1]) <= near && points.length - p.index >= 8 * options.minSpur)
       if (found < 0) return false
       const from = passed[found]
-      polylines.push({ points: dedupe([from.at, ...points.splice(from.index), at]), closed: true })
+      const loop = points.splice(from.index)
+      // At a touch the crossing itself is on neither line, so the loop closes straight across it.
+      polylines.push({ points: densify(dedupe(touching(node) ? loop : [from.at, ...loop, at]), true), closed: true })
       branches.forEach((branch, k) => {
         if (alive[k] && !walked[k] && from.node !== node && [find(branch.from), find(branch.to)].sort().join() === [from.node, node].sort().join()) walked[k] = 1
       })
@@ -296,12 +325,12 @@ export function traceSkeleton(skeleton: Mask, options: SkeletonOptions): Polylin
     for (;;) {
       const k = end >> 1
       walked[k] = 1
-      const sequence = end & 1 ? [...branches[k].pixels].reverse() : branches[k].pixels
+      const sequence = end & 1 ? [...body[k]].reverse() : body[k]
       for (const pixel of sequence) points.push(centre(pixel))
       const exit = end ^ 1
       const next = partner[exit]
       if (next < 0) {
-        if (ends[endNode(exit)].length >= 3) points.push(nodePoint(endNode(exit)))
+        if (ends[endNode(exit)].length >= 3 && !touching(endNode(exit))) points.push(nodePoint(endNode(exit)))
         break
       }
       if (walked[next >> 1]) {
@@ -310,14 +339,14 @@ export function traceSkeleton(skeleton: Mask, options: SkeletonOptions): Polylin
       }
       const node = endNode(exit)
       if (ends[node].length >= 3) {
-        if (cutLoop(node)) points.push(nodePoint(node))
+        if (cutLoop(node) && !touching(node)) points.push(nodePoint(node))
         passed.push({ node, index: points.length, at: nodePoint(node) })
       }
       end = next
     }
     // A closed walk began part-way round; a crossing passed on the way is where the two shapes part.
     if (closed && passed.length > 1) cutLoop(startNode)
-    polylines.push({ points: dedupe(points), closed })
+    polylines.push({ points: densify(dedupe(points), closed), closed })
   }
   branches.forEach((_, k) => {
     for (const end of [k * 2, k * 2 + 1]) {
@@ -389,6 +418,21 @@ function bridgeGaps(input: Polyline[], gap: number, maxBend: number): Polyline[]
     lines.splice(best.b, 1)
   }
   return lines
+}
+
+/** Fills any gap left where a touch was stepped over with evenly spaced points, straight across. */
+function densify(points: Point[], closed: boolean): Point[] {
+  const out: Point[] = []
+  const count = closed ? points.length : points.length - 1
+  for (let k = 0; k < count; k += 1) {
+    const [ax, ay] = points[k]
+    const [bx, by] = points[(k + 1) % points.length]
+    out.push(points[k])
+    const steps = Math.floor(Math.hypot(bx - ax, by - ay) / 1.5)
+    for (let step = 1; step < steps; step += 1) out.push([ax + ((bx - ax) * step) / steps, ay + ((by - ay) * step) / steps])
+  }
+  if (!closed && points.length > 0) out.push(points[points.length - 1])
+  return out
 }
 
 function dedupe(points: Point[]): Point[] {

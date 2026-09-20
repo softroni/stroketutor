@@ -181,6 +181,7 @@ export const lessonCommands: Command[] = [
       objective: { type: 'string', description: 'The one-line objective shown in the path.' },
       path: { type: 'string', description: 'The path to put it in.', placeholder: 'id' },
       position: { type: 'string', description: 'Its place in that path, counting from 1 (the end by default).', placeholder: 'n' },
+      replace: { type: 'boolean', description: 'The file takes the place of an existing lesson’s tutorial: its catalog entry, path and voice stay, and the version before is kept in History.' },
     },
     async (ctx, args) => {
       const text = await readFile(args.positionals[0], 'utf8').catch(() => {
@@ -189,6 +190,12 @@ export const lessonCommands: Command[] = [
       const parsed = parseTutorialJSON(text)
       if (!parsed.ok) throw new CliError('The file is not a valid tutorial, so it was not imported.', parsed.issues)
       const id = stringValue(args.values, 'id') ?? parsed.tutorial.id
+      if (args.values.replace) {
+        const title = stringValue(args.values, 'title')?.trim() || parsed.tutorial.title
+        await replaceTutorial(ctx, id, { ...parsed.tutorial, id, title }, { checkpoint: true })
+        ctx.out.result({ id, replaced: true }, () => `Replaced the tutorial of ${id}; the version before is in its History.`)
+        return
+      }
       const library = await ctx.library()
       const { catalog } = await readCatalog(ctx)
       // A planned lesson with nothing drawn for it is a place waiting to be

@@ -166,7 +166,7 @@ export async function traceSvg(text: string, options: TraceOptions = {}): Promis
 
     const distance = distanceToPaper(ink)
     const strokes: Omit<TracedStroke, 'id'>[] = []
-    for (const line of traceSkeleton(skeleton, lineOptions)) {
+    for (const line of traceSkeleton(skeleton, { ...lineOptions, halfWidth: distance })) {
       const widths = line.points
         .map(([x, y]) => distance[Math.floor(y) * size + Math.floor(x)])
         .filter((value) => value > 0)
