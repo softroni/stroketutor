@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "snowflake",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:54:03.584Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "No two snowflakes are alike, but every one has six arms. Ours has a round middle, six branching arms and six tiny diamonds. Watch one arm closely, the rest are copies, then let it snow.",
+      "textHash": "fc570abbcf62bcb74e358f4554eb74135f3987d367d55462a117d2779d751d11",
+      "durationMs": 12960
+    },
+    "center": {
+      "file": "center.m4a",
+      "text": "A snowflake grows from its middle. Draw a small circle in the center of your page.",
+      "textHash": "3c798b5281ecfd84302a7cdeab0172446aa8c624d24d74a8d2c2f4efe7b782f3",
+      "durationMs": 5200
+    },
+    "arm-top": {
+      "file": "arm-top.m4a",
+      "text": "The first arm points up. Up one side, out and back for a branch, over the tip, then down the same way.",
+      "textHash": "ac3a83d86b07c071eec8d67632af2207c341850e967ed1cbfe3760248615299b",
+      "durationMs": 8080
+    },
+    "arm-upper-right": {
+      "file": "arm-upper-right.m4a",
+      "text": "The next arm leans to the upper right. It is the same shape, just turned.",
+      "textHash": "7e056c7b320ca121e2e936b9c2774b1b8c04ebfc3ad2d79b4af509277b56cacb",
+      "durationMs": 5200
+    },
+    "arm-lower-right": {
+      "file": "arm-lower-right.m4a",
+      "text": "Now the lower right arm. Side, branch, tip, branch, side.",
+      "textHash": "5c4203cba09620838244ea7227470141581bde832d94dc51a9461a7532fb0b6e",
+      "durationMs": 5120
+    },
+    "arm-bottom": {
+      "file": "arm-bottom.m4a",
+      "text": "The fourth arm points straight down, like the first one upside down.",
+      "textHash": "644756a81b63ae890e5e72b533db6e3358e25f2b0543342a67227a59fa2637f0",
+      "durationMs": 4080
+    },
+    "arm-lower-left": {
+      "file": "arm-lower-left.m4a",
+      "text": "Two arms to go. This one reaches to the lower left.",
+      "textHash": "0edbb9482c45fbad5baf3d2109a51ebab7c0eef466c05f3b29227377d125fb26",
+      "durationMs": 3920
+    },
+    "arm-upper-left": {
+      "file": "arm-upper-left.m4a",
+      "text": "The last arm fills the gap on the upper left. Now there are six.",
+      "textHash": "1c351e83124d05fba73e16bccff76f8eca536dce62ce382494ce45ea1811a5b2",
+      "durationMs": 4800
+    },
+    "diamonds": {
+      "file": "diamonds.m4a",
+      "text": "Between the arms sit six little diamonds. Each is a tiny kite with soft corners.",
+      "textHash": "a6e8ef2c44cf94ba381c939d888365f1b312033b02506a90fdc2cf39b24c6c7a",
+      "durationMs": 6080
+    },
+    "arms-color": {
+      "file": "arms-color.m4a",
+      "text": "Color the arms and the center light blue.",
+      "textHash": "2588b2b129f02a9c7be21ce83a39b517d040acea43a1a2545f7991cb8f2f0d2a",
+      "durationMs": 2640
+    },
+    "diamonds-color": {
+      "file": "diamonds-color.m4a",
+      "text": "Color the diamonds blue-green.",
+      "textHash": "8e9f3cf64892e2fe06e4e3c34ae1fb0a60c42ec40497e82742fa08f7f047d3ae",
+      "durationMs": 2080
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Six arms, six diamonds and one frosty middle. This snowflake will never melt.",
+      "textHash": "7c33bee31fade301f8b292c5101eeb6221d81409000f79e1db5244daa6fd0fe3",
+      "durationMs": 5920
+    }
+  }
+}
