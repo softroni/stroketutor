@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "mug",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:32:22.313Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A mug of hot chocolate is a short, wide cylinder with a handle to hold on to. Watch it take shape, then pour one for yourself.",
+      "textHash": "1eae41618f5704e9bcb9d87e5c61471973e70ee1d059ca3d480dac28dbe25429",
+      "durationMs": 7920
+    },
+    "rim-back": {
+      "file": "rim-back.m4a",
+      "text": "Begin at the rim, a wide flat oval. Draw its back curve first.",
+      "textHash": "b9b4626d9b75622d6a45f75d7b107385dc0cb522780ae2a245d08f6a8efe9068",
+      "durationMs": 5120
+    },
+    "rim-front": {
+      "file": "rim-front.m4a",
+      "text": "Then its front curve, from one end to the other.",
+      "textHash": "559de713ef9c31c499ed29463c98773654b70839bf7d0cade3517d2be8986b2a",
+      "durationMs": 3280
+    },
+    "inner": {
+      "file": "inner.m4a",
+      "text": "Draw a smaller oval inside, back curve then front. The gap is the mug's thick edge.",
+      "textHash": "cb17f316e31064f2f3f513f768b277b2469abac0e475cb00e38edb549c63399f",
+      "durationMs": 6720
+    },
+    "sides": {
+      "file": "sides.m4a",
+      "text": "Drop a straight side from each end of the rim.",
+      "textHash": "82094121909e5efcd478172031b9f3e97b08bc12bead7093eae048fb3e5f6ebd",
+      "durationMs": 2960
+    },
+    "bottom": {
+      "file": "bottom.m4a",
+      "text": "Round off the bottom with one sagging curve.",
+      "textHash": "2cce7e05ded450cb65699d42d360199e6ec65977d1fc7eeb864254e582c94fc3",
+      "durationMs": 3280
+    },
+    "handle-outer": {
+      "file": "handle-outer.m4a",
+      "text": "The handle is a letter C, backwards. Draw its outside curve from the mug's side and back again.",
+      "textHash": "59763fce0fd8f601258946879e41dfc8158b83862251d18fcf62b4594a4d7346",
+      "durationMs": 6560
+    },
+    "handle-inner": {
+      "file": "handle-inner.m4a",
+      "text": "Draw a smaller curve inside it. That's the hole for your fingers.",
+      "textHash": "b492265da0ae09e3ec38e1e56417e03aaf871f4624b6bf1287c663ea509c666a",
+      "durationMs": 4000
+    },
+    "color-mug": {
+      "file": "color-mug.m4a",
+      "text": "Color the mug and its handle red.",
+      "textHash": "61485ebe2c3bd485e55fc4638b0958d5b7bc212cbb2aaed6749c7e639bf6ed29",
+      "durationMs": 2640
+    },
+    "color-edge": {
+      "file": "color-edge.m4a",
+      "text": "Color the thick edge pink.",
+      "textHash": "a465e3691aade975a4fa8a2bbee56b3e10768435b69a5e7eb153b40c0bf2bab5",
+      "durationMs": 2000
+    },
+    "color-drink": {
+      "file": "color-drink.m4a",
+      "text": "Fill the mug with brown hot chocolate.",
+      "textHash": "8752662e7bfded9bb2a83a989a19d52e68eefc11f4465d4cccc61e5f50cea6c9",
+      "durationMs": 2240
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "One warm mug, filled right to the top. Careful, it's hot.",
+      "textHash": "1a9fadec065dbe30a66cec248d91c197c9b6e7c2d094c2e6a6fb0f7087f41fe7",
+      "durationMs": 4480
+    }
+  }
+}

@@ -252,6 +252,16 @@
       }
     },
     {
+      "id": "mug",
+      "status": "approved",
+      "objective": "Cylinder with a handle and an inner ellipse",
+      "reference": {
+        "file": "mug.svg",
+        "source": "Generated picture: OpenAI image model, style-v2 prompt (docs/curriculum/forms-prompts.md), 2026-09-20; traced with svg from-image",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",
