@@ -72,7 +72,7 @@
       "title": "Plants",
       "description": "Trees, flowers and potted plants, from stacked triangles to a twisted bonsai, ending on a windowsill garden.",
       "level": "core",
-      "lessonIds": ["pine-tree", "tulip", "cactus", "mushroom"]
+      "lessonIds": ["pine-tree", "tulip", "cactus", "mushroom", "palm-tree"]
     }
   ]
 }

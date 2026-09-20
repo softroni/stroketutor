@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "palm-tree",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:42:44.313Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Think of a beach. There's a palm tree on it, leaning toward the sea. Watch its leaves spill over like a fountain, then draw the palm on your own beach.",
+      "textHash": "708beaf371324790f1596a1ef68b76e5f8e417d89231eefb6dba36f9ef2c6f9f",
+      "durationMs": 9120
+    },
+    "trunk-left": {
+      "file": "trunk-left.m4a",
+      "text": "The trunk leans to the right. From the ground, draw one long curve up to the top.",
+      "textHash": "d43fb0c5afc859699b0b89284f599991f03895be127ee8e27ac46b49515fcee8",
+      "durationMs": 5440
+    },
+    "trunk-right": {
+      "file": "trunk-right.m4a",
+      "text": "Now a flat foot to the right. From its end, draw a second curve up, closer at the top.",
+      "textHash": "9088840f56f9b5078eb4303cd982817ed32d879cadd5c5bf3dd2c03564246cbf",
+      "durationMs": 6480
+    },
+    "rings": {
+      "file": "rings.m4a",
+      "text": "Four short curved lines cross the trunk like little smiles. They stop before the edges.",
+      "textHash": "2424abf63d57a725efaf8dbdab5890304599c6ac3b85804a16b9ac9ae4e096d3",
+      "durationMs": 5920
+    },
+    "top-leaf": {
+      "file": "top-leaf.m4a",
+      "text": "A palm leaf is an arch with a saw under it. Arch up and over to the right, then zigzag back.",
+      "textHash": "394442ee117053a606e0bb06b675c5f3c0a21c3a6a5226c7280871e1e2d0fc73",
+      "durationMs": 6320
+    },
+    "upper-left-leaf": {
+      "file": "upper-left-leaf.m4a",
+      "text": "Now a long leaf to the left. Arch out to its tip, then saw your way back to the trunk.",
+      "textHash": "25add41dc18e7bb61eb0a8586c6368fe3a6e2faa5b7732dc24b6516636933577",
+      "durationMs": 5680
+    },
+    "upper-right-leaf": {
+      "file": "upper-right-leaf.m4a",
+      "text": "Its partner reaches out to the right, the same way: arch first, teeth second.",
+      "textHash": "bfd41d1f493b3b68dba356f0ff60a5caf09957ebeb37618a77a9c30b4fef79a6",
+      "durationMs": 5120
+    },
+    "lower-left-leaf": {
+      "file": "lower-left-leaf.m4a",
+      "text": "A shorter leaf droops under the left one. Curve out and down, then zigzag home.",
+      "textHash": "105b67ac1dcda98740ede57bd3c07f0435c3676b5484d391c3c8d4d998073b84",
+      "durationMs": 6240
+    },
+    "lower-right-leaf": {
+      "file": "lower-right-leaf.m4a",
+      "text": "One last drooping leaf on the right finishes the crown.",
+      "textHash": "d723ad4ece16977b16493e35c0aead92857d04eca5bf919dd373d8599439808e",
+      "durationMs": 3760
+    },
+    "leaves-green": {
+      "file": "leaves-green.m4a",
+      "text": "Color the top leaf and the two drooping ones green.",
+      "textHash": "c8bd34424426c6a049465b8c9e4d9b6de1d5adac14f1902a62b779d75171c0f4",
+      "durationMs": 3280
+    },
+    "side-leaves": {
+      "file": "side-leaves.m4a",
+      "text": "The two long side leaves are dark green.",
+      "textHash": "c1397f803b78f8eef628f4ead13e2aeca381e42f3e581f551dcca5518a505cf1",
+      "durationMs": 2880
+    },
+    "trunk-color": {
+      "file": "trunk-color.m4a",
+      "text": "Color the trunk brown.",
+      "textHash": "d1426e2c2ea0ddd7b2e1f93eaffb27645997039118e9e715ca255b7f4d53807d",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Five leaves and a leaning trunk. You can almost hear the waves.",
+      "textHash": "682380c67afcf60f43f816565babe0b57757891eacbd29e6c144c5b373a70d3c",
+      "durationMs": 4000
+    }
+  }
+}
