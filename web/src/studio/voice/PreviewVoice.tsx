@@ -4,7 +4,7 @@ import type { TutorialPlayerProps } from '../../player/TutorialPlayer'
 import { INTRO_ID, OUTRO_ID } from '../../voice/bookends'
 
 import type { LessonNarration } from '../../voice/types'
-import { narrateStep, readLessonNarration } from '../api'
+import { narrateStep, readLessonNarration, saveNarrationLine } from '../api'
 import { routeHref } from '../route'
 
 import { useAudioPlayer } from './useAudioPlayer'
@@ -29,6 +29,8 @@ export function usePreviewVoice(
   const [stepId, setStepId] = useState<string | null>(null)
   const [run, setRun] = useState(0)
   const [recording, setRecording] = useState<'step' | 'all' | null>(null)
+  /** The words being rewritten for the part on screen, or null when they are not being edited. */
+  const [draft, setDraft] = useState<string | null>(null)
   const [speak, setSpeak] = useState(() => {
     try {
       return localStorage.getItem(SPEAK_KEY) !== '0'
@@ -66,6 +68,7 @@ export function usePreviewVoice(
   const onStep = useCallback(
     (next: string, nextRun: number) => {
       stop()
+      setDraft(null)
       setStepId(next)
       setRun(nextRun)
     },
@@ -81,6 +84,24 @@ export function usePreviewVoice(
       for (const id of ids) setNarration(await narrateStep(lessonId, id, { another: which === 'step' && step?.stale === null }))
     } catch (caught) {
       setProblem(caught instanceof Error ? caught.message : 'The recording failed.')
+    } finally {
+      setRecording(null)
+    }
+  }
+
+  // Saves what Lina says here, and records it straight away so it can be heard. Empty words go back
+  // to the usual ones: the step's instruction, or the pattern for the start or end of a lesson.
+  const saveWords = async () => {
+    if (draft === null || !step) return
+    const words = draft.trim()
+    setRecording('step')
+    setProblem(null)
+    try {
+      setNarration(await saveNarrationLine(lessonId, step.stepId, words && words !== step.instruction ? words : null))
+      setNarration(await narrateStep(lessonId, step.stepId))
+      setDraft(null)
+    } catch (caught) {
+      setProblem(caught instanceof Error ? caught.message : 'The words could not be saved.')
     } finally {
       setRecording(null)
     }
@@ -113,6 +134,9 @@ export function usePreviewVoice(
             {recording === 'all' ? 'Recording…' : `Record the ${waiting} that need it`}
           </button>
         ) : null}
+        <button type="button" className="st-button" disabled={recording !== null} onClick={() => setDraft(draft === null ? step.text : null)}>
+          {draft === null ? 'Change what Lina says' : 'Cancel'}
+        </button>
         <label className="st-preview-voice__speak">
           <input
             type="checkbox"
@@ -144,6 +168,29 @@ export function usePreviewVoice(
         <a className="st-preview-voice__note" href={routeHref({ name: 'voice' })}>
           Voice page
         </a>
+        {draft !== null ? (
+          <div className="st-preview-voice__words">
+            <textarea
+              value={draft}
+              maxLength={240}
+              rows={2}
+              autoFocus
+              aria-label="What Lina says here"
+              onChange={(event) => setDraft(event.target.value)}
+            />
+            <div className="st-preview-voice__words-row">
+              <button type="button" className="st-button st-button--primary" disabled={recording !== null} onClick={() => void saveWords()}>
+                {recording === 'step' ? 'Recording…' : 'Save and record'}
+              </button>
+              <span className="st-preview-voice__note">
+                {step.kind === 'step'
+                  ? 'Only what is spoken changes; the instruction on the screen stays as it is. Leave it empty to speak the instruction.'
+                  : 'Leave it empty for Lina’s usual words.'}{' '}
+                {draft.length}/240
+              </span>
+            </div>
+          </div>
+        ) : null}
       </div>
     )
   }
