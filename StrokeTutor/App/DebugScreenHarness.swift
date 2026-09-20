@@ -67,6 +67,16 @@ enum DebugScreenHarness {
             app.progress.markOpened(treeLesson.id, pathId: treePath.id, step: midStep(of: treeLesson))
             addPlaceholderPage(to: app, lesson: treeLesson)
 
+        case "home-shelves":
+            // Home a few weeks in: shelves at different places, so the row that
+            // scrolls itself to its next lesson can be seen doing it.
+            for (path, count) in zip(shipped, [4, 1, 0, 10]) {
+                for lesson in path.lessons.prefix(count) {
+                    app.progress.markCompleted(lesson.id, pathId: path.id)
+                }
+            }
+            addPlaceholderPage(to: app, lesson: treeLesson)
+
         case "paths":
             app.push(.paths)
 

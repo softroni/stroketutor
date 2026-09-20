@@ -29,7 +29,7 @@ struct HeroCard: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                DrawingThumbnail(tutorial: drawing, size: 74)
+                DrawingThumbnail(tutorial: drawing, size: 74, strokeColor: nil, showsFills: true)
                     .padding(11)
                     .background(
                         RoundedRectangle(cornerRadius: Theme.thumbCornerRadius, style: .continuous)
