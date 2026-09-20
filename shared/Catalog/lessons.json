@@ -76,6 +76,16 @@
       }
     },
     {
+      "id": "watermelon-slice",
+      "status": "approved",
+      "objective": "Triangle slice with rind and five seeds",
+      "reference": {
+        "file": "watermelon-slice.svg",
+        "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v2, watermelon-slice), 2026-09-19; vectorised with svg from-image",
+        "license": "Generated for StrokeTutor; owned by the creator"
+      }
+    },
+    {
       "id": "strawberry",
       "status": "approved",
       "objective": "Heart-shaped berry with six seeds and a leafy top",
