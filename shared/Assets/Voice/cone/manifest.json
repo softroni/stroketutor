@@ -1,0 +1,46 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cone",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:26:47.662Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Think of a party hat. A cone is only three lines, and the trick is the curved base. Look how they meet, then it's your pen's turn.",
+      "textHash": "eaaad4efc0a5a870db9363160b0b1eb091d103e962af7659b0de418385b94826",
+      "durationMs": 8160
+    },
+    "base": {
+      "file": "base.m4a",
+      "text": "Begin with the base. It's the front of a flat oval, sagging in the middle.",
+      "textHash": "d41aeb04ca9af84b6c9c6194c504f620512f08d5088643de253bcf1fa513aae9",
+      "durationMs": 4320
+    },
+    "left": {
+      "file": "left.m4a",
+      "text": "Now the left side. From the left end of the curve, lean a straight line up to the tip.",
+      "textHash": "b6095f4e23281049d035bcd839a697de20c2a987cb6080cc3b4a8684db27600e",
+      "durationMs": 5040
+    },
+    "right": {
+      "file": "right.m4a",
+      "text": "The right side leans the other way. Draw it up to meet the first at the tip.",
+      "textHash": "115e76adaa8b168e1cac9b57102cf72b3878cec7a790417592593954e6aafbad",
+      "durationMs": 4320
+    },
+    "color": {
+      "file": "color.m4a",
+      "text": "Color the cone purple.",
+      "textHash": "023353cfa3fbf13a16070eb53b9d6e439627b0538a525524022853d7c6cb6ef5",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Three lines, and it stands up by itself. Add stripes if you'd like a party hat.",
+      "textHash": "6525c7205022b3ff673ce79409239451a777cd6a9a15ce9afb87181f042b82c2",
+      "durationMs": 6320
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "id": "cone",
+  "title": "Cone",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "base",
+      "title": "Draw the base",
+      "instruction": "Begin with the base. It's the front of a flat oval, sagging in the middle.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 218 813 C 218 818 219 821 220 824 C 221 828 221 832 224 836 C 227 841 233 850 239 856 C 245 863 253 869 262 875 C 272 881 285 888 298 893 C 311 899 328 904 343 908 C 357 912 369 915 386 918 C 403 921 425 924 444 925 C 462 927 480 927 499 927 C 517 927 536 926 555 925 C 573 923 590 922 607 919 C 623 916 639 912 653 908 C 668 904 681 900 694 895 C 707 890 721 884 732 877 C 742 871 752 864 760 857 C 767 850 773 841 776 835 C 779 831 780 828 781 824 C 782 820 782 817 782 812",
+          "duration": 1.16,
+          "lineWidth": 14
+        }
+      ]
+    },
+    {
+      "id": "left",
+      "title": "Draw the left side",
+      "instruction": "Now the left side. From the left end of the curve, lean a straight line up to the tip.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 218 813 C 219 809 220 802 222 794 C 227 779 237 750 248 721 C 278 637 367 396 406 292 C 436 212 469 130 484 94 C 487 86 491 79 494 76 C 494 75.077 494.426 74.7929 494.983 74.7547",
+          "duration": 1.41,
+          "lineWidth": 14
+        }
+      ]
+    },
+    {
+      "id": "right",
+      "title": "Draw the right side",
+      "instruction": "The right side leans the other way. Draw it up to meet the first at the tip.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 782 812 C 782 807 781 801 778 793 C 767 762 742 691 717 623 C 680 523 590 284 556 194 C 540 150 521 105 513 86 C 511 82 509 80 507 78 C 504 76 500 76 497 75 C 496.4615 75 495.633 74.71 494.983 74.7547",
+          "duration": 1.42,
+          "lineWidth": 14
+        }
+      ]
+    },
+    {
+      "id": "color",
+      "title": "Color the cone",
+      "instruction": "Color the cone purple.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 497 67 C 500 65 502 66 505 68 C 509 71 516 75 520 83 C 527 96 535 120 545 145 C 573 218 647 412 688 522 C 729 632 773 755 790 805 C 793 813 791 818 789 825 C 787 832 784 838 778 845 C 771 853 758 867 747 875 C 736 883 726 889 713 895 C 700 901 683 907 667 912 C 651 917 636 921 617 924 C 599 927 573 930 556 932 C 540 934 531 934 515 934 C 498 934 472 934 455 933 C 438 932 429 931 412 929 C 396 927 373 923 356 919 C 339 915 322 910 308 905 C 294 900 284 895 274 890 C 264 885 259 881 250 874 C 241 867 227 852 221 845 C 218 842 217 839 215 835 C 213 830 211 819 210 814 C 209 810 210 808 211 804 C 219 782 237 729 255 679 C 286 595 358 401 395 302 C 428 216 462 126 479 87 C 483 77 493 70 497 67 Z",
+          "color": "#7B4FA3",
+          "duration": 3,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}
