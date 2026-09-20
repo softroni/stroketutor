@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "sunflower",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:43:49.104Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A sunflower turns its face to follow the sun. Ours has a big brown middle, yellow petals in front and orange ones peeking from behind. See the layers go on, then grow your own.",
+      "textHash": "304b3e0a0f585b77a850c85434eefeb5c7e42c101d5b7ff85292e5ffbea1ef21",
+      "durationMs": 11920
+    },
+    "center": {
+      "file": "center.m4a",
+      "text": "The middle of a sunflower is a big circle. Draw its left half, then its right half.",
+      "textHash": "1dd041b3c506c2f349d852afaf8b9cefb868e5ce6fc9c4dc51ccbc193c472365",
+      "durationMs": 5840
+    },
+    "front-petals-1": {
+      "file": "front-petals-1.m4a",
+      "text": "Front petals are pointed like candle flames. Draw four from the circle: up, right, down and left.",
+      "textHash": "c47d4011f7b1e4600fb5ab2902b59431ba6a387ce79c9cd04f64103796a30881",
+      "durationMs": 7120
+    },
+    "front-petals-2": {
+      "file": "front-petals-2.m4a",
+      "text": "Put one more flame in each gap. That makes eight.",
+      "textHash": "2835f51e05bc672ad2c9a666ed3ca7777062bacac51a6dae02c9367dfb4b8244",
+      "durationMs": 3760
+    },
+    "back-petals-1": {
+      "file": "back-petals-1.m4a",
+      "text": "Behind every gap a petal peeks out. It's a little tent: up to a point and down again. Draw four.",
+      "textHash": "1864fe4b219dc7032cee724a63ed8589cd3341c4e32c34b5405e7db2d406bd1c",
+      "durationMs": 6800
+    },
+    "back-petals-2": {
+      "file": "back-petals-2.m4a",
+      "text": "Four more tents fill the other gaps, all the way around.",
+      "textHash": "5ddcc114ee7e4618cd2d5bc2796c28716b483f2c58c597ad295d0aa10e728411",
+      "durationMs": 3760
+    },
+    "stem": {
+      "file": "stem.m4a",
+      "text": "The stem comes down from the bottom petal, two long lines side by side.",
+      "textHash": "6d2dca98b5c3f33a6bbf86d2d343a455402ebb2c486f52d09ff50eeb8cf1788c",
+      "durationMs": 4880
+    },
+    "left-leaf": {
+      "file": "left-leaf.m4a",
+      "text": "A leaf sits on a short stalk on the left. Draw the stalk, a wide heart with a point, and a line inside.",
+      "textHash": "0d5c892e260acee34336c977583b8959461ae69c1a67ef7a5f623fecf0ccba5f",
+      "durationMs": 7200
+    },
+    "right-leaf": {
+      "file": "right-leaf.m4a",
+      "text": "Lower down on the right, a second stalk, heart and inside line.",
+      "textHash": "25e1d4b4606a2a3197d40a2ea3b56e04b81783bff6142444a36c2410724263ab",
+      "durationMs": 4720
+    },
+    "petals-yellow": {
+      "file": "petals-yellow.m4a",
+      "text": "Color the front petals yellow.",
+      "textHash": "403e0b0ff2ab1839ea127f269bc29cb070fe26f6a50ddd8f2de76a4ca1685d1f",
+      "durationMs": 2160
+    },
+    "petals-orange": {
+      "file": "petals-orange.m4a",
+      "text": "The peeking petals are orange.",
+      "textHash": "556ebdf4fb6ff70e0491ca1493c15aabf056684ac9eb1ec61ee1de4ec64ec3c8",
+      "durationMs": 2320
+    },
+    "middle-brown": {
+      "file": "middle-brown.m4a",
+      "text": "Color the middle brown.",
+      "textHash": "aa1c9cb955e245ab2ef1b7282e2d9e3cfee9ac6a78dc41636e96c0b2ff948ee3",
+      "durationMs": 1680
+    },
+    "stem-leaves-green": {
+      "file": "stem-leaves-green.m4a",
+      "text": "Green for the stem, dark green for the two leaves.",
+      "textHash": "b94e80cdeb0e150f76f9dcb3725ee3304adb6e179326ed0218365eea60fc033d",
+      "durationMs": 3760
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Sixteen petals, and every one of them yours. It's facing the sun already.",
+      "textHash": "cdb9f491b0133ba03fa40ebb5f9879823fae904670be6487bd1a3b8bc6d03d08",
+      "durationMs": 4720
+    }
+  }
+}
