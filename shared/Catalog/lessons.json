@@ -12,6 +12,16 @@
       }
     },
     {
+      "id": "cloud",
+      "status": "approved",
+      "objective": "Flat base with four bumps on top",
+      "reference": {
+        "file": "cloud.svg",
+        "source": "Generated with OpenAI image model (ChatGPT), prompt style-v2, 2026-09-20; docs/curriculum/sky-weather/cloud-openai.png",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "cherries",
       "status": "approved",
       "objective": "Two cherries joined at the stem",

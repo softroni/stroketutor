@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cloud",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:52:45.755Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Lie on the grass, look up, and there's a cloud drifting by. Ours is flat underneath and bumpy on top. See the bumps roll along, then float one of your own.",
+      "textHash": "f2cb75f0f917f422884dc8ce7feed27c19d253af9112239a3969aa751667a35e",
+      "durationMs": 10880
+    },
+    "base": {
+      "file": "base.m4a",
+      "text": "A cloud sits on a flat bottom. Draw one straight line from left to right.",
+      "textHash": "ac257425b941543ffb01cf49cb8b869d5d7c56b3658c5d6274781dfca8ac0cf0",
+      "durationMs": 4880
+    },
+    "corner": {
+      "file": "corner.m4a",
+      "text": "Round off the left end. From the line, curl out and up to a little dip.",
+      "textHash": "e374af8155c5e7b6d0e780b43879ce023b39ee67f0da06a9004dcae3f3aa2706",
+      "durationMs": 5040
+    },
+    "small-bump": {
+      "file": "small-bump.m4a",
+      "text": "Now the bumps. The first is a small hill, up and over to the next dip.",
+      "textHash": "6399acb967c2487d17d47b8c5439fe07db4953c2569abd865c3884c0be091eb7",
+      "durationMs": 4960
+    },
+    "big-bump": {
+      "file": "big-bump.m4a",
+      "text": "The second bump is the biggest. Go high, like a rainbow, and come down.",
+      "textHash": "860262d2ea315a8a4f03ecf359e69afbe58e36776199e7fc8a4b6fa9624e34b1",
+      "durationMs": 4560
+    },
+    "middle-bump": {
+      "file": "middle-bump.m4a",
+      "text": "Then a medium bump, a little lower.",
+      "textHash": "349152780f346646fc801c06d0ecefe97f59ccd4a341e22d77b7cd7cf38a6315",
+      "durationMs": 2880
+    },
+    "last-bump": {
+      "file": "last-bump.m4a",
+      "text": "The last bump curls around and lands on the right end of the line.",
+      "textHash": "92fcdd04ff04ef15c441ee0fdd5bd49ce7492017f4babd428968e613b4b723ba",
+      "durationMs": 4240
+    },
+    "cloud": {
+      "file": "cloud.m4a",
+      "text": "Color the cloud gray.",
+      "textHash": "04bfd32ea93e22933241c4039e89161bec34a4b2543c472c14f5598cfe0c10bd",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "There it floats, flat below and puffy on top. What shape do you see in your cloud?",
+      "textHash": "cc31e68b300c3432cf3609cded82d342d50f1d045a87e8e8a9284b350bc06829",
+      "durationMs": 5840
+    }
+  }
+}

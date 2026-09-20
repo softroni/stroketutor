@@ -18,7 +18,7 @@
       "title": "Sky & Weather",
       "description": "From a sun made of a circle and rays to a storm over the mountains: simple shapes first, then overlap, then a whole scene.",
       "level": "starter",
-      "lessonIds": ["sun"]
+      "lessonIds": ["sun", "cloud"]
     },
     {
       "id": "fruits",
