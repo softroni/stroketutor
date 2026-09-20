@@ -52,6 +52,16 @@
       }
     },
     {
+      "id": "wave",
+      "status": "approved",
+      "objective": "Curling crest with foam and a trailing swell",
+      "reference": {
+        "file": "wave.svg",
+        "source": "Generated with OpenAI image model (ChatGPT), prompt style-v2, 2026-09-20; docs/curriculum/sky-weather/wave-openai.png",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "cherries",
       "status": "approved",
       "objective": "Two cherries joined at the stem",

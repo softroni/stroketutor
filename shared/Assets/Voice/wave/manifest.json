@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "wave",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:54:29.538Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Surf's up. A wave rises, curls over and crashes into foam. We'll catch it just before the crash. Watch the water climb, then ride your own.",
+      "textHash": "4f3cf71ed2880239c8f07373f1b080ffd4a6f442b8fe438bc3fab0b197f702d1",
+      "durationMs": 9120
+    },
+    "base": {
+      "file": "base.m4a",
+      "text": "The sea is flat underneath. Draw a long straight line from left to right.",
+      "textHash": "4e3dcabcf074e1348c8a49b85896cd9e3fd60de536b7ec746682e23c0d8bc96e",
+      "durationMs": 5520
+    },
+    "swell": {
+      "file": "swell.m4a",
+      "text": "Behind every big wave comes a small one. From the left end, draw a low hump.",
+      "textHash": "fa0fad5802f05dbb9acffce96f092c0a33de84fe584331e2fa2c78c0fea8738a",
+      "durationMs": 5840
+    },
+    "back": {
+      "file": "back.m4a",
+      "text": "Now the water climbs. Sweep up and to the right in one long curve.",
+      "textHash": "1586c817d8602dcc43b7de60b402cd91fffc88b97105f341b92eee77c7dabec1",
+      "durationMs": 4880
+    },
+    "crest": {
+      "file": "crest.m4a",
+      "text": "At the top the wave tips over. Curve forward and down into a hook.",
+      "textHash": "dfb1f7cfedf688d7e89d3b05d2425ec591b4c25ce346e7464d85cdc57dad3462",
+      "durationMs": 4560
+    },
+    "hollow": {
+      "file": "hollow.m4a",
+      "text": "Under the hook it's hollow. Scoop around and down to the flat line.",
+      "textHash": "4d85d083514a0f08525c7c978db88f2341e30eed5ca658c0bbd91893d04f342e",
+      "durationMs": 4960
+    },
+    "foam": {
+      "file": "foam.m4a",
+      "text": "Foam rides on top. Draw a row of small bumps from the back of the wave to the hook.",
+      "textHash": "5ba8ca35f36050580923826960da94d41a2b5e8583dba212966c8c1edc15f7c2",
+      "durationMs": 5040
+    },
+    "flow-lines": {
+      "file": "flow-lines.m4a",
+      "text": "Two curved lines inside show the water rushing up.",
+      "textHash": "dbe50e59d8557ec5946c348fb84f8d12874531ac4c802ef34d295155d9b0a739",
+      "durationMs": 4000
+    },
+    "bubbles": {
+      "file": "bubbles.m4a",
+      "text": "Spray flies off the top. Three bubbles, just small circles.",
+      "textHash": "9f372ca824422ffd943463644bcb78aaa57fa1f47730527b7bf1efefa8c92c52",
+      "durationMs": 4400
+    },
+    "water": {
+      "file": "water.m4a",
+      "text": "Color the water blue, and the bubbles too.",
+      "textHash": "b65902e7f4abf69113626afd43d1591f5fcee93055c6ebe79e1997ce45777138",
+      "durationMs": 2960
+    },
+    "foam-color": {
+      "file": "foam-color.m4a",
+      "text": "Color the foam cream.",
+      "textHash": "9df9274773b53cb65f8da872c301862ae373b12e91295128d7cccb4146bb3855",
+      "durationMs": 1600
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "There it goes, curling over with foam flying. Can you hear it crash?",
+      "textHash": "5d6f20e58c428c93783cde2994c2378bc6404cf65054850224b70688e7df3f3a",
+      "durationMs": 5200
+    }
+  }
+}
