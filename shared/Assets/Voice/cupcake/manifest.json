@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cupcake",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T17:48:46.770Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "It's somebody's birthday somewhere, so let's draw a cupcake. Wrapper first, then a big swirl of frosting. Watch once, then you're the baker.",
+      "textHash": "259477416f5827b082998b05abc687375144f8fd7edc8ff2def23a8cc99e85a7",
+      "durationMs": 9280
+    },
+    "wrapper": {
+      "file": "wrapper.m4a",
+      "text": "The wrapper is a cup with slanted sides. Go down the left, along the bottom, and up the right.",
+      "textHash": "9e41b3787dd0727cd834969d4ea2e24aca77a65d63a243bce0cbdca9eee892d1",
+      "durationMs": 6480
+    },
+    "folds": {
+      "file": "folds.m4a",
+      "text": "Wrappers have folds. Draw four lines down it, fanning out a little.",
+      "textHash": "365c9d090b8ff02c4df4808f92e8d9a6e21ea741134352e44ac1e7a329557c21",
+      "durationMs": 4560
+    },
+    "bottom-tier": {
+      "file": "bottom-tier.m4a",
+      "text": "Now the frosting, in three puffy layers. The widest sits on the wrapper like a cushion.",
+      "textHash": "0da4d9bb9aff186cceebab434277f551c806d1d46f9bafd319988563df540dcb",
+      "durationMs": 6000
+    },
+    "middle-tier": {
+      "file": "middle-tier.m4a",
+      "text": "Stack a smaller puff on top of it.",
+      "textHash": "1a964e0783ea8739c7bf45a7c2d7ac3ff9543dc2d5ebfbfa22fe8b61fc420374",
+      "durationMs": 2320
+    },
+    "top-tier": {
+      "file": "top-tier.m4a",
+      "text": "The last puff is the smallest. Sweep it up to a soft point, like a little wave.",
+      "textHash": "75d2311255c2a2edbc4fcb1464066e3a6084f497be8784e8af8847d8f75a29b6",
+      "durationMs": 5440
+    },
+    "frosting-color": {
+      "file": "frosting-color.m4a",
+      "text": "Color the frosting pink.",
+      "textHash": "dc91f3b23eedf96b6c2ba448a1a8d61fce228c797996dbc36c73646b96658820",
+      "durationMs": 1840
+    },
+    "wrapper-color": {
+      "file": "wrapper-color.m4a",
+      "text": "Color the wrapper blue.",
+      "textHash": "82383356b254322f44db3c406630ac4e5b759f563e460db4628fb00ce64459ed",
+      "durationMs": 1600
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Swirl and all, that cupcake is yours. All it needs now is a candle.",
+      "textHash": "ab88f2f7dd5aeee247f1471ebc586a5c86feeec5facf91e3f3602cb9bf65f28e",
+      "durationMs": 5200
+    }
+  }
+}
