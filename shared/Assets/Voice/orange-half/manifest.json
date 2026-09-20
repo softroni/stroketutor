@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "orange-half",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T05:16:59.422Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Let's cut an orange in half and look inside. There's a wheel in there. Watch how it comes together, then it's your turn.",
+      "textHash": "4288bc84959fd5fc92e458c552b08603d44e0b45fd207193c6935138d263eb48",
+      "durationMs": 7040
+    },
+    "peel-left": {
+      "file": "peel-left.m4a",
+      "text": "First the peel, a big circle. From the top, curve round the left to the bottom.",
+      "textHash": "2b43e583b304dd800fe7a5ff52d79d300d7019715b2c681e609e0a38a9cc3669",
+      "durationMs": 5680
+    },
+    "peel-right": {
+      "file": "peel-right.m4a",
+      "text": "Back at the top, curve round the right. The circle closes at the bottom.",
+      "textHash": "7d690b12f97fb88cb64584e168407b649d1a97c06ec02f456a9ea36cc2833aa0",
+      "durationMs": 4800
+    },
+    "inside-left": {
+      "file": "inside-left.m4a",
+      "text": "A second circle sits just inside the first. Draw its left half.",
+      "textHash": "5e0bf6d7251c16d215eb6d08a0bfadba97c52c71490fa2982c78aef189915248",
+      "durationMs": 4400
+    },
+    "inside-right": {
+      "file": "inside-right.m4a",
+      "text": "Then its right half. That ring is the peel.",
+      "textHash": "709df5e67547a550df63ed20dea737eb88ef6f607b4f725ae5239290bbf24a94",
+      "durationMs": 3360
+    },
+    "middle": {
+      "file": "middle.m4a",
+      "text": "Draw a small circle right in the middle.",
+      "textHash": "b1e15ae3f9771b4788882cdcebdfbb410b79bf6697b5fd7a9c8e3eb0e9626b19",
+      "durationMs": 2640
+    },
+    "spokes-plus": {
+      "file": "spokes-plus.m4a",
+      "text": "Draw four spokes out from the little circle, like a plus sign. Stop short of the ring.",
+      "textHash": "ec5d3c724d1fd2c5775b57bc68e0d1be7f6dbef36e5cee94edc4efdbd0ba2e08",
+      "durationMs": 5600
+    },
+    "spokes-x": {
+      "file": "spokes-x.m4a",
+      "text": "Next, one spoke between each pair, like a letter X. Now there are eight.",
+      "textHash": "261f9cc95655ff4688dbb25d51c702e71cee6902be47a81be1dcf3bcadf2b7c1",
+      "durationMs": 4800
+    },
+    "tops-right": {
+      "file": "tops-right.m4a",
+      "text": "Each segment gets a rounded top. Curve from spoke tip to spoke tip down the right side.",
+      "textHash": "76a175486fbaec5b2da18143e4f05aa0841e3b636fb0578f163470b4ccaa57bb",
+      "durationMs": 5920
+    },
+    "tops-left": {
+      "file": "tops-left.m4a",
+      "text": "Carry on round like a clock, up the left side. The wheel is full.",
+      "textHash": "856fb69daaf1c1370450a4ea023b2173c4441b4571e317e6a601bb8cddc8821b",
+      "durationMs": 4800
+    },
+    "segments": {
+      "file": "segments.m4a",
+      "text": "Color all eight segments golden yellow.",
+      "textHash": "23caba4a90b6e813d823a534d7ee7c1c479df62fe894879e3b7c8be7c250a446",
+      "durationMs": 2960
+    },
+    "peel": {
+      "file": "peel.m4a",
+      "text": "Color the peel ring orange.",
+      "textHash": "9b4d1c3c7d295b795ffae18494ec8c756f201ac4a51c805326f966c8fbccbcef",
+      "durationMs": 2080
+    },
+    "rest": {
+      "file": "rest.m4a",
+      "text": "Color the gaps cream, and the little circle too.",
+      "textHash": "c6c594078bcadab7c109abe53207e3bd1d1fabde6863d590cfead4d9807925d2",
+      "durationMs": 3600
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "One juicy orange half, all yours. Count the segments. There should be eight.",
+      "textHash": "40ad74aa57b433dbf2e417748115ef07a0a4e40602db1610b1a50a7eea2247d9",
+      "durationMs": 5600
+    }
+  }
+}

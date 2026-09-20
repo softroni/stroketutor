@@ -134,6 +134,16 @@
         "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v1, apple), 2026-09-19; vectorised with svg from-image",
         "license": "Generated for StrokeTutor; owned by the creator"
       }
+    },
+    {
+      "id": "orange-half",
+      "status": "approved",
+      "objective": "Cut face with eight segments and a peel rim",
+      "reference": {
+        "file": "orange-half.svg",
+        "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v2, orange-half), 2026-09-19; vectorised with svg from-image",
+        "license": "Generated for StrokeTutor; owned by the creator"
+      }
     }
   ]
 }
