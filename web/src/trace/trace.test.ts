@@ -144,6 +144,15 @@ describe('smoothing', () => {
     ])
   })
 
+  it('keeps the long straight sides of a sharp-cornered shape straight', () => {
+    const hexagon: [number, number][] = [[500, 100], [850, 300], [850, 700], [500, 900], [150, 700], [150, 300]]
+    const numbers = smoothPath(hexagon, true).match(/-?\d+(\.\d+)?/g)!.map(Number)
+    // Every control point of the right-hand side (850,300 → 850,700) stays on x = 850.
+    const xs = numbers.filter((_, k) => k % 2 === 0)
+    expect(Math.max(...xs)).toBeLessThanOrEqual(850)
+    expect(Math.min(...xs)).toBeGreaterThanOrEqual(150)
+  })
+
   it('writes curves both players accept, closed with Z', () => {
     const square: [number, number][] = [
       [0, 0],
@@ -156,6 +165,19 @@ describe('smoothing', () => {
     expect(() => parsePath(closed)).not.toThrow()
     expect(smoothPath(square.slice(0, 2), false)).toBe('M 0 0 L 100 0')
     expect(() => parsePath(smoothPath(square, false))).not.toThrow()
+  })
+
+  it('does not hook past a corner that follows a long straight', () => {
+    // A watermelon slice's side: 600 units of straight, then a 15-unit step round the corner.
+    const corner: [number, number][] = [
+      [0, 0],
+      [600, 0],
+      [610, 12],
+      [610, 300],
+    ]
+    const numbers = smoothPath(corner, false).match(/-?\d+(\.\d+)?/g)!.map(Number)
+    const xs = numbers.filter((_, i) => i % 2 === 0)
+    expect(Math.max(...xs)).toBeLessThanOrEqual(620)
   })
 })
 

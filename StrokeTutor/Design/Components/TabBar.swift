@@ -30,6 +30,16 @@ struct TabBar: View {
         }
     }
 
+    /// The bar drawn as a stationary overlay is never part of a screen's own
+    /// layout, so a screen that shows it reserves its height like this. The spacer
+    /// is a hidden copy of the bar itself rather than a number, so the two cannot
+    /// drift apart at any Dynamic Type size.
+    static var spacer: some View {
+        TabBar(selection: .constant(.learn))
+            .hidden()
+            .accessibilityHidden(true)
+    }
+
     private func tabLabel(_ tab: MainTab) -> some View {
         let isActive = tab == selection
         return VStack(spacing: 2) {
@@ -46,5 +56,18 @@ struct TabBar: View {
         .foregroundStyle(isActive ? Theme.green : Theme.ink40)
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
+    }
+}
+
+extension View {
+    /// Keeps a screen's content clear of the tab bar, for the screens that show it.
+    /// See `TabBar.spacer` for why the room is reserved rather than measured.
+    @ViewBuilder
+    func reservesTabBarSpace(_ reserves: Bool = true) -> some View {
+        if reserves {
+            safeAreaInset(edge: .bottom, spacing: 0) { TabBar.spacer }
+        } else {
+            self
+        }
     }
 }

@@ -12,6 +12,8 @@ import { IssueList } from './IssueList'
 import { LessonActions } from './LessonActions'
 import type { Library, TutorialEntry } from './library'
 import { Menu, type MenuEntry } from './Menu'
+import { SessionPromptDialog } from './SessionPromptDialog'
+import { sessionPrompt } from './sessionPrompt'
 import {
   assignLesson,
   createLevel,
@@ -628,6 +630,7 @@ function PathDetail({
   const [editing, setEditing] = useState(false)
   const [planning, setPlanning] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [prompting, setPrompting] = useState(false)
   const [lessonsGo, setLessonsGo] = useState<'unfile' | 'trash'>('unfile')
 
   // Only lessons with a drawing have a time; planned ones add nothing.
@@ -659,6 +662,8 @@ function PathDetail({
       disabled: !editable || index === pathCount - 1,
       onSelect: () => void run((current) => movePath(current, index, index + 1)),
     },
+    'separator',
+    { label: 'Session prompt…', onSelect: () => setPrompting(true) },
     'separator',
     {
       label: 'Delete path…',
@@ -810,6 +815,22 @@ function PathDetail({
         />
       ) : null}
 
+      {prompting ? (
+        <SessionPromptDialog
+          title={path.title}
+          prompt={sessionPrompt({
+            id: path.id,
+            title: path.title,
+            lessons: rows.map((row) => ({
+              id: row.id,
+              title: titleOf(row),
+              objective: row.lesson?.objective,
+              planned: !row.entry,
+            })),
+          })}
+          onClose={() => setPrompting(false)}
+        />
+      ) : null}
       {deleting ? (
         <ConfirmDialog
           title={`Delete the “${path.title}” path?`}

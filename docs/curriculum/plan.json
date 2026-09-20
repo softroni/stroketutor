@@ -119,7 +119,7 @@
         {
           "id": "grapes",
           "title": "Grapes",
-          "objective": "Ten overlapping circles with a curly vine"
+          "objective": "Ten round grapes in a bunch with a curly vine"
         },
         {
           "id": "pineapple",
@@ -240,7 +240,7 @@
         {
           "id": "stack-of-books",
           "title": "Stack of Books",
-          "objective": "Three offset boxes with page lines"
+          "objective": "Two offset boxes with page lines"
         },
         {
           "id": "still-life",

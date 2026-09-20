@@ -188,9 +188,10 @@ Nothing else. No juice drops, no leaf, no second half, no outlines around the si
 
 ```text
 SUBJECT: one bunch of grapes hanging from a vine.
-- Grapes: exactly ten round grapes, all the same size, packed in an upside-down triangle: a row
-  of four at the top, then three, then two, then one at the bottom. Each grape overlaps the
-  grapes in the row above it, so the hidden parts of the circles are not drawn. Colour: purple.
+- Grapes: exactly ten round grapes, all the same size, each a complete circle with its whole
+  outline visible. They are packed in an upside-down triangle: a row of four at the top, then
+  three, then two, then one at the bottom, each grape resting in the dip between the two above
+  it. Neighbouring grapes just touch; no grape overlaps or hides any part of another. Colour: purple.
 - Stem: a short thick stem rising from the top centre of the bunch. Colour: brown.
 - Vine: exactly one curly tendril, a single loose spiral line with one and a half turns, coming off
   the stem to the right and touching nothing else.

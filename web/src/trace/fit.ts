@@ -99,12 +99,39 @@ export function smoothPath(points: Point[], closed: boolean, decimals = 0): stri
     const p1 = at(i)
     const p2 = at(i + 1)
     const p3 = at(i + 2)
-    const c1: Point = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]
-    const c2: Point = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]
+    // A short segment beside a long one (a corner after a long straight, once simplified)
+    // would get a handle as long as the straight and hook out past the corner, so a
+    // handle is never longer than 0.4 of its own segment. Even spacing is untouched.
+    const reach = 0.4 * Math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+    const handle = (dx: number, dy: number): Point => {
+      const length = Math.hypot(dx, dy)
+      const scale = length > reach ? reach / length : 1
+      return [dx * scale, dy * scale]
+    }
+    // At a sharp corner beside a long straight (a cube's edge, a box's side) the tangent through the
+    // neighbours would bow the straight outwards, so there the handle lies along the segment itself.
+    const along: Point = [(p2[0] - p1[0]) / 3, (p2[1] - p1[1]) / 3]
+    const h1 = isCorner(p0, p1, p2) ? along : handle((p2[0] - p0[0]) / 6, (p2[1] - p0[1]) / 6)
+    const h2 = isCorner(p1, p2, p3) ? along : handle((p3[0] - p1[0]) / 6, (p3[1] - p1[1]) / 6)
+    const c1: Point = [p1[0] + h1[0], p1[1] + h1[1]]
+    const c2: Point = [p2[0] - h2[0], p2[1] - h2[1]]
     parts.push(`C ${p(c1)} ${p(c2)} ${p(p2)}`)
   }
   if (closed) parts.push('Z')
   return parts.join(' ')
+}
+
+/**
+ * Whether a simplified line turns a real corner at `b`: more than about 35°, with a straight of 30 units or more on
+ * one side. A small round shape (a seed, a grape) turns as sharply between its few points, but never beside a long
+ * segment, so it stays round.
+ */
+function isCorner(a: Point, b: Point, c: Point): boolean {
+  const [ux, uy] = [b[0] - a[0], b[1] - a[1]]
+  const [vx, vy] = [c[0] - b[0], c[1] - b[1]]
+  const [u, v] = [Math.hypot(ux, uy), Math.hypot(vx, vy)]
+  if (u === 0 || v === 0 || Math.max(u, v) < 30) return false
+  return (ux * vx + uy * vy) / (u * v) < 0.819
 }
 
 function distanceToSegment(point: Point, a: Point, b: Point): number {
