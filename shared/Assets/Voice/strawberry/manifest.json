@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "strawberry",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T03:24:57.847Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Hi, Lina here. Ready to draw a strawberry? Watch the whole thing once, then grab your pen.",
+      "textHash": "c7f1cc41962572d9991770ba8a558652ced9026faa3261c6709e7cdff7354e5a",
+      "durationMs": 6480
+    },
+    "left-leaves": {
+      "file": "left-leaves.m4a",
+      "text": "Draw a pointed leaf up to the left.",
+      "textHash": "a242f6434b2cafd5e7ab403fb6494a1e909f1b682538f2568f82eaac42729968",
+      "durationMs": 2400
+    },
+    "right-leaves-2": {
+      "file": "right-leaves-2.m4a",
+      "text": "Now the same leaf on the other side, like a mirror.",
+      "textHash": "d89bc74f7dfa5b0634d5207c66bd1122cb5a31510c60aeb5462a1153b30c9d57",
+      "durationMs": 3680
+    },
+    "right-leaves": {
+      "file": "right-leaves.m4a",
+      "text": "Draw the stem between two leaves.",
+      "textHash": "eb835e9b0f9ba844ca5eddaba87740a8b27f474d1c60b6e5034990b854a3f5e2",
+      "durationMs": 2320
+    },
+    "middle-leaf": {
+      "file": "middle-leaf.m4a",
+      "text": "Now a middle leaf. Draw a letter V pointing down.",
+      "textHash": "ef6f698c3609cab9c74019a1ea589136e5c9a50112b07576132652a680f7f3a2",
+      "durationMs": 4080
+    },
+    "leaf-edges": {
+      "file": "leaf-edges.m4a",
+      "text": "Draw the lower edge of the leaves on each side.",
+      "textHash": "1e34230379de9f81d45afb897518d512bea810a1018de7f3d2279374f6efb883",
+      "durationMs": 2960
+    },
+    "berry": {
+      "file": "berry.m4a",
+      "text": "To make a berry, curve down to a soft point, then curve back up.",
+      "textHash": "24ebe35db5c5954a5c494cfd2f6eb89754c4cdf8bf2fc002798d8b61d5651fa5",
+      "durationMs": 4480
+    },
+    "red": {
+      "file": "red.m4a",
+      "text": "Color the berry red.",
+      "textHash": "85cb136301042fa7ea6e1959602f28be96a880b7a98bbf3a49e18cdc760fc4c9",
+      "durationMs": 1680
+    },
+    "seeds": {
+      "file": "seeds.m4a",
+      "text": "Color the six seeds black.",
+      "textHash": "13c9362c883491f4c40e3b3d52fe0ef9f4ebb10ac9847382b0b2c51555b59bab",
+      "durationMs": 2240
+    },
+    "green": {
+      "file": "green.m4a",
+      "text": "Color the leaves and stem green.",
+      "textHash": "13074933b5b6918685da50fdb6e4735fc0cb52c0867a122774d549590f1106d8",
+      "durationMs": 2400
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "And that’s a strawberry. Hold it up and have a good look. You made that!",
+      "textHash": "097d8d9687bece80397d6a378e7167e588d9153f92d573d0f4bf33c0fc4e8aac",
+      "durationMs": 4800
+    }
+  }
+}

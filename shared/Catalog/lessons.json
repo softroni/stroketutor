@@ -76,6 +76,16 @@
       }
     },
     {
+      "id": "strawberry",
+      "status": "approved",
+      "objective": "Heart-shaped berry with six seeds and a leafy top",
+      "reference": {
+        "file": "strawberry.svg",
+        "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v2, strawberry), 2026-09-19; vectorised with svg from-image",
+        "license": "Generated for StrokeTutor; owned by the creator"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",
