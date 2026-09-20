@@ -4,7 +4,7 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T02:19:09.810Z",
+  "generatedAt": "2026-09-20T03:02:45.171Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
@@ -44,21 +44,21 @@
     },
     "red": {
       "file": "red.m4a",
-      "text": "Colour the apple red.",
-      "textHash": "dea6e3a4b640919dcb8f60219bc30e0590ff456907706a5e8568bdde9245cbdf",
-      "durationMs": 1760
+      "text": "Color the apple red.",
+      "textHash": "88a2328a2f292d95c4b54309873b8041dedd098cd9c7e2808d93442b3a790005",
+      "durationMs": 1680
     },
     "green": {
       "file": "green.m4a",
-      "text": "Colour the leaf green.",
-      "textHash": "7b6946a19ecb5bfbeca0ca1e54b8cc7f9a6c16cec4db188a131fb936c23908d6",
-      "durationMs": 1760
+      "text": "Color the leaf green.",
+      "textHash": "f0468673f7ab02957274c66358409f512b75fc9e177d180b583279f879636c58",
+      "durationMs": 1440
     },
     "brown": {
       "file": "brown.m4a",
-      "text": "Colour the stem brown.",
-      "textHash": "9706535cc1bdd30d08a5b69897bcb07c266f1b2d6c46ee0cd522417c9331fbdd",
-      "durationMs": 1520
+      "text": "Color the stem brown.",
+      "textHash": "bb4313fd841e0b74b00594ac1ecae516ceed19efe4f3a61fc23ce8d17358d09b",
+      "durationMs": 1920
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",

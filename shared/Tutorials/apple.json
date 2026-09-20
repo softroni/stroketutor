@@ -58,7 +58,7 @@
     },
     {
       "id": "vein",
-      "title": "Add the leaf's centre line",
+      "title": "Add the leaf's center line",
       "instruction": "Draw one line along the middle of the leaf. Stop before the tip.",
       "voiceover": null,
       "strokes": [
@@ -71,8 +71,8 @@
     },
     {
       "id": "red",
-      "title": "Colour the apple",
-      "instruction": "Colour the apple red.",
+      "title": "Color the apple",
+      "instruction": "Color the apple red.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -86,8 +86,8 @@
     },
     {
       "id": "green",
-      "title": "Colour the leaf",
-      "instruction": "Colour the leaf green.",
+      "title": "Color the leaf",
+      "instruction": "Color the leaf green.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -101,8 +101,8 @@
     },
     {
       "id": "brown",
-      "title": "Colour the stem",
-      "instruction": "Colour the stem brown.",
+      "title": "Color the stem",
+      "instruction": "Color the stem brown.",
       "voiceover": null,
       "strokes": [],
       "fills": [
