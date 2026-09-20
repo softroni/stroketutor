@@ -1,0 +1,58 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "lightning-bolt",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:53:10.027Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Flash. Lightning is over in a blink, but yours will stay on the page. It's a zigzag of seven straight lines. Follow it down once, then strike.",
+      "textHash": "99a2711eab90349d1d7e5119307e6fdc0af204af51f64d99681ecbeeebeb1917",
+      "durationMs": 9440
+    },
+    "top": {
+      "file": "top.m4a",
+      "text": "The bolt begins with its flat top. Draw a short line from left to right.",
+      "textHash": "c1be6694573fbbaa47de262a9fa5a877dc9a26cb6d0e0417863ebea6bef7afd6",
+      "durationMs": 4800
+    },
+    "zig": {
+      "file": "zig.m4a",
+      "text": "Now zig. From the right end, slant down to the left, then step out to the right.",
+      "textHash": "46ea9abf62de1284ea22d05e8b6c373c822cc077e59d20483ce5cedb8b65bfc5",
+      "durationMs": 6240
+    },
+    "zag": {
+      "file": "zag.m4a",
+      "text": "And zag. One long slant, down to a sharp point.",
+      "textHash": "d39b2b9fa8073609d0419244f95d7dd306a37646c55484cffc4d8216164a3a3c",
+      "durationMs": 4240
+    },
+    "left-zig": {
+      "file": "left-zig.m4a",
+      "text": "Back to the top left corner. Slant down, then step in to the right.",
+      "textHash": "433663ec39070fadcda3a4d6e74b99cd67b87f58b2021cc2ba9376c96c799015",
+      "durationMs": 4640
+    },
+    "left-zag": {
+      "file": "left-zag.m4a",
+      "text": "Last line. Slant down until you meet the point.",
+      "textHash": "a5fd11d509c302a3ab90dc2c74f4c92348c057da4a784d5ebf09efb7f7c9a912",
+      "durationMs": 3280
+    },
+    "bolt": {
+      "file": "bolt.m4a",
+      "text": "Color the bolt yellow.",
+      "textHash": "3449df48824d1b1efd6931abb2c000e023037774594f6a1634d07675bd84c1f4",
+      "durationMs": 1600
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Sharp at the bottom and bright all over. Did you hear the thunder?",
+      "textHash": "8674ba086e77b37486b1b6477d5b5aea338c65bd09e4b74ac94dbff8a7e7e257",
+      "durationMs": 4160
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 2,
+  "id": "lightning-bolt",
+  "title": "Lightning Bolt",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "top",
+      "title": "Draw the top",
+      "instruction": "The bolt begins with its flat top. Draw a short line from left to right.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 452 103 C 457 102 460 101 467 101 C 476 100 490 100 506 101 C 538 101 609 101 661 102",
+          "duration": 0.42,
+          "lineWidth": 23
+        }
+      ]
+    },
+    {
+      "id": "zig",
+      "title": "Draw the right zig",
+      "instruction": "Now zig. From the right end, slant down to the left, then step out to the right.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 661 102 C 660 106 660 110 659 114 C 658 119 658 123 655 127 C 629 178 531 366 505 417 C 502 423 500 427 499 433 C 497 438 493 448 495 452",
+          "duration": 0.78,
+          "lineWidth": 23
+        },
+        {
+          "d": "M 495 452 C 496 455 502 453 508 453 C 527 454 590 453 609 454 C 616 454 623 453 625 456",
+          "duration": 0.26,
+          "lineWidth": 23
+        }
+      ]
+    },
+    {
+      "id": "zag",
+      "title": "Draw the long slant",
+      "instruction": "And zag. One long slant, down to a sharp point.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 625 456 C 626 458 622 467 620 471 C 619 476 618 478 615 482 C 608 494 590 519 574 544 L 350 904",
+          "duration": 1.36,
+          "lineWidth": 23
+        }
+      ]
+    },
+    {
+      "id": "left-zig",
+      "title": "Draw the left zig",
+      "instruction": "Back to the top left corner. Slant down, then step in to the right.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 452 103 C 441 138 432 165 420 208 C 401 275 350 455 336 508 C 334 514 334 521 335 525",
+          "duration": 0.87,
+          "lineWidth": 23
+        },
+        {
+          "d": "M 335 525 C 335 527 338 526 341 526 C 359 526 412 526 448 527",
+          "duration": 0.23,
+          "lineWidth": 23
+        }
+      ]
+    },
+    {
+      "id": "left-zag",
+      "title": "Close the point",
+      "instruction": "Last line. Slant down until you meet the point.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 448 527 C 446 536 446 543 443 555 L 350 904",
+          "duration": 0.59,
+          "lineWidth": 23
+        }
+      ]
+    },
+    {
+      "id": "bolt",
+      "title": "Color the bolt",
+      "instruction": "Color the bolt yellow.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 461 97 C 523 97 584 97 646 97 C 652 103 662 113 664 116 C 665 117 662 117 661 118 C 657 125 648 142 640 158 C 612 213 540 352 490 449 C 530 449 571 450 611 450 C 616 455 624 462 626 465 C 627 466 627 467 626 468 C 617 481 594 513 574 544 C 540 597 450 743 420 787 C 412 798 404 803 396 811 C 391 806 384 800 381 796 C 380 794 380 792 381 790 C 392 746 425 616 447 529 C 415 529 369 530 352 530 C 350 530 348 531 346 529 C 343 526 336 518 331 512 C 368 381 424 187 443 120 C 444 117 444 115 446 112 C 449 108 456 102 461 97 Z",
+          "color": "#F7CF46",
+          "duration": 2.8,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}
