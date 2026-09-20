@@ -946,3 +946,28 @@
   align-items: center;
   gap: 10px;
 }
+
+/* The same voice in the Steps pane: one line under a step's instruction, and a card at each end of the lesson. */
+.st-part-voice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.st-part-voice .st-button {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+.st-preview-voice__note.is-stale {
+  color: #a15c00;
+}
+.st-bookend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+  padding: 12px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}

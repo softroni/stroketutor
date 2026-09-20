@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { cssColor, stepDuration, type Step } from '../../schema/types'
 
@@ -24,6 +24,8 @@ export interface StepEditorProps {
   onReplayStroke: (uid: string, stepIndex: number, strokeIndex: number) => void
   /** `key` coalesces consecutive edits of one field into a single undo step. */
   onUpdateStep: (stepIndex: number, patch: Partial<Pick<Step, 'title' | 'instruction'>>, key: string) => void
+  /** Shown under the open step's instruction: listening to it and recording it, when the host has a voice. */
+  stepVoice?: (stepId: string) => ReactNode
 }
 
 const STEP_DRAG_TYPE = 'application/x-stroketutor-step'
@@ -49,6 +51,7 @@ export function StepEditor({
   onReplayStep,
   onReplayStroke,
   onUpdateStep,
+  stepVoice,
 }: StepEditorProps) {
   const [dropIndex, setDropIndex] = useState<number | null>(null)
   const activeRef = useRef<HTMLLIElement>(null)
@@ -149,9 +152,10 @@ export function StepEditor({
                     }
                   />
                   <span className="st-field__hint">
-                    Concise, calm and observational. Say what to notice, not just what to draw.
+                    One or two short sentences a child reads at a glance. Lina speaks these words.
                   </span>
                 </label>
+                {stepVoice?.(step.id)}
 
                 <ul className="st-step-card__strokes">
                   {step.strokes.map((stroke, strokeIndex) => {

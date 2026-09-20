@@ -932,8 +932,10 @@ function LessonEditor({
               {steps} steps · ? for shortcuts
             </span>
           </div>
+          {voice.bookend('intro')}
           <StepEditor
             doc={doc}
+            stepVoice={voice.stepVoice}
             selection={liveSelection}
             activeStepIndex={activeStepIndex}
             activeOpen={stepOpen}
@@ -961,6 +963,7 @@ function LessonEditor({
             onReplayStroke={(uid, stepIndex, strokeIndex) => playReplay([uid], `stroke ${strokeIndex + 1} of step ${stepIndex + 1}`)}
             onUpdateStep={(stepIndex, patch, key) => apply((current) => updateStep(current, stepIndex, patch), key)}
           />
+          {voice.bookend('outro')}
         </section>
 
         <Drawer
