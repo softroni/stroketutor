@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "apple",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T02:09:54.262Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Hi, it's Lina. Today we're drawing an apple, the kind you'd find in your lunchbox. Watch how it comes together, then it's your turn.",
+      "textHash": "cfbfd6a02ae12fb907b49c2f9dcd79a7a62cf0879c7836bb36e865123dcb37fe",
+      "durationMs": 8720
+    },
+    "left-side": {
+      "file": "left-side.m4a",
+      "text": "Start at the top. Draw a big letter C down to the bottom.",
+      "textHash": "9345448635d8ca39f02a13641b614b85a11f3171abc120ea61a4fdfa5444c049",
+      "durationMs": 4160
+    },
+    "right-side": {
+      "file": "right-side.m4a",
+      "text": "Go back to the top. Draw the same curve the other way, like a mirror.",
+      "textHash": "66f4388314f4dcf4ca9e8115687e5fac5bb72cf443d6fc30f88fdfb538d66fcf",
+      "durationMs": 4480
+    },
+    "stem": {
+      "file": "stem.m4a",
+      "text": "Start in the dip. Go up, over the top, and back down.",
+      "textHash": "f44457f054b972e0917c295108cba364005624cbbc53e02e99bb87ded853c4b0",
+      "durationMs": 4000
+    },
+    "leaf": {
+      "file": "leaf.m4a",
+      "text": "Start at the top of the stem. Sweep out to a point, then curve back to the stem.",
+      "textHash": "d5a842e6d82b5ae601929b03d77cbf0a50009591a0d5e3072d7462bf249483ed",
+      "durationMs": 5360
+    },
+    "vein": {
+      "file": "vein.m4a",
+      "text": "Draw one line along the middle of the leaf. Stop before the tip.",
+      "textHash": "ad91ad9c409a1cda203f212e1a1c617e07782b1c66983686138b8881cd18b11c",
+      "durationMs": 4320
+    },
+    "red": {
+      "file": "red.m4a",
+      "text": "Colour the apple red.",
+      "textHash": "dea6e3a4b640919dcb8f60219bc30e0590ff456907706a5e8568bdde9245cbdf",
+      "durationMs": 1760
+    },
+    "green": {
+      "file": "green.m4a",
+      "text": "Colour the leaf green.",
+      "textHash": "7b6946a19ecb5bfbeca0ca1e54b8cc7f9a6c16cec4db188a131fb936c23908d6",
+      "durationMs": 1760
+    },
+    "brown": {
+      "file": "brown.m4a",
+      "text": "Colour the stem brown.",
+      "textHash": "9706535cc1bdd30d08a5b69897bcb07c266f1b2d6c46ee0cd522417c9331fbdd",
+      "durationMs": 1520
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "You did it. That's your very own apple, and it looks good enough to eat.",
+      "textHash": "1d1fdb11a264585541001e58e5f52a6fb0fa10f5c13f695526e5b35494926cf3",
+      "durationMs": 4720
+    }
+  }
+}
