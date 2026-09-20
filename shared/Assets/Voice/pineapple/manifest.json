@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "pineapple",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T04:35:00.602Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A pineapple looks tricky, but it's an oval, some crisscross lines and a spiky hat. Watch it grow, then it's over to you.",
+      "textHash": "af165ef9439ec442a5da8fe0fccae97c39fe5362e45f6d27a02543fd72bdd6f0",
+      "durationMs": 8080
+    },
+    "body": {
+      "file": "body.m4a",
+      "text": "The body is a tall oval. From the top, curve down the left side.",
+      "textHash": "e76ca446d95a8c8c8c563cfd401e60f1c57d9a64c502f0c0521aecafae9a93d8",
+      "durationMs": 4720
+    },
+    "body-2": {
+      "file": "body-2.m4a",
+      "text": "Now the right side, down to meet it at the bottom.",
+      "textHash": "fcaa6c0d8e43ca9da70b7cd7080faea85810df854e59661a1cce9694bf4f584b",
+      "durationMs": 3520
+    },
+    "middle-leaf": {
+      "file": "middle-leaf.m4a",
+      "text": "Now the spiky hat. Draw the tall leaf in the middle first.",
+      "textHash": "0b13830f5efe9845656349442e1cb9f8e0584cf53a6ccee9519c6f14d45c0f8a",
+      "durationMs": 4480
+    },
+    "inner-leaves": {
+      "file": "inner-leaves.m4a",
+      "text": "Add a leaf on each side of it. They lean away.",
+      "textHash": "883350a2b18caa9ad20fc93f9b5e86c5124c01b2643edc0573eb74378b81a82d",
+      "durationMs": 3360
+    },
+    "low-leaves": {
+      "file": "low-leaves.m4a",
+      "text": "Two leaves curl out low, one on each side.",
+      "textHash": "4e1216a0d9ed382847aa3ec32d96d4be3160379b98a31b3f9f921d8b58522572",
+      "durationMs": 3040
+    },
+    "back-leaves": {
+      "file": "back-leaves.m4a",
+      "text": "Two more leaves peek out behind those.",
+      "textHash": "e1e003672c48850ddaee69cd1efd9adf2e0498a0a776827cbd59aa3a487d7ce4",
+      "durationMs": 2560
+    },
+    "hatch-one": {
+      "file": "hatch-one.m4a",
+      "text": "Time for the crisscross. Draw the lines that lean one way, top to bottom.",
+      "textHash": "ce5c5e463e14ae8e576501c51ee673cb2d29bd79712f2e22517035d6c3031004",
+      "durationMs": 4960
+    },
+    "hatch-two": {
+      "file": "hatch-two.m4a",
+      "text": "Cross them with lines leaning the other way. Now you have diamonds.",
+      "textHash": "3171f9daf5c3d4dccf27c31245c71c522b77c5142e8eee46bf70b46ddf5da65d",
+      "durationMs": 4240
+    },
+    "yellow": {
+      "file": "yellow.m4a",
+      "text": "Color the body yellow.",
+      "textHash": "2270d62dab90537665c20c452a2c719bc91c7b4212330bd3ab664a3df40fb195",
+      "durationMs": 1680
+    },
+    "green": {
+      "file": "green.m4a",
+      "text": "Most of the leaves are green.",
+      "textHash": "9d819e5513d8f8dd77ff67bbd7edd24ad6b0b3be12fb3102ead77a3c2f6793d5",
+      "durationMs": 1920
+    },
+    "dark-green": {
+      "file": "dark-green.m4a",
+      "text": "Make the two leaves beside the middle dark green.",
+      "textHash": "7b82f9886b52ffde9d87edb3aca96f367fdfb457b87106ed5f5b07c7fcb40bde",
+      "durationMs": 2960
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Spiky on top, diamonds all over. That's a fine pineapple you've drawn.",
+      "textHash": "ff915d177ccb70c6c901aefa9a5a6d81ff04858e8fac57c774a3cbbe3682aaba",
+      "durationMs": 4960
+    }
+  }
+}

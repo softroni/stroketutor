@@ -86,6 +86,16 @@
       }
     },
     {
+      "id": "pineapple",
+      "status": "approved",
+      "objective": "Oval with a 3×3 crosshatch and spiky leaves",
+      "reference": {
+        "file": "pineapple.svg",
+        "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v2, pineapple), 2026-09-19; vectorized with svg from-image",
+        "license": "Generated for StrokeTutor; owned by the creator"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",
