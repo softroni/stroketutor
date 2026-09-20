@@ -353,19 +353,89 @@
 }
 
 @media (max-width: 1100px) {
+  .st-paths {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .st-paths__list {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
   .st-paths-toolbar {
     position: static;
   }
 }
 
 @media (max-width: 640px) {
+  .st-paths {
+    gap: 16px;
+    padding: 12px;
+  }
+
+  .st-paths__list {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .st-paths-toolbar {
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 0;
+  }
+
+  .st-paths-toolbar__search {
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .st-chips {
+    flex-wrap: nowrap;
+    width: 100%;
+    padding-bottom: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .st-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .st-chip {
+    flex: 0 0 auto;
+  }
+
+  .st-path-header__top {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .st-path-header__actions {
+    flex-wrap: wrap;
+  }
+
+  .st-path-header h1 {
+    font-size: 26px;
+  }
+
   .st-lesson-row {
-    grid-template-columns: 0 24px 56px minmax(0, 1fr) auto;
+    grid-template-columns: 0 24px 52px minmax(0, 1fr) auto;
     gap: 10px;
+    padding-right: 8px;
   }
 
   .st-lesson-row__thumb {
-    width: 56px;
+    width: 52px;
+  }
+
+  .st-lesson-row__objective,
+  .st-lesson-row__meta {
+    white-space: normal;
+  }
+
+  .st-lesson-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 
   .st-paths-toolbar .st-segmented {

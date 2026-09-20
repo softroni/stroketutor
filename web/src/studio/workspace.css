@@ -570,7 +570,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .st-studio--fill {
     height: auto;
     overflow: visible;
@@ -578,6 +578,7 @@
 
   .st-workspace__bar {
     flex-wrap: wrap;
+    padding: 8px 12px;
   }
 
   .st-workspace__panes,
@@ -593,6 +594,40 @@
 
   .st-workspace__panes:not(.is-rail-closed) .st-stage-pane {
     grid-column: auto;
+  }
+
+  .st-rail.is-closed {
+    display: none;
+  }
+
+  .st-stage {
+    padding: 12px 12px 4px;
+  }
+
+  .st-transport {
+    gap: 8px;
+    padding: 6px 12px 12px;
+    white-space: normal;
+  }
+
+  .st-transport__meta {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .st-steps-pane {
+    max-height: none;
+    padding: 0 12px 24px;
+    border-top: 1px solid var(--line);
+    border-left: none;
+  }
+
+  .st-drawer {
+    width: 100%;
+  }
+
+  .st-drawer__body {
+    padding: 14px 12px 24px;
   }
 
   .st-stage__fit {

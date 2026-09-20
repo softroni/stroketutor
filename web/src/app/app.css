@@ -364,3 +364,33 @@
 .st-button--on:hover:not(:disabled) {
   background: #000;
 }
+
+@media (max-width: 640px) {
+  .st-import__bar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 14px 0;
+  }
+
+  .st-import__actions {
+    flex-wrap: wrap;
+  }
+
+  .st-app__main,
+  .st-app__main.is-debugging {
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .st-source,
+  .st-debug,
+  .st-app__stage {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .st-debug__summary {
+    flex-direction: column;
+  }
+}

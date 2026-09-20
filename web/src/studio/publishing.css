@@ -434,4 +434,19 @@
   .st-trash__row {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .st-banner {
+    padding: 10px 14px;
+  }
+
+  .st-dialog__form {
+    padding: 18px 16px 16px;
+  }
+
+  .st-dialog__actions,
+  .st-trash__head,
+  .st-trash__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }

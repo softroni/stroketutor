@@ -890,6 +890,50 @@
   }
 }
 
+@media (max-width: 640px) {
+  .st-voice {
+    gap: 16px;
+  }
+
+  .st-voice__head {
+    align-items: flex-start;
+  }
+
+  .st-voice__server {
+    max-width: 100%;
+  }
+
+  .st-voice-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .st-voice-card {
+    padding: 16px;
+  }
+
+  .st-take {
+    grid-template-columns: 62px minmax(0, 1fr) 28px;
+  }
+
+  .st-take__time {
+    display: none;
+  }
+
+  .st-narrate__picker {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .st-narrate__picker .st-field__select {
+    max-width: none;
+  }
+
+  .st-narrate__table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
 /* The one checkbox in the spoken-lines dialog: the label beside the box, not above it. */
 .st-narrate__keep {
   display: inline-flex;
