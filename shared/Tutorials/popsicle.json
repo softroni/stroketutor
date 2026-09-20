@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 2,
+  "id": "popsicle",
+  "title": "Popsicle",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "left-side",
+      "title": "Draw the left side",
+      "instruction": "The popsicle is a tall block with a round top. From the top, curve left and go straight down.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 491 126 C 478 126 457 127 448 128 C 442 128 438 130 434 131 C 429 133 426 135 421 138 C 416 140 411 145 407 149 C 402 152 399 156 395 161 C 392 165 389 171 386 177 C 384 182 382 186 381 193 C 379 200 379 208 379 218 C 378 291 379 561 379 631",
+          "duration": 1.59,
+          "lineWidth": 7
+        }
+      ]
+    },
+    {
+      "id": "bottom-right",
+      "title": "Draw the bottom and right",
+      "instruction": "Turn along the bottom, then go straight up the right side. Stop before the top.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 379 631 C 380 636 381 638 383 641 C 385 645 387 648 390 650 C 393 653 396 655 400 656 C 403 658 405 659 410 659 C 420 660 450 660 463 659 C 475 659 482 656 492 656 C 503 656 515 659 525 659 C 536 659 542 656 553 656 C 565 656 586 659 594 658 C 599 658 601 656 604 655 C 608 653 611 650 613 647 C 616 644 618 642 619 638 C 620 635 621 631 621 626 C 622 559 625 299 622 234",
+          "duration": 1.82,
+          "lineWidth": 7
+        }
+      ]
+    },
+    {
+      "id": "bite",
+      "title": "Draw the bite",
+      "instruction": "Here's the bite. Draw two little scoops, side by side, back to where you began.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 622 234 C 621 225 607 235 601 234 C 595 233 589 230 585 227 C 581 225 580 223 578 220 C 576 217 574 215 573 211 C 572 205 576 188 572 184 C 567 179 555 183 548 181 C 542 179 537 174 533 171 C 530 168 529 166 528 163 C 527 160 525 157 525 152 C 525 147 534 132 529 128 C 523 123 505 125 491 126",
+          "duration": 0.59,
+          "lineWidth": 7
+        }
+      ]
+    },
+    {
+      "id": "grooves",
+      "title": "Draw the grooves",
+      "instruction": "Add two short lines, side by side, in the lower half. They touch nothing.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 462 465 L 462 593",
+          "duration": 0.6,
+          "lineWidth": 7
+        },
+        {
+          "d": "M 540 467 L 540 593",
+          "duration": 0.6,
+          "lineWidth": 7
+        }
+      ]
+    },
+    {
+      "id": "stick",
+      "title": "Draw the stick",
+      "instruction": "Now the stick. From the bottom edge, go down, round the end, and back up.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 471 660 C 470 670 468 697 469 721 C 469 744 470 786 471 800 C 472 805 473 807 475 810 C 476 814 479 817 482 820 C 484 822 488 824 491 825 C 494 826 497 827 500 827 C 504 827 507 826 510 825 C 513 824 517 822 519 819 C 522 817 524 815 526 812 C 527 809 529 806 530 801 C 530 782 528 717 529 694 C 529 680 530 665 531 660",
+          "duration": 1.8,
+          "lineWidth": 5
+        }
+      ]
+    },
+    {
+      "id": "body-color",
+      "title": "Color the popsicle",
+      "instruction": "Color the popsicle red.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 459 122 C 474 122 518 122 531 123 C 534 123 535 125 535 128 C 535 131 530 136 529 141 C 528 146 528 151 529 156 C 530 161 532 166 536 170 C 540 174 547 179 553 180 C 559 181 570 178 574 178 C 576 178 578 180 578 182 C 578 184 575 187 575 191 C 575 195 574 202 575 206 C 576 210 577 214 579 217 C 581 220 584 224 587 226 C 591 228 596 230 600 231 C 605 232 610 232 614 231 C 617 231 620 228 622 228 C 624 228 626 229 626 231 C 627 299 627 564 626 634 C 626 641 621 646 618 650 C 616 653 613 655 610 657 C 607 659 602 662 598 663 C 594 664 591 665 586 664 C 580 663 569 657 562 656 C 555 655 547 655 542 656 C 538 657 537 663 535 664 C 533 665 531 661 528 660 C 525 659 520 658 515 658 C 507 657 489 655 481 656 C 475 657 473 663 467 664 C 455 665 419 665 406 664 C 399 663 394 659 390 657 C 387 655 385 653 383 650 C 381 647 376 642 376 636 C 375 560 374 272 376 194 C 376 182 382 175 386 167 C 390 159 394 153 401 147 C 408 141 419 134 426 130 C 433 126 439 125 444 124 C 450 123 453 122 459 122 Z",
+          "color": "#EE1921",
+          "duration": 3,
+          "fillRule": "evenodd"
+        }
+      ]
+    },
+    {
+      "id": "stick-color",
+      "title": "Color the stick",
+      "instruction": "The stick is cream.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 481 656 C 489 655 507 657 515 658 C 520 658 525 659 528 660 C 531 661 535 661 535 664 C 536 668 531 675 531 682 C 530 694 530 713 531 733 C 532 753 536 787 535 801 C 535 808 531 814 528 818 C 525 822 522 825 518 827 C 514 829 510 831 506 832 C 502 833 499 833 495 832 C 491 831 486 829 482 827 C 478 825 476 822 473 818 C 471 814 467 809 467 803 C 466 777 465 688 467 663 C 468 657 475 657 481 656 Z",
+          "color": "#F6E7B8",
+          "duration": 1.3,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}

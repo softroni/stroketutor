@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "popsicle",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T16:23:37.792Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "On a hot day, nothing beats a popsicle. Somebody already took a bite out of this one. See it take shape, then draw your own.",
+      "textHash": "0fa5471d083a008b7b4c23384d7e05b025be5d7d1a816fabc5998ae8b6a35b9a",
+      "durationMs": 7520
+    },
+    "left-side": {
+      "file": "left-side.m4a",
+      "text": "The popsicle is a tall block with a round top. From the top, curve left and go straight down.",
+      "textHash": "8048e3e2db65ee7016f0198716ea90c428797bfd2b3f2a7ee42f0b3ccee1af8a",
+      "durationMs": 6480
+    },
+    "bottom-right": {
+      "file": "bottom-right.m4a",
+      "text": "Turn along the bottom, then go straight up the right side. Stop before the top.",
+      "textHash": "a7ae5b8370991036e99ee37a9b1a1b023cc65354d045f026c004a54dfd087d70",
+      "durationMs": 5200
+    },
+    "bite": {
+      "file": "bite.m4a",
+      "text": "Here's the bite. Draw two little scoops, side by side, back to where you began.",
+      "textHash": "1d12598559a55200e56fe0763ad0fc0aea48dbd90a02920b066414816865a032",
+      "durationMs": 5360
+    },
+    "grooves": {
+      "file": "grooves.m4a",
+      "text": "Add two short lines, side by side, in the lower half. They touch nothing.",
+      "textHash": "214b8f312256c714660a5656238bcafcd5097fb02f82c8a465f3538001f94a99",
+      "durationMs": 5120
+    },
+    "stick": {
+      "file": "stick.m4a",
+      "text": "Now the stick. From the bottom edge, go down, round the end, and back up.",
+      "textHash": "e62f782f1f95122960c7bdadb8e33c1faf661e1c1b3f8f7dfba7a8defbdaad7d",
+      "durationMs": 5600
+    },
+    "body-color": {
+      "file": "body-color.m4a",
+      "text": "Color the popsicle red.",
+      "textHash": "aca5197493c68e5ccc5ae92c59acc10d92299aaf22115a554356d6cf36b36a97",
+      "durationMs": 1760
+    },
+    "stick-color": {
+      "file": "stick-color.m4a",
+      "text": "The stick is cream.",
+      "textHash": "c90a093e1e0fc0612b81cfcf440ed948626fa811d1ba3b4599dbd3ed03e0fcad",
+      "durationMs": 1440
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A popsicle with a bite gone already. Better finish yours before it melts.",
+      "textHash": "432966bede3aeaebd968e77cd1f28b7566e3725f2b1a951ce9b485fc82ef5acb",
+      "durationMs": 5040
+    }
+  }
+}

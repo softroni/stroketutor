@@ -36,7 +36,7 @@
       "title": "Food & Treats",
       "description": "Treats first, then stacked and layered food, ending with a full snack tray.",
       "level": "starter",
-      "lessonIds": ["donut"]
+      "lessonIds": ["donut", "popsicle"]
     },
     {
       "id": "plants",
