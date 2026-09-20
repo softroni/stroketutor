@@ -46,6 +46,7 @@ import { routeHref } from './route'
 import { ShortcutSheet } from './ShortcutSheet'
 import { LifecycleBadge } from './StatusPill'
 import { Toasts, useToasts } from './Toasts'
+import { usePreviewVoice } from './voice/PreviewVoice'
 
 export interface LessonWorkspaceProps {
   library: Library
@@ -181,6 +182,7 @@ function LessonEditor({
   const [dialog, setDialog] = useState<Dialog | null>(null)
   const [issuesOpen, setIssuesOpen] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'saved' })
+  const voice = usePreviewVoice(entry.id, saveState.kind === 'saved')
   /** Bumped whenever a version may have been recorded, so the History tab reads it again. */
   const [historyKey, setHistoryKey] = useState(0)
   const [toasts, toast, dismissToast] = useToasts()
@@ -791,7 +793,7 @@ function LessonEditor({
               // The real player, not an imitation (§19): whatever the learner
               // would see, the creator sees here — edits included.
               <div className="st-stage__player">
-                <TutorialPlayer tutorial={validation.tutorial} fill />
+                <TutorialPlayer tutorial={validation.tutorial} fill onStep={voice.onStep} cardExtra={voice.controls} lina={voice.lina} />
               </div>
             ) : (
               <div className="st-stage__fit">

@@ -96,16 +96,17 @@ describe('the voice commands', () => {
   it('narrates every step that needs it, and says nothing is left the second time', async () => {
     const first = await narrateHouse()
     expect(first.code).toBe(0)
-    expect(first.stdout).toContain('1 of 5')
-    expect(first.stdout).toContain('Recorded 5 steps of Simple House.')
+    // Five steps, and what Lina says before and after the lesson.
+    expect(first.stdout).toContain('1 of 7')
+    expect(first.stdout).toContain('Recorded 7 steps of Simple House.')
 
     const again = await t.json<{ recorded: unknown[] }>('voice narrate simple-house')
     expect(again.recorded).toEqual([])
-    expect(tts.speech).toHaveLength(5)
+    expect(tts.speech).toHaveLength(7)
 
     const remade = await t.json<{ recorded: unknown[] }>('voice narrate simple-house --remake')
-    expect(remade.recorded).toHaveLength(5)
-    expect(tts.speech).toHaveLength(10)
+    expect(remade.recorded).toHaveLength(7)
+    expect(tts.speech).toHaveLength(14)
   })
 
   it('refuses to narrate with nobody cast', async () => {
@@ -134,13 +135,13 @@ describe('the voice commands', () => {
     await narrateHouse()
     const published = await t.studio('voice publish simple-house')
     expect(published.code).toBe(0)
-    expect(published.stdout).toContain('6 files')
+    expect(published.stdout).toContain('8 files')
     expect(published.stdout).toContain('git add -- shared/Assets/Voice/simple-house/chimney.m4a')
 
     const manifest = JSON.parse(
       await readFile(path.join(t.shared, 'Assets', 'Voice', 'simple-house', 'manifest.json'), 'utf8'),
     ) as VoiceManifest
-    expect(Object.keys(manifest.steps)).toHaveLength(5)
+    expect(Object.keys(manifest.steps)).toHaveLength(7)
     expect(manifest.voiceId).toBe('house-chatterbox')
 
     const removed = await t.studio('voice unpublish simple-house --yes')
@@ -189,7 +190,7 @@ describe('the voice commands', () => {
     expect(at('Palm Tree 4 (palm-tree-4)')).toBeLessThan(at('Simple House (simple-house)'))
     expect(at('Simple House (simple-house)')).toBeLessThan(at('Classic Red Car (classic-red-car)'))
     expect(at('Classic Red Car (classic-red-car)')).toBeLessThan(at('Cat Face (cat-face)'))
-    expect(all.stdout).toContain('Narrated 36 steps across 4 lessons.')
+    expect(all.stdout).toContain('Narrated 44 steps across 4 lessons.')
 
     // A second run has nothing to do.
     const again = await t.studio('voice narrate --all')
@@ -222,7 +223,7 @@ describe('the voice commands', () => {
     }>('voice publish --all')
 
     expect(all.published.map((lesson) => lesson.lessonId)).toEqual(['simple-house'])
-    expect(all.published[0].files).toHaveLength(6)
+    expect(all.published[0].files).toHaveLength(8)
     expect(all.skipped.map((lesson) => lesson.lessonId)).toEqual(['palm-tree-4', 'classic-red-car', 'cat-face'])
     expect(all.skipped[0].reason).toContain('not complete')
     expect(all.skipped[0].reason).toContain('not yet')
@@ -235,7 +236,7 @@ describe('the voice commands', () => {
 
   it('lists the spoken lines as a plan, and applies one back', async () => {
     const listed = await t.json<{ lines: Record<string, string | null> }>('voice lines list simple-house')
-    expect(listed.lines).toEqual({ walls: null, roof: null, door: null, windows: null, chimney: null })
+    expect(listed.lines).toEqual({ 'lesson-intro': null, walls: null, roof: null, door: null, windows: null, chimney: null, 'lesson-outro': null })
 
     const plan = path.join(t.root, 'lines.json')
     await writeFile(plan, JSON.stringify({ lines: { walls: 'Start with the box, low on the page.', door: null } }))
@@ -268,7 +269,7 @@ describe('the voice commands', () => {
     }
     const written = await t.json<LessonNarration>('voice lines generate simple-house')
     expect(modelCalls).toHaveLength(1)
-    expect(written.steps.map((step) => step.spokenLine)).toEqual([
+    expect(written.steps.filter((step) => step.kind === 'step').map((step) => step.spokenLine)).toEqual([
       'Say walls.',
       'Say roof.',
       'Say door.',

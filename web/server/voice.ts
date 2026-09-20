@@ -42,6 +42,8 @@ import {
   type TtsDeps,
   type VoiceSettings,
 } from './tts'
+import { BOOKEND_TITLES, INTRO_ID, OUTRO_ID, bookendKind, defaultBookend, type BookendKind } from '../src/voice/bookends'
+
 import type { NarrationEntry, Workspace } from './workspaceStore'
 
 /**
@@ -69,6 +71,7 @@ import type { NarrationEntry, Workspace } from './workspaceStore'
  * Speech itself is `tts.ts`, storage is `workspaceStore.ts`, and `shared/` is
  * `repoWriter.ts`. This file is the rules between them.
  */
+
 
 export interface VoiceDeps {
   workspace: Workspace
@@ -365,13 +368,14 @@ export async function lessonNarration(lessonId: string, deps: VoiceDeps): Promis
   const lines = deps.workspace.readNarrationLines(lessonId)
   const recorded = new Map(deps.workspace.readNarration(lessonId).map((entry) => [entry.stepId, entry]))
 
-  const steps = tutorial.steps.map<StepNarration>((step) => {
+  const steps = spokenParts(tutorial).map<StepNarration>((step) => {
     const spokenLine = lines.get(step.id) ?? null
     const spoken = spokenLine ?? step.instruction
     const entry = recorded.get(step.id)
     const take = entry ? deps.workspace.readTakeInfo(entry.takeId) : null
     return {
       stepId: step.id,
+      kind: bookendKind(step.id) ?? 'step',
       title: step.title,
       instruction: step.instruction,
       spokenLine,
@@ -616,7 +620,7 @@ export async function applySpokenLines(
     throw new WriteRefused(400, '`lines` must be an object of step id to the line spoken there, or null to clear it.')
   }
 
-  const known = new Set(tutorial.steps.map((step) => step.id))
+  const known = new Set(spokenParts(tutorial).map((step) => step.id))
   const entries = Object.entries(raw as Record<string, unknown>)
   const unknown = entries.map(([id]) => id).filter((id) => !known.has(id))
   if (unknown.length > 0) {
@@ -1218,8 +1222,15 @@ async function readLesson(lessonId: string, deps: VoiceDeps): Promise<Tutorial> 
   return JSON.parse(stored.text) as Tutorial
 }
 
+/** Everything Lina says in a lesson, in the order she says it: the intro, each step, the outro. */
+function spokenParts(tutorial: Tutorial): { id: string; title: string; instruction: string }[] {
+  const bookend = (kind: BookendKind, id: string) => ({ id, title: BOOKEND_TITLES[kind], instruction: defaultBookend(kind, tutorial) })
+  const steps = tutorial.steps.filter((step) => bookendKind(step.id) === null)
+  return [bookend('intro', INTRO_ID), ...steps, bookend('outro', OUTRO_ID)]
+}
+
 function mustHaveStep(tutorial: Tutorial, stepId: string) {
-  const step = tutorial.steps.find((candidate) => candidate.id === stepId)
+  const step = spokenParts(tutorial).find((candidate) => candidate.id === stepId)
   if (!step) throw new WriteRefused(404, `“${tutorial.title}” has no step "${stepId}".`)
   return step
 }

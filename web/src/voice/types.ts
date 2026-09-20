@@ -118,6 +118,12 @@ export interface VoiceState {
 /** The narration of one step of a lesson, as it stands in the workspace. */
 export interface StepNarration {
   stepId: string
+  /**
+   * A step of the lesson, or one of the two things Lina says around it (see
+   * `bookends.ts`): the intro comes first in `steps` and the outro last. For
+   * those, `instruction` is the pattern that is spoken unless a line is written.
+   */
+  kind: 'intro' | 'step' | 'outro'
   title: string
   /** The written instruction, what is spoken unless a line is written for it. */
   instruction: string

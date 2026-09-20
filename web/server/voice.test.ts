@@ -290,7 +290,8 @@ describe('narrating a lesson', () => {
     await voiceState(deps)
     castVoice('house-chatterbox', deps)
     const before = await lessonNarration('simple-house', deps)
-    expect(before.steps).toHaveLength(5)
+    // Five steps, with what Lina says before the lesson first and after it last.
+    expect(before.steps.map((step) => step.kind)).toEqual(['intro', 'step', 'step', 'step', 'step', 'step', 'outro'])
     expect(before.steps.every((step) => step.stale === 'missing')).toBe(true)
     expect(before.published).toBe(null)
 
@@ -412,12 +413,14 @@ describe('publishing a lesson’s voice', () => {
     expect(files).toEqual([
       'shared/Assets/Voice/simple-house/chimney.m4a',
       'shared/Assets/Voice/simple-house/door.m4a',
+      'shared/Assets/Voice/simple-house/lesson-intro.m4a',
+      'shared/Assets/Voice/simple-house/lesson-outro.m4a',
       'shared/Assets/Voice/simple-house/manifest.json',
       'shared/Assets/Voice/simple-house/roof.m4a',
       'shared/Assets/Voice/simple-house/walls.m4a',
       'shared/Assets/Voice/simple-house/windows.m4a',
     ])
-    expect(converter.calls).toHaveLength(5)
+    expect(converter.calls).toHaveLength(7)
 
     const manifest = await readManifest()
     expect(manifest.manifestVersion).toBe(1)
@@ -425,8 +428,9 @@ describe('publishing a lesson’s voice', () => {
     expect(manifest.voiceId).toBe('house-chatterbox')
     expect(manifest.voiceName).toBe('House voice')
     expect(manifest.model).toBe('chatterbox')
-    expect(Object.keys(manifest.steps)).toEqual(['walls', 'roof', 'door', 'windows', 'chimney'])
-    const walls = narration.steps[0]
+    // What Lina says around the lesson is published as the steps are, under the two ids kept for it.
+    expect(Object.keys(manifest.steps)).toEqual(['lesson-intro', 'walls', 'roof', 'door', 'windows', 'chimney', 'lesson-outro'])
+    const walls = narration.steps[1]
     expect(manifest.steps.walls).toEqual({
       file: 'walls.m4a',
       text: walls.text,
@@ -444,7 +448,7 @@ describe('publishing a lesson’s voice', () => {
     await publishVoice('simple-house', deps)
 
     const fresh = await lessonNarration('simple-house', deps)
-    expect(fresh.published).toMatchObject({ voiceId: 'house-chatterbox', voiceName: 'House voice', stepCount: 5, behind: false })
+    expect(fresh.published).toMatchObject({ voiceId: 'house-chatterbox', voiceName: 'House voice', stepCount: 7, behind: false })
 
     await setNarrationLine('simple-house', 'door', 'Now the door, a tall rectangle.', deps)
     await narrateStep('simple-house', { stepId: 'door' }, deps)
@@ -464,6 +468,8 @@ describe('publishing a lesson’s voice', () => {
     expect((await readdir(path.join(shared, voiceFolder))).sort()).toEqual([
       'chimney.m4a',
       'door.m4a',
+      'lesson-intro.m4a',
+      'lesson-outro.m4a',
       'manifest.json',
       'roof.m4a',
       'walls.m4a',
@@ -476,7 +482,7 @@ describe('publishing a lesson’s voice', () => {
     await narrateHouse()
     await publishVoice('simple-house', deps)
     const { files } = await writer.deleteVoice('simple-house')
-    expect(files).toHaveLength(6)
+    expect(files).toHaveLength(8)
     expect(existsSync(path.join(shared, voiceFolder))).toBe(false)
     expect((await lessonNarration('simple-house', deps)).published).toBe(null)
   })
@@ -528,8 +534,9 @@ describe('writing the spoken lines', () => {
     expect(written.writing.model).toBe('vendor/text-model')
     expect(written.writing.written).toEqual(HOUSE_STEPS)
     expect(written.writing.kept).toEqual([])
-    expect(written.steps.map((step) => step.spokenLine)).toEqual(HOUSE_STEPS.map((id) => `Say ${id}.`))
-    expect(written.steps[0].text).toBe('Say walls.')
+    const stepLines = written.steps.filter((step) => step.kind === 'step')
+    expect(stepLines.map((step) => step.spokenLine)).toEqual(HOUSE_STEPS.map((id) => `Say ${id}.`))
+    expect(stepLines[0].text).toBe('Say walls.')
   })
 
   it('says which steps colour rather than draw, and passes the creator’s note on', async () => {

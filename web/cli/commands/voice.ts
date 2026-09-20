@@ -538,7 +538,9 @@ export const voiceCommands: Command[] = [
 
       if (args.values['dry-run']) {
         const generation = await ctx.generation()
-        const narration = await lessonNarration(lessonId, deps)
+        // A model is asked about the lesson's steps; what Lina says around the lesson is a teacher's, and written by hand.
+        const all = await lessonNarration(lessonId, deps)
+        const narration = { ...all, steps: all.steps.filter((step) => step.kind === 'step') }
         const todo = narration.steps.filter((step) => overwrite || step.spokenLine === null)
         const model = ctx.flags.model || generation.defaultModel || null
         ctx.out.result(

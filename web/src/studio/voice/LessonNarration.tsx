@@ -346,7 +346,7 @@ export function LessonNarrationPanel({
                               className="st-narrate__action"
                               onClick={() => void writeLine(step.stepId, null)}
                             >
-                              Use the instruction
+                              {step.kind === 'step' ? 'Use the instruction' : 'Use Lina’s usual words'}
                             </button>
                           </>
                         ) : (
@@ -359,7 +359,7 @@ export function LessonNarrationPanel({
                                 setDrafts((current) => ({ ...current, [step.stepId]: step.instruction }))
                               }
                             >
-                              Write a spoken line
+                              {step.kind === 'step' ? 'Write a spoken line' : 'Write this lesson’s own line'}
                             </button>
                           </>
                         )}

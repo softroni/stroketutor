@@ -14,6 +14,7 @@ import {
 
 const step = (stepId: string, stale: StepNarration['stale']): StepNarration => ({
   stepId,
+  kind: 'step',
   title: stepId,
   instruction: 'Draw a line.',
   spokenLine: null,

@@ -207,6 +207,7 @@ function lessonFor(lessonId: string): LessonNarration {
   if (existing) return existing
   const steps: StepNarration[] = STEP_TEXT.map(([title, instruction], index) => ({
     stepId: `step-${index + 1}`,
+    kind: 'step',
     title,
     instruction,
     spokenLine: null,
