@@ -203,6 +203,17 @@ const remove = (): RequestInit => ({ method: 'DELETE', headers: WRITE_HEADERS })
  * git tracks and the app ships. Publishing approves them. An empty list
  * publishes the curriculum alone.
  */
+/** The lesson page's Publish: the lesson, its voice, a commit of exactly those files, and a push to main. */
+export interface ReleaseResult {
+  files: string[]
+  voice: { published: boolean; recorded: number; note: string | null }
+  git: { committed: boolean; pushed: boolean; commit: string | null; subject: string | null; note: string | null }
+}
+
+export function releaseLesson(lessonId: string) {
+  return call<ReleaseResult>(`/api/release/${encodeURIComponent(lessonId)}`, post())
+}
+
 export function publishLessons(lessonIds: string[]) {
   return call<{ files: string[] }>('/api/publish', json('POST', { lessonIds }))
 }

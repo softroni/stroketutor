@@ -8,7 +8,7 @@ import { TutorialPlayer } from '../player/TutorialPlayer'
 import { totalDuration, totalStrokes, type Tutorial } from '../schema/types'
 import { validateTutorial, type ValidationIssue } from '../schema/validate'
 
-import { ApiError, publishLessons, saveCatalog, saveTutorial, uploadReference } from './api'
+import { ApiError, releaseLesson, saveCatalog, saveTutorial, uploadReference } from './api'
 import { ApprovalChecklist, QualityWarnings } from './ApprovalDialog'
 import { ConfirmDialog } from './ConfirmDialog'
 import { Drawer } from './Drawer'
@@ -446,15 +446,35 @@ function LessonEditor({
 
   const publish = async () => {
     if (!(await flush())) throw new Error('The lesson could not be saved, so it was not published.')
-    const { files } = await publishLessons([entry.id])
+    const released = await releaseLesson(entry.id)
     setHistoryKey((key) => key + 1)
+    voice.reload()
     await onSaved()
+    const { files, git } = released
+    const notes = [released.voice.note, git.note].filter(Boolean)
     toast(
       <>
-        Published. {files.length} {files.length === 1 ? 'file' : 'files'} in shared/ changed; commit them:
-        <code className="st-toast__command">git add -- {files.join(' ')}</code>
+        Published{released.voice.published ? ' with Lina’s voice' : ''}
+        {released.voice.recorded > 0 ? ` (${released.voice.recorded} recorded just now)` : ''}: {files.length}{' '}
+        {files.length === 1 ? 'file' : 'files'} in shared/.{' '}
+        {git.pushed ? (
+          <>
+            Committed and pushed to main as <code>{git.commit}</code>: “{git.subject}”.
+          </>
+        ) : git.committed ? (
+          <>
+            Committed as <code>{git.commit}</code>, not pushed.
+          </>
+        ) : null}
+        {notes.map((note) => (
+          <span key={note} className="st-toast__note">
+            {' '}
+            {note}
+          </span>
+        ))}
+        {!git.committed && files.length > 0 ? <code className="st-toast__command">git add -- {files.join(' ')}</code> : null}
       </>,
-      'success',
+      notes.length > 0 ? 'error' : 'success',
       { sticky: true },
     )
   }
@@ -585,8 +605,8 @@ function LessonEditor({
     ? 'Only lessons in the curriculum can be published.'
     : !validation.ok
       ? 'Fix the validation problems first.'
-      : entry.state === 'published' && !dirty
-        ? 'Published, and nothing has changed since.'
+      : entry.state === 'published' && !dirty && !voice.unpublished
+        ? 'Published, and nothing has changed since: the lesson and Lina’s voice are both in shared/.'
         : null
   const problems = validation.ok ? [] : validation.issues
 
@@ -695,7 +715,7 @@ function LessonEditor({
               type="button"
               className="st-button st-button--primary st-button--compact"
               disabled={publishBlockedBecause !== null}
-              title={publishBlockedBecause ?? 'Approve this version and write it into shared/.'}
+              title={publishBlockedBecause ?? 'Approve this version, publish it with Lina’s voice, commit and push.'}
               onClick={() => setDialog('publish')}
             >
               Publish…
@@ -1067,7 +1087,8 @@ function LessonEditor({
           <p>
             Writes <code>shared/Tutorials/{entry.fileName}</code>
             {reference ? ' and its photo' : ''}, and brings <code>shared/Catalog</code> in line with the curriculum.
-            That is what git tracks and the app ships; commit it yourself afterwards.
+            Anything Lina has not recorded yet is recorded, and her voice goes into <code>shared/Assets/Voice/</code>.
+            Those files are then committed, under a message that says what changed, and pushed to <code>main</code>.
           </p>
           <QualityWarnings warnings={warnings} />
           <ApprovalChecklist open={false} />

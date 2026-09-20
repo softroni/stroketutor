@@ -30,6 +30,10 @@ export function usePreviewVoice(
   stepVoice: (stepId: string) => ReactNode
   /** What Lina says before or after the lesson, as a card for the Steps pane: the words, listen, record. */
   bookend: (kind: 'intro' | 'outro') => ReactNode
+  /** True when Lina's voice in the workspace is not what shared/ has: a part to record, or a recording not yet published. */
+  unpublished: boolean
+  /** Reads the narration again, after something outside this hook changed it (a publish). */
+  reload: () => void
 } {
   const player = useAudioPlayer()
   const [narration, setNarration] = useState<LessonNarration | null>(null)
@@ -48,6 +52,8 @@ export function usePreviewVoice(
   })
 
   // Read again once an edit is saved: changed words make a recording out of date.
+  const [reloads, setReloads] = useState(0)
+  const reload = useCallback(() => setReloads((count) => count + 1), [])
   useEffect(() => {
     if (!saved) return
     let current = true
@@ -57,7 +63,7 @@ export function usePreviewVoice(
     return () => {
       current = false
     }
-  }, [lessonId, saved])
+  }, [lessonId, saved, reloads])
 
   const step = narration?.steps.find((candidate) => candidate.stepId === stepId) ?? null
   const takeId = step?.take?.id ?? null
@@ -251,7 +257,10 @@ export function usePreviewVoice(
     return target ? <BookendCard key={`${target.stepId}:${target.text}`} part={target} voice={voiceApi} /> : null
   }
 
-  return { onStep, controls, lina, stepVoice, bookend }
+  const unpublished = Boolean(
+    narration?.castVoiceId && (narration.steps.some((part) => part.stale !== null) || !narration.published || narration.published.behind),
+  )
+  return { onStep, controls, lina, stepVoice, bookend, unpublished, reload }
 }
 
 interface PartVoiceApi {

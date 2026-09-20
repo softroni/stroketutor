@@ -6,6 +6,7 @@ import { GenerationFailed, generateCandidate, type GenerateDeps } from './genera
 import { generateFromTrace } from './generateFromTrace'
 import { listVisionModels } from './models'
 import { regenerate } from './regenerate'
+import { gitIn, releaseLesson } from './release'
 import {
   MAX_REFERENCE_BYTES,
   REFERENCE_RESPONSE_HEADERS,
@@ -98,6 +99,7 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `PUT  /api/references/:lesson`        the photo's bytes, typed by Content-Type, into the workspace
  * - `GET|POST /api/history/:lesson`       every recorded version of a lesson / record a generated one
  * - `POST /api/publish`                   `{ lessonIds }` → writes them, and the curriculum, into shared/
+ * - `POST /api/release/:lesson`           the lesson page's Publish: the lesson, its voice, a commit, and a push to main
  * - `POST /api/unpublish/:lesson`         takes a lesson out of shared/, keeping it in the workspace
  * - `POST /api/lessons/:lesson/duplicate` a copy as a new draft
  * - `DELETE /api/lessons/:lesson`         to the trash (unpublished first)
@@ -358,6 +360,22 @@ async function handle(
     if (resource === 'adopt-shared' && parts.length === 1 && method === 'POST') {
       await workspace.adoptShared()
       return send(res, 200, { ok: true })
+    }
+
+    if (resource === 'release' && parts.length === 2 && method === 'POST') {
+      const voice: VoiceDeps = {
+        workspace,
+        writer,
+        tts: { url: options.ttsUrl ?? DEFAULT_TTS_URL, mcpUrl: options.ttsMcpUrl ?? DEFAULT_TTS_MCP_URL },
+        generation,
+      }
+      await adoptKeptReferences(voice)
+      // Released files are named from the repository's root (`shared/…`), so git runs there.
+      const root = await gitIn(options.sharedDir)(['rev-parse', '--show-toplevel']).then(
+        (out) => out.trim(),
+        () => null,
+      )
+      return send(res, 200, await releaseLesson(name, voice, root ? gitIn(root) : null))
     }
 
     if (resource === 'voice') {
