@@ -14,6 +14,13 @@
   ],
   "paths": [
     {
+      "id": "sky-weather",
+      "title": "Sky & Weather",
+      "description": "From a sun made of a circle and rays to a storm over the mountains: simple shapes first, then overlap, then a whole scene.",
+      "level": "starter",
+      "lessonIds": ["sun"]
+    },
+    {
       "id": "fruits",
       "title": "Fruits",
       "description": "Round, curved and clustered shapes, ending with four fruits overlapping in a bowl.",

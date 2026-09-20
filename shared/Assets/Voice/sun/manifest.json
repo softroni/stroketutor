@@ -1,0 +1,58 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "sun",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:52:27.157Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "The sun is the easiest thing in the sky to draw: one circle and eight straight rays. Watch the rays go around like a clock, then light up your own page.",
+      "textHash": "0896c158416c62ce4303b93ca40962bf654cdf7e73eba16823d0b6a0bde28b51",
+      "durationMs": 10080
+    },
+    "left-half": {
+      "file": "left-half.m4a",
+      "text": "The sun is a big circle. From the top, curve around the left side down to the bottom.",
+      "textHash": "9329cc0bf26b1df1734093458391281f8bd96d91a7b0646078fcc3413bc2474a",
+      "durationMs": 6400
+    },
+    "right-half": {
+      "file": "right-half.m4a",
+      "text": "Now close the circle. From the top again, curve around the right side.",
+      "textHash": "83b98ce0e16891595457f864df7b60dfe4392b5f8c2ae0d26ac5d9eb322f3333",
+      "durationMs": 4800
+    },
+    "rays-up-down": {
+      "file": "rays-up-down.m4a",
+      "text": "Rays are short straight lines. Draw one above the sun and one below, not touching it.",
+      "textHash": "814ad725d1027e1fd4c6cf9a523d2964f2a85492a1a24583324de31a3213c871",
+      "durationMs": 5840
+    },
+    "rays-sides": {
+      "file": "rays-sides.m4a",
+      "text": "Next, one ray on the left and one on the right.",
+      "textHash": "5f0ff63b89aa9f63f28d9a85b6c8a80ee8da1924b92285f4162582cda2154222",
+      "durationMs": 3840
+    },
+    "rays-corners": {
+      "file": "rays-corners.m4a",
+      "text": "Four more rays fit in the gaps, slanting out like an X.",
+      "textHash": "46d15aa0b6b4eec0f06e467b78ccf47415acbc58efffdfc11827fb69de5fbee6",
+      "durationMs": 4160
+    },
+    "sun": {
+      "file": "sun.m4a",
+      "text": "Color the sun yellow.",
+      "textHash": "69aedec2e10942344d999aa68c044a4213f980a60bdcfa5a5d4d4eb00eefcd4f",
+      "durationMs": 1760
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Eight rays and a big yellow middle. Your page just got warmer.",
+      "textHash": "353cb3e6fdf4d550f6f213f65444a93f4f945540d6f930dcdea3c22cc2b02d6a",
+      "durationMs": 4320
+    }
+  }
+}
