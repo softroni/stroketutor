@@ -5,11 +5,6 @@
       "id": "starter",
       "title": "Starter",
       "description": "Flat shapes and clean lines. Start here if you are new to drawing."
-    },
-    {
-      "id": "core",
-      "title": "Core",
-      "description": "Detail, overlap and 3D form. Forms comes first: everything after it builds on it."
     }
   ],
   "paths": [
@@ -36,21 +31,7 @@
       "title": "Food & Treats",
       "description": "Treats first, then stacked and layered food, ending with a full snack tray.",
       "level": "starter",
-      "lessonIds": ["donut", "popsicle"]
-    },
-    {
-      "id": "plants",
-      "title": "Plants",
-      "description": "Trees, flowers and potted plants, from stacked triangles to a twisted bonsai, ending on a windowsill garden.",
-      "level": "core",
-      "lessonIds": ["palm-tree-4"]
-    },
-    {
-      "id": "wheels",
-      "title": "Wheels",
-      "description": "Everything that rolls, from a box-shaped bus to a car drawn in three-quarter view.",
-      "level": "core",
-      "lessonIds": ["classic-red-car"]
+      "lessonIds": ["donut", "popsicle", "boba-tea"]
     }
   ]
 }

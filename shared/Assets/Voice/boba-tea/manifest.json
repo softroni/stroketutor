@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "boba-tea",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T17:46:45.543Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Boba tea has chewy pearls at the bottom and a fat straw on top. See how the cup goes together, then draw one for yourself.",
+      "textHash": "38fa37e8a1a9672737479305cb50e93c92b685c7220fe0658a166b60fe4e73d4",
+      "durationMs": 8160
+    },
+    "cup": {
+      "file": "cup.m4a",
+      "text": "Draw the cup first. Slant down the left side, go along the bottom, and slant up the right.",
+      "textHash": "75505fe7fefc818d6d188b30fbd1604259ed9e07fcf4fa2c74da2e1da9c5df89",
+      "durationMs": 6240
+    },
+    "rim": {
+      "file": "rim.m4a",
+      "text": "The lid's rim is a thin band with round ends. Lay it across the top of the cup.",
+      "textHash": "fe27bbbc4a8f478cb01239883d76d5ab5ee6d0f16cf5fc710b522c0beb66a4d7",
+      "durationMs": 5440
+    },
+    "dome": {
+      "file": "dome.m4a",
+      "text": "A dome sits on the rim. Draw half a circle, like a hill.",
+      "textHash": "bc21c6b18131d8c4e3e3a228f528cb3820041194c2cb6d9fd3f6e596e51d554f",
+      "durationMs": 4400
+    },
+    "straw": {
+      "file": "straw.m4a",
+      "text": "Poke in the straw. It's a long thin box, leaning right, with a flat top.",
+      "textHash": "b9ad7ac27faf514b3b48739c14f9be786b4bf811889b6a1de09ade039bf52c02",
+      "durationMs": 5360
+    },
+    "pearls-bottom": {
+      "file": "pearls-bottom.m4a",
+      "text": "Now the pearls. Draw four small circles in a row along the bottom.",
+      "textHash": "6218569346860a516fafe2fd959837f0eecf27ebdca7e83dd4bdba432a7a1171",
+      "durationMs": 4720
+    },
+    "pearls-top": {
+      "file": "pearls-top.m4a",
+      "text": "Three more rest on top of them. Seven pearls in all.",
+      "textHash": "d24f653756c711a98524b3c316b177da4d01b1992fee263704bc8e5317f668ea",
+      "durationMs": 3520
+    },
+    "tea-cream": {
+      "file": "tea-cream.m4a",
+      "text": "Color the tea cream.",
+      "textHash": "1fcaf785665fbcf3988a2f5f54f4b2cdf3e35c46f779e0d9365f70ad7f9e4a94",
+      "durationMs": 1520
+    },
+    "rim-blue": {
+      "file": "rim-blue.m4a",
+      "text": "The rim is blue.",
+      "textHash": "ada7c0fb896479f0bc8a5f44b40089f3633bb442ca631db3e9bc3ac991238782",
+      "durationMs": 1680
+    },
+    "dome-gray": {
+      "file": "dome-gray.m4a",
+      "text": "Color the dome gray.",
+      "textHash": "da61aee01e4a19ed65a9acbe8fbb606a4fef4e69e9494d1d1e2fc1ee72b8151c",
+      "durationMs": 1840
+    },
+    "straw-pink": {
+      "file": "straw-pink.m4a",
+      "text": "The straw is pink.",
+      "textHash": "c2f20e070c369af0a8301b59b392b0320999a4c26d76b561392f8749940e41f9",
+      "durationMs": 1440
+    },
+    "pearls-brown": {
+      "file": "pearls-brown.m4a",
+      "text": "Color every pearl brown.",
+      "textHash": "30ea0117c45989dc0e07f11b9c8793ba54962bf4775ee1f3a6636e49454cde50",
+      "durationMs": 2000
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Pearls, straw and all, your boba tea is ready. Give the straw stripes if you like. It's your drink.",
+      "textHash": "e281cb71920c645384122646ba12f782ab74c92f84ca19c06bb37105a46a00ba",
+      "durationMs": 6400
+    }
+  }
+}

@@ -2,50 +2,6 @@
   "catalogVersion": 1,
   "lessons": [
     {
-      "id": "palm-tree-4",
-      "status": "approved",
-      "objective": "A palm tree",
-      "reference": {
-        "file": "palm-tree-4.svg",
-        "source": "pixabay",
-        "license": "Free"
-      },
-      "generation": {
-        "model": "deepseek/deepseek-v4.1-flash",
-        "promptVersion": "svg-lesson-v1",
-        "createdAt": "2026-09-11T20:27:20.211Z",
-        "goal": "Learn how to draw a palm tree easily",
-        "analysis": {
-          "mainForms": [
-            "A single curving trunk that leans slightly right and swells at the base",
-            "A crown of long fronds radiating from one point at the top of the trunk",
-            "A cluster of oval coconuts hanging at the top of the trunk",
-            "A low patch of sand at the base of the trunk"
-          ],
-          "importantDetails": [
-            "Ring bands running across the trunk",
-            "Feathery leaflet pairs along each frond spine, drawn as short strokes off the main line",
-            "Five or six separate coconuts, each with a small highlight line",
-            "Short tufts of grass where the trunk meets the sand",
-            "Pebble marks scattered on the sand"
-          ],
-          "detailsRemoved": [],
-          "drawingStrategy": "Start with the long curving trunk and its ring bands, then mark the crown point and build the fronds one at a time as a spine with paired leaflets. Finish with the coconut cluster and the sand at the base, so the tree stands on something."
-        }
-      }
-    },
-    {
-      "id": "classic-red-car",
-      "status": "approved",
-      "objective": "Draw a detailed side-view car with a curved body, divided windows, wheels, lights, and bumpers.",
-      "reference": {
-        "file": "classic-red-car.svg",
-        "source": "https://pixabay.com/vectors/automobile-car-vehicle-motoring-2046959/",
-        "license": "Pixabay Content License"
-      },
-      "complexity": 2
-    },
-    {
       "id": "cherries",
       "status": "approved",
       "objective": "Two cherries joined at the stem",
@@ -141,6 +97,16 @@
       "objective": "Rounded rectangle on a stick with a bite taken",
       "reference": {
         "file": "popsicle.svg",
+        "source": "Generated picture: OpenAI image model, style-v2 prompt (docs/curriculum/food-treats-prompts.md), 2026-09-20; traced with svg from-image",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
+      "id": "boba-tea",
+      "status": "approved",
+      "objective": "Tapered cup with dome lid, straw and eight pearls",
+      "reference": {
+        "file": "boba-tea.svg",
         "source": "Generated picture: OpenAI image model, style-v2 prompt (docs/curriculum/food-treats-prompts.md), 2026-09-20; traced with svg from-image",
         "license": "Generated for StrokeTutor; owned by Softroni"
       }
