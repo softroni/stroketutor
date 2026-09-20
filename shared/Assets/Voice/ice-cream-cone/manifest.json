@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "ice-cream-cone",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T17:48:01.057Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Two scoops, please. We'll build this ice cream from the cone up. Watch it stack, then it's your go.",
+      "textHash": "43b1aee1254995d9b56e6950f63b00705d43e92cd7381c051ecc0ff4e23dc6a3",
+      "durationMs": 6400
+    },
+    "cone-left": {
+      "file": "cone-left.m4a",
+      "text": "Begin with the cone, a long letter V. Draw the left side straight down to the point.",
+      "textHash": "75b60fa330ab12d9f1775df46e2af485f688a6d00a9f65fa0cafad1d76e95543",
+      "durationMs": 5760
+    },
+    "cone-right": {
+      "file": "cone-right.m4a",
+      "text": "Then the right side, sloping down to meet it at the point.",
+      "textHash": "8954773b424cf6fb91ed7069ce2f965ccf5997d0c8ed4e1a3cfcfdd2323177eb",
+      "durationMs": 3520
+    },
+    "bottom-skirt": {
+      "file": "bottom-skirt.m4a",
+      "text": "The first scoop sits on the cone. Draw its wavy skirt, three bumps across the cone's top.",
+      "textHash": "f86867dc02fd2bd3263b96b8c2179f323bd2a99616c58d8b6a01bb1c395f1708",
+      "durationMs": 6000
+    },
+    "bottom-sides": {
+      "file": "bottom-sides.m4a",
+      "text": "Now the scoop's two sides. Each curves up from the skirt and leans in.",
+      "textHash": "832d0a3055a53f0312d0751baf54dd4cd52840935b6dfbdfa5f94aa7f8babcf9",
+      "durationMs": 4880
+    },
+    "top-skirt": {
+      "file": "top-skirt.m4a",
+      "text": "The second scoop has a skirt too. Three bumps, resting on the first scoop.",
+      "textHash": "d01a76cad246908dec578e2c2ffa82264c3536edde0cab22ff1b3151b1262293",
+      "durationMs": 5200
+    },
+    "top-dome": {
+      "file": "top-dome.m4a",
+      "text": "Finish the scoops with a big dome, from one end of that skirt to the other.",
+      "textHash": "283dde781f1d629fd604b6e62e05e4c8589cf35eb6c9445c0c9c286dd807876f",
+      "durationMs": 5040
+    },
+    "hatch-left": {
+      "file": "hatch-left.m4a",
+      "text": "Give the cone its waffle pattern. Draw three slanted lines leaning left.",
+      "textHash": "bd63bb90754b9ba41ea00d02f5d26e731aea720bef5a3f91cf441acb44b57700",
+      "durationMs": 5120
+    },
+    "hatch-right": {
+      "file": "hatch-right.m4a",
+      "text": "Three more lean the opposite way. Little diamonds appear.",
+      "textHash": "1d916224d5243e96c63a28bad439fd54cdcd06ee8e860f18ef32cb43208c200d",
+      "durationMs": 4160
+    },
+    "color-cone": {
+      "file": "color-cone.m4a",
+      "text": "Color the cone orange.",
+      "textHash": "e7adb8854318c3ab800cd57a0e648ada26ec5750d0d48a66adc75f3dc71b5eca",
+      "durationMs": 1920
+    },
+    "color-bottom": {
+      "file": "color-bottom.m4a",
+      "text": "The bottom scoop is pink.",
+      "textHash": "a1d8f2a945a8aee6fd5b51a79cd59e771c1c1436b87cc186e425ff026dc68b81",
+      "durationMs": 2000
+    },
+    "color-top": {
+      "file": "color-top.m4a",
+      "text": "Color the top scoop light green.",
+      "textHash": "7ce76aa41a8bc4bb5ccb6ba037658e04784ec5ae924d6f201a44f829e4044aed",
+      "durationMs": 2400
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Two scoops and not a drop spilled. What flavors did you pick for yours?",
+      "textHash": "6161aeb36307cebeb4544cfcc50b57af74b389198a2db33d7b8b2728d5dd9456",
+      "durationMs": 4640
+    }
+  }
+}

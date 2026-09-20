@@ -102,6 +102,16 @@
       }
     },
     {
+      "id": "ice-cream-cone",
+      "status": "approved",
+      "objective": "Two scoops on a cone with a 3×3 crosshatch",
+      "reference": {
+        "file": "ice-cream-cone.svg",
+        "source": "Generated picture: OpenAI image model, style-v2 prompt (docs/curriculum/food-treats-prompts.md), 2026-09-20; traced with svg from-image",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "boba-tea",
       "status": "approved",
       "objective": "Tapered cup with dome lid, straw and eight pearls",
