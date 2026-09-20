@@ -66,6 +66,16 @@
       }
     },
     {
+      "id": "banana",
+      "status": "approved",
+      "objective": "Curved banana with a stem tip and ridge lines",
+      "reference": {
+        "file": "banana.svg",
+        "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v2, banana), 2026-09-19; vectorised with svg from-image",
+        "license": "Generated for StrokeTutor; owned by the creator"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",
