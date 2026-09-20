@@ -92,6 +92,16 @@
       }
     },
     {
+      "id": "mountain-storm",
+      "status": "approved",
+      "objective": "Peaks, cloud, bolt and rain in one scene",
+      "reference": {
+        "file": "mountain-storm.svg",
+        "source": "Generated with OpenAI image model (ChatGPT), prompt style-v2, 2026-09-20; docs/curriculum/sky-weather/mountain-storm-openai.png",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "cherries",
       "status": "approved",
       "objective": "Two cherries joined at the stem",

@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "mountain-storm",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:56:01.453Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Everything from this path meets in one picture: a cloud, a lightning bolt, rain and two snowy mountains. See where each piece goes, then bring on the storm.",
+      "textHash": "c616f12781ada9785c53909810558486602ca9b834362501783bb7b09fb4da9d",
+      "durationMs": 10560
+    },
+    "cloud": {
+      "file": "cloud.m4a",
+      "text": "High up goes the storm cloud. Flat line first, then the bumps from left to right.",
+      "textHash": "4c25772fde6e98094d6fb7319268d851bf4585da9d681817028601d7c7ada037",
+      "durationMs": 5360
+    },
+    "bolt": {
+      "file": "bolt.m4a",
+      "text": "Under the middle of the cloud, draw a small zigzag bolt with a sharp point.",
+      "textHash": "f7f44dcc2c72c2d8c32249b46c322f185517800ffbbe4bb32e477d4e8ca1da42",
+      "durationMs": 4800
+    },
+    "drops": {
+      "file": "drops.m4a",
+      "text": "Rain falls on both sides. Two slanted drops on the left, two on the right.",
+      "textHash": "1d7be924cb5728f7f7c370bc7ce087cfad2002d8916e3153cb104d942847dd49",
+      "durationMs": 5280
+    },
+    "near-peak": {
+      "file": "near-peak.m4a",
+      "text": "Down below stands the near mountain. Two slopes from one point, and the ground under them.",
+      "textHash": "70881fb93b3b78dbd559eb2b00aae05835009ecba1bf1c6b80a1d13714a4ec3e",
+      "durationMs": 5520
+    },
+    "far-peak": {
+      "file": "far-peak.m4a",
+      "text": "Behind it on the right, a smaller mountain. Its left side stops at the near one.",
+      "textHash": "e80d626a60c2f9d824bdeeea623d8c92ee5d667448cc763a8d7dd8be30358446",
+      "durationMs": 5520
+    },
+    "snow": {
+      "file": "snow.m4a",
+      "text": "Both tops get a jagged line of snow.",
+      "textHash": "651a741a0d6a3fa9c931c0c613ad06d0eb6fdddd67f72404128b9c41d43f7402",
+      "durationMs": 2720
+    },
+    "cloud-color": {
+      "file": "cloud-color.m4a",
+      "text": "Color the cloud gray.",
+      "textHash": "04bfd32ea93e22933241c4039e89161bec34a4b2543c472c14f5598cfe0c10bd",
+      "durationMs": 1680
+    },
+    "bolt-color": {
+      "file": "bolt-color.m4a",
+      "text": "Color the bolt yellow.",
+      "textHash": "3449df48824d1b1efd6931abb2c000e023037774594f6a1634d07675bd84c1f4",
+      "durationMs": 1600
+    },
+    "drops-color": {
+      "file": "drops-color.m4a",
+      "text": "Color the raindrops blue.",
+      "textHash": "9c391e37747d8022af8ef183836da8f0f0ebe77c43342db40b8f1db0485fe778",
+      "durationMs": 1840
+    },
+    "near-color": {
+      "file": "near-color.m4a",
+      "text": "The near mountain is green.",
+      "textHash": "bdf210d4f909dadd0f1a4d241da5e86b02d467c28748a29fd0142a0ad044ac22",
+      "durationMs": 2000
+    },
+    "far-color": {
+      "file": "far-color.m4a",
+      "text": "Make the far mountain light blue.",
+      "textHash": "5b7e476f0a34d55c1e2d4503a8be8a1d34758557435e3b7d3e5bce733fdba65b",
+      "durationMs": 2240
+    },
+    "snow-color": {
+      "file": "snow-color.m4a",
+      "text": "Color the snow cream.",
+      "textHash": "9ef73d40373be4c7062f14b27ddd599c4430f66cdb4f8cafd39dc7c7961036bf",
+      "durationMs": 1520
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Thunder, rain and snowy mountains, all in one picture. That's a whole storm, and the whole Sky and Weather path.",
+      "textHash": "9e2f9bf5b9dda6d8b29f58424daa5ae412fbc410f92e0c60166453437cedbe1c",
+      "durationMs": 8080
+    }
+  }
+}
