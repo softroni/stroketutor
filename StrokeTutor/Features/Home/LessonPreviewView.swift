@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// `hp-preview` — the last screen before the pen moves: the real thing and the
-/// finished drawing side by side, how long it takes, and the one idea the lesson
-/// teaches. Plus the honest line about paper, because the whole product depends on
-/// a sheet being in front of the learner.
+/// `hp-preview` — the last screen before the pen moves, made for a child to read
+/// at a glance: one big picture of what they will draw, its name, how long it takes,
+/// and Lina showing the three things that happen in every lesson — watch, draw, tap.
+/// Her line asks for a pen and paper, because the whole product depends on a sheet
+/// being in front of the learner.
 ///
 /// **Default** offers "Start drawing". **Resume** — a run left through the player's
 /// leave sheet — shows how far the drawing got, what the next step says, and offers
@@ -39,15 +40,7 @@ struct LessonPreviewView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.stackSpacing) {
-                    pair(for: lesson, resumeStep: resumeStep)
-
-                    if let credit = photoCredit(for: lesson) {
-                        Text(credit)
-                            .textRole(.footnote)
-                            .foregroundStyle(Theme.ink40)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.top, -4)
-                    }
+                    hero(for: lesson, resumeStep: resumeStep)
 
                     Text(lesson.title)
                         .textRole(.title1)
@@ -62,12 +55,12 @@ struct LessonPreviewView: View {
                         StepSegments(stepCount: lesson.stepCount, currentIndex: resumeStep)
                     }
 
-                    objectiveCard(for: lesson, resumeStep: resumeStep)
-
-                    needRow(isResuming: resumeStep != nil)
-
-                    if resumeStep == nil {
-                        tutorLine
+                    if let resumeStep {
+                        nextStepCard(for: lesson, resumeStep: resumeStep)
+                        needRow
+                    } else {
+                        tutorLine(for: lesson)
+                        howItWorks
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -90,87 +83,39 @@ struct LessonPreviewView: View {
         return "\(path.title) · \(position) of \(path.lessonCount)"
     }
 
-    // MARK: - The pair
+    // MARK: - The drawing
 
-    /// Reference left, the finished drawing right, two square tiles 12 pt apart. A
-    /// lesson with no reference photo shows one full-width drawing and no credit
-    /// line — an empty grey tile would say nothing.
-    @ViewBuilder
-    private func pair(for lesson: Lesson, resumeStep: Int?) -> some View {
-        let drawingLabel = resumeStep == nil ? "What you will draw" : "Where you stopped"
-
-        if lesson.reference == nil {
-            tile(label: drawingLabel) { drawingTile(for: lesson, resumeStep: resumeStep) }
-        } else if dynamicTypeSize.isAccessibilitySize {
-            VStack(alignment: .leading, spacing: Theme.stackSpacing) {
-                tile(label: "The real thing") { referenceTile(for: lesson) }
-                tile(label: drawingLabel) { drawingTile(for: lesson, resumeStep: resumeStep) }
-            }
-        } else {
-            HStack(alignment: .top, spacing: Theme.stackSpacing) {
-                tile(label: "The real thing") { referenceTile(for: lesson) }
-                tile(label: drawingLabel) { drawingTile(for: lesson, resumeStep: resumeStep) }
-            }
-        }
-    }
-
-    private func tile<Content: View>(label: String,
-                                     @ViewBuilder content: () -> Content) -> some View {
+    /// The finished drawing, alone and as wide as the screen: the one thing a child
+    /// wants to know is what they are about to make. A paused lesson says so above
+    /// it, because its later steps are faint.
+    private func hero(for lesson: Lesson, resumeStep: Int?) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(label)
-                .textRole(.footnote)
-                .foregroundStyle(Theme.ink55)
-            content()
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func referenceTile(for lesson: Lesson) -> some View {
-        Color.clear
-            .aspectRatio(1, contentMode: .fit)
-            .overlay { ReferenceImageView(reference: lesson.reference, contentMode: .fill) }
-            .clipShape(RoundedRectangle(cornerRadius: Theme.thumbCornerRadius, style: .continuous))
-            .accessibilityElement()
-            .accessibilityLabel("A photograph of the subject: \(lesson.title)")
-    }
-
-    private func drawingTile(for lesson: Lesson, resumeStep: Int?) -> some View {
-        Color.clear
-            .aspectRatio(1, contentMode: .fit)
-            .overlay {
-                DrawingThumbnail(tutorial: lesson.tutorial,
-                                 showsFills: true,
-                                 fadedFromStep: resumeStep)
-                    .padding(14)
+            if resumeStep != nil {
+                Text("Where you stopped")
+                    .textRole(.footnote)
+                    .foregroundStyle(Theme.ink55)
             }
-            .background(
-                RoundedRectangle(cornerRadius: Theme.thumbCornerRadius, style: .continuous)
-                    .fill(Theme.paper)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.thumbCornerRadius, style: .continuous)
-                    .strokeBorder(Theme.line, lineWidth: 2)
-            )
-            .accessibilityElement()
-            .accessibilityLabel(resumeStep == nil
-                                ? "The finished pen drawing of \(lesson.subject)"
-                                : "The drawing so far: \(resumeStep ?? 0) of \(lesson.stepCount) steps in ink, the rest faint")
-    }
-
-    /// "Photo: Pixabay · Free licence", from the catalog's own `source` and
-    /// `license`. A source given as a link is credited by its site, so the line
-    /// stays one line and still names where the photo came from.
-    private func photoCredit(for lesson: Lesson) -> String? {
-        guard let reference = lesson.reference else { return nil }
-        let source = Self.creditName(for: reference.source)
-        return "Photo: \(source) · \(reference.license)"
-    }
-
-    private static func creditName(for source: String) -> String {
-        guard let host = URL(string: source)?.host else {
-            return source.prefix(1).uppercased() + source.dropFirst()
+            Color.clear
+                .aspectRatio(1.3, contentMode: .fit)
+                .overlay {
+                    DrawingThumbnail(tutorial: lesson.tutorial,
+                                     showsFills: true,
+                                     fadedFromStep: resumeStep)
+                        .padding(16)
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
+                        .fill(Theme.paper)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
+                        .strokeBorder(Theme.line, lineWidth: 2)
+                )
+                .accessibilityElement()
+                .accessibilityLabel(resumeStep == nil
+                                    ? "The finished drawing of \(lesson.subject)"
+                                    : "The drawing so far: \(resumeStep ?? 0) of \(lesson.stepCount) steps in ink, the rest faint")
         }
-        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
     }
 
     // MARK: - Chips
@@ -187,8 +132,8 @@ struct LessonPreviewView: View {
             // Complexity is shown only when the catalog states it: a made-up "1 of 5"
             // would read as a fact about the drawing that nobody wrote down.
             items = [
-                AnyView(Chip(text: "\(lesson.estimatedTimeText) · \(lesson.stepCountText)",
-                             systemImage: "clock"))
+                AnyView(Chip(text: lesson.estimatedTimeText, systemImage: "clock", style: .blue)),
+                AnyView(Chip(text: lesson.stepCountText, systemImage: "pencil.line", style: .gold))
             ] + (lesson.complexity.map { [AnyView(ComplexityChip(complexity: $0))] } ?? [])
         }
         return WrappingChips(items: items)
@@ -204,19 +149,100 @@ struct LessonPreviewView: View {
         return max(1, Int(ceil(seconds / 60)))
     }
 
-    // MARK: - Objective, paper, tutor
+    // MARK: - Lina and how a lesson works
 
-    private func objectiveCard(for lesson: Lesson, resumeStep: Int?) -> some View {
-        let isResuming = resumeStep != nil
-        let text: String = {
-            guard let resumeStep, lesson.tutorial.steps.indices.contains(resumeStep) else {
-                return lesson.objective
+    private func tutorLine(for lesson: Lesson) -> some View {
+        HStack(alignment: .center, spacing: Theme.stackSpacing) {
+            LinaView(pose: .pen, size: 76)
+            SpeechBubble(text: "Grab a pen and paper. Let’s draw \(LessonBookend.subject(of: lesson.title))!")
+        }
+    }
+
+    /// Every lesson in three pictures, so a child who skips the words still knows
+    /// what to do. Side by side, or one under the other when the text is large.
+    @ViewBuilder
+    private var howItWorks: some View {
+        let beats: [(symbol: String, text: String, style: Chip.Style)] = [
+            ("eye", "Watch me draw", .blue),
+            ("pencil", "Draw it on paper", .clay),
+            ("hand.tap", "Tap I drew it", .green)
+        ]
+
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(spacing: 8) {
+                ForEach(beats.indices, id: \.self) { index in
+                    HStack(spacing: Theme.stackSpacing) {
+                        beatIcon(beats[index].symbol, number: index + 1, style: beats[index].style)
+                        beatText(beats[index].text, alignment: .leading)
+                    }
+                    .padding(12)
+                    .background(beatBackground)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(index + 1). \(beats[index].text)")
+                }
             }
-            return lesson.tutorial.steps[resumeStep].instruction
-        }()
+        } else {
+            HStack(alignment: .top, spacing: 8) {
+                ForEach(beats.indices, id: \.self) { index in
+                    VStack(spacing: 8) {
+                        beatIcon(beats[index].symbol, number: index + 1, style: beats[index].style)
+                        beatText(beats[index].text, alignment: .center)
+                    }
+                    .padding(.vertical, 14)
+                    .padding(.horizontal, 6)
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .background(beatBackground)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(index + 1). \(beats[index].text)")
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    /// The beat's symbol in a soft circle, its number on a small badge at the corner.
+    private func beatIcon(_ symbol: String, number: Int, style: Chip.Style) -> some View {
+        Circle()
+            .fill(style.background)
+            .frame(width: 52, height: 52)
+            .overlay {
+                Image(systemName: symbol)
+                    .scaledFont(22, .bold, design: .default)
+                    .foregroundStyle(style.foreground)
+            }
+            .overlay(alignment: .topLeading) {
+                Text("\(number)")
+                    .scaledFont(12, .bold)
+                    .foregroundStyle(.white)
+                    .frame(width: 20, height: 20)
+                    .background(Circle().fill(style.foreground))
+                    .offset(x: -8, y: -6)
+            }
+    }
+
+    private func beatText(_ text: String, alignment: Alignment) -> some View {
+        Text(text)
+            .scaledFont(15, .bold)
+            .foregroundStyle(Theme.ink)
+            .multilineTextAlignment(alignment == .center ? .center : .leading)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: alignment)
+    }
+
+    private var beatBackground: some View {
+        RoundedRectangle(cornerRadius: Theme.controlCornerRadius, style: .continuous)
+            .fill(Theme.surface)
+    }
+
+    // MARK: - Coming back to a paused lesson
+
+    private func nextStepCard(for lesson: Lesson, resumeStep: Int) -> some View {
+        let text = lesson.tutorial.steps.indices.contains(resumeStep)
+            ? lesson.tutorial.steps[resumeStep].instruction
+            : lesson.objective
 
         return VStack(alignment: .leading, spacing: 4) {
-            Text((isResuming ? "Next step" : "What this teaches").uppercased())
+            Text("Next step".uppercased())
                 .textRole(.eyebrow)
                 .foregroundStyle(Theme.ink55)
             Text(text)
@@ -235,15 +261,13 @@ struct LessonPreviewView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private func needRow(isResuming: Bool) -> some View {
+    private var needRow: some View {
         HStack(spacing: 10) {
             Image(systemName: "pencil")
                 .scaledFont(19, .semibold, design: .default)
             Image(systemName: "doc")
                 .scaledFont(19, .semibold, design: .default)
-            Text(isResuming
-                 ? "Same pen, same sheet of paper."
-                 : "You need a pen and a sheet of paper.")
+            Text("Same pen, same sheet of paper.")
                 .textRole(.subhead)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -251,13 +275,6 @@ struct LessonPreviewView: View {
         .padding(.horizontal, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
-    }
-
-    private var tutorLine: some View {
-        HStack(alignment: .center, spacing: Theme.stackSpacing) {
-            LinaView(pose: .pen, size: 76)
-            SpeechBubble(text: "I draw one step, then wait. You copy it, then tap I drew it.")
-        }
     }
 
     // MARK: - The bottom
