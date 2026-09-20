@@ -704,16 +704,11 @@ struct PlayerScreen: View {
             player.begin()
             return
         }
-        if player.isDrawing {
-            // Skip ahead: finish the ink, stop the voice, and settle where the
-            // animation would have left us. Never refused.
-            narration.stop()
-            player.completeCurrentStep()
-            haptic(.light)
-            return
-        }
+        // The same tap whether or not the line has finished drawing: mid-stroke
+        // the ink jumps to the end of the step first (`advanceToNextStep()`), so
+        // "I drew it" always means the next step. Never refused.
+        narration.stop()
         if player.isOnLastStep {
-            narration.stop()
             player.stop()
             successHaptic()
             // `AppModel.presentCompletion` records the finished lesson (and clears

@@ -7,9 +7,10 @@ import SwiftUI
 /// State machine:
 /// `.idle → .drawing(step) → .awaitingUser(step) → .drawing(step + 1) → … → .finished`
 ///
-/// Playback never advances past a step on its own: `.awaitingUser` is only left
-/// when the learner taps the primary button. Within a step the strokes are drawn
-/// strictly in order, and a version 2 lesson's fills are painted after them.
+/// Playback never advances past a step on its own: a step is only left when the
+/// learner taps the primary button, which moves on from `.drawing` as readily as
+/// from `.awaitingUser`. Within a step the strokes are drawn strictly in order,
+/// and a version 2 lesson's fills are painted after them.
 @Observable
 @MainActor
 final class PlayerViewModel {
@@ -168,10 +169,10 @@ final class PlayerViewModel {
         beginStep(start)
     }
 
-    /// The learner tapped the primary while the step was still drawing. The ink
-    /// jumps to the end of the step — nothing is skipped, only hurried — and the
-    /// player settles into `.awaitingUser`, exactly where the animation would have
-    /// left it. Refusing the tap, or disabling the button, would read as broken.
+    /// Jumps the ink to the end of the step — nothing is skipped, only hurried —
+    /// and settles into `.awaitingUser`, exactly where the animation would have
+    /// left it. Used by the screenshot harness; a learner's tap on the primary
+    /// goes through `advanceToNextStep()`, which hurries the ink *and* moves on.
     func completeCurrentStep() {
         guard case let .drawing(index) = phase else { return }
         playbackTask?.cancel()
@@ -194,8 +195,24 @@ final class PlayerViewModel {
     // MARK: - Transitions
 
     /// "I drew it" — move to the next step, or finish.
+    ///
+    /// Tapped while the step is still drawing it means the same thing: the ink
+    /// jumps to the end of the step, so the strokes are on the paper and nothing
+    /// is lost from the picture, and the player goes straight on to the next
+    /// step. A learner who already knows the line should not have to tap twice,
+    /// and a tap on a button that says "I drew it" must never leave them where
+    /// they were.
     func advanceToNextStep() {
-        guard case let .awaitingUser(index) = phase else { return }
+        let index: Int
+        switch phase {
+        case let .awaitingUser(stepIndex):
+            index = stepIndex
+        case let .drawing(stepIndex):
+            completeCurrentStep()
+            index = stepIndex
+        case .idle, .finished:
+            return
+        }
         let next = index + 1
         if steps.indices.contains(next) {
             beginStep(next)

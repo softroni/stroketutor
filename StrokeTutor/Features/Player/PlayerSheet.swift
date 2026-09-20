@@ -144,7 +144,8 @@ struct PlayerInstructionText: View {
 struct PlayerActionRow: View {
     let primaryTitle: String
     /// True while the step is still drawing: the primary is outlined rather than
-    /// filled, and tapping it hurries the ink rather than being refused.
+    /// filled. It still does what its label says — tapping it hurries the ink to
+    /// the end of the step and goes on — it is only quieter until Lina stops.
     var isPending: Bool = false
     var canGoBack: Bool = true
     var showsQuietControls: Bool = true
