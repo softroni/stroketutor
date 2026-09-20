@@ -172,6 +172,16 @@
       }
     },
     {
+      "id": "snack-tray",
+      "status": "approved",
+      "objective": "Burger, fries and boba overlapping on a tray",
+      "reference": {
+        "file": "snack-tray.svg",
+        "source": "Generated picture: OpenAI image model, style-v2 prompt (docs/curriculum/food-treats-prompts.md), 2026-09-20; traced with svg from-image",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

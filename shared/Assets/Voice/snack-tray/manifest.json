@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "snack-tray",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T17:54:13.987Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Lunch is served. Burger in front, fries behind, boba on the right, all on one tray. See what overlaps what, then serve up your own.",
+      "textHash": "4d092305b31a5f72aacfffca0f4e184ef55ec133ce7a63a896bbd0d26d12b774",
+      "durationMs": 9840
+    },
+    "burger-bun": {
+      "file": "burger-bun.m4a",
+      "text": "The burger goes down first, front left. Draw its top bun and three seeds.",
+      "textHash": "c8c3e4901ac95b2015706ebc3af3bd54258fddb7329bde75436f3e51d49593f1",
+      "durationMs": 5120
+    },
+    "burger-middle": {
+      "file": "burger-middle.m4a",
+      "text": "Under the bun go wavy lettuce, then a slice of cheese. Draw its two short ends.",
+      "textHash": "ffdf2aa01207a71f8fdb21a08dd74f7d8f39680d7b3f8d02ce6681cf469785a2",
+      "durationMs": 6080
+    },
+    "burger-base": {
+      "file": "burger-base.m4a",
+      "text": "Then the patty, with a dip for the hanging cheese, and the bottom bun.",
+      "textHash": "c53f29d1a25f2ce605a9fc10d9ae50d0416aab9bd4fc170d5276a83dc0a8e574",
+      "durationMs": 4480
+    },
+    "boba-cup": {
+      "file": "boba-cup.m4a",
+      "text": "The boba stands front right. Draw the cup, slanting in toward the bottom.",
+      "textHash": "ca15ea53cee2e92e1e5fea7573f4dbcb8c77be7ea99729c15b9ee953fb7bd422",
+      "durationMs": 4880
+    },
+    "boba-lid": {
+      "file": "boba-lid.m4a",
+      "text": "Add the rim band, the dome and the leaning straw.",
+      "textHash": "ab31ffcfe2664013374d0f8c5f3b6dced8e86c0c29a974c3964d8c5ec36cba1a",
+      "durationMs": 3680
+    },
+    "boba-pearls": {
+      "file": "boba-pearls.m4a",
+      "text": "Five pearls sit in a row at the bottom of the cup.",
+      "textHash": "40415a3fb9de21add2bdfff4779609289275fff22b0164d3089590c71fb4b99e",
+      "durationMs": 3200
+    },
+    "carton": {
+      "file": "carton.m4a",
+      "text": "The fries hide behind both. Draw only the parts of the carton you can see.",
+      "textHash": "55f90609d8ac04b0655d953b1c1d62c48bae25a30f8431dcf3513a9b543597b0",
+      "durationMs": 4720
+    },
+    "fries": {
+      "file": "fries.m4a",
+      "text": "Two fries stand in front, three are tucked behind. Stop each line where it meets something.",
+      "textHash": "42e814e0d389c45966b0a60752b738c003bf9f7e0e2b9391c5f2a84fb17aadab",
+      "durationMs": 5600
+    },
+    "tray": {
+      "file": "tray.m4a",
+      "text": "Slide a tray under everything. Draw its outer edge, then one more line just inside it.",
+      "textHash": "10467628b190b16481706604fc0ccd2c4dfebb991da3a69832ba38c2e1922cea",
+      "durationMs": 6000
+    },
+    "color-tray": {
+      "file": "color-tray.m4a",
+      "text": "Color the tray gray.",
+      "textHash": "7ef8060a51ef2eb49b173e80aca1aabfcf59435d26ca028fa543fa6ee69a3ac3",
+      "durationMs": 1600
+    },
+    "color-big": {
+      "file": "color-big.m4a",
+      "text": "The cup and the seeds are cream. Buns orange, carton red, cheese and fries yellow.",
+      "textHash": "432c5d97da3107bb0ecbb9d3c5e68a8b5fcad80a76d7a246adcd593b73dea425",
+      "durationMs": 6400
+    },
+    "color-rest": {
+      "file": "color-rest.m4a",
+      "text": "Patty and pearls brown, lettuce green. Finish the boba: gray dome, blue rim, pink straw.",
+      "textHash": "9627989abb741c4975820ea4ef00c9f83ec4ef661ddace59b1ea40c79c9108e1",
+      "durationMs": 6880
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Tray's up. You drew a whole meal, and that's Food and Treats finished. Time for a real snack.",
+      "textHash": "84ab4d994f31d41a3967e12d01b5f6a68d1787bbf754d6b720af22e7cdbf66d5",
+      "durationMs": 5760
+    }
+  }
+}
