@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "bonsai",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:46:51.908Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A bonsai is a real tree kept tiny in a tray, trimmed for years until it looks old and windswept. Pot first, then the twisty trunk, then the green. Watch it take its time, then shape your own.",
+      "textHash": "a78dd45c8183896d8fdee642fbd6ef146878e5b6b267e5c3545f312686566938",
+      "durationMs": 12800
+    },
+    "pot-rim": {
+      "file": "pot-rim.m4a",
+      "text": "The pot is low and wide. Begin with its rim, a long thin box with round corners.",
+      "textHash": "b8ef60e451d715a9e7e60aaaae2b9cfc102068ceb184af5dad97ed238d601949",
+      "durationMs": 6720
+    },
+    "pot-body": {
+      "file": "pot-body.m4a",
+      "text": "Under the rim, two short lines lean in to a flat bottom. Then tuck two little square feet below.",
+      "textHash": "5db33a85d964d6ce95f81585c51672f333cdba260439deb759c478cb1341575e",
+      "durationMs": 7280
+    },
+    "trunk-left": {
+      "file": "trunk-left.m4a",
+      "text": "The trunk wiggles like a letter S. From the rim, wind up the left and out along the low branch.",
+      "textHash": "13b35fa98d122cf70d759f7a00737a26053c6d2220c1e75392c01389169ebcf3",
+      "durationMs": 6320
+    },
+    "trunk-middle": {
+      "file": "trunk-middle.m4a",
+      "text": "From that branch's end, curve back in and climb to where the top will sit.",
+      "textHash": "4183e82f7477cf1f6d55de1aba06d66a52d3461c4e8d54459218a526b87de0e4",
+      "durationMs": 4960
+    },
+    "trunk-right": {
+      "file": "trunk-right.m4a",
+      "text": "Come down the other side and swing out to the right branch. Then wind all the way back to the pot.",
+      "textHash": "321cc909b4e18574de34da34832fff54458b8ba1073a3c15b0d4e73140bb3d6e",
+      "durationMs": 5920
+    },
+    "top-pad": {
+      "file": "top-pad.m4a",
+      "text": "Each layer of green has a flat bottom and three bumps on top. Sit the biggest on the trunk's tip.",
+      "textHash": "f5a70fba18f5280db6be41aeed5a7a3159e02e35484c339093911ec923aa637a",
+      "durationMs": 6240
+    },
+    "left-pad": {
+      "file": "left-pad.m4a",
+      "text": "A smaller layer rests on the low left branch. Flat line first, then bump, bump, bump.",
+      "textHash": "61ddffbf7e19e88c50519bee6603c81951c1c404c1709a2e9f8b0ca5cc9b9a93",
+      "durationMs": 7040
+    },
+    "right-pad": {
+      "file": "right-pad.m4a",
+      "text": "One more on the right branch, a little higher than the left one.",
+      "textHash": "44ce907de450b6e72020dd32ba3ed4c2b572b8a28235901517339a1e00fef7f2",
+      "durationMs": 3840
+    },
+    "top-green": {
+      "file": "top-green.m4a",
+      "text": "Color the top layer green.",
+      "textHash": "21cdf7d0291e740947a776400db0bd2d5a4b7605bf9c7ce20b72bae715a01abf",
+      "durationMs": 2080
+    },
+    "side-green": {
+      "file": "side-green.m4a",
+      "text": "The two side layers are dark green.",
+      "textHash": "6ebc846ad9e95906ff8d929409623269a281c168dc41633cc01c55331f261733",
+      "durationMs": 2800
+    },
+    "trunk-brown": {
+      "file": "trunk-brown.m4a",
+      "text": "Color the trunk brown.",
+      "textHash": "d1426e2c2ea0ddd7b2e1f93eaffb27645997039118e9e715ca255b7f4d53807d",
+      "durationMs": 1680
+    },
+    "pot-color": {
+      "file": "pot-color.m4a",
+      "text": "The pot is blue, with a purple rim and feet.",
+      "textHash": "2b4f875de1c10e01b4e29d4f2d61a96462e38ef9068f2e08cf8bcd499ce71f59",
+      "durationMs": 3280
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Years of patient trimming, and you did it in minutes. That little tree is yours.",
+      "textHash": "6b36c1b44e99961548ed1e1d1428b4e865bd8591a60c053752bcec532996a539",
+      "durationMs": 5520
+    }
+  }
+}
