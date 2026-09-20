@@ -1,0 +1,58 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cylinder",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:26:15.365Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A cylinder is a tin can with nothing on it: an oval on top, two straight sides, a curve below. See how they join, then have a go.",
+      "textHash": "8c5b7325af46424a98ea1d96c64c18b352d6ded47eaaf763e9d43f6e6d99894b",
+      "durationMs": 9280
+    },
+    "top-back": {
+      "file": "top-back.m4a",
+      "text": "A circle seen from the side looks like a flat oval. Draw its back, from the left end over to the right.",
+      "textHash": "5956f3156ea1fc64d0a6f6e49b19c84e2f6841f307371955863643e50ee5e9ab",
+      "durationMs": 7040
+    },
+    "top-front": {
+      "file": "top-front.m4a",
+      "text": "Come back along the front to close the oval.",
+      "textHash": "6a175fd10287db35dc253d5c7737ff3162cfd18a0a7da3965922a78f4c368907",
+      "durationMs": 2560
+    },
+    "sides": {
+      "file": "sides.m4a",
+      "text": "Draw a straight side down from each end of the oval. Make them match.",
+      "textHash": "e3c9355d0ce8ba55f6f47938fefeaf669757364e38fb14cde4fc41231c0905c7",
+      "durationMs": 4400
+    },
+    "bottom": {
+      "file": "bottom.m4a",
+      "text": "Join the sides with a sagging curve. It copies the front of the oval.",
+      "textHash": "ffff61b89be11db9da8093858aea7f9c86d33981b01ce24d1649b85ce375cfbc",
+      "durationMs": 4320
+    },
+    "body-color": {
+      "file": "body-color.m4a",
+      "text": "Color the body orange.",
+      "textHash": "cb12de354cadc7273e4cad21631adb6380ee7900e0cb7e03da9cd67e7bb9a283",
+      "durationMs": 1680
+    },
+    "top-color": {
+      "file": "top-color.m4a",
+      "text": "Color the top yellow.",
+      "textHash": "7af608f8b86876ad61f3d39a8a32cfae414a194bf1a1a1cbeecae73d0c1d434e",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "An oval, two sides and a curve, and it's standing on your page. That's a cylinder.",
+      "textHash": "c4e2f007072c11c42d9493e2795e357ca15a534ccff5bfdeb7db550b2288beac",
+      "durationMs": 6320
+    }
+  }
+}
