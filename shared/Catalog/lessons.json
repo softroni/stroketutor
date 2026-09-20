@@ -46,6 +46,16 @@
       "complexity": 2
     },
     {
+      "id": "cherries",
+      "status": "approved",
+      "objective": "Two cherries joined at the stem",
+      "reference": {
+        "file": "cherries.svg",
+        "source": "Generated with an OpenAI image model from docs/curriculum/fruits-prompts.md (style-v2, cherries), 2026-09-19; vectorised with svg from-image",
+        "license": "Generated for StrokeTutor; owned by the creator"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

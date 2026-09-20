@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cherries",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T03:01:43.291Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Today we're drawing cherries, the pair that always hangs from one stem. Watch how it comes together, then it's your turn.",
+      "textHash": "f7f0bad1d3796664c7ab7d13cd4906d4784df2b1d80c0e262a6cd18a7e0dd368",
+      "durationMs": 7600
+    },
+    "front-cherry": {
+      "file": "front-cherry.m4a",
+      "text": "Start at the top. Draw a big letter C down to the bottom.",
+      "textHash": "9345448635d8ca39f02a13641b614b85a11f3171abc120ea61a4fdfa5444c049",
+      "durationMs": 4160
+    },
+    "front-side": {
+      "file": "front-side.m4a",
+      "text": "Go back to the top. Draw the same curve the other way.",
+      "textHash": "4f0a3d8368c8eb8b7588743eb61e7ea4fedda350b31b8a9021b1fe0a992b2231",
+      "durationMs": 3840
+    },
+    "back-cherry": {
+      "file": "back-cherry.m4a",
+      "text": "Start high on the left edge. Sweep round and back to that edge.",
+      "textHash": "3aa089678352bafce81d6e68ceebb647048f5b1037b757e04b3721c89ca4b68c",
+      "durationMs": 4640
+    },
+    "stems": {
+      "file": "stems.m4a",
+      "text": "Start at the top of each cherry. Curve up to the same point.",
+      "textHash": "4c04b217bf8db2a9d422c8c2ba648807b7945fb86a6ea2a06ff9d46043032b10",
+      "durationMs": 3680
+    },
+    "leaf": {
+      "file": "leaf.m4a",
+      "text": "Start where the stems meet. Sweep out to a point and curve back.",
+      "textHash": "3f61910d0ea823c2dbe5c6c12302d2e0a79c9d3beed4dd83e5ee75c72966b426",
+      "durationMs": 4400
+    },
+    "vein": {
+      "file": "vein.m4a",
+      "text": "Draw one line along the middle of the leaf. Stop before the tip.",
+      "textHash": "ad91ad9c409a1cda203f212e1a1c617e07782b1c66983686138b8881cd18b11c",
+      "durationMs": 4320
+    },
+    "red": {
+      "file": "red.m4a",
+      "text": "Color both cherries red.",
+      "textHash": "e57e3ad773ba11c7df9af81e0cec7a1ad5cfecc2324a8cf24c430fb2f5dd6fee",
+      "durationMs": 2320
+    },
+    "green": {
+      "file": "green.m4a",
+      "text": "Color the leaf green.",
+      "textHash": "f0468673f7ab02957274c66358409f512b75fc9e177d180b583279f879636c58",
+      "durationMs": 1440
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "There they are, your own pair of cherries, ready to hang from a branch.",
+      "textHash": "ce4c9f00798bb8fcec0c3aa381b5ca1980c1389ab84f84ce1f7294ddb54c2540",
+      "durationMs": 4240
+    }
+  }
+}
