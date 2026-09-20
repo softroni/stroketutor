@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "tulip",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:39:07.416Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "When tulips pop up, spring is here. Ours is a cup with three points on a long stem, with two tall leaves. Watch it open, then grow one yourself.",
+      "textHash": "ebfab3c449b839c60de659654301dd1519c432b0bc44300facc36a26eb83e363",
+      "durationMs": 9760
+    },
+    "crown": {
+      "file": "crown.m4a",
+      "text": "The tulip's top edge is a zigzag with three points. Make the middle point the tallest.",
+      "textHash": "ebeb4f2c51501553d1f4899b18a804ec0b64251a60b0cae605f9b1dee74813a2",
+      "durationMs": 5760
+    },
+    "cup-left": {
+      "file": "cup-left.m4a",
+      "text": "Now the cup. From the left point, curve down and around to the bottom middle.",
+      "textHash": "e95f71c48adbe56607668d58c2520166e18826b96c0ff2f92452ef18fbf0edb5",
+      "durationMs": 5280
+    },
+    "cup-right": {
+      "file": "cup-right.m4a",
+      "text": "From the right point, curve down to meet it. The bloom is closed.",
+      "textHash": "8de3f8f1a9d010287a8ba485e40823a55efd18ddd2265ceb968a9ed5aecb1c2c",
+      "durationMs": 4480
+    },
+    "stem": {
+      "file": "stem.m4a",
+      "text": "The stem drops from under the cup. Two long lines, close together, joined at the foot.",
+      "textHash": "0c97711402d5680580526098926bfa7e1a74c4e4793b1ce5710d68f02568e34a",
+      "durationMs": 5520
+    },
+    "left-leaf": {
+      "file": "left-leaf.m4a",
+      "text": "A tall leaf grows from the foot of the stem. Each edge curves out and up to a sharp tip.",
+      "textHash": "06c839e03152dcfe350ad2da69492e9312c7e03c41e121136f77e3e6ad01687b",
+      "durationMs": 5440
+    },
+    "right-leaf": {
+      "file": "right-leaf.m4a",
+      "text": "The leaf on the right is a little shorter. Draw its two edges the same way.",
+      "textHash": "918b9ed935f89a5f0f9fdc4c8cd2f12567dc62cc7b2fb7175fea4b3ea4e0e00d",
+      "durationMs": 5120
+    },
+    "veins": {
+      "file": "veins.m4a",
+      "text": "Each leaf gets one line down its middle, bending the way the leaf bends.",
+      "textHash": "3fcea1baf90868e83c759cb4813e0ee18ea9a5fff4945c72f8047fc640a258f2",
+      "durationMs": 5040
+    },
+    "bloom-color": {
+      "file": "bloom-color.m4a",
+      "text": "Color the bloom pink.",
+      "textHash": "4322f17ef2cb482f586f4219e2bde619ec932cd9079493a586929dce55336cef",
+      "durationMs": 1680
+    },
+    "stem-color": {
+      "file": "stem-color.m4a",
+      "text": "Color the stem green.",
+      "textHash": "bd5fd98c09e9f623760ff01c33e6a1b63c122d74a6eb03512fabd1637f15fe97",
+      "durationMs": 1760
+    },
+    "leaves-color": {
+      "file": "leaves-color.m4a",
+      "text": "Make both leaves dark green.",
+      "textHash": "28569c6e5349f06292cc71b29d41472dae73dfae4574c795e04d8efe5acf5dff",
+      "durationMs": 2160
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your tulip is open, and this one never needs watering.",
+      "textHash": "e115e7e832bcaad6c656e8812ca6ebd1f6908adc34aaf43ac9bc1f3b9e2e09cf",
+      "durationMs": 3840
+    }
+  }
+}
