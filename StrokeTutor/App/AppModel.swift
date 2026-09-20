@@ -34,9 +34,12 @@ final class AppModel {
     // MARK: - Navigation
 
     var selectedTab: MainTab = .learn
-    var learnPath = NavigationPath()
-    var sketchbookPath = NavigationPath()
-    var settingsPath = NavigationPath()
+    /// One back stack per tab. Typed arrays rather than `NavigationPath`s so the
+    /// screen on top can be read — `MainTabs` asks it whether the tab bar belongs
+    /// under it.
+    var learnPath: [AppRoute] = []
+    var sketchbookPath: [AppRoute] = []
+    var settingsPath: [AppRoute] = []
     /// The full-screen flow on top of the tabs, if any.
     var cover: AppCover?
     /// A locked lesson tapped on Home. `hp-home` sends a grey node to `hp-path`
@@ -173,11 +176,20 @@ final class AppModel {
         }
     }
 
+    /// The screen on top of a tab's stack, or nil when the tab is at its root.
+    func topRoute(of tab: MainTab) -> AppRoute? {
+        switch tab {
+        case .learn: return learnPath.last
+        case .sketchbook: return sketchbookPath.last
+        case .settings: return settingsPath.last
+        }
+    }
+
     func popToRoot(_ tab: MainTab? = nil) {
         switch tab ?? selectedTab {
-        case .learn: learnPath = NavigationPath()
-        case .sketchbook: sketchbookPath = NavigationPath()
-        case .settings: settingsPath = NavigationPath()
+        case .learn: learnPath = []
+        case .sketchbook: sketchbookPath = []
+        case .settings: settingsPath = []
         }
     }
 

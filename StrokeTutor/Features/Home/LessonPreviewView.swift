@@ -26,8 +26,6 @@ struct LessonPreviewView: View {
         }
         .background(Theme.page)
         .toolbar(.hidden, for: .navigationBar)
-        // The primary owns the bottom of this screen, so the tab bar steps aside.
-        .hidesTabBar()
     }
 
     // MARK: - The screen

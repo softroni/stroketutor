@@ -7,10 +7,16 @@ import SwiftUI
 struct MainTabs: View {
     @Environment(AppModel.self) private var app
 
-    /// Per tab, whether the screen on top of that tab's stack asked for the tab bar
-    /// to step aside (`.hidesTabBar()`). Only the showing tab's answer is used, so a
-    /// hidden bar in one stack cannot follow the learner into another.
-    @State private var tabBarHidden: [MainTab: Bool] = [:]
+    /// Whether the screen on top of the showing tab's stack owns the bottom of the
+    /// screen itself (`AppRoute.hidesTabBar`). Read straight from the stack rather
+    /// than announced by the screen once it is up, so the bar steps aside in the
+    /// same state change that pushes the screen: the incoming screen is laid out
+    /// once, at its full height, and its pinned buttons do not jump. Only the
+    /// showing tab is asked, so a hidden bar in one stack cannot follow the learner
+    /// into another.
+    private var tabBarHidden: Bool {
+        app.topRoute(of: app.selectedTab)?.hidesTabBar ?? false
+    }
 
     var body: some View {
         @Bindable var app = app
@@ -23,7 +29,7 @@ struct MainTabs: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            if tabBarHidden[app.selectedTab] != true {
+            if !tabBarHidden {
                 TabBar(selection: $app.selectedTab)
             }
         }
@@ -32,7 +38,7 @@ struct MainTabs: View {
 
     @ViewBuilder
     private func tab<Root: View>(_ tab: MainTab,
-                                 path: Binding<NavigationPath>,
+                                 path: Binding<[AppRoute]>,
                                  @ViewBuilder root: () -> Root) -> some View {
         let isActive = app.selectedTab == tab
         NavigationStack(path: path) {
@@ -40,9 +46,6 @@ struct MainTabs: View {
                 .navigationDestination(for: AppRoute.self) { route in
                     AppDestination(route: route)
                 }
-        }
-        .onPreferenceChange(TabBarHiddenKey.self) { hidden in
-            Task { @MainActor in tabBarHidden[tab] = hidden }
         }
         .opacity(isActive ? 1 : 0)
         .allowsHitTesting(isActive)

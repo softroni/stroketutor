@@ -49,8 +49,6 @@ struct SketchbookEntryView: View {
         }
         .background(Theme.page.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
-        // The page owns the bottom of the screen, as `sk-entry` does in v3.
-        .hidesTabBar()
         #if DEBUG
         // Screenshot-harness only: `DebugScreenHarness`'s `entry-delete` case sets
         // this flag because the confirmation alert is behind this view's own

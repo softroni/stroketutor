@@ -1,9 +1,9 @@
 import Foundation
 
-/// Everywhere the app can go. Pushed routes are values in a tab's
-/// `NavigationPath`; covers are the three full-screen flows `AppRoot` presents.
-/// Ids travel, not models: a route stays valid across a content reload, and a
-/// `NavigationPath` only ever holds small hashable values.
+/// Everywhere the app can go. Pushed routes are the elements of a tab's stack;
+/// covers are the three full-screen flows `AppRoot` presents. Ids travel, not
+/// models: a route stays valid across a content reload, and a stack only ever
+/// holds small hashable values.
 enum AppRoute: Hashable {
     /// `hp-paths` — every path.
     case paths
@@ -19,6 +19,27 @@ enum AppRoute: Hashable {
     case reminderSettings
     /// About & credits.
     case about
+
+    /// Whether the three-tab bar belongs under this screen.
+    ///
+    /// v3 keeps it on the tab roots and on the two browsing screens (`hp-paths`,
+    /// `hp-path`), and drops it on the pushed screens that own the bottom of the
+    /// screen themselves with a `.bottom-area`: `hp-preview`, `sk-entry`,
+    /// `st-voice`, `st-reminder` (About is the same kind of page).
+    ///
+    /// It is a fact about the route rather than something the screen announces
+    /// once it is on screen, so the bar steps aside in the very same state change
+    /// that pushes the screen. A screen that said so itself — through a
+    /// preference, say — would be laid out once with the bar still taking its
+    /// height and again without it, and anything pinned to the bottom would jump.
+    var hidesTabBar: Bool {
+        switch self {
+        case .paths, .pathDetail:
+            return false
+        case .lessonPreview, .sketchbookEntry, .narrationSettings, .reminderSettings, .about:
+            return true
+        }
+    }
 }
 
 /// The flows that take the whole screen: onboarding on first run, and the player,

@@ -133,8 +133,9 @@ struct SettingsCard<Content: View>: View {
 /// white page — in place of the system bar, whose iOS 26 glass circles are not v3's.
 ///
 /// Like `hp-preview` and `sk-entry`, these screens own the bottom of the screen, so
-/// they take the tab bar down with them (`st-voice`, `st-reminder` in v3; About is
-/// the same kind of page and is treated the same way).
+/// they take the tab bar down with them — their routes say so in
+/// `AppRoute.hidesTabBar` (`st-voice`, `st-reminder` in v3; About is the same kind
+/// of page and is treated the same way).
 private struct SettingsNavigationBar: ViewModifier {
     let title: String
 
@@ -147,7 +148,6 @@ private struct SettingsNavigationBar: ViewModifier {
         }
         .background(Theme.page)
         .toolbar(.hidden, for: .navigationBar)
-        .hidesTabBar()
     }
 }
 
