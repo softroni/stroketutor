@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "ramen-bowl",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T17:52:48.770Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A bowl of ramen has a lot going on, so we'll take it slowly: bowl, toppings, noodles, chopsticks. Watch it fill up, then start your own bowl.",
+      "textHash": "5a49a32e51f559993f4a19a2ccea199498ad9da74adeecd0e2c1a88f926e145e",
+      "durationMs": 9440
+    },
+    "soup-front": {
+      "file": "soup-front.m4a",
+      "text": "Begin with the soup, a wide flat oval. Draw its front edge in two curves, left then right.",
+      "textHash": "6635a01cb49cb67c4624b2da69160b68bdb7a0c0c6943e4d10fbfc48c2faa124",
+      "durationMs": 6880
+    },
+    "rim-back": {
+      "file": "rim-back.m4a",
+      "text": "Draw the back of the oval, and the rim just above it. Both stop where things stand in front.",
+      "textHash": "2d5053e273b4d38bae7a8fc2eee1f97d76dc57247481fa9739c3a48038fc1f2a",
+      "durationMs": 5680
+    },
+    "body": {
+      "file": "body.m4a",
+      "text": "Now the bowl itself. From each end of the rim, curve down and under. Add a small foot.",
+      "textHash": "d558201e8916f258cfc3418e5e31fe7708c423289620bb2db0a1db72ea78b393",
+      "durationMs": 6560
+    },
+    "seaweed": {
+      "file": "seaweed.m4a",
+      "text": "A sheet of seaweed stands in the left gap. Draw a tilted box with soft corners.",
+      "textHash": "918740c2d657d7a4b68723e5df577f75a60940b3f7c89196ac7a625514fe889a",
+      "durationMs": 5440
+    },
+    "chopsticks": {
+      "file": "chopsticks.m4a",
+      "text": "Two chopsticks rest in the right gap. Each is a long thin box leaning out.",
+      "textHash": "db96fd4e2c592d79a50e57eae1d56c6f681a8aa3ae5e94c845658bae7d0131af",
+      "durationMs": 5680
+    },
+    "egg": {
+      "file": "egg.m4a",
+      "text": "Float half an egg at the front left. Draw an oval, and a circle inside for the yolk.",
+      "textHash": "06d40d404b0c8aec5996adad7d92afc3d56c6e2a12d20312783a276135561142",
+      "durationMs": 5600
+    },
+    "noodles": {
+      "file": "noodles.m4a",
+      "text": "Noodles next. Draw three wavy lines across the soup, each with three waves.",
+      "textHash": "fb83fc43bc66db24d90e3f6c10f19d6f84715e238caa50a0572e31f8d01c9192",
+      "durationMs": 5600
+    },
+    "onions": {
+      "file": "onions.m4a",
+      "text": "Three small circles on the right are slices of green onion.",
+      "textHash": "924d18009966fa3db5f7116cf552351b669983d5ab357fc6092d7254f61b057e",
+      "durationMs": 4160
+    },
+    "bowl-color": {
+      "file": "bowl-color.m4a",
+      "text": "Color the bowl red.",
+      "textHash": "b4c14ecbb2b2f3217fccd7b6a2b2c7aca8be8a8c1dc76b2d9de0b7ee6a630f9d",
+      "durationMs": 1440
+    },
+    "soup-color": {
+      "file": "soup-color.m4a",
+      "text": "The soup is yellow.",
+      "textHash": "03d3f7dd6bc9884e60c6d06056afa493e67f3c0340180a2cab5b6e219a964d1c",
+      "durationMs": 1680
+    },
+    "greens": {
+      "file": "greens.m4a",
+      "text": "Color the seaweed dark green and the onions light green.",
+      "textHash": "4968d49921b604e3391d5d527f5267a059e85c141f52bfb55d54a5d31a9ea84d",
+      "durationMs": 3840
+    },
+    "egg-sticks": {
+      "file": "egg-sticks.m4a",
+      "text": "The egg is cream with an orange yolk. Color the chopsticks brown.",
+      "textHash": "4a7db601f39e5f5badb5452edb1e0f5b8cc878c09f23ca233819cfca197ab24d",
+      "durationMs": 4160
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Every noodle and topping in that bowl came from you. It looks worth slurping.",
+      "textHash": "ebba26f7860438e17db0c59d9a3b48f699b4422fae63d6ea0406c20875325f26",
+      "durationMs": 5040
+    }
+  }
+}
