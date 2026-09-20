@@ -274,6 +274,15 @@ writes the files when they have gone missing, and `voice reference export` / `re
 either half by hand. The folder sits beside `Assets/Voice/` rather than inside it because the iOS app
 bundles all of `Assets/Voice/`, and a reference WAV per voice has no business shipping.
 
+**Published narration on another machine.** The cast, the spoken lines and the recordings live in the
+workspace (`.studio/`), which git never sees, so the same look at `shared/` also takes in what is
+published under `Assets/Voice/`: each `.m4a` becomes a take chosen for its step, the manifest's words
+become the spoken lines, and the voice it was published in is cast when nothing is. After a pull, a
+lesson narrated elsewhere plays here with nothing to run. A step recorded in this workspace — in the
+same words and voice, or since that publish — keeps its own take; each publish is looked through once;
+and publishing from an adopted take passes the AAC through rather than encoding it twice. Narration
+that was never published stays on the machine that made it.
+
 ## The command line
 
 Everything the Studio does can be done from a terminal, on the same workspace, with the same store,

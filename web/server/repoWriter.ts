@@ -322,6 +322,36 @@ export function createRepoWriter(options: RepoWriterOptions) {
     },
 
     /**
+     * The lessons `shared/` holds narration for: every folder with a manifest,
+     * which is what says a publish finished. Lina's own lines are not a lesson.
+     */
+    async listPublishedVoiceIds(): Promise<string[]> {
+      let names: string[]
+      try {
+        names = await readdir(voiceDir)
+      } catch (error) {
+        if (isMissing(error)) return []
+        throw error
+      }
+      const ids: string[] = []
+      for (const name of names.sort()) {
+        if (name === APP_VOICE_FOLDER || !ID_PATTERN.test(name)) continue
+        if (await this.readVoiceManifest(name)) ids.push(name)
+      }
+      return ids
+    },
+
+    /** One published recording, or null when the file is not there. */
+    async readVoiceStep(lessonId: string, stepId: string): Promise<Uint8Array | null> {
+      return readBytes(voiceStepFile(lessonId, stepId))
+    },
+
+    /** One of Lina's own published lines, or null when the file is not there. */
+    async readAppVoiceLine(lineId: string): Promise<Uint8Array | null> {
+      return readBytes(appVoiceFile(lineId))
+    },
+
+    /**
      * Keeps a frozen voice's reference recording in the repository, as
      * `shared/Assets/VoiceReference/<voiceId>.wav` with `.json` beside it —
      * outside `Assets/Voice/`, all of which the iOS app bundles.
@@ -585,6 +615,15 @@ async function readStored(file: string): Promise<Stored | null> {
   try {
     const text = await readFile(file, 'utf8')
     return { text, etag: etagOf(text) }
+  } catch (error) {
+    if (isMissing(error)) return null
+    throw error
+  }
+}
+
+async function readBytes(file: string): Promise<Uint8Array | null> {
+  try {
+    return new Uint8Array(await readFile(file))
   } catch (error) {
     if (isMissing(error)) return null
     throw error

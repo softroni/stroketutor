@@ -1203,6 +1203,18 @@ export async function openWorkspace(options: WorkspaceOptions) {
       else setMeta('voice.cast', id)
     },
 
+    /**
+     * The `generatedAt` of the published narration this workspace last took in
+     * for a lesson (or `app`), so each publish is looked through once.
+     */
+    adoptedVoiceMark(lessonId: string): string | null {
+      return getMeta(`voice.adopted.${lessonId}`) ?? null
+    },
+
+    setAdoptedVoiceMark(lessonId: string, generatedAt: string) {
+      setMeta(`voice.adopted.${lessonId}`, generatedAt)
+    },
+
     /** The audition script, or null before it is seeded. */
     readScript(): ScriptLine[] | null {
       const text = getMeta('voice.script')

@@ -18,6 +18,7 @@ import {
 } from './repoWriter'
 import {
   adoptKeptReferences,
+  adoptPublishedVoice,
   appLines,
   applySpokenLines,
   castVoice,
@@ -370,6 +371,7 @@ async function handle(
         generation,
       }
       await adoptKeptReferences(voice)
+      await adoptPublishedVoice(voice)
       // Released files are named from the repository's root (`shared/…`), so git runs there.
       const root = await gitIn(options.sharedDir)(['rev-parse', '--show-toplevel']).then(
         (out) => out.trim(),
@@ -390,6 +392,7 @@ async function handle(
       // A freeze lives in shared/, so a clone or a pull is all it takes to change
       // which recording Lina is cloned from; every request looks before it acts.
       await adoptKeptReferences(voice)
+      await adoptPublishedVoice(voice)
       const handled = await handleVoice(segments.slice(1), method, url, req, res, voice)
       if (handled) return
     }

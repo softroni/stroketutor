@@ -326,6 +326,10 @@ export async function freezeVoice(id: string, takeId: unknown, deps: VoiceDeps):
     throw new WriteRefused(404, `“${voice.name}” has no take ${String(takeId)} to freeze.`)
   }
 
+  if (stored.contentType !== 'audio/wav') {
+    throw new WriteRefused(422, 'That take came from the published audio, which is compressed. Freeze from a take recorded here.')
+  }
+
   const name = `lina-${voice.id}-${randomBytes(3).toString('hex')}`
   const reference = await addReference(name, stored.text, stored.bytes, deps.tts)
   const frozen: Voice = {
@@ -744,7 +748,7 @@ export async function publishVoice(lessonId: string, deps: VoiceDeps): Promise<{
   for (const step of narration.steps) {
     const stored = deps.workspace.readTake(step.take!.id)
     if (!stored) throw new WriteRefused(409, `The recording for “${step.title}” is gone. Make it again.`)
-    files.push({ stepId: step.stepId, bytes: await convert(stored.bytes) })
+    files.push({ stepId: step.stepId, bytes: await toM4a(stored, convert) })
     steps[step.stepId] = {
       file: `${step.stepId}.m4a`,
       text: stored.text,
@@ -918,7 +922,7 @@ export async function publishAppLines(deps: VoiceDeps): Promise<{ files: string[
   for (const line of narration.lines) {
     const stored = deps.workspace.readTake(line.take!.id)
     if (!stored) throw new WriteRefused(409, `The recording for “${line.id}” is gone. Make it again.`)
-    files.push({ id: line.id, bytes: await convert(stored.bytes) })
+    files.push({ id: line.id, bytes: await toM4a(stored, convert) })
     lines[line.id] = {
       file: `${line.id}.m4a`,
       text: stored.text,
@@ -1105,6 +1109,148 @@ export async function adoptKeptReferences(deps: VoiceDeps): Promise<Voice[]> {
   return adopted
 }
 
+/** A recording taken in from `shared/` rather than made here: AAC, named after its words and bytes. */
+const PUBLISHED_TAKE_PREFIX = 'pub-'
+const PUBLISHED_CONTENT_TYPE = 'audio/mp4'
+
+/**
+ * Brings the workspace in line with the narration `shared/` holds, so a lesson
+ * narrated and published on one machine is heard on every other after a pull.
+ * The cast, the spoken lines and the recordings otherwise live only in the
+ * workspace, which git never sees; a second machine would show the lesson
+ * published and say nothing.
+ *
+ * Each published recording comes in as a take (the AAC as it stands), chosen
+ * for its step, with the words it speaks. What was recorded here is left alone:
+ * a step narrated in this workspace in the same words and voice, or narrated
+ * since that publish, keeps its own take. When nothing is cast, the voice the
+ * narration was published in is cast, since it is the one Lina speaks in.
+ *
+ * Each publish is looked through once (`adoptedVoiceMark`). A lesson or voice
+ * this workspace does not have yet is passed over unmarked, to be tried again.
+ * Run after `adoptKeptReferences`, which is what brings a frozen voice here.
+ */
+export async function adoptPublishedVoice(deps: VoiceDeps): Promise<{ lessonIds: string[]; app: boolean }> {
+  seed(deps)
+  const lessonIds: string[] = []
+  let adoptedVoiceId: string | null = null
+
+  for (const lessonId of await deps.writer.listPublishedVoiceIds()) {
+    const manifest = await deps.writer.readVoiceManifest(lessonId)
+    if (!manifest || deps.workspace.adoptedVoiceMark(lessonId) === manifest.generatedAt) continue
+    if (!deps.workspace.readVoice(manifest.voiceId)) continue
+    const stored = await deps.workspace.readTutorial(lessonId)
+    if (!stored) continue
+    const parts = new Map(spokenParts(JSON.parse(stored.text) as Tutorial).map((part) => [part.id, part]))
+
+    const adopted = await adoptRecordings(
+      lessonId,
+      manifest,
+      manifest.steps,
+      (stepId) => deps.writer.readVoiceStep(lessonId, stepId),
+      (stepId, spoken) => {
+        const part = parts.get(stepId)
+        if (part) deps.workspace.saveNarrationLine(lessonId, stepId, spoken === part.instruction ? null : spoken)
+      },
+      deps,
+    )
+    if (adopted === null) continue
+    deps.workspace.setAdoptedVoiceMark(lessonId, manifest.generatedAt)
+    if (adopted > 0) {
+      lessonIds.push(lessonId)
+      adoptedVoiceId ??= manifest.voiceId
+    }
+  }
+
+  let app = false
+  const manifest = await deps.writer.readAppVoiceManifest()
+  if (
+    manifest &&
+    deps.workspace.adoptedVoiceMark(APP_NARRATION_ID) !== manifest.generatedAt &&
+    deps.workspace.readVoice(manifest.voiceId)
+  ) {
+    const adopted = await adoptRecordings(
+      APP_NARRATION_ID,
+      manifest,
+      manifest.lines,
+      (lineId) => deps.writer.readAppVoiceLine(lineId),
+      (lineId, spoken) => {
+        deps.workspace.saveAppLines(readAppLines(deps).map((line) => (line.id === lineId ? { ...line, text: spoken } : line)))
+      },
+      deps,
+    )
+    if (adopted !== null) {
+      deps.workspace.setAdoptedVoiceMark(APP_NARRATION_ID, manifest.generatedAt)
+      if (adopted > 0) {
+        app = true
+        adoptedVoiceId ??= manifest.voiceId
+      }
+    }
+  }
+
+  if (adoptedVoiceId && deps.workspace.castVoiceId() === null) deps.workspace.setCastVoiceId(adoptedVoiceId)
+  return { lessonIds, app }
+}
+
+/**
+ * Takes one manifest's recordings into the workspace. Answers how many came
+ * in, or null when a file the manifest promises is not there yet, so the
+ * caller looks again later instead of marking the publish as seen.
+ */
+async function adoptRecordings(
+  narrationId: string,
+  manifest: { voiceId: string; generatedAt: string },
+  recordings: VoiceManifest['steps'],
+  read: (id: string) => Promise<Uint8Array | null>,
+  saveWords: (id: string, spoken: string) => void,
+  deps: VoiceDeps,
+): Promise<number | null> {
+  const recorded = new Map(deps.workspace.readNarration(narrationId).map((entry) => [entry.stepId, entry]))
+  let adopted = 0
+  let complete = true
+  for (const [id, published] of Object.entries(recordings ?? {})) {
+    const entry = recorded.get(id)
+    const take = entry ? deps.workspace.readTakeInfo(entry.takeId) : null
+    if (entry && take) {
+      // Made here, in these words and this voice: most likely the very take that was published.
+      if (entry.textHash === published.textHash && !take.id.startsWith(PUBLISHED_TAKE_PREFIX)) continue
+      if (entry.generatedAt > manifest.generatedAt) continue
+    }
+
+    const bytes = await read(id).catch(() => null)
+    if (!bytes) {
+      complete = false
+      continue
+    }
+    const takeId = `${PUBLISHED_TAKE_PREFIX}${createHash('sha256').update(published.textHash).update(bytes).digest('hex').slice(0, 16)}`
+    if (entry?.takeId === takeId && take) continue
+    if (!deps.workspace.readTakeInfo(takeId)) {
+      deps.workspace.saveTake(
+        {
+          id: takeId,
+          voiceId: manifest.voiceId,
+          text: published.text,
+          textHash: published.textHash,
+          durationMs: published.durationMs,
+          createdAt: manifest.generatedAt,
+        },
+        bytes,
+        PUBLISHED_CONTENT_TYPE,
+      )
+    }
+    deps.workspace.saveNarration(narrationId, {
+      stepId: id,
+      takeId,
+      voiceId: manifest.voiceId,
+      textHash: published.textHash,
+      generatedAt: manifest.generatedAt,
+    })
+    saveWords(id, published.text)
+    adopted += 1
+  }
+  return complete ? adopted : null
+}
+
 /** References known to be on a speech server, so each is asked after once a process. */
 const confirmedReferences = new Set<string>()
 
@@ -1147,6 +1293,14 @@ async function exportReferenceIfStale(voice: Voice, deps: VoiceDeps): Promise<st
   const kept = await deps.writer.readVoiceReference(voice.id).catch(() => null)
   if (kept && sameBytes(kept.wav, stored.bytes) && JSON.stringify(kept.record) === JSON.stringify(record)) return []
   return (await deps.writer.writeVoiceReference(voice.id, stored.bytes, record)).files
+}
+
+/** A take as AAC. One taken in from `shared/` is AAC already, and encoding it twice would only wear it down. */
+async function toM4a(
+  stored: { bytes: Uint8Array; contentType: string },
+  convert: (wav: Uint8Array) => Promise<Uint8Array>,
+): Promise<Uint8Array> {
+  return stored.contentType === PUBLISHED_CONTENT_TYPE ? stored.bytes : convert(stored.bytes)
 }
 
 function sameBytes(a: Uint8Array, b: Uint8Array): boolean {

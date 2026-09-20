@@ -17,6 +17,7 @@ import { fakeConverter, startFakeTts, type FakeTts } from './testing'
 import { silentWav, wavDurationMs } from './tts'
 import {
   adoptKeptReferences,
+  adoptPublishedVoice,
   appLines,
   applySpokenLines,
   castVoice,
@@ -780,6 +781,49 @@ describe('the reference kept in the repository', () => {
 
     fresh.close()
     await elsewhere.close()
+  })
+
+  it('lets another machine hear a published lesson: the cast, the words and the recordings come from shared/', async () => {
+    await freezeLina()
+    await setNarrationLine('simple-house', 'lesson-intro', 'Today we are drawing a house.', deps)
+    const here = await narrateHouse('lina-bright')
+    await publishVoice('simple-house', deps)
+    // The machine that published has nothing to take in, and keeps its own takes.
+    expect(await adoptPublishedVoice(deps)).toEqual({ lessonIds: [], app: false })
+    expect((await lessonNarration('simple-house', deps)).steps.map((step) => step.take!.id)).toEqual(
+      here.steps.map((step) => step.take!.id),
+    )
+
+    const fresh = await openWorkspace({ file: ':memory:', writer, validateTutorial, validateCatalog })
+    const there: VoiceDeps = { ...deps, workspace: fresh }
+    await adoptKeptReferences(there)
+    expect(await adoptPublishedVoice(there)).toEqual({ lessonIds: ['simple-house'], app: false })
+
+    const narration = await lessonNarration('simple-house', there)
+    expect(narration.castVoiceId).toBe('lina-bright')
+    expect(narration.steps.map((step) => step.stale)).toEqual(here.steps.map(() => null))
+    expect(narration.steps.map((step) => step.text)).toEqual(here.steps.map((step) => step.text))
+    expect(narration.steps[0]!.spokenLine).toBe('Today we are drawing a house.')
+    expect(narration.published!.behind).toBe(false)
+    const audio = fresh.readTake(narration.steps[0]!.take!.id)!
+    expect(audio.contentType).toBe('audio/mp4')
+    expect(await readFile(path.join(shared, 'Assets', 'Voice', 'simple-house', 'lesson-intro.m4a'))).toEqual(
+      Buffer.from(audio.bytes),
+    )
+
+    // Looking again changes nothing, and publishing from there passes the AAC through untouched.
+    expect(await adoptPublishedVoice(there)).toEqual({ lessonIds: [], app: false })
+    const converted = converter.calls.length
+    await publishVoice('simple-house', there)
+    expect(converter.calls).toHaveLength(converted)
+
+    // A step narrated again over there is that machine's own, and a later look leaves it be.
+    const again = await narrateStep('simple-house', { stepId: 'lesson-intro', another: true }, there)
+    fresh.setAdoptedVoiceMark('simple-house', 'earlier')
+    await adoptPublishedVoice(there)
+    expect((await lessonNarration('simple-house', there)).steps[0]!.take!.id).toBe(again.steps[0]!.take!.id)
+
+    fresh.close()
   })
 
   it('lets the repository win when it remembers a different freeze', async () => {

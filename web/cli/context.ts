@@ -6,7 +6,7 @@ import type { GenerateDeps } from '../server/generate'
 import { createRepoWriter, type RepoWriter } from '../server/repoWriter'
 import { DEFAULT_TTS_MCP_URL, DEFAULT_TTS_URL } from '../server/studioApi'
 import type { TtsDeps } from '../server/tts'
-import { adoptKeptReferences, type VoiceDeps } from '../server/voice'
+import { adoptKeptReferences, adoptPublishedVoice, type VoiceDeps } from '../server/voice'
 import { openWorkspace, type Workspace } from '../server/workspaceStore'
 import { validateCatalog } from '../src/catalog/validate'
 import { validateTutorial } from '../src/schema/validate'
@@ -126,6 +126,7 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
       }
       // A freeze lives in shared/: a fresh clone is frozen to it before any command runs.
       await adoptKeptReferences(deps)
+      await adoptPublishedVoice(deps)
       return deps
     },
     browser() {
