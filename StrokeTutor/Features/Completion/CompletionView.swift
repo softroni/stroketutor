@@ -311,17 +311,31 @@ struct CompletionView: View {
         return "Your finished \(lesson.title) drawing, drawn \(Self.spokenDate.string(from: date))"
     }
 
-    /// One calm line from Lina, chosen by the lesson's place in its path
-    /// (`CompletionLines`), and the recording of that same line when one shipped.
+    /// For a lesson with no outro of its own: one calm line from Lina, chosen by the
+    /// lesson's place in its path (`CompletionLines`), and the recording of that
+    /// same line when one shipped.
     private var linaLineChoice: CompletionLines.Line {
         CompletionLines.line(isPathDone: isPathDone, position: path?.position(of: lesson.id))
     }
 
-    private var linaText: String { linaLineChoice.text }
+    /// What Lina says after this lesson (`LessonBookend.outroId`), when the Studio
+    /// published it: a sentence about this drawing, in the learner's own hand. The
+    /// end of a whole path keeps its own line, which is about the path.
+    private var lessonOutro: String? {
+        guard !isPathDone else { return nil }
+        return narration.lineText(lessonId: lesson.id, stepId: LessonBookend.outroId)
+    }
+
+    private var linaText: String { lessonOutro ?? linaLineChoice.text }
 
     /// Said once, when the screen arrives. A learner who has turned Lina off, or a
     /// line that was never recorded, ends the lesson in silence.
     private func speakLinaLine() {
+        if lessonOutro != nil {
+            guard app.settings.narrationEnabled else { return }
+            narration.play(lessonId: lesson.id, stepId: LessonBookend.outroId)
+            return
+        }
         let line = linaLineChoice
         guard app.settings.narrationEnabled, narration.hasAppLine(line.id) else { return }
         narration.playAppLine(line.id)

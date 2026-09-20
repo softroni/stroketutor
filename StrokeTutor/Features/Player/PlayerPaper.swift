@@ -17,8 +17,6 @@ struct PlayerPaper<Chips: View>: View {
     let strokeProgress: [Double]
     let fillProgress: [Double]
     let activeStrokeIndex: Int?
-    /// Nil while a step is playing; 0...1 while the whole drawing ghosts itself on.
-    var ghostProgress: Double?
     var showsPencilTip: Bool = true
     /// The area the drawing is fitted into, inside the paper.
     var drawingInsets: EdgeInsets
@@ -37,7 +35,6 @@ struct PlayerPaper<Chips: View>: View {
                               activeStrokeIndex: activeStrokeIndex,
                               isDebugMode: false,
                               source: drawingSource,
-                              ghostProgress: ghostProgress,
                               showsFrame: false,
                               showsPencilTip: showsPencilTip,
                               accessibilityText: accessibilityText)

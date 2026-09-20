@@ -10,6 +10,11 @@ import UIKit
 /// There is no countdown and no auto-advance: `.awaitingUser` is left only by the
 /// primary.
 ///
+/// Before step one the lesson shows what it is going to make (`LessonIntro`): the
+/// finished drawing, a quick build of every step, the finished drawing again, while
+/// Lina says her few words before the lesson (`LessonBookend.introId`). "I’m ready"
+/// can be tapped at any moment; a returning learner skips all of it.
+///
 /// Turned on its side the same parts become `pl-landscape`: the paper takes the full
 /// height on the left, the sheet becomes a 312 pt panel on the right. Rotation is
 /// allowed here and nowhere else (`PlayerOrientation`).
@@ -45,8 +50,11 @@ struct PlayerScreen: View {
     @State private var showLeave = false
     @State private var showReference = false
     @State private var confirmRestart = false
-    /// How far the orientation beat's ghost has drawn itself on, 0...1.
-    @State private var ghostProgress: Double = 0
+    /// When the intro on screen started, and whether it has run to its end (so the
+    /// paper stops redrawing itself once the drawing is whole again).
+    @State private var introStartedAt = Date()
+    @State private var introEnded = false
+    @State private var introTask: Task<Void, Never>?
     @State private var hasLoaded = false
     @State private var leaveOpenedAt: Date?
 
@@ -120,15 +128,7 @@ struct PlayerScreen: View {
         VStack(spacing: 0) {
             header(isCompact: false)
 
-            PlayerPaper(tutorial: lesson.tutorial,
-                        phase: player.phase,
-                        strokeProgress: player.strokeProgress,
-                        fillProgress: player.fillProgress,
-                        activeStrokeIndex: player.activeStrokeIndex,
-                        ghostProgress: isOrientation ? ghostProgress : nil,
-                        showsPencilTip: true,
-                        drawingInsets: EdgeInsets(top: 96, leading: 0, bottom: 6, trailing: 0),
-                        accessibilityText: canvasAccessibilityText) {
+            paper(insets: EdgeInsets(top: 96, leading: 0, bottom: 6, trailing: 0)) {
                 chipBand
             }
             .accessibilitySortPriority(80)
@@ -181,15 +181,7 @@ struct PlayerScreen: View {
     /// the ink grows in place rather than being swapped for a different paper.
     private var landscape: some View {
         ZStack(alignment: .trailing) {
-            PlayerPaper(tutorial: lesson.tutorial,
-                        phase: player.phase,
-                        strokeProgress: player.strokeProgress,
-                        fillProgress: player.fillProgress,
-                        activeStrokeIndex: player.activeStrokeIndex,
-                        ghostProgress: isOrientation ? ghostProgress : nil,
-                        showsPencilTip: true,
-                        drawingInsets: isWidePage ? wideDrawingInsets : landscapeDrawingInsets,
-                        accessibilityText: canvasAccessibilityText) {
+            paper(insets: isWidePage ? wideDrawingInsets : landscapeDrawingInsets) {
                 EmptyView()
             }
             .accessibilitySortPriority(80)
@@ -391,9 +383,73 @@ struct PlayerScreen: View {
 
     // MARK: - Shared parts
 
+    /// The paper of a step, or, before step one, the paper of the intro: the same
+    /// canvas, handed the step and the progress the intro's timeline is at.
+    @ViewBuilder
+    private func paper<Chips: View>(insets: EdgeInsets,
+                                    @ViewBuilder chips: @escaping () -> Chips) -> some View {
+        if isOrientation {
+            TimelineView(.animation(paused: introEnded)) { context in
+                introPaper(introFrame(at: context.date), insets: insets, chips: chips)
+            }
+        } else {
+            PlayerPaper(tutorial: lesson.tutorial,
+                        phase: player.phase,
+                        strokeProgress: player.strokeProgress,
+                        fillProgress: player.fillProgress,
+                        activeStrokeIndex: player.activeStrokeIndex,
+                        showsPencilTip: true,
+                        drawingInsets: insets,
+                        accessibilityText: canvasAccessibilityText,
+                        chips: chips)
+        }
+    }
+
+    /// The whole drawing at full strength for `goal` and `rest`; for `build`, the
+    /// step being drawn over the faded steps before it, with no pencil tip — this is
+    /// a look at the drawing, not yet a line to copy.
+    private func introPaper<Chips: View>(_ frame: LessonIntro.Frame,
+                                         insets: EdgeInsets,
+                                         @ViewBuilder chips: @escaping () -> Chips) -> some View {
+        var phase = PlayerViewModel.Phase.finished
+        var strokes: [Double] = []
+        var fills: [Double] = []
+        if case let .build(stepIndex, itemIndex, progress) = frame,
+           lesson.tutorial.steps.indices.contains(stepIndex) {
+            let step = lesson.tutorial.steps[stepIndex]
+            func amount(_ item: Int) -> Double { item < itemIndex ? 1 : item == itemIndex ? progress : 0 }
+            phase = .drawing(stepIndex: stepIndex)
+            strokes = step.strokes.indices.map { amount($0) }
+            fills = step.fills.indices.map { amount(step.strokes.count + $0) }
+        }
+        return PlayerPaper(tutorial: lesson.tutorial,
+                           phase: phase,
+                           strokeProgress: strokes,
+                           fillProgress: fills,
+                           activeStrokeIndex: nil,
+                           showsPencilTip: false,
+                           drawingInsets: insets,
+                           accessibilityText: canvasAccessibilityText,
+                           chips: chips)
+    }
+
+    @ViewBuilder
     private func header(isCompact: Bool) -> some View {
+        if isOrientation {
+            // The caption follows the build a few times a second; the paper beside
+            // it is what needs every frame.
+            TimelineView(.periodic(from: introStartedAt, by: 0.2)) { context in
+                playerHeader(isCompact: isCompact, caption: introCaption(at: context.date))
+            }
+        } else {
+            playerHeader(isCompact: isCompact, caption: nil)
+        }
+    }
+
+    private func playerHeader(isCompact: Bool, caption: String?) -> some View {
         PlayerHeader(stepIndex: isOrientation ? nil : player.currentStepIndex,
                      stepCount: max(lesson.stepCount, 1),
+                     caption: caption,
                      isCompact: isCompact,
                      onClose: close) {
             moreMenu
@@ -457,7 +513,8 @@ struct PlayerScreen: View {
         PlayerActionRow(primaryTitle: primaryTitle,
                         isPending: player.isDrawing,
                         canGoBack: player.canGoToPreviousStep,
-                        showsQuietControls: !isOrientation,
+                        showsBack: !isOrientation,
+                        replayLabel: isOrientation ? "Watch it come together again" : "Watch this step again",
                         isLeftHanded: isLeftHanded,
                         primaryFontSize: isLandscape ? 19 : nil,
                         isCompact: isWidePage,
@@ -470,22 +527,25 @@ struct PlayerScreen: View {
 
     private var isOrientation: Bool { player.isAwaitingBegin }
 
+    /// Before step one the sentence is what Lina is saying: the line published for
+    /// this lesson's intro, or the words the Studio would have recorded for it.
     private var instruction: String {
-        if isOrientation { return lesson.objective }
+        if isOrientation {
+            return narration.lineText(lessonId: lesson.id, stepId: LessonBookend.introId)
+                ?? LessonBookend.defaultIntro(lessonId: lesson.id, title: lesson.title)
+        }
         return player.currentStep?.instruction ?? lesson.objective
     }
 
-    /// One line under the sentence. Facts before the lesson starts, then the "how":
-    /// what to look at while Lina draws, and what to do once she has stopped.
+    /// One line under the sentence: the "how". Nothing to do yet during the intro,
+    /// then what to look at while Lina draws, and what to do once she has stopped.
     private var hint: String {
-        if isOrientation {
-            return "\(lesson.stepCountText) · \(lesson.estimatedTimeText) · Pen and paper ready"
-        }
+        if isOrientation { return "Just watch for now. Tap I’m ready whenever you like." }
         return player.isDrawing ? "Watch the line, then draw it." : "Tap when your line is on the paper."
     }
 
     private var primaryTitle: String {
-        if isOrientation { return "Begin" }
+        if isOrientation { return "I’m ready" }
         return player.isOnLastStep ? "Finish" : "I drew it"
     }
 
@@ -493,7 +553,7 @@ struct PlayerScreen: View {
     /// still being drawn.
     private var canvasAccessibilityText: String {
         guard !isOrientation else {
-            return "The finished \(lesson.subject), shown faintly. \(lesson.stepCountText)."
+            return "The finished \(lesson.subject), coming together step by step. \(lesson.stepCountText)."
         }
         let index = player.currentStepIndex
         let title = player.currentStep?.title ?? lesson.title
@@ -520,6 +580,7 @@ struct PlayerScreen: View {
     }
 
     private var showsNarrationChip: Bool {
+        if isOrientation { return narration.hasAudio(lessonId: lesson.id, stepId: LessonBookend.introId) }
         guard let step = player.currentStep else { return false }
         return narration.hasAudio(lessonId: lesson.id, stepId: step.id)
     }
@@ -543,7 +604,7 @@ struct PlayerScreen: View {
                     startingAt: resumeFrom ?? 0,
                     startImmediately: resumeFrom != nil)
         app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: resumeFrom)
-        if isOrientation { runGhost() }
+        if isOrientation { startIntro() }
     }
 
     #if DEBUG
@@ -562,20 +623,54 @@ struct PlayerScreen: View {
     #endif
 
     private func disappear() {
+        introTask?.cancel()
         player.stop()
         narration.deactivate()
         PlayerOrientation.lockToPortrait()
     }
 
-    /// The whole drawing draws itself on at 20 %, once, before step one.
-    private func runGhost() {
-        ghostProgress = 0
-        guard !reduceMotion else {
-            ghostProgress = 1
-            return
+    // MARK: - The intro
+
+    /// The intro lasts as long as Lina's words before the lesson, when they were
+    /// recorded, so the drawing is whole again as she hands over.
+    private var introTotal: Double {
+        LessonIntro.total(for: lesson.tutorial,
+                          spoken: narration.lineSeconds(lessonId: lesson.id, stepId: LessonBookend.introId))
+    }
+
+    /// With motion reduced nothing builds: the finished drawing holds still while
+    /// Lina speaks.
+    private func introFrame(at date: Date) -> LessonIntro.Frame {
+        guard !reduceMotion, !introEnded else { return .rest }
+        return LessonIntro.frame(for: lesson.tutorial,
+                                 elapsed: date.timeIntervalSince(introStartedAt),
+                                 total: introTotal)
+    }
+
+    private func introCaption(at date: Date) -> String {
+        if case let .build(stepIndex, _, _) = introFrame(at: date),
+           lesson.tutorial.steps.indices.contains(stepIndex) {
+            return "Coming up · \(lesson.tutorial.steps[stepIndex].title)"
         }
-        let duration = min(max(lesson.tutorial.totalDuration * 0.35, 1.6), 3.2)
-        withAnimation(.linear(duration: duration)) { ghostProgress = 1 }
+        return "Here is what we are going to draw"
+    }
+
+    /// From the top: on arriving, and on "watch again". The line and the drawing
+    /// start together.
+    private func startIntro() {
+        introTask?.cancel()
+        introStartedAt = Date()
+        introEnded = reduceMotion
+        narration.stop()
+        if app.settings.narrationEnabled {
+            narration.play(lessonId: lesson.id, stepId: LessonBookend.introId)
+        }
+        guard !reduceMotion else { return }
+        let total = introTotal
+        introTask = Task {
+            try? await Task.sleep(for: .seconds(total))
+            if !Task.isCancelled { introEnded = true }
+        }
     }
 
     private func phaseChanged(to phase: PlayerViewModel.Phase) {
@@ -603,6 +698,9 @@ struct PlayerScreen: View {
 
     private func primaryTapped() {
         if isOrientation {
+            introTask?.cancel()
+            narration.stop()
+            haptic(.light)
             player.begin()
             return
         }
@@ -633,11 +731,17 @@ struct PlayerScreen: View {
     }
 
     private func replay() {
+        if isOrientation {
+            startIntro()
+            return
+        }
         narration.stop()
         player.replayCurrentStep()
     }
 
+    /// Step one, not the intro: they have already been shown what they are drawing.
     private func restart() {
+        introTask?.cancel()
         narration.stop()
         player.restart()
     }
@@ -652,7 +756,11 @@ struct PlayerScreen: View {
     private func toggleNarration() {
         app.settings.narrationEnabled.toggle()
         if app.settings.narrationEnabled {
-            if case let .drawing(index) = player.phase { speak(stepAt: index) }
+            if isOrientation {
+                startIntro()
+            } else if case let .drawing(index) = player.phase {
+                speak(stepAt: index)
+            }
         } else {
             narration.stop()
         }
@@ -670,7 +778,10 @@ struct PlayerScreen: View {
         showLeave = false
         let waited = leaveOpenedAt.map { Date().timeIntervalSince($0) } ?? 0
         leaveOpenedAt = nil
-        if player.isDrawing, waited > 1.5 {
+        if isOrientation {
+            // The close button stopped her; the intro starts again with her.
+            if waited > 1.5 { startIntro() }
+        } else if player.isDrawing, waited > 1.5 {
             player.replayCurrentStep()
         }
     }

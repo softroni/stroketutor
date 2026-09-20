@@ -69,6 +69,21 @@ final class NarrationPlayer {
         audioURL(lessonId: lessonId, stepId: stepId) != nil
     }
 
+    /// What Lina says in that recording. The lesson's intro and outro
+    /// (`LessonBookend`) are lines of the lesson like any step, and their words are
+    /// shown as she says them.
+    func lineText(lessonId: String, stepId: String) -> String? {
+        library.text(lessonId: lessonId, stepId: stepId)
+    }
+
+    /// How long that recording lasts, when it shipped and the Studio measured it.
+    func lineSeconds(lessonId: String, stepId: String) -> Double? {
+        guard hasAudio(lessonId: lessonId, stepId: stepId),
+              let milliseconds = library.manifest(lessonId: lessonId)?.steps[stepId]?.durationMs,
+              milliseconds > 0 else { return nil }
+        return milliseconds / 1000
+    }
+
     /// Speaks the step's line from the top. Silently does nothing when there is no
     /// file: narration is never the only channel, the instruction is always on screen.
     func play(lessonId: String, stepId: String) {

@@ -147,8 +147,10 @@ struct PlayerActionRow: View {
     /// filled, and tapping it hurries the ink rather than being refused.
     var isPending: Bool = false
     var canGoBack: Bool = true
-    /// The orientation beat has one button and no quiet controls.
     var showsQuietControls: Bool = true
+    /// The intro before step one has nothing to go back to: only "watch again".
+    var showsBack: Bool = true
+    var replayLabel: String = "Watch this step again"
     var isLeftHanded: Bool = false
     var primaryFontSize: CGFloat?
     /// The 48 pt version for the wide page's bar (`PlayerWideBar`): small round
@@ -164,11 +166,11 @@ struct PlayerActionRow: View {
                 primary
                 if showsQuietControls {
                     replayButton
-                    backButton
+                    if showsBack { backButton }
                 }
             } else {
                 if showsQuietControls {
-                    backButton
+                    if showsBack { backButton }
                     replayButton
                 }
                 primary
@@ -217,7 +219,7 @@ struct PlayerActionRow: View {
             Image(systemName: "arrow.counterclockwise")
         }
         .buttonStyle(isCompact ? .roundIconSmall : .roundIcon)
-        .accessibilityLabel("Watch this step again")
+        .accessibilityLabel(replayLabel)
         .accessibilitySortPriority(55)
     }
 }

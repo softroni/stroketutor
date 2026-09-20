@@ -73,7 +73,7 @@ final class PlayerViewModel {
 
     // MARK: - Derived state
 
-    /// True while the lesson is loaded but has not started: the orientation beat.
+    /// True while the lesson is loaded but has not started: the intro.
     var isAwaitingBegin: Bool {
         if case .idle = phase { return pendingStartIndex != nil }
         return false
@@ -126,8 +126,8 @@ final class PlayerViewModel {
     /// Loads a tutorial and begins the given step (step one by default).
     ///
     /// `startImmediately: false` loads without playing anything and stays `.idle`,
-    /// which is the player's orientation beat: the whole drawing ghosted, the
-    /// objective, and a **Begin** button that calls `begin()`.
+    /// which is the player's intro (`LessonIntro`): the drawing coming together,
+    /// Lina's words before the lesson, and an **I’m ready** button that calls `begin()`.
     func load(_ tutorial: PreparedTutorial,
               startingAt stepIndex: Int = 0,
               startImmediately: Bool = true) {
@@ -156,7 +156,7 @@ final class PlayerViewModel {
         beginStep(start)
     }
 
-    /// "Begin" — leaves the orientation beat and plays the step the lesson was
+    /// "I’m ready" — leaves the intro and plays the step the lesson was
     /// loaded on. Does nothing once the lesson is under way.
     func begin() {
         guard case .idle = phase, let start = pendingStartIndex else { return }

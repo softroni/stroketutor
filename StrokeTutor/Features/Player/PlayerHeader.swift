@@ -10,6 +10,8 @@ struct PlayerHeader<Menu: View>: View {
     /// The step in play, zero-based. Nil before the lesson starts.
     let stepIndex: Int?
     let stepCount: Int
+    /// What the intro is showing, in place of "Before you start".
+    var caption: String?
     var isCompact: Bool = false
     let onClose: () -> Void
     @ViewBuilder let menu: () -> Menu
@@ -62,7 +64,7 @@ struct PlayerHeader<Menu: View>: View {
     }
 
     private var label: String {
-        guard let stepIndex else { return "Before you start" }
+        guard let stepIndex else { return caption ?? "Before you start" }
         return "Step \(min(stepIndex + 1, max(stepCount, 1))) of \(max(stepCount, 1))"
     }
 }
