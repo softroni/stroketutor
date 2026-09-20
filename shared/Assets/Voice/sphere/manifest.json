@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "sphere",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:27:35.237Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A circle is flat. Give it a shadow and it turns into a ball. The light here comes from the top left. Watch the dark side appear, then try it.",
+      "textHash": "716b3ba536a914ce31ea41837b1e451f7d8bf2b7e8d49ec5bf273dc930435298",
+      "durationMs": 9440
+    },
+    "ball-left": {
+      "file": "ball-left.m4a",
+      "text": "The ball starts as a big circle. From the top, swing around the left side to where it rests.",
+      "textHash": "f75c8e37c440c34a9b2581b3a7de6d586fa66e20162b86a26292d09b4f926b48",
+      "durationMs": 5520
+    },
+    "ball-right": {
+      "file": "ball-right.m4a",
+      "text": "From the top again, swing around the right side and close the ball.",
+      "textHash": "668cdd3c32e6bbce8c32564e61a23525c7ffb1036335774f80a08f02d299e984",
+      "durationMs": 4160
+    },
+    "hatch-top": {
+      "file": "hatch-top.m4a",
+      "text": "Light can't reach the lower right. Draw three slanted lines there, side by side.",
+      "textHash": "1a5365315567c16dee0a09900a29b8cb3f30817a308dd163b71bcd3f9a1a2a1e",
+      "durationMs": 5040
+    },
+    "hatch-bottom": {
+      "file": "hatch-bottom.m4a",
+      "text": "Add two more slanted lines below them. That's the ball's dark side.",
+      "textHash": "4ab888c1b2cd187a778ff30cea350a24f1589e1dc11e6112997a5ca45366f24f",
+      "durationMs": 4640
+    },
+    "shadow": {
+      "file": "shadow.m4a",
+      "text": "The ball blocks the light, so a shadow falls to the right. Draw a long flat oval from under the ball.",
+      "textHash": "70e497f9f121267e3898590a65e2f6d315f4b49a1db502578a6f4876823eef43",
+      "durationMs": 6720
+    },
+    "color-ball": {
+      "file": "color-ball.m4a",
+      "text": "Color the ball orange.",
+      "textHash": "ed335ede1cd143baf6d536036d2f50664bb3111524de2f7bf0fd77ae51436976",
+      "durationMs": 1600
+    },
+    "color-shadow": {
+      "file": "color-shadow.m4a",
+      "text": "Color the shadow gray.",
+      "textHash": "7f6801a2b8eaed6caa4e19fa8e563dd05e9d8a36fa61f22b1e708f7919e083a9",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A few slanted lines and a shadow, and your circle became a ball. Light did that.",
+      "textHash": "6490057a16c076ec51b1cfd53c8195d25606c34827b3f2328b54df4d245a2ea7",
+      "durationMs": 6000
+    }
+  }
+}
