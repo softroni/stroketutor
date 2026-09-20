@@ -38,11 +38,21 @@ enum DebugScreenHarness {
         pendingCaptureSavedPage = nil
         raiseDeleteConfirmation = false
 
-        guard let trees = app.path(id: "trees"), let treesLesson = trees.lessons.first,
-              let cars = app.path(id: "cars"), let carsLesson = cars.lessons.first
+        // The screens below are captured with two of the shipped drawings: the palm
+        // tree (upright) and the red car (wide). They are found by lesson id and not
+        // by the path they sit in, so renaming a path in the catalog cannot empty
+        // this file; a catalog that carries neither falls back to the first two
+        // paths that shipped with anything at all.
+        let shipped = app.paths.filter { !$0.isEmpty }
+        guard let treeLesson = app.lesson(id: "palm-tree-4") ?? shipped.first?.lessons.first,
+              let treePath = app.path(id: treeLesson.pathId)
         else {
-            return // The catalog no longer carries the two demo lessons this file assumes.
+            return // The catalog carries no lesson with a tutorial behind it.
         }
+        let carLesson = app.lesson(id: "classic-red-car")
+            ?? shipped.first { $0.id != treePath.id }?.lessons.first
+            ?? treeLesson
+        guard let carPath = app.path(id: carLesson.pathId) else { return }
 
         app.selectedTab = .learn
         app.popToRoot(.learn)
@@ -54,68 +64,68 @@ enum DebugScreenHarness {
             break // The clean, onboarded Home state left by the reset above.
 
         case "home-progress":
-            app.progress.markOpened(treesLesson.id, pathId: trees.id, step: midStep(of: treesLesson))
-            addPlaceholderPage(to: app, lesson: treesLesson)
+            app.progress.markOpened(treeLesson.id, pathId: treePath.id, step: midStep(of: treeLesson))
+            addPlaceholderPage(to: app, lesson: treeLesson)
 
         case "paths":
             app.push(.paths)
 
         case "path-default":
-            app.push(.pathDetail(pathId: trees.id))
+            app.push(.pathDetail(pathId: treePath.id))
 
         case "path-locked":
             // See `AppModel.debugAppendLesson`: the catalog has one lesson per
             // path, so nothing is ever really locked. A synthetic second lesson
             // behind the real one is the only way to raise this sheet.
-            let locked = harnessLesson(from: treesLesson, suffix: "harness-locked")
-            app.debugAppendLesson(locked, toPathId: trees.id)
+            let locked = harnessLesson(from: treeLesson, suffix: "harness-locked")
+            app.debugAppendLesson(locked, toPathId: treePath.id)
             app.pendingLockedLessonId = locked.id
-            app.push(.pathDetail(pathId: trees.id))
+            app.push(.pathDetail(pathId: treePath.id))
 
         case "path-complete":
-            app.progress.markCompleted(treesLesson.id, pathId: trees.id)
-            app.push(.pathDetail(pathId: trees.id))
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            app.push(.pathDetail(pathId: treePath.id))
 
         case "preview-default":
-            app.push(.lessonPreview(lessonId: treesLesson.id))
+            app.push(.lessonPreview(lessonId: treeLesson.id))
 
         case "preview-resume":
-            app.progress.markOpened(treesLesson.id, pathId: trees.id, step: midStep(of: treesLesson))
-            app.push(.lessonPreview(lessonId: treesLesson.id))
+            app.progress.markOpened(treeLesson.id, pathId: treePath.id, step: midStep(of: treeLesson))
+            app.push(.lessonPreview(lessonId: treeLesson.id))
 
         case "player-orientation":
-            app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
+            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "player-drawing":
             pendingPlayerHarnessState = PlayerHarnessState(stepIndex: 0, isDrawing: true)
-            app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
+            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "player-awaiting":
-            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treesLesson))
-            app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
+            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treeLesson))
+            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "player-reference":
             pendingPlayerHarnessState = PlayerHarnessState(stepIndex: 0, showsReference: true)
-            app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
+            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "player-muted":
             app.settings.narrationEnabled = false
-            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treesLesson))
-            app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
+            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treeLesson))
+            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "player-last":
-            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: max(0, treesLesson.stepCount - 1))
-            app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
+            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: max(0, treeLesson.stepCount - 1))
+            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "player-lefthanded":
             app.settings.leftHanded = true
-            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treesLesson))
-            app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
+            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treeLesson))
+            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "leave-sheet":
-            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treesLesson),
+            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treeLesson),
                                                            showsLeaveSheet: true)
-            app.cover = .player(lessonId: treesLesson.id, resumeFrom: nil)
+            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         // The car is the wide drawing. Captured on its side this is the wide page
         // (`PlayerWideBar`, the panel gone), the layout a learner chose by tapping
@@ -124,59 +134,59 @@ enum DebugScreenHarness {
         // nudge at the bottom of the paper.
         case "player-wide":
             app.settings.landscapeWidePage = true
-            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: carsLesson))
-            app.cover = .player(lessonId: carsLesson.id, resumeFrom: nil)
+            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: carLesson))
+            app.cover = .player(lessonId: carLesson.id, resumeFrom: nil)
 
         case "player-nudge":
             pendingPlayerHarnessState = PlayerHarnessState(stepIndex: 0)
-            app.cover = .player(lessonId: carsLesson.id, resumeFrom: nil)
+            app.cover = .player(lessonId: carLesson.id, resumeFrom: nil)
 
         case "completion-default":
             // Same reason as `path-locked`: with one lesson per path this lesson
             // is always the last one, so "Next lesson" never has anything to
             // offer without a synthetic lesson after it.
-            let next = harnessLesson(from: treesLesson, suffix: "harness-next")
-            app.debugAppendLesson(next, toPathId: trees.id)
-            app.progress.markCompleted(treesLesson.id, pathId: trees.id)
-            app.cover = .completion(lessonId: treesLesson.id)
+            let next = harnessLesson(from: treeLesson, suffix: "harness-next")
+            app.debugAppendLesson(next, toPathId: treePath.id)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            app.cover = .completion(lessonId: treeLesson.id)
 
         case "completion-pathdone":
-            app.progress.markCompleted(carsLesson.id, pathId: cars.id)
-            app.cover = .completion(lessonId: carsLesson.id)
+            app.progress.markCompleted(carLesson.id, pathId: carPath.id)
+            app.cover = .completion(lessonId: carLesson.id)
 
         case "capture-primer":
-            app.progress.markCompleted(treesLesson.id, pathId: trees.id)
-            app.cover = .capture(lessonId: treesLesson.id)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            app.cover = .capture(lessonId: treeLesson.id)
 
         case "capture-review":
-            app.progress.markCompleted(treesLesson.id, pathId: trees.id)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
             pendingCaptureReviewImage = placeholderPhoto()
-            app.cover = .capture(lessonId: treesLesson.id)
+            app.cover = .capture(lessonId: treeLesson.id)
 
         case "capture-saved":
-            app.progress.markCompleted(treesLesson.id, pathId: trees.id)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
             pendingCaptureSavedPage = app.sketchbook.add(image: placeholderPhoto(),
-                                                         lessonId: treesLesson.id,
-                                                         pathId: trees.id)
-            app.cover = .capture(lessonId: treesLesson.id)
+                                                         lessonId: treeLesson.id,
+                                                         pathId: treePath.id)
+            app.cover = .capture(lessonId: treeLesson.id)
 
         case "sketchbook-empty":
             app.selectedTab = .sketchbook
 
         case "sketchbook-filled":
-            addPlaceholderPage(to: app, lesson: treesLesson)
-            addPlaceholderPage(to: app, lesson: carsLesson)
+            addPlaceholderPage(to: app, lesson: treeLesson)
+            addPlaceholderPage(to: app, lesson: carLesson)
             app.selectedTab = .sketchbook
 
         case "entry":
-            addPlaceholderPage(to: app, lesson: treesLesson)
+            addPlaceholderPage(to: app, lesson: treeLesson)
             app.selectedTab = .sketchbook
             if let page = app.sketchbook.pages.first {
                 app.push(.sketchbookEntry(pageId: page.id))
             }
 
         case "entry-delete":
-            addPlaceholderPage(to: app, lesson: treesLesson)
+            addPlaceholderPage(to: app, lesson: treeLesson)
             app.selectedTab = .sketchbook
             if let page = app.sketchbook.pages.first {
                 raiseDeleteConfirmation = true

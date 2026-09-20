@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import type { EditedPart, PathOrder, PendingChange } from '../catalog/publishing'
-import { findLesson } from '../catalog/types'
+import { findLesson, type Level } from '../catalog/types'
 
 import { publishLessons } from './api'
 import { ApprovalChecklist } from './ApprovalDialog'
@@ -137,17 +137,19 @@ export function PublishView({ library, onPublished, onAdopt }: PublishViewProps)
         <section className="st-panel">
           <h2 className="st-label">Curriculum</h2>
           <p className="st-section-note">
-            The published paths, their titles and their order, as the app will see them. Only published lessons
-            appear, and a path with none is left out. Curriculum changes are published together with anything else.
+            The published levels and paths, their titles and their order, as the app will see them. Only published
+            lessons appear; a path with none is left out, and so is a level left with no path. Planned lessons are
+            places held in the workspace and never reach <code>shared/</code>. Curriculum changes are published
+            together with anything else.
           </p>
           <div className="st-publish-compare">
             <div>
               <h3 className="st-publish-compare__heading">Published now</h3>
-              <PathList paths={curriculum.before} titleOf={titleOf} />
+              <PathList paths={curriculum.before} levels={curriculum.levelsBefore} titleOf={titleOf} />
             </div>
             <div>
               <h3 className="st-publish-compare__heading">After publishing</h3>
-              <PathList paths={curriculum.after} titleOf={titleOf} />
+              <PathList paths={curriculum.after} levels={curriculum.levelsAfter} titleOf={titleOf} />
             </div>
           </div>
         </section>
@@ -212,20 +214,42 @@ export function PublishView({ library, onPublished, onAdopt }: PublishViewProps)
   )
 }
 
-function PathList({ paths, titleOf }: { paths: PathOrder[]; titleOf: (id: string) => string }) {
+function PathList({
+  paths,
+  levels,
+  titleOf,
+}: {
+  paths: PathOrder[]
+  levels: Level[]
+  titleOf: (id: string) => string
+}) {
   if (paths.length === 0) return <p className="st-section-note">No paths.</p>
+  // Paths under each level in order, then whatever sits under none. With no
+  // levels at all this is one unlabelled group, exactly as it was.
+  const groups = [
+    ...levels.map((level) => ({ label: level.title, paths: paths.filter((path) => path.level === level.id) })),
+    { label: levels.length > 0 ? 'No level' : null, paths: paths.filter((path) => !path.level) },
+  ].filter((group) => group.paths.length > 0)
+
   return (
-    <ol className="st-publish-paths">
-      {paths.map((path) => (
-        <li key={path.id}>
-          <strong>{path.title}</strong>
-          <ol>
-            {path.lessonIds.map((id) => (
-              <li key={id}>{titleOf(id)}</li>
+    <>
+      {groups.map((group, index) => (
+        <div key={group.label ?? index}>
+          {group.label ? <p className="st-publish-compare__level">{group.label}</p> : null}
+          <ol className="st-publish-paths">
+            {group.paths.map((path) => (
+              <li key={path.id}>
+                <strong>{path.title}</strong>
+                <ol>
+                  {path.lessonIds.map((id) => (
+                    <li key={id}>{titleOf(id)}</li>
+                  ))}
+                </ol>
+              </li>
             ))}
           </ol>
-        </li>
+        </div>
       ))}
-    </ol>
+    </>
   )
 }

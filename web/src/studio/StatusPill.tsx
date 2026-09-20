@@ -2,13 +2,22 @@ import type { LessonState } from '../catalog/publishing'
 import type { LessonStatus } from '../catalog/types'
 
 const LABELS: Record<LessonStatus, string> = {
+  planned: 'Planned',
   draft: 'Draft',
   'needs-review': 'Needs review',
   approved: 'Approved',
 }
 
+const TITLES: Partial<Record<LessonStatus, string>> = {
+  planned: 'A place held in the path. Nothing has been drawn for it yet.',
+}
+
 export function StatusPill({ status }: { status: LessonStatus }) {
-  return <span className={`st-pill st-pill--${status}`}>{LABELS[status]}</span>
+  return (
+    <span className={`st-pill st-pill--${status}`} title={TITLES[status]}>
+      {LABELS[status]}
+    </span>
+  )
 }
 
 /**

@@ -97,13 +97,30 @@ The table gives each command's shape and what matters; `reference.md` has every 
 | `models` | OpenRouter models that take images and honour structured output |
 | `adopt-shared` | Accept `shared/Catalog` as it now is (after a `git pull` or hand edit); publishing refuses until then |
 
+**Levels** (`levels …`) — the bands the path list is grouped into
+
+| Command | Notes |
+|---|---|
+| `list` | Every level, easiest first, with how many paths it groups |
+| `create [id] --title … [--description …]` | Id fixed once created; derived from the title when omitted |
+| `rename <id> <title>`, `describe <id> <text>` | Empty description removes it |
+| `move <id> --to <n>` or `--up` / `--down` | Position of the level in the curriculum |
+| `delete <id>` | Only a level with no path under it |
+
+**Curriculum** (`curriculum …`)
+
+| Command | Notes |
+|---|---|
+| `apply <file> [--dry-run]` | Lay a whole plan over the curriculum: levels, paths, and planned lessons in order. Safe to repeat |
+
 **Paths** (`paths …`)
 
 | Command | Notes |
 |---|---|
-| `list`, `show <id>` | |
-| `create [id] --title … [--description …]` | Id fixed once created; derived from the title when omitted |
+| `list`, `show <id>` | `list` has a level column; `show` names the level |
+| `create [id] --title … [--description …] [--level id]` | Id fixed once created; derived from the title when omitted |
 | `rename <id> <title>`, `describe <id> <description>` | Empty description removes it |
+| `level <id> <levelId>` or `--none` | Which level groups the path |
 | `move <id> --to <n>` or `--up` / `--down` | Position of the path in the curriculum |
 | `reorder <id> <lessonId> --to <n>` or `--earlier` / `--later` | Position of a lesson within its path |
 | `add <id> <lessonId...>` | Appends catalogued lessons, taking each out of its old path |
@@ -113,8 +130,9 @@ The table gives each command's shape and what matters; `reference.md` has every 
 
 | Command | Notes |
 |---|---|
-| `list [--path id] [--unfiled] [--status draft\|needs-review\|approved] [--state workspace\|published\|published-edited]` | |
-| `show <id>` | Details, steps, quality warnings |
+| `list [--path id] [--unfiled] [--status planned\|draft\|needs-review\|approved] [--state planned\|workspace\|published\|published-edited]` | A planned lesson shows steps and time as `-` |
+| `show <id>` | Details, steps, quality warnings. A planned lesson shows its title, objective, path and how to generate it |
+| `plan <id> --title … --objective … --path <id> [--position n]` | Hold a place for a lesson nobody has drawn yet |
 | `export <id> [--out file]` | The tutorial JSON as stored |
 | `import <file> [--id] [--title] [--objective] [--path] [--position]` | A tutorial JSON becomes a draft |
 | `set <id> --objective … --status … --complexity 1-5 --notes … --title …` | `--objective` also catalogues an uncatalogued lesson; `--notes ""` removes notes |
@@ -176,6 +194,79 @@ Tracer options (on `svg trace`, `svg preview`, `svg to-steps`, `lessons generate
 regenerate --layer drawing`): `--max-strokes 32|64|96` (64 default), `--max-colours 8`, `--size 1000`
 (the canvas; not on `svg preview`), `--min-stroke-length 16`, `--ink-max-channel 56`,
 `--max-outline-width 26`, `--max-bend 55`, `--join-gap 10`.
+
+## Levels and planned lessons
+
+The curriculum has two more shapes than paths and lessons.
+
+**Levels** group the paths in the learner's path list — Starter, Core, Advanced. A level only groups
+and recommends an order; it never locks a path. A curriculum with no levels is one flat list, and
+`paths.json` then has no `levels` key at all. A path with no level is listed after the levels.
+`publish` writes only the levels that still have a published path under them.
+
+**A planned lesson** is a place held in a path before anything is drawn: a catalog entry with an id,
+a `title`, an `objective` and `status: "planned"`, and nothing else — no tutorial, no reference
+image, no steps. It is how a whole curriculum can be laid out in one go and filled in one lesson at
+a time. A planned lesson:
+
+- is listed by `lessons list` with status and state `planned` and `-` for steps and time, and
+  counted apart by `status` ("134 lessons: 130 planned, …");
+- never appears in `publish pending` and is never written to `shared/`; `publish lessons <id>`
+  refuses it by name;
+- refuses every command that needs a drawing (`steps`, `strokes`, `history`, `lessons duplicate`,
+  `lessons unpublish`, `lessons regenerate`, `voice`) with a sentence saying so;
+- can be reworded (`lessons set <id> --title … --objective …`), moved (`lessons move`, `paths
+  reorder`), deleted to the trash and restored like any other lesson.
+
+**Applying a plan.** `curriculum apply <file>` lays a whole curriculum over the working one. The file
+is:
+
+```json
+{
+  "levels": [{ "id": "starter", "title": "Starter", "description": "Flat shapes and clean lines." }],
+  "paths": [
+    {
+      "id": "sky-weather", "title": "Sky & Weather", "level": "starter", "description": "…",
+      "lessons": [
+        { "id": "sun", "title": "Sun", "objective": "Circle with eight straight rays" },
+        { "id": "palm-tree-4" }
+      ]
+    }
+  ]
+}
+```
+
+A lesson given with a title and an objective is created as a planned lesson when it is new, reworded
+when it is still planned, and left exactly as it is when it is a real lesson. A lesson given as
+`{ "id": … }` alone must already exist. Every level and path in the plan comes first, in the plan's
+order; anything the plan does not mention keeps its own order after them, and a lesson already in a
+path but not in the plan waits at the end of it. A lesson is taken out of whichever path held it.
+
+Applying is **safe to repeat**: the second run finds everything where the first put it and says
+"already applied". `--dry-run` prints what it would do and changes nothing.
+
+## Filling a placeholder
+
+Every flow that makes a lesson fills a planned lesson of the same id instead of refusing it. The
+catalog entry keeps its place in its path, its status becomes `draft`, and its `title` is dropped —
+the tutorial's title is the name from then on. `--title`, `--objective` and `--path` all default to
+the planned lesson's own, so an id is usually enough; passing a `--path` that is not the planned
+lesson's own is a usage error (exit 2).
+
+```bash
+# What is waiting to be drawn
+npm run studio -- lessons list --status planned --path sky-weather
+npm run studio -- lessons show sun
+
+# Fill it from an SVG, authored by hand (see the author-lesson skill for the method)
+npm run studio -- svg optimize sun.svg --simplify
+npm run studio -- svg trace sun.optimized.svg --out t.json --summary
+npm run studio -- svg to-steps sun.optimized.svg --plan plan.json --trace t.json \
+  --id sun --source "…" --license "CC0"        # title, objective and path come from the placeholder
+
+# Or fill it from a tutorial JSON you already have
+npm run studio -- lessons import sun.json --id sun
+```
 
 ## Generation, three ways
 
@@ -249,7 +340,14 @@ carry `id`, `title`, `instruction`, `strokes[].id` and `fills[].id`.
 ```bash
 # See the state of things
 npm run studio -- status
+npm run studio -- levels list && npm run studio -- paths list
 npm run studio -- lessons list --path houses --json
+
+# Lay out a curriculum, then fill it one lesson at a time
+npm run studio -- curriculum apply ../docs/curriculum/plan.json --dry-run
+npm run studio -- curriculum apply ../docs/curriculum/plan.json
+npm run studio -- lessons plan comet --title Comet --objective "A streaking tail" --path space
+npm run studio -- lessons list --status planned
 
 # A lesson from an SVG, authored by hand (see the author-lesson skill for the method)
 npm run studio -- svg optimize palm.svg --simplify                       # → palm.optimized.svg

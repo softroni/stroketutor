@@ -61,7 +61,10 @@ export function validateCatalog(
   const crossIssues = crossCheck(pathsFile, lessonsFile, context)
   if (crossIssues.length > 0) return { ok: false, issues: crossIssues }
 
-  return { ok: true, catalog: { paths: pathsFile.paths, lessons: lessonsFile.lessons } }
+  return {
+    ok: true,
+    catalog: { levels: pathsFile.levels ?? [], paths: pathsFile.paths, lessons: lessonsFile.lessons },
+  }
 }
 
 function checkFile(file: CatalogFile, data: unknown): CatalogIssue[] {
@@ -164,13 +167,45 @@ function crossCheck(paths: PathsFile, lessons: LessonsFile, context: CatalogCont
     }
     lessonIds.add(lesson.id)
 
-    if (!context.tutorialIds.has(lesson.id)) {
-      issues.push({
-        file: 'lessons.json',
-        path: `${at}.id`,
-        message: `No valid tutorial at shared/Tutorials/${lesson.id}.json.`,
-        value: lesson.id,
-      })
+    // A planned lesson is a placeholder: it holds a place in a path before
+    // anything has been drawn, so it is the one kind with no tutorial behind
+    // it. It carries its own name until the tutorial supplies one. A planned
+    // lesson whose tutorial does exist is fine — it is about to be filled.
+    if (lesson.status === 'planned') {
+      if (!lesson.title?.trim()) {
+        issues.push({
+          file: 'lessons.json',
+          path: `${at}.title`,
+          message: 'A planned lesson needs a title: it is the only name it has until its tutorial exists.',
+        })
+      }
+      for (const field of ['reference', 'generation'] as const) {
+        if (lesson[field] !== undefined) {
+          issues.push({
+            file: 'lessons.json',
+            path: `${at}.${field}`,
+            message: `A planned lesson has nothing drawn yet, so it cannot have a ${field}.`,
+            value: lesson[field],
+          })
+        }
+      }
+    } else {
+      if (lesson.title !== undefined) {
+        issues.push({
+          file: 'lessons.json',
+          path: `${at}.title`,
+          message: 'Only a planned lesson carries a title; once a tutorial exists, the tutorial’s title is the name.',
+          value: lesson.title,
+        })
+      }
+      if (!context.tutorialIds.has(lesson.id)) {
+        issues.push({
+          file: 'lessons.json',
+          path: `${at}.id`,
+          message: `No valid tutorial at shared/Tutorials/${lesson.id}.json.`,
+          value: lesson.id,
+        })
+      }
     }
 
     const reference = lesson.reference
@@ -184,9 +219,30 @@ function crossCheck(paths: PathsFile, lessons: LessonsFile, context: CatalogCont
     }
   })
 
+  const levelIds = new Set<string>()
+  ;(paths.levels ?? []).forEach((level, index) => {
+    if (levelIds.has(level.id)) {
+      issues.push({
+        file: 'paths.json',
+        path: `levels[${index}].id`,
+        message: `Level id "${level.id}" is listed more than once.`,
+        value: level.id,
+      })
+    }
+    levelIds.add(level.id)
+  })
+
   const pathIds = new Set<string>()
   const owner = new Map<string, string>()
   paths.paths.forEach((path, pathIndex) => {
+    if (path.level !== undefined && !levelIds.has(path.level)) {
+      issues.push({
+        file: 'paths.json',
+        path: `paths[${pathIndex}].level`,
+        message: `No level "${path.level}" in levels.`,
+        value: path.level,
+      })
+    }
     if (pathIds.has(path.id)) {
       issues.push({
         file: 'paths.json',

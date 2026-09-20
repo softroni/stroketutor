@@ -62,20 +62,29 @@ rather than an imitation of it.
 
 ## The Studio
 
-Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<lesson>`, `#/import`.
+Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<lesson>`, `#/import`,
+and `#/new?lesson=<lesson>` to fill a planned lesson.
 
 - **Paths** lists every path in the working curriculum and the lessons of the selected one
-  in unlock order, each with its finished drawing, a lifecycle badge (Draft, Needs review,
+  in unlock order, each with its finished drawing, a lifecycle badge (Planned, Draft, Needs review,
   Approved, Published, Published · edited), objective and an estimated learner time. It is also
   where the curriculum is shaped (`studio/pathOps.ts`):
+  - the path list is grouped under its **levels** (Starter, Core, Advanced) in level order, with
+    anything in no level last. A level only groups and recommends; nothing is locked behind one.
+    **+ New level** makes one, and a level's **⋯** menu renames it, describes it, moves it, or
+    deletes it once no path sits under it;
   - **+ New path** takes a title, an id (fixed once created; lessons and the app refer to paths
-    by it) and an optional description;
+    by it), an optional description and the level it sits under;
   - paths reorder with their ↑/↓ buttons; a path's title and description are edited in place;
   - **Delete path…** moves a path to the Trash, keeping its lessons under “Not in a path” or
     moving them to the Trash too;
   - lessons reorder by drag or ↑/↓, move to another path or out of every path with **Move to…**,
     and a catalogued lesson outside every path can be added to the open one;
   - each lesson's **⋯** menu duplicates it as a draft, publishes or unpublishes it, or deletes it.
+  - **+ Add planned lesson** holds a place in the path for a lesson nobody has drawn yet: an id, a
+    name and the one idea it will teach, and nothing else. A planned row has no drawing, steps or
+    time; its **⋯** menu generates it (which opens New lesson prefilled), rewords it, moves it or
+    gives the place up. The **Planned** chip lists them all.
 
   Every change is saved at once in the workspace, so there is never an unsaved curriculum to
   lose. Tutorials that no path lists are shown separately, because a learner would never reach
@@ -129,9 +138,11 @@ Content lives in two places:
 The workspace (`server/workspaceStore.ts`, built-in `node:sqlite`, Node 22.13 or later) is an overlay
 on `shared/`, not a copy. A published lesson nobody has touched is read straight from `shared/`;
 editing it adds a working copy, and the lesson shows **Published · edited** until that is published.
-The working curriculum lists every path and lesson, drafts included; `shared/Catalog` is its
-projection onto published lessons, in the same order, leaving out a path with none
-(`src/catalog/publishing.ts`). What Publish would change is computed from the two each time the
+The working curriculum lists every level, path and lesson, drafts and planned lessons included;
+`shared/Catalog` is its projection onto published lessons, in the same order, leaving out a path
+with none and a level with no path (`src/catalog/publishing.ts`). A planned lesson is a place held
+in a path with no tutorial behind it; it is never published, and never appears in what Publish would
+change. What Publish would change is computed from the two each time the
 library is read, never queued. The workspace starts as a copy of `shared/Catalog` the first time the
 Studio opens, and is copied once a day to `../.studio/backups/` (the newest seven are kept), since git
 does not hold it.
@@ -300,8 +311,10 @@ npm run studio -- voice app narrate && npm run studio -- voice app publish   # L
 | Group | Commands |
 |---|---|
 | the Studio | `status`, `settings`, `models`, `adopt-shared` |
-| `paths` | `list`, `show`, `create`, `rename`, `describe`, `move`, `reorder`, `add`, `delete` |
-| `lessons` | `list`, `show`, `export`, `import`, `set`, `move`, `duplicate`, `delete`, `unpublish`, `approve`, `validate`, `quality`, `reference set`, `reference export`, `generate`, `regenerate`, `summary`, `apply`, `render` |
+| `levels` | `list`, `create`, `rename`, `describe`, `move`, `delete` |
+| `curriculum` | `apply` (a whole plan file of levels, paths and planned lessons) |
+| `paths` | `list`, `show`, `create`, `rename`, `describe`, `level`, `move`, `reorder`, `add`, `delete` |
+| `lessons` | `list`, `show`, `export`, `import`, `set`, `plan`, `move`, `duplicate`, `delete`, `unpublish`, `approve`, `validate`, `quality`, `reference set`, `reference export`, `generate`, `regenerate`, `summary`, `apply`, `render` |
 | `steps` | `list`, `set`, `split`, `merge`, `move`, `group` |
 | `strokes` | `list`, `move`, `reorder`, `reverse`, `delete`, `set` (retime, line width) |
 | `history` | `list`, `show`, `use` |

@@ -42,6 +42,57 @@
   color: #a58a4b;
 }
 
+/* ---------- Levels ---------- */
+
+/* Levels group the path list into Starter / Core / Advanced. The heading is
+   quiet: it orients, it does not compete with the paths under it. */
+.st-paths__group + .st-paths__group {
+  margin-top: 14px;
+}
+
+.st-paths__level {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.st-paths__level-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-paths__level .st-menu {
+  margin-left: auto;
+}
+
+.st-paths__level .st-icon-button {
+  width: 24px;
+  height: 24px;
+}
+
+.st-paths__level-note {
+  margin: 0 0 4px;
+  padding: 0 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-muted);
+}
+
+.st-paths__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .st-paths__rule {
   width: 100%;
   margin: 6px 0 2px;
@@ -200,6 +251,20 @@
 
 .st-lesson-row__thumb {
   width: 64px;
+}
+
+/* A planned lesson is a place, not a drawing: no thumbnail, and the whole row
+   reads a shade lighter so a path's real work stands out in it. */
+.st-lesson-row.is-planned .st-lesson-row__thumb,
+.st-lesson-tile.is-planned .st-lesson-tile__thumb {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: transparent;
+}
+
+.st-lesson-row.is-planned .st-lesson-row__title,
+.st-lesson-tile.is-planned .st-lesson-tile__title {
+  color: var(--ink-muted);
 }
 
 .st-lesson-row__head {

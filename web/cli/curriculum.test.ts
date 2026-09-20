@@ -20,7 +20,8 @@ afterEach(async () => {
 
 async function catalog(): Promise<Catalog> {
   const { paths, lessons } = await t.workspace.readCatalog()
-  return { paths: JSON.parse(paths.text).paths, lessons: JSON.parse(lessons.text).lessons }
+  const file = JSON.parse(paths.text)
+  return { levels: file.levels ?? [], paths: file.paths, lessons: JSON.parse(lessons.text).lessons }
 }
 
 describe('the command line', () => {

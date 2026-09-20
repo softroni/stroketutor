@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 
+import { catalogFiles } from '../catalog/types'
 import { TutorialPlayer } from '../player/TutorialPlayer'
 import type { Sample } from '../samples'
 import type { Tutorial } from '../schema/types'
@@ -132,12 +133,26 @@ export function ImportView({ samples, library, onCreated }: ImportViewProps) {
 
 /** A lesson id not yet used by any lesson: `house`, then `house-2`, `house-3`… */
 function freeId(base: string, library: Library): string {
-  const taken = (id: string) =>
-    library.tutorials.has(id) || Boolean(library.catalog?.lessons.some((lesson) => lesson.id === id))
   const start = ID_PATTERN.test(base) ? base : 'imported-lesson'
   let id = start
-  for (let n = 2; taken(id); n += 1) id = `${start}-${n}`
+  for (let n = 2; isTaken(id, library); n += 1) id = `${start}-${n}`
   return id
+}
+
+/**
+ * Whether an id is spoken for. A planned lesson with nothing drawn for it is
+ * not: importing a tutorial under its id fills the place it was holding.
+ */
+function isTaken(id: string, library: Library): boolean {
+  if (library.tutorials.has(id)) return true
+  const lesson = library.catalog?.lessons.find((candidate) => candidate.id === id)
+  return Boolean(lesson) && lesson?.status !== 'planned'
+}
+
+function plannedLesson(id: string, library: Library) {
+  if (library.tutorials.has(id)) return undefined
+  const lesson = library.catalog?.lessons.find((candidate) => candidate.id === id)
+  return lesson?.status === 'planned' ? lesson : undefined
 }
 
 /**
@@ -162,7 +177,8 @@ function SaveDraftDialog({
   const [pathId, setPathId] = useState(catalog?.paths[0]?.id ?? '')
   const [objective, setObjective] = useState('')
 
-  const taken = library.tutorials.has(lessonId) || Boolean(catalog?.lessons.some((lesson) => lesson.id === lessonId))
+  const planned = plannedLesson(lessonId, library)
+  const taken = isTaken(lessonId, library)
   const problem = !catalog
     ? 'The curriculum could not be read, so the draft has nowhere to go.'
     : !title.trim()
@@ -186,16 +202,23 @@ function SaveDraftDialog({
       onConfirm={async () => {
         if (!catalog) return
         await saveTutorial(lessonId, { ...tutorial, id: lessonId, title: title.trim() }, null)
-        await saveCatalog(
-          {
-            catalogVersion: 1,
-            paths: catalog.paths.map((path) =>
-              path.id === pathId ? { ...path, lessonIds: [...path.lessonIds, lessonId] } : path,
-            ),
-          },
-          { catalogVersion: 1, lessons: [...catalog.lessons, { id: lessonId, status: 'draft', objective: objective.trim() }] },
-          { paths: library.catalogEtags.paths ?? null, lessons: library.catalogEtags.lessons ?? null },
-        )
+        const entry = { id: lessonId, status: 'draft' as const, objective: objective.trim() }
+        // Filling a placeholder keeps the place it held; anything else joins a path at the end.
+        const files = catalogFiles({
+          ...catalog,
+          paths: planned
+            ? catalog.paths
+            : catalog.paths.map((path) =>
+                path.id === pathId ? { ...path, lessonIds: [...path.lessonIds, lessonId] } : path,
+              ),
+          lessons: planned
+            ? catalog.lessons.map((lesson) => (lesson.id === lessonId ? entry : lesson))
+            : [...catalog.lessons, entry],
+        })
+        await saveCatalog(files.paths, files.lessons, {
+          paths: library.catalogEtags.paths ?? null,
+          lessons: library.catalogEtags.lessons ?? null,
+        })
         await onCreated(lessonId)
       }}
     >
@@ -203,6 +226,11 @@ function SaveDraftDialog({
         It goes into your workspace as a draft, outside git, and opens in the lesson workspace. Nothing reaches
         shared/ until you publish it.
       </p>
+      {planned ? (
+        <p className="st-notice" role="status">
+          “{lessonId}” is a planned lesson. Saving fills it and keeps its place in its path.
+        </p>
+      ) : null}
       <label className="st-field">
         <span className="st-field__label">Title</span>
         <input className="st-field__input" value={title} onChange={(event) => setTitle(event.target.value)} />
@@ -211,17 +239,19 @@ function SaveDraftDialog({
         <span className="st-field__label">Id (also its name in shared/ once published)</span>
         <input className="st-field__input" value={lessonId} onChange={(event) => setLessonId(event.target.value)} />
       </label>
-      <label className="st-field">
-        <span className="st-field__label">Path</span>
-        <select className="st-field__input" value={pathId} onChange={(event) => setPathId(event.target.value)}>
-          {(catalog?.paths ?? []).map((path) => (
-            <option key={path.id} value={path.id}>
-              {path.title}, at the end
-            </option>
-          ))}
-          <option value="">No path yet</option>
-        </select>
-      </label>
+      {planned ? null : (
+        <label className="st-field">
+          <span className="st-field__label">Path</span>
+          <select className="st-field__input" value={pathId} onChange={(event) => setPathId(event.target.value)}>
+            {(catalog?.paths ?? []).map((path) => (
+              <option key={path.id} value={path.id}>
+                {path.title}, at the end
+              </option>
+            ))}
+            <option value="">No path yet</option>
+          </select>
+        </label>
+      )}
       <label className="st-field">
         <span className="st-field__label">Objective (one line, shown in the path)</span>
         <input

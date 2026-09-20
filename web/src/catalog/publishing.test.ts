@@ -6,6 +6,7 @@ import type { Catalog, Lesson, LessonStatus } from './types'
 const lesson = (id: string, status: LessonStatus, objective = `Draw ${id}`): Lesson => ({ id, status, objective })
 
 const working: Catalog = {
+  levels: [],
   paths: [
     { id: 'houses', title: 'Houses', lessonIds: ['a', 'b', 'c'] },
     { id: 'trees', title: 'Trees', lessonIds: ['d'] },
@@ -21,13 +22,13 @@ describe('projectCatalog', () => {
   })
 
   it('keeps the published entry of a lesson unless it is being published now', () => {
-    const shared: Catalog = { paths: [], lessons: [lesson('a', 'needs-review', 'Old words')] }
+    const shared: Catalog = { levels: [], paths: [], lessons: [lesson('a', 'needs-review', 'Old words')] }
     expect(projectCatalog(working, shared, new Set(['a'])).lessons[0]).toEqual(lesson('a', 'needs-review', 'Old words'))
     expect(projectCatalog(working, shared, new Set(['a']), new Set(['a'])).lessons[0]).toEqual(lesson('a', 'approved'))
   })
 
   it('never drops a published lesson the working curriculum no longer lists', () => {
-    const shared: Catalog = { paths: [], lessons: [lesson('gone', 'approved')] }
+    const shared: Catalog = { levels: [], paths: [], lessons: [lesson('gone', 'approved')] }
     expect(projectCatalog(working, shared, new Set(['gone'])).lessons.map((entry) => entry.id)).toEqual(['gone'])
   })
 })
@@ -65,8 +66,60 @@ describe('pendingChanges', () => {
       kind: 'curriculum',
       before: [{ id: 'houses', title: 'Houses', lessonIds: ['a', 'c'] }],
       after: [{ id: 'houses', title: 'Homes', lessonIds: ['c', 'a'] }],
+      levelsBefore: [],
+      levelsAfter: [],
     })
     expect(readyCount(pendingChanges({ ...input, working: reordered }))).toBe(1)
+  })
+})
+
+describe('levels and planned lessons', () => {
+  const levelled: Catalog = {
+    levels: [
+      { id: 'starter', title: 'Starter' },
+      { id: 'core', title: 'Core' },
+    ],
+    paths: [
+      { id: 'houses', title: 'Houses', level: 'starter', lessonIds: ['a', 'b', 'c'] },
+      { id: 'trees', title: 'Trees', level: 'core', lessonIds: ['d'] },
+    ],
+    lessons: working.lessons,
+  }
+
+  it('carries the level on a projected path and drops a level left with no path', () => {
+    const projected = projectCatalog(levelled, null, new Set(['a', 'c']))
+    expect(projected.paths).toEqual([{ id: 'houses', title: 'Houses', level: 'starter', lessonIds: ['a', 'c'] }])
+    expect(projected.levels).toEqual([{ id: 'starter', title: 'Starter' }])
+  })
+
+  it('leaves planned lessons out of what publishing would change', () => {
+    const planned: Catalog = {
+      ...working,
+      paths: [{ ...working.paths[0], lessonIds: ['a', 'b', 'c', 'sun'] }, working.paths[1]],
+      lessons: [...working.lessons, { id: 'sun', title: 'Sun', status: 'planned', objective: 'Rays' }],
+    }
+    const shared = projectCatalog(working, null, new Set(['a', 'c']))
+    const changes = pendingChanges({
+      working: planned,
+      shared,
+      published: new Set(['a', 'c']),
+      drawingChanged: new Set<string>(),
+      photoChanged: new Set<string>(),
+    })
+    expect(changes.map((change) => (change.kind === 'curriculum' ? 'curriculum' : change.lessonId))).toEqual(['b', 'd'])
+  })
+
+  it('notices a level that changed even when the paths did not', () => {
+    const shared = projectCatalog(levelled, null, new Set(['a', 'c']))
+    const renamed: Catalog = { ...levelled, levels: [{ id: 'starter', title: 'First Steps' }, levelled.levels[1]] }
+    const change = pendingChanges({
+      working: renamed,
+      shared,
+      published: new Set(['a', 'c']),
+      drawingChanged: new Set<string>(),
+      photoChanged: new Set<string>(),
+    }).find((candidate) => candidate.kind === 'curriculum')
+    expect(change && change.kind === 'curriculum' && change.levelsAfter).toEqual([{ id: 'starter', title: 'First Steps' }])
   })
 })
 

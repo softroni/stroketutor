@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { DebugPanel } from '../app/DebugPanel'
 import { estimateLearnerSeconds, formatMinutes } from '../catalog/metrics'
-import { findLesson, findPathOfLesson, type Catalog, type Lesson, type LearningPath } from '../catalog/types'
+import { catalogFiles, findLesson, findPathOfLesson, type Catalog, type Lesson, type LearningPath } from '../catalog/types'
 import { describeEntry } from '../history/types'
 import { TutorialPlayer } from '../player/TutorialPlayer'
 import { totalDuration, totalStrokes, type Tutorial } from '../schema/types'
@@ -64,6 +64,25 @@ export interface LessonWorkspaceProps {
 export function LessonWorkspace({ library, catalog, lessonId, onSaved }: LessonWorkspaceProps) {
   const entry = library.tutorials.get(lessonId)
   if (!entry) {
+    // A planned lesson is in the curriculum but has nothing to edit yet, so it
+    // is sent to the one screen that can do something about that.
+    const planned = catalog ? findLesson(catalog, lessonId) : undefined
+    if (planned?.status === 'planned') {
+      return (
+        <div className="st-empty">
+          <h1>“{planned.title}” is still only planned</h1>
+          <p>
+            It holds a place in its path — {planned.objective} — but nothing has been drawn for it yet.
+          </p>
+          <a
+            className="st-button st-button--primary"
+            href={routeHref({ name: 'new', pathId: null, lessonId })}
+          >
+            Generate this lesson
+          </a>
+        </div>
+      )
+    }
     return (
       <div className="st-empty">
         <h1>No lesson called “{lessonId}”</h1>
@@ -376,14 +395,14 @@ function LessonEditor({
   const saveLessonMeta = async (change: (current: Lesson) => Lesson) => {
     const current = library.catalog
     if (!current || !lesson) throw new ApiError(0, 'This lesson is not in the curriculum.')
-    await saveCatalog(
-      { catalogVersion: 1, paths: current.paths },
-      {
-        catalogVersion: 1,
-        lessons: current.lessons.map((candidate) => (candidate.id === lesson.id ? change(candidate) : candidate)),
-      },
-      { paths: library.catalogEtags.paths ?? null, lessons: library.catalogEtags.lessons ?? null },
-    )
+    const files = catalogFiles({
+      ...current,
+      lessons: current.lessons.map((candidate) => (candidate.id === lesson.id ? change(candidate) : candidate)),
+    })
+    await saveCatalog(files.paths, files.lessons, {
+      paths: library.catalogEtags.paths ?? null,
+      lessons: library.catalogEtags.lessons ?? null,
+    })
   }
 
   const editDetails = async (change: (current: Lesson) => Lesson) => {

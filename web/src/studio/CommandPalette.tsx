@@ -76,7 +76,22 @@ export function CommandPalette({ library, onClose }: { library: Library; onClose
       detail: `${pathOf.get(entry.id) ?? 'Not in a path'} · ${entry.id}`,
       href: routeHref({ name: 'lesson', lessonId: entry.id }),
     }))
-    return [...lessons, ...paths, ...pages]
+    // A planned lesson has nothing to open, so it opens the New lesson screen
+    // that would fill it — which is the only thing to do with one.
+    const planned: Command[] = (catalog?.lessons ?? []).flatMap((lesson) =>
+      lesson.status === 'planned' && !library.tutorials.has(lesson.id)
+        ? [
+            {
+              id: `lesson:${lesson.id}`,
+              kind: 'Lesson' as const,
+              label: lesson.title ?? lesson.id,
+              detail: `planned · ${pathOf.get(lesson.id) ?? 'Not in a path'} · ${lesson.id}`,
+              href: routeHref({ name: 'new', pathId: null, lessonId: lesson.id }),
+            },
+          ]
+        : [],
+    )
+    return [...lessons, ...planned, ...paths, ...pages]
   }, [library])
 
   const needle = query.trim().toLowerCase()

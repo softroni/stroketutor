@@ -1,8 +1,3 @@
-# Every Studio command, as `--help` prints it
-
-Generated in `web/` on 2026-09-12 by the loop at the end of `SKILL.md`. Global options (`--workspace`, `--shared`, `--json`, `--yes`, `--quiet`, `--model`, `--help`) are accepted by every command and left out here.
-
-```text
 Usage: studio status
 
 The working library: paths, lessons, what publishing would change.
@@ -19,6 +14,39 @@ Usage: studio adopt-shared
 
 Take shared/Catalog as it now is, after a git pull or a hand edit.
 
+Usage: studio levels list
+
+Every level, easiest first, with how many paths it groups.
+
+Usage: studio levels create [id]
+
+A new level at the end. The id is fixed once created.
+
+Options:
+      --title <title>              A name, not a number: "Starter", not "Level 1".
+      --description <description>  One line on what the paths of this level teach.
+
+Usage: studio levels rename <id> <title>
+
+A new title for a level.
+
+Usage: studio levels describe <id> <description>
+
+A new description for a level; an empty text removes it.
+
+Usage: studio levels move <id>
+
+Change where a level comes in the curriculum.
+
+Options:
+      --to <n>  Its new place, counting from 1.
+      --up      One place earlier.
+      --down    One place later.
+
+Usage: studio levels delete <id>
+
+Remove a level. Only one with no path under it can go.
+
 Usage: studio paths list
 
 Every path in the working curriculum, in order.
@@ -34,6 +62,14 @@ A new path at the end of the curriculum. The id is fixed once created.
 Options:
       --title <title>              The title learners see.
       --description <description>  What the path teaches, in a sentence or two.
+      --level <id>                 The level to group the path under.
+
+Usage: studio paths level <id> [levelId]
+
+Group a path under a level, or take it out of every level.
+
+Options:
+      --none  List the path after the levels instead of under one.
 
 Usage: studio paths rename <id> <title>
 
@@ -72,6 +108,13 @@ Move a path to the trash. Its lessons stay, in no path, unless --lessons trash.
 Options:
       --lessons <unfile|trash>  `unfile` (the default) keeps the lessons outside every path; `trash` deletes them too.
 
+Usage: studio curriculum apply <file>
+
+Lay a curriculum plan over the working curriculum: levels, paths, and planned lessons in order.
+
+Options:
+      --dry-run  Say what applying would change, and stop.
+
 Usage: studio lessons list
 
 Every lesson in the working library, with its status and where it sits.
@@ -79,8 +122,8 @@ Every lesson in the working library, with its status and where it sits.
 Options:
       --path <id>        Only the lessons of this path, in unlock order.
       --unfiled          Only lessons in no path.
-      --status <status>  Only draft, needs-review or approved.
-      --state <state>    Only workspace, published or published-edited.
+      --status <status>  Only planned, draft, needs-review or approved.
+      --state <state>    Only planned, workspace, published or published-edited.
 
 Usage: studio lessons show <id>
 
@@ -102,6 +145,16 @@ Options:
       --title <title>          A title, replacing the document’s.
       --objective <objective>  The one-line objective shown in the path.
       --path <id>              The path to put it in.
+      --position <n>           Its place in that path, counting from 1 (the end by default).
+
+Usage: studio lessons plan <id>
+
+Hold a place in a path for a lesson nobody has drawn yet: a name, an objective, and nothing else.
+
+Options:
+      --title <title>          The name the planned lesson goes by until its tutorial exists.
+      --objective <objective>  The one-line objective shown in the path.
+      --path <id>              The path it holds a place in.
       --position <n>           Its place in that path, counting from 1 (the end by default).
 
 Usage: studio lessons set <id>
@@ -171,9 +224,9 @@ Usage: studio lessons generate <file>
 A new lesson from a reference image (a photo, or an SVG traced into exact lines), kept as a draft.
 
 Options:
-      --id <id>                    The new lesson’s id (lowercase, digits, dashes); also its file name once published.
-      --title <title>              The lesson’s title.
-      --objective <objective>      The one-line objective shown in the path.
+      --id <id>                    The new lesson’s id (lowercase, digits, dashes); also its file name once published. A planned lesson’s id fills that lesson, and lends its title, objective and path.
+      --title <title>              The lesson’s title (default: a planned lesson’s own title).
+      --objective <objective>      The one-line objective shown in the path (default: a planned lesson’s own).
       --goal <goal>                The learning goal the lesson is planned around.
       --constraints <constraints>  Anything the model must respect, in a sentence or two.
       --source <source>            Where the reference image came from.
@@ -417,9 +470,9 @@ Usage: studio svg to-steps <file>
 A new lesson from an SVG: the file is traced into exact lines and colours, and a model orders them into steps (or --no-model).
 
 Options:
-      --id <id>                    The new lesson’s id (lowercase, digits, dashes); also its file name once published.
-      --title <title>              The lesson’s title.
-      --objective <objective>      The one-line objective shown in the path.
+      --id <id>                    The new lesson’s id (lowercase, digits, dashes); also its file name once published. A planned lesson’s id fills that lesson, and lends its title, objective and path.
+      --title <title>              The lesson’s title (default: a planned lesson’s own title).
+      --objective <objective>      The one-line objective shown in the path (default: a planned lesson’s own).
       --goal <goal>                The learning goal the lesson is planned around.
       --constraints <constraints>  Anything the model must respect, in a sentence or two.
       --source <source>            Where the reference image came from.
@@ -465,9 +518,9 @@ Usage: studio image to-steps <file>
 A new lesson from a photo (JPEG, PNG or WebP): a model draws the steps from the picture.
 
 Options:
-      --id <id>                    The new lesson’s id (lowercase, digits, dashes); also its file name once published.
-      --title <title>              The lesson’s title.
-      --objective <objective>      The one-line objective shown in the path.
+      --id <id>                    The new lesson’s id (lowercase, digits, dashes); also its file name once published. A planned lesson’s id fills that lesson, and lends its title, objective and path.
+      --title <title>              The lesson’s title (default: a planned lesson’s own title).
+      --objective <objective>      The one-line objective shown in the path (default: a planned lesson’s own).
       --goal <goal>                The learning goal the lesson is planned around.
       --constraints <constraints>  Anything the model must respect, in a sentence or two.
       --source <source>            Where the reference image came from.
@@ -489,4 +542,136 @@ Options:
       --max-bend <deg>             A line carries on through a junction bending less than this, in degrees (default 55).
       --join-gap <units>           Line ends this close that continue the same way are joined (default 10).
 
-```
+Usage: studio voice status
+
+The speech server, the voice cast as Lina, and what has been recorded.
+
+Usage: studio voice list
+
+The candidates for Lina’s voice, and which one is cast.
+
+Options:
+      --takes  Also list each voice’s recordings, with the ids `voice freeze --take` wants.
+
+Usage: studio voice cast <id>
+
+Cast a voice as Lina. Every lesson is narrated with it from then on.
+
+Usage: studio voice add
+
+Add a candidate voice.
+
+Options:
+      --name <text>      What to call it, which also becomes its id.
+      --engine <id>      chatterbox, qwen-design or qwen-custom.
+      --speaker <name>   For qwen-custom: Vivian, Serena, Ryan, Aiden, Dylan, Eric, Uncle_Fu, Ono_Anna or Sohee.
+      --instruct <text>  Who she is (qwen-design) or how she delivers the line (qwen-custom).
+      --tagline <text>   One line about the personality, for the card.
+
+Usage: studio voice say <id> <text>
+
+Have one voice read a line. The take already made for those words is reused.
+
+Options:
+      --out <file>  Write the audio here as a WAV file.
+      --another     Make a new take even though one exists.
+
+Usage: studio voice freeze <id>
+
+Upload one take as this voice’s reference, so it stops varying between takes.
+
+Options:
+      --take <id>  The take to freeze from (see `voice list --takes`). 5–15 seconds is ideal.
+
+Usage: studio voice unfreeze <id>
+
+Let a frozen voice vary again, and take its record out of shared/. The reference stays on the speech server.
+
+Usage: studio voice narrate [lesson]
+
+Record every step of a lesson that has no recording or an out-of-date one, or of every lesson with --all.
+
+Options:
+      --remake  Record every step again, even the ones that are ready.
+      --all     Every lesson in the working library, drafts included, in curriculum order.
+
+Usage: studio voice lines set <lesson> <step> <text>
+
+Write the line a step speaks, instead of its written instruction (at most 240 characters).
+
+Usage: studio voice lines clear <lesson> <step>
+
+Go back to speaking the step’s written instruction.
+
+Usage: studio voice publish [lesson]
+
+Write a lesson’s narration into shared/Assets/Voice/ as AAC files and a manifest, or every ready lesson with --all.
+
+Options:
+      --all  Every published lesson whose narration is complete, and Lina’s own lines; the rest are listed with the reason.
+
+Usage: studio voice unpublish <lesson>
+
+Remove a lesson’s narration from shared/. The recordings stay in the workspace.
+
+Usage: studio voice lines list <lesson>
+
+What Lina says at each step: the written line, or the instruction she falls back to.
+
+Usage: studio voice lines generate <lesson>
+
+Have a model write what Lina says at each step: one or two spoken sentences instead of the written instruction.
+
+Options:
+      --note <text>  What to change this time, in a sentence.
+      --overwrite    Replace the lines already written, instead of only filling the rest.
+      --dry-run      Say what would be sent to the model, and stop.
+
+Usage: studio voice lines apply <lesson>
+
+Write the spoken lines of a whole lesson from a plan: { "lines": { "<step>": "…" | null } }.
+
+Options:
+
+Usage: studio voice reference export <id>
+
+Keep a frozen voice’s reference recording in shared/Assets/VoiceReference/, so Lina survives a wiped machine.
+
+Usage: studio voice reference restore <id>
+
+Put a frozen voice back from shared/: upload its reference to the speech server and return it to the workspace.
+
+Usage: studio voice app list
+
+Lina’s own lines: what the app says outside any lesson, and what is recorded for each.
+
+Usage: studio voice app set <id> <text>
+
+Rewrite one of the app’s lines (at most 240 characters). The id is fixed: hello, lesson-1, lesson-2, lesson-3, lesson-4, path-1, path-2, path-3, path-4.
+
+Usage: studio voice app narrate
+
+Record every one of Lina’s own lines that has no recording or an out-of-date one.
+
+Options:
+      --remake  Record every line again, even the ones that are ready.
+
+Usage: studio voice app publish
+
+Write Lina’s own lines into shared/Assets/Voice/app/ as AAC files and a manifest.
+
+Usage: studio voice app unpublish
+
+Remove Lina’s own lines from shared/. The recordings stay in the workspace.
+
+Usage: studio voice script
+
+The audition lines every voice reads.
+
+Usage: studio voice script set <id> <text>
+
+Change one audition line, or add it.
+
+Options:
+      --label <text>  What to call the line (default: its id, or what it was called).
+

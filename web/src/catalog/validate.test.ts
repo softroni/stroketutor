@@ -155,3 +155,73 @@ describe('validateCatalog', () => {
     expect(result.issues[0].message).toContain('Unsupported catalogVersion 2')
   })
 })
+
+describe('levels', () => {
+  const level = (id: string, extra: Record<string, unknown> = {}) => ({ id, title: id, ...extra })
+  const withLevels = (levels: unknown[], ...paths: unknown[]) => ({ catalogVersion: 1, levels, paths })
+
+  it('accepts levels and a path that names one', () => {
+    const result = validateCatalog(
+      withLevels([level('starter', { description: 'Flat shapes.' })], { ...path('p', ['a']), level: 'starter' }),
+      lessonsFile(lesson('a')),
+      context,
+    )
+    expect(locations(result)).toEqual([])
+  })
+
+  it('rejects a repeated level id and a path pointing at a level that is not there', () => {
+    expect(locations(validateCatalog(withLevels([level('s'), level('s')]), lessonsFile(), context))).toEqual([
+      'paths.json levels[1].id',
+    ])
+    const missing = validateCatalog(
+      withLevels([level('starter')], { ...path('p', ['a']), level: 'core' }),
+      lessonsFile(lesson('a')),
+      context,
+    )
+    expect(locations(missing)).toEqual(['paths.json paths[0].level'])
+  })
+
+  it('reads a file with no levels as a curriculum with none', () => {
+    const result = validateCatalog(pathsFile(path('p', ['a'])), lessonsFile(lesson('a')), context)
+    expect(result.ok && result.catalog.levels).toEqual([])
+  })
+})
+
+describe('planned lessons', () => {
+  it('accepts a planned lesson with no tutorial behind it', () => {
+    const planned = { id: 'sun', title: 'Sun', status: 'planned', objective: 'Circle and rays' }
+    const result = validateCatalog(pathsFile(path('p', ['sun'])), lessonsFile(planned), context)
+    expect(locations(result)).toEqual([])
+  })
+
+  it('needs a title, and refuses a reference or a generation record', () => {
+    const noTitle = { id: 'sun', status: 'planned', objective: 'Rays' }
+    expect(locations(validateCatalog(pathsFile(), lessonsFile(noTitle), context))).toEqual(['lessons.json lessons[0].title'])
+    const withPhoto = {
+      id: 'sun',
+      title: 'Sun',
+      status: 'planned',
+      objective: 'Rays',
+      reference: { file: 'sun.jpg', source: 'me', license: 'CC0' },
+    }
+    expect(locations(validateCatalog(pathsFile(), lessonsFile(withPhoto), context))).toEqual([
+      'lessons.json lessons[0].reference',
+    ])
+  })
+
+  it('lets a planned lesson keep its place once its tutorial exists, ready to be promoted', () => {
+    const planned = { id: 'a', title: 'A', status: 'planned', objective: 'Rays' }
+    expect(validateCatalog(pathsFile(path('p', ['a'])), lessonsFile(planned), context).ok).toBe(true)
+  })
+
+  it('refuses a title on a lesson that is not planned', () => {
+    const titled = lesson('a', { title: 'A' })
+    expect(locations(validateCatalog(pathsFile(), lessonsFile(titled), context))).toEqual(['lessons.json lessons[0].title'])
+  })
+
+  it('still asks every other lesson for its tutorial', () => {
+    expect(locations(validateCatalog(pathsFile(), lessonsFile(lesson('gone')), context))).toEqual([
+      'lessons.json lessons[0].id',
+    ])
+  })
+})

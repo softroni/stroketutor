@@ -116,7 +116,11 @@ A tutorial answers *how does this drawing play?* The catalog answers *where does
 live in the curriculum, and how far through authoring is it?* They are kept apart on purpose, so
 curriculum work can never touch the playback contract above.
 
-- `Catalog/paths.json` lists subject paths in order, each with its lesson ids in unlock order.
+- `Catalog/paths.json` lists subject paths in order, each with its lesson ids in unlock order, and
+  optionally the **levels** that group them. A level (Starter, Core, Advanced) has an id, a name and
+  a line about what its paths teach; it only groups the path list and recommends an order, and never
+  locks a path. A path names its level in `level`; one with none is listed after the levels, and a
+  curriculum with no levels has no `levels` key at all and is one flat list.
 - `Catalog/lessons.json` holds per-lesson metadata: authoring status (`draft`, `needs-review`,
   `approved`), a one-line objective, complexity, creator notes, and an optional reference photo
   with its source and licence. The photo lives in `Assets/References/`, named by a bare file name
@@ -126,8 +130,14 @@ curriculum work can never touch the playback contract above.
 
 A lesson's id is also its tutorial's file name, `Tutorials/<id>.json`. Beyond the schema, the
 Studio checks that ids are unique, that every lesson resolves to a valid tutorial, that no lesson
-sits in two paths, and that referenced photos exist. A tutorial no path lists still plays; it is
-just unreachable for a learner, and the Studio says so.
+sits in two paths, that a path's level exists, and that referenced photos exist. A tutorial no path
+lists still plays; it is just unreachable for a learner, and the Studio says so.
+
+The schema also has a fourth status, `planned`. A planned lesson is a place held in a path before
+anything is drawn: an id, a `title`, an `objective`, and nothing else — no tutorial, no photo, no
+steps. It exists so a whole curriculum can be laid out at once and filled one lesson at a time. It
+lives in the Studio's workspace only: **a planned lesson is never published**, so nothing here in
+`shared/` ever carries one, and `title` never appears on a lesson that has a tutorial.
 
 ## Running both suites
 

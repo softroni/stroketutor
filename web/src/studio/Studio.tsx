@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 
 import { ImportView } from '../app/ImportView'
 import { readyCount } from '../catalog/publishing'
-import type { Catalog } from '../catalog/types'
+import { catalogFiles, type Catalog } from '../catalog/types'
 
 import { adoptShared, saveCatalog } from './api'
 import { CommandPalette } from './CommandPalette'
@@ -65,12 +65,11 @@ export function Studio() {
   const editCatalog = useCallback(
     async (change: (catalog: Catalog) => Catalog) => {
       if (!library?.catalog) throw new Error('The curriculum could not be read, so it cannot be changed.')
-      const next = change(library.catalog)
-      await saveCatalog(
-        { catalogVersion: 1, paths: next.paths },
-        { catalogVersion: 1, lessons: next.lessons },
-        { paths: library.catalogEtags.paths ?? null, lessons: library.catalogEtags.lessons ?? null },
-      )
+      const files = catalogFiles(change(library.catalog))
+      await saveCatalog(files.paths, files.lessons, {
+        paths: library.catalogEtags.paths ?? null,
+        lessons: library.catalogEtags.lessons ?? null,
+      })
       await reload()
     },
     [library, reload],
@@ -125,9 +124,10 @@ export function Studio() {
       case 'new':
         screen = (
           <NewLessonView
-            key={route.pathId ?? ''}
+            key={route.lessonId ?? route.pathId ?? ''}
             library={library}
             initialPathId={route.pathId}
+            plannedLessonId={route.lessonId}
             onCreated={openCreated}
           />
         )

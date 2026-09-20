@@ -31,6 +31,31 @@ enum CatalogLoader {
         let pathsFile: CatalogPathsFile? = decode("paths", in: bundle, warnings: &warnings)
         let lessonsFile: CatalogLessonsFile? = decode("lessons", in: bundle, warnings: &warnings)
 
+        return join(pathsFile, lessonsFile, warnings: warnings)
+    }
+
+    /// The same load from two files already in hand rather than from a bundle, the
+    /// way `TutorialLoader.prepare(data:fileName:source:)` is. Malformed JSON is a
+    /// warning and an empty half, exactly as it is in a bundle.
+    static func load(pathsJSON: Data?, lessonsJSON: Data?) -> Result {
+        var warnings: [String] = []
+
+        let pathsFile: CatalogPathsFile? = decode("paths", from: pathsJSON, warnings: &warnings)
+        let lessonsFile: CatalogLessonsFile? = decode("lessons", from: lessonsJSON, warnings: &warnings)
+
+        return join(pathsFile, lessonsFile, warnings: warnings)
+    }
+
+    // MARK: - Joining
+
+    /// Turns the two decoded files into the catalog the app works with: approved
+    /// lessons only, levels the paths can actually name, and paths that keep just
+    /// the lessons that survived.
+    private static func join(_ pathsFile: CatalogPathsFile?,
+                             _ lessonsFile: CatalogLessonsFile?,
+                             warnings: [String]) -> Result {
+        var warnings = warnings
+
         let allLessons = lessonsFile?.lessons ?? []
         var approved: [CatalogLesson] = []
         for lesson in allLessons {
@@ -41,6 +66,18 @@ enum CatalogLoader {
             approved.append(lesson)
         }
 
+        // A level named twice is a mistake in the file, not a choice: the first one
+        // wins, so the order the paths are grouped in stays the file's order.
+        var levels: [CatalogLevel] = []
+        var levelIds: Set<String> = []
+        for level in pathsFile?.levels ?? [] {
+            guard levelIds.insert(level.id).inserted else {
+                warnings.append("Level \"\(level.id)\" is named more than once; the first one was kept.")
+                continue
+            }
+            levels.append(level)
+        }
+
         let known = Set(approved.map(\.id))
         var paths: [CatalogPath] = []
         for path in pathsFile?.paths ?? [] {
@@ -49,14 +86,23 @@ enum CatalogLoader {
                 warnings.append("Path \"\(path.id)\" names lesson \"\(id)\", which is not an approved lesson; skipped.")
                 return false
             }
+            // A path is never lost over its level: an id no level carries is
+            // dropped and the path is listed with the ones that have no level.
+            var level = path.level
+            if let named = level, !levelIds.contains(named) {
+                warnings.append("Path \"\(path.id)\" names level \"\(named)\", which is not in the catalog; the path is listed without a level.")
+                level = nil
+            }
             paths.append(CatalogPath(id: path.id,
                                      title: path.title,
                                      description: path.description,
+                                     level: level,
                                      lessonIds: kept))
         }
 
         for warning in warnings { log.warning("\(warning, privacy: .public)") }
-        return Result(catalog: Catalog(paths: paths, lessons: approved), warnings: warnings)
+        return Result(catalog: Catalog(levels: levels, paths: paths, lessons: approved),
+                      warnings: warnings)
     }
 
     // MARK: - Files
@@ -70,6 +116,21 @@ enum CatalogLoader {
         }
         do {
             return try JSONDecoder().decode(T.self, from: Data(contentsOf: url))
+        } catch {
+            warnings.append("Catalog/\(name).json could not be read: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    private static func decode<T: Decodable>(_ name: String,
+                                             from data: Data?,
+                                             warnings: inout [String]) -> T? {
+        guard let data else {
+            warnings.append("Catalog/\(name).json was not supplied; no content was loaded from it.")
+            return nil
+        }
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
         } catch {
             warnings.append("Catalog/\(name).json could not be read: \(error.localizedDescription)")
             return nil

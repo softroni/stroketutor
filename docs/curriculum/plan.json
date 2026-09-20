@@ -1,0 +1,781 @@
+{
+  "levels": [
+    {
+      "id": "starter",
+      "title": "Starter",
+      "description": "Flat shapes and clean lines. Start here if you are new to drawing."
+    },
+    {
+      "id": "core",
+      "title": "Core",
+      "description": "Detail, overlap and 3D form. Forms comes first: everything after it builds on it."
+    },
+    {
+      "id": "advanced",
+      "title": "Advanced",
+      "description": "Perspective, texture and style."
+    }
+  ],
+  "paths": [
+    {
+      "id": "sky-weather",
+      "title": "Sky & Weather",
+      "level": "starter",
+      "description": "From a sun made of a circle and rays to a storm over the mountains: simple shapes first, then overlap, then a whole scene.",
+      "lessons": [
+        {
+          "id": "sun",
+          "title": "Sun",
+          "objective": "Circle with eight straight rays"
+        },
+        {
+          "id": "cloud",
+          "title": "Cloud",
+          "objective": "Flat base with four bumps on top"
+        },
+        {
+          "id": "lightning-bolt",
+          "title": "Lightning Bolt",
+          "objective": "Zigzag bolt in one closed shape"
+        },
+        {
+          "id": "rain-cloud",
+          "title": "Rain Cloud",
+          "objective": "Cloud with five slanted drops"
+        },
+        {
+          "id": "snowflake",
+          "title": "Snowflake",
+          "objective": "Three crossed lines with V tips"
+        },
+        {
+          "id": "wave",
+          "title": "Wave",
+          "objective": "Curling crest with foam and a trailing swell"
+        },
+        {
+          "id": "mountains",
+          "title": "Mountains",
+          "objective": "Three overlapping peaks with snow caps"
+        },
+        {
+          "id": "tornado",
+          "title": "Tornado",
+          "objective": "Funnel of stacked, shrinking loops"
+        },
+        {
+          "id": "volcano",
+          "title": "Volcano",
+          "objective": "Cone with a crater, lava streams and a smoke plume"
+        },
+        {
+          "id": "mountain-storm",
+          "title": "Mountain Storm",
+          "objective": "Peaks, cloud, bolt and rain in one scene"
+        }
+      ]
+    },
+    {
+      "id": "fruits",
+      "title": "Fruits",
+      "level": "starter",
+      "description": "Round, curved and clustered shapes, ending with four fruits overlapping in a bowl.",
+      "lessons": [
+        {
+          "id": "apple",
+          "title": "Apple",
+          "objective": "Round apple with a stem and leaf"
+        },
+        {
+          "id": "cherries",
+          "title": "Cherries",
+          "objective": "Two cherries joined at the stem"
+        },
+        {
+          "id": "pear",
+          "title": "Pear",
+          "objective": "Bottom-heavy shape with a stem"
+        },
+        {
+          "id": "banana",
+          "title": "Banana",
+          "objective": "Curved banana with a stem tip and ridge lines"
+        },
+        {
+          "id": "watermelon-slice",
+          "title": "Watermelon Slice",
+          "objective": "Triangle slice with rind and five seeds"
+        },
+        {
+          "id": "strawberry",
+          "title": "Strawberry",
+          "objective": "Heart-shaped berry with six seeds and a leafy top"
+        },
+        {
+          "id": "orange-half",
+          "title": "Orange Half",
+          "objective": "Cut face with eight segments and a peel rim"
+        },
+        {
+          "id": "grapes",
+          "title": "Grapes",
+          "objective": "Ten overlapping circles with a curly vine"
+        },
+        {
+          "id": "pineapple",
+          "title": "Pineapple",
+          "objective": "Oval with a 3×3 crosshatch and spiky leaves"
+        },
+        {
+          "id": "fruit-bowl",
+          "title": "Fruit Bowl",
+          "objective": "Four fruits overlapping in a bowl with a cast shadow"
+        }
+      ]
+    },
+    {
+      "id": "food-treats",
+      "title": "Food & Treats",
+      "level": "starter",
+      "description": "Treats first, then stacked and layered food, ending with a full snack tray.",
+      "lessons": [
+        {
+          "id": "donut",
+          "title": "Donut",
+          "objective": "Ring with icing drip and five sprinkles"
+        },
+        {
+          "id": "popsicle",
+          "title": "Popsicle",
+          "objective": "Rounded rectangle on a stick with a bite taken"
+        },
+        {
+          "id": "ice-cream-cone",
+          "title": "Ice Cream Cone",
+          "objective": "Two scoops on a cone with a 3×3 crosshatch"
+        },
+        {
+          "id": "cupcake",
+          "title": "Cupcake",
+          "objective": "Frosting swirl on a ridged wrapper"
+        },
+        {
+          "id": "pizza-slice",
+          "title": "Pizza Slice",
+          "objective": "Triangle with crust, five toppings and a cheese drip"
+        },
+        {
+          "id": "fries",
+          "title": "Fries",
+          "objective": "Tapered carton with eight fries"
+        },
+        {
+          "id": "burger",
+          "title": "Burger",
+          "objective": "Stacked bun, lettuce wave, patty and cheese corner"
+        },
+        {
+          "id": "boba-tea",
+          "title": "Boba Tea",
+          "objective": "Tapered cup with dome lid, straw and eight pearls"
+        },
+        {
+          "id": "ramen-bowl",
+          "title": "Ramen Bowl",
+          "objective": "Bowl with noodle waves, toppings and chopsticks"
+        },
+        {
+          "id": "snack-tray",
+          "title": "Snack Tray",
+          "objective": "Burger, fries and boba overlapping on a tray"
+        }
+      ]
+    },
+    {
+      "id": "forms",
+      "title": "Forms",
+      "level": "core",
+      "description": "The skills path: boxes, cylinders, cones and spheres, then everyday objects built from them, with one light direction.",
+      "lessons": [
+        {
+          "id": "cube",
+          "title": "Cube",
+          "objective": "Box drawn from three visible faces"
+        },
+        {
+          "id": "cylinder",
+          "title": "Cylinder",
+          "objective": "Two ellipses joined by straight sides"
+        },
+        {
+          "id": "cone",
+          "title": "Cone",
+          "objective": "Ellipse base rising to a point"
+        },
+        {
+          "id": "sphere",
+          "title": "Sphere",
+          "objective": "Circle with a hatched shadow side and a cast shadow"
+        },
+        {
+          "id": "dice",
+          "title": "Dice",
+          "objective": "Cube with pips that follow each face"
+        },
+        {
+          "id": "gift-box",
+          "title": "Gift Box",
+          "objective": "Cube with a lid, ribbon cross and bow"
+        },
+        {
+          "id": "soda-can",
+          "title": "Soda Can",
+          "objective": "Cylinder with a rim, tab and label band"
+        },
+        {
+          "id": "mug",
+          "title": "Mug",
+          "objective": "Cylinder with a handle and an inner ellipse"
+        },
+        {
+          "id": "stack-of-books",
+          "title": "Stack of Books",
+          "objective": "Three offset boxes with page lines"
+        },
+        {
+          "id": "still-life",
+          "title": "Still Life",
+          "objective": "Mug, books and a sphere with one light direction"
+        }
+      ]
+    },
+    {
+      "id": "plants",
+      "title": "Plants",
+      "level": "core",
+      "description": "Trees, flowers and potted plants, from stacked triangles to a twisted bonsai, ending on a windowsill garden.",
+      "lessons": [
+        {
+          "id": "pine-tree",
+          "title": "Pine Tree",
+          "objective": "Three stacked triangles on a short trunk"
+        },
+        {
+          "id": "tulip",
+          "title": "Tulip",
+          "objective": "Cup-shaped bloom with two pointed leaves"
+        },
+        {
+          "id": "cactus",
+          "title": "Cactus",
+          "objective": "Saguaro with two arms and six spines"
+        },
+        {
+          "id": "mushroom",
+          "title": "Mushroom",
+          "objective": "Cap with three spots and gill lines under the rim"
+        },
+        {
+          "id": "palm-tree",
+          "title": "Palm Tree",
+          "objective": "Curved trunk with five fanning fronds"
+        },
+        {
+          "id": "palm-tree-4"
+        },
+        {
+          "id": "sunflower",
+          "title": "Sunflower",
+          "objective": "Big center with two layers of pointy petals"
+        },
+        {
+          "id": "big-oak",
+          "title": "Big Oak",
+          "objective": "Thick trunk, spreading branches and a bumpy canopy"
+        },
+        {
+          "id": "rose",
+          "title": "Rose",
+          "objective": "Spiral center wrapped in curved petals"
+        },
+        {
+          "id": "bonsai",
+          "title": "Bonsai",
+          "objective": "Twisted trunk in a shallow pot with layered canopy"
+        },
+        {
+          "id": "windowsill-garden",
+          "title": "Windowsill Garden",
+          "objective": "Potted cactus, tulip and bonsai on a ledge"
+        }
+      ]
+    },
+    {
+      "id": "wheels",
+      "title": "Wheels",
+      "level": "core",
+      "description": "Everything that rolls, from a box-shaped bus to a car drawn in three-quarter view.",
+      "lessons": [
+        {
+          "id": "school-bus",
+          "title": "School Bus",
+          "objective": "Long box with four windows and two wheels"
+        },
+        {
+          "id": "car",
+          "title": "Car",
+          "objective": "Rounded body with two wheels and side windows"
+        },
+        {
+          "id": "classic-red-car"
+        },
+        {
+          "id": "dump-truck",
+          "title": "Dump Truck",
+          "objective": "Cab with a tilted box bed"
+        },
+        {
+          "id": "train",
+          "title": "Train",
+          "objective": "Engine with a smokestack pulling one car"
+        },
+        {
+          "id": "excavator",
+          "title": "Excavator",
+          "objective": "Cab on tracks with a bent arm and bucket"
+        },
+        {
+          "id": "monster-truck",
+          "title": "Monster Truck",
+          "objective": "Small body on giant treaded wheels"
+        },
+        {
+          "id": "race-car",
+          "title": "Race Car",
+          "objective": "Low sleek body with a spoiler and a number"
+        },
+        {
+          "id": "bicycle",
+          "title": "Bicycle",
+          "objective": "Two wheels, frame triangle, seat and handlebars"
+        },
+        {
+          "id": "motorcycle",
+          "title": "Motorcycle",
+          "objective": "Two wheels, tank, seat, forks and an exhaust"
+        },
+        {
+          "id": "car-three-quarter-view",
+          "title": "Car in ¾ View",
+          "objective": "Boxy car built from a cube, showing the front and side"
+        }
+      ]
+    },
+    {
+      "id": "on-the-water",
+      "title": "On the Water",
+      "level": "core",
+      "description": "Boats and ships, from one sail on a hull to a harbour scene.",
+      "lessons": [
+        {
+          "id": "sailboat",
+          "title": "Sailboat",
+          "objective": "Hull with a mast and one triangle sail"
+        },
+        {
+          "id": "canoe",
+          "title": "Canoe",
+          "objective": "Long curved boat with a paddle"
+        },
+        {
+          "id": "tugboat",
+          "title": "Tugboat",
+          "objective": "Stubby boat with a smokestack and bumper"
+        },
+        {
+          "id": "speedboat",
+          "title": "Speedboat",
+          "objective": "Sleek pointed boat with a splash wake"
+        },
+        {
+          "id": "fishing-boat",
+          "title": "Fishing Boat",
+          "objective": "Small boat with a cabin and a rod"
+        },
+        {
+          "id": "submarine",
+          "title": "Submarine",
+          "objective": "Oval body with a periscope and three portholes"
+        },
+        {
+          "id": "cruise-ship",
+          "title": "Cruise Ship",
+          "objective": "Long ship with stacked decks and windows"
+        },
+        {
+          "id": "pirate-ship",
+          "title": "Pirate Ship",
+          "objective": "Big hull with two sails and a plain flag"
+        },
+        {
+          "id": "longship",
+          "title": "Longship",
+          "objective": "Curved hull with a scroll prow, striped sail and five shields"
+        },
+        {
+          "id": "harbour",
+          "title": "Harbour",
+          "objective": "Sailboat, tugboat and a lighthouse on waves"
+        }
+      ]
+    },
+    {
+      "id": "in-the-air",
+      "title": "In the Air",
+      "level": "core",
+      "description": "Things that fly, from a paper airplane to a busy sky that uses size for depth.",
+      "lessons": [
+        {
+          "id": "paper-airplane",
+          "title": "Paper Airplane",
+          "objective": "Folded dart from three triangles"
+        },
+        {
+          "id": "hot-air-balloon",
+          "title": "Hot Air Balloon",
+          "objective": "Striped balloon with a basket and ropes"
+        },
+        {
+          "id": "parachute-crate",
+          "title": "Parachute Crate",
+          "objective": "Dome canopy with lines down to a box"
+        },
+        {
+          "id": "blimp",
+          "title": "Blimp",
+          "objective": "Long oval with tail fins and a small cabin"
+        },
+        {
+          "id": "airplane",
+          "title": "Airplane",
+          "objective": "Tube body with wings, tail and four windows"
+        },
+        {
+          "id": "glider",
+          "title": "Glider",
+          "objective": "Slim body with long, thin wings"
+        },
+        {
+          "id": "helicopter",
+          "title": "Helicopter",
+          "objective": "Bubble cabin, tail boom, rotor and skids"
+        },
+        {
+          "id": "drone",
+          "title": "Drone",
+          "objective": "Quadcopter with four arms, rotors and a camera"
+        },
+        {
+          "id": "jet",
+          "title": "Jet",
+          "objective": "Pointed body with swept wings and a vapour trail"
+        },
+        {
+          "id": "busy-sky",
+          "title": "Busy Sky",
+          "objective": "Balloon, airplane and drone at different sizes for depth"
+        }
+      ]
+    },
+    {
+      "id": "space",
+      "title": "Space",
+      "level": "core",
+      "description": "Moons, planets and spacecraft, ending with the solar system drawn on orbit ellipses.",
+      "lessons": [
+        {
+          "id": "crescent-moon",
+          "title": "Crescent Moon",
+          "objective": "Curved moon with three craters"
+        },
+        {
+          "id": "planet-with-rings",
+          "title": "Planet with Rings",
+          "objective": "Circle with a tilted ring passing behind it"
+        },
+        {
+          "id": "star",
+          "title": "Star",
+          "objective": "Five-point star, guided point by point"
+        },
+        {
+          "id": "comet",
+          "title": "Comet",
+          "objective": "Ball with a long streaking tail"
+        },
+        {
+          "id": "rocket",
+          "title": "Rocket",
+          "objective": "Pointed rocket with fins, window and flame"
+        },
+        {
+          "id": "ufo",
+          "title": "UFO",
+          "objective": "Flying saucer with a dome and light beam"
+        },
+        {
+          "id": "satellite",
+          "title": "Satellite",
+          "objective": "Box body with two solar panel wings and a dish"
+        },
+        {
+          "id": "mars-rover",
+          "title": "Mars Rover",
+          "objective": "Six wheels, flat deck, mast camera and antenna"
+        },
+        {
+          "id": "space-shuttle",
+          "title": "Space Shuttle",
+          "objective": "Shuttle with wings and booster rockets"
+        },
+        {
+          "id": "solar-system",
+          "title": "Solar System",
+          "objective": "Sun with three orbit ellipses and small planets"
+        }
+      ]
+    },
+    {
+      "id": "buildings",
+      "title": "Buildings",
+      "level": "core",
+      "description": "From a front-facing house to real perspective: a house in two-point and a street in one-point.",
+      "lessons": [
+        {
+          "id": "house",
+          "title": "Simple House",
+          "objective": "Square body, triangle roof, door and two windows"
+        },
+        {
+          "id": "tent",
+          "title": "Tent",
+          "objective": "Triangle tent with an open flap and pegs"
+        },
+        {
+          "id": "igloo",
+          "title": "Igloo",
+          "objective": "Dome with a curved entrance and block lines"
+        },
+        {
+          "id": "barn",
+          "title": "Barn",
+          "objective": "Wide barn with a gambrel roof and crossed doors"
+        },
+        {
+          "id": "windmill",
+          "title": "Windmill",
+          "objective": "Tower with four crossed blades and a small door"
+        },
+        {
+          "id": "lighthouse",
+          "title": "Lighthouse",
+          "objective": "Tall striped tower with a lamp room and rays"
+        },
+        {
+          "id": "castle",
+          "title": "Castle",
+          "objective": "Two towers with battlements and a drawbridge"
+        },
+        {
+          "id": "pagoda",
+          "title": "Pagoda",
+          "objective": "Three stacked tiers with upturned roof corners"
+        },
+        {
+          "id": "house-in-two-point-perspective",
+          "title": "House in Two-Point Perspective",
+          "objective": "Box house with both walls receding to vanishing points"
+        },
+        {
+          "id": "city-street",
+          "title": "City Street",
+          "objective": "One-point perspective road with buildings on both sides"
+        }
+      ]
+    },
+    {
+      "id": "gear",
+      "title": "Gear",
+      "level": "advanced",
+      "description": "The things you carry and play with, drawn with panels, overlap and texture. Generic shapes, no logos.",
+      "lessons": [
+        {
+          "id": "cap",
+          "title": "Cap",
+          "objective": "Dome crown with a curved brim and a top button"
+        },
+        {
+          "id": "sunglasses",
+          "title": "Sunglasses",
+          "objective": "Two lenses, a bridge and folded arms"
+        },
+        {
+          "id": "skateboard",
+          "title": "Skateboard",
+          "objective": "Deck in side view with trucks and wheels"
+        },
+        {
+          "id": "backpack",
+          "title": "Backpack",
+          "objective": "Rounded body with a front pocket, zips and straps"
+        },
+        {
+          "id": "headphones",
+          "title": "Headphones",
+          "objective": "Arched band with two padded ear cups"
+        },
+        {
+          "id": "game-controller",
+          "title": "Game Controller",
+          "objective": "Winged body with two sticks, a D-pad and four buttons"
+        },
+        {
+          "id": "camera",
+          "title": "Camera",
+          "objective": "Box body with a lens barrel, flash and shutter button"
+        },
+        {
+          "id": "sneaker",
+          "title": "Sneaker",
+          "objective": "High-top in side view with sole, laces and panels"
+        },
+        {
+          "id": "electric-guitar",
+          "title": "Electric Guitar",
+          "objective": "Contoured body, neck, headstock and six strings"
+        },
+        {
+          "id": "my-desk",
+          "title": "My Desk",
+          "objective": "Headphones, controller and camera overlapping on a desk"
+        }
+      ]
+    },
+    {
+      "id": "fantasy-objects",
+      "title": "Fantasy Objects",
+      "level": "advanced",
+      "description": "Wands, crowns and crystals, ending with a treasure chest in three-quarter view.",
+      "lessons": [
+        {
+          "id": "magic-wand",
+          "title": "Magic Wand",
+          "objective": "Stick with a star tip and three sparkles"
+        },
+        {
+          "id": "shield",
+          "title": "Shield",
+          "objective": "Curved shield with a stripe emblem and rivets"
+        },
+        {
+          "id": "crown",
+          "title": "Crown",
+          "objective": "Pointed crown with three jewels"
+        },
+        {
+          "id": "key",
+          "title": "Key",
+          "objective": "Ornate loop handle with a toothed end"
+        },
+        {
+          "id": "potion-bottle",
+          "title": "Potion Bottle",
+          "objective": "Round flask with a cork, bubbles and a tag"
+        },
+        {
+          "id": "sword",
+          "title": "Sword",
+          "objective": "Blade with a fuller line, crossguard and wrapped grip"
+        },
+        {
+          "id": "wizard-hat",
+          "title": "Wizard Hat",
+          "objective": "Tall pointed hat with stars and a bent tip"
+        },
+        {
+          "id": "spellbook",
+          "title": "Spellbook",
+          "objective": "Thick book in ¾ view with a clasp and corner caps"
+        },
+        {
+          "id": "crystal-cluster",
+          "title": "Crystal Cluster",
+          "objective": "Five faceted shards with hatched shadow sides"
+        },
+        {
+          "id": "treasure-chest",
+          "title": "Treasure Chest",
+          "objective": "Open chest in ¾ view with coins, the crown and the key"
+        }
+      ]
+    },
+    {
+      "id": "lettering",
+      "title": "Lettering",
+      "level": "advanced",
+      "description": "Letters as drawings: bubble, block and 3D letters, then bursts and banners, ending with a poster.",
+      "lessons": [
+        {
+          "id": "bubble-letter",
+          "title": "Bubble Letter",
+          "objective": "A rounded, inflated \"A\" with a shine mark"
+        },
+        {
+          "id": "block-letter",
+          "title": "Block Letter",
+          "objective": "A straight-edged \"E\" built on a grid"
+        },
+        {
+          "id": "drop-shadow",
+          "title": "Drop Shadow",
+          "objective": "A block letter with an offset shadow"
+        },
+        {
+          "id": "letter-3d",
+          "title": "3D Letter",
+          "objective": "A block letter extruded to one side"
+        },
+        {
+          "id": "arrow",
+          "title": "Arrow",
+          "objective": "A thick bent arrow with 3D depth"
+        },
+        {
+          "id": "ribbon-banner",
+          "title": "Ribbon Banner",
+          "objective": "Wavy banner with folded ends"
+        },
+        {
+          "id": "comic-burst",
+          "title": "Comic Burst",
+          "objective": "Spiky burst with \"POW\" inside"
+        },
+        {
+          "id": "stacked-word",
+          "title": "Stacked Word",
+          "objective": "\"WOW\" in overlapping bubble letters"
+        },
+        {
+          "id": "graffiti-style",
+          "title": "Graffiti Style",
+          "objective": "\"YO\" with arrows, overlaps and a drip"
+        },
+        {
+          "id": "poster",
+          "title": "Poster",
+          "objective": "Banner, burst and a 3D word composed together"
+        }
+      ]
+    }
+  ]
+}

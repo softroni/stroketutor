@@ -7,7 +7,7 @@ import { formatJSON } from '../../src/schema/formatJSON'
 import { stringValue } from '../args'
 import { command, type Command } from '../command'
 import type { Context } from '../context'
-import { replaceTutorial } from '../edit'
+import { readLesson, replaceTutorial } from '../edit'
 import { CliError, table } from '../output'
 
 /** An entry by its id, a unique prefix of it, or its number in `history list` (1 = newest). */
@@ -28,6 +28,9 @@ async function findEntry(ctx: Context, lessonId: string, key: string): Promise<H
 /** History (master plan §24): every version a lesson has had, never overwritten. */
 export const historyCommands: Command[] = [
   command('history list', 'Every recorded version of a lesson, newest first.', ['<id>'], {}, async (ctx, args) => {
+    // A planned lesson has never had a version, which is not the same as
+    // having lost them, so it says which it is.
+    await readLesson(ctx, args.positionals[0])
     const store = await ctx.workspace()
     const entries = await store.readHistory(args.positionals[0])
     ctx.out.result({ entries: entries.map(({ tutorial, ...about }) => ({ ...about, steps: tutorial.steps.length })) }, () =>

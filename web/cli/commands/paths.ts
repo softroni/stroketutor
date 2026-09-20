@@ -1,6 +1,17 @@
 import { estimateLearnerSeconds, formatMinutes } from '../../src/catalog/metrics'
-import { findLesson } from '../../src/catalog/types'
-import { assignLesson, createPath, movePath, reorderLessons, slugify, updatePath } from '../../src/studio/pathOps'
+import { findLesson, findLevel } from '../../src/catalog/types'
+import {
+  assignLesson,
+  createLevel,
+  createPath,
+  deleteLevel,
+  moveLevel,
+  movePath,
+  reorderLessons,
+  slugify,
+  updateLevel,
+  updatePath,
+} from '../../src/studio/pathOps'
 
 import { parseIndex, stringValue } from '../args'
 import { command, type Command } from '../command'
@@ -11,12 +22,12 @@ import { CliError, plural, table } from '../output'
 export const curriculumCommands: Command[] = [
   command('paths list', 'Every path in the working curriculum, in order.', [], {}, async (ctx) => {
     const { catalog } = await readCatalog(ctx)
-    ctx.out.result({ paths: catalog.paths }, () =>
+    ctx.out.result({ levels: catalog.levels, paths: catalog.paths }, () =>
       catalog.paths.length === 0
         ? ['No paths yet. `studio paths create --title "…"` makes one.']
         : table(
-            catalog.paths.map((path, index) => [String(index + 1), path.id, path.title, plural(path.lessonIds.length, 'lesson'), path.description ?? '']),
-            ['#', 'id', 'title', 'lessons', 'description'],
+            catalog.paths.map((path, index) => [String(index + 1), path.id, path.title, path.level ?? '', plural(path.lessonIds.length, 'lesson'), path.description ?? '']),
+            ['#', 'id', 'title', 'level', 'lessons', 'description'],
           ),
     )
   }),
@@ -25,27 +36,30 @@ export const curriculumCommands: Command[] = [
     const library = await ctx.library()
     const catalog = library.catalog ?? (await readCatalog(ctx)).catalog
     const path = requirePath(catalog, args.positionals[0])
+    const level = path.level ? findLevel(catalog, path.level) : undefined
     const lessons = path.lessonIds.map((id) => {
       const entry = library.tutorials.get(id)
       const lesson = findLesson(catalog, id)
+      const planned = lesson?.status === 'planned' && !entry
       return {
         id,
-        title: entry?.tutorial.title ?? '(missing)',
+        title: entry?.tutorial.title ?? lesson?.title ?? '(missing)',
         status: lesson?.status ?? 'uncatalogued',
-        state: entry?.state ?? 'missing',
+        state: planned ? 'planned' : (entry?.state ?? 'missing'),
         objective: lesson?.objective ?? '',
         steps: entry?.tutorial.steps.length ?? 0,
         minutes: entry ? formatMinutes(estimateLearnerSeconds(entry.tutorial)) : '',
       }
     })
-    ctx.out.result({ path, lessons }, () => [
+    ctx.out.result({ path, level: level ?? null, lessons }, () => [
       `${path.title} (${path.id})`,
       ...(path.description ? [path.description] : []),
+      `Level: ${level ? `${level.title} (${level.id})` : 'none'}`,
       '',
       ...(lessons.length === 0
         ? ['No lessons in this path.']
         : table(
-            lessons.map((lesson, index) => [String(index + 1), lesson.id, lesson.title, lesson.status, lesson.state, String(lesson.steps), lesson.minutes, lesson.objective]),
+            lessons.map((lesson, index) => [String(index + 1), lesson.id, lesson.title, lesson.status, lesson.state, lesson.steps === 0 ? '-' : String(lesson.steps), lesson.minutes, lesson.objective]),
             ['#', 'id', 'title', 'status', 'state', 'steps', 'time', 'objective'],
           )),
     ])
@@ -58,6 +72,7 @@ export const curriculumCommands: Command[] = [
     {
       title: { type: 'string', description: 'The title learners see.' },
       description: { type: 'string', description: 'What the path teaches, in a sentence or two.' },
+      level: { type: 'string', description: 'The level to group the path under.', placeholder: 'id' },
     },
     async (ctx, args) => {
       const title = stringValue(args.values, 'title')
@@ -65,8 +80,29 @@ export const curriculumCommands: Command[] = [
       const id = args.positionals[0] ?? slugify(title)
       if (!id) throw new CliError('The title makes no id; pass one: studio paths create <id> --title "…".')
       const description = stringValue(args.values, 'description') ?? ''
-      const catalog = await editCatalog(ctx, (current) => createPath(current, id, { title, description }))
-      ctx.out.result({ path: requirePath(catalog, id) }, () => `Created the path "${title}" (${id}), number ${catalog.paths.length}.`)
+      const level = stringValue(args.values, 'level') ?? null
+      const catalog = await editCatalog(ctx, (current) => createPath(current, id, { title, description, level }))
+      ctx.out.result({ path: requirePath(catalog, id) }, () => `Created the path "${title}" (${id}), number ${catalog.paths.length}${level ? ` in the level "${level}"` : ''}.`)
+    },
+  ),
+
+  command(
+    'paths level',
+    'Group a path under a level, or take it out of every level.',
+    ['<id>', '[levelId]'],
+    { none: { type: 'boolean', description: 'List the path after the levels instead of under one.' } },
+    async (ctx, args) => {
+      const [id, levelId] = args.positionals
+      if (!levelId && !args.values.none) throw new CliError('Say which level: studio paths level <id> <levelId>, or --none.')
+      if (levelId && args.values.none) throw new CliError('Pass a level id or --none, not both.')
+      const level = args.values.none ? null : levelId
+      const catalog = await editCatalog(ctx, (current) => {
+        const path = requirePath(current, id)
+        return updatePath(current, id, { title: path.title, description: path.description ?? '', level })
+      })
+      ctx.out.result({ path: requirePath(catalog, id) }, () =>
+        level ? `"${id}" is now in the level "${level}".` : `"${id}" is in no level; it is listed after the levels.`,
+      )
     },
   ),
 
@@ -164,6 +200,95 @@ export const curriculumCommands: Command[] = [
     },
   ),
 ]
+
+/**
+ * Levels: the bands the path list is grouped into, easiest first. A level only
+ * groups and recommends; nothing is ever locked behind one.
+ */
+export const levelCommands: Command[] = [
+  command('levels list', 'Every level, easiest first, with how many paths it groups.', [], {}, async (ctx) => {
+    const { catalog } = await readCatalog(ctx)
+    const counts = catalog.levels.map((level) => catalog.paths.filter((path) => path.level === level.id).length)
+    const loose = catalog.paths.filter((path) => !path.level).length
+    ctx.out.result({ levels: catalog.levels, counts, pathsWithoutLevel: loose }, () => [
+      ...(catalog.levels.length === 0
+        ? ['No levels yet: the curriculum is one flat list of paths. `studio levels create --title "…"` makes one.']
+        : table(
+            catalog.levels.map((level, index) => [String(index + 1), level.id, level.title, plural(counts[index], 'path'), level.description ?? '']),
+            ['#', 'id', 'title', 'paths', 'description'],
+          )),
+      ...(loose > 0 ? [`${plural(loose, 'path')} in no level; they are listed after the levels.`] : []),
+    ])
+  }),
+
+  command(
+    'levels create',
+    'A new level at the end. The id is fixed once created.',
+    ['[id]'],
+    {
+      title: { type: 'string', description: 'A name, not a number: "Starter", not "Level 1".' },
+      description: { type: 'string', description: 'One line on what the paths of this level teach.' },
+    },
+    async (ctx, args) => {
+      const title = stringValue(args.values, 'title')
+      if (!title) throw new CliError('Give the level a title: --title "…".')
+      const id = args.positionals[0] ?? slugify(title)
+      if (!id) throw new CliError('The title makes no id; pass one: studio levels create <id> --title "…".')
+      const description = stringValue(args.values, 'description') ?? ''
+      const catalog = await editCatalog(ctx, (current) => createLevel(current, id, { title, description }))
+      ctx.out.result({ level: requireLevel(catalog, id) }, () => `Created the level "${title}" (${id}), number ${catalog.levels.length}.`)
+    },
+  ),
+
+  command('levels rename', 'A new title for a level.', ['<id>', '<title>'], {}, async (ctx, args) => {
+    const [id, title] = args.positionals
+    const catalog = await editCatalog(ctx, (current) =>
+      updateLevel(current, id, { title, description: requireLevel(current, id).description ?? '' }),
+    )
+    ctx.out.result({ level: requireLevel(catalog, id) }, () => `Renamed "${id}" to "${title.trim()}".`)
+  }),
+
+  command('levels describe', 'A new description for a level; an empty text removes it.', ['<id>', '<description>'], {}, async (ctx, args) => {
+    const [id, description] = args.positionals
+    const catalog = await editCatalog(ctx, (current) => updateLevel(current, id, { title: requireLevel(current, id).title, description }))
+    ctx.out.result({ level: requireLevel(catalog, id) }, () => (description.trim() ? `Described "${id}".` : `Removed the description of "${id}".`))
+  }),
+
+  command(
+    'levels move',
+    'Change where a level comes in the curriculum.',
+    ['<id>'],
+    {
+      to: { type: 'string', description: 'Its new place, counting from 1.', placeholder: 'n' },
+      up: { type: 'boolean', description: 'One place earlier.' },
+      down: { type: 'boolean', description: 'One place later.' },
+    },
+    async (ctx, args) => {
+      const id = args.positionals[0]
+      const catalog = await editCatalog(ctx, (current) => {
+        const from = current.levels.findIndex((level) => level.id === id)
+        if (from < 0) throw new CliError(`There is no level "${id}".`)
+        return moveLevel(current, from, target(args.values, from, current.levels.length, 'The level'))
+      })
+      const at = catalog.levels.findIndex((level) => level.id === id) + 1
+      ctx.out.result({ id, position: at }, () => `"${id}" is now level ${at} of ${catalog.levels.length}.`)
+    },
+  ),
+
+  command('levels delete', 'Remove a level. Only one with no path under it can go.', ['<id>'], {}, async (ctx, args) => {
+    const id = args.positionals[0]
+    const { catalog: before } = await readCatalog(ctx)
+    const level = requireLevel(before, id)
+    await editCatalog(ctx, (current) => deleteLevel(current, id))
+    ctx.out.result({ id }, () => `Deleted the level "${level.title}" (${id}).`)
+  }),
+]
+
+function requireLevel(catalog: { levels: { id: string; title: string; description?: string }[] }, id: string) {
+  const level = catalog.levels.find((candidate) => candidate.id === id)
+  if (!level) throw new CliError(`There is no level "${id}".`)
+  return level
+}
 
 /** The zero-based target of a move from `--to`, `--up` or `--down`. */
 function target(values: Record<string, unknown>, from: number, count: number, what: string): number {

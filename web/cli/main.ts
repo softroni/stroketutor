@@ -5,7 +5,8 @@ import { CatalogEditError } from '../src/studio/pathOps'
 
 import { GLOBAL_OPTIONS, UsageError, parseCommandArgs, usageOf, type GlobalFlags, type OptionSpecs } from './args'
 import type { Command } from './command'
-import { curriculumCommands } from './commands/paths'
+import { curriculumPlanCommands } from './commands/curriculum'
+import { curriculumCommands, levelCommands } from './commands/paths'
 import { historyCommands } from './commands/history'
 import { lessonCommands } from './commands/lessons'
 import { publishCommands } from './commands/publish'
@@ -30,7 +31,9 @@ import { CliError, Reporter, terminalIO } from './output'
  */
 export const COMMANDS: Command[] = [
   ...statusCommands,
+  ...levelCommands,
   ...curriculumCommands,
+  ...curriculumPlanCommands,
   ...lessonCommands,
   ...stepCommands,
   ...historyCommands,

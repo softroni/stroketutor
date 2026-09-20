@@ -13,7 +13,7 @@ import type { TracedDrawing } from '../../src/trace/traceSvg'
 import { UsageError, parseIndex, stringValue, type OptionSpecs, type Parsed } from '../args'
 import { command, type Command } from '../command'
 import type { Context } from '../context'
-import { editCatalog, lessonRecord, placeInPath, readCatalog, readLesson, replaceTutorial, requirePath } from '../edit'
+import { editCatalog, fillPlanned, lessonRecord, placeInPath, plannedPlaceholder, readCatalog, readLesson, replaceTutorial, requirePath } from '../edit'
 import { CliError, plural, stepTable } from '../output'
 import { readPlanFile, tracePlan } from './plan'
 import { TRACE_OPTIONS, traceOptionsFrom } from './svg'
@@ -123,9 +123,9 @@ function candidateLines(candidate: Candidate): string[] {
 }
 
 const GENERATE_OPTIONS: OptionSpecs = {
-  id: { type: 'string', description: 'The new lesson’s id (lowercase, digits, dashes); also its file name once published.' },
-  title: { type: 'string', description: 'The lesson’s title.' },
-  objective: { type: 'string', description: 'The one-line objective shown in the path.' },
+  id: { type: 'string', description: 'The new lesson’s id (lowercase, digits, dashes); also its file name once published. A planned lesson’s id fills that lesson, and lends its title, objective and path.' },
+  title: { type: 'string', description: 'The lesson’s title (default: a planned lesson’s own title).' },
+  objective: { type: 'string', description: 'The one-line objective shown in the path (default: a planned lesson’s own).' },
   goal: { type: 'string', description: 'The learning goal the lesson is planned around.' },
   constraints: { type: 'string', description: 'Anything the model must respect, in a sentence or two.' },
   source: { type: 'string', description: 'Where the reference image came from.' },
@@ -152,14 +152,33 @@ async function generateLesson(ctx: Context, args: Parsed, accepts: 'svg' | 'rast
   if (accepts === 'svg' && !reference.svg) throw new CliError(`${file} is not an SVG; use \`studio image to-steps\` for a photo.`)
   if (accepts === 'raster' && reference.svg) throw new CliError(`${file} is an SVG; use \`studio svg to-steps\` for it.`)
 
-  const text = (name: string) => stringValue(args.values, name)?.trim() ?? ''
-  const id = text('id')
+  const given = (name: string) => stringValue(args.values, name)?.trim() ?? ''
+  const id = given('id')
   if (!id) throw new CliError('Give the lesson an id: --id <id>.')
   checkId(id)
+
+  const { catalog } = await readCatalog(ctx)
+  const library = await ctx.library()
+  // A planned lesson is a place waiting for exactly this: the new tutorial
+  // fills it, keeping its position in its path, and its words stand in for
+  // anything the command line leaves out.
+  const placeholder = plannedPlaceholder(catalog, id, new Set(library.tutorials.keys()))
+  const plannedPath = placeholder ? findPathOfLesson(catalog, id) : undefined
+  if (!placeholder && (library.tutorials.has(id) || findLesson(catalog, id))) {
+    throw new CliError(`A lesson called "${id}" already exists. Generation never replaces a lesson; choose another id.`)
+  }
+  const text = (name: string) => {
+    const value = given(name)
+    if (value || !placeholder) return value
+    if (name === 'title') return placeholder.title ?? ''
+    if (name === 'objective') return placeholder.objective
+    return ''
+  }
+
   const title = text('title')
   const objective = text('objective')
-  const source = text('source')
-  const license = text('license')
+  const source = given('source')
+  const license = given('license')
   const planFile = stringValue(args.values, 'plan')
   if (planFile && args.values['no-model']) throw new UsageError('--plan and --no-model are two ways of building without a model; pass one of them.')
   const withoutModel = Boolean(args.values['no-model']) || Boolean(planFile)
@@ -176,12 +195,19 @@ async function generateLesson(ctx: Context, args: Parsed, accepts: 'svg' | 'rast
   // The plan is read before the browser starts, so a malformed file is refused at once.
   const rawPlan = planFile ? await readPlanFile(planFile) : null
 
-  const { catalog } = await readCatalog(ctx)
-  const library = await ctx.library()
-  if (library.tutorials.has(id) || findLesson(catalog, id)) throw new CliError(`A lesson called "${id}" already exists. Generation never replaces a lesson; choose another id.`)
-  const pathId = text('path') || null
+  const askedPath = given('path') || null
+  if (placeholder && askedPath && plannedPath && askedPath !== plannedPath.id) {
+    throw new UsageError(
+      `"${id}" is planned in "${plannedPath.id}", and generating it keeps that place. Drop --path, or move the lesson afterwards.`,
+    )
+  }
+  const pathId = placeholder ? (plannedPath?.id ?? askedPath) : askedPath
   const pathOf = pathId ? requirePath(catalog, pathId) : null
-  const position = args.values.position === undefined ? (pathOf?.lessonIds.length ?? 0) : parseIndex(stringValue(args.values, 'position'), 'The position') - 1
+  const position = placeholder && plannedPath
+    ? plannedPath.lessonIds.indexOf(id)
+    : args.values.position === undefined
+      ? (pathOf?.lessonIds.length ?? 0)
+      : parseIndex(stringValue(args.values, 'position'), 'The position') - 1
 
   const trace = await traceReference(ctx, reference, args)
   if (withoutModel && !trace) throw new CliError('The SVG could not be traced, so there is nothing to build a lesson from without a model.')
@@ -254,6 +280,9 @@ async function generateLesson(ctx: Context, args: Parsed, accepts: 'svg' | 'rast
         : {}),
     })
     await editCatalog(ctx, (current) => {
+      // A filled placeholder keeps the place it was holding, and loses the
+      // title it carried: the tutorial's title is the name from now on.
+      if (placeholder) return fillPlanned(current, lesson)
       const withEntry = { ...current, lessons: [...current.lessons, lesson] }
       return pathId ? placeInPath(withEntry, id, pathId, position + 1) : withEntry
     })
@@ -272,10 +301,12 @@ async function generateLesson(ctx: Context, args: Parsed, accepts: 'svg' | 'rast
     await store.appendHistory(id, record).catch((error: unknown) => ctx.out.warn(`The lesson was kept, but not recorded in its history: ${String(error)}`))
   }
 
-  ctx.out.result({ id, kept: kept !== null, reference: kept?.file ?? null, path: pathId, position: position + 1, out: out ?? null, ...candidate }, () => [
+  ctx.out.result({ id, kept: kept !== null, filled: Boolean(placeholder), reference: kept?.file ?? null, path: pathId, position: position + 1, out: out ?? null, ...candidate }, () => [
     ...candidateLines(candidate),
     ...(out ? [`Wrote ${out}.`] : []),
-    kept ? `Kept as the draft ${id}${pathOf ? ` at ${position + 1} in "${pathOf.id}"` : ''}, with ${kept.file} as its reference.` : 'Not kept (--no-keep).',
+    kept
+      ? `${placeholder ? `Filled the planned lesson ${id}, now a draft` : `Kept as the draft ${id}`}${pathOf ? ` at ${position + 1} in "${pathOf.id}"` : ''}, with ${kept.file} as its reference.`
+      : 'Not kept (--no-keep).',
   ])
 }
 

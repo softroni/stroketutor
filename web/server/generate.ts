@@ -102,7 +102,10 @@ export async function readLessonRequest(
 
   const library = await deps.library()
   const hasFile = library.tutorials.some((file) => file.fileName === `${lessonId}.json`)
-  if (mode === 'new' && (hasFile || lessonIds(library).has(lessonId))) {
+  // A planned lesson with nothing drawn for it is not a lesson to replace: it
+  // is a place held for exactly this generation, which fills it.
+  const planned = !hasFile && plannedIds(library).has(lessonId)
+  if (mode === 'new' && !planned && (hasFile || lessonIds(library).has(lessonId))) {
     throw new WriteRefused(
       409,
       `A lesson called "${lessonId}" already exists. Generation never replaces a lesson; choose another id.`,
@@ -168,10 +171,23 @@ export function readRasterImage(value: unknown, missing: string): { contentType:
 }
 
 function lessonIds(library: LibrarySnapshot): Set<string> {
+  return new Set(catalogLessons(library).map((lesson) => String(lesson.id)))
+}
+
+/** The places held in the curriculum, which a generation of the same id fills. */
+function plannedIds(library: LibrarySnapshot): Set<string> {
+  return new Set(
+    catalogLessons(library)
+      .filter((lesson) => lesson.status === 'planned')
+      .map((lesson) => String(lesson.id)),
+  )
+}
+
+function catalogLessons(library: LibrarySnapshot): { id?: unknown; status?: unknown }[] {
   try {
-    const lessons = (JSON.parse(library.lessons?.text ?? '{}') as { lessons?: { id?: unknown }[] }).lessons
-    return new Set((lessons ?? []).map((lesson) => String(lesson.id)))
+    const file = JSON.parse(library.lessons?.text ?? '{}') as { lessons?: { id?: unknown; status?: unknown }[] }
+    return file.lessons ?? []
   } catch {
-    return new Set()
+    return []
   }
 }

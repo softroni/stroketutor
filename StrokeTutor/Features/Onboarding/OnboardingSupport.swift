@@ -192,11 +192,31 @@ extension PathModel {
     /// The subject glyph the path wears in onboarding, matching the icons of
     /// `ob-path`. A path the catalog adds later gets the neutral mark rather than a
     /// wrong one.
+    ///
+    /// Every glyph here is an SF Symbol from SF Symbols 4 or earlier, so all of them
+    /// exist on the deployment target (iOS 17). The ids are the curriculum's, level
+    /// by level; the two the app shipped with first (`trees`, `cars`) are kept so a
+    /// catalog from before the paths were renamed still draws its subjects.
     var onboardingSymbol: String {
         switch id {
+        // Starter
+        case "sky-weather": return "cloud.sun"
+        case "fruits": return "leaf"
+        case "food-treats": return "fork.knife"
+        // Core
+        case "forms": return "cube"
+        case "plants", "trees": return "tree"
+        case "wheels", "cars": return "car"
+        case "on-the-water": return "sailboat"
+        case "in-the-air": return "airplane"
+        case "space": return "moon.stars"
+        case "buildings": return "building.2"
+        // Advanced
+        case "gear": return "headphones"
+        case "fantasy-objects": return "wand.and.stars"
+        case "lettering": return "textformat"
+        // Paths an earlier catalog named.
         case "houses": return "house"
-        case "trees": return "tree"
-        case "cars": return "car"
         case "flowers": return "camera.macro"
         case "mountains": return "mountain.2"
         case "streets", "streets-and-places": return "signpost.right"

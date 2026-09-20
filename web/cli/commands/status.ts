@@ -17,11 +17,18 @@ export const statusCommands: Command[] = [
       ? catalog.lessons.filter((lesson) => !catalog.paths.some((path) => path.lessonIds.includes(lesson.id))).length
       : 0
     const uncatalogued = catalog ? [...library.tutorials.keys()].filter((id) => !catalog.lessons.some((lesson) => lesson.id === id)) : []
+    // Planned lessons are places held, with no tutorial behind them, so they
+    // are counted apart from the lessons that exist as drawings.
+    const planned = (catalog?.lessons ?? []).filter(
+      (lesson) => lesson.status === 'planned' && !library.tutorials.has(lesson.id),
+    ).length
     const data = {
       workspace: ctx.workspaceFile,
       shared: ctx.sharedDir,
+      levels: catalog?.levels.length ?? 0,
       paths: catalog?.paths.length ?? 0,
-      lessons: library.tutorials.size,
+      lessons: library.tutorials.size + planned,
+      planned,
       states,
       unfiled,
       uncatalogued,
@@ -39,8 +46,9 @@ export const statusCommands: Command[] = [
         `Workspace: ${data.workspace}`,
         `Published: ${data.shared}`,
         '',
-        `${plural(data.paths, 'path')}, ${plural(data.lessons, 'lesson')}: ${states.workspace} in the workspace, ${states.published} published, ${states['published-edited']} published with edits.`,
+        `${plural(data.paths, 'path')}, ${plural(data.lessons, 'lesson')}: ${planned > 0 ? `${planned} planned, ` : ''}${states.workspace} in the workspace, ${states.published} published, ${states['published-edited']} published with edits.`,
       ]
+      if (data.levels > 0) lines.push(`${plural(data.levels, 'level')} group the paths.`)
       if (unfiled > 0) lines.push(`${plural(unfiled, 'lesson')} in no path.`)
       if (uncatalogued.length > 0) lines.push(`Not in the curriculum: ${uncatalogued.join(', ')}.`)
       if (library.broken.length > 0) lines.push(`Broken (fail validation): ${data.broken.join(', ')}.`)

@@ -7,6 +7,11 @@ import SwiftUI
 /// half-drawn and come back to it (BRIEF §6). Opening a card makes that path current
 /// immediately, so Back returns to a Home screen that reflects the new choice.
 ///
+/// When the catalog groups its paths into levels — Starter, Core, Advanced — the
+/// cards are listed under those names, easiest first. A level only groups and
+/// recommends: nothing here is locked, dimmed or numbered, and a learner may open
+/// any card in any section. A catalog without levels is one plain list, as before.
+///
 /// The mockup also shows a soft "Coming later" list under the cards. The catalog has
 /// no way to declare an unpublished path (`shared/catalog.schema.json`), and the app
 /// never invents content, so that list appears here only once the schema carries it.
@@ -25,7 +30,7 @@ struct PathsView: View {
                         .foregroundStyle(Theme.ink55)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    if orderedPaths.isEmpty {
+                    if sections.isEmpty {
                         Text("No lessons are installed.")
                             .textRole(.body)
                             .foregroundStyle(Theme.ink55)
@@ -33,12 +38,17 @@ struct PathsView: View {
                             .padding(Theme.cardPadding)
                             .cardBackground()
                     } else {
-                        ForEach(orderedPaths) { path in
-                            PathCard(path: path,
-                                     drawn: app.progress.drawnCount(in: path),
-                                     nextTitle: app.progress.nextLesson(in: path)?.title,
-                                     isCurrent: path.id == app.currentPath?.id) {
-                                app.open(path)
+                        ForEach(sections) { section in
+                            if let level = section.level {
+                                levelHeader(level)
+                            }
+                            ForEach(section.paths) { path in
+                                PathCard(path: path,
+                                         drawn: app.progress.drawnCount(in: path),
+                                         nextTitle: app.progress.nextLesson(in: path)?.title,
+                                         isCurrent: path.id == app.currentPath?.id) {
+                                    app.open(path)
+                                }
                             }
                         }
                     }
@@ -52,13 +62,48 @@ struct PathsView: View {
         .toolbar(.hidden, for: .navigationBar)
     }
 
+    /// The cards, in the order and the groups the screen draws them: the catalog's
+    /// level sections, each ordered on its own, and a last section without a heading
+    /// for the paths that belong to no level. A catalog with no levels leaves exactly
+    /// one unheaded section, which is the list this screen has always shown.
+    private var sections: [PathsSection] {
+        app.catalog.pathSections.compactMap { section in
+            let shipped = section.paths.compactMap { app.path(id: $0.id) }.filter { !$0.isEmpty }
+            guard !shipped.isEmpty else { return nil }
+            return PathsSection(level: section.level, paths: ordered(shipped))
+        }
+    }
+
     /// Started paths first, most recently finished at the top, then the untouched
     /// ones in catalog order. A path with no lessons in the bundle is not offered.
-    private var orderedPaths: [PathModel] {
-        let shipped = app.paths.filter { !$0.isEmpty }
-        let started = shipped.filter { app.progress.drawnCount(in: $0) > 0 }
-        let fresh = shipped.filter { app.progress.drawnCount(in: $0) == 0 }
+    private func ordered(_ paths: [PathModel]) -> [PathModel] {
+        let started = paths.filter { app.progress.drawnCount(in: $0) > 0 }
+        let fresh = paths.filter { app.progress.drawnCount(in: $0) == 0 }
         return started.sorted { lastDrawn(in: $0) > lastDrawn(in: $1) } + fresh
+    }
+
+    /// A level's name in the screen's section type, with its one line underneath.
+    /// One accessibility element, read as a heading, so VoiceOver announces the
+    /// group before the cards in it rather than as two stray labels.
+    private func levelHeader(_ level: CatalogLevel) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(level.title)
+                .textRole(.title3)
+                .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let description = level.description {
+                Text(description)
+                    .textRole(.footnote)
+                    .foregroundStyle(Theme.ink55)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 2)
+        .padding(.top, 10)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
     }
 
     private func lastDrawn(in path: PathModel) -> Date {
@@ -66,6 +111,16 @@ struct PathsView: View {
             .compactMap { app.progress.progress(for: $0.id)?.completedAt }
             .max() ?? .distantPast
     }
+}
+
+/// One heading's worth of the list: a level and the cards drawn under it, or no
+/// level at all for the paths the catalog does not group.
+private struct PathsSection: Identifiable {
+    let level: CatalogLevel?
+    let paths: [PathModel]
+
+    /// A level id is never empty, so the unheaded section cannot collide with one.
+    var id: String { level?.id ?? "" }
 }
 
 /// One path (`.hp-pcard`): a 72 pt sheet of paper with the subject drawn on it, the

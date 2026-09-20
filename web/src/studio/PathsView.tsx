@@ -2,10 +2,10 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent as Reac
 
 import { estimateLearnerSeconds, formatMinutes } from '../catalog/metrics'
 import { readyCount } from '../catalog/publishing'
-import type { Catalog, LearningPath, Lesson } from '../catalog/types'
+import type { Catalog, LearningPath, Lesson, Level } from '../catalog/types'
 import { totalStrokes } from '../schema/types'
 
-import { removePath } from './api'
+import { deleteLesson, removePath } from './api'
 import { ConfirmDialog } from './ConfirmDialog'
 import { FinishedDrawing } from './FinishedDrawing'
 import { IssueList } from './IssueList'
@@ -14,11 +14,17 @@ import type { Library, TutorialEntry } from './library'
 import { Menu, type MenuEntry } from './Menu'
 import {
   assignLesson,
+  createLevel,
   createPath,
+  deleteLevel,
+  moveLevel,
   movePath,
+  planLesson,
   reorderLessons,
   slugify,
+  updateLevel,
   updatePath,
+  type LevelFields,
   type PathFields,
 } from './pathOps'
 import { routeHref } from './route'
@@ -39,11 +45,12 @@ export interface PathsViewProps {
 /** Runs one curriculum change; resolves to whether it was saved. */
 type Run = (change: (catalog: Catalog) => Catalog) => Promise<boolean>
 
-type Filter = 'all' | 'draft' | 'needs-review' | 'approved' | 'published' | 'edited'
+type Filter = 'all' | 'planned' | 'draft' | 'needs-review' | 'approved' | 'published' | 'edited'
 type Density = 'list' | 'grid'
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: 'all', label: 'All' },
+  { id: 'planned', label: 'Planned' },
   { id: 'draft', label: 'Drafts' },
   { id: 'needs-review', label: 'Needs review' },
   { id: 'approved', label: 'Approved' },
@@ -51,24 +58,34 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: 'edited', label: 'Edited' },
 ]
 
-/** One tutorial, with its place in the curriculum when it has one. */
+/**
+ * One lesson as a row: its tutorial when one exists, its place in the
+ * curriculum when it has one. A planned lesson is a row with no tutorial at
+ * all — a place held, with a name and an objective and nothing to draw yet.
+ */
 interface Row {
-  entry: TutorialEntry
+  id: string
+  entry?: TutorialEntry
   lesson?: Lesson
   path?: LearningPath
 }
 
+const titleOf = (row: Row) => row.entry?.tutorial.title ?? row.lesson?.title ?? row.id
+
 function matches(row: Row, filter: Filter): boolean {
+  const state = row.entry?.state
   switch (filter) {
     case 'all':
       return true
+    case 'planned':
+      return !row.entry && row.lesson?.status === 'planned'
     case 'published':
-      return row.entry.state === 'published'
+      return state === 'published'
     case 'edited':
-      return row.entry.state === 'published-edited'
+      return state === 'published-edited'
     default:
       // Authoring statuses describe lessons still in the workspace.
-      return row.entry.state === 'workspace' && row.lesson?.status === filter
+      return state === 'workspace' && row.lesson?.status === filter
   }
 }
 
@@ -115,6 +132,8 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [creatingLevel, setCreatingLevel] = useState(false)
+  const [editingLevel, setEditingLevel] = useState<string | null>(null)
   const [prefs, setPrefs] = useState(readPrefs)
   const [query, setQuery] = useState('')
   const [pathDrop, setPathDrop] = useState<number | null>(null)
@@ -188,25 +207,31 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
   const lessons = new Map(catalog.lessons.map((lesson) => [lesson.id, lesson]))
   const pathOf = new Map<string, LearningPath>()
   for (const path of catalog.paths) for (const id of path.lessonIds) pathOf.set(id, path)
-  const rowOf = (entry: TutorialEntry): Row => ({ entry, lesson: lessons.get(entry.id), path: pathOf.get(entry.id) })
-  const everyRow = [...library.tutorials.values()].map(rowOf)
+  const rowOf = (id: string): Row => ({
+    id,
+    entry: library.tutorials.get(id),
+    lesson: lessons.get(id),
+    path: pathOf.get(id),
+  })
+  const isRow = (row: Row) => Boolean(row.entry) || row.lesson?.status === 'planned'
+  // Planned lessons are in the curriculum but not in the library, so the ids
+  // come from both, and a lesson that is in neither is not a row at all.
+  const everyRow = [
+    ...[...library.tutorials.keys()].map(rowOf),
+    ...catalog.lessons.flatMap((lesson) =>
+      lesson.status === 'planned' && !library.tutorials.has(lesson.id) ? [rowOf(lesson.id)] : [],
+    ),
+  ]
   const outside = everyRow.filter((row) => !row.path)
 
   const needle = query.trim().toLowerCase()
   const searching = needle.length > 0
   const found = searching
     ? everyRow.filter((row) =>
-        [row.entry.tutorial.title, row.entry.id, row.lesson?.objective ?? ''].some((text) =>
-          text.toLowerCase().includes(needle),
-        ),
+        [titleOf(row), row.id, row.lesson?.objective ?? ''].some((text) => text.toLowerCase().includes(needle)),
       )
     : []
-  const selectedRows = selected
-    ? selected.lessonIds.flatMap((id) => {
-        const entry = library.tutorials.get(id)
-        return entry ? [rowOf(entry)] : []
-      })
-    : []
+  const selectedRows = selected ? selected.lessonIds.map(rowOf).filter(isRow) : []
   const scope = searching ? found : unfiled ? outside : selectedRows
 
   const inApp = (path: LearningPath) =>
@@ -215,7 +240,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
       return state !== undefined && state !== 'workspace'
     }).length
 
-  /** Move to another path, or out of every path. */
+  /** Move to another path, or out of every path. A planned lesson moves like any other. */
   const moveEntries = (row: Row): MenuEntry[] => {
     const lesson = row.lesson
     if (!lesson || !library.writable) return []
@@ -238,60 +263,134 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
 
   const readyToPublish = readyCount(library.publishing.pending)
 
+  /** One path in the sidebar; the index is its place in the whole curriculum, which is what a drag moves. */
+  const pathItem = (path: LearningPath) => {
+    const index = catalog.paths.indexOf(path)
+    const published = inApp(path)
+    return (
+      <li
+        key={path.id}
+        className={`st-paths__row ${pathDrop === index ? 'is-drop-target' : ''}`}
+        draggable={editable}
+        onDragStart={(event) => {
+          event.dataTransfer.setData(PATH_DRAG, String(index))
+          event.dataTransfer.effectAllowed = 'move'
+        }}
+        onDragOver={(event) => {
+          if (!editable || !event.dataTransfer.types.includes(PATH_DRAG)) return
+          event.preventDefault()
+          setPathDrop(index)
+        }}
+        onDragLeave={() => setPathDrop((current) => (current === index ? null : current))}
+        onDrop={(event) => {
+          setPathDrop(null)
+          const from = Number(event.dataTransfer.getData(PATH_DRAG))
+          if (!Number.isInteger(from) || from === index) return
+          event.preventDefault()
+          void run((current) => movePath(current, from, index))
+        }}
+        onDragEnd={() => setPathDrop(null)}
+      >
+        <a
+          className="st-paths__link"
+          href={routeHref({ name: 'paths', pathId: path.id })}
+          aria-current={!searching && path.id === selected?.id ? 'page' : undefined}
+          onClick={() => setQuery('')}
+        >
+          <span className="st-paths__name">{path.title}</span>
+          <span
+            className={`st-paths__count ${published === 0 ? 'is-none' : ''}`}
+            title={
+              published === 0
+                ? 'Not in the app yet: no lesson in this path is published.'
+                : `${published} of ${path.lessonIds.length} lessons published`
+            }
+          >
+            {published}/{path.lessonIds.length}
+          </span>
+        </a>
+      </li>
+    )
+  }
+
+  const levelEntries = (level: Level, index: number): MenuEntry[] => [
+    { label: 'Rename…', disabled: !editable, onSelect: () => setEditingLevel(level.id) },
+    { label: 'Edit description…', disabled: !editable, onSelect: () => setEditingLevel(level.id) },
+    {
+      label: 'Move level up',
+      disabled: !editable || index === 0,
+      onSelect: () => void run((current) => moveLevel(current, index, index - 1)),
+    },
+    {
+      label: 'Move level down',
+      disabled: !editable || index === catalog.levels.length - 1,
+      onSelect: () => void run((current) => moveLevel(current, index, index + 1)),
+    },
+    'separator',
+    {
+      label: 'Delete level…',
+      danger: true,
+      disabled: !editable || catalog.paths.some((path) => path.level === level.id),
+      onSelect: () => void run((current) => deleteLevel(current, level.id)),
+    },
+  ]
+
   return (
     <div className="st-paths">
       <nav className="st-paths__list" aria-label="Paths">
         <h2 className="st-label">Paths</h2>
         {catalog.paths.length > 0 ? (
-          <ul className="st-paths__items">
-            {catalog.paths.map((path, index) => {
-              const published = inApp(path)
-              return (
-                <li
-                  key={path.id}
-                  className={`st-paths__row ${pathDrop === index ? 'is-drop-target' : ''}`}
-                  draggable={editable}
-                  onDragStart={(event) => {
-                    event.dataTransfer.setData(PATH_DRAG, String(index))
-                    event.dataTransfer.effectAllowed = 'move'
-                  }}
-                  onDragOver={(event) => {
-                    if (!editable || !event.dataTransfer.types.includes(PATH_DRAG)) return
-                    event.preventDefault()
-                    setPathDrop(index)
-                  }}
-                  onDragLeave={() => setPathDrop((current) => (current === index ? null : current))}
-                  onDrop={(event) => {
-                    setPathDrop(null)
-                    const from = Number(event.dataTransfer.getData(PATH_DRAG))
-                    if (!Number.isInteger(from) || from === index) return
-                    event.preventDefault()
-                    void run((current) => movePath(current, from, index))
-                  }}
-                  onDragEnd={() => setPathDrop(null)}
-                >
-                  <a
-                    className="st-paths__link"
-                    href={routeHref({ name: 'paths', pathId: path.id })}
-                    aria-current={!searching && path.id === selected?.id ? 'page' : undefined}
-                    onClick={() => setQuery('')}
-                  >
-                    <span className="st-paths__name">{path.title}</span>
-                    <span
-                      className={`st-paths__count ${published === 0 ? 'is-none' : ''}`}
-                      title={
-                        published === 0
-                          ? 'Not in the app yet: no lesson in this path is published.'
-                          : `${published} of ${path.lessonIds.length} lessons published`
-                      }
-                    >
-                      {published}/{path.lessonIds.length}
-                    </span>
-                  </a>
-                </li>
-              )
-            })}
-          </ul>
+          catalog.levels.length === 0 ? (
+            <ul className="st-paths__items">{catalog.paths.map(pathItem)}</ul>
+          ) : (
+            <>
+              {catalog.levels.map((level, index) => {
+                const inLevel = catalog.paths.filter((path) => path.level === level.id)
+                return (
+                  <section key={level.id} className="st-paths__group" aria-label={level.title}>
+                    {editingLevel === level.id ? (
+                      <LevelForm
+                        initial={{ title: level.title, description: level.description ?? '' }}
+                        submitLabel="Save"
+                        busy={busy}
+                        onCancel={() => setEditingLevel(null)}
+                        onSubmit={async (fields) => {
+                          if (await run((current) => updateLevel(current, level.id, fields))) setEditingLevel(null)
+                        }}
+                      />
+                    ) : (
+                      <>
+                        <h3 className="st-paths__level">
+                          <span className="st-paths__level-name">{level.title}</span>
+                          <span className="st-paths__count">{inLevel.length}</span>
+                          {library.writable ? (
+                            <Menu label={`Actions for the ${level.title} level`} entries={levelEntries(level, index)} />
+                          ) : null}
+                        </h3>
+                        {level.description ? <p className="st-paths__level-note">{level.description}</p> : null}
+                      </>
+                    )}
+                    {inLevel.length > 0 ? (
+                      <ul className="st-paths__items">{inLevel.map(pathItem)}</ul>
+                    ) : (
+                      <p className="st-section-note">No paths in this level yet.</p>
+                    )}
+                  </section>
+                )
+              })}
+              {catalog.paths.some((path) => !path.level) ? (
+                <section className="st-paths__group" aria-label="No level">
+                  <h3 className="st-paths__level">
+                    <span className="st-paths__level-name">No level</span>
+                    <span className="st-paths__count">{catalog.paths.filter((path) => !path.level).length}</span>
+                  </h3>
+                  <ul className="st-paths__items">
+                    {catalog.paths.filter((path) => !path.level).map(pathItem)}
+                  </ul>
+                </section>
+              ) : null}
+            </>
+          )
         ) : (
           <p className="st-section-note">No paths yet.</p>
         )}
@@ -301,6 +400,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
         ) : creating ? (
           <PathForm
             withId
+            levels={catalog.levels}
             submitLabel="Create path"
             busy={busy}
             onCancel={() => setCreating(false)}
@@ -311,15 +411,36 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
               }
             }}
           />
+        ) : creatingLevel ? (
+          <LevelForm
+            withId
+            submitLabel="Create level"
+            busy={busy}
+            onCancel={() => setCreatingLevel(false)}
+            onSubmit={async (fields, id) => {
+              if (await run((current) => createLevel(current, id, fields))) setCreatingLevel(false)
+            }}
+          />
         ) : (
-          <button
-            type="button"
-            className="st-button st-button--compact"
-            disabled={busy}
-            onClick={() => setCreating(true)}
-          >
-            + New path
-          </button>
+          <div className="st-paths__actions">
+            <button
+              type="button"
+              className="st-button st-button--compact"
+              disabled={busy}
+              onClick={() => setCreating(true)}
+            >
+              + New path
+            </button>
+            <button
+              type="button"
+              className="st-button st-button--compact"
+              disabled={busy}
+              title="Levels group the path list. They only recommend an order; nothing is ever locked."
+              onClick={() => setCreatingLevel(true)}
+            >
+              + New level
+            </button>
+          </div>
         )}
 
         <hr className="st-paths__rule" />
@@ -404,6 +525,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
               density={prefs.density}
               library={library}
               onReload={onReload}
+              onEdit={onEdit}
               showPath
               entriesFor={moveEntries}
               onShowAll={() => updatePrefs({ filter: 'all' })}
@@ -422,6 +544,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
               density={prefs.density}
               library={library}
               onReload={onReload}
+              onEdit={onEdit}
               entriesFor={moveEntries}
               onShowAll={() => updatePrefs({ filter: 'all' })}
               empty="Every lesson is in a path."
@@ -433,6 +556,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
             path={selected}
             index={catalog.paths.indexOf(selected)}
             pathCount={catalog.paths.length}
+            levels={catalog.levels}
             rows={selectedRows}
             published={inApp(selected)}
             filter={prefs.filter}
@@ -441,6 +565,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
             editable={editable}
             busy={busy}
             run={run}
+            onEdit={onEdit}
             onReload={onReload}
             moveEntries={moveEntries}
             onShowAll={() => updatePrefs({ filter: 'all' })}
@@ -468,6 +593,7 @@ function PathDetail({
   path,
   index,
   pathCount,
+  levels,
   rows,
   published,
   filter,
@@ -476,6 +602,7 @@ function PathDetail({
   editable,
   busy,
   run,
+  onEdit,
   onReload,
   moveEntries,
   onShowAll,
@@ -483,6 +610,7 @@ function PathDetail({
   path: LearningPath
   index: number
   pathCount: number
+  levels: Level[]
   rows: Row[]
   published: number
   filter: Filter
@@ -491,23 +619,28 @@ function PathDetail({
   editable: boolean
   busy: boolean
   run: Run
+  onEdit: (change: (catalog: Catalog) => Catalog) => Promise<void>
   onReload: () => Promise<void>
   moveEntries: (row: Row) => MenuEntry[]
   onShowAll: () => void
 }) {
   const [renaming, setRenaming] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [planning, setPlanning] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [lessonsGo, setLessonsGo] = useState<'unfile' | 'trash'>('unfile')
 
-  const totalSeconds = rows.reduce((sum, row) => sum + estimateLearnerSeconds(row.entry.tutorial), 0)
+  // Only lessons with a drawing have a time; planned ones add nothing.
+  const drawn = rows.filter((row) => row.entry)
+  const planned = rows.length - drawn.length
+  const totalSeconds = drawn.reduce((sum, row) => sum + estimateLearnerSeconds(row.entry!.tutorial), 0)
   const visible = rows.filter((row) => matches(row, filter))
   // Reordering by drag only makes sense when every lesson of the path is shown.
   const reorderable = editable && filter === 'all' && density === 'list'
 
   const move = async (from: number, to: number) => {
     if (from === to || to < 0 || to >= rows.length) return
-    const id = rows[from].entry.id
+    const id = rows[from].id
     if (await run((current) => reorderLessons(current, path.id, from, to))) {
       document.querySelector<HTMLElement>(`[data-lesson-link="${id}"]`)?.focus()
     }
@@ -576,13 +709,23 @@ function PathDetail({
               <a className="st-button st-button--compact" href={routeHref({ name: 'new', pathId: path.id })}>
                 + New lesson
               </a>
+              <button
+                type="button"
+                className="st-button st-button--compact"
+                disabled={!editable}
+                title="Hold a place for a lesson you will draw later."
+                onClick={() => setPlanning(true)}
+              >
+                + Add planned lesson
+              </button>
               <Menu label={`Actions for the ${path.title} path`} entries={pathEntries} />
             </div>
           ) : null}
         </div>
         {editing ? (
           <PathForm
-            initial={{ title: path.title, description: path.description ?? '' }}
+            initial={{ title: path.title, description: path.description ?? '', level: path.level ?? null }}
+            levels={levels}
             submitLabel="Save"
             busy={busy}
             onCancel={() => setEditing(false)}
@@ -594,14 +737,21 @@ function PathDetail({
           <p>{path.description}</p>
         ) : null}
         <p className="st-path-header__meta">
-          {rows.length} {rows.length === 1 ? 'lesson' : 'lessons'} · {published} in the app ·{' '}
+          {rows.length} {rows.length === 1 ? 'lesson' : 'lessons'}
+          {planned > 0 ? ` · ${planned} planned` : ''} · {published} in the app ·{' '}
           {formatMinutes(totalSeconds)} of drawing in total · id <code>{path.id}</code>
+          {path.level ? (
+            <>
+              {' '}· level <code>{path.level}</code>
+            </>
+          ) : null}
         </p>
       </header>
 
       {rows.length === 0 ? (
         <p className="st-section-note">
-          No lessons yet. Start one with “+ New lesson”, or add one from “Not in a path”.
+          No lessons yet. Start one with “+ New lesson”, plan the path with “+ Add planned lesson”, or add one
+          from “Not in a path”.
         </p>
       ) : (
         <LessonList
@@ -611,6 +761,7 @@ function PathDetail({
           density={density}
           library={library}
           onReload={onReload}
+          onEdit={onEdit}
           onShowAll={onShowAll}
           empty="No lesson in this path matches the filter."
           reorder={
@@ -644,6 +795,20 @@ function PathDetail({
           }}
         />
       )}
+
+      {planning ? (
+        <PlannedLessonDialog
+          title={`Plan a lesson in “${path.title}”`}
+          confirmLabel="Add planned lesson"
+          withId
+          initial={{ id: '', title: '', objective: '' }}
+          onClose={() => setPlanning(false)}
+          onConfirm={async (fields) => {
+            await onEdit((current) => planLesson(current, path.id, fields))
+            setPlanning(false)
+          }}
+        />
+      ) : null}
 
       {deleting ? (
         <ConfirmDialog
@@ -700,6 +865,7 @@ function LessonList({
   density,
   library,
   onReload,
+  onEdit,
   showPath = false,
   entriesFor,
   reorder,
@@ -715,6 +881,8 @@ function LessonList({
   density: Density
   library: Library
   onReload: () => Promise<void>
+  /** Applies one curriculum change, for the placeholder rows that edit their own words. */
+  onEdit: (change: (catalog: Catalog) => Catalog) => Promise<void>
   showPath?: boolean
   entriesFor: (row: Row) => MenuEntry[]
   reorder?: { onMove: (from: number, to: number) => void; indexOf: (row: Row) => number }
@@ -747,42 +915,65 @@ function LessonList({
     onKeyMove(row, event.key === 'ArrowUp' ? -1 : 1)
   }
 
+  // A planned lesson has no drawing, so it has no time, steps or strokes to report.
   const meta = (row: Row) => {
-    const { tutorial } = row.entry
+    const tutorial = row.entry?.tutorial
     return (
       <>
-        {formatMinutes(estimateLearnerSeconds(tutorial))} · {tutorial.steps.length} steps · {totalStrokes(tutorial)} strokes
+        {tutorial
+          ? `${formatMinutes(estimateLearnerSeconds(tutorial))} · ${tutorial.steps.length} steps · ${totalStrokes(tutorial)} strokes`
+          : 'Nothing drawn yet'}
         {row.lesson?.complexity ? ` · complexity ${row.lesson.complexity}/5` : ''}
         {showPath ? ` · ${row.path ? row.path.title : 'not in a path'}` : ''}
       </>
     )
   }
 
+  /** The one control on a row: a real lesson's actions, or a placeholder's. */
+  const actions = (row: Row) =>
+    row.entry ? (
+      <LessonActions library={library} lessonId={row.id} onChanged={onReload} extraEntries={entriesFor(row)} withOpen />
+    ) : (
+      <PlannedActions row={row} library={library} onReload={onReload} onEdit={onEdit} extraEntries={entriesFor(row)} />
+    )
+
   if (density === 'grid') {
     return (
       <ul className="st-lesson-grid">
-        {rows.map((row, position) => (
-          <li key={row.entry.id} className="st-lesson-tile">
-            <a
-              className="st-lesson-tile__link"
-              href={routeHref({ name: 'lesson', lessonId: row.entry.id })}
-              data-lesson-link={row.entry.id}
-              onKeyDown={onTitleKeyDown(row)}
-            >
-              <span className="st-lesson-tile__thumb">
-                <FinishedDrawing tutorial={row.entry.tutorial} />
-              </span>
-              <span className="st-lesson-tile__title">
-                {numbers ? <span className="st-lesson-tile__number">{String(numbers[position]).padStart(2, '0')}</span> : null}
-                {row.entry.tutorial.title}
-              </span>
-            </a>
-            <span className="st-lesson-tile__foot">
-              <LifecycleBadge status={row.lesson?.status} state={row.entry.state} />
-              <LessonActions library={library} lessonId={row.entry.id} onChanged={onReload} extraEntries={entriesFor(row)} withOpen />
+        {rows.map((row, position) => {
+          const title = (
+            <span className="st-lesson-tile__title">
+              {numbers ? <span className="st-lesson-tile__number">{String(numbers[position]).padStart(2, '0')}</span> : null}
+              {titleOf(row)}
             </span>
-          </li>
-        ))}
+          )
+          return (
+            <li key={row.id} className={`st-lesson-tile ${row.entry ? '' : 'is-planned'}`}>
+              {row.entry ? (
+                <a
+                  className="st-lesson-tile__link"
+                  href={routeHref({ name: 'lesson', lessonId: row.id })}
+                  data-lesson-link={row.id}
+                  onKeyDown={onTitleKeyDown(row)}
+                >
+                  <span className="st-lesson-tile__thumb">
+                    <FinishedDrawing tutorial={row.entry.tutorial} />
+                  </span>
+                  {title}
+                </a>
+              ) : (
+                <span className="st-lesson-tile__link">
+                  <span className="st-lesson-tile__thumb" />
+                  {title}
+                </span>
+              )}
+              <span className="st-lesson-tile__foot">
+                <LifecycleBadge status={row.lesson?.status} state={row.entry?.state ?? 'workspace'} />
+                {actions(row)}
+              </span>
+            </li>
+          )
+        })}
       </ul>
     )
   }
@@ -793,8 +984,8 @@ function LessonList({
         const index = reorder ? reorder.indexOf(row) : position
         return (
           <li
-            key={row.entry.id}
-            className={`st-lesson-row ${reorder ? 'is-reorderable' : ''} ${dropIndex === index ? 'is-drop-target' : ''}`}
+            key={row.id}
+            className={`st-lesson-row ${row.entry ? '' : 'is-planned'} ${reorder ? 'is-reorderable' : ''} ${dropIndex === index ? 'is-drop-target' : ''}`}
             draggable={Boolean(reorder)}
             onDragStart={(event) => {
               event.dataTransfer.setData(LESSON_DRAG, String(index))
@@ -822,20 +1013,24 @@ function LessonList({
               {numbers ? String(numbers[position]).padStart(2, '0') : ''}
             </span>
             <span className="st-lesson-row__thumb">
-              <FinishedDrawing tutorial={row.entry.tutorial} />
+              {row.entry ? <FinishedDrawing tutorial={row.entry.tutorial} /> : null}
             </span>
             <div className="st-lesson-row__body">
               <div className="st-lesson-row__head">
-                <a
-                  className="st-lesson-row__title"
-                  href={routeHref({ name: 'lesson', lessonId: row.entry.id })}
-                  data-lesson-link={row.entry.id}
-                  onKeyDown={onTitleKeyDown(row)}
-                  title={onKeyMove ? '⌥↑ / ⌥↓ moves it in the path' : undefined}
-                >
-                  {row.entry.tutorial.title}
-                </a>
-                <LifecycleBadge status={row.lesson?.status} state={row.entry.state} />
+                {row.entry ? (
+                  <a
+                    className="st-lesson-row__title"
+                    href={routeHref({ name: 'lesson', lessonId: row.id })}
+                    data-lesson-link={row.id}
+                    onKeyDown={onTitleKeyDown(row)}
+                    title={onKeyMove ? '⌥↑ / ⌥↓ moves it in the path' : undefined}
+                  >
+                    {row.entry.tutorial.title}
+                  </a>
+                ) : (
+                  <span className="st-lesson-row__title">{titleOf(row)}</span>
+                )}
+                <LifecycleBadge status={row.lesson?.status} state={row.entry?.state ?? 'workspace'} />
               </div>
               {row.lesson?.objective ? <p className="st-lesson-row__objective">{row.lesson.objective}</p> : null}
               <p className="st-lesson-row__meta">
@@ -848,7 +1043,7 @@ function LessonList({
                 ) : null}
               </p>
             </div>
-            <LessonActions library={library} lessonId={row.entry.id} onChanged={onReload} extraEntries={entriesFor(row)} withOpen />
+            {actions(row)}
           </li>
         )
       })}
@@ -900,9 +1095,10 @@ function RenameField({
   )
 }
 
-/** Title, optional description and — for a new path only — the id. */
+/** Title, optional description, the level it sits under, and — for a new path only — the id. */
 function PathForm({
   initial,
+  levels,
   withId = false,
   submitLabel,
   busy,
@@ -910,6 +1106,7 @@ function PathForm({
   onCancel,
 }: {
   initial?: PathFields
+  levels: Level[]
   withId?: boolean
   submitLabel: string
   busy: boolean
@@ -918,12 +1115,13 @@ function PathForm({
 }) {
   const [title, setTitle] = useState(initial?.title ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
+  const [level, setLevel] = useState(initial?.level ?? '')
   const [id, setId] = useState('')
   const [idEdited, setIdEdited] = useState(false)
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    onSubmit({ title, description }, id)
+    onSubmit({ title, description, level: level || null }, id)
   }
 
   return (
@@ -964,6 +1162,19 @@ function PathForm({
           onChange={(event) => setDescription(event.target.value)}
         />
       </label>
+      {levels.length > 0 ? (
+        <label className="st-field">
+          <span className="st-field__label">Level</span>
+          <select className="st-field__input" value={level ?? ''} onChange={(event) => setLevel(event.target.value)}>
+            <option value="">No level — listed after the levels</option>
+            {levels.map((candidate) => (
+              <option key={candidate.id} value={candidate.id}>
+                {candidate.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <div className="st-path-form__actions">
         <button
           type="submit"
@@ -977,5 +1188,230 @@ function PathForm({
         </button>
       </div>
     </form>
+  )
+}
+
+/** A level's title, its one-line description, and — for a new level only — the id. */
+function LevelForm({
+  initial,
+  withId = false,
+  submitLabel,
+  busy,
+  onSubmit,
+  onCancel,
+}: {
+  initial?: LevelFields
+  withId?: boolean
+  submitLabel: string
+  busy: boolean
+  onSubmit: (fields: LevelFields, id: string) => void
+  onCancel: () => void
+}) {
+  const [title, setTitle] = useState(initial?.title ?? '')
+  const [description, setDescription] = useState(initial?.description ?? '')
+  const [id, setId] = useState('')
+  const [idEdited, setIdEdited] = useState(false)
+
+  return (
+    <form
+      className="st-path-form"
+      onSubmit={(event) => {
+        event.preventDefault()
+        onSubmit({ title, description }, id)
+      }}
+    >
+      <label className="st-field">
+        <span className="st-field__label">Title</span>
+        <input
+          className="st-field__input"
+          value={title}
+          autoFocus
+          placeholder="e.g. Starter"
+          onChange={(event) => {
+            setTitle(event.target.value)
+            if (!idEdited) setId(slugify(event.target.value))
+          }}
+        />
+        <span className="st-field__hint">A name, not a number: “Starter”, not “Level 1”.</span>
+      </label>
+      {withId ? (
+        <label className="st-field">
+          <span className="st-field__label">Id</span>
+          <input
+            className="st-field__input"
+            value={id}
+            onChange={(event) => {
+              setIdEdited(true)
+              setId(event.target.value)
+            }}
+          />
+        </label>
+      ) : null}
+      <label className="st-field">
+        <span className="st-field__label">Description (optional)</span>
+        <textarea
+          className="st-field__input"
+          value={description}
+          placeholder="One line on what the paths of this level teach."
+          onChange={(event) => setDescription(event.target.value)}
+        />
+      </label>
+      <div className="st-path-form__actions">
+        <button
+          type="submit"
+          className="st-button st-button--primary st-button--compact"
+          disabled={busy || !title.trim() || (withId && !id)}
+        >
+          {busy ? 'Saving…' : submitLabel}
+        </button>
+        <button type="button" className="st-button st-button--compact" disabled={busy} onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  )
+}
+
+/**
+ * What can be done to a place that is only held: generate the lesson that
+ * fills it, reword it, move it, or give the place up.
+ */
+function PlannedActions({
+  row,
+  library,
+  onReload,
+  onEdit,
+  extraEntries,
+}: {
+  row: Row
+  library: Library
+  onReload: () => Promise<void>
+  onEdit: (change: (catalog: Catalog) => Catalog) => Promise<void>
+  extraEntries: MenuEntry[]
+}) {
+  const [dialog, setDialog] = useState<'edit' | 'delete' | null>(null)
+  const lesson = row.lesson
+  if (!lesson || !library.writable) return null
+
+  const entries: MenuEntry[] = [
+    {
+      label: 'Generate this lesson…',
+      onSelect: () => (window.location.hash = routeHref({ name: 'new', pathId: null, lessonId: row.id })),
+    },
+    { label: 'Edit title and objective…', onSelect: () => setDialog('edit') },
+    ...extraEntries,
+    'separator',
+    { label: 'Delete…', danger: true, onSelect: () => setDialog('delete') },
+  ]
+
+  return (
+    <>
+      <Menu label={`Actions for the planned lesson ${titleOf(row)}`} entries={entries} />
+      {dialog === 'edit' ? (
+        <PlannedLessonDialog
+          title={`Edit “${titleOf(row)}”`}
+          confirmLabel="Save"
+          initial={{ id: row.id, title: lesson.title ?? '', objective: lesson.objective }}
+          onClose={() => setDialog(null)}
+          onConfirm={async (fields) => {
+            await onEdit((current) => ({
+              ...current,
+              lessons: current.lessons.map((candidate) =>
+                candidate.id === row.id
+                  ? { id: candidate.id, title: fields.title, status: 'planned' as const, objective: fields.objective }
+                  : candidate,
+              ),
+            }))
+          }}
+        />
+      ) : null}
+      {dialog === 'delete' ? (
+        <ConfirmDialog
+          title={`Delete the planned lesson “${titleOf(row)}”?`}
+          confirmLabel="Delete"
+          busyLabel="Deleting…"
+          tone="danger"
+          onClose={() => setDialog(null)}
+          onConfirm={async () => {
+            await deleteLesson(row.id)
+            await onReload()
+          }}
+        >
+          <p>
+            Nothing has been drawn for it, so only the place it was holding
+            {row.path ? ` in “${row.path.title}”` : ''} goes. It waits in the Trash until the Trash is emptied.
+          </p>
+        </ConfirmDialog>
+      ) : null}
+    </>
+  )
+}
+
+/** The three things a placeholder is: an id, a name and the one idea it will teach. */
+function PlannedLessonDialog({
+  title,
+  confirmLabel,
+  initial,
+  withId = false,
+  onConfirm,
+  onClose,
+}: {
+  title: string
+  confirmLabel: string
+  initial: { id: string; title: string; objective: string }
+  withId?: boolean
+  onConfirm: (fields: { id: string; title: string; objective: string }) => Promise<void>
+  onClose: () => void
+}) {
+  const [name, setName] = useState(initial.title)
+  const [objective, setObjective] = useState(initial.objective)
+  const [id, setId] = useState(initial.id)
+  const [idEdited, setIdEdited] = useState(!withId)
+
+  return (
+    <ConfirmDialog
+      title={title}
+      confirmLabel={confirmLabel}
+      busyLabel="Saving…"
+      confirmDisabled={!name.trim() || !objective.trim() || !id.trim()}
+      focusField
+      onClose={onClose}
+      onConfirm={() => onConfirm({ id: id.trim(), title: name.trim(), objective: objective.trim() })}
+    >
+      <label className="st-field">
+        <span className="st-field__label">Title</span>
+        <input
+          className="st-field__input"
+          value={name}
+          placeholder="e.g. Sun"
+          onChange={(event) => {
+            setName(event.target.value)
+            if (!idEdited) setId(slugify(event.target.value))
+          }}
+        />
+      </label>
+      {withId ? (
+        <label className="st-field">
+          <span className="st-field__label">Id (also the tutorial’s file name once it exists)</span>
+          <input
+            className="st-field__input"
+            value={id}
+            onChange={(event) => {
+              setIdEdited(true)
+              setId(event.target.value)
+            }}
+          />
+        </label>
+      ) : null}
+      <label className="st-field">
+        <span className="st-field__label">Objective (one line, shown in the path)</span>
+        <input
+          className="st-field__input"
+          value={objective}
+          placeholder="e.g. Circle with eight straight rays"
+          onChange={(event) => setObjective(event.target.value)}
+        />
+      </label>
+    </ConfirmDialog>
   )
 }

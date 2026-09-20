@@ -1,4 +1,4 @@
-import type { Catalog, LearningPath, Lesson } from './types'
+import type { Catalog, LearningPath, Lesson, Level } from './types'
 
 /**
  * Two places for content (a Studio departure from master plan §27, recorded in
@@ -24,6 +24,8 @@ export type EditedPart = 'drawing' | 'details' | 'photo'
 export interface PathOrder {
   id: string
   title: string
+  /** The level the path sits under, or undefined when it sits under none. */
+  level?: string
   lessonIds: string[]
 }
 
@@ -32,8 +34,14 @@ export type PendingChange =
   | { kind: 'new'; lessonId: string; ready: boolean }
   /** Published, with changes in the workspace. */
   | { kind: 'edited'; lessonId: string; ready: boolean; parts: EditedPart[] }
-  /** The published paths, their titles or their order differ from the working curriculum. */
-  | { kind: 'curriculum'; before: PathOrder[]; after: PathOrder[] }
+  /** The published levels, paths, their titles, their grouping or their order differ from the working curriculum. */
+  | {
+      kind: 'curriculum'
+      before: PathOrder[]
+      after: PathOrder[]
+      levelsBefore: Level[]
+      levelsAfter: Level[]
+    }
 
 export interface PublishingState {
   /** Lessons whose tutorial is in `shared/Tutorials`. */
@@ -78,7 +86,11 @@ export function projectCatalog(
     const lessonIds = path.lessonIds.filter((id) => listed.has(id))
     return lessonIds.length > 0 ? [{ ...path, lessonIds }] : []
   })
-  return { paths, lessons }
+  // A level with no projected path under it would be an empty heading in the
+  // app, so it is left out; the rest keep the working order.
+  const used = new Set(paths.flatMap((path) => (path.level ? [path.level] : [])))
+  const levels = working.levels.filter((level) => used.has(level.id))
+  return { levels, paths, lessons }
 }
 
 export interface PendingInput {
@@ -97,6 +109,9 @@ export function pendingChanges(input: PendingInput): PendingChange[] {
   const changes: PendingChange[] = []
 
   for (const lesson of input.working.lessons) {
+    // A planned lesson is a placeholder with nothing to write; it is not
+    // something publishing is waiting for, so it is not listed at all.
+    if (lesson.status === 'planned') continue
     const ready = lesson.status === 'approved'
     if (!input.published.has(lesson.id)) {
       changes.push({ kind: 'new', lessonId: lesson.id, ready })
@@ -111,8 +126,12 @@ export function pendingChanges(input: PendingInput): PendingChange[] {
   }
 
   const before = (input.shared?.paths ?? []).map(pathOrder)
-  const after = projectCatalog(input.working, input.shared, input.published).paths.map(pathOrder)
-  if (!sameJSON(before, after)) changes.push({ kind: 'curriculum', before, after })
+  const levelsBefore = input.shared?.levels ?? []
+  const projected = projectCatalog(input.working, input.shared, input.published)
+  const after = projected.paths.map(pathOrder)
+  if (!sameJSON(before, after) || !sameJSON(levelsBefore, projected.levels)) {
+    changes.push({ kind: 'curriculum', before, after, levelsBefore, levelsAfter: projected.levels })
+  }
   return changes
 }
 
@@ -122,7 +141,12 @@ export function readyCount(pending: readonly PendingChange[]): number {
 }
 
 function pathOrder(path: LearningPath): PathOrder {
-  return { id: path.id, title: path.title, lessonIds: [...path.lessonIds] }
+  return {
+    id: path.id,
+    title: path.title,
+    ...(path.level ? { level: path.level } : {}),
+    lessonIds: [...path.lessonIds],
+  }
 }
 
 /** Equal as JSON, whatever order the keys were written in. */

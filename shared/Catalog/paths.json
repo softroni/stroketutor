@@ -1,14 +1,25 @@
 {
   "catalogVersion": 1,
+  "levels": [
+    {
+      "id": "core",
+      "title": "Core",
+      "description": "Detail, overlap and 3D form. Forms comes first: everything after it builds on it."
+    }
+  ],
   "paths": [
     {
-      "id": "trees",
-      "title": "Trees",
+      "id": "plants",
+      "title": "Plants",
+      "description": "Trees, flowers and potted plants, from stacked triangles to a twisted bonsai, ending on a windowsill garden.",
+      "level": "core",
       "lessonIds": ["palm-tree-4"]
     },
     {
-      "id": "cars",
-      "title": "Cars",
+      "id": "wheels",
+      "title": "Wheels",
+      "description": "Everything that rolls, from a box-shaped bus to a car drawn in three-quarter view.",
+      "level": "core",
       "lessonIds": ["classic-red-car"]
     }
   ]

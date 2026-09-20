@@ -5,7 +5,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import type { Catalog, Lesson } from '../src/catalog/types'
+import { catalogFiles, type Catalog, type Lesson } from '../src/catalog/types'
 import { validateCatalog } from '../src/catalog/validate'
 import { formatJSON } from '../src/schema/formatJSON'
 import { validateTutorial } from '../src/schema/validate'
@@ -51,17 +51,18 @@ async function refusal(action: () => Promise<unknown>): Promise<WriteRefused> {
 
 async function workingCatalog(): Promise<Catalog> {
   const current = await workspace.readCatalog()
-  return { paths: JSON.parse(current.paths.text).paths, lessons: JSON.parse(current.lessons.text).lessons }
+  const file = JSON.parse(current.paths.text)
+  return { levels: file.levels ?? [], paths: file.paths, lessons: JSON.parse(current.lessons.text).lessons }
 }
 
 async function editCatalog(change: (catalog: Catalog) => Catalog) {
   const current = await workspace.readCatalog()
   const next = change(await workingCatalog())
-  await workspace.writeCatalog(
-    { catalogVersion: 1, paths: next.paths },
-    { catalogVersion: 1, lessons: next.lessons },
-    { paths: { etag: current.paths.etag }, lessons: { etag: current.lessons.etag } },
-  )
+  const files = catalogFiles(next)
+  await workspace.writeCatalog(files.paths, files.lessons, {
+    paths: { etag: current.paths.etag },
+    lessons: { etag: current.lessons.etag },
+  })
 }
 
 /** A second house, in the workspace only, at the end of the Houses path. */
@@ -69,6 +70,7 @@ async function addDraftHouse(fields: Partial<Lesson> = {}) {
   const house = JSON.parse((await workspace.readTutorial('simple-house'))!.text)
   await workspace.writeTutorial('house-two', { ...house, id: 'house-two', title: 'House Two' }, { etag: null })
   await editCatalog((catalog) => ({
+    ...catalog,
     lessons: [...catalog.lessons, { id: 'house-two', status: 'draft', objective: 'A second house', ...fields }],
     paths: catalog.paths.map((candidate) =>
       candidate.id === 'houses' ? { ...candidate, lessonIds: [...candidate.lessonIds, 'house-two'] } : candidate,

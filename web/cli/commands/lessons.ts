@@ -6,16 +6,27 @@ import { estimateLearnerSeconds, formatMinutes } from '../../src/catalog/metrics
 import { findLesson, findPathOfLesson, type Lesson, type LessonStatus } from '../../src/catalog/types'
 import { parseTutorialJSON } from '../../src/schema/validate'
 import { stepDuration, type Tutorial } from '../../src/schema/types'
-import { assignLesson } from '../../src/studio/pathOps'
+import { assignLesson, planLesson } from '../../src/studio/pathOps'
 import { qualityWarnings, type QualityWarning } from '../../src/studio/quality'
 
 import { parseIndex, parseNumber, stringValue } from '../args'
 import { command, type Command } from '../command'
 import type { Context } from '../context'
-import { editCatalog, editTutorial, lessonRecord, patchLesson, placeInPath, readCatalog, readLesson, replaceTutorial, requireLesson } from '../edit'
+import { editCatalog, editTutorial, fillPlanned, lessonRecord, patchLesson, placeInPath, plannedPlaceholder, readCatalog, readLesson, replaceTutorial, requireLesson } from '../edit'
 import { CliError, plural, table } from '../output'
 
 const STATUSES: LessonStatus[] = ['draft', 'needs-review', 'approved']
+
+/**
+ * A planned lesson has no tutorial, so the commands that want one say what it
+ * is instead of "there is no lesson".
+ */
+function refusePlanned(id: string, lesson: Lesson | undefined, what: string): never | void {
+  if (lesson?.status !== 'planned') return
+  throw new CliError(
+    `"${id}" is a planned lesson: it holds a place in its path, but nothing has been drawn for it yet, so it cannot be ${what}. Generate its tutorial first (studio svg to-steps <file> --id ${id} …).`,
+  )
+}
 
 /** The lesson as the Paths view lists it: its tutorial, its catalog entry, its place. */
 async function describeLesson(ctx: Context, id: string) {
@@ -23,7 +34,10 @@ async function describeLesson(ctx: Context, id: string) {
   const entry = library.tutorials.get(id)
   const broken = library.broken.find((candidate) => candidate.fileName === `${id}.json`)
   if (!entry && broken) throw new CliError(`The lesson "${id}" fails validation.`, broken.issues)
-  if (!entry) throw new CliError(`There is no lesson "${id}".`)
+  if (!entry) {
+    refusePlanned(id, library.catalog ? findLesson(library.catalog, id) : undefined, 'used here')
+    throw new CliError(`There is no lesson "${id}".`)
+  }
   const catalog = library.catalog
   const lesson = catalog ? findLesson(catalog, id) : undefined
   const pathOf = catalog ? findPathOfLesson(catalog, id) : undefined
@@ -56,8 +70,8 @@ export const lessonCommands: Command[] = [
     {
       path: { type: 'string', description: 'Only the lessons of this path, in unlock order.', placeholder: 'id' },
       unfiled: { type: 'boolean', description: 'Only lessons in no path.' },
-      status: { type: 'string', description: 'Only draft, needs-review or approved.' },
-      state: { type: 'string', description: 'Only workspace, published or published-edited.', placeholder: 'state' },
+      status: { type: 'string', description: 'Only planned, draft, needs-review or approved.' },
+      state: { type: 'string', description: 'Only planned, workspace, published or published-edited.', placeholder: 'state' },
     },
     async (ctx, args) => {
       const library = await ctx.library()
@@ -65,27 +79,34 @@ export const lessonCommands: Command[] = [
       const pathFilter = stringValue(args.values, 'path')
       const statusFilter = stringValue(args.values, 'status')
       const stateFilter = stringValue(args.values, 'state')
+      // Planned lessons have no tutorial, so the list is the catalog's lessons
+      // as well as the library's, not the library's alone.
+      const planned = (catalog?.lessons ?? []).flatMap((lesson) =>
+        lesson.status === 'planned' && !library.tutorials.has(lesson.id) ? [lesson.id] : [],
+      )
       const ids = pathFilter
         ? (catalog?.paths.find((candidate) => candidate.id === pathFilter)?.lessonIds ?? (() => { throw new CliError(`There is no path "${pathFilter}".`) })())
-        : [...library.tutorials.keys()].sort()
+        : [...new Set([...library.tutorials.keys(), ...planned])].sort()
       const rows = ids.flatMap((id) => {
         const entry = library.tutorials.get(id)
-        if (!entry) return []
         const lesson = catalog ? findLesson(catalog, id) : undefined
+        const isPlanned = !entry && lesson?.status === 'planned'
+        if (!entry && !isPlanned) return []
         const pathOf = catalog ? findPathOfLesson(catalog, id) : undefined
+        const state = isPlanned ? 'planned' : entry!.state
         if (args.values.unfiled && pathOf) return []
         if (statusFilter && lesson?.status !== statusFilter) return []
-        if (stateFilter && entry.state !== stateFilter) return []
+        if (stateFilter && state !== stateFilter) return []
         return [
           {
             id,
-            title: entry.tutorial.title,
+            title: entry?.tutorial.title ?? lesson?.title ?? id,
             status: lesson?.status ?? null,
-            state: entry.state,
+            state,
             path: pathOf?.id ?? null,
             position: pathOf ? pathOf.lessonIds.indexOf(id) + 1 : null,
-            steps: entry.tutorial.steps.length,
-            seconds: estimateLearnerSeconds(entry.tutorial),
+            steps: entry ? entry.tutorial.steps.length : null,
+            seconds: entry ? estimateLearnerSeconds(entry.tutorial) : null,
             objective: lesson?.objective ?? '',
           },
         ]
@@ -94,7 +115,7 @@ export const lessonCommands: Command[] = [
         ...(rows.length === 0
           ? ['No lessons match.']
           : table(
-              rows.map((row) => [row.id, row.title, row.status ?? 'not catalogued', row.state, row.path ? `${row.path} #${row.position}` : '', String(row.steps), formatMinutes(row.seconds)]),
+              rows.map((row) => [row.id, row.title, row.status ?? 'not catalogued', row.state, row.path ? `${row.path} #${row.position}` : '', row.steps === null ? '-' : String(row.steps), row.seconds === null ? '-' : formatMinutes(row.seconds)]),
               ['id', 'title', 'status', 'state', 'path', 'steps', 'time'],
             )),
         ...library.broken.map((broken) => `Broken: ${broken.fileName} fails validation (studio lessons validate ${broken.fileName.replace(/\.json$/, '')}).`),
@@ -103,7 +124,23 @@ export const lessonCommands: Command[] = [
   ),
 
   command('lessons show', 'One lesson: its details, its steps and its quality warnings.', ['<id>'], {}, async (ctx, args) => {
-    const { entry, lesson, path: pathOf, position, warnings } = await describeLesson(ctx, args.positionals[0])
+    const id = args.positionals[0]
+    const library = await ctx.library()
+    const catalog = library.catalog
+    const plannedEntry = catalog && !library.tutorials.has(id) ? findLesson(catalog, id) : undefined
+    if (plannedEntry?.status === 'planned') {
+      const pathOf = catalog ? findPathOfLesson(catalog, id) : undefined
+      const position = pathOf ? pathOf.lessonIds.indexOf(id) + 1 : null
+      ctx.out.result({ id, state: 'planned', lesson: plannedEntry, path: pathOf?.id ?? null, position, tutorial: null, warnings: [] }, () => [
+        `${plannedEntry.title} (${id}), planned`,
+        pathOf ? `Path: ${pathOf.title} (${pathOf.id}), lesson ${position} of ${pathOf.lessonIds.length}` : 'Path: none',
+        `Objective: ${plannedEntry.objective}`,
+        '',
+        `No tutorial yet. Generate one with \`studio svg to-steps <file.svg> --id ${id} --source "…" --license "…" --plan <plan.json>\`, or fill it from a file with \`studio lessons import <file.json> --id ${id}\`.`,
+      ])
+      return
+    }
+    const { entry, lesson, path: pathOf, position, warnings } = await describeLesson(ctx, id)
     const tutorial = entry.tutorial
     const data = { id: entry.id, state: entry.state, etag: entry.etag, lesson: lesson ?? null, path: pathOf?.id ?? null, position: position >= 0 ? position + 1 : null, tutorial, warnings }
     ctx.out.result(data, () => [
@@ -152,19 +189,61 @@ export const lessonCommands: Command[] = [
       const parsed = parseTutorialJSON(text)
       if (!parsed.ok) throw new CliError('The file is not a valid tutorial, so it was not imported.', parsed.issues)
       const id = stringValue(args.values, 'id') ?? parsed.tutorial.id
-      const objective = stringValue(args.values, 'objective')?.trim()
+      const library = await ctx.library()
+      const { catalog } = await readCatalog(ctx)
+      // A planned lesson with nothing drawn for it is a place waiting to be
+      // filled: the import takes its place, its objective and its path.
+      const placeholder = plannedPlaceholder(catalog, id, new Set(library.tutorials.keys()))
+      const objective = stringValue(args.values, 'objective')?.trim() ?? placeholder?.objective
       if (!objective) throw new CliError('Write the one-line objective: --objective "…".')
       const title = stringValue(args.values, 'title')?.trim() || parsed.tutorial.title
       const pathId = stringValue(args.values, 'path')
+      const plannedPath = placeholder ? findPathOfLesson(catalog, id)?.id : undefined
+      if (placeholder && pathId && plannedPath && pathId !== plannedPath) {
+        throw new CliError(`"${id}" is planned in "${plannedPath}", and filling it keeps that place. Drop --path, or move the lesson afterwards.`)
+      }
       const position = args.values.position === undefined ? undefined : parseIndex(stringValue(args.values, 'position'), 'The position')
       const tutorial: Tutorial = { ...parsed.tutorial, id, title }
       await replaceTutorial(ctx, id, tutorial, { create: true })
       await editCatalog(ctx, (current) => {
+        if (placeholder) return fillPlanned(current, { id, status: 'draft', objective })
         if (findLesson(current, id)) throw new CliError(`"${id}" is already catalogued.`)
         const withEntry = { ...current, lessons: [...current.lessons, lessonRecord({ id, status: 'draft', objective })] }
         return pathId ? placeInPath(withEntry, id, pathId, position) : withEntry
       })
-      ctx.out.result({ id, path: pathId ?? null }, () => `Imported "${title}" as the draft ${id}${pathId ? ` in "${pathId}"` : ''}.`)
+      const where = placeholder ? (plannedPath ?? null) : (pathId ?? null)
+      ctx.out.result({ id, path: where, filled: Boolean(placeholder) }, () =>
+        placeholder
+          ? `Filled the planned lesson ${id} with "${title}"; it is a draft now, in the place it was holding${where ? ` in "${where}"` : ''}.`
+          : `Imported "${title}" as the draft ${id}${where ? ` in "${where}"` : ''}.`,
+      )
+    },
+  ),
+
+  command(
+    'lessons plan',
+    'Hold a place in a path for a lesson nobody has drawn yet: a name, an objective, and nothing else.',
+    ['<id>'],
+    {
+      title: { type: 'string', description: 'The name the planned lesson goes by until its tutorial exists.' },
+      objective: { type: 'string', description: 'The one-line objective shown in the path.' },
+      path: { type: 'string', description: 'The path it holds a place in.', placeholder: 'id' },
+      position: { type: 'string', description: 'Its place in that path, counting from 1 (the end by default).', placeholder: 'n' },
+    },
+    async (ctx, args) => {
+      const id = args.positionals[0]
+      const title = stringValue(args.values, 'title')?.trim()
+      const objective = stringValue(args.values, 'objective')?.trim()
+      const pathId = stringValue(args.values, 'path')
+      if (!title || !objective || !pathId) {
+        throw new CliError('A planned lesson needs all three: --title "…", --objective "…" and --path <id>.')
+      }
+      const position = args.values.position === undefined ? undefined : parseIndex(stringValue(args.values, 'position'), 'The position')
+      const catalog = await editCatalog(ctx, (current) => planLesson(current, pathId, { id, title, objective }, position))
+      const at = catalog.paths.find((path) => path.id === pathId)!.lessonIds.indexOf(id) + 1
+      ctx.out.result({ id, path: pathId, position: at, lesson: findLesson(catalog, id) }, () =>
+        `Planned "${title}" (${id}) as lesson ${at} in "${pathId}". Generate it with \`studio svg to-steps <file.svg> --id ${id} --source "…" --license "…"\`.`,
+      )
     },
   ),
 
@@ -190,6 +269,26 @@ export const lessonCommands: Command[] = [
         throw new CliError('Say what to change: --objective, --status, --complexity, --notes or --title.')
       }
       if (status !== undefined && !STATUSES.includes(status as LessonStatus)) throw new CliError('--status must be draft, needs-review or approved.')
+      const { catalog: before } = await readCatalog(ctx)
+      // A planned lesson takes its title and objective here too, but it has no
+      // tutorial to read, so it never goes through `readLesson`.
+      const planned = findLesson(before, id)?.status === 'planned'
+      if (planned) {
+        if (status !== undefined) throw new CliError(`"${id}" is a planned lesson; generating its tutorial is what makes it a draft. Use \`studio lessons plan\` fields instead.`)
+        const catalog = await editCatalog(ctx, (current) =>
+          patchLesson(current, id, (lesson) =>
+            lessonRecord({
+              ...lesson,
+              ...(title !== undefined ? { title: title.trim() } : {}),
+              ...(objective !== undefined ? { objective: objective.trim() } : {}),
+              ...(complexity !== undefined ? { complexity } : {}),
+              ...(notes !== undefined ? { notes: notes.trim() } : {}),
+            }),
+          ),
+        )
+        ctx.out.result({ id, lesson: findLesson(catalog, id) ?? null, title: title?.trim() ?? null }, () => `Updated the planned lesson ${id}.`)
+        return
+      }
       await readLesson(ctx, id)
       if (title !== undefined) {
         if (!title.trim()) throw new CliError('The title cannot be empty.')
@@ -246,6 +345,13 @@ export const lessonCommands: Command[] = [
 
   command('lessons delete', 'Move a lesson to the trash. A published lesson is unpublished first.', ['<id>'], {}, async (ctx, args) => {
     const id = args.positionals[0]
+    const { catalog } = await readCatalog(ctx)
+    if (findLesson(catalog, id)?.status === 'planned') {
+      const store = await ctx.workspace()
+      await store.deleteLesson(id)
+      ctx.out.result({ id, files: [] as string[] }, () => `Moved the planned lesson ${id} to the trash (studio trash restore brings it back).`)
+      return
+    }
     const { entry } = await describeLesson(ctx, id)
     if (entry.state !== 'workspace') {
       await ctx.out.confirm(`"${id}" is published. Deleting it removes it from shared/ and moves it to the trash.`, id, ctx.flags.yes)
@@ -257,6 +363,7 @@ export const lessonCommands: Command[] = [
 
   command('lessons unpublish', 'Take a lesson out of shared/, keeping it in the workspace.', ['<id>'], {}, async (ctx, args) => {
     const id = args.positionals[0]
+    refusePlanned(id, findLesson((await readCatalog(ctx)).catalog, id), 'unpublished')
     await ctx.out.confirm(`Unpublishing "${id}" removes it from shared/; it stays editable in the workspace.`, id, ctx.flags.yes)
     const store = await ctx.workspace()
     const { files } = await store.unpublish(id)

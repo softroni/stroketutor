@@ -1,5 +1,5 @@
 import type { Stored } from '../server/repoWriter'
-import { findLesson, type Catalog, type LearningPath, type Lesson, type LessonsFile, type PathsFile } from '../src/catalog/types'
+import { catalogFiles, findLesson, type Catalog, type LearningPath, type Lesson, type LessonsFile, type PathsFile } from '../src/catalog/types'
 import { parseTutorialJSON } from '../src/schema/validate'
 import type { Tutorial } from '../src/schema/types'
 import { toEditable, toTutorial, type EditableTutorial } from '../src/studio/editor/ops'
@@ -18,7 +18,17 @@ import { CliError } from './output'
 export async function readLesson(ctx: Context, id: string): Promise<{ stored: Stored; tutorial: Tutorial }> {
   const store = await ctx.workspace()
   const stored = await store.readTutorial(id)
-  if (!stored) throw new CliError(`There is no lesson "${id}".`)
+  if (!stored) {
+    // A planned lesson is in the curriculum but has no tutorial, so every
+    // command that wants one says that rather than "there is no lesson".
+    const { catalog } = await readCatalog(ctx)
+    if (findLesson(catalog, id)?.status === 'planned') {
+      throw new CliError(
+        `"${id}" is a planned lesson: it holds a place in its path, but nothing has been drawn for it yet. Generate its tutorial first (studio svg to-steps <file.svg> --id ${id} …).`,
+      )
+    }
+    throw new CliError(`There is no lesson "${id}".`)
+  }
   const parsed = parseTutorialJSON(stored.text)
   if (!parsed.ok) {
     throw new CliError(`The lesson "${id}" has validation problems; fix its JSON first (studio lessons export ${id}).`, parsed.issues)
@@ -88,7 +98,7 @@ export async function readCatalog(ctx: Context): Promise<{ catalog: Catalog; eta
     throw new CliError(`The working curriculum could not be read: ${String(error)}`)
   }
   return {
-    catalog: { paths: paths.paths ?? [], lessons: lessons.lessons ?? [] },
+    catalog: { levels: paths.levels ?? [], paths: paths.paths ?? [], lessons: lessons.lessons ?? [] },
     etags: { paths: current.paths.etag, lessons: current.lessons.etag },
   }
 }
@@ -97,12 +107,12 @@ export async function readCatalog(ctx: Context): Promise<{ catalog: Catalog; eta
 export async function editCatalog(ctx: Context, change: (catalog: Catalog) => Catalog): Promise<Catalog> {
   const { catalog, etags } = await readCatalog(ctx)
   const next = change(catalog)
+  const files = catalogFiles(next)
   const store = await ctx.workspace()
-  await store.writeCatalog(
-    { catalogVersion: 1, paths: next.paths } satisfies PathsFile,
-    { catalogVersion: 1, lessons: next.lessons } satisfies LessonsFile,
-    { paths: { etag: etags.paths }, lessons: { etag: etags.lessons } },
-  )
+  await store.writeCatalog(files.paths, files.lessons, {
+    paths: { etag: etags.paths },
+    lessons: { etag: etags.lessons },
+  })
   return next
 }
 
@@ -142,16 +152,42 @@ export function placeInPath(catalog: Catalog, lessonId: string, pathId: string, 
   }
 }
 
-/** A catalog entry built in the order `lessons.json` lists fields, with empty optionals left out. */
+/**
+ * A catalog entry built in the order `lessons.json` lists fields, with empty
+ * optionals left out. `title` belongs to a planned lesson only: once a lesson
+ * has a tutorial, the tutorial's title is its name.
+ */
 export function lessonRecord(fields: Lesson): Lesson {
-  const { id, status, objective, complexity, notes, reference, generation } = fields
+  const { id, title, status, objective, complexity, notes, reference, generation } = fields
   return {
     id,
+    ...(status === 'planned' && title ? { title } : {}),
     status,
     objective,
     ...(complexity !== undefined ? { complexity } : {}),
     ...(notes ? { notes } : {}),
     ...(reference ? { reference } : {}),
     ...(generation ? { generation } : {}),
+  }
+}
+
+/**
+ * The placeholder a new tutorial with this id would fill: a planned lesson
+ * with nothing drawn for it yet. Anything else is `null`, and creating over it
+ * is refused as it always was.
+ */
+export function plannedPlaceholder(catalog: Catalog, id: string, tutorialIds: ReadonlySet<string>): Lesson | null {
+  const lesson = findLesson(catalog, id)
+  return lesson?.status === 'planned' && !tutorialIds.has(id) ? lesson : null
+}
+
+/**
+ * Puts the lesson a new tutorial has just filled in the place its placeholder
+ * held: same position in the same path, a draft now, and no title of its own.
+ */
+export function fillPlanned(catalog: Catalog, lesson: Lesson): Catalog {
+  return {
+    ...catalog,
+    lessons: catalog.lessons.map((candidate) => (candidate.id === lesson.id ? lessonRecord(lesson) : candidate)),
   }
 }

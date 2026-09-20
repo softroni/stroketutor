@@ -25,6 +25,12 @@ describe('parseRoute', () => {
     expect(parseRoute('#/new/houses')).toEqual({ name: 'new', pathId: 'houses' })
   })
 
+  it('reads the planned lesson New lesson is opened to fill', () => {
+    expect(parseRoute('#/new?lesson=sun')).toEqual({ name: 'new', pathId: null, lessonId: 'sun' })
+    expect(parseRoute('#/new?lesson=')).toEqual({ name: 'new', pathId: null })
+    expect(routeHref({ name: 'new', pathId: 'houses', lessonId: 'sun' })).toBe('#/new?lesson=sun')
+  })
+
   it('survives malformed escapes', () => {
     expect(parseRoute('#/lessons/%E0%A4%A')).toEqual({ name: 'lesson', lessonId: '%E0%A4%A' })
   })
@@ -36,6 +42,7 @@ describe('parseRoute', () => {
       { name: 'lesson', lessonId: 'simple-house' },
       { name: 'new', pathId: null },
       { name: 'new', pathId: 'houses' },
+      { name: 'new', pathId: null, lessonId: 'sun' },
       { name: 'unfiled' },
       { name: 'publish' },
       { name: 'voice' },

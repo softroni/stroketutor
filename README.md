@@ -91,6 +91,7 @@ Voice page, on 2026-09-13. **All eight are done.**
 | S6 | The agent as author: plans by hand, labelled previews and step sheets, `strokes reverse`, the `author-lesson` skill | ✅ Done 2026-09-12 | see git log |
 | S7 | Reviewing a lesson: replay speeds up to instant, replays that hold their last frame and show the learner's view, lines only, folding the active step | ✅ Done 2026-09-12 | see git log |
 | S8 | Voice: casting Lina from candidate voices on the creator's private TTS server, freezing the chosen one, narrating lessons and publishing `shared/Assets/Voice/` | ✅ Done 2026-09-13 | see git log |
+| S9 | Levels and planned lessons: paths grouped under named levels, placeholder lessons that hold a place until their tutorial is generated, `curriculum apply` for a plan file, level headers on the iOS paths screen | ✅ Done 2026-09-19 | see git log |
 
 #### S1 · Workspace vs published
 - [x] A SQLite workspace in `.studio/` (gitignored), on Node's built-in `node:sqlite`, backed up daily (newest seven kept).
@@ -172,6 +173,24 @@ Voice page, on 2026-09-13. **All eight are done.**
 - [x] Toasts for passing confirmations. The objective, complexity and notes are edited in the rail.
 - [x] Keyboard: ↑ ↓ / J K to change step, Space to replay the step, ⇧Space the lesson, P to preview, G to group,
       M to move, ⌫ to delete, Esc, `[`, ⌘Z, ⌘S, and `?` for the list.
+
+#### S9 · Levels and planned lessons
+Asked for on 2026-09-19, with the audience set to ages 8 to 16. The curriculum is planned in
+[docs/curriculum/plan.json](docs/curriculum/plan.json): three levels (Starter, Core, Advanced), 13 paths, 130
+lessons, no living things.
+- [x] **Levels.** `paths.json` may carry `levels`, and a path a `level`. A level groups and recommends; it never
+      locks a path. The Studio's Paths view, `levels …` and `paths level` edit them; `hp-paths` on iOS shows
+      them as section headers, and looks as before when the catalog has none.
+- [x] **Planned lessons.** A lesson with status `planned` has a title and an objective and no tutorial. It is
+      never published. Generating or importing a lesson under its id fills it: same place in the path, now a
+      draft. `lessons plan`, and `#/new?lesson=<id>` in the Studio.
+- [x] **`curriculum apply <plan>`** creates or updates levels, paths and planned lessons from a plan file, and
+      changes nothing when run again.
+- [x] Applied to the creator's workspace. Palm Tree 4 and Classic Red Car stay published, now in Plants and
+      Wheels; the ten Mountains drafts, House 1 and the old Trees, Houses, Mountains and Cars paths are in the
+      Studio's Trash.
+- [ ] Not done: an onboarding question that picks the learner's starting level; the Studio's new level headers
+      and planned rows have been typechecked and tested but not yet looked at in a browser.
 
 #### S8 · Voice: casting Lina
 Asked for on 2026-09-13: a Studio page to configure the iOS tutor's voice, preview it, keep it consistent, and

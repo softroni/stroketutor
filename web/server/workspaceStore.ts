@@ -4,7 +4,7 @@ import path from 'node:path'
 import type { DatabaseSync } from 'node:sqlite'
 
 import { pendingChanges, projectCatalog, sameJSON, type PublishingState } from '../src/catalog/publishing'
-import type { Catalog, Lesson, LessonsFile, PathsFile } from '../src/catalog/types'
+import { catalogFiles, type Catalog, type Lesson, type LessonsFile, type PathsFile } from '../src/catalog/types'
 import {
   HISTORY_KINDS,
   HISTORY_LAYERS,
@@ -177,7 +177,8 @@ interface TrashRow {
 
 interface LessonTrash {
   lesson?: Lesson
-  tutorialText: string
+  /** Absent for a planned lesson: a placeholder has no tutorial to keep. */
+  tutorialText?: string
   pathId: string | null
   position: number
   references: { file: string; contentType: string; base64: string }[]
@@ -333,11 +334,8 @@ export async function openWorkspace(options: WorkspaceOptions) {
   }
 
   function storeCatalog(catalog: Catalog) {
-    run(
-      'UPDATE catalog SET paths = ?, lessons = ? WHERE id = 1',
-      formatJSON({ catalogVersion: 1, paths: catalog.paths } satisfies PathsFile),
-      formatJSON({ catalogVersion: 1, lessons: catalog.lessons } satisfies LessonsFile),
-    )
+    const files = catalogFiles(catalog)
+    run('UPDATE catalog SET paths = ?, lessons = ? WHERE id = 1', formatJSON(files.paths), formatJSON(files.lessons))
   }
 
   /** What `shared/Catalog` was when the Studio last read or wrote it. */
@@ -632,6 +630,12 @@ export async function openWorkspace(options: WorkspaceOptions) {
         if (!lesson) {
           throw new WriteRefused(404, `"${id}" is not in the curriculum, so there is nothing to publish it with.`)
         }
+        if (lesson.status === 'planned') {
+          throw new WriteRefused(
+            422,
+            `"${id}" is a planned lesson: it holds a place in its path but nothing has been drawn for it yet, so there is nothing to publish. Generate its tutorial first.`,
+          )
+        }
         const draft = draftRow(id)
         const published = sharedTutorials.get(id)
         if (!draft && !published) throw new WriteRefused(404, `There is no lesson "${id}".`)
@@ -659,12 +663,11 @@ export async function openWorkspace(options: WorkspaceOptions) {
 
       const approved = new Map(plans.map((plan) => [plan.id, plan.lesson]))
       const nextWorking: Catalog = {
-        paths: working.paths,
+        ...working,
         lessons: working.lessons.map((lesson) => approved.get(lesson.id) ?? lesson),
       }
       const projected = projectCatalog(nextWorking, sharedCatalog, new Set([...sharedTutorials.keys(), ...ids]), new Set(ids))
-      const pathsFile: PathsFile = { catalogVersion: 1, paths: projected.paths }
-      const lessonsFile: LessonsFile = { catalogVersion: 1, lessons: projected.lessons }
+      const { paths: pathsFile, lessons: lessonsFile } = catalogFiles(projected)
       const pathsChanged = !sharedCatalog || !sameText(shared.paths?.text, formatJSON(pathsFile))
       const lessonsChanged = !sharedCatalog || !sameText(shared.lessons?.text, formatJSON(lessonsFile))
       if (pathsChanged || lessonsChanged) {
@@ -739,11 +742,13 @@ export async function openWorkspace(options: WorkspaceOptions) {
           return lessonIds.length > 0 ? [{ ...path, lessonIds }] : []
         })
         const lessons = sharedCatalog.lessons.filter((lesson) => lesson.id !== id)
-        await writer.writeCatalog(
-          { catalogVersion: 1, paths },
-          { catalogVersion: 1, lessons },
-          { paths: { etag: shared.paths?.etag ?? null }, lessons: { etag: shared.lessons?.etag ?? null } },
-        )
+        // A level left with no path goes too, as the projection would drop it.
+        const levels = sharedCatalog.levels.filter((level) => paths.some((path) => path.level === level.id))
+        const next = catalogFiles({ levels, paths, lessons })
+        await writer.writeCatalog(next.paths, next.lessons, {
+          paths: { etag: shared.paths?.etag ?? null },
+          lessons: { etag: shared.lessons?.etag ?? null },
+        })
         files.push('shared/Catalog/paths.json', 'shared/Catalog/lessons.json')
       }
       await writer.deleteTutorial(id, { etag: published.etag })
@@ -760,8 +765,16 @@ export async function openWorkspace(options: WorkspaceOptions) {
     /** A copy of a lesson as a new draft, right after it in its path. History is not copied. */
     async duplicate(id: string): Promise<{ lessonId: string }> {
       const current = await readTutorial(id)
-      if (!current) throw new WriteRefused(404, `There is no lesson "${id}".`)
       const working = workingCatalog()
+      if (!current) {
+        const planned = working.lessons.find((lesson) => lesson.id === id)?.status === 'planned'
+        throw new WriteRefused(
+          planned ? 422 : 404,
+          planned
+            ? `"${id}" is a planned lesson with nothing drawn yet, so there is nothing to duplicate.`
+            : `There is no lesson "${id}".`,
+        )
+      }
       const ids = await workingIds()
       let copyId = `${id}-copy`
       for (let n = 2; isLive(copyId, working, ids.tutorials); n += 1) copyId = `${id}-copy-${n}`
@@ -785,6 +798,7 @@ export async function openWorkspace(options: WorkspaceOptions) {
             ...(reference && photoFile ? { reference: { ...reference, file: photoFile } } : {}),
           }
           storeCatalog({
+            ...working,
             lessons: [...working.lessons, copy],
             paths: working.paths.map((path) => {
               const at = path.lessonIds.indexOf(id)
@@ -809,14 +823,16 @@ export async function openWorkspace(options: WorkspaceOptions) {
       const published = await writer.readTutorial(id)
       const { files } = published ? await workspace.unpublish(id) : { files: [] as string[] }
       const draft = draftRow(id)
-      if (!draft) throw new WriteRefused(404, `There is no lesson "${id}".`)
       const working = workingCatalog()
       const lesson = working.lessons.find((candidate) => candidate.id === id)
+      // A planned lesson is only a catalog entry; there is no tutorial to keep,
+      // and its own title is the name the trash shows.
+      if (!draft && lesson?.status !== 'planned') throw new WriteRefused(404, `There is no lesson "${id}".`)
       const path = working.paths.find((candidate) => candidate.lessonIds.includes(id))
       const photos = all<ReferenceRow>('SELECT * FROM reference_files WHERE lesson_id = ?', id)
       const payload: LessonTrash = {
         ...(lesson ? { lesson } : {}),
-        tutorialText: draft.text,
+        ...(draft ? { tutorialText: draft.text } : {}),
         pathId: path?.id ?? null,
         position: path ? path.lessonIds.indexOf(id) : 0,
         references: photos.map((photo) => ({
@@ -825,7 +841,7 @@ export async function openWorkspace(options: WorkspaceOptions) {
           base64: Buffer.from(photo.bytes).toString('base64'),
         })),
       }
-      const title = (JSON.parse(draft.text) as Tutorial).title
+      const title = draft ? (JSON.parse(draft.text) as Tutorial).title : (lesson?.title ?? id)
       transaction(() => {
         run(
           'INSERT INTO trash (id, kind, item_id, title, deleted_at, payload) VALUES (?, ?, ?, ?, ?, ?)',
@@ -839,6 +855,7 @@ export async function openWorkspace(options: WorkspaceOptions) {
         run('DELETE FROM drafts WHERE lesson_id = ?', id)
         run('DELETE FROM reference_files WHERE lesson_id = ?', id)
         storeCatalog({
+          ...working,
           paths: working.paths.map((candidate) =>
             candidate.lessonIds.includes(id)
               ? { ...candidate, lessonIds: candidate.lessonIds.filter((lessonId) => lessonId !== id) }
@@ -906,11 +923,12 @@ export async function openWorkspace(options: WorkspaceOptions) {
           throw new WriteRefused(409, `A lesson called "${row.item_id}" exists again. Delete or rename it first.`)
         }
         transaction(() => {
-          putDraft(row.item_id, payload.tutorialText, null)
+          if (payload.tutorialText !== undefined) putDraft(row.item_id, payload.tutorialText, null)
           for (const photo of payload.references) {
             putReference(photo.file, row.item_id, photo.contentType, new Uint8Array(Buffer.from(photo.base64, 'base64')))
           }
           storeCatalog({
+            ...working,
             lessons: payload.lesson ? [...working.lessons, payload.lesson] : working.lessons,
             paths: working.paths.map((path) => {
               if (!payload.lesson || path.id !== payload.pathId) return path
@@ -986,8 +1004,15 @@ export async function openWorkspace(options: WorkspaceOptions) {
           if (target && keep.has(lessonId)) target.lessonIds.splice(Math.min(index, target.lessonIds.length), 0, lessonId)
         })
       }
+      // Levels shared/ does not name but a kept path still sits under stay, so
+      // adopting cannot strand a workspace-only path under a missing level.
+      const levels = [...sharedCatalog.levels]
+      for (const level of working.levels) {
+        if (levels.some((candidate) => candidate.id === level.id)) continue
+        if (paths.some((path) => path.level === level.id)) levels.push(level)
+      }
       transaction(() => {
-        storeCatalog({ paths, lessons: [...sharedCatalog.lessons, ...workspaceOnly] })
+        storeCatalog({ levels, paths, lessons: [...sharedCatalog.lessons, ...workspaceOnly] })
         rememberShared(shared)
       })
     },
@@ -1359,7 +1384,7 @@ function parseCatalog(paths: Stored | null, lessons: Stored | null): Catalog | n
     const pathsFile = JSON.parse(paths.text) as Partial<PathsFile>
     const lessonsFile = JSON.parse(lessons.text) as Partial<LessonsFile>
     if (!Array.isArray(pathsFile.paths) || !Array.isArray(lessonsFile.lessons)) return null
-    return { paths: pathsFile.paths, lessons: lessonsFile.lessons }
+    return { levels: pathsFile.levels ?? [], paths: pathsFile.paths, lessons: lessonsFile.lessons }
   } catch {
     return null
   }

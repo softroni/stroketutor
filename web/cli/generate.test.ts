@@ -48,7 +48,8 @@ async function open(answer: unknown, options: { key?: boolean } = {}) {
 
 async function catalog(): Promise<Catalog> {
   const { paths, lessons } = await t.workspace.readCatalog()
-  return { paths: JSON.parse(paths.text).paths, lessons: JSON.parse(lessons.text).lessons }
+  const file = JSON.parse(paths.text)
+  return { levels: file.levels ?? [], paths: file.paths, lessons: JSON.parse(lessons.text).lessons }
 }
 
 const common = ['--title', 'Cottage', '--objective', 'A cottage from a box', '--goal', 'Draw a cottage.', '--source', 'me', '--license', 'CC0']
@@ -85,6 +86,36 @@ describe('image to-steps', () => {
     expect(outcome.code).toBe(1)
     expect(outcome.stderr).toContain('already exists')
     expect(router.calls).toHaveLength(0)
+  })
+
+  it('fills a planned lesson, taking its title, objective and place, and dropping its placeholder title', async () => {
+    await open(JSON.parse(fixture('generation-cottage.json')))
+    const photo = path.join(t.root, 'cottage.png')
+    await writeFile(photo, PNG)
+    await t.studio(['lessons', 'plan', 'cottage', '--title', 'Cottage', '--objective', 'A cottage from a box', '--path', 'houses', '--position', '1'])
+
+    // Only the photo's provenance and the goal are still needed; the rest comes from the placeholder.
+    const outcome = await t.studio(['image', 'to-steps', photo, '--id', 'cottage', '--goal', 'Draw a cottage.', '--source', 'me', '--license', 'CC0'])
+    expect(outcome.stderr).toBe('')
+    expect(outcome.stdout).toContain('Filled the planned lesson cottage')
+    const after = await catalog()
+    expect(after.paths.find((p) => p.id === 'houses')?.lessonIds).toEqual(['cottage', 'simple-house'])
+    expect(after.lessons.find((l) => l.id === 'cottage')).toMatchObject({
+      status: 'draft',
+      objective: 'A cottage from a box',
+    })
+    expect(after.lessons.find((l) => l.id === 'cottage')?.title).toBeUndefined()
+    expect((JSON.parse((await t.workspace.readTutorial('cottage'))!.text) as Tutorial).title).toBe('Cottage')
+  })
+
+  it('refuses a --path that is not the planned lesson’s own', async () => {
+    await open(JSON.parse(fixture('generation-cottage.json')))
+    const photo = path.join(t.root, 'cottage.png')
+    await writeFile(photo, PNG)
+    await t.studio(['lessons', 'plan', 'cottage', '--title', 'Cottage', '--objective', 'A box', '--path', 'houses'])
+    const outcome = await t.studio(['image', 'to-steps', photo, '--id', 'cottage', ...common, '--path', 'trees'])
+    expect(outcome.code).toBe(2)
+    expect(outcome.stderr).toContain('planned in "houses"')
   })
 
   it('refuses an SVG, and svg to-steps refuses a photo', async () => {

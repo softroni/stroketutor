@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 
-import type { Analysis, Lesson } from '../catalog/types'
+import { catalogFiles, findLesson, findPathOfLesson, type Analysis, type Lesson } from '../catalog/types'
 import { totalStrokes, type Tutorial } from '../schema/types'
 import { validateTutorial, type ValidationIssue } from '../schema/validate'
 
@@ -29,6 +29,8 @@ import './editor/editor.css'
 export interface NewLessonViewProps {
   library: Library
   initialPathId: string | null
+  /** The planned lesson this generation fills, from `#/new?lesson=<id>`. */
+  plannedLessonId?: string | null
   /** Called once a kept draft is in the workspace, to re-read the library and open it. */
   onCreated: (lessonId: string) => Promise<void>
 }
@@ -59,18 +61,28 @@ interface Candidate {
  * primary action runs the whole generation; nothing is written until the
  * creator keeps the result, and a failure never clears what they typed.
  */
-export function NewLessonView({ library, initialPathId, onCreated }: NewLessonViewProps) {
+export function NewLessonView({ library, initialPathId, plannedLessonId, onCreated }: NewLessonViewProps) {
   const catalog = library.catalog
-  const [pathId, setPathId] = useState<string>(initialPathId ?? catalog?.paths[0]?.id ?? '')
+  // Filling a placeholder: it already knows its name, its objective and where
+  // it sits, so the form starts there and its id is fixed.
+  const planned = useMemo(() => {
+    if (!catalog || !plannedLessonId) return null
+    const lesson = findLesson(catalog, plannedLessonId)
+    if (lesson?.status !== 'planned' || library.tutorials.has(plannedLessonId)) return null
+    const inPath = findPathOfLesson(catalog, plannedLessonId)
+    return { lesson, path: inPath, position: inPath ? inPath.lessonIds.indexOf(plannedLessonId) : 0 }
+  }, [catalog, library, plannedLessonId])
+
+  const [pathId, setPathId] = useState<string>(planned?.path?.id ?? initialPathId ?? catalog?.paths[0]?.id ?? '')
   const path = catalog?.paths.find((candidate) => candidate.id === pathId)
-  const [position, setPosition] = useState<number>(path?.lessonIds.length ?? 0)
-  const [title, setTitle] = useState('')
-  const [lessonId, setLessonId] = useState('')
-  const [idEdited, setIdEdited] = useState(false)
+  const [position, setPosition] = useState<number>(planned?.position ?? path?.lessonIds.length ?? 0)
+  const [title, setTitle] = useState(planned?.lesson.title ?? '')
+  const [lessonId, setLessonId] = useState(planned?.lesson.id ?? '')
+  const [idEdited, setIdEdited] = useState(Boolean(planned))
   const [file, setFile] = useState<File | null>(null)
   const [source, setSource] = useState('')
   const [license, setLicense] = useState('')
-  const [objective, setObjective] = useState('')
+  const [objective, setObjective] = useState(planned?.lesson.objective ?? '')
   const [goal, setGoal] = useState('')
   const [constraints, setConstraints] = useState('')
   const [outcome, setOutcome] = useState<Outcome>({ kind: 'idle' })
@@ -125,7 +137,10 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
     if (preview) URL.revokeObjectURL(preview)
   }, [preview])
 
-  const taken = library.tutorials.has(lessonId) || Boolean(catalog?.lessons.some((lesson) => lesson.id === lessonId))
+  // A placeholder is not "taken": filling it is the whole point.
+  const taken =
+    lessonId !== planned?.lesson.id &&
+    (library.tutorials.has(lessonId) || Boolean(catalog?.lessons.some((lesson) => lesson.id === lessonId)))
   const problems: string[] = []
   if (!library.writable) problems.push('Generation needs the Studio server: run npm run dev.')
   if (!catalog) problems.push('The catalog could not be read, so a new lesson has nowhere to go.')
@@ -210,17 +225,25 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
           analysis: chosen.result.analysis,
         },
       }
-      const paths = catalog.paths.map((candidate) => {
-        if (candidate.id !== path?.id) return candidate
-        const lessonIds = [...candidate.lessonIds]
-        lessonIds.splice(Math.min(position, lessonIds.length), 0, lessonId)
-        return { ...candidate, lessonIds }
+      // A filled placeholder keeps the place it was holding; a wholly new
+      // lesson is put where the form says.
+      const filling = planned?.lesson.id === lessonId
+      const paths = filling
+        ? catalog.paths
+        : catalog.paths.map((candidate) => {
+            if (candidate.id !== path?.id) return candidate
+            const lessonIds = [...candidate.lessonIds]
+            lessonIds.splice(Math.min(position, lessonIds.length), 0, lessonId)
+            return { ...candidate, lessonIds }
+          })
+      const lessons = filling
+        ? catalog.lessons.map((candidate) => (candidate.id === lessonId ? lesson : candidate))
+        : [...catalog.lessons, lesson]
+      const files = catalogFiles({ ...catalog, paths, lessons })
+      await saveCatalog(files.paths, files.lessons, {
+        paths: library.catalogEtags.paths ?? null,
+        lessons: library.catalogEtags.lessons ?? null,
       })
-      await saveCatalog(
-        { catalogVersion: 1, paths },
-        { catalogVersion: 1, lessons: [...catalog.lessons, lesson] },
-        { paths: library.catalogEtags.paths ?? null, lessons: library.catalogEtags.lessons ?? null },
-      )
       try {
         for (let index = 0; index < candidates.length; index += 1) {
           const { result, tutorial } = candidates[index]
@@ -259,6 +282,12 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
   return (
     <div className="st-form-page st-form-page--wide">
       <h1 className="st-form-page__title">New lesson</h1>
+      {planned ? (
+        <p className="st-notice" role="status">
+          Filling the planned lesson “{planned.lesson.title}”
+          {planned.path ? ` in ${planned.path.title}` : ''}. It keeps its place; its id cannot change.
+        </p>
+      ) : null}
       <p className="st-field__hint">
         Upload a real-world photo, say what the lesson should teach, and generate a first draft. You
         review and reshape it in the Lesson Workspace. Nothing is saved until you keep it, and a kept
@@ -300,7 +329,8 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
                 >
                   {path.lessonIds.map((id, index) => (
                     <option key={id} value={index}>
-                      Lesson {index + 1}, before “{library.tutorials.get(id)?.tutorial.title ?? id}”
+                      Lesson {index + 1}, before “
+                      {library.tutorials.get(id)?.tutorial.title ?? findLesson(catalog!, id)?.title ?? id}”
                     </option>
                   ))}
                   <option value={path.lessonIds.length}>Lesson {path.lessonIds.length + 1}, at the end</option>
@@ -324,11 +354,15 @@ export function NewLessonView({ library, initialPathId, onCreated }: NewLessonVi
               <input
                 className="st-field__input"
                 value={lessonId}
+                readOnly={Boolean(planned)}
                 onChange={(event) => {
                   setIdEdited(true)
                   setLessonId(event.target.value)
                 }}
               />
+              {planned ? (
+                <span className="st-field__hint">Fixed: this is the planned lesson being filled.</span>
+              ) : null}
             </label>
             <label className="st-field">
               <span className="st-field__label">Objective (one line, shown in the path)</span>
