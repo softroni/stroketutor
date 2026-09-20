@@ -66,6 +66,13 @@
         "stack-of-books",
         "still-life"
       ]
+    },
+    {
+      "id": "plants",
+      "title": "Plants",
+      "description": "Trees, flowers and potted plants, from stacked triangles to a twisted bonsai, ending on a windowsill garden.",
+      "level": "core",
+      "lessonIds": ["pine-tree"]
     }
   ]
 }

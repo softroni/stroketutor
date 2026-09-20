@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "pine-tree",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:37:52.180Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A pine tree is easier than it looks. It's three triangles stacked like hats on a short trunk. See them pile up, then plant one on your page.",
+      "textHash": "45b119cf8aa5171cb61a2d4feb2de7bd600ba4d521c312ea03595324323b3f7f",
+      "durationMs": 9120
+    },
+    "top": {
+      "file": "top.m4a",
+      "text": "The tip of the pine is a small triangle. Slant down to the left, down to the right, then join them.",
+      "textHash": "f02ea66eda495d12233aa2dffd31edb3e8a7948f00d691758ad585028b7ba802",
+      "durationMs": 6480
+    },
+    "middle": {
+      "file": "middle.m4a",
+      "text": "Now a wider layer. Start on the flat line, a little way in, and slant out both ways. Close it underneath.",
+      "textHash": "fbb32bfd778b4504effdbad3037b5b34dd8307a86b03d2f8cf9f14c15739659c",
+      "durationMs": 7520
+    },
+    "bottom": {
+      "file": "bottom.m4a",
+      "text": "One more layer, the widest of all. It hangs from the line above, the same way.",
+      "textHash": "66dbf047716bc3291df3a274a5ef59dc621baa2b32dfc7d4790c68bf3ecea546",
+      "durationMs": 5680
+    },
+    "trunk": {
+      "file": "trunk.m4a",
+      "text": "The trunk is a short box under the middle. Two lines down and one across.",
+      "textHash": "de331912fdd16437012747f6e5fc45c7bea88c46a83612dc873b3bcc074bda79",
+      "durationMs": 5440
+    },
+    "color-top": {
+      "file": "color-top.m4a",
+      "text": "Color the top layer light green.",
+      "textHash": "febeea9eb0f879cf0dea2e144f1e8b8c05ec9118eb3ac8921d621b6ce3b2a4b8",
+      "durationMs": 2480
+    },
+    "color-middle": {
+      "file": "color-middle.m4a",
+      "text": "Color the middle layer green.",
+      "textHash": "ff10402726652355ba699231dc203ef122e3942a76b3d9a5f50477dada07ad11",
+      "durationMs": 1920
+    },
+    "color-bottom": {
+      "file": "color-bottom.m4a",
+      "text": "Make the bottom layer dark green.",
+      "textHash": "9da6e86b051bc53133d70056c525d6b8198b1f30a205ad77e0053451fccf0894",
+      "durationMs": 2480
+    },
+    "color-trunk": {
+      "file": "color-trunk.m4a",
+      "text": "Color the trunk brown.",
+      "textHash": "d1426e2c2ea0ddd7b2e1f93eaffb27645997039118e9e715ca255b7f4d53807d",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Three layers and a trunk, and your pine stands tall. Draw a few more and you'll have a forest.",
+      "textHash": "b7d526d08864fa842cdd804b9bfa4211014e51a024e5ca78501e8ab303b86069",
+      "durationMs": 5760
+    }
+  }
+}
