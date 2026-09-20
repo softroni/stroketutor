@@ -86,14 +86,14 @@ describe('shared conformance corpus', () => {
   }
 })
 
-describe('shared golden tutorials', () => {
+describe('shared published tutorials', () => {
   const tutorialsDir = fileURLToPath(new URL('../../../shared/Tutorials/', import.meta.url))
   const files = readdirSync(tutorialsDir).filter((name) => name.endsWith('.json'))
 
-  it('still has the golden tutorials the iOS app bundles', () => {
+  it('still has representative published tutorials the iOS app bundles', () => {
     // The Studio saves new lessons into this folder too, so this checks for the
-    // goldens rather than an exact list; every file is validated below.
-    expect(files).toEqual(expect.arrayContaining(['cat-face.json', 'simple-house.json']))
+    // published representatives rather than an exact list; every file is validated below.
+    expect(files).toEqual(expect.arrayContaining(['sun.json', 'cloud.json']))
   })
 
   for (const file of files) {

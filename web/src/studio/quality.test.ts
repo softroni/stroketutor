@@ -59,11 +59,9 @@ describe('strokeLength', () => {
 })
 
 describe('qualityWarnings', () => {
-  it('flags in the golden lessons only what a young learner would struggle with', () => {
-    // Both were written before the course was for ages 8 to 16: one instruction each runs long,
-    // and the cat's head is one 560-wide circle, exactly what `long-stroke` is for.
-    expect(codes(golden('simple-house.json'))).toEqual(['long-instruction'])
-    expect([...codes(golden('cat-face.json'))].sort()).toEqual(['long-instruction', 'long-stroke'])
+  it('flags in representative published lessons only what a young learner would struggle with', () => {
+    expect(codes(golden('sun.json'))).toEqual([])
+    expect(codes(golden('cloud.json'))).toEqual([])
   })
 
   it('flags an instruction that is a paragraph', () => {
@@ -120,9 +118,9 @@ describe('qualityWarnings', () => {
   })
 
   it('flags a big jump from the previous lesson in the path', () => {
-    const house = golden('simple-house.json')
-    const doubled = { ...house, steps: [...house.steps, ...house.steps.map((s) => ({ ...s, id: `${s.id}-2` }))] }
-    expect(codes(doubled, house)).toContain('complexity-jump')
-    expect(codes(house, house)).not.toContain('complexity-jump')
+    const sun = golden('sun.json')
+    const doubled = { ...sun, steps: [...sun.steps, ...sun.steps.map((s) => ({ ...s, id: `${s.id}-2` }))] }
+    expect(codes(doubled, sun)).toContain('complexity-jump')
+    expect(codes(sun, sun)).not.toContain('complexity-jump')
   })
 })

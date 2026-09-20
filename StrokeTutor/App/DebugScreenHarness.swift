@@ -44,12 +44,12 @@ enum DebugScreenHarness {
         // this file; a catalog that carries neither falls back to the first two
         // paths that shipped with anything at all.
         let shipped = app.paths.filter { !$0.isEmpty }
-        guard let treeLesson = app.lesson(id: "palm-tree-4") ?? shipped.first?.lessons.first,
+        guard let treeLesson = app.lesson(id: "palm-tree") ?? shipped.first?.lessons.first,
               let treePath = app.path(id: treeLesson.pathId)
         else {
             return // The catalog carries no lesson with a tutorial behind it.
         }
-        let carLesson = app.lesson(id: "classic-red-car")
+        let carLesson = app.lesson(id: "fruit-bowl")
             ?? shipped.first { $0.id != treePath.id }?.lessons.first
             ?? treeLesson
         guard let carPath = app.path(id: carLesson.pathId) else { return }

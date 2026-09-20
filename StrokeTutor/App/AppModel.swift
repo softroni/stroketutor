@@ -9,8 +9,8 @@ import SwiftUI
 /// Content is joined once at launch — the catalog says which lessons exist and in
 /// what order, the tutorials say how they are drawn — so a screen never has to
 /// decide what a path contains. A lesson the catalog names but whose tutorial did
-/// not ship simply is not in `paths`, and a tutorial no path names (today,
-/// `cat-face`) never reaches a screen.
+/// not ship simply is not in `paths`, and a tutorial no path names never reaches
+/// a screen.
 @Observable
 @MainActor
 final class AppModel {

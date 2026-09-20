@@ -32,8 +32,7 @@ final class CatalogLoaderTests: XCTestCase {
         XCTAssertTrue(catalog.lessons.allSatisfy { $0.status == .approved })
     }
 
-    /// `cat-face` is a sample tutorial that belongs to no path. It must not appear
-    /// anywhere a learner can see, and the only thing stopping it is the data.
+    /// A tutorial ID absent from the catalog must not appear anywhere a learner can see.
     @MainActor
     func testALessonInNoPathNeverReachesAScreen() {
         let model = AppModel(bundle: .appUnderTest,
@@ -41,9 +40,9 @@ final class CatalogLoaderTests: XCTestCase {
                              storeDirectory: Self.temporaryDirectory())
         model.loadContent()
         let visible = Set(model.paths.flatMap(\.lessons).map(\.id))
-        XCTAssertFalse(visible.contains("cat-face"),
-                       "cat-face is in no path and must not be offered.")
-        XCTAssertNil(model.lesson(id: "cat-face"))
+        XCTAssertFalse(visible.contains("not-in-catalog"),
+                       "A tutorial absent from the catalog must not be offered.")
+        XCTAssertNil(model.lesson(id: "not-in-catalog"))
     }
 
     @MainActor

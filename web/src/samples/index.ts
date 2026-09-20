@@ -42,4 +42,4 @@ export function loadSample(fileName: string): Tutorial {
   return result.tutorial
 }
 
-export const DEFAULT_SAMPLE = 'simple-house.json'
+export const DEFAULT_SAMPLE = 'sun.json'

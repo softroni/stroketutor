@@ -10,8 +10,8 @@ const sharedDir = fileURLToPath(new URL('../../../shared/', import.meta.url))
 describe('formatJSON', () => {
   // The whole point: saving an unchanged file must not produce a diff.
   for (const file of [
-    'Tutorials/simple-house.json',
-    'Tutorials/cat-face.json',
+    'Tutorials/sun.json',
+    'Tutorials/cloud.json',
     'Catalog/paths.json',
     'Catalog/lessons.json',
   ]) {

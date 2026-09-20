@@ -14,7 +14,7 @@ import { DebugPanel } from './DebugPanel'
 import { TutorialSource } from './TutorialSource'
 import './app.css'
 
-const DEFAULT_SAMPLE = 'simple-house.json'
+const DEFAULT_SAMPLE = 'sun.json'
 const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
 
 interface Loaded {

@@ -30,14 +30,13 @@ final class PageShapeTests: XCTestCase {
         XCTAssertEqual(PageShape(fitting: CGRect(x: 0, y: 0, width: 100, height: 0)), .square)
     }
 
-    /// The two shipped lessons the rule was made for, read from the bundle the app
-    /// ships: the car gets the wide page, the palm tree — upright, a little taller
-    /// than it is wide once its fronds are counted — keeps the panel.
-    func testTheCarIsWideAndThePalmTreeIsNot() throws {
+    /// Representative published lessons, read from the bundle the app ships: the
+    /// still life gets the wide page while the upright palm tree keeps the panel.
+    func testPublishedWideAndUprightLessonsChooseDifferentPages() throws {
         let tutorials = TutorialLoader.loadBundledTutorials(in: .appUnderTest).tutorials
-        let car = try XCTUnwrap(tutorials.first { $0.tutorialID == "classic-red-car" })
-        let palm = try XCTUnwrap(tutorials.first { $0.tutorialID == "palm-tree-4" })
-        XCTAssertEqual(car.pageShape, .wide)
+        let stillLife = try XCTUnwrap(tutorials.first { $0.tutorialID == "still-life" })
+        let palm = try XCTUnwrap(tutorials.first { $0.tutorialID == "palm-tree" })
+        XCTAssertEqual(stillLife.pageShape, .wide)
         XCTAssertNotEqual(palm.pageShape, .wide)
     }
 }
