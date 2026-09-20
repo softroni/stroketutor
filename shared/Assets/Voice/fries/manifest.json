@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "fries",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T17:50:31.864Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Fries taste best straight from the carton. Watch them pop up, count to eight, then fill a carton of your own.",
+      "textHash": "7da6a16a934da1412a6844b63d7c6eabbe6c8daa34b00c7ed84e1dc512cfb35d",
+      "durationMs": 6880
+    },
+    "carton-top": {
+      "file": "carton-top.m4a",
+      "text": "Start with the carton. Its top edge is a shallow dip, like a hammock.",
+      "textHash": "fe971c86ea7bb425237106dcbe4857f29f4dbbaa04725c780588b1657ec4a85e",
+      "durationMs": 4480
+    },
+    "carton-body": {
+      "file": "carton-body.m4a",
+      "text": "From the left end, slant down and in, go along the bottom, and slant back up.",
+      "textHash": "ce1cfd375cac160c949b224461f6fd91c1a9d5d943eb82357bae12bc66532a55",
+      "durationMs": 5600
+    },
+    "front-middle": {
+      "file": "front-middle.m4a",
+      "text": "Three fries stand in front. Each is a tall thin box with soft corners. Draw the middle one.",
+      "textHash": "9a6b4ac8cf364e08f84505a792932e604ac9d51aed7bc74a7414f98f840ef4d2",
+      "durationMs": 6160
+    },
+    "front-sides": {
+      "file": "front-sides.m4a",
+      "text": "Add one on each side of it, standing on the dip.",
+      "textHash": "839d8cead882c6e91f61648121741db9c1a9585422c7673c1a37cc355f5857da",
+      "durationMs": 3280
+    },
+    "back-center": {
+      "file": "back-center.m4a",
+      "text": "Taller fries peek out behind. Draw the center one: up, over and down.",
+      "textHash": "79a40fbbc6266e7cb9a021ba9506f19810b703d065aeabb0cb5ef939b836f34f",
+      "durationMs": 5440
+    },
+    "back-gaps": {
+      "file": "back-gaps.m4a",
+      "text": "Put one in each gap beside it. Stop where they meet the front fries.",
+      "textHash": "76ff60cc64c5d5264ef8c2a02523ac679a1f4ff0fc67a5375df6f3623997a1d0",
+      "durationMs": 4320
+    },
+    "back-ends": {
+      "file": "back-ends.m4a",
+      "text": "The last two lean out at the far ends. That makes eight.",
+      "textHash": "dd266e5dbbb6808b3401d881111d6da3e32195e96f062ccae50ca3ef866dc56a",
+      "durationMs": 3440
+    },
+    "fries-color": {
+      "file": "fries-color.m4a",
+      "text": "Color all the fries yellow.",
+      "textHash": "ecdcb6e0aabf21697157ffceb3616e4362b3e1117d36450bc112bc581dfe0175",
+      "durationMs": 2160
+    },
+    "carton-color": {
+      "file": "carton-color.m4a",
+      "text": "Color the carton red.",
+      "textHash": "e2b9347be9f50e40ae16f1ac092e099f070b5149677ad8efabeec36967c2260c",
+      "durationMs": 1280
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A full carton, all eight fries standing tall. Try not to get hungry looking at it.",
+      "textHash": "0a8d606ed79cf80e6d66ec665bf5ba09f0ee1f7efb83eb1f7f248abb27068f84",
+      "durationMs": 5680
+    }
+  }
+}
