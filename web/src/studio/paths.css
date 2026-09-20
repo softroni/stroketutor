@@ -359,8 +359,9 @@
 
   .st-paths__list {
     position: static;
-    max-height: none;
-    overflow: visible;
+    max-height: min(44vh, 520px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .st-paths-toolbar {
@@ -390,21 +391,6 @@
     max-width: none;
   }
 
-  .st-chips {
-    flex-wrap: nowrap;
-    width: 100%;
-    padding-bottom: 2px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .st-chips::-webkit-scrollbar {
-    display: none;
-  }
-
-  .st-chip {
-    flex: 0 0 auto;
-  }
 
   .st-path-header__top {
     align-items: flex-start;
