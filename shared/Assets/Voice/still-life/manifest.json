@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "still-life",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:34:48.622Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Artists call a group of objects a still life. Ours has a mug, a ball and two books, all lit from the top left. Watch where the shadows fall, then set up your own.",
+      "textHash": "859de90959c310b908343173c5e7cbb620c687fee923402d6494f2aa59082364",
+      "durationMs": 11120
+    },
+    "mug-rim": {
+      "file": "mug-rim.m4a",
+      "text": "On the left goes the mug. Draw the oval rim and the smaller oval inside it.",
+      "textHash": "510d0c5e61c79553792c97a32bda67a6f12114071a019903a92cf1b5d3575303",
+      "durationMs": 5520
+    },
+    "mug-body": {
+      "file": "mug-body.m4a",
+      "text": "Add the two sides, the curved bottom, and the handle on the left.",
+      "textHash": "88adf141283e6605e827b3e6f00d822be3f82cec7e8dd60f1ab962c642d82170",
+      "durationMs": 4400
+    },
+    "ball": {
+      "file": "ball.m4a",
+      "text": "Next to it, the ball. Draw its circle in two halves, left then right.",
+      "textHash": "bce233b124064a7f67545f5164b548510f9b0bbffb463e4b6314faf7c1c8aa15",
+      "durationMs": 5760
+    },
+    "ball-hatch": {
+      "file": "ball-hatch.m4a",
+      "text": "Its lower right is turned from the light. Hatch it with three slanted lines.",
+      "textHash": "26f72e5faa001baf5752e8b707eb945fa08bd6c24175142dbf17eff54a962d57",
+      "durationMs": 5040
+    },
+    "book-top": {
+      "file": "book-top.m4a",
+      "text": "On the right, two books. Start with the small one on top: cover, spine, pages.",
+      "textHash": "2a6087ca0a01816eb5450cb7798bfc73cf7e003709db286acb896974e180291b",
+      "durationMs": 6320
+    },
+    "book-bottom": {
+      "file": "book-bottom.m4a",
+      "text": "Tuck the big book under it. Draw its strip of cover, its spine and its pages.",
+      "textHash": "54b9f2bd07a6d96273427a8c9c5a43362654d05f9521572a1d5242304b426ca6",
+      "durationMs": 5440
+    },
+    "shadows-round": {
+      "file": "shadows-round.m4a",
+      "text": "Every shadow falls to the right. Draw a curved one beside the mug and one beside the ball.",
+      "textHash": "4748206326fb852a4e819e5501dbab05917311cda4d9de7f0e7cb03d090b9e46",
+      "durationMs": 6000
+    },
+    "shadow-books": {
+      "file": "shadow-books.m4a",
+      "text": "The books cast a thin slanted strip. Draw it along the ground.",
+      "textHash": "67d32d07d9eeb6b98ca1112918e67009c267e4f397df1e5b86193c0fb7d987fd",
+      "durationMs": 4000
+    },
+    "colors-objects": {
+      "file": "colors-objects.m4a",
+      "text": "Color the mug red, its edge pink, the drink brown and the ball orange.",
+      "textHash": "0eb5ab83c1494c175cdcf8caa09ea3b0e92a0e992b8693567e1cd74d2053ebca",
+      "durationMs": 5840
+    },
+    "colors-books": {
+      "file": "colors-books.m4a",
+      "text": "Color the books: blue and purple on top, greens below, cream pages.",
+      "textHash": "c3a7025cd0e9fbf74fc97b710b93813d1a3e56a5f4ec1b459355bb22bf67fb5c",
+      "durationMs": 5120
+    },
+    "colors-shadows": {
+      "file": "colors-shadows.m4a",
+      "text": "Color all three shadows gray.",
+      "textHash": "c941530eb4e23405147ba9eb23500b335860762a39862a560dd03837702d151f",
+      "durationMs": 2160
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A mug, a ball and books, all under one light. That's a real still life, and that's the Forms path done.",
+      "textHash": "c0fcf0f8d1c4d438402ac97d172edf12c2e696e1ce7cd1696f6b60b2e2d30865",
+      "durationMs": 7760
+    }
+  }
+}
