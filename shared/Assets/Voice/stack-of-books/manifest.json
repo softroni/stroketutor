@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "stack-of-books",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:33:28.114Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A book is a flat box, and you can already draw a box. We'll rest a small one on a big one. Watch the pile grow, then stack your own.",
+      "textHash": "69a72011763f25f5bbf9d5aa54d8061bc8d298c25408edc21d7871be6bd31e1f",
+      "durationMs": 8560
+    },
+    "top-cover": {
+      "file": "top-cover.m4a",
+      "text": "Begin with the top book, since nothing hides it. Draw its cover, a flat slanted diamond.",
+      "textHash": "02d2b24743503d146b14fcb73f071256befeb6973f0a60930ecb1672f1005ea8",
+      "durationMs": 6080
+    },
+    "top-spine": {
+      "file": "top-spine.m4a",
+      "text": "Give it thickness. Draw the rounded spine down the left, then along under the cover.",
+      "textHash": "b8c3110715bf5084a57b307d9cad53a9bfbd749fdeba7d04fddfc9bd31ff955f",
+      "durationMs": 5200
+    },
+    "top-pages": {
+      "file": "top-pages.m4a",
+      "text": "On the right, the pages. Draw a short line down, then along the bottom and back up.",
+      "textHash": "b61254b2b94a801e604f6c2ca583d850716c97b99ca8e785e730530d637bb2d0",
+      "durationMs": 6080
+    },
+    "bottom-cover": {
+      "file": "bottom-cover.m4a",
+      "text": "The big book peeks out below. Draw the strip of cover that shows, like a step.",
+      "textHash": "937735886540ef2063e832a6103478c5751fc722bf25b4d2771ab7f0ebf18560",
+      "durationMs": 5280
+    },
+    "bottom-spine": {
+      "file": "bottom-spine.m4a",
+      "text": "Then its spine. Round the left end and run along the bottom.",
+      "textHash": "97d81a750d803f0791bc483f836a434dcd723dec3c184546a07cf78fdb30c5a7",
+      "durationMs": 4400
+    },
+    "bottom-pages": {
+      "file": "bottom-pages.m4a",
+      "text": "Close its page side on the right, the same way as the book above.",
+      "textHash": "cd1038c10c3f377b74c0e0950935bf73be23121daab13b539a22b90f15c08976",
+      "durationMs": 4000
+    },
+    "pages": {
+      "file": "pages.m4a",
+      "text": "Draw one line along each book's pages.",
+      "textHash": "96655c2b16a020df9346977169db9ee0ef53e42f763a73cef1d1a5341e694265",
+      "durationMs": 3280
+    },
+    "covers": {
+      "file": "covers.m4a",
+      "text": "Color the covers blue on top and green below.",
+      "textHash": "66dfba9c118da7001d71574fd958c112a5fb99b356bfa83993d1f59a1a9060b3",
+      "durationMs": 3360
+    },
+    "spines": {
+      "file": "spines.m4a",
+      "text": "Color the spines purple and dark green.",
+      "textHash": "f529b817e16582c29442cff59625844d1a67bcc7174d0b2da0a08f1e5567cbc4",
+      "durationMs": 2880
+    },
+    "pages-color": {
+      "file": "pages-color.m4a",
+      "text": "Color all the pages cream.",
+      "textHash": "c32d17ce039c48bab6710671d8a288713e6de969636a93d5c6141c2ad72ff8ec",
+      "durationMs": 2000
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Two books, neatly piled. What would their titles be?",
+      "textHash": "4e6a8ccea9c7b4c78187ff5087e41c32711d6110235fec16f0a92536721cb924",
+      "durationMs": 3600
+    }
+  }
+}
