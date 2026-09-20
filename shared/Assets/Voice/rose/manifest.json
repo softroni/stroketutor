@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "rose",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:46:02.306Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A rose looks hard until you know its secret: a little swirl on top, and three petals hugging it. Watch them wrap around, then draw a rose for someone.",
+      "textHash": "dd2b635964ae80bb3cf83e0d44d2bfc73c99871c035485888e61a008582571eb",
+      "durationMs": 8880
+    },
+    "heart": {
+      "file": "heart.m4a",
+      "text": "The heart of the rose starts as a hook, like a question mark with no dot.",
+      "textHash": "f81adb5831c5b7b69e2066cdf8452641b068482a1f1e6595c2a009913ac6c600",
+      "durationMs": 4640
+    },
+    "swirl": {
+      "file": "swirl.m4a",
+      "text": "Inside the hook, wind one swirl from the middle outward, like a snail shell.",
+      "textHash": "ff67dc639e0993f54fa95e51a2b95f5b943d5358ab122774c3ea12a177d9843e",
+      "durationMs": 5680
+    },
+    "front-petal": {
+      "file": "front-petal.m4a",
+      "text": "The front petal is a wide heart with no notch. Start where the hook ends and loop all the way around.",
+      "textHash": "29eb4b1b8c733609ca8b5b21fd89d9f61a020f06da7e39107b30a08b34627b9b",
+      "durationMs": 6480
+    },
+    "left-petal": {
+      "file": "left-petal.m4a",
+      "text": "A petal hugs the heart from the left. Rise from the front petal, swell out, and curl to a point on top.",
+      "textHash": "1a55c3f7a5fae1a3bce89081a6e5105d72954e8565c83f94f7cfd919461d9979",
+      "durationMs": 6720
+    },
+    "right-petal": {
+      "file": "right-petal.m4a",
+      "text": "Its twin hugs from the right, curling the other way.",
+      "textHash": "74e7aeebf75c9aa41518f7ba56e31c4312e9401267cccf28513b48031518d66b",
+      "durationMs": 3440
+    },
+    "stem": {
+      "file": "stem.m4a",
+      "text": "The stem curves down from under the bloom, two lines that bend together.",
+      "textHash": "61793b27ae859be5a0130d875abf946af62a6de048739c56fa3e22df2351953e",
+      "durationMs": 4640
+    },
+    "left-leaf": {
+      "file": "left-leaf.m4a",
+      "text": "A pointed leaf grows up and out to the left, with one line inside it.",
+      "textHash": "c994f9d58db4e9d0961e1274e38b50050ee682f1a3e5ba879f0f9af585ce6158",
+      "durationMs": 4800
+    },
+    "right-leaf": {
+      "file": "right-leaf.m4a",
+      "text": "Lower down, a second leaf reaches right. Give it its inside line too.",
+      "textHash": "ea3c772b1bc5f5fa850a8ecfbcbd6bf78a85fffa55e665ac646a12a0c24472a7",
+      "durationMs": 5520
+    },
+    "petals-color": {
+      "file": "petals-color.m4a",
+      "text": "Color the three petals red.",
+      "textHash": "9785c4b3eb1e5d7e49bf98aa9c85271825558ba1a1ee4fdb4cda000cc0374161",
+      "durationMs": 1920
+    },
+    "heart-color": {
+      "file": "heart-color.m4a",
+      "text": "The heart of the rose is pink.",
+      "textHash": "ce4d039ce801f4da9f8322d15b7fb1c010ce34c51e64ee8046bc80c92dd341e7",
+      "durationMs": 2000
+    },
+    "stem-color": {
+      "file": "stem-color.m4a",
+      "text": "Color the stem dark green.",
+      "textHash": "e042944ad48a119297c8d7ae29a6b98888b2f4a7264341e7e5bbebc153a22370",
+      "durationMs": 2800
+    },
+    "leaves-color": {
+      "file": "leaves-color.m4a",
+      "text": "Color both leaves green.",
+      "textHash": "0cdd97e1a70881d8da7f661baebc879b852c600bfefe3988ee80d770e5716c83",
+      "durationMs": 1920
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A swirl, three petals and a stem. That's a rose, and no thorns on yours.",
+      "textHash": "05e7a981cfa9b85c713eacee35b0b9b9959b75b5be65dc6a128cddbf898e9055",
+      "durationMs": 5760
+    }
+  }
+}
