@@ -72,6 +72,16 @@
       }
     },
     {
+      "id": "tornado",
+      "status": "approved",
+      "objective": "Funnel of stacked, shrinking loops",
+      "reference": {
+        "file": "tornado.svg",
+        "source": "Generated with OpenAI image model (ChatGPT), prompt style-v2, 2026-09-20; docs/curriculum/sky-weather/tornado-openai.png",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "cherries",
       "status": "approved",
       "objective": "Two cherries joined at the stem",

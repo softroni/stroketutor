@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "tornado",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:55:27.409Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A tornado is wind spinning so fast that it turns into a funnel. Ours is a wide bowl on top, three shrinking bands and a curly tail. Watch it twist, then spin your own.",
+      "textHash": "e250266b3994d189d6e530168a65537c937dad0efbf809797e38f399233f6f03",
+      "durationMs": 12560
+    },
+    "rim": {
+      "file": "rim.m4a",
+      "text": "The top of the funnel is a long flat oval. Draw the upper curve, then the lower one.",
+      "textHash": "3100dad270d263363641104912bdbeee4c912ae8e9b1a90445e3b6384818bc81",
+      "durationMs": 6080
+    },
+    "bowl": {
+      "file": "bowl.m4a",
+      "text": "Under the oval hangs a big bowl. Curve down from the left end, then down from the right and across.",
+      "textHash": "5f612fd4d0fbd3fda2b8f8dba22972a2b98cab290faefbcd25623add85684367",
+      "durationMs": 6960
+    },
+    "band-two": {
+      "file": "band-two.m4a",
+      "text": "The next band tucks in below, shaped like a wide smile.",
+      "textHash": "942733ab9b334ab2490485ff4a1f6b93aa1487c183d99af202ecd43386aac709",
+      "durationMs": 4320
+    },
+    "band-three": {
+      "file": "band-three.m4a",
+      "text": "Then a smaller smile under that one.",
+      "textHash": "c755be1a1a6fc41c6a6b9a92464de53968edd11711344cd7b9b7f2e37d538972",
+      "durationMs": 2880
+    },
+    "band-four": {
+      "file": "band-four.m4a",
+      "text": "One more, the smallest.",
+      "textHash": "2c5292d1a631c160d0a1938d4061126533c970ff1bdd01f6f5dc080b29924844",
+      "durationMs": 2000
+    },
+    "tail": {
+      "file": "tail.m4a",
+      "text": "The tail curls down to a point, like a comma.",
+      "textHash": "877abf66e8ba47c12597db6c02c5f790c6e122a864ee357d71c055fe42c736eb",
+      "durationMs": 3760
+    },
+    "marks": {
+      "file": "marks.m4a",
+      "text": "Three short curved marks beside the funnel show it spinning.",
+      "textHash": "f4aebec8ef11ad239fdf24a052e4d147683e7f0e40a96fa1ea6378c5b2e14105",
+      "durationMs": 3840
+    },
+    "inside-color": {
+      "file": "inside-color.m4a",
+      "text": "Color the inside of the oval blue.",
+      "textHash": "e2c6a611eced898c2bfb99d1839256ae235953def98e7491e4be4499b49ec8e8",
+      "durationMs": 2640
+    },
+    "light-blue": {
+      "file": "light-blue.m4a",
+      "text": "Color the bowl, the third band and the tail light blue.",
+      "textHash": "0b8a8cedbd4a2197ed020eb4429307a93172ed00f91bf68cac8ec97cf9ac3460",
+      "durationMs": 4160
+    },
+    "purple": {
+      "file": "purple.m4a",
+      "text": "Color the other two bands purple.",
+      "textHash": "95a2cf1ff9c3f4cef888ae0e8713f8d2ad4591ab5d4e59012c2f30b6668eadd6",
+      "durationMs": 2240
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Wide on top, a curly tail below, and it really looks like it's spinning. Hold on to your hat.",
+      "textHash": "01c1aeff07ee819985305b9ddb686adf0b85250e4fe86e9e59e9db8cb8cc6911",
+      "durationMs": 6400
+    }
+  }
+}
