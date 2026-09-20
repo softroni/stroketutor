@@ -15,7 +15,7 @@ import { svgProblem } from '../svg/safety'
 
 import { components, createMask, distanceToPaper, thin } from './bitmap'
 import { traceContours } from './contours'
-import { boxOf, loopArea, polylineLength, simplify, simplifyLoop, smoothPath, type Box } from './fit'
+import { boxOf, loopArea, polylineLength, relax, simplify, simplifyLoop, smoothPath, type Box } from './fit'
 import { growIntoMask, hex, quantize, removeSpecks, type Rgb } from './palette'
 import { traceSkeleton } from './skeleton'
 
@@ -72,6 +72,8 @@ export interface TraceOptions {
   maxBend?: number
   /** Line ends closer than this, in canvas units, that continue the same way are joined. */
   joinGap?: number
+  /** How calm the traced lines are: passes of smoothing over each, corners kept. 0 follows every pixel. */
+  smoothing?: number
 }
 
 export interface Paint {
@@ -124,6 +126,7 @@ export async function traceSvg(text: string, options: TraceOptions = {}): Promis
   const minStrokeLength = options.minStrokeLength ?? 16
   const inkMaxChannel = options.inkMaxChannel ?? 56
   const maxOutlineWidth = options.maxOutlineWidth ?? 26
+  const smoothing = options.smoothing ?? 40
   const lineOptions = { minSpur: 12, maxBend: options.maxBend ?? 55, joinGap: options.joinGap ?? 10 }
 
   const { svg, unmount } = mountSvg(text, size)
@@ -170,7 +173,7 @@ export async function traceSvg(text: string, options: TraceOptions = {}): Promis
         .sort((a, b) => a - b)
       const median = widths.length > 0 ? widths[widths.length >> 1] : 2
       const lineWidth = Math.max(2, Math.min(24, Math.round(2 * median - 1)))
-      strokes.push(strokeFromPoints(line.points, line.closed, lineWidth, 'outline'))
+      strokes.push(strokeFromPoints(relax(line.points, line.closed, smoothing), line.closed, lineWidth, 'outline'))
     }
 
     // Lines the file strokes are kept as it draws them.
@@ -235,7 +238,7 @@ export async function traceSvg(text: string, options: TraceOptions = {}): Promis
         }
       }
       for (const line of traceSkeleton(thin(edges), lineOptions)) {
-        strokes.push(strokeFromPoints(line.points, line.closed, 6, 'edge'))
+        strokes.push(strokeFromPoints(relax(line.points, line.closed, smoothing), line.closed, 6, 'edge'))
       }
       notes.push('The file has no drawn outlines, so the lines follow the borders between its colours.')
     }

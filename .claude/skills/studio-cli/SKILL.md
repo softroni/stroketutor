@@ -167,6 +167,8 @@ The table gives each command's shape and what matters; `reference.md` has every 
 | `move <id> <strokes...> --to-step <step>` | To the end of that step; a step left empty goes |
 | `reorder <id> <step> <n> --to <n>` | Within a step |
 | `reverse <id> <strokes...>` | Same shape, animated from the other end; twice gives the original back |
+| `split <id> <stroke> --at "x,y [x,y…]"` | Cut one stroke into several at the nearest points of the line: shape unchanged, animation time shared by length. One cut opens a closed line there; two make two lines, each running the way the original did |
+| `join <id> <first> <second>` | Two open strokes become one, the second carrying on from the end of the first (reverse one first if it runs the wrong way) |
 | `delete <id> <strokes...>` | For good; the last stroke of a lesson cannot go |
 | `set <id> <strokes...> --duration <s> --line-width <w>` | Either or both |
 
@@ -185,6 +187,8 @@ committed for you.
 |---|---|
 | `svg trace <file> [--out t.json] [--summary] [tracer options]` | Lines and colours as a lesson would be built from them; `--summary` prints ids, boxes, lengths, colours; `--json` with `--summary` gives the summary object plus `notes` and `outlineCoverage` |
 | `svg optimize <file> [--simplify] [--epsilon 1.2] [--min-size 4] [--decimals 1] [--size 1000] [--out]` | One path per shape, absolute M/L/C/Q/Z, transforms applied, fitted to the canvas. Without `--simplify` the drawing is unchanged. Default `<file>.optimized.svg` |
+| `svg from-image <file> [--palette <hex,hex…\|file.json>] [--snap-distance 18] [--max-colours 8] [--min-area 48] [--size 1000] [--out]` | A flat-colour PNG, JPEG or WebP (a generated drawing: even dark outlines, solid colour, white paper) as an SVG of plain filled shapes, one per colour, to trace. `--palette ../docs/curriculum/palette.json` snaps each colour to the course's. Not for photographs. Default `<file>.svg` |
+| `svg trace … --smoothing <n>` | How calm traced lines are: passes of smoothing with corners kept (default 40, 0 follows every pixel) |
 | `svg render <file> [--size 1536] [--out]` | PNG on white paper, as a model is sent it |
 | `svg preview <file> [--only s30-s40,f1] [--crop x0,y0,x1,y1] [--no-labels] [--size 1536] [--svg] [--out] [tracer options]` | The trace with every id drawn on it: a line's at its start point (red dot), a colour's at its centre. `--only` labels just those ids (ranges allowed) and fades the other lines; `--crop` shows one part of the canvas with labels scaled to it. `<file>` is an SVG (traced now) or a trace JSON by `.json` extension (no browser with `--svg`). Default `<file>.preview.png`. Here `--size` is the PNG's pixels, not the canvas |
 | `svg to-steps <file> --id … --title … --objective … --source … --license … [--goal …] [--path id --position n] [--trace t.json] [--plan p.json \| --no-model \| --model id] [--no-keep] [--out] [--dry-run] [tracer options]` | A new lesson from an SVG; see Generation |

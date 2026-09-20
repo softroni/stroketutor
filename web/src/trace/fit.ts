@@ -115,3 +115,55 @@ function distanceToSegment(point: Point, a: Point, b: Point): number {
   const t = Math.max(0, Math.min(1, ((point[0] - a[0]) * dx + (point[1] - a[1]) * dy) / lengthSquared))
   return Math.hypot(point[0] - (a[0] + t * dx), point[1] - (a[1] + t * dy))
 }
+
+/**
+ * Takes the shiver out of a line that was traced pixel by pixel. Each point
+ * moves to the weighted mean of its neighbours (a binomial window), `passes`
+ * times over; more passes, a calmer line (fewer for a short line, which would shrink). Corners are what a drawing is
+ * recognised by, so a point where the line turns sharply stays where it is,
+ * and so do the two ends of an open line. The points must be evenly and
+ * closely spaced (about a unit apart), as a skeleton's or a resampled contour's are.
+ */
+export function relax(points: Point[], closed: boolean, passes: number): Point[] {
+  const n = points.length
+  if (n < 12 || passes <= 0) return points
+  // A small shape (a seed, a grape) would shrink under the smoothing a long line needs.
+  passes = Math.min(passes, Math.ceil((n / 25) ** 2))
+  const SPAN = 12
+  const at = (list: Point[], k: number): Point => (closed ? list[((k % n) + n) % n] : list[Math.max(0, Math.min(n - 1, k))])
+  // How sharply the line turns at each point, as the cosine between the way in and the way out.
+  const turn = points.map((point, k) => {
+    if (!closed && (k < SPAN || k >= n - SPAN)) return 1
+    const [ax, ay] = at(points, k - SPAN)
+    const [bx, by] = at(points, k + SPAN)
+    const [ux, uy] = [point[0] - ax, point[1] - ay]
+    const [vx, vy] = [bx - point[0], by - point[1]]
+    return (ux * vx + uy * vy) / ((Math.hypot(ux, uy) || 1) * (Math.hypot(vx, vy) || 1))
+  })
+  // Only the sharpest point of each corner is held, or the whole bend would stay stepped.
+  const held = new Array<boolean>(n).fill(false)
+  if (!closed) held[0] = held[n - 1] = true
+  for (let k = 0; k < n; k += 1) {
+    if (turn[k] >= CORNER_COS) continue
+    let sharpest = k
+    while (k < n && turn[k] < CORNER_COS) {
+      if (turn[k] < turn[sharpest]) sharpest = k
+      k += 1
+    }
+    held[sharpest] = true
+  }
+  let current = points
+  for (let pass = 0; pass < passes; pass += 1) {
+    const previous = current
+    current = previous.map((point, k) =>
+      held[k]
+        ? point
+        : ([0, 1].map((axis) => (at(previous, k - 2)[axis] + 4 * at(previous, k - 1)[axis] + 6 * point[axis] + 4 * at(previous, k + 1)[axis] + at(previous, k + 2)[axis]) / 16) as Point),
+    )
+  }
+  return current
+}
+
+/** A turn sharper than about 60° over a dozen units either side, so a nick a few units deep (thinning leaves one where lines join) is smoothed away is a corner. */
+const CORNER_COS = 0.5
+

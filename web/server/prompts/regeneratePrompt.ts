@@ -84,6 +84,8 @@ const TASKS: Record<EditLayer, string> = {
   steps: `Your layer: the steps.
 - Regroup the lines and colours into steps that teach well, and write each step's words. Use every line id and every colour id exactly once; never use an id that is not listed.
 - Each step is one meaningful action a beginner can hold in mind: one to six lines that belong together, such as both windows or the two edges of a trunk. Aim for 4 to 12 steps.
+- The learner is 8 to 16. Prefer what is intuitive, easy and natural to follow over what is economical, even if that means more steps. Finish one part of the subject completely before starting the next: the whole stem, then the leaf, then the leaf's centre line; never half of one thing, then another, then back.
+- A very long curved line is hard for a young hand. When the lines you are given already split a big outline into parts, give each part its own step ("Draw the left side", "Draw the right side") rather than putting them together.
 - Big structure first, then the main features, then details. Within a step, list the lines in the order to draw them.
 - Colour areas go in their own steps after every step that draws lines: one colour per step, or two or three small areas together, large areas first. Name each colour in plain words. When the lesson has no colour areas, every fillIds list stays empty.
 - id: a short lowercase slug, unique within the lesson.`,
@@ -91,7 +93,7 @@ const TASKS: Record<EditLayer, string> = {
 
 const WORDS = `Words
 - title: short and direct, for example "Draw the roofline".
-- instruction: one or two calm sentences for an adult. Say what to notice as well as what to draw: where the line starts, what it lines up with, how big it is compared with something already on the page. No exclamation marks, no praise, no art jargon, and nothing that sounds written for a child.
+- instruction: one or two short sentences a child of 8 to 16 reads at a glance: under about twelve words each, 110 characters in all. Say where the pen starts and what to draw, in plain words and a familiar picture ("a big letter C", "like a mirror"); leave out sizes and proportions. A colour step is one sentence: "Colour the leaf green." Calm: no exclamation marks, no praise, no art jargon.
 - Describe only what the step's own lines and colours draw.`
 
 const RATIONALE = 'rationale: one or two sentences for the lesson\'s creator on what you changed and why.'

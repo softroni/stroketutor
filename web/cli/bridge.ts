@@ -1,3 +1,4 @@
+import type { ImageToSvgOptions, ImageToSvgResult } from '../src/trace/imageToSvg'
 import type { TraceOptions, TracedDrawing } from '../src/trace/traceSvg'
 import type { Tutorial } from '../src/schema/types'
 
@@ -16,6 +17,8 @@ export interface BrowserBridge {
   drawingPng(tutorial: Tutorial): Promise<string>
   /** `svg optimize`: the file's shapes as the tracer sees them, rewritten as a clean SVG. */
   optimize(svgText: string, options: OptimizeOptions): Promise<OptimizeResult>
+  /** `svg from-image`: a flat-colour PNG, JPEG or WebP as an SVG of plain filled shapes, on a `size` × `size` canvas. */
+  fromImage(base64: string, contentType: string, size: number, options: ImageToSvgOptions): Promise<ImageToSvgResult>
   close(): Promise<void>
 }
 

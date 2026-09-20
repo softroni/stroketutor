@@ -30,9 +30,31 @@ would order it.
 - **A line is animated from its start.** When a hand would draw it the other way (a roof edge from
   the eaves up to the ridge, a trunk from the ground up, a long edge left to right), reverse it:
   `reversedStrokeIds` in an order plan, or `strokes reverse` afterwards.
+- **The learner is 8 to 16 and copies with a pen on paper. Choose what is intuitive, easy and natural
+  to follow over what is economical**, even when that means more steps, or going over a stretch of
+  line twice. The next three rules are the creator's, from the first Fruits lesson (2026-09-19).
+- **A line is one comfortable movement of the hand.** A large curved outline is never one line: a
+  child cannot keep a long curve even and land it back on its own start. Split it where a pen would
+  naturally lift (a dip, a corner, a tip; on a plain round shape, top and bottom) with
+  `strokes split`, and give each part its own short step: an apple is "Draw the left side", then
+  "Draw the right side", both begun at the top dip and both ending at the bottom one, so the second
+  is a mirror of something already on the page. Small closed shapes (a cherry, a grape, a seed, a
+  leaf) and straight-sided ones (walls, a window) stay whole. `lessons quality` warns with
+  `long-stroke` when a curved closed line is longer than 0.6 of the canvas diagonal (about 850 units).
+- **Finish one thing before starting the next.** Each part of the subject is drawn completely, as the
+  thing it is, before the pen moves to another part: the whole stem (up one side, over the top, down
+  the other, one line), and only then the leaf, and only then the leaf's centre line. A trace often
+  runs one line across two things (a stem's edge carrying on as a leaf's vein) or gives one thing's
+  edge to its neighbour (the top of the stem's right side traced as part of the leaf). Cut those
+  apart with `strokes split` and put each thing back together with `strokes reverse` and
+  `strokes join`, so that every stroke belongs to exactly one nameable part.
+- **Stay on the source's lines.** Splitting, reversing and joining never move a line; nothing in a
+  lesson is redrawn by hand or smoothed beyond what the tracer does. The finished drawing must sit
+  on the ink of the picture it came from.
 - **One to six lines per step, and they belong together:** the two edges of a trunk, both windows,
   a spine and its first leaflets. Within a step, list the lines in the order to draw them.
-- **4 to 12 steps.** Fewer and each step asks too much; more and the lesson drags. When a subject
+- **4 to 12 steps.** Fewer and each step asks too much; more and the lesson drags. Lean towards
+  more, shorter steps on Starter paths. When a subject
   has more natural groups than that (seven fronds), merge the two most alike and least important
   into one step, keeping the six-line ceiling, before merging anything structural.
 - **Colour after every outline.** One colour per step, or two or three areas together when a hand
@@ -40,9 +62,22 @@ would order it.
   and within a step. Name the colour in plain words (dark green, sand) and say what it covers; when
   one colour covers two unrelated parts (highlights on the coconuts and specks on the sand), say both.
 - **Titles short and direct:** "Draw the trunk", "Colour the leaves".
-- **Instructions are one or two calm sentences for an adult.** Say what to notice as well as what to
-  do: where the line starts, what it lines up with, how big it is next to something already on the
-  page. No exclamation marks, no praise, no art jargon, nothing written for a child.
+- **Instructions are one or two short sentences a child can read at a glance** (the creator,
+  2026-09-19: less text on the screen, smaller sentences). Under about twelve words each and 110
+  characters in all; `lessons quality` warns with `long-instruction` beyond that. Say where the pen
+  starts and what to draw, in plain words and a familiar picture ("a big letter C", "like a
+  mirror"); leave out sizes, proportions and anything the animation already shows. Colour steps are
+  one sentence: "Colour the leaf green." Calm, no exclamation marks, no praise, no art jargon. The
+  same words are what Lina speaks, so short on the screen is short in the ear too.
+- **Lina speaks before and after every lesson, as a teacher would** (the creator, 2026-09-19). The
+  player opens with the finished drawing and a quick run through every step while she says a few
+  words ("I'm ready" starts step 1), and she says one sentence at the end. Every lesson has words
+  for both without any being written (`web/src/voice/bookends.ts`: a few patterns, picked by the
+  lesson's id), but a lesson is better with its own: something a child knows about the subject
+  going in, and at the end a line about *their* drawing, never about getting it right.
+  `voice lines set <id> lesson-intro "…"` and `voice lines set <id> lesson-outro "…"`, then
+  `voice narrate <id>`. Warm, short (the intro about eight seconds, the outro one sentence), and
+  ending the intro by handing over: "Watch how it comes together, then it's your turn."
 - **About five minutes in all.** That is the learner's time, not the animation's: `steps list`
   shows seconds of animation, and `lessons quality` estimates the learner's minutes and warns beyond
   five, on a step with more than six lines, on many tiny lines, and on a complexity jump from the
@@ -54,6 +89,9 @@ would order it.
 
 ## The workflow
 
+0. **A generated picture, not an SVG?** `svg from-image <file.png> --palette ../docs/curriculum/palette.json
+   --out <id>.svg` turns a flat-colour PNG (see `docs/curriculum/fruits-prompts.md`) into the SVG the
+   rest of this workflow expects, its colours snapped to the course's palette.
 1. **Prepare the file.** `svg optimize <file> --simplify` rewrites it as plain paths on the lesson
    canvas and drops specks; work from the optimised file when the source is busy.
 2. **Trace and read it.** `svg trace <file> --out t.json --summary` prints every line (id, box,
@@ -101,6 +139,10 @@ would order it.
    - `lessons apply <id> --layer order --plan p.json` reorders steps and the lines within them and
      takes `reversedStrokeIds`, every step listing exactly its own labels;
    - `lessons apply <id> --layer instructions --plan p.json` rewords only;
+   - `strokes split <id> <stroke> --at "x,y x,y"` cuts a line where a pen would lift (one cut opens a
+     closed line at that point, two make two lines, each running the way the original did);
+     `strokes join <id> <first> <second>` makes two open lines one. Take the points from
+     `lessons summary` (each line's from → to) and the preview;
    - `steps split|merge|move|group|set`, `strokes move|reorder|reverse|set|delete` for one change
      at a time. Each save is a checkpoint in History; `history use` brings any version back.
 8. **Finish.** `lessons quality <id>`, then `lessons approve <id>` and `publish lessons` (or

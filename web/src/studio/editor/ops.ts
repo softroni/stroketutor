@@ -1,16 +1,19 @@
 import type { Step, Stroke, Tutorial } from '../../schema/types'
+import { formatPath, parsePath, type PathSegment, type Point } from '../../player/svgPath'
 import { moveItem } from '../moveItem'
+
+import { splitPath } from './splitPath'
 
 /**
  * Editing operations for the Lesson Workspace (master plan §18).
  *
  * The creator guides generated lessons rather than redrawing them, so every
  * operation rearranges or retimes existing strokes; none creates or reshapes a
- * path. Each returns a new document and leaves its input untouched, which is
+ * path (`splitStroke` cuts one into parts that follow it exactly). Each returns a new document and leaves its input untouched, which is
  * what makes undo a matter of keeping the previous value.
  *
  * Invariants every operation keeps, checked by `ops.test.ts`:
- * - every stroke appears exactly once, except after an explicit delete;
+ * - every stroke appears exactly once, except after an explicit delete, split or join;
  * - no step is left with nothing to draw (one with no strokes and no fills is removed);
  * - v2 fills stay with their step, after its strokes.
  * - step ids stay unique.
@@ -250,6 +253,64 @@ export function updateStep(
   patch: Partial<Pick<Step, 'title' | 'instruction'>>,
 ): EditableTutorial {
   return replaceStep(doc, stepIndex, { ...stepAt(doc, stepIndex), ...patch })
+}
+
+/**
+ * One stroke becomes several, cut at the points on it nearest to `cuts` (see
+ * `splitPath`). The parts stay where the stroke was, in its step, and share
+ * its animation time by their length.
+ */
+export function splitStroke(doc: EditableTutorial, uid: string, cuts: Point[], lengthOf: (d: string) => number): EditableTutorial {
+  pick(doc, new Set([uid]))
+  return {
+    ...doc,
+    steps: doc.steps.map((step) => ({
+      ...step,
+      strokes: step.strokes.flatMap((stroke) => {
+        if (stroke.uid !== uid) return [stroke]
+        let parts: string[]
+        try {
+          parts = splitPath(stroke.d, cuts)
+        } catch (error) {
+          throw new EditError(error instanceof Error ? error.message : String(error))
+        }
+        const lengths = parts.map(lengthOf)
+        const whole = lengths.reduce((sum, length) => sum + length, 0) || 1
+        return parts.map((d, index) => ({
+          ...stroke,
+          d,
+          duration: Math.max(0.2, Number(((stroke.duration * lengths[index]) / whole).toFixed(2))),
+          uid: `${stroke.uid}-${index + 1}`,
+        }))
+      }),
+    })),
+  }
+}
+
+/**
+ * Two strokes become one, drawn without lifting: the second carries on from
+ * the end of the first (a short straight line bridges any gap between them).
+ * The joined stroke takes the first one's place and both animation times.
+ */
+export function joinStrokes(doc: EditableTutorial, firstUid: string, secondUid: string): EditableTutorial {
+  const [first, second] = [firstUid, secondUid].map((uid) => pick(doc, new Set([uid]))[0])
+  if (firstUid === secondUid) throw new EditError('Join two different strokes.')
+  const tail = parsePath(second.d)
+  if (tail.filter((segment) => segment.kind === 'move').length !== 1 || /z\s*$/i.test(first.d) || /z\s*$/i.test(second.d)) {
+    throw new EditError('Only open lines, each drawn in one go, can be joined.')
+  }
+  const head = parsePath(first.d)
+  const last = head[head.length - 1]
+  const end = last.kind === 'move' || last.kind === 'line' ? last.to : last.kind === 'close' ? null : last.end
+  const start = (tail[0] as Extract<PathSegment, { kind: 'move' }>).to
+  const bridge: PathSegment[] = end && Math.hypot(end.x - start.x, end.y - start.y) > 0.5 ? [{ kind: 'line', to: start }] : []
+  const joined: EditableStroke = { ...first, d: formatPath([...head, ...bridge, ...tail.slice(1)]), duration: Number((first.duration + second.duration).toFixed(2)) }
+  return {
+    ...doc,
+    steps: doc.steps
+      .map((step) => ({ ...step, strokes: step.strokes.flatMap((stroke) => (stroke.uid === secondUid ? [] : stroke.uid === firstUid ? [joined] : [stroke])) }))
+      .filter((step) => step.strokes.length > 0 || (step.fills?.length ?? 0) > 0),
+  }
 }
 
 /** Applies the same timing or width to every selected stroke. */

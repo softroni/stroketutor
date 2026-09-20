@@ -1,5 +1,6 @@
 import { drawingImage } from '../../src/studio/drawingImage'
 import { renderSvg, toBase64 } from '../../src/studio/referenceImage'
+import { imageToSvg, type ImageToSvgOptions, type ImageToSvgResult } from '../../src/trace/imageToSvg'
 import { buildOptimizedSvg, type OptimizeOptions, type OptimizeResult } from '../../src/svg/optimize'
 import { collectShapesFromText, traceSvg, type TraceOptions, type TracedDrawing } from '../../src/trace/traceSvg'
 import type { Tutorial } from '../../src/schema/types'
@@ -19,6 +20,7 @@ export interface PageBridge {
   renderPng(text: string, longestEdge: number): Promise<Answer<string>>
   drawingPng(tutorial: Tutorial): Promise<Answer<string>>
   optimize(text: string, options: OptimizeOptions): Promise<Answer<OptimizeResult>>
+  fromImage(base64: string, contentType: string, size: number, options: ImageToSvgOptions): Promise<Answer<ImageToSvgResult>>
 }
 
 declare global {
@@ -35,9 +37,34 @@ async function answer<T>(work: () => Promise<T> | T): Promise<Answer<T>> {
   }
 }
 
+/** The picture's pixels, fitted inside a `size` × `size` sheet of white paper. */
+async function pixelsOf(base64: string, contentType: string, size: number): Promise<ImageData> {
+  const image = new Image()
+  image.src = `data:${contentType};base64,${base64}`
+  try {
+    await image.decode()
+  } catch {
+    throw new Error('The browser could not read this picture.')
+  }
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const context = canvas.getContext('2d', { willReadFrequently: true })
+  if (!context) throw new Error('The browser could not draw the picture.')
+  context.fillStyle = '#ffffff'
+  context.fillRect(0, 0, size, size)
+  context.imageSmoothingQuality = 'high'
+  const scale = size / Math.max(image.naturalWidth, image.naturalHeight)
+  const width = image.naturalWidth * scale
+  const height = image.naturalHeight * scale
+  context.drawImage(image, (size - width) / 2, (size - height) / 2, width, height)
+  return context.getImageData(0, 0, size, size)
+}
+
 window.studioBridge = {
   trace: (text, options) => answer(() => traceSvg(text, options)),
   renderPng: (text, longestEdge) => answer(async () => toBase64(await renderSvg(text, longestEdge))),
   drawingPng: (tutorial) => answer(async () => (await drawingImage(tutorial)).base64),
+  fromImage: (base64, contentType, size, options) => answer(async () => imageToSvg((await pixelsOf(base64, contentType, size)).data, size, size, options)),
   optimize: (text, options) => answer(() => buildOptimizedSvg(collectShapesFromText(text, { size: options.size }), options)),
 }

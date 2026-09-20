@@ -9,6 +9,8 @@ export type QualityCode =
   | 'many-strokes'
   | 'tiny-strokes'
   | 'crowded-step'
+  | 'long-stroke'
+  | 'long-instruction'
   | 'placeholder-text'
   | 'complexity-jump'
 
@@ -31,6 +33,19 @@ export const TINY_STROKE_FRACTION = 0.02
 export const TINY_STROKE_MIN_COUNT = 3
 /** …and they make up more than this share of the lesson. */
 export const TINY_STROKE_SHARE = 0.25
+/**
+ * A curved closed line longer than this share of the canvas diagonal is more than one
+ * movement of a young hand: the curve has to stay even all the way round and
+ * meet its own start. An apple's outline is; a cherry or a leaf is not.
+ */
+export const LONG_CLOSED_STROKE_FRACTION = 0.6
+/** An open line may be longer, since it has nowhere to meet; beyond this it too is drawn in parts. */
+export const LONG_OPEN_STROKE_FRACTION = 0.9
+/**
+ * The learner is 8 to 16 and reads the instruction while holding a pen: one or
+ * two short sentences. Past this many characters it is a paragraph.
+ */
+export const MAX_INSTRUCTION_LENGTH = 110
 /** How much bigger than the previous lesson in the path counts as a jump. */
 export const COMPLEXITY_JUMP = 2
 
@@ -77,7 +92,29 @@ export function qualityWarnings(tutorial: Tutorial, previous?: Tutorial): Qualit
     })
   }
 
+  const diagonal = Math.hypot(width, height)
   tutorial.steps.forEach((step, index) => {
+    step.strokes.forEach((stroke, strokeIndex) => {
+      // Straight sides rest at every corner; it is a long curve that is hard to keep even.
+      if (!/[CQ]/.test(stroke.d)) return
+      const closed = /z\s*$/i.test(stroke.d)
+      const length = strokeLength(stroke.d)
+      if (length <= diagonal * (closed ? LONG_CLOSED_STROKE_FRACTION : LONG_OPEN_STROKE_FRACTION)) return
+      warnings.push({
+        code: 'long-stroke',
+        path: `steps[${index}].strokes[${strokeIndex}]`,
+        message: closed
+          ? `"${step.title}" draws a large closed shape in one line. A learner draws it more easily in two or more parts (strokes split), each its own short step.`
+          : `"${step.title}" has a very long line. Consider drawing it in parts (strokes split).`,
+      })
+    })
+    if (step.instruction.length > MAX_INSTRUCTION_LENGTH && step.instruction !== NEW_STEP_INSTRUCTION) {
+      warnings.push({
+        code: 'long-instruction',
+        path: `steps[${index}].instruction`,
+        message: `"${step.title}" takes ${step.instruction.length} characters to say. A young learner reads one or two short sentences (${MAX_INSTRUCTION_LENGTH} characters at most).`,
+      })
+    }
     if (step.strokes.length > MAX_STROKES_PER_STEP) {
       warnings.push({
         code: 'crowded-step',

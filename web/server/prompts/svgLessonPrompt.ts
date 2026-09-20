@@ -67,6 +67,8 @@ Answer in three parts.
 2. outlineSteps: every line, in drawing order.
 - Use every line id exactly once. Never use an id that is not listed.
 - 4 to 12 steps. Each step is one meaningful action a beginner can hold in mind: one to six lines that belong together, such as the two edges of a trunk.
+- The learner is 8 to 16. Prefer what is intuitive, easy and natural to follow over what is economical, even if that means more steps. Finish one part of the subject completely before starting the next: the whole stem, then the leaf, then the leaf's centre line; never half of one thing, then another, then back.
+- A very long curved line is hard for a young hand. When the lines you are given already split a big outline into parts, give each part its own step ("Draw the left side", "Draw the right side") rather than putting them together.
 - Big structure first, then the main features, then details. Within a step, list the lines in the order to draw them.
 - Use the bounding boxes and the picture to tell which lines form which part.
 
@@ -77,7 +79,7 @@ Answer in three parts.
 
 Every step
 - title: short and direct, for example "Draw the trunk" or "Colour the leaves".
-- instruction: one or two calm sentences for an adult. Say what to notice as well as what to do: where to start, what it lines up with, how big it is compared with something already on the page. No exclamation marks, no praise, no art jargon.
+- instruction: one or two short sentences a child of 8 to 16 reads at a glance: under about twelve words each, 110 characters in all. Say where the pen starts and what to draw, in plain words and a familiar picture ("a big letter C", "like a mirror"); leave out sizes and proportions. A colour step is one sentence: "Colour the leaf green." Calm: no exclamation marks, no praise, no art jargon.
 - id: a short lowercase slug, unique within the lesson.`
 
 function userText(input: SvgPromptInput): string {

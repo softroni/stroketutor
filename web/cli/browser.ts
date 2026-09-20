@@ -87,6 +87,7 @@ export async function openBrowser(vite: ViteDevServer | undefined): Promise<Brow
     renderPng: (text, longestEdge) => call('renderPng', text, longestEdge),
     drawingPng: (tutorial) => call('drawingPng', tutorial),
     optimize: (text, options: OptimizeOptions) => call('optimize', text, options),
+    fromImage: (base64, contentType, size, options) => call('fromImage', base64, contentType, size, options),
     async close() {
       await browser.close()
       await new Promise<void>((resolve) => server.close(() => resolve()))

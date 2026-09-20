@@ -3,11 +3,13 @@ import { stepDuration, type Tutorial } from '../../src/schema/types'
 import {
   deleteStrokes,
   groupIntoNewStep,
+  joinStrokes,
   mergeWithNext,
   moveStrokes,
   reorderSteps,
   reorderStrokes,
   splitStep,
+  splitStroke,
   toEditable,
   updateStep,
   updateStrokes,
@@ -199,6 +201,54 @@ export const stepCommands: Command[] = [
       `Reversed ${selectors.join(' ')}.`,
     )
   }),
+
+  command(
+    'strokes split',
+    'Cut one stroke into several, where a pen would lift: the same shape, drawn in parts. One cut opens a closed line at that point; two make two lines.',
+    ['<id>', '<stroke>'],
+    { at: { type: 'string', description: 'Where to cut, on the lesson canvas: "x,y", or several as "x,y x,y". Each cut is made at the nearest point of the line.', placeholder: 'points' }, ...CHECKPOINT },
+    async (ctx, args) => {
+      const [id, selector] = args.positionals
+      const cuts = (stringValue(args.values, 'at') ?? '').split(/\s+/).filter(Boolean).map((text) => {
+        const [x, y, extra] = text.split(',').map((value) => parseNumber(value, '--at'))
+        if (y === undefined || extra !== undefined) throw new CliError(`--at takes points as x,y; "${text}" is not one.`)
+        return { x, y }
+      })
+      if (cuts.length === 0) throw new CliError('Say where to cut: --at "x,y" (see `lessons summary` for where each line starts and ends).')
+      await edit(
+        ctx,
+        id,
+        args.values,
+        (doc) => {
+          const [uid, ...others] = resolveStrokes(doc, [selector])
+          if (others.length > 0) throw new CliError('Split one stroke at a time.')
+          return splitStroke(doc, uid, cuts, strokeLength)
+        },
+        `Split ${selector} at ${plural(cuts.length, 'point')}.`,
+      )
+    },
+  ),
+
+  command(
+    'strokes join',
+    'Make two open strokes one, drawn without lifting: the second carries on from the end of the first. Reverse one first if it runs the wrong way.',
+    ['<id>', '<first>', '<second>'],
+    CHECKPOINT,
+    async (ctx, args) => {
+      const [id, first, second] = args.positionals
+      await edit(
+        ctx,
+        id,
+        args.values,
+        (doc) => {
+          const uids = resolveStrokes(doc, [first, second])
+          if (uids.length !== 2) throw new CliError('Name two strokes: the one drawn first, then the one that carries on from it.')
+          return joinStrokes(doc, resolveStrokes(doc, [first])[0], resolveStrokes(doc, [second])[0])
+        },
+        `Joined ${second} onto ${first}.`,
+      )
+    },
+  ),
 
   command('strokes delete', 'Remove the selected strokes for good, and any step they leave empty.', ['<id>', '<strokes...>'], CHECKPOINT, async (ctx, args) => {
     const [id, ...selectors] = args.positionals

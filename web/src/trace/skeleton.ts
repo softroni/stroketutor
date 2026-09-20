@@ -273,6 +273,26 @@ export function traceSkeleton(skeleton: Mask, options: SkeletonOptions): Polylin
     if (ends[startNode].length >= 3) points.push(nodePoint(startNode))
     let end = entry
     let closed = false
+    // Where two shapes touch (a leaf resting on an apple), a line carried straight
+    // through the crossing comes back to it, a figure of eight across both. A hand
+    // draws two shapes, so the loop is cut off as a line of its own. A leaf on a
+    // stem leaves at one crossing and comes back at the next, a pen's width along:
+    // coming back that near counts too, and the stub between the two is the loop's.
+    const passed: { node: number; index: number; at: Point }[] = []
+    const near = 2 * options.minSpur
+    const cutLoop = (node: number): boolean => {
+      const at = nodePoint(node)
+      const found = passed.findIndex((p) => Math.hypot(p.at[0] - at[0], p.at[1] - at[1]) <= near && points.length - p.index >= 8 * options.minSpur)
+      if (found < 0) return false
+      const from = passed[found]
+      polylines.push({ points: dedupe([from.at, ...points.splice(from.index), at]), closed: true })
+      branches.forEach((branch, k) => {
+        if (alive[k] && !walked[k] && from.node !== node && [find(branch.from), find(branch.to)].sort().join() === [from.node, node].sort().join()) walked[k] = 1
+      })
+      passed.length = found
+      return true
+    }
+    if (ends[startNode].length >= 3) passed.push({ node: startNode, index: 0, at: nodePoint(startNode) })
     for (;;) {
       const k = end >> 1
       walked[k] = 1
@@ -288,8 +308,15 @@ export function traceSkeleton(skeleton: Mask, options: SkeletonOptions): Polylin
         closed = next === entry
         break
       }
+      const node = endNode(exit)
+      if (ends[node].length >= 3) {
+        if (cutLoop(node)) points.push(nodePoint(node))
+        passed.push({ node, index: points.length, at: nodePoint(node) })
+      }
       end = next
     }
+    // A closed walk began part-way round; a crossing passed on the way is where the two shapes part.
+    if (closed && passed.length > 1) cutLoop(startNode)
     polylines.push({ points: dedupe(points), closed })
   }
   branches.forEach((_, k) => {

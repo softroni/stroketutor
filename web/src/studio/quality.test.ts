@@ -59,9 +59,24 @@ describe('strokeLength', () => {
 })
 
 describe('qualityWarnings', () => {
-  it('finds nothing to flag in the golden lessons', () => {
-    expect(codes(golden('simple-house.json'))).toEqual([])
-    expect(codes(golden('cat-face.json'))).toEqual([])
+  it('flags in the golden lessons only what a young learner would struggle with', () => {
+    // Both were written before the course was for ages 8 to 16: one instruction each runs long,
+    // and the cat's head is one 560-wide circle, exactly what `long-stroke` is for.
+    expect(codes(golden('simple-house.json'))).toEqual(['long-instruction'])
+    expect([...codes(golden('cat-face.json'))].sort()).toEqual(['long-instruction', 'long-stroke'])
+  })
+
+  it('flags an instruction that is a paragraph', () => {
+    const wordy = tutorial([step('a', [line(100, 300)], { instruction: 'Start near the top. '.repeat(8) })])
+    expect(codes(wordy)).toContain('long-instruction')
+  })
+
+  it('flags a large curved shape drawn in one line, and leaves straight-sided and small ones alone', () => {
+    const circle = (r: number) => `M 500 ${500 - r} C ${500 + r * 0.55} ${500 - r} ${500 + r} ${500 - r * 0.55} ${500 + r} 500 C ${500 + r} ${500 + r * 0.55} ${500 + r * 0.55} ${500 + r} 500 ${500 + r} C ${500 - r * 0.55} ${500 + r} ${500 - r} ${500 + r * 0.55} ${500 - r} 500 C ${500 - r} ${500 - r * 0.55} ${500 - r * 0.55} ${500 - r} 500 ${500 - r} Z`
+    const shape = (d: string) => tutorial([step('a', [{ d, duration: 2, lineWidth: 8 }])])
+    expect(codes(shape(circle(300)))).toEqual(['long-stroke'])
+    expect(codes(shape(circle(120)))).toEqual([])
+    expect(codes(shape('M 100 100 L 900 100 L 900 900 L 100 900 Z'))).toEqual([])
   })
 
   it('flags a lesson estimated past five minutes', () => {

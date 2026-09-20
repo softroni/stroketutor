@@ -5,7 +5,7 @@ import { parsePath } from '../player/svgPath'
 import { createMask, distanceToPaper, thin, type Mask } from './bitmap'
 import { traceContours } from './contours'
 import { PALM_CROP } from './fixtures/palmCrop'
-import { boxOf, loopArea, polylineLength, simplify, smoothPath } from './fit'
+import { boxOf, loopArea, polylineLength, relax, simplify, smoothPath } from './fit'
 import { growIntoMask, hex, quantize, removeSpecks } from './palette'
 import { traceSkeleton } from './skeleton'
 
@@ -156,5 +156,36 @@ describe('smoothing', () => {
     expect(() => parsePath(closed)).not.toThrow()
     expect(smoothPath(square.slice(0, 2), false)).toBe('M 0 0 L 100 0')
     expect(() => parsePath(smoothPath(square, false))).not.toThrow()
+  })
+})
+
+describe('outlines: shapes that touch', () => {
+  it('traces two rings that touch as two closed lines, not a figure of eight', () => {
+    const ringAt = (cx: number, x: number, y: number) => {
+      const r = Math.hypot(x + 0.5 - cx, y + 0.5 - 60)
+      return r >= 26 && r <= 34
+    }
+    const rings = mask(200, 120, (x, y) => ringAt(60, x, y) || ringAt(126, x, y))
+    const lines = traceSkeleton(thin(rings), { minSpur: 12, maxBend: 55 })
+    expect(lines).toHaveLength(2)
+    for (const line of lines) {
+      expect(line.closed).toBe(true)
+      expect(polylineLength(line.points, true)).toBeGreaterThan(150)
+      expect(polylineLength(line.points, true)).toBeLessThan(230)
+    }
+  })
+})
+
+describe('relaxing a traced line', () => {
+  it('takes the steps out of a staircase and keeps its ends and its corner', () => {
+    // Up a 1-in-3 slope in pixel steps, then a right-angle turn straight down.
+    const stairs: [number, number][] = []
+    for (let x = 0; x <= 90; x += 1) stairs.push([x, 100 - Math.floor(x / 3)])
+    for (let y = 71; y <= 160; y += 1) stairs.push([90, y])
+    const calm = relax(stairs, false, 40)
+    expect(calm[0]).toEqual(stairs[0])
+    expect(calm[calm.length - 1]).toEqual(stairs[stairs.length - 1])
+    expect(calm.some(([x, y]) => Math.hypot(x - 90, y - 70) < 1.5)).toBe(true)
+    for (const [x, y] of calm.slice(10, 70)) expect(Math.abs(y - (100 - x / 3 + 0.33))).toBeLessThan(0.6)
   })
 })

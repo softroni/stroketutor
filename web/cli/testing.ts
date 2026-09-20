@@ -144,6 +144,9 @@ export function fakeBrowser(): FakeBrowser {
     async optimize() {
       throw new Error('not in these tests')
     },
+    async fromImage() {
+      throw new Error('not in these tests')
+    },
     async close() {},
   }
   return bridge
