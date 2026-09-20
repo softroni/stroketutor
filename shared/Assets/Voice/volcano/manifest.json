@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "volcano",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:55:46.901Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Rumble, rumble. This volcano is awake. Lava spills down its sides and smoke puffs out of the top. We begin up at the crater. Watch it erupt, then set off your own.",
+      "textHash": "c975c2118e7999b7f451073177bd2969e0e2ad33b63dcc839f504956a652fc3d",
+      "durationMs": 12640
+    },
+    "crater": {
+      "file": "crater.m4a",
+      "text": "The crater is the hole at the top. Draw a flat oval, the far edge first, then the near edge.",
+      "textHash": "59f16b14e5ee94e6857faf1bcadda7a284ea57379cb5da14b97d28d5cc2994aa",
+      "durationMs": 6320
+    },
+    "left-slope": {
+      "file": "left-slope.m4a",
+      "text": "Now the mountain. From the left of the crater, wobble down and out to the ground.",
+      "textHash": "ae177e73c8ec81b0ac383637c8e86de9213846760a99b94d380c54b60e3bceb9",
+      "durationMs": 5200
+    },
+    "right-slope": {
+      "file": "right-slope.m4a",
+      "text": "The right side comes down the same way. Bumpy is fine. It's rock.",
+      "textHash": "28f3d746575b0b24ad31747f87391d937471aaf452157501f12ebdb0bd99a259",
+      "durationMs": 5360
+    },
+    "ground": {
+      "file": "ground.m4a",
+      "text": "Join the two feet with a straight line.",
+      "textHash": "e07baa0bbeb969096e12685b83a91ea02c026091960bec204594a6ab6e1d633a",
+      "durationMs": 2560
+    },
+    "big-drip": {
+      "file": "big-drip.m4a",
+      "text": "Lava pours over the rim. Draw a long drip down the middle with a round end.",
+      "textHash": "dc7efda4cfc926ba6fe72ff6fa23bc87112f39875760b0f819dddf61f4286c95",
+      "durationMs": 5120
+    },
+    "small-drips": {
+      "file": "small-drips.m4a",
+      "text": "Shorter drips run down on either side. The left one spills over the edge.",
+      "textHash": "ebedfa8bb4512f02555120277dfba288af893f318ee54d61a6c1fdb7bd7cc6c6",
+      "durationMs": 5760
+    },
+    "smoke": {
+      "file": "smoke.m4a",
+      "text": "Smoke rises in three puffs: small, bigger, biggest, drifting to the right.",
+      "textHash": "eb76f0856f6545ef5b0a503046b022e37bc825379116d797e2d3dd8e07da2db1",
+      "durationMs": 6080
+    },
+    "mountain": {
+      "file": "mountain.m4a",
+      "text": "Color the mountain brown.",
+      "textHash": "7ca958af80c33a25d707e24995e56b3dfcfc3bafdb3829f37ea03d03019d4244",
+      "durationMs": 1760
+    },
+    "lava": {
+      "file": "lava.m4a",
+      "text": "Color the lava orange.",
+      "textHash": "a4ae63a3a05b9b3c8583dc0724dc7c69420de082697bdf151811e8352c342747",
+      "durationMs": 1760
+    },
+    "crater-color": {
+      "file": "crater-color.m4a",
+      "text": "Inside the crater it's red hot. Color it red.",
+      "textHash": "17a1bc7a219d16fb07eccb31bc85dd54b1ad9306b206a5b5c15f6f5cd58be568",
+      "durationMs": 3920
+    },
+    "smoke-color": {
+      "file": "smoke-color.m4a",
+      "text": "Color the smoke gray.",
+      "textHash": "9087d0b5b76ecc1a797f7825c4e77a0392ec9918dd8e6c9be69dca34e3ded390",
+      "durationMs": 1840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Lava, smoke and a mountain of rock. Luckily this volcano only erupts on paper.",
+      "textHash": "a85dedacb308d17613b94e3eeeb07bf9a7f01eb9f15efcfceefbaf99125adb6a",
+      "durationMs": 6080
+    }
+  }
+}

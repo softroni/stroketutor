@@ -82,6 +82,16 @@
       }
     },
     {
+      "id": "volcano",
+      "status": "approved",
+      "objective": "Cone with a crater, lava streams and a smoke plume",
+      "reference": {
+        "file": "volcano.svg",
+        "source": "Generated with OpenAI image model (ChatGPT), prompt style-v2, 2026-09-20; docs/curriculum/sky-weather/volcano-openai.png",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "cherries",
       "status": "approved",
       "objective": "Two cherries joined at the stem",
