@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cactus",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:40:07.199Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Far out in the desert stands a saguaro cactus, holding up two arms. It's a tall post, two bent arms and a few spines. Look how the arms bend, then draw yours.",
+      "textHash": "3282aa4552d202abb20becdf0ae4ca2aa7759942ab6e45b4a30e87774ce66c00",
+      "durationMs": 10880
+    },
+    "body-left": {
+      "file": "body-left.m4a",
+      "text": "The cactus is a tall post with a round top. From the bottom left, go straight up and curve over to the middle.",
+      "textHash": "d809cfee366021a7ee32e4abc6e0630385a2a52be8b7dce2bd67eb499743e1ee",
+      "durationMs": 6480
+    },
+    "body-right": {
+      "file": "body-right.m4a",
+      "text": "Carry on over the top and straight down the right side. A short flat line closes the bottom.",
+      "textHash": "1e8e06b18929e5e597642dd793fe8edcbd1a6437fcc1729b6ad3095021b6a653",
+      "durationMs": 6400
+    },
+    "left-arm": {
+      "file": "left-arm.m4a",
+      "text": "The left arm is a letter L. From the post, go out, turn up and round over the tip.",
+      "textHash": "9fabeac60e7bab62c8dc62de5c683439b694abc48c1417996dc96dc537644614",
+      "durationMs": 6160
+    },
+    "left-arm-outside": {
+      "file": "left-arm-outside.m4a",
+      "text": "Then the outside of the L: from the post again, out, around the elbow and up to the tip.",
+      "textHash": "d8a5d215d8bbe0509daaf0af8abf31fac0cc89cf8a4082d7ee09b04091906d08",
+      "durationMs": 6720
+    },
+    "right-arm": {
+      "file": "right-arm.m4a",
+      "text": "The right arm sits higher and is shorter. Two lines again, inside first, both from the post.",
+      "textHash": "e5ca6722dd978eb263283bcbecb73aba25765673c65ca1e71dc86a160cdf5acd",
+      "durationMs": 6720
+    },
+    "spines-body": {
+      "file": "spines-body.m4a",
+      "text": "Spines are short slanted dashes. Put four down the post, leaning left, then right, in turn.",
+      "textHash": "9dc9bb630fe068eb23e2004eb79cebc8bd4d602ea4bc49fd7d1de6dcfce49616",
+      "durationMs": 6640
+    },
+    "spines-arms": {
+      "file": "spines-arms.m4a",
+      "text": "One more dash on each arm.",
+      "textHash": "60a2da8ad6aa4dc89f19f1ff43578378f40cee00bb99bb38d82a5450fa75394f",
+      "durationMs": 2400
+    },
+    "post": {
+      "file": "post.m4a",
+      "text": "Color the post green.",
+      "textHash": "ff2efc73da712278bc13f0f8aad8e7702507c041a883a54308068443633b8165",
+      "durationMs": 1680
+    },
+    "arms": {
+      "file": "arms.m4a",
+      "text": "Color both arms light green.",
+      "textHash": "e179a1e0488b0986eac574966c123abf2c8009809bd923f882ff829541e27970",
+      "durationMs": 2400
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Two arms up and six spines, and nobody got prickled. That saguaro is yours.",
+      "textHash": "690d3d30407b3a536483591313630a3d35ec45241cc77ac02f2bfb61e7c2004d",
+      "durationMs": 5680
+    }
+  }
+}

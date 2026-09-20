@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 2,
+  "id": "cactus",
+  "title": "Cactus",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "body-left",
+      "title": "Draw the left side",
+      "instruction": "The cactus is a tall post with a round top. From the bottom left, go straight up and curve over to the middle.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 414 928 C 414 668 413 280 414 148 C 414 141 416 137 417 132 C 419 127 421 121 424 117 C 426 112 429 108 432 104 C 436 99 439 96 443 92 C 447 89 451 86 455 84 C 459 81 463 78 469 77 C 477 75 493 72 501 71",
+          "duration": 1.83,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "body-right",
+      "title": "Draw the right side",
+      "instruction": "Carry on over the top and straight down the right side. A short flat line closes the bottom.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 501 71 C 508 70 512 72 517 73 C 522 74 528 76 533 78 C 538 80 544 83 548 85 C 553 88 556 91 560 95 C 564 98 567 102 570 106 C 573 110 577 114 579 120 C 582 127 585 137 587 150 C 588 163 588 181 588 203 C 589 332 588 685 588 927",
+          "duration": 1.82,
+          "lineWidth": 17
+        },
+        {
+          "d": "M 588 927 C 582 927 577 929 570 929 C 543 930 450 930 424 929 C 419 929 417 928 414 928",
+          "duration": 0.35,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "left-arm",
+      "title": "Draw the left arm",
+      "instruction": "The left arm is a letter L. From the post, go out, turn up and round over the tip.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 413 604 C 405 603 374 603 365 602 C 360 602 357 600 355 598 C 352 596 350 594 348 589 C 347 585 346 579 346 572 C 345 532 346 389 345 348 C 345 338 345 331 343 324 C 342 317 339 310 335 306 C 331 301 327 298 322 295 C 316 293 309 291 303 291",
+          "duration": 1.69,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "left-arm-outside",
+      "title": "Finish the left arm",
+      "instruction": "Then the outside of the L: from the post again, out, around the elbow and up to the tip.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 413 683 C 401 682 359 683 345 682 C 337 682 331 681 326 679 C 320 678 318 678 313 675 C 308 673 301 670 295 666 C 290 661 284 656 280 651 C 276 647 273 643 270 638 C 267 632 263 627 261 619 C 259 609 256 597 256 582 C 255 535 255 379 256 336 C 256 330 257 326 258 322 C 259 318 261 314 263 310 C 266 307 269 303 272 301 C 275 298 278 296 283 294 C 288 293 296 291 303 291",
+          "duration": 2.31,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "right-arm",
+      "title": "Draw the right arm",
+      "instruction": "The right arm sits higher and is shorter. Two lines again, inside first, both from the post.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 589 446 C 596 445 624 446 633 445 C 638 445 641 443 644 441 C 647 439 650 437 652 434 C 654 431 654 428 655 424 C 656 421 656 416 656 410 C 657 382 656 284 657 256 C 657 248 657 243 659 237 C 661 231 665 225 669 221 C 673 217 678 214 684 212 C 690 210 699 208 705 209",
+          "duration": 1.62,
+          "lineWidth": 17
+        },
+        {
+          "d": "M 589 527 C 600 526 642 527 658 526 C 670 526 680 523 687 520 C 693 519 696 517 701 514 C 706 511 712 506 716 502 C 721 498 724 494 727 489 C 731 484 734 479 736 473 C 739 467 741 459 742 453 C 744 446 744 442 744 434 C 745 402 745 289 744 258 C 744 252 744 247 743 243 C 742 238 741 235 739 232 C 738 228 735 225 733 222 C 730 219 728 217 724 215 C 720 213 712 210 705 209",
+          "duration": 2.28,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "spines-body",
+      "title": "Draw the spines",
+      "instruction": "Spines are short slanted dashes. Put four down the post, leaning left, then right, in turn.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 479 233 L 508 277",
+          "duration": 0.4,
+          "lineWidth": 15
+        },
+        {
+          "d": "M 518 381 L 490 424",
+          "duration": 0.4,
+          "lineWidth": 16
+        },
+        {
+          "d": "M 482 541 L 512 581",
+          "duration": 0.4,
+          "lineWidth": 16
+        },
+        {
+          "d": "M 519 699 L 489 743",
+          "duration": 0.4,
+          "lineWidth": 16
+        }
+      ]
+    },
+    {
+      "id": "spines-arms",
+      "title": "Add two spines",
+      "instruction": "One more dash on each arm.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 290 428 L 313 478",
+          "duration": 0.4,
+          "lineWidth": 16
+        },
+        {
+          "d": "M 711 322 L 687 372",
+          "duration": 0.4,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "post",
+      "title": "Color the post",
+      "instruction": "Color the post green.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 494 62 C 504 62 515 62 525 65 C 535 68 544 70 554 78 C 564 86 578 102 585 111 C 591 119 592 128 594 134 C 596 140 597 143 597 150 C 598 201 599 388 598 438 C 598 445 590 446 589 453 C 588 467 588 505 589 519 C 590 526 598 528 598 535 C 599 603 597 794 597 924 C 592 929 588 933 583 938 C 528 938 473 938 418 938 C 414 934 409 929 405 925 C 405 847 403 733 404 691 C 404 682 413 681 414 672 C 416 659 416 626 414 613 C 413 605 404 604 404 596 C 403 518 403 223 405 142 C 405 128 410 120 417 109 C 424 99 437 86 445 79 C 453 72 460 70 468 67 C 476 64 485 62 494 62 Z",
+          "color": "#4F9D4A",
+          "duration": 3,
+          "fillRule": "evenodd"
+        }
+      ]
+    },
+    {
+      "id": "arms",
+      "title": "Color the arms",
+      "instruction": "Color both arms light green.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 695 199 C 702 198 707 199 712 200 C 718 201 722 202 728 206 C 734 210 742 219 746 224 C 750 229 752 232 752 238 C 753 273 755 398 754 436 C 754 448 751 459 749 466 C 748 472 746 475 744 480 C 742 485 739 489 735 494 C 729 501 717 513 710 519 C 704 524 700 526 692 529 C 685 532 676 535 665 536 C 649 537 620 535 597 535 C 594 530 590 526 589 519 C 588 505 588 467 589 453 C 590 446 595 442 598 437 C 611 437 628 438 636 437 C 641 436 644 432 646 430 C 648 428 648 427 648 424 C 649 392 648 269 649 236 C 649 231 651 229 654 225 C 658 220 666 210 673 206 C 680 202 689 200 695 199 Z M 288 282 C 295 281 307 281 313 282 C 319 283 322 284 327 287 C 333 291 343 301 347 306 C 350 310 351 315 352 318 C 353 321 354 323 354 327 C 354 371 354 540 354 584 C 354 586 355 587 356 589 C 358 591 361 593 364 595 C 377 595 391 595 404 595 C 407 601 413 605 414 613 C 416 626 416 659 414 672 C 413 681 407 685 404 692 C 382 692 353 694 337 692 C 324 691 313 686 306 683 C 301 681 299 680 295 677 C 288 671 271 656 264 646 C 257 636 254 624 251 616 C 249 610 248 607 248 601 C 248 552 247 372 248 323 C 248 317 250 313 254 308 C 258 302 268 292 274 288 C 279 284 282 283 288 282 Z",
+          "color": "#B9DC8A",
+          "duration": 2.5,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}
