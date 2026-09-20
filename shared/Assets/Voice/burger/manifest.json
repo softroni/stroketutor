@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "burger",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T17:51:34.620Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Let's stack a burger one layer at a time: bun, lettuce, cheese, patty, bun. Watch the stack grow, then build yours.",
+      "textHash": "ca6ecfc97cbcf045c636ecbd93bed6d058994692d59c95a7ccf8f37f35c320e3",
+      "durationMs": 9680
+    },
+    "top-bun": {
+      "file": "top-bun.m4a",
+      "text": "The top bun is a wide dome. From the left, arch up and over to the right.",
+      "textHash": "744f960ef83151c3b467f37b56418a090d6704e7ce2bdd1f8ffdc81a7af4126b",
+      "durationMs": 5680
+    },
+    "seeds": {
+      "file": "seeds.m4a",
+      "text": "Scatter five sesame seeds on the bun. Each is a tiny teardrop.",
+      "textHash": "24756e7a84b3452ac5b66f03abe77d7817806ba646b0f1256ead6d88215f380b",
+      "durationMs": 5120
+    },
+    "lettuce-top": {
+      "file": "lettuce-top.m4a",
+      "text": "Lettuce pokes out on both sides. Draw a flat line under the bun with a round end each side.",
+      "textHash": "07148c7f029b2e4a40fad7ca592a9584487c45530b60b9c01fbd80af397dc065",
+      "durationMs": 6160
+    },
+    "lettuce-waves": {
+      "file": "lettuce-waves.m4a",
+      "text": "Its bottom edge is wavy. Count five soft waves across.",
+      "textHash": "2575e5fd13ace82b1eab6cc64c1a3ec5042181535a2597c992fe75f9e9088f06",
+      "durationMs": 4480
+    },
+    "cheese": {
+      "file": "cheese.m4a",
+      "text": "A slice of cheese comes next. Draw a short line down at each end.",
+      "textHash": "80c51a79b700d2b50b61f6d475c61b8fbfd7d8218603c97f20964afa0dfbbc91",
+      "durationMs": 4560
+    },
+    "patty": {
+      "file": "patty.m4a",
+      "text": "The patty is a long shape with round ends. One corner of cheese melts over it, a letter V.",
+      "textHash": "621e9f180468b2d37defe922de6668ed6537b98bc8d072849222b314ced48de8",
+      "durationMs": 6240
+    },
+    "bottom-bun": {
+      "file": "bottom-bun.m4a",
+      "text": "Last layer, the bottom bun. A flat top, round corners and a gently curved base.",
+      "textHash": "d791e0f4febe8bc1e3cc4862a06a7176cb411ff44c0fa6c6c89ed83db1b0b32b",
+      "durationMs": 5840
+    },
+    "buns": {
+      "file": "buns.m4a",
+      "text": "Color both buns orange.",
+      "textHash": "5d9370088c413e56a3aa2423d60e98aa5f7570a31843e31d023708169a72e3fe",
+      "durationMs": 2080
+    },
+    "patty-color": {
+      "file": "patty-color.m4a",
+      "text": "The patty is brown.",
+      "textHash": "af80762f9fe6394de138e4de2210de7ccce8c4c3fc31c098ec2314c307a7acfc",
+      "durationMs": 1600
+    },
+    "lettuce-color": {
+      "file": "lettuce-color.m4a",
+      "text": "Color the lettuce green.",
+      "textHash": "8a036dea39a0a04d09d5a7f14d672f80953650d2fd83e3fda8fd55ed058f7b62",
+      "durationMs": 1760
+    },
+    "cheese-seeds": {
+      "file": "cheese-seeds.m4a",
+      "text": "The cheese is yellow, and the seeds are cream.",
+      "textHash": "c99643cc0a826e159f3501b7363224bea933bf836651170433af7ba9ea00da2b",
+      "durationMs": 3200
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "That's a proper burger, stacked by you from bun to bun. Order up.",
+      "textHash": "26ec33a6b841303b6c2ec864a9898b9e7226499adc0e2f6006805bb0af8fe52d",
+      "durationMs": 5040
+    }
+  }
+}
