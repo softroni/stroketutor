@@ -232,6 +232,16 @@
       }
     },
     {
+      "id": "gift-box",
+      "status": "approved",
+      "objective": "Cube with a lid, ribbon cross and bow",
+      "reference": {
+        "file": "gift-box.svg",
+        "source": "Generated picture: OpenAI image model, style-v2 prompt (docs/curriculum/forms-prompts.md), 2026-09-20; traced with svg from-image",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

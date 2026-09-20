@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "gift-box",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:30:17.123Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Somebody is getting a present. It's a cube wearing a lid, a ribbon and a bow. There are lots of lines, all easy ones. Watch the wrapping, then wrap yours.",
+      "textHash": "2d4ed092d15d893398aaeacc732b72570b62ef64ff1efce78e2262697e934023",
+      "durationMs": 11040
+    },
+    "bow": {
+      "file": "bow.m4a",
+      "text": "We start with the bow. Draw a small circle for the knot. Add a fat loop on each side.",
+      "textHash": "16a722161488affe0e5e7140d771e95a7542082a7ed4ddaf30a888ac1bfb6369",
+      "durationMs": 5680
+    },
+    "lid-top": {
+      "file": "lid-top.m4a",
+      "text": "Behind the bow is the lid's top, a flat diamond. Draw its edges around the bow.",
+      "textHash": "2e67f6fb812cfb8820352b51e14c9cdbe4cb340f7c65206d9f579dc24bde62ae",
+      "durationMs": 5200
+    },
+    "lid-sides": {
+      "file": "lid-sides.m4a",
+      "text": "Give the lid some depth. Draw three short lines down, one at each corner.",
+      "textHash": "81a584ef9909dd84de992b5dad6a57d5d98f03b157027f66bda1e5f1a43ae03c",
+      "durationMs": 5120
+    },
+    "lid-bottom": {
+      "file": "lid-bottom.m4a",
+      "text": "Now join them along the bottom. The ribbon leaves a gap on each side.",
+      "textHash": "29aa0ee17b1c2b1e7d66647da45d618e36d9e7a88218a696ca7632e5a71a4e2c",
+      "durationMs": 4800
+    },
+    "box": {
+      "file": "box.m4a",
+      "text": "The box sits under the lid. Draw three long uprights, then two edges along the bottom.",
+      "textHash": "413a28d577dd2c4bb8d657cf2203731f8fc724fce85caddafc0012d32b97baf1",
+      "durationMs": 6240
+    },
+    "ribbon-top": {
+      "file": "ribbon-top.m4a",
+      "text": "Now the ribbon. From the bow, two lines run to each front edge. One goes to each back edge.",
+      "textHash": "b2edecd8e472740285a1cd4a5522134a1228f9fab49b48a1cb71e8212089c5fa",
+      "durationMs": 6960
+    },
+    "ribbon-left": {
+      "file": "ribbon-left.m4a",
+      "text": "Carry the ribbon down the left side with two straight lines.",
+      "textHash": "fe37230b4e190c1a45ff597d194c6884cc1da564162acd7a5653625229fc9484",
+      "durationMs": 3360
+    },
+    "ribbon-right": {
+      "file": "ribbon-right.m4a",
+      "text": "Do the same down the right side. The ribbon goes all the way around.",
+      "textHash": "428d9f7b5b057e74a93ebc9db7c4a0286aba5f0903ec65b3b433d7ea99c286d9",
+      "durationMs": 4320
+    },
+    "color-lid": {
+      "file": "color-lid.m4a",
+      "text": "Color the lid's top gray.",
+      "textHash": "41d4623455fb31a8cae7393bfbf0b714b40e95af613c8fd3562c6799e0ebce74",
+      "durationMs": 2160
+    },
+    "color-sides": {
+      "file": "color-sides.m4a",
+      "text": "Color the left sides blue and the right sides purple.",
+      "textHash": "71f8f5f4bb8cf6712140969d782c0c3c210a9cc92fe734ef9950d6b61acd4458",
+      "durationMs": 3440
+    },
+    "color-ribbon-top": {
+      "file": "color-ribbon-top.m4a",
+      "text": "The ribbon is cream where it crosses the top.",
+      "textHash": "2849cd7b8e1d3f131675b75e2fe4b0feba12e746f140a615b66383de40276122",
+      "durationMs": 2800
+    },
+    "color-bands": {
+      "file": "color-bands.m4a",
+      "text": "The bands are yellow on the left, orange on the right. The bow is yellow, its knot orange.",
+      "textHash": "5410a0858db4ea9d2dbd7672e9e13d185329674373ee7f9ca9ba68cea4681b10",
+      "durationMs": 6480
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "All wrapped up, with a bow on top. Who is your present for?",
+      "textHash": "7b93a22950494cb4c13f53610820af09209d07e7746ae3b9a95c7859c07fa2dc",
+      "durationMs": 4160
+    }
+  }
+}
