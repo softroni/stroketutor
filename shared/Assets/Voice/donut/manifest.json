@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "donut",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T16:22:29.095Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Who wants a donut? This one has pink icing and five sprinkles. Have a look at how it's made, then make one of your own.",
+      "textHash": "56b40ecb4c3a884f478246cc55f50f5909261f34fb78682eaf83238640d4d6ea",
+      "durationMs": 7680
+    },
+    "outer-left": {
+      "file": "outer-left.m4a",
+      "text": "A donut is one big circle. From the top, curve round the left side to the bottom.",
+      "textHash": "d7be7487ba69f5bce94c7389c4aec777ba3ed4d0dfe2a4166d1293676182d86c",
+      "durationMs": 5360
+    },
+    "outer-right": {
+      "file": "outer-right.m4a",
+      "text": "Now close the circle. From the top again, curve round the right side.",
+      "textHash": "0a6a3cb216210703a0313b0a21a41dfcb58bad66636fff9ef9a43c1c5fc121d1",
+      "durationMs": 4960
+    },
+    "hole": {
+      "file": "hole.m4a",
+      "text": "Every donut needs a hole. Draw a small circle in the center.",
+      "textHash": "8ed5f70da92768d8fb324730d46b64e4f7171d1045ccf3c730f4a40893201ca2",
+      "durationMs": 4160
+    },
+    "icing-right": {
+      "file": "icing-right.m4a",
+      "text": "Next, the icing. Its edge is wavy. From the top, draw two soft bumps down the right.",
+      "textHash": "04ef13fb1b8bc2728e5a9f2c7b450e286009d840496fabf4eb3e2721909dbcaf",
+      "durationMs": 6960
+    },
+    "icing-bottom": {
+      "file": "icing-bottom.m4a",
+      "text": "Carry the wavy edge round the bottom. One bump hangs lower, like a drip.",
+      "textHash": "b2ba4e5fd8b24d085534e757656f8a1195517389e9538a8c83006e232a0130a4",
+      "durationMs": 4880
+    },
+    "icing-left": {
+      "file": "icing-left.m4a",
+      "text": "Last, two bumps up the left side. They meet the top, and the icing is closed.",
+      "textHash": "88f9a4be04b8a284e4720a887839c893b9e66ade3c34d463bc18d1e4a2e9c366",
+      "durationMs": 5600
+    },
+    "sprinkles-first": {
+      "file": "sprinkles-first.m4a",
+      "text": "Sprinkles go on last. Each is a tiny bar with round ends. Draw three.",
+      "textHash": "6713d0f09614196d57ad23d7cad4d197d2f544850e7c0627799ecbcbba47402e",
+      "durationMs": 5360
+    },
+    "sprinkles-rest": {
+      "file": "sprinkles-rest.m4a",
+      "text": "Two more, each leaning a different way. That makes five.",
+      "textHash": "7f90651ebb50be57d99f92e287acb900905aef4d51bef9e0180861fc1f3e2e2d",
+      "durationMs": 4160
+    },
+    "dough": {
+      "file": "dough.m4a",
+      "text": "Color the dough orange.",
+      "textHash": "8a640f9dc94f2a48bfe1b9a3814fa9186ac65815c3ceb194c402e5d5af98f6e1",
+      "durationMs": 1680
+    },
+    "icing-color": {
+      "file": "icing-color.m4a",
+      "text": "The icing is pink.",
+      "textHash": "a39d43df84381b7bf8b8ba1ee6ec9686a361524d9684d8fdb9138e35b16fb992",
+      "durationMs": 1520
+    },
+    "sprinkles-color": {
+      "file": "sprinkles-color.m4a",
+      "text": "Color two sprinkles yellow and two blue.",
+      "textHash": "540418440064b40f378b33e6639ee3b9efddbd1631fed6dee13e03c47a2133b8",
+      "durationMs": 2800
+    },
+    "last-sprinkle": {
+      "file": "last-sprinkle.m4a",
+      "text": "The last sprinkle is purple.",
+      "textHash": "d17d89eb31887225acad2dd694096e2aa4e88f3909d697926c1dc65845b42ee4",
+      "durationMs": 2320
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "One donut, iced and sprinkled by you. Nobody else's looks quite like it.",
+      "textHash": "b7d267f015a1528a15e4b76cab8a1ccb839b5339c2ab59da27d2343579f4aed9",
+      "durationMs": 5440
+    }
+  }
+}
