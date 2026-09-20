@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "mountains",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:54:54.120Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Far away, three mountains stand in a row, so high that their tops stay snowy all year. The big one stands in front. Notice which lines stop behind it, then climb your own.",
+      "textHash": "7b1ae2ed4d33a4ff0db24059384d476a9e1c985cb3a86eade0a08155b298cdce",
+      "durationMs": 11200
+    },
+    "front": {
+      "file": "front.m4a",
+      "text": "The big mountain goes first. From its point, slant down each way, then draw the ground between.",
+      "textHash": "5aeb473f218b781e672f65ae999b3646257cfdc906b4fce06a19c5c0c8976da5",
+      "durationMs": 5920
+    },
+    "front-snow": {
+      "file": "front-snow.m4a",
+      "text": "Snow covers the top. Zigzag across from slope to slope, like a letter W.",
+      "textHash": "8db2b8beafbd2e7640d3c16d7adbf8809c75f4bd8500730666480320e012bc0c",
+      "durationMs": 5760
+    },
+    "left": {
+      "file": "left.m4a",
+      "text": "A second mountain peeks out on the left. Go up from the big slope to a point, down, and back along the ground.",
+      "textHash": "1d5fb816f2c8b178cebe27923d20e42c235995382ff6bcf399df1ed47ec115c5",
+      "durationMs": 7360
+    },
+    "left-snow": {
+      "file": "left-snow.m4a",
+      "text": "It has snow too. Draw a smaller zigzag near its point.",
+      "textHash": "7dd124a9e8ca0c3e5b2d7fa97b5a0cf0df6eb709142d3b067724031bfd2e42d8",
+      "durationMs": 4240
+    },
+    "right": {
+      "file": "right.m4a",
+      "text": "One more on the right, the smallest. Up from the slope, down the far side, flat underneath.",
+      "textHash": "ec0e1eff65568e0e2743875b776fd14a2ba01277720cf9882c4b8d231f962b4a",
+      "durationMs": 5680
+    },
+    "right-snow": {
+      "file": "right-snow.m4a",
+      "text": "Give the last top its snow, one more little zigzag.",
+      "textHash": "cd48477bc61324e6c9074c711d5a6d533de02494a162f2b7237fcb889b45c6ae",
+      "durationMs": 3840
+    },
+    "front-color": {
+      "file": "front-color.m4a",
+      "text": "Color the big mountain green.",
+      "textHash": "aaaabc7d9e0d8a08576449c00dbcbdbc2275a589172b25e4e1c5431562a7f7ec",
+      "durationMs": 2400
+    },
+    "left-color": {
+      "file": "left-color.m4a",
+      "text": "Color the left mountain brown.",
+      "textHash": "5b8eacc9e5af4544022bb596272a0f75439fc41873c33be33b452f3aaeb8b7fd",
+      "durationMs": 2000
+    },
+    "right-color": {
+      "file": "right-color.m4a",
+      "text": "The right mountain is blue.",
+      "textHash": "f807e3b1031032968212bf81a32d906d686382a2ab7f40fd5f9e7ef6ace6f1a7",
+      "durationMs": 2080
+    },
+    "snow": {
+      "file": "snow.m4a",
+      "text": "Color all three snowy tops cream.",
+      "textHash": "3a0c47573e412d54aeae17df2a81c6d4737654d57a87b9d25ebdcc9d1cc426c3",
+      "durationMs": 2880
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Three mountains, and the big one clearly in front. That trick is called overlap, and now it's yours.",
+      "textHash": "55d6fe2d459da8e287c607d5e74d47091a2d6b31a0bf3e0914298f023306ad0c",
+      "durationMs": 6560
+    }
+  }
+}
