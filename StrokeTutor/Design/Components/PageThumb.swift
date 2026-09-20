@@ -7,10 +7,13 @@ struct PageThumb: View {
     let tutorial: PreparedTutorial?
     var cornerRadius: CGFloat = 16
     var strokeColor: Color = Theme.ink
+    /// Paint the lesson's colour under the lines. A finished page shows it; the
+    /// ghost of a lesson not yet drawn does not.
+    var showsFills: Bool = false
 
     var body: some View {
         GeometryReader { geometry in
-            DrawingThumbnail(tutorial: tutorial, strokeColor: strokeColor)
+            DrawingThumbnail(tutorial: tutorial, strokeColor: strokeColor, showsFills: showsFills)
                 .padding(min(geometry.size.width, geometry.size.height) * 0.1)
                 .frame(width: geometry.size.width, height: geometry.size.height)
         }

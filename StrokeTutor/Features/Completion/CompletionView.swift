@@ -152,7 +152,7 @@ struct CompletionView: View {
                     .aspectRatio(3.0 / 4.0, contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             } else {
-                PageThumb(tutorial: entry.tutorial, cornerRadius: 10)
+                PageThumb(tutorial: entry.tutorial, cornerRadius: 10, showsFills: true)
             }
         }
         .overlay {
