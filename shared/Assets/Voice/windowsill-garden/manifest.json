@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "windowsill-garden",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:47:54.015Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Three plants from this path now share one sunny ledge: a cactus, a tulip and a bonsai, each in its own pot. Watch the pots line up, then start your garden.",
+      "textHash": "054bd4498d75720bff579e903162a157333282b13139077db698b9d507678b9d",
+      "durationMs": 10800
+    },
+    "ledge": {
+      "file": "ledge.m4a",
+      "text": "Everything stands on a ledge. Draw a long, flat box across the lower part of your page.",
+      "textHash": "7454cee7b39f4c0ec423323a5d7d8c274850bafd1ea954ae1b044742df076671",
+      "durationMs": 5840
+    },
+    "pots": {
+      "file": "pots.m4a",
+      "text": "Three pots stand on it. Each is two lines leaning in toward the ledge. Make the right one low and wide.",
+      "textHash": "6a028d3e6951a57f41d5e2652bd687649e3623c727df70e63372e3eb6043e65c",
+      "durationMs": 6480
+    },
+    "rims": {
+      "file": "rims.m4a",
+      "text": "Give every pot a rim: a thin box lying across the top of its two sides.",
+      "textHash": "6d7f231c63a35d1981cce92e1d5f036d79fe744dbeb2b2605809f99248fa7644",
+      "durationMs": 5040
+    },
+    "cactus": {
+      "file": "cactus.m4a",
+      "text": "A cactus grows in the left pot: a round-topped post, two L arms, and three dashes for spines.",
+      "textHash": "a27530a119252cfe76495730b1f2035773a4ba96fb586459c8d1b002ab561f1b",
+      "durationMs": 7200
+    },
+    "tulip": {
+      "file": "tulip.m4a",
+      "text": "In the middle pot, a tall stem with a three-point cup on top, then a leaf up each side.",
+      "textHash": "fab16ae184d28384b5f1828a653f0b91e51cfcb53911573a130757859a82d881",
+      "durationMs": 6400
+    },
+    "bonsai": {
+      "file": "bonsai.m4a",
+      "text": "The last pot holds a bonsai. Wiggle its trunk up like a letter S, add a branch, and cap each end with a dome.",
+      "textHash": "95cd87cad33759d1516b3dee7f43022c266c2a70d2b41e27550883e191753c8b",
+      "durationMs": 7280
+    },
+    "green": {
+      "file": "green.m4a",
+      "text": "Color the cactus post, the tulip stem and the big bonsai dome green.",
+      "textHash": "6a26d905be940ce92c3cef437ebbdb762e2d67ca9731d87c1c9a37c36dc2f19a",
+      "durationMs": 5120
+    },
+    "greens": {
+      "file": "greens.m4a",
+      "text": "Dark green for the tulip leaves and the small dome. Light green for the cactus arms.",
+      "textHash": "ff6d73efa73b228ca564432471c82995a4ca977838ef01535675570cdebe9187",
+      "durationMs": 5440
+    },
+    "pink-brown": {
+      "file": "pink-brown.m4a",
+      "text": "Color the tulip pink. Brown is for the bonsai trunk and the first pot's rim.",
+      "textHash": "df7f0d300272a3d269ef3cba1e772ff40984eceec6454a865484627af85a6be9",
+      "durationMs": 5280
+    },
+    "orange-yellow": {
+      "file": "orange-yellow.m4a",
+      "text": "Orange for the first pot and the middle pot's rim. Yellow for the middle pot.",
+      "textHash": "006dbc2080ef2d0c80d042bbba96bd8ae83ca12dc5913729cffbb3d10c877656",
+      "durationMs": 5040
+    },
+    "blue-purple": {
+      "file": "blue-purple.m4a",
+      "text": "The bonsai pot is blue with a purple rim.",
+      "textHash": "26ab7eebd54527ed780d66fd96a6a6af25c34b82c98f1ddb71421fa79e497712",
+      "durationMs": 3360
+    },
+    "ledge-gray": {
+      "file": "ledge-gray.m4a",
+      "text": "Color the ledge gray.",
+      "textHash": "c859c324e14f53a34d7be50305b5ab7c46bf31ea102128355b2ca35aa55cfe84",
+      "durationMs": 2000
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your windowsill is full, and so is the Plants path. Everything on that ledge was grown by you.",
+      "textHash": "06b6d88471f6bf07c2cd490d7110b5bedbc72a2ca927b4fadbb17990487023ea",
+      "durationMs": 6240
+    }
+  }
+}

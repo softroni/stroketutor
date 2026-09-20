@@ -372,6 +372,16 @@
       }
     },
     {
+      "id": "windowsill-garden",
+      "status": "approved",
+      "objective": "Potted cactus, tulip and bonsai on a ledge",
+      "reference": {
+        "file": "windowsill-garden.svg",
+        "source": "OpenAI image model, prompt style-v2 (docs/curriculum/plants-prompts.md), generated 2026-09-20",
+        "license": "AI-generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",
