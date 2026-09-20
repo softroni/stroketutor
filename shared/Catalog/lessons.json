@@ -122,6 +122,16 @@
       }
     },
     {
+      "id": "pizza-slice",
+      "status": "approved",
+      "objective": "Triangle with crust, five toppings and a cheese drip",
+      "reference": {
+        "file": "pizza-slice.svg",
+        "source": "Generated picture: OpenAI image model, style-v2 prompt (docs/curriculum/food-treats-prompts.md), 2026-09-20; traced with svg from-image",
+        "license": "Generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "boba-tea",
       "status": "approved",
       "objective": "Tapered cup with dome lid, straw and eight pearls",

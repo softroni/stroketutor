@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "pizza-slice",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T17:49:43.191Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Pizza night. We're drawing one slice with five rounds of pepperoni. Watch it get built, crust first, then you take over.",
+      "textHash": "06f8541d2cdfe4b1339c0d85b0801a80e2e8f5da5cfe31fdd25474b82e2a932f",
+      "durationMs": 8000
+    },
+    "crust-top": {
+      "file": "crust-top.m4a",
+      "text": "Begin with the crust. Draw a long arch across the top, like a rainbow.",
+      "textHash": "46b1909dbfb5e5f1f7c1e6b423e4cc6831d2476900e1fde4facabd9205ce4b90",
+      "durationMs": 5120
+    },
+    "crust-bottom": {
+      "file": "crust-bottom.m4a",
+      "text": "Bring it back underneath with a second arch. The ends are round, like a sausage.",
+      "textHash": "eb6b7f424d2b263c85354b762b47660efad4dc95b2c697d069ae4652a5db6c80",
+      "durationMs": 4880
+    },
+    "cheese-left": {
+      "file": "cheese-left.m4a",
+      "text": "The cheese hangs down in a big letter V. From the crust's left end, head down toward the tip.",
+      "textHash": "e34bdeca2f875cbce1086835924473df33b019c93770766f9378de8cf980a36e",
+      "durationMs": 6240
+    },
+    "cheese-right": {
+      "file": "cheese-right.m4a",
+      "text": "From the crust's right end, draw straight down to meet it at the tip.",
+      "textHash": "a25177ee2abe3100fc35a17a21dec1ad9fffc619e8e4aadbfe11548a1229b8cc",
+      "durationMs": 4080
+    },
+    "pepperoni-top": {
+      "file": "pepperoni-top.m4a",
+      "text": "Pepperoni next. Draw two circles under the crust.",
+      "textHash": "da894340c711625138ca8a6cb8f3ff07a9aaa6306e80d193381debd6811835f3",
+      "durationMs": 3600
+    },
+    "pepperoni-middle": {
+      "file": "pepperoni-middle.m4a",
+      "text": "Two more below them, a little closer together.",
+      "textHash": "5886b87c095f80cfce73823983d8a864c28c2057ccfdd496fefab9ca3cb79e2f",
+      "durationMs": 3040
+    },
+    "pepperoni-tip": {
+      "file": "pepperoni-tip.m4a",
+      "text": "One last circle near the tip. That's five.",
+      "textHash": "6a1b5ba116ba40f435e9c85e5f95e496485978d9326377d89561465b57a4c48a",
+      "durationMs": 3440
+    },
+    "cheese-color": {
+      "file": "cheese-color.m4a",
+      "text": "The cheese is yellow.",
+      "textHash": "5341363858401c168c7a02b345f4d1259247a2e2e0e92c8a016a9a5fc21e637d",
+      "durationMs": 1600
+    },
+    "pepperoni-color": {
+      "file": "pepperoni-color.m4a",
+      "text": "Color all five pepperoni red.",
+      "textHash": "504de907a84081a93c9dc0cd9828c3d31c910f19f8d4fcb3699c192c411540a8",
+      "durationMs": 2400
+    },
+    "crust-color": {
+      "file": "crust-color.m4a",
+      "text": "Color the crust orange.",
+      "textHash": "c3579026eacceafcb171317a41aae70d80dad4b69b6dbd4f121feb1fe9e6eebf",
+      "durationMs": 1840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "One slice, hot from your pen. Now, who gets the first bite?",
+      "textHash": "24abf44f09c6035d777aedcacdd86a2ac0f1704bcb84e6f9320248d08c498551",
+      "durationMs": 4720
+    }
+  }
+}
