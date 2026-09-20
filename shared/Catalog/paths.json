@@ -54,7 +54,7 @@
       "title": "Forms",
       "description": "The skills path: boxes, cylinders, cones and spheres, then everyday objects built from them, with one light direction.",
       "level": "core",
-      "lessonIds": ["cube", "cylinder", "cone", "sphere"]
+      "lessonIds": ["cube", "cylinder", "cone", "sphere", "dice"]
     }
   ]
 }

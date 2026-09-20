@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "dice",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-20T19:28:47.052Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Roll the dice. This one is a cube with dots, and each dot leans the same way as the face it sits on. Watch closely, then roll your own.",
+      "textHash": "af91b58f5dbe47ec09ef1e5fc47e02f82d7a3110cc0c08e5dd378077942f435d",
+      "durationMs": 9520
+    },
+    "outline-top": {
+      "file": "outline-top.m4a",
+      "text": "Begin with the outside. From the far corner, draw an edge sloping down to each side.",
+      "textHash": "381eac1a5c63102a79d79411d2ad99b16e49b2a2d9836554acac160f95e3b2f2",
+      "durationMs": 6000
+    },
+    "outline-sides": {
+      "file": "outline-sides.m4a",
+      "text": "From both ends, draw a straight side going down.",
+      "textHash": "bb786cb8b32f7e7e23c9f8d537d3581b9b739a8fcede65aac9a1e11beb3f7b31",
+      "durationMs": 3440
+    },
+    "outline-bottom": {
+      "file": "outline-bottom.m4a",
+      "text": "Bring two edges in from the sides. They meet at the bottom corner.",
+      "textHash": "8500fadea353765028950cbc5b534d19d921ce7514fe3e5c0260a0e4b39a85be",
+      "durationMs": 4320
+    },
+    "top-front": {
+      "file": "top-front.m4a",
+      "text": "Now the front of the top. Draw a wide letter V from corner to corner.",
+      "textHash": "1907b970ef738fcf4a81cbfe8affe69ecee6b94a7bc9fc97fa2f205f58c67a8e",
+      "durationMs": 4960
+    },
+    "middle": {
+      "file": "middle.m4a",
+      "text": "From the point of the V, draw one line straight down. There are your three faces.",
+      "textHash": "a4dfba89e1bdb975f6491799c33045a30ecfc3fa1b77af3daeed69656098ea32",
+      "durationMs": 5520
+    },
+    "pips-top": {
+      "file": "pips-top.m4a",
+      "text": "One dot goes on top. Make it a squashed oval, lying flat like the top.",
+      "textHash": "60451f2bc56a4b35945870a377d7651ed18e312d3a246aab59e63f1775d766ee",
+      "durationMs": 5040
+    },
+    "pips-left": {
+      "file": "pips-left.m4a",
+      "text": "Two dots on the left face, one high and one low. They lean with the face.",
+      "textHash": "97761c37ee55cedec32f2c9e0ea3710370835ecdef50b27dd5135581fe99a034",
+      "durationMs": 5280
+    },
+    "pips-right": {
+      "file": "pips-right.m4a",
+      "text": "Three dots go on the right face in a slanted row. They lean the other way.",
+      "textHash": "8ee9868815039d3cc3ce7f74a3879191da2ee0cdce0934733da0f34435d5b328",
+      "durationMs": 4560
+    },
+    "color-top": {
+      "file": "color-top.m4a",
+      "text": "Color the top cream.",
+      "textHash": "dd839a5a64012759dfd69298864a0e57e7a519fcad9269a5e50282e5c9ee7e1b",
+      "durationMs": 1760
+    },
+    "color-left": {
+      "file": "color-left.m4a",
+      "text": "Color the left face yellow.",
+      "textHash": "d7766f16dc07e690ff6e1a8f34392072b8fc34ed89b030b65f47dc1e957b6f55",
+      "durationMs": 2000
+    },
+    "color-right": {
+      "file": "color-right.m4a",
+      "text": "The right face is orange.",
+      "textHash": "374f366c6af2dd659ec7f115dedebc638d751c9b1dd85de52b63dcfc961f0727",
+      "durationMs": 1840
+    },
+    "color-pips": {
+      "file": "color-pips.m4a",
+      "text": "Fill in all six dots black.",
+      "textHash": "ac4f100c1417f0d0385a8bf9666bed095fe39bd282b427083186c0158b4ae581",
+      "durationMs": 2160
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "One, two, three. Your dice is ready to roll, and every dot sits flat on its face.",
+      "textHash": "9505e5b600f8542a5b539bfa22c2a42ed06a64c8fb600ef69aa593d78f37b4f7",
+      "durationMs": 6880
+    }
+  }
+}
