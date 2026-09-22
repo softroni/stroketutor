@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "jet",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:51:25.146Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Fast jets are built like darts: a pointed nose and wings swept right back. See what this one leaves behind, then let yours streak past.",
+      "textHash": "c2209f7aad6a3fe6016beed4386dade84a86c334b2a0d4503bcf5bcd10e3c991",
+      "durationMs": 8400
+    },
+    "body-top": {
+      "file": "body-top.m4a",
+      "text": "From above, the jet is a dart. Draw the pointed nose and the top edge.",
+      "textHash": "bc8db950f1db19b53b02182c96402a402db1ef88ab40457a162efb4287c88dfd",
+      "durationMs": 5680
+    },
+    "body-bottom": {
+      "file": "body-bottom.m4a",
+      "text": "Set out from the nose again and run the bottom edge back.",
+      "textHash": "ae2e853fbfe5b0c0bf3043f568b4396b579dba1ac70c1a4b59e47dfd4bc1dc9a",
+      "durationMs": 3440
+    },
+    "wings": {
+      "file": "wings.m4a",
+      "text": "Both wings sweep back from the middle, one up, one down.",
+      "textHash": "0c92e48170affd649abe0047cab21de4d5b7bcad8185da5f71925d48b54fcef0",
+      "durationMs": 4080
+    },
+    "tail-wings": {
+      "file": "tail-wings.m4a",
+      "text": "Two smaller wings sweep back at the tail, above and below.",
+      "textHash": "ba278d8fc045ec5a349c29f0d53fd537c1335f954eaccd2fcd2e6f47a1dd4b27",
+      "durationMs": 4320
+    },
+    "canopy": {
+      "file": "canopy.m4a",
+      "text": "The canopy is an oval behind the nose. One short line crosses the tip.",
+      "textHash": "7e91e88380627fd35b7ed31cd0fc61ccdf7dce8c11827323af503f0b139d596f",
+      "durationMs": 4960
+    },
+    "nozzle": {
+      "file": "nozzle.m4a",
+      "text": "One line closes the tail. Two more cross the engine, where it blows.",
+      "textHash": "51db0b0bc903861fdd7e44c2c852cc9226004b32fe452ffdcadff095930994bc",
+      "durationMs": 5200
+    },
+    "trail": {
+      "file": "trail.m4a",
+      "text": "Two straight lines float behind it: the trail it leaves in the sky.",
+      "textHash": "0494c9be693e7fb44b3945c8cbf4683a576fde776a35fd9932cd3beb3768eaca",
+      "durationMs": 4400
+    },
+    "color-body": {
+      "file": "color-body.m4a",
+      "text": "Color the body gray.",
+      "textHash": "8cf77b74a8452ad9d125c7dcea37f9bf2f3c77a485f844ee2b2014d900e37c4c",
+      "durationMs": 1680
+    },
+    "color-wings": {
+      "file": "color-wings.m4a",
+      "text": "Color all four wings red.",
+      "textHash": "7358b97dd18cab367bcfcb0992dd678b9e52857ba992c8b4c5b6e4aaa5d9a22b",
+      "durationMs": 2000
+    },
+    "color-canopy": {
+      "file": "color-canopy.m4a",
+      "text": "Color the canopy blue.",
+      "textHash": "b2e5d763b748429b0c5709ee73fef1f589b246c4bc2fc4a5178ac95f584174db",
+      "durationMs": 1680
+    },
+    "color-nozzle": {
+      "file": "color-nozzle.m4a",
+      "text": "The engine end is dark gray.",
+      "textHash": "b72dadfb5984f2914c6ec6a17de3760b3e1029e3c6aed335ac6007308f253ee9",
+      "durationMs": 2640
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Wings swept back, trail stretching out. Nothing on this path flies faster.",
+      "textHash": "878caffe9a650465c8b07aa10c67d9c1f0bfc5e2b3a072cadd975c7aea0be1ab",
+      "durationMs": 5680
+    }
+  }
+}

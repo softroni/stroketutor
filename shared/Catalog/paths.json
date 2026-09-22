@@ -152,7 +152,8 @@
         "airplane",
         "glider",
         "helicopter",
-        "drone"
+        "drone",
+        "jet"
       ]
     }
   ]

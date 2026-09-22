@@ -752,6 +752,16 @@
       }
     },
     {
+      "id": "jet",
+      "status": "approved",
+      "objective": "Pointed body with swept wings and a vapor trail",
+      "reference": {
+        "file": "jet.svg",
+        "source": "OpenAI image model, prompt style-v2 (docs/curriculum/in-the-air-prompts.md), generated 2026-09-21",
+        "license": "AI-generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",
