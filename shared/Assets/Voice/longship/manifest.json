@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "longship",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:43:24.787Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Long ago, ships like this crossed cold northern seas with one striped sail and a row of shields along the side. See the scroll curl at the prow, then sail yours.",
+      "textHash": "f093e7498114746317f3808ad609354502edd06b73760bc7c9c03111674eb230",
+      "durationMs": 11200
+    },
+    "hull-top": {
+      "file": "hull-top.m4a",
+      "text": "A longship is one long curve. From the stern's tip, dip low and sweep up the tall prow.",
+      "textHash": "3d1d9243673cf24c698266ee8e444e2579adc0a005c44e0a0e2380c21890903e",
+      "durationMs": 6880
+    },
+    "scroll": {
+      "file": "scroll.m4a",
+      "text": "The prow ends in a scroll. Curl the line around itself, like a cinnamon roll.",
+      "textHash": "61aaea99d68256bff13b407de28b2d60adbad1326bf0fc0f98c06506e7b59bdf",
+      "durationMs": 5040
+    },
+    "hull-bottom": {
+      "file": "hull-bottom.m4a",
+      "text": "Back at the stern, draw the keel: a deeper curve underneath, all the way to the prow.",
+      "textHash": "bc293019297a216ceda346060259fc7ac4a6f42ca10f059ab7a8229c55515858",
+      "durationMs": 6080
+    },
+    "shields": {
+      "file": "shields.m4a",
+      "text": "Five round shields hang along the side. Draw them in a row that follows the curve.",
+      "textHash": "5c3f7795a74eeb5cedd609480881e03ec5c46543326b3b095f3f864789cab2c1",
+      "durationMs": 4720
+    },
+    "mast": {
+      "file": "mast.m4a",
+      "text": "The mast stands in the middle of the ship. Draw a short post and leave room for the sail.",
+      "textHash": "356856aa6eac581640541ce3018e64b2ca5347fed17820ccea206e52b56eaf8c",
+      "durationMs": 5280
+    },
+    "sail": {
+      "file": "sail.m4a",
+      "text": "The sail is wide, with bulging sides. Draw its outline, then the mast's tip above it.",
+      "textHash": "b2198817711ce7385c59e8c8c5f2e163862bd713b1b339aa3931e53f97102722",
+      "durationMs": 6000
+    },
+    "stripes": {
+      "file": "stripes.m4a",
+      "text": "Four lines from top to bottom split the sail into five stripes.",
+      "textHash": "bdb58e94d40ae2480a797f65ec4254c5419cbe1b12d35214d3b334b90c8b7832",
+      "durationMs": 4160
+    },
+    "color-hull": {
+      "file": "color-hull.m4a",
+      "text": "Color the hull brown.",
+      "textHash": "6d5c3ddecfbac456aacd3e21116da7d442f93a1c2492a80317c50cced4cb5d65",
+      "durationMs": 1520
+    },
+    "color-red": {
+      "file": "color-red.m4a",
+      "text": "Color three stripes and three shields red.",
+      "textHash": "237f86a22408d46aba7998ac823185d8a95dac16cb0616b487d95423dd8c2951",
+      "durationMs": 2880
+    },
+    "color-cream": {
+      "file": "color-cream.m4a",
+      "text": "Color the two stripes in between cream.",
+      "textHash": "2803d2fa6e6e9b5044c9eb86629da160fb54c2b844fbd4a305f5402aa82c6ffd",
+      "durationMs": 2400
+    },
+    "color-yellow": {
+      "file": "color-yellow.m4a",
+      "text": "The last two shields are yellow.",
+      "textHash": "cb668b9be95fc100c6a987e2bb13b667ac364541ed1b2a3c36b769636a93a580",
+      "durationMs": 2320
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Five shields, five stripes, one proud scroll. Your longship is ready to explore.",
+      "textHash": "bec36fb316ba8d9d4b0fa5687bb2d652bd0fc721fef29f92271e46357a4e3ab4",
+      "durationMs": 6240
+    }
+  }
+}
