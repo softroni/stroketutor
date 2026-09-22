@@ -755,8 +755,14 @@ struct PlayerScreen: View {
         }
     }
 
+    /// During the intro there is no place to keep yet, so the close button just
+    /// closes; the sheet's promise only makes sense once step one has started.
     private func close() {
         narration.stop()
+        if isOrientation {
+            leave()
+            return
+        }
         leaveOpenedAt = Date()
         showLeave = true
     }
@@ -767,10 +773,7 @@ struct PlayerScreen: View {
         showLeave = false
         let waited = leaveOpenedAt.map { Date().timeIntervalSince($0) } ?? 0
         leaveOpenedAt = nil
-        if isOrientation {
-            // The close button stopped her; the intro starts again with her.
-            if waited > 1.5 { startIntro() }
-        } else if player.isDrawing, waited > 1.5 {
+        if player.isDrawing, waited > 1.5 {
             player.replayCurrentStep()
         }
     }
@@ -783,8 +786,11 @@ struct PlayerScreen: View {
 
     /// Records where the learner is and stops everything that makes a sound. Used by
     /// Leave and by `AppModel.switchProfile(to:)` before it closes the player.
+    /// Leaving during the intro stores no step: step one was never reached, so the
+    /// preview should still say "Start drawing", not "Continue from step 1".
     private func saveSession() {
-        app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: player.currentStepIndex)
+        app.progress.markOpened(lesson.id, pathId: lesson.pathId,
+                                step: isOrientation ? nil : player.currentStepIndex)
         player.stop()
         narration.deactivate()
     }
