@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "rolling-hills",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:36:22.778Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Three hills, one behind another. The one in front hides the feet of the others, and that is what makes a flat page look deep. Watch them line up, then let your own hills roll.",
+      "textHash": "997bb168f92cd646b6b5d7c6336cec1bc50f8c337a8081e0d54d422cff16b1b7",
+      "durationMs": 10800
+    },
+    "ground": {
+      "file": "ground.m4a",
+      "text": "The ground is one straight line. Draw it left to right along the bottom.",
+      "textHash": "2a8cdc3e60e8808ae6b9239e5cc6b6a68513e25fe6ea1a5d53522598b3161994",
+      "durationMs": 4640
+    },
+    "back-hill": {
+      "file": "back-hill.m4a",
+      "text": "The hill at the back is a wide arch. Leave a gap at its top for a trunk.",
+      "textHash": "b71c0bea202eb15406eb14cd45434b3c441973ee0678eaef6f6a4b5bacd7858a",
+      "durationMs": 4880
+    },
+    "second-hill": {
+      "file": "second-hill.m4a",
+      "text": "The next hill arches up on the right, back down to the ground.",
+      "textHash": "d151d2fa0aefa71d9d7de1cf0b9ae722378b21a6d6b85210b580cc60270a29d6",
+      "durationMs": 4240
+    },
+    "front-hill": {
+      "file": "front-hill.m4a",
+      "text": "One long arch across the front, corner to corner. It cuts over both hills.",
+      "textHash": "4d3a7c5b6382b5db515013c87f4535ee0290e7f9c92ffee6198bf7051c8bc0cb",
+      "durationMs": 5200
+    },
+    "left-tree": {
+      "file": "left-tree.m4a",
+      "text": "A pine stands in the gap. Short trunk first, then the spiky shape above it.",
+      "textHash": "56e6e35d9525f78d9640554ade95dda4312d09fd16b3b30880040ea540f477b4",
+      "durationMs": 5440
+    },
+    "right-tree": {
+      "file": "right-tree.m4a",
+      "text": "The other pine is smaller, over on the second hill. Trunk, then spikes.",
+      "textHash": "8e29793e6abf2e11e8301b0101e8df4ae3cceebbff07bf3a838cc00175f5413d",
+      "durationMs": 5680
+    },
+    "sun": {
+      "file": "sun.m4a",
+      "text": "Last, a plain circle high in the sky, clear of everything.",
+      "textHash": "966e5d41b8aa59c7639366d75bd8eb1a8151a76bb9fd9881418d914f21f4c9eb",
+      "durationMs": 4240
+    },
+    "front-hill-color": {
+      "file": "front-hill-color.m4a",
+      "text": "Color the front hill dark green.",
+      "textHash": "cc87a2848ad172862b3af2342e4c5e75536237e4d7876fe40221bde0439136b3",
+      "durationMs": 2160
+    },
+    "green-color": {
+      "file": "green-color.m4a",
+      "text": "The hill on the right and both pines are green.",
+      "textHash": "c32a80cb070523e20680d76c01a578929d9b3996e3eded8673fa2b411fafd28f",
+      "durationMs": 3600
+    },
+    "far-hill-color": {
+      "file": "far-hill-color.m4a",
+      "text": "The far hill on the left is pale green.",
+      "textHash": "c18700a69e5f8715b0ae024b4cc8d802fa6058a0876f54591e410eaf76b88fe0",
+      "durationMs": 2800
+    },
+    "sun-trunks-color": {
+      "file": "sun-trunks-color.m4a",
+      "text": "The sun is yellow and the two trunks are brown.",
+      "textHash": "83b691c5d9f9e59160269b3a5ce6bf16a11bf211566becaa8e46c925d71057d4",
+      "durationMs": 2880
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Three hills, and anyone can tell which one is nearest. That is depth, on a flat page.",
+      "textHash": "dd3609683e4546437dd244e57a36189c5cd02e534206c23615f71dc36f52316e",
+      "durationMs": 5840
+    }
+  }
+}
