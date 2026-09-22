@@ -721,7 +721,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
     <div class="mast">
       <p class="eyebrow">Design specification · iOS · v3</p>
       <h1>Stroke<em>Tutor</em></h1>
-      <p class="meta"><b>21 screens</b> with developer notes · 2026-09-13</p>
+      <p class="meta"><b>21 screens</b> with developer notes · 2026-09-22</p>
     </div>
     <div class="find"><input type="search" id="find" placeholder="Find a screen" autocomplete="off" spellcheck="false"><kbd>/</kbd></div>
     <section class="ix-group">
@@ -3614,8 +3614,8 @@ progressStore.complete(lesson)                // before presenting; synchronous,
                 <p class="t-footnote muted center">The lesson</p>
               </div>
             </div>
-            <button class="btn btn-soft" type="button" style="min-height:52px;font-size:17px;margin-top:8px"><svg><use href="#sk-i-crop"/></svg>Crop &amp; straighten</button>
-            <p class="hint center">No filters and no touch-ups. Straightening is the only edit.</p>
+            <button class="btn btn-soft" type="button" style="min-height:52px;font-size:17px;margin-top:8px"><svg><use href="#sk-i-crop"/></svg>Fix corners</button>
+            <p class="hint center">No filters and no touch-ups.</p>
             <div class="spacer"></div>
           </div>
           <div class="bottom-area">
@@ -3661,14 +3661,15 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       <ul>
         <li><b>primer</b> — 56 pt icon tile, 30/800 title, one 17 pt line, then three promises in a <code>.list--soft</code> with green check tiles (each row 60 pt). Shown before <code>AVCaptureDevice.requestAccess</code> so "Don't Allow" is an informed choice. "Choose from Photos" needs no permission at all.</li>
         <li><b>camera</b> — dark full-bleed. Guide 300 × 400 pt centred, 1.5 pt dashed at 38 % white, 30 pt corner brackets; hint pill top; lesson ghost 64 pt bottom-right. Bar: Photos · 76 pt shutter · flash, 108 pt + safe area.</li>
-        <li><b>review</b> — photo and lesson side by side, both 3 : 4 in a 12 pt grid, so the learner compares rather than judges. One soft "Crop &amp; straighten". Retake / Keep as a 50-50 row, Keep green.</li>
+        <li><b>review</b> — photo and lesson side by side, both 3 : 4 in a 12 pt grid, so the learner compares rather than judges. One soft button, "Fix corners" once the page has corners (found or placed) and "Crop" while it is the photo as taken; it opens the corner editor. Retake / Keep as a 50-50 row, Keep green.</li>
         <li><b>saved</b> — the green chip is the whole celebration. The page as it now looks in the sketchbook (196 pt), title, path, full date, the privacy line. Primary "Next lesson", secondary "Open your sketchbook" → <code>sk-book</code>, "Done" → <code>hp-path</code>.</li>
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
         <li>Skip <b>primer</b> when video access is <code>.authorized</code>. When <code>.denied</code>, no camera: one line "Camera access is off for StrokeTutor" with a button to Settings; "Choose from Photos" still works.</li>
         <li>Shutter → freeze → <b>review</b>. Retake keeps the session alive. Keep writes image → <code>fsync</code> → record → navigates; on failure stay on review with the photo in memory.</li>
-        <li>Auto-crop (<code>VNDetectDocumentSegmentationRequest</code>, 300 ms budget, confidence &gt; 0.8) pre-fills the crop and never blocks saving. Only two edits exist: crop and ± 15° straighten. No filters.</li>
+        <li>Auto-crop (<code>VNDetectDocumentSegmentationRequest</code>, 300 ms budget, confidence &gt; 0.8) finds the paper's four corners and "Your page" shows it straightened with <code>CIPerspectiveCorrection</code>; until then, and when nothing is found, it shows the photo as taken. It never blocks saving: Keep saves whatever "Your page" shows.</li>
+        <li>One edit: <b>four-corner perspective correction</b>, which crops and straightens in one gesture (a phone photo of paper is keystoned, not rotated, so a ± 15° straighten could not square it). The corner editor opens full screen on the photo as taken: four round handles (24 pt dot, 48 pt hit target) on the detected corners, or inset 8 % when none were found; the quad outlined in green, the rest dimmed; a loupe above the dragged handle. Handles stay on the photo and stop where the quad would stop being convex. Cancel · Reset (to the detected corners) · Done (corrects off the main thread). No filters, no enhancement.</li>
         <li>Storage: <code>Application Support/Sketchbook/&lt;uuid&gt;.jpg</code> (long edge 2048, q 0.8, GPS stripped) plus a 400 px thumb; SwiftData record stores the file <i>name</i>. Not the Photos library by default; "Also save to Photos" is a Settings opt-in. Included in device backup.</li>
       </ul>
       <h4>What changed in v3</h4>
@@ -3683,11 +3684,13 @@ progressStore.complete(lesson)                // before presenting; synchronous,
  ├ CameraView                           // AVCaptureSession(.photo), UIViewRepresentable preview
  │    overlay: GuideFrame(), GhostDrawing(tutorial:), HintPill()
  ├ PhotosPicker(selection:matching:.images)
- ├ ReviewView(image:tutorial:)          // crop / straighten only
+ ├ ReviewView(image:tutorial:)          // auto-crop, then four-corner correction only
+ │    └ CornerEditor(image:corners:)     // fullScreenCover; PageCorners → CIPerspectiveCorrection
  └ SavedView(entry:)</pre>
       <h4>Accessibility</h4>
       <ul>
         <li>Guide and ghost are <code>.accessibilityHidden</code>; the shutter is always enabled ("Take photo"). Photos: "Choose a photo of your page". Flash: "Flash, automatic".</li>
+        <li>Each corner handle is its own element ("Top-left corner", its position as its value) with the custom actions Move up / down / left / right, 2 % a step.</li>
         <li>Announce "Page detected" when segmentation succeeds. Reduce Motion: 120 ms cross-fade instead of the shutter flash.</li>
         <li>Primer, review and saved scale with Dynamic Type; the review pair stacks above <code>.accessibilityMedium</code>.</li>
       </ul>

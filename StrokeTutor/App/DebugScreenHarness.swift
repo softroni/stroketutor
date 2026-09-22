@@ -43,6 +43,7 @@ enum DebugScreenHarness {
         pendingPlayerHarnessState = nil
         pendingCaptureReviewImage = nil
         pendingCaptureSavedPage = nil
+        pendingCaptureOpensCornerEditor = false
         raiseDeleteConfirmation = false
         raiseProfileSwitcher = false
         raisePINCreate = false
@@ -172,9 +173,26 @@ enum DebugScreenHarness {
             app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
             app.cover = .capture(lessonId: treeLesson.id)
 
+        // A keystoned sheet on a desk, which auto-crop finds and straightens: the
+        // review shows the straightened page and "Fix corners".
         case "capture-review":
             app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
-            pendingCaptureReviewImage = placeholderPhoto()
+            pendingCaptureReviewImage = pagePhoto()
+            app.cover = .capture(lessonId: treeLesson.id)
+
+        // The bare desk: nothing to find, so the photo stays as taken and the
+        // button reads "Crop".
+        case "capture-review-nopage":
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            pendingCaptureReviewImage = pagePhoto(showsPage: false)
+            app.cover = .capture(lessonId: treeLesson.id)
+
+        // The corner editor over the same sheet, raised once auto-crop has
+        // answered so its handles start on the detected corners.
+        case "capture-corners":
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            pendingCaptureReviewImage = pagePhoto()
+            pendingCaptureOpensCornerEditor = true
             app.cover = .capture(lessonId: treeLesson.id)
 
         case "capture-saved":
@@ -261,8 +279,12 @@ enum DebugScreenHarness {
     /// `harnessState` when it builds the `.player` cover. Nil on every normal
     /// launch, and cleared at the top of every `applyIfRequested`.
     static var pendingPlayerHarnessState: PlayerHarnessState?
-    /// Set by `capture-review`; `AppRoot` passes it to `CaptureFlow`.
+    /// Set by the `capture-review*` and `capture-corners` cases; `AppRoot` passes
+    /// it to `CaptureFlow`.
     static var pendingCaptureReviewImage: UIImage?
+    /// Set by `capture-corners`; `AppRoot` passes it to `CaptureFlow`, which raises
+    /// its corner editor once auto-crop has answered.
+    static var pendingCaptureOpensCornerEditor = false
     /// Set by `capture-saved`; `AppRoot` passes it to `CaptureFlow`.
     static var pendingCaptureSavedPage: SketchbookPage?
     /// Set by `entry-delete`; `SketchbookEntryView` reads and clears this once, in
@@ -345,6 +367,131 @@ enum DebugScreenHarness {
                 frond.stroke()
             }
         }
+    }
+
+    // MARK: - A photographed sheet, for auto-crop
+
+    /// Where the sheet sits in `pagePhoto()`, in the upright photo's normalized,
+    /// top-left space: narrower at the top (the phone tilted back) and turned a
+    /// little clockwise, as a hand-held shot of a page on a desk comes out.
+    /// Detection should find these; the unit tests hold it to that.
+    static let pagePhotoCorners = PageCorners(topLeft: CGPoint(x: 0.19, y: 0.15),
+                                              topRight: CGPoint(x: 0.80, y: 0.12),
+                                              bottomRight: CGPoint(x: 0.89, y: 0.87),
+                                              bottomLeft: CGPoint(x: 0.09, y: 0.89))
+
+    /// A stand-in for a real camera shot of a finished page: an off-white sheet
+    /// with pencil lines, keystoned on a dark wood desk. It comes out the way the
+    /// camera delivers a portrait photo, a landscape sensor buffer tagged `.right`,
+    /// so the harness exercises the orientation fix as well as detection.
+    /// `showsPage: false` is the bare desk, for the "nothing detected" state.
+    static func pagePhoto(size: CGSize = CGSize(width: 1200, height: 1600),
+                          showsPage: Bool = true) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        let upright = UIGraphicsImageRenderer(size: size, format: format).image { context in
+            let cg = context.cgContext
+            drawDesk(in: cg, size: size)
+            guard showsPage else { return }
+
+            let corners = pagePhotoCorners.points.map { CGPoint(x: $0.x * size.width, y: $0.y * size.height) }
+            let sheet = UIBezierPath()
+            sheet.move(to: corners[0])
+            corners.dropFirst().forEach { sheet.addLine(to: $0) }
+            sheet.close()
+
+            // A soft shadow lifts the sheet off the desk, as in a real photo.
+            cg.saveGState()
+            cg.setShadow(offset: CGSize(width: 0, height: size.height * 0.008),
+                         blur: size.width * 0.03,
+                         color: UIColor.black.withAlphaComponent(0.55).cgColor)
+            UIColor(red: 0.95, green: 0.93, blue: 0.88, alpha: 1).setFill()
+            sheet.fill()
+            cg.restoreGState()
+
+            // Light falling from the top left across the paper.
+            cg.saveGState()
+            sheet.addClip()
+            let light = [UIColor(red: 0.97, green: 0.96, blue: 0.92, alpha: 1).cgColor,
+                         UIColor(red: 0.88, green: 0.86, blue: 0.80, alpha: 1).cgColor]
+            if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                        colors: light as CFArray, locations: [0, 1]) {
+                cg.drawLinearGradient(gradient, start: corners[0], end: corners[2], options: [])
+            }
+
+            // Pencil: a horizon, a palm and a sun, laid onto the sheet through its
+            // corners so they are keystoned with it.
+            func onSheet(_ u: CGFloat, _ v: CGFloat) -> CGPoint {
+                let top = CGPoint(x: corners[0].x + (corners[1].x - corners[0].x) * u,
+                                  y: corners[0].y + (corners[1].y - corners[0].y) * u)
+                let bottom = CGPoint(x: corners[3].x + (corners[2].x - corners[3].x) * u,
+                                     y: corners[3].y + (corners[2].y - corners[3].y) * u)
+                return CGPoint(x: top.x + (bottom.x - top.x) * v, y: top.y + (bottom.y - top.y) * v)
+            }
+            func pencil(_ points: [(CGFloat, CGFloat)], width: CGFloat = 0.006) {
+                let line = UIBezierPath()
+                line.lineWidth = size.width * width
+                line.lineCapStyle = .round
+                line.lineJoinStyle = .round
+                line.move(to: onSheet(points[0].0, points[0].1))
+                points.dropFirst().forEach { line.addLine(to: onSheet($0.0, $0.1)) }
+                line.stroke()
+            }
+            UIColor(red: 0.30, green: 0.30, blue: 0.33, alpha: 0.85).setStroke()
+            pencil([(0.08, 0.78), (0.35, 0.76), (0.62, 0.79), (0.92, 0.77)])
+            pencil([(0.50, 0.77), (0.49, 0.62), (0.47, 0.48), (0.46, 0.36)], width: 0.009)
+            for frond in [[(0.46, 0.36), (0.34, 0.33), (0.22, 0.40)],
+                          [(0.46, 0.36), (0.40, 0.25), (0.30, 0.20)],
+                          [(0.46, 0.36), (0.55, 0.24), (0.66, 0.22)],
+                          [(0.46, 0.36), (0.60, 0.33), (0.72, 0.42)]] as [[(CGFloat, CGFloat)]] {
+                pencil(frond)
+            }
+            var sun: [(CGFloat, CGFloat)] = []
+            for step in 0...24 {
+                let angle = CGFloat(step) / 24 * 2 * .pi
+                sun.append((0.78 + cos(angle) * 0.08, 0.16 + sin(angle) * 0.06))
+            }
+            pencil(sun)
+            cg.restoreGState()
+        }
+        return sensorOriented(upright)
+    }
+
+    /// Dark wood: a warm brown with long, slightly wavy grain lines.
+    private static func drawDesk(in cg: CGContext, size: CGSize) {
+        UIColor(red: 0.30, green: 0.19, blue: 0.11, alpha: 1).setFill()
+        cg.fill(CGRect(origin: .zero, size: size))
+        for line in 0..<90 {
+            let y = CGFloat(line) / 90 * size.height
+            let tone = 0.5 + 0.5 * sin(CGFloat(line) * 2.3)
+            UIColor(red: 0.22 + 0.14 * tone, green: 0.13 + 0.09 * tone, blue: 0.07 + 0.05 * tone,
+                    alpha: 0.6).setStroke()
+            let grain = UIBezierPath()
+            grain.lineWidth = size.height * (0.002 + 0.004 * tone)
+            grain.move(to: CGPoint(x: 0, y: y))
+            for step in 1...12 {
+                let x = CGFloat(step) / 12 * size.width
+                grain.addLine(to: CGPoint(x: x, y: y + sin(CGFloat(step) * 0.9 + CGFloat(line)) * size.height * 0.006))
+            }
+            grain.stroke()
+        }
+    }
+
+    /// The same picture stored the way the camera stores a portrait shot: the
+    /// pixels a quarter turn counter-clockwise, tagged `.right` so it still draws
+    /// upright.
+    static func sensorOriented(_ upright: UIImage) -> UIImage {
+        guard let cgImage = upright.cgImage else { return upright }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        let sideways = UIImage(cgImage: cgImage, scale: 1, orientation: .left)
+        let buffer = UIGraphicsImageRenderer(size: sideways.size, format: format).image { _ in
+            sideways.draw(at: .zero)
+        }
+        guard let sensor = buffer.cgImage else { return upright }
+        return UIImage(cgImage: sensor, scale: 1, orientation: .right)
     }
 }
 

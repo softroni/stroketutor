@@ -103,7 +103,8 @@ struct AppRoot: View {
                 #if DEBUG
                 CaptureFlow(lesson: lesson,
                            debugReviewImage: DebugScreenHarness.pendingCaptureReviewImage,
-                           debugSavedPage: DebugScreenHarness.pendingCaptureSavedPage)
+                           debugSavedPage: DebugScreenHarness.pendingCaptureSavedPage,
+                           debugOpensCornerEditor: DebugScreenHarness.pendingCaptureOpensCornerEditor)
                 #else
                 CaptureFlow(lesson: lesson)
                 #endif

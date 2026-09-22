@@ -16,8 +16,29 @@ struct CaptureFlow: View {
 
     private enum Stage: Equatable {
         case primer
-        case review(UIImage)
+        case review(ReviewPhoto)
         case saved(SketchbookPage)
+    }
+
+    /// One photograph on the review stage: the shot as taken, the corners of the
+    /// paper once auto-crop or the learner has set them, and the picture "Your
+    /// page" shows, which is what Keep saves. Retake throws all of it away.
+    private struct ReviewPhoto: Equatable {
+        /// Tells one photo from the next, so a slow auto-crop never lands on a
+        /// photo taken after it started.
+        let id = UUID()
+        let original: UIImage
+        /// What auto-crop found, kept for the editor's Reset.
+        var detectedCorners: PageCorners?
+        /// The corners the shown page was straightened from; nil while it is the
+        /// photo as taken.
+        var corners: PageCorners?
+        var displayed: UIImage
+
+        init(original: UIImage) {
+            self.original = original
+            self.displayed = original
+        }
     }
 
     @State private var stage: Stage = .primer
@@ -28,6 +49,9 @@ struct CaptureFlow: View {
     @State private var isSaving = false
 
     private var sketchbook: SketchbookStore { owner?.sketchbook ?? app.sketchbook }
+    @State private var isEditingCorners = false
+    /// Screenshot harness only: raise the corner editor once auto-crop answers.
+    @State private var opensCornerEditorAfterAutoCrop = false
 
     init(lesson: Lesson) {
         self.lesson = lesson
@@ -39,11 +63,16 @@ struct CaptureFlow: View {
     /// stages this flow normally reaches only through the camera or Photos
     /// picker, which `xcrun simctl` cannot drive. At most one of the two debug
     /// images should be passed; passing neither behaves exactly like the plain
-    /// initialiser above.
-    init(lesson: Lesson, debugReviewImage: UIImage?, debugSavedPage: SketchbookPage?) {
+    /// initialiser above. `debugOpensCornerEditor` raises the corner editor over
+    /// the review once auto-crop has answered.
+    init(lesson: Lesson,
+         debugReviewImage: UIImage?,
+         debugSavedPage: SketchbookPage?,
+         debugOpensCornerEditor: Bool = false) {
         self.lesson = lesson
         if let debugReviewImage {
-            _stage = State(initialValue: .review(debugReviewImage))
+            _stage = State(initialValue: .review(ReviewPhoto(original: debugReviewImage)))
+            _opensCornerEditorAfterAutoCrop = State(initialValue: debugOpensCornerEditor)
         } else if let debugSavedPage {
             _stage = State(initialValue: .saved(debugSavedPage))
         }
@@ -61,8 +90,8 @@ struct CaptureFlow: View {
             switch stage {
             case .primer:
                 primer
-            case let .review(image):
-                review(image)
+            case let .review(photo):
+                review(photo)
             case let .saved(page):
                 saved(page)
             }
@@ -72,10 +101,13 @@ struct CaptureFlow: View {
         .onAppear {
             if owner == nil { owner = app.activeStores }
         }
+        // Vision's first request loads a model; paying for that now keeps the
+        // learner's photo inside the 300 ms auto-crop budget.
+        .task { PageCropper.prewarm() }
         .fullScreenCover(isPresented: $isShowingCamera) {
             CameraPicker { image in
                 isShowingCamera = false
-                if let image { stage = .review(image) }
+                if let image { stage = .review(ReviewPhoto(original: image)) }
             }
             .ignoresSafeArea()
         }
@@ -88,7 +120,7 @@ struct CaptureFlow: View {
             Task {
                 if let data = try? await item.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    stage = .review(image)
+                    stage = .review(ReviewPhoto(original: image))
                 }
                 photoItem = nil
             }
@@ -194,7 +226,7 @@ struct CaptureFlow: View {
 
     /// The photograph and the lesson side by side, so the learner compares rather
     /// than judges.
-    private func review(_ image: UIImage) -> some View {
+    private func review(_ photo: ReviewPhoto) -> some View {
         VStack(spacing: 0) {
             navigationBar(title: lesson.title, leading: .close) { retake() }
 
@@ -218,28 +250,27 @@ struct CaptureFlow: View {
                     // them as too wide and stacks them.)
                     Group {
                         if dynamicTypeSize > .accessibility2 {
-                            VStack(spacing: Theme.stackSpacing) { reviewPair(image) }
+                            VStack(spacing: Theme.stackSpacing) { reviewPair(photo) }
                         } else {
-                            HStack(alignment: .top, spacing: Theme.stackSpacing) { reviewPair(image) }
+                            HStack(alignment: .top, spacing: Theme.stackSpacing) { reviewPair(photo) }
                         }
                     }
                     .padding(.top, 4)
 
-                    Button {} label: {
-                        Label("Crop & straighten", systemImage: "crop")
+                    // The one edit: four corners, which crop and straighten together.
+                    // "Fix corners" once there are corners to fix, found or placed;
+                    // "Crop" while the page is still the photo as taken.
+                    Button { isEditingCorners = true } label: {
+                        Label(photo.corners == nil ? "Crop" : "Fix corners", systemImage: "crop")
                             .scaledFont(17, .heavy)
                     }
                     .buttonStyle(.soft)
-                    .disabled(true)
-                    // `.btn[disabled] { opacity: .4 }` — a custom style does not dim
-                    // itself, and a control that looks live but is not is a lie.
-                    .opacity(0.4)
                     .padding(.top, 8)
-                    .accessibilityHint("Not ready yet")
+                    .accessibilityHint("Move the corners onto the edges of your paper")
 
-                    // The mockup's footnote, made honest: the edit is not built, and
-                    // the promise about filters holds either way.
-                    Text("Crop and straighten are not ready yet. There are no filters and no touch-ups.")
+                    // The mockup's footnote: straightening moves pixels, it never
+                    // recolors them.
+                    Text("No filters and no touch-ups.")
                         .textRole(.subhead)
                         .foregroundStyle(Theme.ink55)
                         .multilineTextAlignment(.center)
@@ -264,7 +295,9 @@ struct CaptureFlow: View {
                 }
                 .buttonStyle(.secondary)
 
-                Button { keep(image) } label: {
+                // Whatever "Your page" shows right now: Keep never waits on
+                // auto-crop.
+                Button { keep(photo.displayed) } label: {
                     Label("Keep", systemImage: "checkmark")
                 }
                 .buttonStyle(.primary)
@@ -273,14 +306,29 @@ struct CaptureFlow: View {
             .padding(.horizontal, Theme.gutter)
             .padding(.vertical, Theme.stackSpacing)
         }
+        // Once per photo. The shot shows as taken until this answers, and stays
+        // that way if it finds nothing.
+        .task(id: photo.id) { await autoCrop(photo) }
+        .fullScreenCover(isPresented: $isEditingCorners) {
+            CornerEditor(image: photo.original,
+                         corners: photo.corners,
+                         detectedCorners: photo.detectedCorners,
+                         onCancel: { isEditingCorners = false },
+                         onDone: { corners, page in
+                             applyCorners(corners, page: page, to: photo.id)
+                             isEditingCorners = false
+                         })
+        }
     }
 
     @ViewBuilder
-    private func reviewPair(_ image: UIImage) -> some View {
+    private func reviewPair(_ photo: ReviewPhoto) -> some View {
         VStack(spacing: 8) {
-            SketchbookShot(image: image)
+            SketchbookShot(image: photo.displayed)
                 .accessibilityElement()
-                .accessibilityLabel("The photo you just took")
+                .accessibilityLabel(photo.corners == nil
+                                    ? "The photo you just took"
+                                    : "The photo you just took, cropped to your paper")
                 .accessibilityAddTraits(.isImage)
             Text("Your page")
                 .textRole(.footnote)
@@ -288,7 +336,8 @@ struct CaptureFlow: View {
         }
 
         VStack(spacing: 8) {
-            PageThumb(tutorial: lesson.tutorial)
+            // The finished lesson, colored, as the learner has just drawn it.
+            PageThumb(tutorial: lesson.tutorial, showsFills: true)
                 .accessibilityElement()
                 .accessibilityLabel("The finished \(lesson.title) lesson drawing")
                 .accessibilityAddTraits(.isImage)
@@ -381,6 +430,38 @@ struct CaptureFlow: View {
     }
 
     // MARK: - Doing it
+
+    /// Finds the paper and straightens it, if the photo is still on review and the
+    /// learner has not set corners of their own in the meantime.
+    private func autoCrop(_ photo: ReviewPhoto) async {
+        defer {
+            if opensCornerEditorAfterAutoCrop, !Task.isCancelled {
+                opensCornerEditorAfterAutoCrop = false
+                isEditingCorners = true
+            }
+        }
+        guard photo.corners == nil,
+              let result = await PageCropper.autoCrop(photo.original),
+              !Task.isCancelled,
+              case var .review(current) = stage,
+              current.id == photo.id,
+              current.corners == nil
+        else { return }
+        current.detectedCorners = result.corners
+        current.corners = result.corners
+        current.displayed = result.image
+        stage = .review(current)
+        // `sk-capture` accessibility notes: announce it when segmentation succeeds.
+        AccessibilityNotification.Announcement("Page detected").post()
+    }
+
+    /// The corner editor's answer, for the photo it was opened on.
+    private func applyCorners(_ corners: PageCorners, page: UIImage, to photoId: UUID) {
+        guard case var .review(current) = stage, current.id == photoId else { return }
+        current.corners = corners
+        current.displayed = page
+        stage = .review(current)
+    }
 
     private func retake() {
         didFailToSave = false
