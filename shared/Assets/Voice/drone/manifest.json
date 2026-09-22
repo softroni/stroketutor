@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "drone",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:50:52.673Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A drone is four rotors and a camera, and it makes most sense seen from straight above. Watch the arms reach out, then send yours up.",
+      "textHash": "30b79b712de9479564f53033861183df32a80c06cd8627250d5b1507b5088829",
+      "durationMs": 8080
+    },
+    "body-left": {
+      "file": "body-left.m4a",
+      "text": "The body is a rounded square in the middle. Trace the top and left side first.",
+      "textHash": "5af40ba9b3cc00b210e0d30f06bfd2d21cde99395257105472e389f924cc1d35",
+      "durationMs": 4720
+    },
+    "body-right": {
+      "file": "body-right.m4a",
+      "text": "Close the square with the right side and the bottom.",
+      "textHash": "210ade05cd5ca4f132b47c30ddc4ece85a1fa5972fbdd98c8ccb41a5d9044f8e",
+      "durationMs": 3040
+    },
+    "camera": {
+      "file": "camera.m4a",
+      "text": "The camera is one small circle, right at the center.",
+      "textHash": "a7c668663a72bd9fe9ee96df7641917e21d311db0a9137d6f5b3144df41293e6",
+      "durationMs": 3520
+    },
+    "arms-top": {
+      "file": "arms-top.m4a",
+      "text": "Two arms reach out from the top corners, making half a letter X.",
+      "textHash": "71c8f32c8a40423fec617d16bcb11a65fae462e6c43b007b724e31e25feb5f3f",
+      "durationMs": 4640
+    },
+    "arms-bottom": {
+      "file": "arms-bottom.m4a",
+      "text": "Two more go out from the bottom corners.",
+      "textHash": "7e9909577ca90e983a528af8732386fa967f3e11d3030a525f3343d7abe882d3",
+      "durationMs": 3200
+    },
+    "rotors-top": {
+      "file": "rotors-top.m4a",
+      "text": "Each arm ends in a rotor. Put a full circle on the two upper ones.",
+      "textHash": "a6abb28a80b158cf982700f8f2e5a1d9c2959e50fe38911bc4563c39bea9aed3",
+      "durationMs": 4560
+    },
+    "rotors-bottom": {
+      "file": "rotors-bottom.m4a",
+      "text": "The lower arms get a circle each as well.",
+      "textHash": "1f600db6423f5d8e04ffef83dc2db35bd415e34f6ab23a693c07bb80f2e574c3",
+      "durationMs": 2880
+    },
+    "blades": {
+      "file": "blades.m4a",
+      "text": "One slanted line inside every rotor makes the blade.",
+      "textHash": "d18780b4192d8d1f0844acf670c75b0122d94bee55939445417aca8fd417763a",
+      "durationMs": 3600
+    },
+    "color-body": {
+      "file": "color-body.m4a",
+      "text": "Color the body purple.",
+      "textHash": "0f8dadab81a24ffe59953a1418a17ae4f0a0fbdae7ef3ac9a0a8fd4c310d8c5a",
+      "durationMs": 1760
+    },
+    "color-rotors": {
+      "file": "color-rotors.m4a",
+      "text": "Color the four rotors gray.",
+      "textHash": "e8e08586039f75cd97c1d266b5bcaf1fb8b0ee85b8c7482e2d0c0597e98fa242",
+      "durationMs": 2080
+    },
+    "color-camera": {
+      "file": "color-camera.m4a",
+      "text": "The camera is blue.",
+      "textHash": "84bc9e5734d7ed66fa7800927c316d632b9f8eb3d7525f9bbe47bdfddc105030",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Four rotors and one small camera. Straight up, and over the trees.",
+      "textHash": "8eef59c843dd3c33a8d2aba16e854810eb1050e46d3f866ba7aa5d7565b9ad3d",
+      "durationMs": 4480
+    }
+  }
+}

@@ -742,6 +742,16 @@
       }
     },
     {
+      "id": "drone",
+      "status": "approved",
+      "objective": "Quadcopter with four arms, rotors and a camera",
+      "reference": {
+        "file": "drone.svg",
+        "source": "OpenAI image model, prompt style-v2 (docs/curriculum/in-the-air-prompts.md), generated 2026-09-21",
+        "license": "AI-generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",
