@@ -54,7 +54,7 @@ struct PathNodesView: View {
             Text(lesson.title)
                 .scaledFont(18, .heavy)
                 .tracking(-0.2)
-                .foregroundStyle(state == .locked ? Theme.ink40 : Theme.ink)
+                .foregroundStyle(state == .locked ? Theme.ink55 : Theme.ink)
             Text(subtitle(for: lesson, at: index, state: state))
                 .textRole(.footnote)
                 .foregroundStyle(state == .current ? Theme.green : Theme.ink55)

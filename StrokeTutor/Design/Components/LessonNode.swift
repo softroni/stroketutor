@@ -2,16 +2,16 @@ import SwiftUI
 
 /// A lesson on the path (`.node`): a circle (`size`, 100 pt on `hp-path`) with a 5 pt
 /// edge under it and the lesson's drawing inside at about two thirds of the circle.
-/// Open lessons show the drawing in its own colors, so unlocking one visibly turns
-/// its color on.
+/// Every lesson shows its drawing in its own colors, locked ones too, so a learner
+/// can see what is coming; the ring, the edge and the badge carry the state.
 ///
 /// * `.done` — white with a thick gold ring and a gold-deep edge, the drawing in
 ///   color, a gold check badge bottom right.
 /// * `.current` — white with a green ring, a green-deep edge and a slow halo (still
 ///   under Reduce Motion), the drawing in color. The only thing on the screen that
 ///   moves.
-/// * `.locked` — surface gray, the drawing as a 25 % ink outline without fills, a
-///   lock badge.
+/// * `.locked` — white with a thin gray ring and edge, the drawing in color, a gray
+///   lock badge — the same look as a locked tile on Home.
 struct LessonNode: View {
 
     enum State: Equatable {
@@ -34,13 +34,11 @@ struct LessonNode: View {
                 .offset(y: 5)
             Circle()
                 .fill(fillColor)
-            if let ringColor {
-                Circle().strokeBorder(ringColor, lineWidth: ringWidth)
-            }
+            Circle().strokeBorder(ringColor, lineWidth: state == .locked ? 3 : ringWidth)
             DrawingThumbnail(tutorial: drawing,
                              size: size * 0.64,
-                             strokeColor: state == .locked ? Theme.ink25 : nil,
-                             showsFills: state != .locked)
+                             strokeColor: nil,
+                             showsFills: true)
         }
         .frame(width: size, height: size)
         .background(alignment: .center) { halo }
@@ -93,18 +91,13 @@ struct LessonNode: View {
 
     // MARK: - Paint
 
-    private var fillColor: Color {
-        switch state {
-        case .done, .current: return Theme.paper
-        case .locked: return Theme.surface
-        }
-    }
+    private var fillColor: Color { Theme.paper }
 
-    private var ringColor: Color? {
+    private var ringColor: Color {
         switch state {
         case .done: return Theme.gold
         case .current: return Theme.green
-        case .locked: return nil
+        case .locked: return Theme.line
         }
     }
 
@@ -115,7 +108,7 @@ struct LessonNode: View {
         switch state {
         case .done: return Theme.goldDeep
         case .current: return Theme.greenDeep
-        case .locked: return Theme.surface2
+        case .locked: return Theme.lineStrong
         }
     }
 }
