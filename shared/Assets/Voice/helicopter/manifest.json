@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "helicopter",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:50:06.803Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A helicopter can stop and hover in one spot, held there by the blade spinning above it. See where that blade sits, then lift off yourself.",
+      "textHash": "62de8c9c83e3d7aa9f6f33be897a4223a1a8e03c817f22165573072ff1ea7aa1",
+      "durationMs": 9280
+    },
+    "cabin-top": {
+      "file": "cabin-top.m4a",
+      "text": "The cabin is a big egg. Curve from the roof round the nose to the bottom.",
+      "textHash": "2ade708b72e83350ce2aaa514f01c20a2695a092333c02914a39a7a27b79a8d5",
+      "durationMs": 4320
+    },
+    "cabin-bottom": {
+      "file": "cabin-bottom.m4a",
+      "text": "Come back over the roof and round the back to close it.",
+      "textHash": "161d168aae2a243037b2c92f1cd0bd6e56af59026a61732f74289dbda8f7b9c7",
+      "durationMs": 3040
+    },
+    "boom": {
+      "file": "boom.m4a",
+      "text": "A slim tail boom reaches out behind, from high on the cabin.",
+      "textHash": "a9bbebf440929aa9ebdff8a7f9d24462badb35bc81583e68a383a26240df2feb",
+      "durationMs": 4240
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "The window is a rounded wedge in the nose. Leave a gap all around.",
+      "textHash": "fa7d2c383db7179f0b7d4d8f5c173273b6aa563afa57f1899c73f87c9fd56ff3",
+      "durationMs": 4400
+    },
+    "mast": {
+      "file": "mast.m4a",
+      "text": "One short upright line stands on the roof.",
+      "textHash": "5b47a0e8b4758e821222d1ed92df8c98e0805f377a7ea68e0b82f2e0fc37d5b8",
+      "durationMs": 2720
+    },
+    "blade": {
+      "file": "blade.m4a",
+      "text": "The blade lies across the top of it, like a wide letter T.",
+      "textHash": "8917fec480cb0cb57fa698a39f93b27b3f6e4d75d7874070921e8d87849f809b",
+      "durationMs": 4000
+    },
+    "skid": {
+      "file": "skid.m4a",
+      "text": "Below the cabin runs the skid. It curls up at the front like a ski.",
+      "textHash": "43efc261b7a93de54a011148976568e14dc856b56177bf60a5d56e37592cabab",
+      "durationMs": 4640
+    },
+    "struts": {
+      "file": "struts.m4a",
+      "text": "Two short legs join the belly to the skid.",
+      "textHash": "1e9c5ab18936d7a3ccb5725540616296a3114f39644ab642b87ccd466f1ae1d5",
+      "durationMs": 2880
+    },
+    "color-cabin": {
+      "file": "color-cabin.m4a",
+      "text": "Color the cabin red.",
+      "textHash": "1725efcf06b94e2dadf3766b5e67b5caa032dbef1f083113da521ae6ae1f7870",
+      "durationMs": 1520
+    },
+    "color-boom": {
+      "file": "color-boom.m4a",
+      "text": "Color the tail boom orange.",
+      "textHash": "ea0d7dd4db76a557666c6578ff566590e1271cd0f4cb74620128a8777dbe6165",
+      "durationMs": 2800
+    },
+    "color-window": {
+      "file": "color-window.m4a",
+      "text": "The window is blue.",
+      "textHash": "7caea97aad01f66b46e150236b97b7db27d419285ec1d14d0d9269ef629e70f2",
+      "durationMs": 1440
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Blade on top, skids underneath. Yours can set down almost anywhere.",
+      "textHash": "dfc20036d7f8253300b006f8b6f3bc19be765d10c48db1c3a05184b81210e5f4",
+      "durationMs": 5040
+    }
+  }
+}

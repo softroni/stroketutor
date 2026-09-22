@@ -150,7 +150,8 @@
         "parachute-crate",
         "blimp",
         "airplane",
-        "glider"
+        "glider",
+        "helicopter"
       ]
     }
   ]
