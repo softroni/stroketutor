@@ -477,8 +477,8 @@ struct PlayerScreen: View {
             confirmRestart = true
         }
 
-        Button(app.settings.narrationEnabled ? "Mute narration" : "Unmute narration",
-               systemImage: app.settings.narrationEnabled ? "speaker.slash" : "speaker.wave.2") {
+        Button(app.preferences.narrationEnabled ? "Mute narration" : "Unmute narration",
+               systemImage: app.preferences.narrationEnabled ? "speaker.slash" : "speaker.wave.2") {
             toggleNarration()
         }
     }
@@ -500,7 +500,7 @@ struct PlayerScreen: View {
     }
 
     private var chipState: NarrationChip.State {
-        guard app.settings.narrationEnabled else { return .muted }
+        guard app.preferences.narrationEnabled else { return .muted }
         return narration.isSpeaking ? .speaking : .idle
     }
 
@@ -567,10 +567,10 @@ struct PlayerScreen: View {
 
     // MARK: - State
 
-    private var isLeftHanded: Bool { app.settings.leftHanded }
+    private var isLeftHanded: Bool { app.preferences.leftHanded }
 
     private var reduceMotion: Bool {
-        systemReduceMotion || app.settings.reduceMotionOverride
+        systemReduceMotion || app.preferences.reduceMotionOverride
     }
 
     /// The side panel needs a 312 pt column beside a useful paper; at accessibility
@@ -589,9 +589,11 @@ struct PlayerScreen: View {
 
     private func appear() {
         PlayerOrientation.allowRotation()
+        // A profile switch calls this first, so the step is saved to this kid.
+        app.sessionSaver = saveSession
         guard !hasLoaded else { return }
         hasLoaded = true
-        player.speed = app.settings.defaultSpeed
+        player.speed = app.preferences.defaultSpeed
         #if DEBUG
         if let harnessState {
             applyHarnessState(harnessState)
@@ -662,7 +664,7 @@ struct PlayerScreen: View {
         introStartedAt = Date()
         introEnded = reduceMotion
         narration.stop()
-        if app.settings.narrationEnabled {
+        if app.preferences.narrationEnabled {
             narration.play(lessonId: lesson.id, stepId: LessonBookend.introId)
         }
         guard !reduceMotion else { return }
@@ -689,7 +691,7 @@ struct PlayerScreen: View {
 
     private func speak(stepAt index: Int) {
         narration.stop()
-        guard app.settings.narrationEnabled,
+        guard app.preferences.narrationEnabled,
               lesson.tutorial.steps.indices.contains(index) else { return }
         narration.play(lessonId: lesson.id, stepId: lesson.tutorial.steps[index].id)
     }
@@ -745,12 +747,12 @@ struct PlayerScreen: View {
         // The running stroke keeps its pace; the next one takes the new speed, so a
         // learner never loses their place to a setting.
         player.speed = value
-        app.settings.defaultSpeed = value
+        app.preferences.defaultSpeed = value
     }
 
     private func toggleNarration() {
-        app.settings.narrationEnabled.toggle()
-        if app.settings.narrationEnabled {
+        app.preferences.narrationEnabled.toggle()
+        if app.preferences.narrationEnabled {
             if isOrientation {
                 startIntro()
             } else if case let .drawing(index) = player.phase {
@@ -783,10 +785,16 @@ struct PlayerScreen: View {
 
     private func leave() {
         showLeave = false
+        saveSession()
+        app.dismissPlayer()
+    }
+
+    /// Records where the learner is and stops everything that makes a sound. Used by
+    /// Leave and by `AppModel.switchProfile(to:)` before it closes the player.
+    private func saveSession() {
         app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: player.currentStepIndex)
         player.stop()
         narration.deactivate()
-        app.dismissPlayer()
     }
 
     private func haptic(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {

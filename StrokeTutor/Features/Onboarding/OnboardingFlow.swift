@@ -1,14 +1,16 @@
 import SwiftUI
 
-/// `ob-splash` … `ob-ready` — the seven beats a learner sees once: what the app is,
-/// what they will do, how a lesson works, what they need, which path to take,
-/// whether Lina speaks, and their first lesson.
+/// `ob-splash` … `ob-ready` — the eight beats a learner sees once: what the app is,
+/// what they will do, how a lesson works, what they need, who is drawing, which path
+/// to take, whether Lina speaks, and their first lesson.
 ///
-/// The flow owns the two answers onboarding collects — the path and the voice — and
-/// nothing else. It writes `currentPathId` when the learner leaves the path beat and
-/// `narrationEnabled` the moment the switch is touched; `hasCompletedOnboarding` is
-/// written by `AppRoot` when `onFinished` is called, so a flow replayed from Settings
-/// changes no stored value it was not asked to.
+/// The flow owns the three answers onboarding collects — the kid's name and
+/// picture, the path and the voice — and nothing else. It writes the profile when
+/// the learner leaves the who beat, `currentPathId` when they leave the path beat
+/// and `narrationEnabled` the moment the switch is touched, all to the kid who is
+/// drawing; `hasCompletedOnboarding` is written by `AppRoot` when `onFinished` is
+/// called, so a flow replayed from Settings changes no stored value it was not
+/// asked to.
 struct OnboardingFlow: View {
 
     /// Called once, with the lesson to open next, or nil to land on Home.
@@ -30,33 +32,37 @@ struct OnboardingFlow: View {
         self.initialBeat = initialBeat
     }
 
-    /// The seven beats, in order. `progress` is the rail's fill; the launch beat has
+    /// The eight beats, in order. `progress` is the rail's fill; the launch beat has
     /// no rail at all.
     enum Beat: String, CaseIterable, Hashable {
         case launch = "ob-splash"
         case intro = "ob-1"
         case method = "ob-2"
         case kit = "ob-3"
+        case who = "ob-who"
         case path = "ob-path"
         case voice = "ob-voice"
         case ready = "ob-ready"
 
-        /// One of six rail positions: 16 %, 33 %, 50 %, 66 %, 83 %, 100 %.
+        /// One of seven rail positions, from 1/7 to 100 %.
         var step: Int {
             switch self {
             case .launch: return 0
             case .intro: return 1
             case .method: return 2
             case .kit: return 3
-            case .path: return 4
-            case .voice: return 5
-            case .ready: return 6
+            case .who: return 4
+            case .path: return 5
+            case .voice: return 6
+            case .ready: return 7
             }
         }
 
-        var progress: Double { Double(step) / 6 }
+        static let railSteps = 7
 
-        var stepLabel: String { "Step \(step) of 6" }
+        var progress: Double { Double(step) / Double(Self.railSteps) }
+
+        var stepLabel: String { "Step \(step) of \(Self.railSteps)" }
     }
 
     var body: some View {
@@ -96,12 +102,16 @@ struct OnboardingFlow: View {
 
         case .kit:
             OnboardingKitBeat(rail: rail(for: .kit, back: .method),
+                              onContinue: { go(.who) })
+
+        case .who:
+            OnboardingWhoBeat(rail: rail(for: .who, back: .kit, skippable: false),
                               onContinue: { go(.path) })
 
         case .path:
             OnboardingPathBeat(paths: visiblePaths,
                                selectedPathId: selectedPath?.id,
-                               rail: rail(for: .path, back: .kit, skippable: false),
+                               rail: rail(for: .path, back: .who, skippable: false),
                                onSelect: { pendingPathId = $0.id },
                                onContinue: {
                                    if let path = selectedPath { app.select(path) }
@@ -128,7 +138,7 @@ struct OnboardingFlow: View {
         OnboardingRail(progress: beat.progress,
                        stepLabel: beat.stepLabel,
                        onBack: back.map { target in { go(target) } },
-                       onSkip: skippable ? { go(.path) } : nil)
+                       onSkip: skippable ? { go(.who) } : nil)
     }
 
     // MARK: - Moving
@@ -153,7 +163,7 @@ struct OnboardingFlow: View {
         if let pendingPathId, let path = visiblePaths.first(where: { $0.id == pendingPathId }) {
             return path
         }
-        if let stored = visiblePaths.first(where: { $0.id == app.settings.currentPathId }) {
+        if let stored = visiblePaths.first(where: { $0.id == app.preferences.currentPathId }) {
             return stored
         }
         return visiblePaths.first
@@ -165,13 +175,13 @@ struct OnboardingFlow: View {
     }
 
     private var narrationBinding: Binding<Bool> {
-        Binding(get: { app.settings.narrationEnabled },
-                set: { app.settings.narrationEnabled = $0 })
+        Binding(get: { app.preferences.narrationEnabled },
+                set: { app.preferences.narrationEnabled = $0 })
     }
 
     /// The system setting, or the app's own override in Settings.
     private var reducesMotion: Bool {
-        systemReducesMotion || app.settings.reduceMotionOverride
+        systemReducesMotion || app.preferences.reduceMotionOverride
     }
 
     /// `-onboardingBeat ob-2` on the scheme or on `simctl launch`, so a beat in the

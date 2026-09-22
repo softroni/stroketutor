@@ -28,7 +28,7 @@ struct OnboardingRail: View {
 
     /// 0...1.
     let progress: Double
-    /// What VoiceOver reads for the bar: "Step 2 of 6".
+    /// What VoiceOver reads for the bar: "Step 2 of 7".
     let stepLabel: String
     var onBack: (() -> Void)?
     var onSkip: (() -> Void)?
@@ -68,7 +68,7 @@ struct OnboardingRail: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint("Goes straight to choosing a path")
+                .accessibilityHint("Goes straight to who is drawing")
             }
         }
         .padding(.leading, 4)

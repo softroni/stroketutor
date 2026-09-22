@@ -23,7 +23,7 @@ final class PlayerViewModel {
     }
 
     /// The speeds the player offers (the ⋯ menu and Settings both use this list).
-    static let speedOptions: [Double] = [0.5, 1.0, 2.0, 4.0]
+    nonisolated static let speedOptions: [Double] = [0.5, 1.0, 2.0, 4.0]
 
     private(set) var tutorial: PreparedTutorial?
     private(set) var phase: Phase = .idle

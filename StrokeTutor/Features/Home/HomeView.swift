@@ -20,6 +20,9 @@ import SwiftUI
 struct HomeView: View {
     @Environment(AppModel.self) private var app
     @State private var lockedLesson: LockedLesson?
+    @State private var isShowingProfiles = false
+    /// The kid picked in the switcher, handed over once the sheet has closed.
+    @State private var chosenProfile: UUID?
 
     var body: some View {
         ScrollView {
@@ -64,6 +67,20 @@ struct HomeView: View {
                               },
                               onDismiss: { lockedLesson = nil })
         }
+        #if DEBUG
+        .onAppear {
+            guard DebugScreenHarness.raiseProfileSwitcher else { return }
+            DebugScreenHarness.raiseProfileSwitcher = false
+            isShowingProfiles = true
+        }
+        #endif
+        .sheet(isPresented: $isShowingProfiles, onDismiss: {
+            guard let chosen = chosenProfile else { return }
+            chosenProfile = nil
+            app.switchProfile(to: chosen)
+        }) {
+            ProfileSwitcherSheet(onChoose: { chosenProfile = $0 })
+        }
     }
 
     // MARK: - Title
@@ -74,7 +91,11 @@ struct HomeView: View {
     private func title(for path: PathModel?) -> some View {
         if isFirstTime, let path {
             VStack(alignment: .leading, spacing: 6) {
-                learnTitle
+                HStack(alignment: .center, spacing: 8) {
+                    learnTitle
+                    Spacer(minLength: 0)
+                    profileButton
+                }
                 if !hasBegun(in: path) {
                     Text("You chose \(path.title). Start there, or pick any picture you like.")
                         .textRole(.bodyRegular)
@@ -94,8 +115,24 @@ struct HomeView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(drawingsText) in your sketchbook")
                 .accessibilityAddTraits(.isButton)
+                profileButton
             }
         }
+    }
+
+    /// Who is drawing, always in view — even with one kid, so a family finds out a
+    /// second can be added. Opens the switcher.
+    private var profileButton: some View {
+        Button {
+            isShowingProfiles = true
+        } label: {
+            ProfileAvatarView(avatar: app.activeProfile.avatar, size: 44)
+                .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(app.activeProfile.displayName) is drawing")
+        .accessibilityHint("Switch kid or add another")
     }
 
     private var learnTitle: some View {

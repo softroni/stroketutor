@@ -12,8 +12,8 @@ struct NarrationSettingsView: View {
     @State private var sampleTask: Task<Void, Never>?
 
     var body: some View {
-        @Bindable var settings = app.settings
-        let isOn = settings.narrationEnabled
+        @Bindable var preferences = app.preferences
+        let isOn = preferences.narrationEnabled
 
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.stackSpacing) {
@@ -32,7 +32,7 @@ struct NarrationSettingsView: View {
                               subtitle: "Lina reads each step aloud while it draws.",
                               systemImage: isOn ? "speaker.wave.2.fill" : "speaker.slash.fill",
                               tint: isOn ? .green : .neutral,
-                              isOn: $settings.narrationEnabled)
+                              isOn: $preferences.narrationEnabled)
                 }
 
                 if isOn {
@@ -147,7 +147,7 @@ struct NarrationSettingsView: View {
                         if isOn {
                             playSample()
                         } else {
-                            app.settings.narrationEnabled = true
+                            app.preferences.narrationEnabled = true
                         }
                     }
                     .accessibilityLabel(chipLabel(isOn: isOn))

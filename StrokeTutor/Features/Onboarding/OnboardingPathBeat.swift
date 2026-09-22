@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// `ob-path` — "What would you like to draw first?" The only question onboarding
-/// asks. Single-choice rows straight from the catalog, the first path preselected so
-/// Continue is never blocked, and no Skip: this is where Skip lands.
+/// `ob-path` — "What would you like to draw first?" Single-choice rows straight
+/// from the catalog, the first path preselected so Continue is never blocked, and
+/// no Skip: Skip lands on the who beat just before this one.
 ///
 /// A tap moves the selection and never advances. Continue writes `currentPathId`.
 struct OnboardingPathBeat: View {

@@ -21,6 +21,13 @@ struct CaptureFlow: View {
     }
 
     @State private var stage: Stage = .primer
+    /// The kid's stores when this flow opened. Keep writes here even if the app has
+    /// switched to someone else meanwhile, so a page never lands in the wrong
+    /// sketchbook.
+    @State private var owner: AppModel.ProfileStores?
+    @State private var isSaving = false
+
+    private var sketchbook: SketchbookStore { owner?.sketchbook ?? app.sketchbook }
 
     init(lesson: Lesson) {
         self.lesson = lesson
@@ -62,6 +69,9 @@ struct CaptureFlow: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.page.ignoresSafeArea())
+        .onAppear {
+            if owner == nil { owner = app.activeStores }
+        }
         .fullScreenCover(isPresented: $isShowingCamera) {
             CameraPicker { image in
                 isShowingCamera = false
@@ -258,6 +268,7 @@ struct CaptureFlow: View {
                     Label("Keep", systemImage: "checkmark")
                 }
                 .buttonStyle(.primary)
+                .disabled(isSaving)
             }
             .padding(.horizontal, Theme.gutter)
             .padding(.vertical, Theme.stackSpacing)
@@ -298,7 +309,7 @@ struct CaptureFlow: View {
 
                     Chip(text: "Saved to your sketchbook", systemImage: "checkmark", style: .green)
 
-                    SketchbookShot(image: app.sketchbook.image(for: page), tutorial: lesson.tutorial)
+                    SketchbookShot(image: sketchbook.image(for: page), tutorial: lesson.tutorial)
                         .frame(width: 196)
                         .padding(.top, 8)
                         .accessibilityElement()
@@ -382,20 +393,32 @@ struct CaptureFlow: View {
 
     /// Writes the page, then the confirmation. The date is the lesson's own
     /// completion date, so the sketchbook and the completion chip agree.
+    ///
+    /// The JPEG is written off the main thread into the sketchbook this flow opened
+    /// with (`owner`), so the page belongs to the kid who took it however the save
+    /// and a profile switch interleave.
     private func keep(_ image: UIImage) {
-        let completedAt = app.progress.progress(for: lesson.id)?.completedAt ?? Date()
-        guard let page = app.sketchbook.add(image: image,
-                                            lessonId: lesson.id,
-                                            pathId: lesson.pathId,
-                                            completedAt: completedAt) else {
-            didFailToSave = true
-            return
+        guard !isSaving else { return }
+        let stores = owner ?? app.activeStores
+        let completedAt = stores.progress.progress(for: lesson.id)?.completedAt ?? Date()
+        let alsoSaveToPhotos = app.settings.alsoSaveToPhotos
+        isSaving = true
+        Task {
+            let page = await stores.sketchbook.addPage(image: image,
+                                                       lessonId: lesson.id,
+                                                       pathId: lesson.pathId,
+                                                       completedAt: completedAt)
+            isSaving = false
+            guard let page else {
+                didFailToSave = true
+                return
+            }
+            didFailToSave = false
+            if alsoSaveToPhotos {
+                PhotoLibraryWriter.save(image)
+            }
+            stage = .saved(page)
         }
-        didFailToSave = false
-        if app.settings.alsoSaveToPhotos {
-            PhotoLibraryWriter.save(image)
-        }
-        stage = .saved(page)
     }
 
     // MARK: - Chrome

@@ -21,6 +21,12 @@ enum DebugScreenHarness {
     /// by `AppRoot`, right after `loadContent()` and before the onboarding check
     /// — seeding always marks onboarding done, so a screenshot launch never lands
     /// on the onboarding cover instead of the requested screen.
+    /// True on a screenshot launch, so `AppRoot` does not raise "Who's drawing?"
+    /// over the screen that was asked for.
+    static var isActive: Bool {
+        UserDefaults.standard.string(forKey: "STScreen") != nil
+    }
+
     @MainActor
     static func applyIfRequested(to app: AppModel) {
         guard let name = UserDefaults.standard.string(forKey: "STScreen") else { return }
@@ -31,12 +37,15 @@ enum DebugScreenHarness {
         app.progress.resetAll()
         for page in app.sketchbook.pages { app.sketchbook.delete(page) }
         app.settings.resetToDefaults()
+        app.preferences.resetToDefaults()
         app.settings.hasCompletedOnboarding = true
 
         pendingPlayerHarnessState = nil
         pendingCaptureReviewImage = nil
         pendingCaptureSavedPage = nil
         raiseDeleteConfirmation = false
+        raiseProfileSwitcher = false
+        raiseParentPINCreate = false
 
         // The screens below are captured with two of the shipped drawings: the palm
         // tree (upright) and the red car (wide). They are found by lesson id and not
@@ -119,7 +128,7 @@ enum DebugScreenHarness {
             app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "player-muted":
-            app.settings.narrationEnabled = false
+            app.preferences.narrationEnabled = false
             pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treeLesson))
             app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
@@ -128,7 +137,7 @@ enum DebugScreenHarness {
             app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
         case "player-lefthanded":
-            app.settings.leftHanded = true
+            app.preferences.leftHanded = true
             pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treeLesson))
             app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
@@ -207,12 +216,12 @@ enum DebugScreenHarness {
             app.selectedTab = .settings
 
         case "narration-on":
-            app.settings.narrationEnabled = true
+            app.preferences.narrationEnabled = true
             app.selectedTab = .settings
             app.push(.narrationSettings)
 
         case "narration-off":
-            app.settings.narrationEnabled = false
+            app.preferences.narrationEnabled = false
             app.selectedTab = .settings
             app.push(.narrationSettings)
 
@@ -229,6 +238,26 @@ enum DebugScreenHarness {
         case "about":
             app.selectedTab = .settings
             app.push(.about)
+
+        case "profiles-picker":
+            ensureSecondKid(in: app)
+            app.cover = .profilePicker
+
+        case "profiles-switcher":
+            ensureSecondKid(in: app)
+            raiseProfileSwitcher = true
+
+        case "profiles-settings":
+            ensureSecondKid(in: app)
+            app.selectedTab = .settings
+
+        case "profile-detail":
+            app.selectedTab = .settings
+            app.push(.profile(id: app.activeProfile.id))
+
+        case "parent-pin":
+            app.selectedTab = .settings
+            raiseParentPINCreate = true
 
         default:
             break // Unknown name: leave the clean, onboarded Home screen showing.
@@ -248,6 +277,18 @@ enum DebugScreenHarness {
     /// Set by `entry-delete`; `SketchbookEntryView` reads and clears this once, in
     /// its own `onAppear`, since its delete alert is behind private `@State`.
     static var raiseDeleteConfirmation = false
+    /// Set by `profiles-switcher`; `HomeView` reads and clears it in `onAppear`.
+    static var raiseProfileSwitcher = false
+    /// Set by `parent-pin`; `SettingsView` reads and clears it in `onAppear`.
+    static var raiseParentPINCreate = false
+
+    /// Profile screens need a second kid to show anything worth reviewing. Added
+    /// once and left: profiles, unlike the stores above, are not wiped per run.
+    @MainActor
+    private static func ensureSecondKid(in app: AppModel) {
+        guard app.profiles.count < 2 else { return }
+        app.addProfile(name: "Maya", avatar: .owl)
+    }
 
     // MARK: - Helpers
 

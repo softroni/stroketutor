@@ -21,6 +21,8 @@ struct AppDestination: View {
             ReminderSettingsView()
         case .about:
             AboutView()
+        case let .profile(id):
+            ProfileSettingsView(profileId: id)
         }
     }
 }

@@ -332,12 +332,12 @@ struct CompletionView: View {
     /// line that was never recorded, ends the lesson in silence.
     private func speakLinaLine() {
         if lessonOutro != nil {
-            guard app.settings.narrationEnabled else { return }
+            guard app.preferences.narrationEnabled else { return }
             narration.play(lessonId: lesson.id, stepId: LessonBookend.outroId)
             return
         }
         let line = linaLineChoice
-        guard app.settings.narrationEnabled, narration.hasAppLine(line.id) else { return }
+        guard app.preferences.narrationEnabled, narration.hasAppLine(line.id) else { return }
         narration.playAppLine(line.id)
     }
 

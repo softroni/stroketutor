@@ -19,6 +19,8 @@ enum AppRoute: Hashable {
     case reminderSettings
     /// About & credits.
     case about
+    /// One kid's name, picture and the parent-only actions.
+    case profile(id: UUID)
 
     /// Whether the three-tab bar belongs under this screen.
     ///
@@ -36,15 +38,16 @@ enum AppRoute: Hashable {
         switch self {
         case .paths, .pathDetail:
             return false
-        case .lessonPreview, .sketchbookEntry, .narrationSettings, .reminderSettings, .about:
+        case .lessonPreview, .sketchbookEntry, .narrationSettings, .reminderSettings, .about, .profile:
             return true
         }
     }
 }
 
-/// The flows that take the whole screen: onboarding on first run, and the player,
-/// completion and capture that follow a lesson. They are covers rather than pushes
-/// because none of them belongs to a tab's back stack.
+/// The flows that take the whole screen: onboarding on first run, the player,
+/// completion and capture that follow a lesson, and the launch profile picker.
+/// They are covers rather than pushes because none of them belongs to a tab's
+/// back stack.
 enum AppCover: Identifiable, Hashable {
     case onboarding
     /// `pl-player`. `resumeFrom` is the step a returning learner left off at.
@@ -53,6 +56,8 @@ enum AppCover: Identifiable, Hashable {
     case completion(lessonId: String)
     /// `sk-capture`.
     case capture(lessonId: String)
+    /// "Who's drawing?", at launch when more than one kid uses the app.
+    case profilePicker
 
     var id: String {
         switch self {
@@ -64,6 +69,8 @@ enum AppCover: Identifiable, Hashable {
             return "completion-\(lessonId)"
         case let .capture(lessonId):
             return "capture-\(lessonId)"
+        case .profilePicker:
+            return "profile-picker"
         }
     }
 }

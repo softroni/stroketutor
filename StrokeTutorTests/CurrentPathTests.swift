@@ -22,7 +22,7 @@ final class CurrentPathTests: XCTestCase {
 
         XCTAssertEqual(model.currentPath?.id, treePath.id,
                        "Drawing a tree should move Home and the path cards to the tree's path.")
-        XCTAssertEqual(model.settings.currentPathId, treePath.id)
+        XCTAssertEqual(model.preferences.currentPathId, treePath.id)
     }
 
     /// The same when the lesson is picked up part-way, which is how a learner comes
@@ -50,7 +50,7 @@ final class CurrentPathTests: XCTestCase {
         model.open(treePath)
 
         XCTAssertEqual(model.currentPath?.id, treePath.id)
-        XCTAssertEqual(model.settings.currentPathId, treePath.id)
+        XCTAssertEqual(model.preferences.currentPathId, treePath.id)
         XCTAssertEqual(model.learnPath.count, 1)
     }
 

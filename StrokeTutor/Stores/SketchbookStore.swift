@@ -47,12 +47,12 @@ final class SketchbookStore {
     /// JPEG quality and the longest side a saved photo is scaled to. Big enough to
     /// look like a photograph of a page, small enough that a full sketchbook is not
     /// a backup problem.
-    static let jpegQuality: CGFloat = 0.85
-    static let maximumPixelSize: CGFloat = 2048
+    nonisolated static let jpegQuality: CGFloat = 0.85
+    nonisolated static let maximumPixelSize: CGFloat = 2048
 
     private let directory: URL
     private let indexURL: URL
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "sketchbook")
+    private nonisolated static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "sketchbook")
 
     /// - Parameter baseDirectory: the folder that contains `Sketchbook/`. Defaults to
     ///   Application Support; a test passes a temporary directory.
@@ -92,23 +92,53 @@ final class SketchbookStore {
              pathId: String,
              completedAt: Date = Date()) -> SketchbookPage? {
         let id = UUID()
-        let fileName = "\(id.uuidString).jpg"
-        guard let data = Self.jpegData(from: image) else {
-            Self.log.error("A sketchbook photo could not be encoded as JPEG.")
+        guard Self.writePhoto(image, to: directory.appendingPathComponent(Self.fileName(for: id))) else {
             return nil
+        }
+        return insertPage(id: id, lessonId: lessonId, pathId: pathId, completedAt: completedAt)
+    }
+
+    /// The same, with the JPEG encoded and written off the main thread — the capture
+    /// flow's Keep. The page lands in *this* store's folder however long it takes:
+    /// if the kid is switched meanwhile, it is still their sketchbook it goes into,
+    /// and `AppModel` keeps this store alive so the switch back sees it.
+    func addPage(image: UIImage,
+                 lessonId: String,
+                 pathId: String,
+                 completedAt: Date = Date()) async -> SketchbookPage? {
+        let id = UUID()
+        let url = directory.appendingPathComponent(Self.fileName(for: id))
+        let written = await Task.detached(priority: .userInitiated) {
+            Self.writePhoto(image, to: url)
+        }.value
+        guard written else { return nil }
+        return insertPage(id: id, lessonId: lessonId, pathId: pathId, completedAt: completedAt)
+    }
+
+    private nonisolated static func fileName(for id: UUID) -> String {
+        "\(id.uuidString).jpg"
+    }
+
+    private nonisolated static func writePhoto(_ image: UIImage, to url: URL) -> Bool {
+        guard let data = jpegData(from: image) else {
+            log.error("A sketchbook photo could not be encoded as JPEG.")
+            return false
         }
         do {
-            try AppStorageLocation.writeAtomically(data, to: directory.appendingPathComponent(fileName))
+            try AppStorageLocation.writeAtomically(data, to: url)
+            return true
         } catch {
-            Self.log.error("A sketchbook photo could not be saved: \(error.localizedDescription, privacy: .public)")
-            return nil
+            log.error("A sketchbook photo could not be saved: \(error.localizedDescription, privacy: .public)")
+            return false
         }
+    }
 
+    private func insertPage(id: UUID, lessonId: String, pathId: String, completedAt: Date) -> SketchbookPage {
         let page = SketchbookPage(id: id,
                                   lessonId: lessonId,
                                   pathId: pathId,
                                   completedAt: completedAt,
-                                  imageFile: fileName)
+                                  imageFile: Self.fileName(for: id))
         pages.insert(page, at: 0)
         sortAndSave()
         return page
@@ -133,11 +163,11 @@ final class SketchbookStore {
     // MARK: - Images
 
     /// A JPEG at quality 0.85, scaled so the longest side is at most 2048 px.
-    static func jpegData(from image: UIImage) -> Data? {
+    nonisolated static func jpegData(from image: UIImage) -> Data? {
         scaled(image).jpegData(compressionQuality: jpegQuality)
     }
 
-    private static func scaled(_ image: UIImage) -> UIImage {
+    private nonisolated static func scaled(_ image: UIImage) -> UIImage {
         let longest = max(image.size.width, image.size.height) * image.scale
         guard longest > maximumPixelSize, longest > 0 else { return image }
         let factor = maximumPixelSize / longest

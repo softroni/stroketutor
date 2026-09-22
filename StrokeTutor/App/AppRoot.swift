@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// The root of the app. Loads the content once, shows the tabs, and presents the
-/// four full-screen flows on top of them: onboarding on first run, then the player,
-/// completion and capture that follow a lesson.
+/// full-screen flows on top of them: onboarding on first run, "Who's drawing?" on a
+/// launch with more than one kid, then the player, completion and capture that
+/// follow a lesson.
 ///
 /// Covers rather than pushes, because none of these belongs to a tab's back stack
 /// (`v3.html`: `ob-*`, `pl-player`, `sk-complete`, `sk-capture`).
@@ -22,6 +23,9 @@ struct AppRoot: View {
         @Bindable var app = app
 
         MainTabs()
+            // A new kid gets fresh tabs: no scroll position, sheet or half-typed
+            // note from the kid before them survives the switch.
+            .id(app.activeProfile.id)
             .environment(app)
             .background(Theme.page.ignoresSafeArea())
             .task {
@@ -32,6 +36,9 @@ struct AppRoot: View {
                 #endif
                 if !app.settings.hasCompletedOnboarding {
                     app.presentOnboarding()
+                } else if app.shouldAskWhoIsDrawing, !isScreenshotLaunch {
+                    // Once per launch, here; never on a return from the background.
+                    app.presentProfilePicker()
                 }
                 await rescheduleReminderIfEnabled()
             }
@@ -39,6 +46,14 @@ struct AppRoot: View {
                 content(for: cover)
                     .environment(app)
             }
+    }
+
+    private var isScreenshotLaunch: Bool {
+        #if DEBUG
+        DebugScreenHarness.isActive
+        #else
+        false
+        #endif
     }
 
     /// Keeps the practice reminder's pending notifications in step with the stored
@@ -95,6 +110,9 @@ struct AppRoot: View {
             } else {
                 missingLesson
             }
+
+        case .profilePicker:
+            ProfilePickerView()
         }
     }
 

@@ -128,7 +128,7 @@ struct SettingsCard<Content: View>: View {
 
 // MARK: - Navigation bar
 
-/// The 56 pt inline nav bar of the three pushed Settings screens: the same
+/// The 56 pt inline nav bar of the pushed Settings screens: the same
 /// `InlineNavBar` the Home group draws — a bare chevron and a 17/heavy title on the
 /// white page — in place of the system bar, whose iOS 26 glass circles are not v3's.
 ///
@@ -152,7 +152,7 @@ private struct SettingsNavigationBar: ViewModifier {
 }
 
 extension View {
-    /// The 56 pt inline nav bar of the three pushed Settings screens: a back
+    /// The 56 pt inline nav bar of the pushed Settings screens: a back
     /// chevron in ink and a 17/heavy rounded title, on the white page.
     func settingsNavigationBar(_ title: String) -> some View {
         modifier(SettingsNavigationBar(title: title))

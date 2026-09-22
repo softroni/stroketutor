@@ -12,9 +12,20 @@ struct SettingsView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var isConfirmingReset = false
     @State private var isConfirmingOnboardingReset = false
+    @State private var isAddingProfile = false
+    @State private var gate: ParentGateRequest?
+    @State private var pinSheet: PINSheet?
+    @State private var isChoosingPINAction = false
+
+    /// The parent PIN pad, when it is opened from its own row.
+    private enum PINSheet: Identifiable {
+        case create, change, remove
+        var id: Self { self }
+    }
 
     var body: some View {
         @Bindable var settings = app.settings
+        @Bindable var preferences = app.preferences
 
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.stackSpacing) {
@@ -22,6 +33,9 @@ struct SettingsView: View {
                     .textRole(.largeTitle)
                     .foregroundStyle(Theme.ink)
                     .accessibilityAddTraits(.isHeader)
+
+                // ------------------------------------------------------------ Kids
+                kidsSection
 
                 // ---------------------------------------------------------- Lesson
                 SettingsSectionHeader("Lesson")
@@ -37,7 +51,7 @@ struct SettingsView: View {
                             SettingsIconTile(tint: .clay) { LinaFace(size: 30) }
                         } trailing: {
                             HStack(spacing: 14) {
-                                Text(settings.narrationEnabled ? "On" : "Off")
+                                Text(preferences.narrationEnabled ? "On" : "Off")
                                     .scaledFont(16, .semibold)
                                     .foregroundStyle(Theme.ink55)
                                 chevron
@@ -48,7 +62,7 @@ struct SettingsView: View {
                     .buttonStyle(.plain)
                     .accessibilityElement(children: .combine)
                     .accessibilityAddTraits(.isButton)
-                    .accessibilityValue(settings.narrationEnabled ? "On" : "Off")
+                    .accessibilityValue(preferences.narrationEnabled ? "On" : "Off")
                     RowDivider()
                     speedRow
                 }
@@ -76,13 +90,13 @@ struct SettingsView: View {
                               subtitle: "Steps appear at once instead of drawing on.",
                               systemImage: "arrow.counterclockwise",
                               tint: .blue,
-                              isOn: $settings.reduceMotionOverride)
+                              isOn: $preferences.reduceMotionOverride)
                     RowDivider()
                     ToggleRow(title: "Left-handed layout",
                               subtitle: "Moves the controls to the left.",
                               systemImage: "hand.raised",
                               tint: .blue,
-                              isOn: $settings.leftHanded)
+                              isOn: $preferences.leftHanded)
                 }
 
                 // ------------------------------------------------------------ More
@@ -135,9 +149,9 @@ struct SettingsView: View {
                 // ------------------------------------------------- Reset progress
                 ListCard {
                     Button {
-                        isConfirmingReset = true
+                        requestReset()
                     } label: {
-                        Text("Reset progress")
+                        Text("Reset \(app.activeProfile.displayName)’s progress")
                             .textRole(.headline)
                             .foregroundStyle(Theme.danger)
                             .multilineTextAlignment(.center)
@@ -148,7 +162,7 @@ struct SettingsView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityHint("Clears how far you are through every path. Your sketchbook is kept.")
+                    .accessibilityHint("Clears how far \(app.activeProfile.displayName) is through every path. Their sketchbook is kept.")
                 }
                 .padding(.top, 8)
 
@@ -165,17 +179,57 @@ struct SettingsView: View {
         }
         .background(Theme.page)
         .toolbar(.hidden, for: .navigationBar)
-        .alert("Reset your progress?", isPresented: $isConfirmingReset) {
+        .alert("Reset \(app.activeProfile.displayName)’s progress?", isPresented: $isConfirmingReset) {
             Button("Reset progress", role: .destructive) { app.progress.resetAll() }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Every path starts again from lesson 1. Your sketchbook is not touched.")
+            Text("Every path starts again from lesson 1 for \(app.activeProfile.displayName). Their sketchbook and the other kids are not touched.")
+        }
+        .parentGate($gate)
+        #if DEBUG
+        .onAppear {
+            guard DebugScreenHarness.raiseParentPINCreate else { return }
+            DebugScreenHarness.raiseParentPINCreate = false
+            pinSheet = .create
+        }
+        #endif
+        .sheet(isPresented: $isAddingProfile) {
+            NewProfileSheet(onAdded: { _ in isAddingProfile = false },
+                            onCancel: { isAddingProfile = false })
+        }
+        .sheet(item: $pinSheet) { sheet in
+            switch sheet {
+            case .create:
+                ParentPINSheet(mode: .create) { }
+            case .change:
+                ParentPINSheet(mode: .change) { }
+            case .remove:
+                ParentPINSheet(mode: .verify(reason: "Needed to turn the parent PIN off.")) {
+                    app.parentPIN.remove()
+                }
+            }
+        }
+        .confirmationDialog("Parent PIN", isPresented: $isChoosingPINAction, titleVisibility: .visible) {
+            Button("Change PIN") { pinSheet = .change }
+            Button("Turn off PIN", role: .destructive) { pinSheet = .remove }
+            Button("Cancel", role: .cancel) { }
         }
         .alert("Reset onboarding?", isPresented: $isConfirmingOnboardingReset) {
             Button("Reset onboarding") { app.resetOnboarding() }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("The introduction plays again from the start. Your progress and sketchbook are kept.")
+        }
+    }
+
+    /// With a parent PIN, the PIN first; either way, the confirmation after it.
+    private func requestReset() {
+        if app.parentPIN.isSet {
+            gate = ParentGateRequest(reason: "Needed to reset \(app.activeProfile.displayName)’s progress.") {
+                isConfirmingReset = true
+            }
+        } else {
+            isConfirmingReset = true
         }
     }
 
@@ -202,6 +256,74 @@ struct SettingsView: View {
 }
 
 
+// MARK: - Kids
+
+private extension SettingsView {
+    /// Every kid, the way to add one, and the parent PIN. Renaming is a tap away and
+    /// never asks for the PIN; deleting a kid and resetting progress do.
+    var kidsSection: some View {
+        Group {
+            SettingsSectionHeader("Kids")
+            ListCard {
+                ForEach(app.profiles) { profile in
+                    Button {
+                        app.push(.profile(id: profile.id))
+                    } label: {
+                        SettingsCustomRow(title: profile.displayName,
+                                          subtitle: profile.id == app.activeProfile.id ? "Drawing now" : nil) {
+                            ProfileAvatarView(avatar: profile.avatar, size: 40)
+                        } trailing: {
+                            chevron
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(.isButton)
+                    RowDivider()
+                }
+
+                Button {
+                    isAddingProfile = true
+                } label: {
+                    SettingsCustomRow(title: "Add another kid") {
+                        SettingsIconTile(symbol: "plus", tint: .green)
+                    } trailing: {
+                        EmptyView()
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isButton)
+                RowDivider()
+
+                Button {
+                    if app.parentPIN.isSet {
+                        isChoosingPINAction = true
+                    } else {
+                        pinSheet = .create
+                    }
+                } label: {
+                    SettingsCustomRow(title: "Parent PIN",
+                                      subtitle: "Asked before deleting a kid or resetting progress.") {
+                        SettingsIconTile(symbol: "lock.fill", tint: .neutral)
+                    } trailing: {
+                        Text(app.parentPIN.isSet ? "On" : "Off")
+                            .scaledFont(16, .semibold)
+                            .foregroundStyle(Theme.ink55)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isButton)
+                .accessibilityValue(app.parentPIN.isSet ? "On" : "Off")
+            }
+        }
+    }
+}
+
 // MARK: - Speed
 
 private extension SettingsView {
@@ -209,7 +331,7 @@ private extension SettingsView {
     /// it is how fast each step draws, and it never changes Lina's voice, so a
     /// learner who came to change it should not have to pass her card to find it.
     var speedRow: some View {
-        @Bindable var settings = app.settings
+        @Bindable var preferences = app.preferences
         return VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 14) {
                 SettingsIconTile(symbol: "speedometer", tint: .green)
@@ -227,7 +349,7 @@ private extension SettingsView {
 
             SegmentedPicker(options: PlayerViewModel.speedOptions,
                             title: SettingsFormat.speed,
-                            selection: $settings.defaultSpeed)
+                            selection: $preferences.defaultSpeed)
                 .accessibilityLabel("Speed")
         }
         .padding(.vertical, 14)
