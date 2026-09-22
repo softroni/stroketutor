@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "speedboat",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:38:30.144Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Hold on tight. This speedboat has a lightning bolt down its side and a splash flying up behind it. See it race past, then start your engine.",
+      "textHash": "8d7d16ec9fd0cb98931fec5e26c21b4a0e219d28607119ca3c9cbd99fe27737c",
+      "durationMs": 8240
+    },
+    "deck": {
+      "file": "deck.m4a",
+      "text": "A speedboat is a long wedge. Draw its top edge from the back, rising gently to a sharp nose.",
+      "textHash": "2a51f85ce8d9d8d25909c0d4eaa99a019eb40b7a3bd27a14397f308619a80aca",
+      "durationMs": 6640
+    },
+    "hull": {
+      "file": "hull.m4a",
+      "text": "Go down the short stern. Then sweep along the bottom to the nose.",
+      "textHash": "d283a1064877c22c2b8b9366fde361537be32e14594fd669cc85ee66309b6d2a",
+      "durationMs": 4080
+    },
+    "windshield": {
+      "file": "windshield.m4a",
+      "text": "The windshield is a low dome on the deck. Add one slanted bar inside it.",
+      "textHash": "07771998b6cb7e1f9b2b8759b217c2312cd71122bd570fb7b191a238df31b1f6",
+      "durationMs": 4720
+    },
+    "bolt-top": {
+      "file": "bolt-top.m4a",
+      "text": "A lightning bolt runs down the side. Draw its top edge: along, a quick zigzag, then on to the point.",
+      "textHash": "03a0590ca0a1240f645df00ea980036e58a8a5b3679be485e993f98afe19c79a",
+      "durationMs": 7280
+    },
+    "bolt-bottom": {
+      "file": "bolt-bottom.m4a",
+      "text": "Draw the bolt's lower edge the same way, so both meet at the point.",
+      "textHash": "485449149d262cd11de8894f4b350e9d4500081bd10e4f2bbf1483c877e74718",
+      "durationMs": 4720
+    },
+    "splash": {
+      "file": "splash.m4a",
+      "text": "Water flies up behind the boat. Draw three loops that curl over: big, medium and small.",
+      "textHash": "dc88b2d9baf16376785eb8d95489292e589a4a0eed48db270369acdedfbc6574",
+      "durationMs": 6880
+    },
+    "hull-color": {
+      "file": "hull-color.m4a",
+      "text": "Color the hull red.",
+      "textHash": "3499cc4bc3a096aac33527288bb3bca4ebf0c0f3538e87cbb24e66571f7319f2",
+      "durationMs": 1680
+    },
+    "bolt-color": {
+      "file": "bolt-color.m4a",
+      "text": "The bolt is yellow.",
+      "textHash": "e1c2aae21d378c192f7fcb804171091f6d36b454670f7d2dd770c038e7ffdf15",
+      "durationMs": 1520
+    },
+    "windshield-color": {
+      "file": "windshield-color.m4a",
+      "text": "Color the windshield blue.",
+      "textHash": "1367fd80ab299981d45c03982fa2338aeb98bb737817d1811ac69a09efc72c40",
+      "durationMs": 1840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "That's one fast boat. Can you feel the spray?",
+      "textHash": "ab708b94b1af1cd99adff1ef67f71c5848f36e61b644c91b094006a6fbe3169c",
+      "durationMs": 3120
+    }
+  }
+}
