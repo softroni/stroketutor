@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "blimp",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:48:16.853Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A blimp is a balloon with an engine, drifting over stadiums all afternoon. Follow its outline nose to tail, then set yours adrift.",
+      "textHash": "162af4ea7ef478a0e35a5af001c5116160de901f3cb568a02eebc384411e1597",
+      "durationMs": 8480
+    },
+    "body-top": {
+      "file": "body-top.m4a",
+      "text": "The body is one long oval. Leave the nose and curve over the top to the tail.",
+      "textHash": "4740743316f12e137d1ab45ab5adfb343cd49bec17980080cc7662afde6cafe1",
+      "durationMs": 5600
+    },
+    "body-bottom": {
+      "file": "body-bottom.m4a",
+      "text": "Now the belly. From the nose again, curve underneath to meet the tail.",
+      "textHash": "215c352ade084d39a83c813d9abb8c2725f4235a29145e395d26ff629564ebce",
+      "durationMs": 5760
+    },
+    "fin-top": {
+      "file": "fin-top.m4a",
+      "text": "A fin stands near the tail. Draw a slanted four-sided shape leaning backward.",
+      "textHash": "897ebe2fecf50a50017b7f3c916f2fabf0ee9fb7561c8d49b6b48e0d9db9f50f",
+      "durationMs": 5600
+    },
+    "fin-bottom": {
+      "file": "fin-bottom.m4a",
+      "text": "The matching fin hangs below, directly under the first.",
+      "textHash": "a18f1259c99f70c79d01c22ce5d0f51002009f40a994e182b153d5effdbf9069",
+      "durationMs": 3760
+    },
+    "seam": {
+      "file": "seam.m4a",
+      "text": "One long line runs along the middle, clear of both ends.",
+      "textHash": "e36fda8d48d172de520ecf4e00569efa912067916e9f1b9a96c7928732574fe4",
+      "durationMs": 4080
+    },
+    "cabin": {
+      "file": "cabin.m4a",
+      "text": "The cabin hangs under the belly. Draw a small box with rounded bottom corners.",
+      "textHash": "6933c1862ff2088064553158bc2570d14c93e1d7d37b92244417f65f8b23a3e1",
+      "durationMs": 5360
+    },
+    "windows": {
+      "file": "windows.m4a",
+      "text": "Three little windows sit in a row inside it.",
+      "textHash": "d7b4e1d0ade6f1e63e7196073f35dc2bea6209df73b90af7c0c7654177f2d25f",
+      "durationMs": 3120
+    },
+    "color-body": {
+      "file": "color-body.m4a",
+      "text": "Color the body blue.",
+      "textHash": "9626b3206ba253f05a99ef33e3711bb16678d5fadd743d0182546fc3d58c4698",
+      "durationMs": 1520
+    },
+    "color-fins": {
+      "file": "color-fins.m4a",
+      "text": "Both fins are red.",
+      "textHash": "1684b2a5045385da4293155d63c9977655e71f8c312f93511319e9ffab846420",
+      "durationMs": 1440
+    },
+    "color-cabin": {
+      "file": "color-cabin.m4a",
+      "text": "Color the cabin yellow.",
+      "textHash": "83e9ed50c646d0e6b9154e7d2341d6a914e313c65c4e7e1a2687fcd0d5d1e3db",
+      "durationMs": 1840
+    },
+    "color-windows": {
+      "file": "color-windows.m4a",
+      "text": "The windows are gray.",
+      "textHash": "e66c9829916e0ef1b9880e2851e6cb706141c0fca7c9a4970f72a6b98bfc93bd",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Long, round and slow. Yours is off over the rooftops now.",
+      "textHash": "4b8740a1f1c3c8ed07873c1bdbbb84deabe9681c3ed8229862d8cf95f16f80b9",
+      "durationMs": 4320
+    }
+  }
+}

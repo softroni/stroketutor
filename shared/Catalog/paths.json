@@ -144,7 +144,12 @@
       "title": "In the Air",
       "description": "Things that fly, from a paper airplane to a busy sky that uses size for depth.",
       "level": "core",
-      "lessonIds": ["paper-airplane", "hot-air-balloon", "parachute-crate"]
+      "lessonIds": [
+        "paper-airplane",
+        "hot-air-balloon",
+        "parachute-crate",
+        "blimp"
+      ]
     }
   ]
 }
