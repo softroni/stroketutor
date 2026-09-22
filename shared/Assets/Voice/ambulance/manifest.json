@@ -1,0 +1,100 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "ambulance",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:34:47.523Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Make way, an ambulance is coming through. It's a van with a cross on its side and a light on the roof. Watch it get ready, then send out your own.",
+      "textHash": "c5abc54f0302da30bd0fa31377f794c5d9578e2bc26bccddde31c8596af40efc",
+      "durationMs": 9440
+    },
+    "back-and-roof": {
+      "file": "back-and-roof.m4a",
+      "text": "The van starts as a tall box. From the bottom left, go up and along the flat roof.",
+      "textHash": "b86a2a64c99a3ef07e60f083efe9808deb4374ff607d6de15af564e2ad80c220",
+      "durationMs": 5760
+    },
+    "front": {
+      "file": "front.m4a",
+      "text": "Now the front. Step down, slide down the windshield, then round the short hood to the bottom.",
+      "textHash": "1bcaf7e1ff43fc17492b10590a5fae1becebbf634577591db57d4429c5bf04bc",
+      "durationMs": 5920
+    },
+    "floor": {
+      "file": "floor.m4a",
+      "text": "Join the bottom up. Leave a round arch for each wheel.",
+      "textHash": "2a3357482da82abc31cf329b5ab8c415fa865df1acd7e9bd524e6c06969324d7",
+      "durationMs": 3600
+    },
+    "light": {
+      "file": "light.m4a",
+      "text": "The light on the roof is half a circle, like a rising sun.",
+      "textHash": "cd7ec407103dc37b7ef005eebe96337f56026bf79438c9555843875fcbc9d59d",
+      "durationMs": 3840
+    },
+    "windows": {
+      "file": "windows.m4a",
+      "text": "Draw a square window at the back. The driver's window slants like the windshield.",
+      "textHash": "235b729f4807540eb86c9ba15195d6175e7135896a812601efb5761cce796c16",
+      "durationMs": 5280
+    },
+    "cross": {
+      "file": "cross.m4a",
+      "text": "The cross is a plus sign drawn as an outline. Twelve short straight lines, all around.",
+      "textHash": "be747a83f433b50d1ab1e350fafde50e431538d32004d27b0d6dddddba9dd537",
+      "durationMs": 5920
+    },
+    "stripe": {
+      "file": "stripe.m4a",
+      "text": "Draw a stripe along the side, under the cross, from end to end.",
+      "textHash": "0278e8d1a31d337ad225933eea2e830fe5835117728886313935c5d263d550a7",
+      "durationMs": 4880
+    },
+    "tires": {
+      "file": "tires.m4a",
+      "text": "Wheels next. Put a circle in each arch, with a little space around it.",
+      "textHash": "0af9daa563aafeb4e4103cc03d6900e4ab2ecdd78b88d5a39c24fbc3fe995301",
+      "durationMs": 4640
+    },
+    "hubs": {
+      "file": "hubs.m4a",
+      "text": "A small circle in the center of each wheel makes the hub.",
+      "textHash": "06d599815248fa5fe29273dbef41de3bb76484643ac7619858221e37ad5421cc",
+      "durationMs": 3520
+    },
+    "color-van": {
+      "file": "color-van.m4a",
+      "text": "Color the van cream, and the hubs too.",
+      "textHash": "dcc0f267a546f28a5b7c447143d3e6266eadf2ed1ba2b27b984fcd1c11fb9f09",
+      "durationMs": 3040
+    },
+    "color-red": {
+      "file": "color-red.m4a",
+      "text": "The cross and the light are red.",
+      "textHash": "e51d89ee36ca4b12920a1884c18b77e58345fc04bea30cc93ca4d7b40c9f3a29",
+      "durationMs": 2400
+    },
+    "color-windows": {
+      "file": "color-windows.m4a",
+      "text": "Color the windows blue.",
+      "textHash": "aa5375404a0257ef12dee08322ae050c3b1bc6edb3655c0f2f74ed58b7e892a9",
+      "durationMs": 1600
+    },
+    "color-tires": {
+      "file": "color-tires.m4a",
+      "text": "Color the tires gray.",
+      "textHash": "cba3da4f96b6f19f687912df10607dcd5c9130ce3c225ab65e954d1b10f27b3e",
+      "durationMs": 1840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Light on top, cross on the side, and help is on its way. You've drawn everything that rolls, and the Wheels path is complete.",
+      "textHash": "499574d52bafff5b7a094209536b9952c5c4e0db8c36307e3f0eb98cb3847aa4",
+      "durationMs": 7760
+    }
+  }
+}
