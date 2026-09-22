@@ -822,6 +822,16 @@
       }
     },
     {
+      "id": "satellite",
+      "status": "approved",
+      "objective": "Box body with two solar panel wings and a dish",
+      "reference": {
+        "file": "satellite.svg",
+        "source": "Generated picture, OpenAI image model, style-v2, 2026-09-21",
+        "license": "CC0"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

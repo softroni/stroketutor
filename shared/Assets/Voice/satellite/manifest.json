@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "satellite",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:34:41.530Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A satellite is a can with two wings of solar panels and a dish that listens. Build it from the body out, then send one up.",
+      "textHash": "4be030fddb5584b71a501575db6788d601cc0bee9055a6ee5013369c9a8db593",
+      "durationMs": 7760
+    },
+    "body": {
+      "file": "body.m4a",
+      "text": "The body is a can standing on its end, leaning to the left. Draw its right side.",
+      "textHash": "6dc614c7fb326fc9e7f55433ec233afb27b62ccfeddc09704f7e6df516086443",
+      "durationMs": 5920
+    },
+    "body-2": {
+      "file": "body-2.m4a",
+      "text": "Come back to the top and take the left side down to meet it.",
+      "textHash": "fc01a52b21e34c44e20bf0abff7372cfceb71f90028fca5f91d45eed355c4aaa",
+      "durationMs": 3600
+    },
+    "caps": {
+      "file": "caps.m4a",
+      "text": "A dome caps each end. Draw the line across the top, then the curve around the bottom.",
+      "textHash": "6d72f70715459e7510f0854d825e2f512b24b688af7ee9a55899cb35b54a1717",
+      "durationMs": 6000
+    },
+    "port": {
+      "file": "port.m4a",
+      "text": "One round port sits on the front of the can.",
+      "textHash": "80fa8876ecc9c5b0a54afb2ede080cc2080ce9e6ebc72101f8043ce541e699fa",
+      "durationMs": 2480
+    },
+    "panel-left": {
+      "file": "panel-left.m4a",
+      "text": "Now the left wing. A short arm holds a long panel, split into six panes.",
+      "textHash": "8ebbb14d2e6ea3ae88dfcd1735d20a68f7a7b63fbb18417c88b2a371b5b74e56",
+      "durationMs": 5680
+    },
+    "panel-right": {
+      "file": "panel-right.m4a",
+      "text": "The right wing matches it: arm, panel, then the lines that make six panes.",
+      "textHash": "5c2efb5b3da983739fd92d5c68016f7a1f3cfc1bd93a31d61cea58f89f2f24ee",
+      "durationMs": 5120
+    },
+    "dish": {
+      "file": "dish.m4a",
+      "text": "A short arm lifts the dish above the body. The dish is a shallow bowl, tipped up to the right.",
+      "textHash": "714cdcc99ded4331bd3b6fffbe45ae2b5f6efe6ef727308c442c4dd3e2b729a5",
+      "durationMs": 5600
+    },
+    "feed": {
+      "file": "feed.m4a",
+      "text": "A thin arm reaches out of the dish to a little ball.",
+      "textHash": "aa45247c67ab69b21cc5dd185fab19705b46b212519f3afad53bb42dc55e7241",
+      "durationMs": 3040
+    },
+    "body-color": {
+      "file": "body-color.m4a",
+      "text": "Color the body and the little ball yellow.",
+      "textHash": "55ad77b08bbce8687c2a7fe5999b6bece10b768eb784aa285bf7b90ed93f704b",
+      "durationMs": 3040
+    },
+    "panels": {
+      "file": "panels.m4a",
+      "text": "Color both panels blue, and the round port too.",
+      "textHash": "f40fefe9c868edcd1af1889621335dd435ae049406f61d32e86ff0b88e2d14ad",
+      "durationMs": 3840
+    },
+    "gray-parts": {
+      "file": "gray-parts.m4a",
+      "text": "The domes and the dish are gray. The arms are a darker gray.",
+      "textHash": "5b5c568ca932bc361e22f021db0899acdfc4415c873ecb9597d058772c465ec4",
+      "durationMs": 4560
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your satellite is out there listening. Which way is its dish pointing?",
+      "textHash": "36731b6d2f1b15b2f2e06f8c608598e9f5990e0089adcdcdc33cd13d76adef8b",
+      "durationMs": 4480
+    }
+  }
+}
