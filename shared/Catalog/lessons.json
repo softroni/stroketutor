@@ -842,6 +842,16 @@
       }
     },
     {
+      "id": "space-shuttle",
+      "status": "approved",
+      "objective": "Shuttle with wings and booster rockets",
+      "reference": {
+        "file": "space-shuttle.svg",
+        "source": "Generated picture, OpenAI image model, style-v2, 2026-09-21",
+        "license": "CC0"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

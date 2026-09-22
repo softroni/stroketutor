@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "space-shuttle",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:35:16.775Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A space shuttle goes up on boosters and glides home on its wings. Watch it stack up, then light the engines.",
+      "textHash": "68b25d3d84fe752f955e15570653bd7960e5b6a5645f3d9dbe60dbf286b2ad14",
+      "durationMs": 6880
+    },
+    "body": {
+      "file": "body.m4a",
+      "text": "The shuttle's body is a tall bullet. Draw the left side down from the nose.",
+      "textHash": "7f7352856760cc7879f454c6d15290c55f5aa8d62b89da42640b36ef0d476298",
+      "durationMs": 4880
+    },
+    "body-2": {
+      "file": "body-2.m4a",
+      "text": "Bring the right side down to match, and close it along the bottom.",
+      "textHash": "79c663d9bf528cd301480ef079b07a1a20c59b25c50246e49abf98f106e0ba54",
+      "durationMs": 3920
+    },
+    "nose-line": {
+      "file": "nose-line.m4a",
+      "text": "One curved line across the top marks off the nose.",
+      "textHash": "87a34aab82672c30b7dac925455720e13c99d7db83186ed7d0247fb0f499f8c6",
+      "durationMs": 3920
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "Under it, the window is a small rounded shape lying flat.",
+      "textHash": "4c6468ecea53964e11e712a2f3cd26aed2dd1b0c492f4d8d202eaa3042fcd2a8",
+      "durationMs": 4160
+    },
+    "wings": {
+      "file": "wings.m4a",
+      "text": "A wing sweeps out and down from each side. Then it curves back up to the body.",
+      "textHash": "0274b5f82ac5bb82d144baa4efe3121b9c440e0389d4bc2a3c0a7d17f4450bd7",
+      "durationMs": 5360
+    },
+    "boosters": {
+      "file": "boosters.m4a",
+      "text": "A booster stands on each wing: a tall tube with a pointed top. One line across each, near the top.",
+      "textHash": "912f2d451f550ae63cc857bd52826936d4afc8571ad8ee996d275826dcf0a39b",
+      "durationMs": 6640
+    },
+    "nozzles": {
+      "file": "nozzles.m4a",
+      "text": "Three nozzles sit under the shuttle, one in the middle and one each side. Each nozzle gets a line across it.",
+      "textHash": "e92141e189bf22aaae0acd9af896900265211f7374081fa940cca841fe44c0a1",
+      "durationMs": 6960
+    },
+    "flames": {
+      "file": "flames.m4a",
+      "text": "A flame comes out of every nozzle, three pointed teardrops.",
+      "textHash": "119eb05d8a4046038204b0324ab834e4aca1568e627e18daebbc880009bf5a31",
+      "durationMs": 4240
+    },
+    "body-color": {
+      "file": "body-color.m4a",
+      "text": "Color the body cream.",
+      "textHash": "956aba2ea176b5f0c01ea32820780aa5a4845b9126e4dc5afa298c251ab2052c",
+      "durationMs": 1680
+    },
+    "orange-parts": {
+      "file": "orange-parts.m4a",
+      "text": "Color both boosters orange, and all three flames.",
+      "textHash": "1f80f39a2948759b054cf7ddc0326ad4d65b75063423377e73042c750eff0faa",
+      "durationMs": 3680
+    },
+    "dark-parts": {
+      "file": "dark-parts.m4a",
+      "text": "The wings are gray, and the nose and nozzles darker gray.",
+      "textHash": "8bcf11d92e5fd675fd999112b03189f8ac92f56550dd6202453adf8cc25e4b33",
+      "durationMs": 3760
+    },
+    "window-color": {
+      "file": "window-color.m4a",
+      "text": "Color the window blue, and the middle of each flame yellow.",
+      "textHash": "a41c07bbe7594fbd52382b9017782f7763b894e92ec73dcf52a74a1a8ecf19f9",
+      "durationMs": 3760
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "That's a shuttle ready to fly. It's the wings that bring it back down.",
+      "textHash": "a77ba4026800a1309d8c89f815429bcda30cc49215073ded7f310a374c1cb4ea",
+      "durationMs": 4560
+    }
+  }
+}
