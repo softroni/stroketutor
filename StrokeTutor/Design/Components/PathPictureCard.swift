@@ -15,7 +15,9 @@ struct PathPictureCard: View {
         Button(action: action) {
             VStack(spacing: 10) {
                 PaperTile {
-                    DrawingThumbnail(tutorial: path.lessons.first?.tutorial)
+                    DrawingThumbnail(tutorial: path.lessons.first?.tutorial,
+                                     strokeColor: nil,
+                                     showsFills: true)
                         .frame(maxWidth: 110)
                         .frame(height: 110)
                         .padding(8)

@@ -44,7 +44,8 @@ struct OnboardingLevelBeat: View {
     /// thing the learner would draw in it.
     private func thumbnail(for level: OnboardingPathChoices.Level) -> some View {
         PaperTile {
-            DrawingThumbnail(tutorial: level.paths.first?.lessons.first?.tutorial, size: 58)
+            DrawingThumbnail(tutorial: level.paths.first?.lessons.first?.tutorial, size: 58,
+                             strokeColor: nil, showsFills: true)
                 .frame(width: 68, height: 68)
         }
     }
