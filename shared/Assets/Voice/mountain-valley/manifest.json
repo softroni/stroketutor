@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "mountain-valley",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:46:26.624Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Today we’re drawing a mountain valley. Watch how it comes together, then it’s your turn.",
+      "textHash": "ee7bc4c5b7d48298d05ea6b3f94ff103692800151cabafe225cbed19890eafa0",
+      "durationMs": 5280
+    },
+    "lines": {
+      "file": "lines.m4a",
+      "text": "Two level lines: one along the bottom, one where the grass ends.",
+      "textHash": "d5c0b541fc90271e0c479349cac0bf449d0466d9c428575935dd882e2f71eef7",
+      "durationMs": 4560
+    },
+    "peaks": {
+      "file": "peaks.m4a",
+      "text": "Two mountains sit on the far line, two straight slopes each.",
+      "textHash": "ae85ace53b90fa4386316626a7e2fa2ad71e699142ea38382ddd43c91e7385fd",
+      "durationMs": 4320
+    },
+    "river": {
+      "file": "river.m4a",
+      "text": "The river runs from the bottom up to where the mountains meet. Both banks.",
+      "textHash": "a5acdf430f2f6789ec769fe89cd8fd19f5c93eaa74079db536d91b0ca70db6b2",
+      "durationMs": 4960
+    },
+    "cabin": {
+      "file": "cabin.m4a",
+      "text": "A small cabin on the right: square wall, pointed roof, one door.",
+      "textHash": "5af0fb35c610c894d4b69434011c56b29160af49fd4de34ad6c91d5ac07e7908",
+      "durationMs": 4880
+    },
+    "pine": {
+      "file": "pine.m4a",
+      "text": "The big tree in front is a zigzag.",
+      "textHash": "71732e7d552347b7ae29af9cfbc3f024e34e0a80592bebc575edfdb354f01e18",
+      "durationMs": 3040
+    },
+    "trunk": {
+      "file": "trunk.m4a",
+      "text": "A short trunk under it, standing on the grass.",
+      "textHash": "0cfb66dec90ac360a00a3744902cda2426fde23adebd010a33145c10ce3723ce",
+      "durationMs": 3280
+    },
+    "grass": {
+      "file": "grass.m4a",
+      "text": "Color the grass pale green.",
+      "textHash": "aae7d298696ee9f696d8b0e4414c20f7e584372354a197dca3a22ad94fb08fa5",
+      "durationMs": 2080
+    },
+    "mountains": {
+      "file": "mountains.m4a",
+      "text": "The mountains are gray.",
+      "textHash": "2bb82e3c7645a027232236e0672f2931d4fb62f83489ea082bac447621044595",
+      "durationMs": 1760
+    },
+    "water": {
+      "file": "water.m4a",
+      "text": "The river is blue.",
+      "textHash": "e6ef8edd97858f6566e66d26f1a96fed1fcc88e670a21a8dfee1431232e460eb",
+      "durationMs": 1520
+    },
+    "tree": {
+      "file": "tree.m4a",
+      "text": "The tree is dark green.",
+      "textHash": "b3964b762b4954552c53a85547a85207f44064a70636937420819bca86400485",
+      "durationMs": 1680
+    },
+    "cabin-trunk": {
+      "file": "cabin-trunk.m4a",
+      "text": "The trunk and the cabin wall are brown. The roof is red, the door cream.",
+      "textHash": "a2d19dd24446e6ab1e0cb63d021e83e51672656378fca397238d72f4ce13ee34",
+      "durationMs": 4880
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Nice work sticking with it to the end. Show someone your mountain valley. I bet they’ll smile.",
+      "textHash": "38d2acaf170d70cceedcd83321318f7d67a13dc81acc583433af158c0edc1489",
+      "durationMs": 6240
+    }
+  }
+}
