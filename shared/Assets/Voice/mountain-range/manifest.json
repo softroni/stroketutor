@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "mountain-range",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:36:55.827Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Mountains lose their color in the distance. These peaks are blue, the snow is gray and the hills in front are the darkest green on the page. Watch the layers pile up, then send your own peaks back.",
+      "textHash": "eab295a2bae2405f9b64f2392060a3023c2c56861e293396bcbe9bb29b657a36",
+      "durationMs": 12160
+    },
+    "ground": {
+      "file": "ground.m4a",
+      "text": "Everything stands on one level line. Draw it near the bottom.",
+      "textHash": "8b43543c1791161bc1115c68e5d4846c03fe90f1f4dd5ed7c2a568676b10fa77",
+      "durationMs": 3840
+    },
+    "peaks": {
+      "file": "peaks.m4a",
+      "text": "Three peaks in a row. Up and down for the left one, then the middle, then the right.",
+      "textHash": "89bf399d8356d5176e78bf345a6a85d6d9d5c321041eed2a922b42027bc3f818",
+      "durationMs": 5680
+    },
+    "snow": {
+      "file": "snow.m4a",
+      "text": "Snow caps the outer two. Draw a wobbly line under each cap.",
+      "textHash": "2c92ddd76778cf924916681003b751f42657d83f448612b42f8797b8169ba1ab",
+      "durationMs": 4560
+    },
+    "front-hill": {
+      "file": "front-hill.m4a",
+      "text": "The front hill sweeps up from the left corner, over to the right.",
+      "textHash": "e7ead56d1e26dea6299238d9ab0c165b3a99dd71a6cbf11ad922b2b01cc7a112",
+      "durationMs": 3600
+    },
+    "back-hill": {
+      "file": "back-hill.m4a",
+      "text": "A low green hill rises on the right and runs into the mountain.",
+      "textHash": "c8dce85df2983c847dc0af119099a2500ddb42001269b5c6acd29a0e61fadf19",
+      "durationMs": 4080
+    },
+    "left-trees": {
+      "file": "left-trees.m4a",
+      "text": "Two pines on the left hill. Trunk and spiky top, then a small one with no trunk.",
+      "textHash": "eab7a62c672b70a91b4706dcc8b2d5f2f133d4fac949084832b4e5dd3c8ed011",
+      "durationMs": 6080
+    },
+    "right-trees": {
+      "file": "right-trees.m4a",
+      "text": "Two more on the right. Spiky top first, then a trunk under each.",
+      "textHash": "c34dfbccd377eafb47ee60738d9262d48b62580e9536fd29f17d561e8bca99e1",
+      "durationMs": 4480
+    },
+    "mountain-blue": {
+      "file": "mountain-blue.m4a",
+      "text": "Color the mountain blue.",
+      "textHash": "56f3e54c84a9f809de8ba91ebfba7e9c456bd8762183e0b0a10c57c106a71779",
+      "durationMs": 1600
+    },
+    "dark-green": {
+      "file": "dark-green.m4a",
+      "text": "The front hill and all four pines are dark green.",
+      "textHash": "3d6a615305ef83510e79053e09eaeccaef9e7b1c5c39ca15951b34b71d773ee3",
+      "durationMs": 3360
+    },
+    "back-green": {
+      "file": "back-green.m4a",
+      "text": "The hill behind is green.",
+      "textHash": "c25b13a6be9089bc57a2e1cda968f539c3a4f1881b138067476135c740bf812f",
+      "durationMs": 2160
+    },
+    "snow-gray": {
+      "file": "snow-gray.m4a",
+      "text": "The snow caps are gray.",
+      "textHash": "0003911d4813856722d2891038d7b47bfb9a677153fbcad2cbfd52effb70288e",
+      "durationMs": 2000
+    },
+    "trunks": {
+      "file": "trunks.m4a",
+      "text": "The trunks are brown.",
+      "textHash": "33f99484b424dd2e644d9471c9e7b3ff0bad5db8a47314269c5e9acbd9a5c086",
+      "durationMs": 1840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Hold your page at arm's length. The pale peaks really do sit at the back.",
+      "textHash": "7b22ed3d82c7b59cd893d23f53269e1f8162f969c33533bf9f87886c3ce08164",
+      "durationMs": 4960
+    }
+  }
+}
