@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "glider",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:49:32.701Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A glider carries no engine at all. Long, thin wings hold it up on air that is rising. Look down on it once, then let yours go.",
+      "textHash": "38f1c993c1a7261dec484d26a364bc7533952de0ec867ef3edf7b20dbc6c5e0f",
+      "durationMs": 8800
+    },
+    "body-left": {
+      "file": "body-left.m4a",
+      "text": "From above, the body is a long teardrop. Draw the nose and its left side.",
+      "textHash": "fe560efb8de131fabec157f5ffb80b6dc59511c5890641d8dfa3f0305c7099d4",
+      "durationMs": 5600
+    },
+    "body-right": {
+      "file": "body-right.m4a",
+      "text": "Back at the nose, take the right side down to the tail.",
+      "textHash": "fc9c1803f7db676f480565509a8b49a8491c42266caf5c164713bd9e8215ec7c",
+      "durationMs": 3760
+    },
+    "wing-left": {
+      "file": "wing-left.m4a",
+      "text": "A long, thin wing reaches straight out to the left. Both edges stay straight.",
+      "textHash": "4d51eb3e4b0a780f83f1e948a629cfb73156c55f70dfdd5f9df67d598754b8e4",
+      "durationMs": 4800
+    },
+    "wing-right": {
+      "file": "wing-right.m4a",
+      "text": "The right wing stretches out just as far.",
+      "textHash": "8f364dc2d95e3312ade2828b96fedda9c6ed90929935189538e1a2f59b132e2d",
+      "durationMs": 2560
+    },
+    "tail-wings": {
+      "file": "tail-wings.m4a",
+      "text": "Two short wings sit near the tail, one on each side.",
+      "textHash": "c3c33ed380f142005af0a489824b2f01acaeaa8eb3377efecb2acbbe55d5cdc5",
+      "durationMs": 4080
+    },
+    "canopy": {
+      "file": "canopy.m4a",
+      "text": "The canopy is a small oval, tucked in behind the nose.",
+      "textHash": "30e846f6ff8644c3786746ab3cb5b8cee0971c42d9e0380bfb6117337f79b4cb",
+      "durationMs": 4160
+    },
+    "color-body": {
+      "file": "color-body.m4a",
+      "text": "Color the body orange.",
+      "textHash": "cb12de354cadc7273e4cad21631adb6380ee7900e0cb7e03da9cd67e7bb9a283",
+      "durationMs": 1680
+    },
+    "color-wings": {
+      "file": "color-wings.m4a",
+      "text": "Color all four wings yellow.",
+      "textHash": "0d3605ab2fd6c38ad5657a6974fec16f765f1873397b78c3d1a670e8bbf89559",
+      "durationMs": 2240
+    },
+    "color-canopy": {
+      "file": "color-canopy.m4a",
+      "text": "Color the canopy blue.",
+      "textHash": "b2e5d763b748429b0c5709ee73fef1f589b246c4bc2fc4a5178ac95f584174db",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Two long wings and not a drop of fuel. A glider like that stays up for hours.",
+      "textHash": "2207aee6d2ceff0842055034075d91bfe62eb727377aca618449a03f8486de7b",
+      "durationMs": 5200
+    }
+  }
+}
