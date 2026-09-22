@@ -131,6 +131,21 @@ enum DebugScreenHarness {
             app.progress.markOpened(treeLesson.id, pathId: treePath.id, step: midStep(of: treeLesson))
             app.push(.lessonPreview(lessonId: treeLesson.id))
 
+        // A learner who knows the routine: three lessons drawn elsewhere, so "how a
+        // lesson works" is gone and the picture takes its room.
+        case "preview-returning":
+            let others = shipped.filter { $0.id != treePath.id }
+            for path in others.prefix(3) {
+                if let first = path.lessons.first {
+                    app.progress.markCompleted(first.id, pathId: path.id)
+                }
+            }
+            app.push(.lessonPreview(lessonId: treeLesson.id))
+
+        // The wide drawing, as a new learner sees it.
+        case "preview-wide":
+            app.push(.lessonPreview(lessonId: carLesson.id))
+
         case "player-orientation":
             app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 

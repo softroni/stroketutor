@@ -84,6 +84,12 @@ final class ProgressStore {
         path.lessons.filter { isCompleted($0.id) }.count
     }
 
+    /// How many lessons have been drawn to the end, across every path. `hp-preview`
+    /// shows "how a lesson works" only while this is small.
+    var completedCount: Int {
+        records.filter(\.isCompleted).count
+    }
+
     /// The step to resume from, if the learner left a lesson part-way.
     func resumeStep(for lessonId: String) -> Int? {
         progress(for: lessonId)?.lastStepIndex

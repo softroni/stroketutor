@@ -15,6 +15,19 @@ struct TimedStroke {
     var end: Double { start + duration }
 }
 
+/// One area of color in a picture that draws itself: it washes in from clear over
+/// `duration` seconds from `start`, under every line, as it does on the player's
+/// paper. Coordinates are in canvas units, like `TimedStroke`.
+struct TimedFill {
+    let path: Path
+    let color: Color
+    let style: FillStyle
+    let start: Double
+    let duration: Double
+
+    var end: Double { start + duration }
+}
+
 /// A drawing that appears stroke by stroke, in order, with a green pen tip riding
 /// the line being drawn. This is `.stroke.draws` plus `.ob-tip` from
 /// `docs/ios-design/src/v3/screens/10-onboarding.html`: the launch beat's drawing,
@@ -28,11 +41,19 @@ struct TimedStroke {
 ///
 /// Reduce Motion shows the finished picture at once, as every onboarding note asks:
 /// none of these is the player's essential stroke animation, they are illustrations.
+/// Outside onboarding, a caller passes the system setting in through
+/// `onboardingReducesMotion` (`hp-preview` does).
+///
+/// Onboarding draws in line only. `hp-preview` also gives it the lesson's colors
+/// (`coloredLesson`): its fills wash in under the lines as each step lands, and its
+/// finished frame is exactly `DrawingThumbnail(strokeColor: nil, showsFills: true)`.
 struct SelfDrawingView: View {
 
     let strokes: [TimedStroke]
     /// The rectangle of canvas units to fit into the view.
     let fit: CGRect
+    /// Color under the lines. Empty everywhere in onboarding.
+    var fills: [TimedFill] = []
     var tint: Color = Theme.ink
     var showsPenTip: Bool = true
     /// Changing this replays the drawing from the start.
@@ -43,11 +64,16 @@ struct SelfDrawingView: View {
     @State private var startDate = Date()
     @State private var hasFinished = false
 
-    private var total: Double { strokes.map(\.end).max() ?? 0 }
+    private var total: Double {
+        max(strokes.map(\.end).max() ?? 0, fills.map(\.end).max() ?? 0)
+    }
+
+    /// Seconds from appearing (or a replay) until the last line and color land.
+    var totalDuration: Double { total }
 
     var body: some View {
         Group {
-            if reducesMotion || hasFinished || strokes.isEmpty {
+            if reducesMotion || hasFinished || (strokes.isEmpty && fills.isEmpty) {
                 Canvas { context, size in
                     draw(&context, size: size, time: total + 1)
                 }
@@ -89,6 +115,15 @@ struct SelfDrawingView: View {
         // Nothing may vanish at tile size, and nothing may turn into a blob: the
         // same hairline floor `DrawingThumbnail` uses, expressed in canvas units.
         let floor = max(0.6, min(size.width, size.height) / 70) / scale
+
+        // Color under every line, whatever order the lesson painted them in.
+        for fill in fills {
+            let progress = fill.duration <= 0
+                ? (time >= fill.start ? 1 : 0)
+                : min(max((time - fill.start) / fill.duration, 0), 1)
+            guard progress > 0 else { continue }
+            context.fill(fill.path, with: .color(fill.color.opacity(progress)), style: fill.style)
+        }
 
         for stroke in strokes {
             let progress = stroke.duration <= 0
@@ -160,6 +195,53 @@ extension SelfDrawingView {
         return SelfDrawingView(strokes: strokes,
                                fit: fitBounds(of: steps, in: tutorial),
                                tint: tint,
+                               showsPenTip: showsPenTip,
+                               replayToken: replayToken)
+    }
+
+    /// A lesson drawing itself in its own colors, for `hp-preview`'s teaser: every
+    /// line in its own color over `duration` seconds (the lesson's rhythm compressed
+    /// into that window, as in `lesson(_:)`), and each step's fills washing in over
+    /// `fillFade` seconds as that step's last line lands — the order the player
+    /// paints them in. The whole thing ends `fillFade` after the last line at most,
+    /// so a sixty-stroke lesson is over as quickly as a five-stroke one.
+    static func coloredLesson(_ tutorial: PreparedTutorial,
+                              duration: Double,
+                              delay: Double = 0,
+                              fillFade: Double = 0.35,
+                              showsPenTip: Bool = true,
+                              replayToken: Int = 0) -> SelfDrawingView {
+        let natural = tutorial.steps
+            .flatMap(\.strokes)
+            .reduce(0.0) { $0 + max($1.duration, 0.01) }
+        let factor = natural > 0 ? duration / natural : 0
+
+        var strokes: [TimedStroke] = []
+        var fills: [TimedFill] = []
+        var cursor = delay
+        for step in tutorial.steps {
+            for stroke in step.strokes {
+                let length = max(stroke.duration, 0.01) * factor
+                strokes.append(TimedStroke(path: stroke.path,
+                                           lineWidth: CGFloat(stroke.lineWidth),
+                                           start: cursor,
+                                           duration: length,
+                                           color: stroke.color ?? tutorial.strokeColor))
+                cursor += length
+            }
+            for fill in step.fills {
+                fills.append(TimedFill(path: fill.path,
+                                       color: fill.color,
+                                       style: fill.style,
+                                       start: cursor,
+                                       duration: fillFade))
+            }
+        }
+
+        return SelfDrawingView(strokes: strokes,
+                               fit: tutorial.drawingBounds,
+                               fills: fills,
+                               tint: tutorial.strokeColor,
                                showsPenTip: showsPenTip,
                                replayToken: replayToken)
     }

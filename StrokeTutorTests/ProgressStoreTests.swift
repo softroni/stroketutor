@@ -66,6 +66,22 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertEqual(record.timesCompleted, 2)
     }
 
+    /// `hp-preview` shows "how a lesson works" until three lessons are drawn, so the
+    /// count spans every path, counts a lesson once however often it is redrawn, and
+    /// ignores a lesson that was only opened.
+    func testCompletedCountSpansPathsAndCountsEachLessonOnce() throws {
+        let trees = try Self.makePath(lessonCount: 2)
+        let store = ProgressStore(baseDirectory: directory)
+        XCTAssertEqual(store.completedCount, 0)
+
+        store.markCompleted(trees.lessons[0].id, pathId: trees.id)
+        store.markCompleted(trees.lessons[0].id, pathId: trees.id)
+        store.markCompleted("elsewhere", pathId: "another-path")
+        store.markOpened(trees.lessons[1].id, pathId: trees.id, step: 2)
+
+        XCTAssertEqual(store.completedCount, 2)
+    }
+
     // MARK: - Resume
 
     func testLeavingALessonStoresTheStepAndFinishingClearsIt() throws {
