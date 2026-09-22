@@ -138,6 +138,13 @@
         "longship",
         "harbour"
       ]
+    },
+    {
+      "id": "in-the-air",
+      "title": "In the Air",
+      "description": "Things that fly, from a paper airplane to a busy sky that uses size for depth.",
+      "level": "core",
+      "lessonIds": ["paper-airplane"]
     }
   ]
 }

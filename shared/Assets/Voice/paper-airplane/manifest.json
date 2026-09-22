@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "paper-airplane",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:45:44.766Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Fold a sheet of paper the right way and it flies. This one is three flat triangles meeting at a sharp nose. See how the folds line up, then throw one of your own.",
+      "textHash": "13e72c9d50b784498d241a1e1a1d8d63795c245d401e5dc57bee9c04db3cb173",
+      "durationMs": 10480
+    },
+    "top-edge": {
+      "file": "top-edge.m4a",
+      "text": "A paper plane is all straight lines. From the sharp nose, draw one long line down to the left.",
+      "textHash": "a8647d5d86a7214f1c97a5fbc4197bb322ba146ba31abca88f4a6b68c0505736",
+      "durationMs": 5760
+    },
+    "wing-back": {
+      "file": "wing-back.m4a",
+      "text": "That far corner is the wing tip. Drop a short line down from it.",
+      "textHash": "37ed7d9bdaf75919c5262aee9ed00d36d0bb2c93bdec3fdae3af3ab5aa771ebc",
+      "durationMs": 4480
+    },
+    "fold-top": {
+      "file": "fold-top.m4a",
+      "text": "Close the top wing with a straight line running back to the nose.",
+      "textHash": "6e208650dda1d7f4a31f2c2ca4917b067161d7faaf8eaf8782523719596e1195",
+      "durationMs": 3680
+    },
+    "middle-fold": {
+      "file": "middle-fold.m4a",
+      "text": "The next fold is slimmer. Send a line from the nose to just below the wing tip.",
+      "textHash": "e2d3fbaa1c2e0c33c134df5fca998457ead5ae715bdc716f7ba63ca7f9ff27d4",
+      "durationMs": 4880
+    },
+    "middle-back": {
+      "file": "middle-back.m4a",
+      "text": "Join those two lines with a short edge at the back.",
+      "textHash": "4467024d0e9849e2a62651916092666df585aa672e0328d09f3357a277134b38",
+      "durationMs": 3200
+    },
+    "bottom-fold": {
+      "file": "bottom-fold.m4a",
+      "text": "The last fold hangs lower. Take its long edge from the nose down to the left.",
+      "textHash": "8fb8a167b3f53f07b506e4a66f785d2a0136b73172009edba698db0997de349f",
+      "durationMs": 4640
+    },
+    "bottom-back": {
+      "file": "bottom-back.m4a",
+      "text": "From that low point, come back up to the fold above it.",
+      "textHash": "1d4f2cd86ef61fb1a39fb2268be65afce9a7b45f6e7dbad1590fec79de478088",
+      "durationMs": 3440
+    },
+    "color-top": {
+      "file": "color-top.m4a",
+      "text": "Color the top wing cream.",
+      "textHash": "4d527cf1d32c02ee50e5ceaa0a6380534140bce28cbaffa25d50bed2fd6b4ec6",
+      "durationMs": 1920
+    },
+    "color-middle": {
+      "file": "color-middle.m4a",
+      "text": "The middle fold is gray.",
+      "textHash": "2b9805c9d7e8c4663b920be7a3a70b51c33ae6d3b6a94ddbb3ee4f153a3b1da0",
+      "durationMs": 1920
+    },
+    "color-bottom": {
+      "file": "color-bottom.m4a",
+      "text": "Color the bottom fold blue.",
+      "textHash": "a515db7d8cbe89c11ea0fc8b92690d9a3074a242e55a962df8e40609b6696b74",
+      "durationMs": 2080
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Three triangles and one sharp nose. That plane looks ready to sail across a room.",
+      "textHash": "aea1b8f74ba54948da14c01aa900906f8845b3c7bf9da45487448752e0c38e19",
+      "durationMs": 6000
+    }
+  }
+}

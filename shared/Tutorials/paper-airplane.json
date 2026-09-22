@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 2,
+  "id": "paper-airplane",
+  "title": "Paper Airplane",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "top-edge",
+      "title": "Draw the top edge",
+      "instruction": "A paper plane is all straight lines. From the sharp nose, draw one long line down to the left.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 943 259 C 913.8 260.6 888.159 260.925 870 263 C 800 271 600 296 467 313 C 333 329 139 354 72 363 C 68 363 63 363 62 366 C 61.8704 366.13 61.7618 366.268 61.6723 366.413",
+          "duration": 4,
+          "lineWidth": 11
+        }
+      ]
+    },
+    {
+      "id": "wing-back",
+      "title": "Draw the wing back",
+      "instruction": "That far corner is the wing tip. Drop a short line down from it.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 61.6723 366.4132 C 60.3804 368.5142 63.0648 372.1944 64 375 C 65 378 66 380 68 382 C 81 397 122 441 142 464 C 161 486 178 501 187 519",
+          "duration": 0.9,
+          "lineWidth": 11
+        }
+      ]
+    },
+    {
+      "id": "fold-top",
+      "title": "Draw the top fold",
+      "instruction": "Close the top wing with a straight line running back to the nose.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 189 517 C 253 495 463 428 574 390 C 684 352 801 306 852 288 C 865 284 878 284 885 282 C 889 281 892 280 894 278 C 903.29 268.71 923.4 266.6 943 259",
+          "duration": 3.8,
+          "lineWidth": 11
+        }
+      ]
+    },
+    {
+      "id": "middle-fold",
+      "title": "Draw the middle fold",
+      "instruction": "The next fold is slimmer. Send a line from the nose to just below the wing tip.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 943 259 C 914.6 273.4 888.559 283.961 872 295 C 869 297 867 299 863 302 C 813 329 634 426 574 458 C 546 473 532 481 503 495 C 456 517 331 576 292 596 C 282 601 277 605 269 612 C 259 623 235 649 227 658 C 225 660 224 661 221 662 C 219 663 215 664 213 665",
+          "duration": 3.5,
+          "lineWidth": 11
+        }
+      ]
+    },
+    {
+      "id": "middle-back",
+      "title": "Close the middle fold",
+      "instruction": "Join those two lines with a short edge at the back.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 213 665 C 208 634 204 597 200 573 C 196 551 197 537 187 519",
+          "duration": 0.7,
+          "lineWidth": 11
+        }
+      ]
+    },
+    {
+      "id": "bottom-fold",
+      "title": "Draw the bottom fold",
+      "instruction": "The last fold hangs lower. Take its long edge from the nose down to the left.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 943 259 C 919.4 284.2 899.09 306.575 884 322 C 839 368 703 506 641 568 C 589 620 539 666 508 695 C 487 715 467 735 455 745 C 450 750 447 756 442 756",
+          "duration": 3.03,
+          "lineWidth": 12
+        }
+      ]
+    },
+    {
+      "id": "bottom-back",
+      "title": "Close the bottom fold",
+      "instruction": "From that low point, come back up to the fold above it.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 442 756 C 436 755 431 749 425 743 C 398 718 306 628 283 605",
+          "duration": 0.97,
+          "lineWidth": 12
+        }
+      ]
+    },
+    {
+      "id": "color-top",
+      "title": "Color the top wing",
+      "instruction": "Color the top wing cream.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 888 254 C 893 259 904 265 904 270 C 904 275 894 279 890 282 C 886 285 883 287 879 287 C 875 287 870 284 865 284 C 860 284 856 287 850 289 C 836 294 795 311 781 316 C 776 318 773 317 768 319 C 731 332 640 367 560 395 C 480 423 345 467 286 486 C 254 496 221 505 206 510 C 201 511 197 513 194 514 C 191 515 190 518 188 519 C 186 520 183 520 181 519 C 179 518 177 516 175 513 C 172 509 169 502 164 495 C 158 487 151 478 141 467 C 123 447 82 404 53 373 C 53 372 52 371 53 370 C 55 367 62 361 67 357 C 93 354 113 353 144 349 C 209 341 333 323 457 307 C 581 291 744 272 888 254 Z",
+          "color": "#F6E7B8",
+          "duration": 2.5,
+          "fillRule": "evenodd"
+        }
+      ]
+    },
+    {
+      "id": "color-middle",
+      "title": "Color the middle fold",
+      "instruction": "The middle fold is gray.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 865 284 C 870 282 875 285 877 286 C 879 287 878 290 877 292 C 876 294 873 297 869 299 C 845 313 766 353 730 373 C 699 390 684 400 653 417 C 614 438 557 469 496 499 C 436 529 326 579 290 596 C 285 598 282 602 280 604 C 279 606 281 608 280 610 C 279 612 275 613 272 616 C 262 626 230 663 221 672 C 220 673 218 674 217 673 C 214 671 209 665 205 661 C 204 644 204 625 203 610 C 202 595 200 581 198 570 C 196 560 195 554 192 546 C 189 538 182 526 180 521 C 180 520 180 519 181 519 C 182 519 186 520 188 519 C 190 518 191 515 194 514 C 210 509 249 498 286 486 C 347 466 464 429 560 395 C 657 361 812 302 865 284 Z",
+          "color": "#C9CED6",
+          "duration": 2.1,
+          "fillRule": "evenodd"
+        }
+      ]
+    },
+    {
+      "id": "color-bottom",
+      "title": "Color the bottom fold",
+      "instruction": "Color the bottom fold blue.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 909 268 C 913 270 923 280 926 283 C 927 284 926 286 925 287 C 923 290 919 294 914 299 C 863 350 686 529 621 594 C 583 632 551 662 524 687 C 499 710 474 731 461 744 C 454 751 448 760 444 763 C 442 764 441 765 439 764 C 435 762 428 755 421 748 C 395 722 327 656 280 610 C 280 608 279 606 280 604 C 282 602 285 598 290 596 C 326 579 436 529 496 499 C 557 469 614 438 653 417 C 684 400 699 390 730 373 C 766 353 845 313 869 299 C 873 297 876 294 877 292 C 878 290 875 288 877 287 C 879 285 886 285 890 282 C 894 280 898 274 901 272 C 904 270 906 267 909 268 Z",
+          "color": "#5B8FC7",
+          "duration": 2.5,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}
