@@ -13,7 +13,7 @@
     {
       "id": "advanced",
       "title": "Advanced",
-      "description": "Perspective, texture and style."
+      "description": "Light, depth, perspective, texture and style. Light & Shadow comes first: everything after it builds on it."
     }
   ],
   "paths": [
@@ -192,6 +192,122 @@
       ]
     },
     {
+      "id": "seasons-holidays",
+      "title": "Seasons & Holidays",
+      "level": "starter",
+      "description": "Hearts, leaves and lanterns for every time of year: flat shapes with stripes, ribs and rays, ending with a party table.",
+      "lessons": [
+        {
+          "id": "heart",
+          "title": "Heart",
+          "objective": "Two round bumps meeting in a point at the bottom"
+        },
+        {
+          "id": "autumn-leaf",
+          "title": "Autumn Leaf",
+          "objective": "Five-pointed leaf with a stem and three veins"
+        },
+        {
+          "id": "pumpkin",
+          "title": "Pumpkin",
+          "objective": "Four rounded ribs side by side with a short curved stem"
+        },
+        {
+          "id": "umbrella",
+          "title": "Umbrella",
+          "objective": "Scalloped canopy with six ribs and a hooked handle"
+        },
+        {
+          "id": "mitten",
+          "title": "Mitten",
+          "objective": "Rounded hand shape with a thumb and a striped cuff"
+        },
+        {
+          "id": "candy-cane",
+          "title": "Candy Cane",
+          "objective": "Hooked stick with six slanted red stripes"
+        },
+        {
+          "id": "ornament",
+          "title": "Ornament",
+          "objective": "Ball with a small cap and loop and a zigzag band around its middle"
+        },
+        {
+          "id": "paper-lantern",
+          "title": "Paper Lantern",
+          "objective": "Round lantern with five curved ribs and a tassel underneath"
+        },
+        {
+          "id": "fireworks",
+          "title": "Fireworks",
+          "objective": "Three bursts of straight rays and dots, the biggest in front"
+        },
+        {
+          "id": "party-table",
+          "title": "Party Table",
+          "objective": "Cake, three balloons and a bunting of five flags in one scene"
+        }
+      ]
+    },
+    {
+      "id": "toys-play",
+      "title": "Toys & Play",
+      "level": "starter",
+      "description": "Balloons, kites and blocks: flat shapes with strings, stripes and dots, ending with a full toy shelf.",
+      "lessons": [
+        {
+          "id": "balloon",
+          "title": "Balloon",
+          "objective": "Oval with a small knot and a wavy string"
+        },
+        {
+          "id": "kite",
+          "title": "Kite",
+          "objective": "Diamond with a cross inside and a tail with three bows"
+        },
+        {
+          "id": "building-blocks",
+          "title": "Building Blocks",
+          "objective": "Square, rectangle and triangle blocks stacked in a tower"
+        },
+        {
+          "id": "yo-yo",
+          "title": "Yo-Yo",
+          "objective": "Circle with an inner ring and a string ending in a finger loop"
+        },
+        {
+          "id": "dominoes",
+          "title": "Dominoes",
+          "objective": "Three tiles, each split by a line, with up to six dots a half"
+        },
+        {
+          "id": "spinning-top",
+          "title": "Spinning Top",
+          "objective": "Rounded body with three stripes, a pointed tip and a short handle"
+        },
+        {
+          "id": "pinwheel",
+          "title": "Pinwheel",
+          "objective": "Four folded blades around a center pin on a stick"
+        },
+        {
+          "id": "puzzle-piece",
+          "title": "Puzzle Piece",
+          "objective": "Square with two round knobs and two matching notches"
+        },
+        {
+          "id": "toy-drum",
+          "title": "Toy Drum",
+          "objective": "Drum with zigzag lacing between two rims and two crossed sticks"
+        },
+        {
+          "id": "toy-shelf",
+          "title": "Toy Shelf",
+          "objective": "Shelf with blocks, a top, a drum and a kite leaning beside it in one scene"
+        }
+      ]
+    },
+    {
       "id": "forms",
       "title": "Forms",
       "level": "core",
@@ -314,7 +430,7 @@
       "id": "wheels",
       "title": "Wheels",
       "level": "core",
-      "description": "Everything that rolls, from a box-shaped bus to a car drawn in three-quarter view.",
+      "description": "Everything that rolls, from a box-shaped bus to an ambulance with its cross and roof light.",
       "lessons": [
         {
           "id": "school-bus",
@@ -365,9 +481,9 @@
           "objective": "Two wheels, tank, seat, forks and an exhaust"
         },
         {
-          "id": "car-three-quarter-view",
-          "title": "Car in ¾ View",
-          "objective": "Boxy car built from a cube, showing the front and side"
+          "id": "ambulance",
+          "title": "Ambulance",
+          "objective": "Van with a cross, a stripe, a roof light and two wheels"
         }
       ]
     },
@@ -443,7 +559,7 @@
         {
           "id": "hot-air-balloon",
           "title": "Hot Air Balloon",
-          "objective": "Striped balloon with a basket and ropes"
+          "objective": "Striped balloon with three stripes and a basket"
         },
         {
           "id": "parachute-crate",
@@ -478,12 +594,12 @@
         {
           "id": "jet",
           "title": "Jet",
-          "objective": "Pointed body with swept wings and a vapour trail"
+          "objective": "Pointed body with swept wings and a vapor trail"
         },
         {
-          "id": "busy-sky",
-          "title": "Busy Sky",
-          "objective": "Balloon, airplane and drone at different sizes for depth"
+          "id": "balloon-over-the-hill",
+          "title": "Balloon Over the Hill",
+          "objective": "Sun, cloud, balloon and pine tree in one scene"
         }
       ]
     },
@@ -600,6 +716,354 @@
           "id": "city-street",
           "title": "City Street",
           "objective": "One-point perspective road with buildings on both sides"
+        }
+      ]
+    },
+    {
+      "id": "sports",
+      "title": "Sports",
+      "level": "core",
+      "description": "Balls, bats and rackets built from the Forms shapes, with seams, grids and stripes, ending with a packed sports bag. Generic shapes, no logos.",
+      "lessons": [
+        {
+          "id": "soccer-ball",
+          "title": "Soccer Ball",
+          "objective": "Ball with a center pentagon and five around it, with a curved shadow"
+        },
+        {
+          "id": "basketball",
+          "title": "Basketball",
+          "objective": "Ball with two curved seam lines crossing a straight one"
+        },
+        {
+          "id": "bat-and-ball",
+          "title": "Bat & Ball",
+          "objective": "Tapered bat with a knob beside a ball with two curved rows of stitches"
+        },
+        {
+          "id": "tennis-racket",
+          "title": "Tennis Racket",
+          "objective": "Oval head with a crosshatched string grid and a wrapped grip"
+        },
+        {
+          "id": "bowling-pin",
+          "title": "Bowling Pin",
+          "objective": "Pin with a narrow neck and two red rings, a ball beside it"
+        },
+        {
+          "id": "hockey-stick",
+          "title": "Hockey Stick & Puck",
+          "objective": "Long shaft with an angled blade and a puck drawn as a flat cylinder"
+        },
+        {
+          "id": "roller-skate",
+          "title": "Roller Skate",
+          "objective": "Laced boot on a plate with four wheels and a toe stop"
+        },
+        {
+          "id": "helmet",
+          "title": "Helmet",
+          "objective": "Rounded bike helmet with three vent slots and a chin strap"
+        },
+        {
+          "id": "trophy",
+          "title": "Trophy",
+          "objective": "Cup with two curved handles on a stem and a two-tier base"
+        },
+        {
+          "id": "sports-bag",
+          "title": "Sports Bag",
+          "objective": "Open bag with a ball, a racket and a water bottle in one scene"
+        }
+      ]
+    },
+    {
+      "id": "at-the-beach",
+      "title": "At the Beach",
+      "level": "core",
+      "description": "Beach things built from the Forms shapes: a paneled ball, a tapered bucket, a folding chair, ending with a whole beach day.",
+      "lessons": [
+        {
+          "id": "beach-ball",
+          "title": "Beach Ball",
+          "objective": "Ball with six curved panels meeting at a button on top"
+        },
+        {
+          "id": "sand-bucket",
+          "title": "Sand Bucket",
+          "objective": "Tapered bucket with a curved handle and a spade beside it"
+        },
+        {
+          "id": "flip-flops",
+          "title": "Flip-Flops",
+          "objective": "Two overlapping soles, each with a Y-shaped strap"
+        },
+        {
+          "id": "surfboard",
+          "title": "Surfboard",
+          "objective": "Pointed board standing in the sand with a center stripe and a fin"
+        },
+        {
+          "id": "beach-umbrella",
+          "title": "Beach Umbrella",
+          "objective": "Tilted canopy with eight striped panels on a pole and an oval shadow"
+        },
+        {
+          "id": "cooler",
+          "title": "Cooler",
+          "objective": "Box in three-quarter view with a lid, a swing handle and a latch"
+        },
+        {
+          "id": "deck-chair",
+          "title": "Deck Chair",
+          "objective": "Folding frame with crossed legs and a striped sling seat"
+        },
+        {
+          "id": "sandcastle",
+          "title": "Sandcastle",
+          "objective": "Three towers with notched tops, an arched door and one flag"
+        },
+        {
+          "id": "lifeguard-tower",
+          "title": "Lifeguard Tower",
+          "objective": "Hut on four legs with a ramp, a railing and a flag"
+        },
+        {
+          "id": "beach-day",
+          "title": "Beach Day",
+          "objective": "Umbrella, chair, bucket and ball on the sand, three waves and a small sailboat far out"
+        }
+      ]
+    },
+    {
+      "id": "light-shadow",
+      "title": "Light & Shadow",
+      "level": "advanced",
+      "description": "The skills path: pick where the light comes from, then give every form a light side, a shadow side and a cast shadow, ending with a street at night.",
+      "lessons": [
+        {
+          "id": "lit-box",
+          "title": "Lit Box",
+          "objective": "Box with a light, a middle and a dark face and a cast shadow"
+        },
+        {
+          "id": "shaded-ball",
+          "title": "Shaded Ball",
+          "objective": "Ball with a crescent shadow shape, a highlight and an oval cast shadow"
+        },
+        {
+          "id": "pillar",
+          "title": "Pillar",
+          "objective": "Cylinder with a shadow band down one side and a shadow across the ground"
+        },
+        {
+          "id": "pyramid",
+          "title": "Pyramid",
+          "objective": "Light side, dark side and a long pointed shadow from a low sun"
+        },
+        {
+          "id": "clay-pot",
+          "title": "Clay Pot",
+          "objective": "Round pot shaded with hatching, crossed where it is darkest"
+        },
+        {
+          "id": "glass-marble",
+          "title": "Glass Marble",
+          "objective": "Shiny ball with a window highlight and a bright spot inside its shadow"
+        },
+        {
+          "id": "candle",
+          "title": "Candle",
+          "objective": "Flame with two glow rings, the light coming from inside the picture"
+        },
+        {
+          "id": "desk-lamp",
+          "title": "Desk Lamp",
+          "objective": "Lamp with a pool of light and a box whose shadow points away from it"
+        },
+        {
+          "id": "window-light",
+          "title": "Window Light",
+          "objective": "Room corner with a four-pane window and its slanted patch of light on the floor"
+        },
+        {
+          "id": "night-street",
+          "title": "Night Street",
+          "objective": "Street lamp, house and mailbox in one pool of light, every shadow pointing away"
+        }
+      ]
+    },
+    {
+      "id": "landscape",
+      "title": "Landscape",
+      "level": "advanced",
+      "description": "Depth without buildings: overlap, size, paler distance, reflections and a road to the horizon, ending with a full mountain valley.",
+      "lessons": [
+        {
+          "id": "rolling-hills",
+          "title": "Rolling Hills",
+          "objective": "Three overlapping hills under a horizon line and a low sun"
+        },
+        {
+          "id": "desert-dunes",
+          "title": "Desert Dunes",
+          "objective": "Three dunes with shadow sides and two cacti, the far one smaller"
+        },
+        {
+          "id": "mountain-range",
+          "title": "Mountain Range",
+          "objective": "Three rows of peaks, each row paler than the one in front"
+        },
+        {
+          "id": "winding-river",
+          "title": "Winding River",
+          "objective": "S-shaped river narrowing to the horizon between two fields"
+        },
+        {
+          "id": "lake-reflection",
+          "title": "Lake Reflection",
+          "objective": "Peak and three pines mirrored in a lake with four ripple lines"
+        },
+        {
+          "id": "waterfall",
+          "title": "Waterfall",
+          "objective": "Cliff with falling-water lines, a mist pool and three rocks"
+        },
+        {
+          "id": "sea-cliffs",
+          "title": "Sea Cliffs",
+          "objective": "Two overlapping headlands, a sea stack and three rows of waves"
+        },
+        {
+          "id": "forest-path",
+          "title": "Forest Path",
+          "objective": "Path between six trunks, big in front and small far away"
+        },
+        {
+          "id": "country-road",
+          "title": "Country Road",
+          "objective": "One-point perspective road with five shrinking fence posts"
+        },
+        {
+          "id": "mountain-valley",
+          "title": "Mountain Valley",
+          "objective": "Pine in front, cabin and river in the middle, pale peaks behind"
+        }
+      ]
+    },
+    {
+      "id": "rooms",
+      "title": "Rooms",
+      "level": "advanced",
+      "description": "Inside the house in perspective: floors, doors, stairs and furniture from one vanishing point, ending with a whole room.",
+      "lessons": [
+        {
+          "id": "tiled-floor",
+          "title": "Tiled Floor",
+          "objective": "Floor grid four tiles wide shrinking to one vanishing point"
+        },
+        {
+          "id": "open-door",
+          "title": "Open Door",
+          "objective": "Door frame with the door swung open and a patch of light on the floor"
+        },
+        {
+          "id": "staircase",
+          "title": "Staircase",
+          "objective": "Six steps climbing in one-point perspective with a handrail"
+        },
+        {
+          "id": "bookshelf",
+          "title": "Bookshelf",
+          "objective": "Three shelves in perspective with books standing and leaning"
+        },
+        {
+          "id": "table-and-chair",
+          "title": "Table & Chair",
+          "objective": "Table with a chair tucked under it, both from the same vanishing point"
+        },
+        {
+          "id": "bed",
+          "title": "Bed",
+          "objective": "Bed in two-point perspective with a pillow and a folded blanket"
+        },
+        {
+          "id": "corridor",
+          "title": "Corridor",
+          "objective": "Hallway with three doors on each side shrinking to the far end"
+        },
+        {
+          "id": "kitchen-counter",
+          "title": "Kitchen Counter",
+          "objective": "Counter with a sink, a tap and two cupboard doors in perspective"
+        },
+        {
+          "id": "window-seat",
+          "title": "Window Seat",
+          "objective": "Bay window with a cushioned seat and light falling across it"
+        },
+        {
+          "id": "my-room",
+          "title": "My Room",
+          "objective": "Bed, desk and window in one room in one-point perspective"
+        }
+      ]
+    },
+    {
+      "id": "coast",
+      "title": "Coast",
+      "level": "advanced",
+      "description": "Lighthouses and the shore around them: bands that wrap a tower, a pier to the horizon, reflections and a beam at night, ending with a storm at the point.",
+      "lessons": [
+        {
+          "id": "bell-buoy",
+          "title": "Bell Buoy",
+          "objective": "Cone cage on a floating drum with a waterline ellipse and two ripple rings"
+        },
+        {
+          "id": "harbor-light",
+          "title": "Harbor Light",
+          "objective": "Short tapered tower with one band and a lantern on the end of a pier"
+        },
+        {
+          "id": "beach-huts",
+          "title": "Beach Huts",
+          "objective": "Three overlapping striped huts with pitched roofs"
+        },
+        {
+          "id": "striped-tower",
+          "title": "Striped Tower",
+          "objective": "Tall tapered lighthouse with four bands that curve around it"
+        },
+        {
+          "id": "wooden-pier",
+          "title": "Wooden Pier",
+          "objective": "One-point perspective deck with six pairs of posts shrinking to the horizon"
+        },
+        {
+          "id": "spiral-lighthouse",
+          "title": "Spiral Lighthouse",
+          "objective": "Tower with one stripe winding around it three times"
+        },
+        {
+          "id": "boathouse",
+          "title": "Boathouse",
+          "objective": "Hut on four stilts over the water with its broken reflection"
+        },
+        {
+          "id": "lantern-room",
+          "title": "Lantern Room",
+          "objective": "Close-up of the top: gallery railing, six glass panes, the lens and a domed roof"
+        },
+        {
+          "id": "lighthouse-beam",
+          "title": "Lighthouse Beam",
+          "objective": "Night tower with two pale wedges of light, lit windows and a reflection on the water"
+        },
+        {
+          "id": "storm-at-the-point",
+          "title": "Storm at the Point",
+          "objective": "Lighthouse, keeper's house, rocks, three big waves, the beam and a small ship far out"
         }
       ]
     },

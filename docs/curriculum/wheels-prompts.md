@@ -14,7 +14,6 @@ PNG → `svg from-image --palette ../docs/curriculum/palette.json` → `author-l
 - Attach the **published apple** (`fruits/apple-openai.png`) to every request, with the reference line
   below: it is still the look of the whole course. Once `school-bus` or `car` is kept, attach it as a
   second picture to the later requests too: it fixes what a wheel in its arch looks like.
-  `car-three-quarter-view` has its own reference line, because its view changes.
 - Square, 1024 × 1024 or larger, PNG, opaque white background.
 - Generate 3–4 candidates per lesson and keep the one with the fewest, cleanest lines, not the
   prettiest. Reject any candidate that gets a count wrong: the counts are the teaching points.
@@ -25,19 +24,19 @@ What the prompts on this path take care of, from what the earlier paths taught u
 
 - **Every prompt opens with a LINE WEIGHT paragraph.** Hairlines were the main reason pictures had
   to be made again.
-- **Nine flat side views, front on the right**, so the path reads as one family; only the last
-  lesson turns the car, and it does so with parallel slanted edges (no vanishing points), as the
-  Forms cube does.
+- **Ten flat side views, front on the right**, so the path reads as one family. No lesson turns
+  the vehicle: a three-quarter view is too hard for this age. The last lesson, the ambulance, is
+  the capstone because it has the most named parts, not because its view changes.
 - **A wheel is two complete circles: a gray tire ring and a cream hub.** Circles that another outline
   touches trace with a dent, so **no wheel touches anything**: the body's bottom edge rises in a wheel
   arch and an even white gap runs between arch and tire. The monster truck's body rides over its
   wheels the same way. Tires are gray, not black: a solid dark shape swallows its own outline when
   traced, and the monster truck's tread lines have to show on the tire.
-- **Every part has its own dark outline**: windows, hubs, track wheels, headlights and the number's
-  circle are closed shapes with a strip of the body's color all around them; nothing is told apart
+- **Every part has its own dark outline**: windows, hubs, track wheels, the ambulance's cross and
+  roof light and the number's circle are closed shapes with a strip of the body's color all around them; nothing is told apart
   by color alone.
-- **Details are single lines as bold as the outlines**: the bus's stripe, the dump truck's lift arm,
-  the train's coupling, the tread lines, the digit 7, the motorcycle's fork and handlebars, and the
+- **Details are single lines as bold as the outlines**: the bus's and the ambulance's stripe, the
+  dump truck's lift arm, the train's coupling, the tread lines, the digit 7, the motorcycle's fork and handlebars, and the
   whole frame of the bicycle. Never thinner, never a colored tube. Named parts that are solid in life
   (the excavator's arm, the exhaust, the spoiler) are closed shapes and are asked to be thick.
 - **Parts stand apart** with a clear white gap (the tilted bed, the bucket, the engine and its car).
@@ -49,10 +48,12 @@ What the prompts on this path take care of, from what the earlier paths taught u
   tire. Those junctions are what to zoom into after tracing.
 - **The race car's number is the one exception to the style prompt's "no numbers"**: its prompt says
   so in capitals. If the model still refuses or adds more lettering, regenerate.
+- **The ambulance is cream, not white**: the style prompt allows no white inside a subject, and a
+  white body would vanish into the background when traced. Its cross is a plain red plus sign.
 - **The bicycle is see-through** (white inside the wheels and the frame), the one exception to
   "nothing is left white"; its prompt says so.
 - **No road, ground or shadow** in any picture, and no highlights, shading or texture: no objective
-  asks for one. The last lesson shows its three directions with three flat greens, as the Forms cube does.
+  asks for one.
 
 ## Style prompt (`style-v2`) — identical for all 13 paths
 
@@ -112,13 +113,6 @@ NEVER
 ```text
 Match the attached image exactly in line color, line weight, corner rounding, flatness of color,
 margins and overall feel. Only the subject changes.
-```
-
-For `car-three-quarter-view` only:
-
-```text
-Match the attached image exactly in line color, line weight, corner rounding, flatness of color
-and margins. The subject changes, and so does the view: follow the VIEW paragraph below.
 ```
 
 ## Lesson prompts
@@ -489,61 +483,54 @@ kickstand, no engine details, no cooling fins, no stripes on the tank, no smoke,
 ground. Ten lines in total.
 ```
 
-### 10 · `car-three-quarter-view`
+### 10 · `ambulance`
 
-Objective: Boxy car built from a cube, showing the front and side.
+Objective: Van with a cross, a stripe, a roof light and two wheels.
 
 ```text
 LINE WEIGHT: every line is as bold as the outline of the attached apple: about 1% of the image
 width (10 to 12 pixels on a 1024-pixel image), in the same very dark charcoal. No hairlines, no
 gray lines. The image is square.
-SUBJECT: one boxy car built from two plain boxes, a long low box with a shorter box standing
-on its back part, showing its side, its front and its top.
-VIEW: this image is not a flat side view. The car's long side faces the viewer straight on and
-is drawn flat, exactly as in a side view, with the front of the car on the right. Beyond it the
-front and the top of the car show too, as slanted faces leaning away up and to the right. Every
-edge that runs away from the viewer is short, and all of them are parallel: they slant up and to
-the right at one and the same angle, about 35 degrees. Edges that are parallel on the car are
-drawn parallel: no vanishing points, no narrowing toward the back. All upright edges are upright.
-Hidden edges are not drawn. Every face is flat with straight edges and only slightly rounded corners.
-- Side: one flat stepped shape, all one outline: a long, low rectangle, with a taller part (the
-  cabin) rising over its back two thirds, like a capital letter L lying on its back. Its bottom
-  edge is straight except for the two wheel arches. Color: leaf green #4f9d4a.
-- Side window: one rectangle with gently rounded corners in the tall part of the side, with a
-  clear strip of leaf green all around it. Color: blue #5b8fc7.
-- Front: one slanted four-sided face joined to the low right-hand end of the side. Its two
-  upright edges are upright; its top and bottom edges slant up and to the right. Color: dark
-  green #2f6b3a.
-- Headlights: exactly two small ovals side by side on the front face, floating, with a clear
-  strip of dark green around each. Color: yellow #f7cf46.
-- Hood: one slanted four-sided face lying on top of the low front part: its near edge is the top
-  edge of the side's low part, its right edge is the top edge of the front. Color: pale
-  green #b9dc8a.
-- Windshield face: one slanted four-sided face, the front of the cabin, rising from the back
-  edge of the hood: shaped like the front face, set back and higher. Color: dark green #2f6b3a.
-- Windshield: one slanted four-sided window inside the windshield face, its edges parallel to
-  that face's edges, with a clear strip of dark green all around it. Color: blue #5b8fc7.
-- Roof: one slanted four-sided face lying on top of the cabin: its near edge is the top edge of
-  the side's tall part, its right edge is the top edge of the windshield face. Color: pale
-  green #b9dc8a.
-- Where two faces meet they share one edge, drawn once as a single line.
-- Wheels: exactly two, the same size, each about 15% of the image width across. Each wheel
+VIEW: a flat side view, seen straight on from the side, with the front of the ambulance on the
+right. No perspective: nothing of the front, the back, the top or the far side shows.
+SUBJECT: one ambulance: a van with a tall box at the back and a lower cab at the front, with
+exactly one cross, one stripe, one roof light, two windows and two wheels.
+- Body: one single outline, about twice as long as it is tall. The back two thirds is a tall box
+  with a flat roof and an upright back end. At the front of the box the top line steps down in a
+  short slanted windshield line to a low, short hood with a gently rounded nose. All corners are
+  gently rounded. Its bottom edge is straight except for the two wheel arches, one under the cab
+  and one under the back half of the box. Color: cream #f6e7b8. The body is cream, not white.
+- Cab window: one window in the cab, just behind the slanted windshield line: a closed shape
+  with gently rounded corners, level along the bottom, upright along its back side, and slanted
+  along its front side to follow the windshield line. A clear strip of cream runs all around it.
+  Color: blue #5b8fc7.
+- Box window: one small square window with gently rounded corners in the upper back corner of
+  the box, with a clear strip of cream all around it. Color: blue #5b8fc7.
+- Cross: one plain plus sign in the upper half of the box, centered between the two windows: one
+  closed outline with twelve straight sides and four equal, thick, short arms, as tall as the
+  cab window. It stands upright, not tilted. A clear strip of cream runs all around it: it
+  touches nothing. Color: red #d8433b.
+- Stripe: one single bold straight line along the side of the body, level, halfway between the
+  cross and the wheel arches, running below both windows. It starts and ends a little inside the
+  body's outline and touches nothing. It is a line, the same charcoal as the outlines, with no
+  color: not a band, not a bar.
+- Roof light: one small half-round dome standing on the roof of the box, above its front end:
+  flat along the bottom, round on top, about as wide as the cab window is tall. Its flat bottom
+  edge and the roof line are one shared line, drawn once. Color: red #d8433b.
+- Wheels: exactly two, the same size, each about 17% of the image width across. Each wheel
   is two complete circles, one inside the other, sharing one center: the outer circle is the tire
   and the inner circle is the hub, half as wide as the tire. The ring between them is gray #c9ced6;
   the hub is cream #f6e7b8.
   No spokes, no bolts, no tread marks.
-- Wheel arches: over each wheel, the side's bottom edge
+- Wheel arches: over each wheel, the body's bottom edge
   rises in a round arch. Between the arch and the tire there is a clear gap of white paper,
   about three line-widths wide and even all the way around.
   No wheel touches or overlaps anything; the lower part of each wheel hangs below the arch.
-  Both wheels are on the near side and are true circles, because the side is drawn flat. No wheel
-  of the far side shows.
-LIGHT: shown only by the flat colors named here, lightest on the top faces and darkest on the
-front faces: no gradients, no hatching, no shadow.
-The whole car fills about 70% of the image width.
-Nothing else: no door lines, no handles, no grille, no bumper, no mirrors, no license plate, no
-antenna, no driver, no road, no cast shadow. Thirteen lines in total. Count: six faces, two
-windows, two headlights, two wheels.
+The whole ambulance fills about 70% of the image width.
+Nothing else: no lettering, no "AMBULANCE" word, no star, snake or heartbeat symbol, no second
+cross, no light rays or flashes around the roof light, no siren horns, no door lines, no handles,
+no headlights, no bumpers, no mirrors, no antenna, no driver, no road. Ten lines in total. Count:
+one cross, one stripe, one roof light, two windows, two wheels.
 ```
 
 ## What to send back
