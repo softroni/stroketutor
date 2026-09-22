@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cruise-ship",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:41:06.221Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "All aboard. This ship has two decks of windows stacked on a long blue hull, and a striped funnel on top. Watch the decks pile up, then set sail yourself.",
+      "textHash": "b58cf7721d11dab42f54b5589b5a31e6ccd1d8f85f9d6e6781589d99d750e880",
+      "durationMs": 10320
+    },
+    "deck": {
+      "file": "deck.m4a",
+      "text": "A cruise ship is a floating hotel. Begin with the hull's top: a long line sweeping up to the bow.",
+      "textHash": "219b8a5a2e441515f6274818d9b0b6fd86079794c58130f701fcc9f4285fe6f8",
+      "durationMs": 6960
+    },
+    "hull": {
+      "file": "hull.m4a",
+      "text": "Go down the stern and straight along the bottom. Then climb to the bow's tip.",
+      "textHash": "630ccac76c2c972300ae35f3c39fcb3fb83a503b4eaf7b6f9d58346b7dbccb55",
+      "durationMs": 4800
+    },
+    "stripe": {
+      "file": "stripe.m4a",
+      "text": "Draw one long stripe along the hull.",
+      "textHash": "ceccbb8704f827e78614a0e34c143fbb925882d1200118ec2019dc1f0f106917",
+      "durationMs": 2560
+    },
+    "lower-deck": {
+      "file": "lower-deck.m4a",
+      "text": "The first deck stands on the hull. Go up the back and along its flat top.",
+      "textHash": "af129cd8b860bce2a052f5bf8845999469c2ac72031365254790ecc5fa6ed560",
+      "durationMs": 5040
+    },
+    "upper-deck": {
+      "file": "upper-deck.m4a",
+      "text": "Stack a shorter deck on top. From its front corner, step out and slope down to the hull.",
+      "textHash": "8ed76572baeaa4b9cd453934d60aed80187db10f6c1a7d66c9686f174e38fd6b",
+      "durationMs": 5680
+    },
+    "funnel": {
+      "file": "funnel.m4a",
+      "text": "The funnel stands on the top deck, narrower at its top. Two lines across make a band.",
+      "textHash": "101bb41a51a3c935f913fc25749da06108467fddae3e1f208275e4900ba4a72b",
+      "durationMs": 6080
+    },
+    "windows-lower": {
+      "file": "windows-lower.m4a",
+      "text": "Five square windows go along the lower deck. Keep them level and evenly spaced.",
+      "textHash": "c597bc5dd85b64c2920ea50072a34cf22d03d190bcd42ef2de9564df004e4553",
+      "durationMs": 5280
+    },
+    "windows-upper": {
+      "file": "windows-upper.m4a",
+      "text": "Four more on the upper deck. Then the captain's window, slanting with the front slope.",
+      "textHash": "9c07ca49b14ecc4d4ac8800b22f903e23755e386306f13e943cf7e63cef04268",
+      "durationMs": 5120
+    },
+    "color-blue": {
+      "file": "color-blue.m4a",
+      "text": "Color the hull and every window blue.",
+      "textHash": "28c2af0377c7dca72402cd6afdb0fbd015478994d1970dff9033b225516bf904",
+      "durationMs": 2800
+    },
+    "color-cream": {
+      "file": "color-cream.m4a",
+      "text": "Color the lower deck cream.",
+      "textHash": "63ae5bb6b76f5a2e67641dc09449b0e80f0aaf10617d944d537e3462e88c43f0",
+      "durationMs": 1760
+    },
+    "color-yellow": {
+      "file": "color-yellow.m4a",
+      "text": "Color the upper deck yellow.",
+      "textHash": "b6d744baa1b7958f4092f4ca64dcba1d4874b5b9bee3c474dbb56dce6736a210",
+      "durationMs": 2000
+    },
+    "color-funnel": {
+      "file": "color-funnel.m4a",
+      "text": "The funnel is red, with a gray band.",
+      "textHash": "59c58cf341a97fdb6d9bb9b51e56ea98216e72040295014bfa33dea30a7bc49c",
+      "durationMs": 2800
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Nine windows, a bridge and a funnel. Which cabin would you pick?",
+      "textHash": "ff7eec99b93cf76e2404bf82d97daabf18a25820d6cce0903e05c168e7d2d27b",
+      "durationMs": 4160
+    }
+  }
+}
