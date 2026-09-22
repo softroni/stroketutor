@@ -762,6 +762,16 @@
       }
     },
     {
+      "id": "crescent-moon",
+      "status": "approved",
+      "objective": "Curved moon with three craters",
+      "reference": {
+        "file": "crescent-moon.svg",
+        "source": "Generated picture, OpenAI image model, style-v2, 2026-09-21",
+        "license": "CC0"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

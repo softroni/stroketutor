@@ -156,6 +156,13 @@
         "jet",
         "balloon-over-the-hill"
       ]
+    },
+    {
+      "id": "space",
+      "title": "Space",
+      "description": "Moons, planets and spacecraft, ending with the solar system drawn on orbit ellipses.",
+      "level": "core",
+      "lessonIds": ["crescent-moon"]
     }
   ]
 }

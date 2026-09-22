@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "crescent-moon",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:53:26.412Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A crescent moon is a circle with a bite taken out of it. Watch the bite go in, then hang one over your own night.",
+      "textHash": "a5c4491bd77b91869f5438b57ab1f7be0d1a9dcf79f507778d0d8cae23a52f88",
+      "durationMs": 6640
+    },
+    "outer": {
+      "file": "outer.m4a",
+      "text": "The moon is a fat letter C. From the top tip, curve left and all the way down to the bottom tip.",
+      "textHash": "c6fd7051a93a6a26da5a1f3de607e575766df2de3bdbc9d21da80f4c90ba5d49",
+      "durationMs": 6480
+    },
+    "inner": {
+      "file": "inner.m4a",
+      "text": "Now the bite. Come back up from the bottom tip, curving right, to meet the top tip.",
+      "textHash": "3cb0a157fe1d85e1ed6e9230d06e85de561050f6b9e6bd95e5fc639ccebc9294",
+      "durationMs": 5520
+    },
+    "crater-top": {
+      "file": "crater-top.m4a",
+      "text": "Craters are just circles. Put a small one high up, inside the thick side.",
+      "textHash": "b0edb72f865cbfa1cb5949362493b88233889a2bd1f8137a64eccc17a0800db2",
+      "durationMs": 5200
+    },
+    "crater-big": {
+      "file": "crater-big.m4a",
+      "text": "The biggest crater goes below it, where the moon is widest.",
+      "textHash": "eac902638b8b35395f07d3a5ad7ad517f63a256d60e87ddbfb74fcd105231e6b",
+      "durationMs": 4080
+    },
+    "crater-small": {
+      "file": "crater-small.m4a",
+      "text": "One more under that, smaller than the first two.",
+      "textHash": "779dd27e04191f4a98a659e4f20fcbe944ad378881f81bd074bab858c134a5e1",
+      "durationMs": 3280
+    },
+    "moon": {
+      "file": "moon.m4a",
+      "text": "Color the moon yellow.",
+      "textHash": "afdfbe9ab75413f607667a13d4a14efa2659184a8a7b4546c220c2843553d0d2",
+      "durationMs": 1600
+    },
+    "craters": {
+      "file": "craters.m4a",
+      "text": "Color all three craters gray.",
+      "textHash": "d77a0cab68eaf6f8e507fdcf2dee5dafe31f2b3bb1f35ebe8739bb5b4978b7a6",
+      "durationMs": 2240
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "There's your moon, craters and all. It's the same one you can see from your window.",
+      "textHash": "0b65f69b060fb50656dff2049ab6b1627f87913ced30bf0430c8663f700e72b4",
+      "durationMs": 5360
+    }
+  }
+}
