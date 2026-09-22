@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "winding-river",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:37:11.850Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A river is the same width all the way along, but on paper it has to get thinner as it goes, or it will never reach the hills. Watch the two banks close in, then let your river run.",
+      "textHash": "29c6445a3a4271f2ee0e22d90101b545e19010f7c9d41e7a32f2ba13e1912b8c",
+      "durationMs": 11760
+    },
+    "far-line": {
+      "file": "far-line.m4a",
+      "text": "One long line across the page is where the fields end.",
+      "textHash": "473a48325a3dff04fde9bc6ecbeaed5bce270e7a5af9834cb78d406d495cdeb1",
+      "durationMs": 3440
+    },
+    "hills": {
+      "file": "hills.m4a",
+      "text": "Low hills sit on that line. One bumpy line over the top of them.",
+      "textHash": "6a7c9dc8fe9ef5efebfdf04d5e5992daf0242ec9212805f2662935bb9a6ee13d",
+      "durationMs": 4400
+    },
+    "left-bank-near": {
+      "file": "left-bank-near.m4a",
+      "text": "The river is widest at the bottom. Draw its left bank up to the first bend.",
+      "textHash": "cae1a1d8bf43c7b273521bdbdd3955ab6e3f70879ff9cf47032d1b493edf5de3",
+      "durationMs": 5280
+    },
+    "left-bank-far": {
+      "file": "left-bank-far.m4a",
+      "text": "Carry on from the bend, getting closer to the middle all the way.",
+      "textHash": "0930633583c20c7cb4d1726e6e946c7432a194fe86fb6716c8e256d9388e5a49",
+      "durationMs": 4000
+    },
+    "right-bank-near": {
+      "file": "right-bank-near.m4a",
+      "text": "Now the right bank, from the bottom up to its own bend.",
+      "textHash": "0e970e318b4de31fcfb4ed75b7a286c238ab3b11d386557e81fdd127df5a4918",
+      "durationMs": 3840
+    },
+    "right-bank-far": {
+      "file": "right-bank-far.m4a",
+      "text": "Follow it up. The two banks meet in a point on the line.",
+      "textHash": "6f0771a38045e335ad75d322ad443f2cba94e1d4b82a5118988fd379cd23a0a2",
+      "durationMs": 3760
+    },
+    "sun": {
+      "file": "sun.m4a",
+      "text": "One circle in the sky, well above the water.",
+      "textHash": "26bd89ffa55a1ef8c45aec8d4fb1fb8b96a5b4703032499ee72e864320e2d0f0",
+      "durationMs": 3360
+    },
+    "fields": {
+      "file": "fields.m4a",
+      "text": "Color the fields pale green.",
+      "textHash": "2c392068984cd9dad50ab16293c153b15b3fc20c709122f0603c1cc91aa665dc",
+      "durationMs": 2080
+    },
+    "river": {
+      "file": "river.m4a",
+      "text": "The river is blue.",
+      "textHash": "e6ef8edd97858f6566e66d26f1a96fed1fcc88e670a21a8dfee1431232e460eb",
+      "durationMs": 1520
+    },
+    "hills-color": {
+      "file": "hills-color.m4a",
+      "text": "The hills are green.",
+      "textHash": "00f7de2b4637de8011f439964a60e55467ed1c859d319fa72cde6ed184523280",
+      "durationMs": 1520
+    },
+    "sun-color": {
+      "file": "sun-color.m4a",
+      "text": "The sun is yellow.",
+      "textHash": "e3a1141fb57ec5f3c9dea4f7ea88e9f16ce1124df17f28addbe2588efff8efb4",
+      "durationMs": 1440
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your river gets thinner all the way to the hills. That is how you send water into the distance.",
+      "textHash": "b10c9cf3dbf5af2b48a0c33f4555073d8e69d96cffa736d9bac087e0e6627486",
+      "durationMs": 5360
+    }
+  }
+}
