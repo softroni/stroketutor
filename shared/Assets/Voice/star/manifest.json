@@ -1,0 +1,58 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "star",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:56:50.441Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A star is five points, each one two lines meeting at a tip. Take them one at a time, then make five sharp points.",
+      "textHash": "b56da6dd37b021f5b27546b15e0f648bc802222c04df6b8235f174559e5b2dad",
+      "durationMs": 8160
+    },
+    "point-top": {
+      "file": "point-top.m4a",
+      "text": "First the top point. Go up to the tip and straight back down the other side.",
+      "textHash": "badb3839cbe7fcb3aca5f97f809a44405ff044e3fb742059cb8d200721d047e9",
+      "durationMs": 5040
+    },
+    "point-right": {
+      "file": "point-right.m4a",
+      "text": "Next, the point reaching out to the right. Same shape, lying on its side.",
+      "textHash": "9bc3af0bb64da7a67cfd09fee25b9effbe4cddb5758b255620a012b56c77005a",
+      "durationMs": 4720
+    },
+    "point-lower-right": {
+      "file": "point-lower-right.m4a",
+      "text": "Now down to the leg on the right. Out to its tip, then back up.",
+      "textHash": "714296fbfc2486bfe131f76eba507b31937c3bdc1be92f000e8b48efb1589f75",
+      "durationMs": 4400
+    },
+    "point-lower-left": {
+      "file": "point-lower-left.m4a",
+      "text": "The left leg is a mirror of it. Out to the tip, then back.",
+      "textHash": "0216339cb05d443e3f6de2ac13b3979a73f9145b4c029817c6d53d1c40351986",
+      "durationMs": 4000
+    },
+    "point-left": {
+      "file": "point-left.m4a",
+      "text": "Last, the point reaching left. Close the star where you began.",
+      "textHash": "f8e4f601da4d2f7be6981fcd9f63941d02f24a0e1ec927b8564c08923b44cb82",
+      "durationMs": 4240
+    },
+    "star": {
+      "file": "star.m4a",
+      "text": "Color the star yellow.",
+      "textHash": "2f1d7aa88012c1670f51e4845d7402b1d1823986fef65c946ac788b75d303eaf",
+      "durationMs": 2000
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Five points, one star. Count them round the edge and see.",
+      "textHash": "d8088a946e43a53c68091e78d10b20c40917dd32a5676e259404dbca17af7c81",
+      "durationMs": 4880
+    }
+  }
+}
