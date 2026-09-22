@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "mars-rover",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:34:58.209Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A rover drives around Mars on its own, taking pictures. This one rides on five wheels. Watch it get built, then park yours on Mars.",
+      "textHash": "cbcc6ff373b0478cb0855fb544f40dadd5d36cf880954dfe98c2b763513b3ea8",
+      "durationMs": 8480
+    },
+    "deck": {
+      "file": "deck.m4a",
+      "text": "The deck is a long slab with round corners. Draw it lying across the middle.",
+      "textHash": "0c620d85c4806ce840ed9d8edb4068f10a47cac9e94fffa63ce69a4b819dbca9",
+      "durationMs": 5360
+    },
+    "legs": {
+      "file": "legs.m4a",
+      "text": "Five legs slant down from underneath, one for each wheel.",
+      "textHash": "0f555185f82634d9687cb0a0c68f4d67f6358fb171d1c1cdc3f98538c796a2d7",
+      "durationMs": 4480
+    },
+    "wheels": {
+      "file": "wheels.m4a",
+      "text": "A wheel hangs from every leg. Draw all five as plain circles.",
+      "textHash": "5e22fd28580227578f4786b533516e10c583a907fbb8d3e552b86e921bc15f13",
+      "durationMs": 4720
+    },
+    "mast": {
+      "file": "mast.m4a",
+      "text": "At the right, a tall mast stands up from the deck.",
+      "textHash": "763a68e58f7860b3d2728019c90e513833882df34f2705d587806a4277d23306",
+      "durationMs": 3680
+    },
+    "camera": {
+      "file": "camera.m4a",
+      "text": "The camera is a box on top of the mast, lying on its side.",
+      "textHash": "ad4798e792780931f427fc44f05a511e32a42dbc5bdf4443f6cedd02d8f43ef3",
+      "durationMs": 4480
+    },
+    "lens": {
+      "file": "lens.m4a",
+      "text": "Its lens is a circle inside the box, near the front.",
+      "textHash": "714feae0620bb98ce9a2aeaa9d069f906ef24d13bce155389cf853c5795e62e2",
+      "durationMs": 3760
+    },
+    "dish-mast": {
+      "file": "dish-mast.m4a",
+      "text": "At the left, a short mast leans back with a dish on it.",
+      "textHash": "8ff439f343c3df007e942089aee097d94579f10adde665c7d932a3b47ea2a329",
+      "durationMs": 4000
+    },
+    "dish": {
+      "file": "dish.m4a",
+      "text": "The dish is a bowl seen from the side, open to the right.",
+      "textHash": "981ccc06be113fd619869688cf4ebafdeb720439e1136659958510ecf7fa1bf1",
+      "durationMs": 3520
+    },
+    "deck-color": {
+      "file": "deck-color.m4a",
+      "text": "Color the deck orange.",
+      "textHash": "5a5ff03405cf44f1758b024511c57b1d37c886c77b786ae147b71063a5b30def",
+      "durationMs": 1680
+    },
+    "gray-parts": {
+      "file": "gray-parts.m4a",
+      "text": "The five wheels, the camera box and the dish are gray.",
+      "textHash": "7c56c7988b441312e6fa41658a28b20aca88771709cebcf5cf3bbf1ed76b958a",
+      "durationMs": 3600
+    },
+    "lens-color": {
+      "file": "lens-color.m4a",
+      "text": "Color the lens blue.",
+      "textHash": "cf8f09a41310124af7b7f3c479f2bd4272698c5c1ac89004b2a7e5f234a52ce6",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Five wheels, one camera, ready to roll. What would you send it to look at?",
+      "textHash": "1a11ceb302867becc0a482dacbaea1396baa4adeecc19353df0902ab2dca672e",
+      "durationMs": 5200
+    }
+  }
+}

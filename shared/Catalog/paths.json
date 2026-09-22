@@ -169,7 +169,8 @@
         "comet",
         "rocket",
         "ufo",
-        "satellite"
+        "satellite",
+        "mars-rover"
       ]
     }
   ]
