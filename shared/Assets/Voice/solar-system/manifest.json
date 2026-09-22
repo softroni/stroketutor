@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "solar-system",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:35:47.477Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Planets circle the sun on paths called orbits, and each one looks like a flat oval. Draw them ring by ring, then set yours spinning.",
+      "textHash": "718de6d901228144dc16dc216ec1db11fccb4feb8786ca7b03eb0c4280331fe4",
+      "durationMs": 9360
+    },
+    "sun": {
+      "file": "sun.m4a",
+      "text": "The sun goes first: one circle, a little left of the middle.",
+      "textHash": "32c6b8e11b328ccebc4cdd389191ccc0649eb7e3f5fe9b3dc3d4efd13f3667fd",
+      "durationMs": 4080
+    },
+    "orbit-inner": {
+      "file": "orbit-inner.m4a",
+      "text": "The first orbit loops around it. Draw the far side, from the gap on the right.",
+      "textHash": "86fc2398f9c61bcf8015266b99cf2dbbe24114c328bda72d96733811fc8c40a1",
+      "durationMs": 5120
+    },
+    "orbit-inner-2": {
+      "file": "orbit-inner-2.m4a",
+      "text": "Bring the near side back to the other end of the gap.",
+      "textHash": "0de0738e117b2098f22ef286cbccdce273c2fbbab4f101170cd9d3da9aa85ea3",
+      "durationMs": 2880
+    },
+    "planet-inner": {
+      "file": "planet-inner.m4a",
+      "text": "A small planet fills that gap. Draw it as a circle.",
+      "textHash": "6978509e4f718c35881a1ec9e37ed849e4b2060f214410ff8cbde6d6b73b39d9",
+      "durationMs": 4000
+    },
+    "orbit-middle": {
+      "file": "orbit-middle.m4a",
+      "text": "The next orbit goes around the first, with its own gap at the upper left.",
+      "textHash": "45079a9319ef3af871af0b762c761b8cf7f4aa0153d2bbd4e3ea602e6b76fdf7",
+      "durationMs": 4880
+    },
+    "planet-middle": {
+      "file": "planet-middle.m4a",
+      "text": "Sit a bigger planet in that gap.",
+      "textHash": "e1cfa44edac673f423f465d0a15be6eef086919e34d081ec73b098fd30a3deb2",
+      "durationMs": 2320
+    },
+    "orbit-outer": {
+      "file": "orbit-outer.m4a",
+      "text": "The last orbit wraps around them both. Leave its gap at the lower left.",
+      "textHash": "5325f74f123bb7c8be6522ff4da430f0243e1223dd5d2db866d39222c36a7f29",
+      "durationMs": 4560
+    },
+    "planet-outer": {
+      "file": "planet-outer.m4a",
+      "text": "The biggest planet goes there, the furthest out.",
+      "textHash": "1ad6a04f5240cfc78ff8802d27f3d1093578122e9c70aabae1dcae60e57bb47f",
+      "durationMs": 3520
+    },
+    "sun-color": {
+      "file": "sun-color.m4a",
+      "text": "Color the sun yellow.",
+      "textHash": "69aedec2e10942344d999aa68c044a4213f980a60bdcfa5a5d4d4eb00eefcd4f",
+      "durationMs": 1760
+    },
+    "planets": {
+      "file": "planets.m4a",
+      "text": "The inner planet is red, the middle one blue, the far one orange.",
+      "textHash": "d54a182fdfb6b1c8e2bca2bf5b76e10eb6246cbd230695231df17f24a1f6fde4",
+      "durationMs": 4640
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Three planets, three orbits, one sun. That's the Space path, complete.",
+      "textHash": "25af808711ef7b179bf72955e9b1a80e5f545fbbc901e88e872ddd55711d27e8",
+      "durationMs": 5280
+    }
+  }
+}
