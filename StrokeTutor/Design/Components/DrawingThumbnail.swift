@@ -20,17 +20,23 @@ struct DrawingThumbnail: View {
     /// Steps from this index on are drawn at 22 %, which is how `hp-preview`'s
     /// resume tile shows how far the learner got. Nil draws the whole lesson.
     var fadedFromStep: Int?
+    /// With `fadedFromStep`, the lines of that step — the one the learner does next —
+    /// are drawn at full strength in this color, on top of everything else, so the
+    /// resume tile points at the line its "Next step" card describes.
+    var nextStepColor: Color?
 
     init(tutorial: PreparedTutorial?,
          size: CGFloat? = nil,
          strokeColor: Color? = Theme.ink,
          showsFills: Bool = false,
-         fadedFromStep: Int? = nil) {
+         fadedFromStep: Int? = nil,
+         nextStepColor: Color? = nil) {
         self.tutorial = tutorial
         self.size = size
         self.strokeColor = strokeColor
         self.showsFills = showsFills
         self.fadedFromStep = fadedFromStep
+        self.nextStepColor = nextStepColor
     }
 
     var body: some View {
@@ -67,13 +73,23 @@ struct DrawingThumbnail: View {
                 }
             }
 
-            for (index, step) in tutorial.steps.enumerated() {
+            let nextStep = nextStepColor.flatMap { _ in fadedFromStep }
+            for (index, step) in tutorial.steps.enumerated() where index != nextStep {
                 let alpha = opacity(ofStep: index)
                 for stroke in step.strokes {
                     let width = max(floor, CGFloat(stroke.lineWidth) * scale)
                     let color = strokeColor ?? stroke.color ?? tutorial.strokeColor
                     context.stroke(stroke.path.applying(transform),
                                    with: .color(color.opacity(alpha)),
+                                   style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round))
+                }
+            }
+
+            if let nextStep, let nextStepColor, tutorial.steps.indices.contains(nextStep) {
+                for stroke in tutorial.steps[nextStep].strokes {
+                    let width = max(floor, CGFloat(stroke.lineWidth) * scale)
+                    context.stroke(stroke.path.applying(transform),
+                                   with: .color(nextStepColor),
                                    style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round))
                 }
             }

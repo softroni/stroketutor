@@ -172,7 +172,8 @@ struct LessonPreviewView: View {
 
     /// The white sheet. By default the drawing draws itself once, in its own colors,
     /// and a tap replays it (a small replay badge says so once it has landed). A
-    /// paused lesson shows its drawing still, the steps not yet drawn faint.
+    /// paused lesson shows its drawing still, the steps not yet drawn faint and the
+    /// next step's line in the path color, matching its "Next step" card.
     @ViewBuilder
     private func paper(for lesson: Lesson, resumeStep: Int?, tint: PathTint) -> some View {
         let panel = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius - 10, style: .continuous)
@@ -181,12 +182,13 @@ struct LessonPreviewView: View {
             DrawingThumbnail(tutorial: lesson.tutorial,
                              strokeColor: nil,
                              showsFills: true,
-                             fadedFromStep: resumeStep)
+                             fadedFromStep: resumeStep,
+                             nextStepColor: tint.deep)
                 .padding(20)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(panel.fill(Theme.paper))
                 .accessibilityElement()
-                .accessibilityLabel("The drawing so far: \(resumeStep) of \(lesson.stepCount) steps in ink, the rest faint")
+                .accessibilityLabel("The drawing so far: \(resumeStep) of \(lesson.stepCount) steps in ink, the next step's line in color, the rest faint")
         } else {
             let canReplay = !reduceMotion
             teaser(for: lesson)
