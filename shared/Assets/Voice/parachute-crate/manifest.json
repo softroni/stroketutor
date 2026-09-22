@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "parachute-crate",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:47:31.680Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Supplies can be pushed out of a plane and still land gently, once the canopy above them opens. Watch it billow out, then drop a crate of your own.",
+      "textHash": "04a323fa4dba7031f2c2286d8eed1956293d81ab643ecdf16c96fc6d5dbd89b4",
+      "durationMs": 9040
+    },
+    "dome-left": {
+      "file": "dome-left.m4a",
+      "text": "The canopy is a wide dome. From its peak, curve down to the left edge.",
+      "textHash": "ab8705339cfbf44d8c23b1789ae754507f1dbee64d94393f4c22df767a9a7265",
+      "durationMs": 5200
+    },
+    "dome-right": {
+      "file": "dome-right.m4a",
+      "text": "Come back to the peak and curve down the right the same way.",
+      "textHash": "c041e55998fe3ea8c01ab3440edc38dd75a807cafc907441c539161c4df5a412",
+      "durationMs": 3680
+    },
+    "arches": {
+      "file": "arches.m4a",
+      "text": "The bottom of the canopy is three arches, each one curving up.",
+      "textHash": "3087aa139c918fbc99ea6e51681b4c506665b2e4f79cf09f5d1907b8eb561e92",
+      "durationMs": 4320
+    },
+    "cords-outer": {
+      "file": "cords-outer.m4a",
+      "text": "Two long cords hang from the outer tips. Take each one down to a corner of the crate.",
+      "textHash": "753c76a68bda1558897e627490f1d71d6dd89a8e131a3cea3399f25d9d796105",
+      "durationMs": 5680
+    },
+    "cords-inner": {
+      "file": "cords-inner.m4a",
+      "text": "Two more cords drop from the dips between the arches.",
+      "textHash": "c8afb6c84e9154d45dc4df6ea57b3e0001e420b7d648b762aacb1bb57be3884b",
+      "durationMs": 3600
+    },
+    "crate": {
+      "file": "crate.m4a",
+      "text": "The crate is a plain box below. Draw its top line, then its sides and bottom.",
+      "textHash": "e9a44de6aa69de16c6ce6db6ca60cf5b5a4a8e7dad93c8c00bf82f641d05a9c9",
+      "durationMs": 5280
+    },
+    "planks": {
+      "file": "planks.m4a",
+      "text": "Two straight lines cross the box like planks.",
+      "textHash": "a82eab211fdc3c41414d18a168276caf319249e2c47ff0c4bed54428f6cc29fc",
+      "durationMs": 3040
+    },
+    "color-canopy": {
+      "file": "color-canopy.m4a",
+      "text": "Color the canopy orange.",
+      "textHash": "3f89bdc1b14526010d070333da19c9c4414b8b4f75516b0032b16b3105b4d200",
+      "durationMs": 1920
+    },
+    "color-crate": {
+      "file": "color-crate.m4a",
+      "text": "Color the crate brown.",
+      "textHash": "c0fb7848110c5f47ad501c4382d42ada42c1013dc571ec68db2bf21cd41acb10",
+      "durationMs": 1520
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Canopy open, crate steady. That parcel will land without a bump.",
+      "textHash": "fe0ea107d5f10cf61666c47613a1c143a6392ed5a91c538627bca7aa70ef2380",
+      "durationMs": 4480
+    }
+  }
+}
