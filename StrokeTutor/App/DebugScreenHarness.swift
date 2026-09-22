@@ -75,16 +75,24 @@ enum DebugScreenHarness {
             break // The clean, onboarded Home state left by the reset above.
 
         case "home-progress":
-            app.progress.markOpened(treeLesson.id, pathId: treePath.id, step: midStep(of: treeLesson))
-            addPlaceholderPage(to: app, lesson: treeLesson)
+            // A learner a few days in: two lessons drawn on the current path and
+            // the third paused part-way, one lesson of another path drawn, and
+            // their pages in the sketchbook.
+            markFirst(2, of: treePath, in: app)
+            if carPath.id != treePath.id { markFirst(1, of: carPath, in: app) }
+            app.select(treePath)
+            if let paused = app.progress.nextLesson(in: treePath) {
+                app.progress.markOpened(paused.id, pathId: treePath.id, step: midStep(of: paused))
+            }
+            for lesson in treePath.lessons.prefix(2) + carPath.lessons.prefix(1) {
+                addPlaceholderPage(to: app, lesson: lesson)
+            }
 
         case "home-shelves":
             // Home a few weeks in: shelves at different places, so the row that
             // scrolls itself to its next lesson can be seen doing it.
             for (path, count) in zip(shipped, [4, 1, 0, 10]) {
-                for lesson in path.lessons.prefix(count) {
-                    app.progress.markCompleted(lesson.id, pathId: path.id)
-                }
+                markFirst(count, of: path, in: app)
             }
             addPlaceholderPage(to: app, lesson: treeLesson)
 

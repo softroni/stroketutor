@@ -260,6 +260,15 @@ final class AppModel {
         selectedTab = .path
     }
 
+    /// Shows All paths from anywhere — Home's "See all paths". All paths lives on
+    /// the Path tab, pushed over the current path, so this switches there and
+    /// leaves exactly that one screen on the stack: Back returns to the current
+    /// path, and a second tap cannot stack a second copy.
+    func showAllPaths() {
+        selectedTab = .path
+        pathStack = [.paths]
+    }
+
     /// Makes the lesson's path the current one, if it is not already. A lesson the
     /// catalog no longer names leaves the choice alone rather than pointing Home at
     /// a path that is not in `paths`.

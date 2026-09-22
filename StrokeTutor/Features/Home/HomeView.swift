@@ -1,59 +1,87 @@
 import SwiftUI
 
-/// `hp-home` — the Home tab, and the app's home. Two questions, answered in order.
-/// *What do I draw next?* — the hero banner, one tap. *What else is there?* — every
-/// path as a shelf: one row per path, its lessons as square tiles of the finished
-/// drawings, scrolling sideways. A learner chooses by picture, not by reading.
+/// `hp-home` — the Home tab, and the app's home. Told in pictures and colors, with
+/// as few words as it can manage, because its learners are 8 to 16:
+///
+/// 1. **The hero** — *what do I draw next?* The next lesson, drawn large and in
+///    color, with its path's name on a chip in the path's own tint, and one button.
+/// 2. **Your paths** — one shelf per path the learner is drawing: the current path
+///    first (even before anything in it is drawn), then every other path they have
+///    started, most recently drawn first. Each shelf is a band in the path's tint
+///    (`PathTint`, the same color it wears on All paths and the Path screen) with
+///    its lessons as tiles scrolling sideways: done in gold, the next in green,
+///    what is coming as a faded outline with a small lock.
+/// 3. **Your drawings** — once the sketchbook has pages, the latest few photos in a
+///    strip; a tap goes to the Sketchbook tab.
+/// 4. **Try something new** — up to four paths not yet started, as picture cards
+///    in their tints (the path's first lesson in color on white paper), and "See
+///    all paths". Gone once every path is started.
+///
+/// Home only shows what a learner is doing and a few doors onward, so it stays
+/// short however big the catalog grows; All paths is the full list. Level names
+/// and descriptions, path descriptions and "Lesson 3 of 10" are not printed —
+/// VoiceOver still reads the descriptions and the lesson's place.
 ///
 /// Nothing on this screen can go down: no streak, no score, no goal. A shelf counts
-/// finished drawings and nothing else.
+/// finished drawings and nothing else. Lina, the tutor, is not on Home.
 ///
 /// Each shelf opens already scrolled to its next lesson, so what is drawn sits to
 /// the left, what is coming to the right, and the tile to tap is in the middle.
-/// Shelves keep the catalog's order on every visit — a learner finds a path where
-/// they left it — and sit under the catalog's level headings when it has levels.
-///
-/// Two states. **In progress** carries the gold sketchbook chip. **First time** —
-/// nothing drawn anywhere and an empty sketchbook, the state `ob-ready` hands over —
-/// replaces the chip with one line under the title and ends with an honest
-/// empty-sketchbook line.
 struct HomeView: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var lockedLesson: LockedLesson?
     @State private var isShowingProfiles = false
     /// The learner picked in the switcher, handed over once the sheet has closed.
     @State private var chosenProfile: UUID?
 
+    /// How many untouched paths "Try something new" offers.
+    private static let suggestionCount = 4
+    /// How many of the newest sketchbook pages the drawings strip shows.
+    private static let recentPageCount = 6
+
     var body: some View {
         ScrollView {
-            // Full bleed: the shelves scroll edge to edge, so everything else takes
-            // the gutter itself.
-            LazyVStack(alignment: .leading, spacing: Theme.stackSpacing) {
-                if sections.isEmpty {
-                    title(for: nil).padding(.horizontal, Theme.gutter)
-                    emptyCatalogCard.padding(.horizontal, Theme.gutter)
-                } else {
-                    title(for: app.currentPath).padding(.horizontal, Theme.gutter)
-                    hero.padding(.horizontal, Theme.gutter)
+            // Full bleed: the drawings strip scrolls edge to edge, so everything
+            // else takes the gutter itself.
+            LazyVStack(alignment: .leading, spacing: 0) {
+                header
+                    .padding(.horizontal, Theme.gutter)
 
-                    ForEach(sections) { section in
-                        if let level = section.level {
-                            levelHeader(level)
-                        }
-                        ForEach(section.paths) { path in
-                            PathShelf(path: path,
-                                      progress: app.progress,
-                                      onOpenPath: { app.open(path) },
-                                      onOpenLesson: { open($0, in: path) })
-                        }
+                if shipped.isEmpty {
+                    emptyCatalogCard
+                        .padding(.horizontal, Theme.gutter)
+                        .padding(.top, Theme.stackSpacing)
+                } else {
+                    hero
+                        .padding(.horizontal, Theme.gutter)
+                        .padding(.top, Theme.stackSpacing)
+
+                    ForEach(shelves) { path in
+                        PathShelf(path: path,
+                                  tint: app.tint(for: path),
+                                  progress: app.progress,
+                                  onOpenPath: { app.open(path) },
+                                  onOpenLesson: { open($0, in: path) })
+                            .padding(.horizontal, Theme.gutter)
+                            .padding(.top, 22)
                     }
 
-                    footer
+                    if !recentPages.isEmpty {
+                        drawingsStrip
+                            .padding(.top, 34)
+                    }
+
+                    if !suggestions.isEmpty {
+                        trySomethingNew
+                            .padding(.horizontal, Theme.gutter)
+                            .padding(.top, 34)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 6)
-            .padding(.bottom, 16)
+            .padding(.bottom, 24)
         }
         .background(Theme.page)
         .toolbar(.hidden, for: .navigationBar)
@@ -83,40 +111,18 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Title
+    // MARK: - Header
 
-    /// "Home", with the gold sketchbook chip beside it — or, the first time, one
-    /// line of context under it instead, because there is nothing to count yet.
-    @ViewBuilder
-    private func title(for path: PathModel?) -> some View {
-        if isFirstTime, let path {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .center, spacing: 8) {
-                    homeTitle
-                    Spacer(minLength: 0)
-                    profileButton
-                }
-                if !hasBegun(in: path) {
-                    Text("You chose \(path.title). Start there, or pick any picture you like.")
-                        .textRole(.bodyRegular)
-                        .foregroundStyle(Theme.ink55)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-        } else {
-            HStack(alignment: .center, spacing: 8) {
-                homeTitle
-                Spacer(minLength: 0)
-                Button {
-                    app.selectedTab = .sketchbook
-                } label: {
-                    Chip(text: drawingsText, systemImage: "book", style: .gold)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(drawingsText) in your sketchbook")
-                .accessibilityAddTraits(.isButton)
-                profileButton
-            }
+    /// "Home" and who is drawing. Nothing else: the drawings have their own strip
+    /// further down.
+    private var header: some View {
+        HStack(alignment: .center, spacing: 8) {
+            Text("Home")
+                .textRole(.largeTitle)
+                .foregroundStyle(Theme.ink)
+                .accessibilityAddTraits(.isHeader)
+            Spacer(minLength: 0)
+            profileButton
         }
     }
 
@@ -135,62 +141,38 @@ struct HomeView: View {
         .accessibilityHint("Switch who’s drawing, or add someone")
     }
 
-    private var homeTitle: some View {
-        Text("Home")
-            .textRole(.largeTitle)
-            .foregroundStyle(Theme.ink)
-            .accessibilityAddTraits(.isHeader)
-    }
-
-    private var drawingsText: String {
-        let count = app.sketchbook.count
-        return count == 1 ? "1 drawing" : "\(count) drawings"
-    }
-
-    /// Straight out of onboarding: nothing drawn in any path, and no page saved.
-    private var isFirstTime: Bool {
-        app.sketchbook.count == 0
-            && app.paths.allSatisfy { app.progress.drawnCount(in: $0) == 0 }
-    }
-
-    /// Whether anything in this path has happened yet: a drawing finished, or the
-    /// next lesson left paused part-way. "Continue" rather than "Start here" on the
-    /// hero, and no "start there" line under the title.
-    private func hasBegun(in path: PathModel) -> Bool {
-        guard let next = app.progress.nextLesson(in: path) else { return true }
-        return app.progress.drawnCount(in: path) > 0
-            || app.progress.resumeStep(for: next.id) != nil
-    }
-
     // MARK: - Hero
 
     /// The path the hero speaks for: the current one while it still has a lesson to
-    /// offer, then the first shelf that does. Nil once every shelf is drawn.
+    /// offer, then the first shelf that does, then any path that does. Nil once
+    /// every lesson of every path is drawn.
     private var heroPath: PathModel? {
-        if let current = app.currentPath, app.progress.nextLesson(in: current) != nil {
-            return current
-        }
-        return shelves.first { app.progress.nextLesson(in: $0) != nil }
+        (shelves + shipped).first { app.progress.nextLesson(in: $0) != nil }
     }
 
     @ViewBuilder
     private var hero: some View {
         if let path = heroPath, let lesson = app.progress.nextLesson(in: path) {
             let position = path.position(of: lesson.id) ?? 1
-            HeroCard(eyebrow: "\(hasBegun(in: path) ? "Continue" : "Start here") · \(path.title)",
+            let isResuming = app.progress.resumeStep(for: lesson.id) != nil
+            HeroCard(chip: path.title,
+                     tint: app.tint(for: path),
                      title: lesson.title,
-                     meta: "Lesson \(position) of \(path.lessonCount) · \(lesson.estimatedTimeText)",
+                     meta: "\(lesson.estimatedMinutes) min",
                      drawing: lesson.tutorial,
-                     actionTitle: "Start drawing") {
+                     actionTitle: isResuming ? "Keep drawing" : "Start drawing",
+                     accessibilityContext: "\(hasBegun(in: path) ? "Continue" : "Start here"), lesson \(position) of \(path.lessonCount)") {
                 app.showPreview(of: lesson)
             }
-        } else if let last = shelves.last?.lessons.last {
+        } else if let last = shipped.last?.lessons.last {
             // Every lesson of every path is drawn. The hero stops offering a lesson
             // and points at the one place that holds them all.
-            let count = shelves.reduce(0) { $0 + $1.lessonCount }
-            HeroCard(eyebrow: "Finished",
-                     title: "You have drawn every lesson.",
-                     meta: "\(count) \(count == 1 ? "drawing" : "drawings"), all yours.",
+            let count = shipped.reduce(0) { $0 + $1.lessonCount }
+            HeroCard(chip: "All done",
+                     tint: nil,
+                     title: "You drew every lesson!",
+                     meta: "\(count) \(count == 1 ? "drawing" : "drawings")",
+                     metaSystemImage: "checkmark",
                      drawing: last.tutorial,
                      actionTitle: "Open your sketchbook") {
                 app.selectedTab = .sketchbook
@@ -198,56 +180,123 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - The shelves
-
-    /// The shelves, in the order and the groups the screen draws them: the catalog's
-    /// level sections, then a last section without a heading for the paths that
-    /// belong to no level. A path with no lessons in the bundle is not offered.
-    private var sections: [HomeSection] {
-        app.catalog.pathSections.compactMap { section in
-            let shipped = section.paths.compactMap { app.path(id: $0.id) }.filter { !$0.isEmpty }
-            guard !shipped.isEmpty else { return nil }
-            return HomeSection(level: section.level, paths: shipped)
-        }
+    /// Whether anything in this path has happened yet: a drawing finished, or the
+    /// next lesson left paused part-way. VoiceOver hears "Continue" rather than
+    /// "Start here" on the hero.
+    private func hasBegun(in path: PathModel) -> Bool {
+        guard let next = app.progress.nextLesson(in: path) else { return true }
+        return app.progress.drawnCount(in: path) > 0
+            || app.progress.resumeStep(for: next.id) != nil
     }
 
+    // MARK: - What the screen lists
+
+    /// Every path with lessons in the bundle, in catalog order. A path with nothing
+    /// installed is never offered.
+    private var shipped: [PathModel] {
+        app.paths.filter { !$0.isEmpty }
+    }
+
+    /// The shelves: the current path first, always, then every other path with at
+    /// least one drawing, most recently drawn first.
     private var shelves: [PathModel] {
-        sections.flatMap(\.paths)
+        let current = app.currentPath.flatMap { current in shipped.first { $0.id == current.id } }
+        let started = shipped
+            .enumerated()
+            .filter { $0.element.id != current?.id && app.progress.drawnCount(in: $0.element) > 0 }
+            .sorted { lhs, rhs in
+                let (left, right) = (lastDrawn(in: lhs.element), lastDrawn(in: rhs.element))
+                return left == right ? lhs.offset < rhs.offset : left > right
+            }
+            .map(\.element)
+        return (current.map { [$0] } ?? []) + started
     }
 
-    /// A level's name with its one line underneath. One accessibility element, read
-    /// as a heading, so VoiceOver announces the group before the shelves in it.
-    private func levelHeader(_ level: CatalogLevel) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(level.title.uppercased())
-                .textRole(.eyebrow)
-                .foregroundStyle(Theme.green)
+    /// Up to four paths without a shelf, the current path's level first — the next
+    /// thing a learner at that level is likely to enjoy — then the catalog's order,
+    /// easiest first.
+    private var suggestions: [PathModel] {
+        let shelved = Set(shelves.map(\.id))
+        let fresh = shipped.filter { !shelved.contains($0.id) }
+        let level = app.currentPath?.level
+        let sameLevel = fresh.filter { level != nil && $0.level == level }
+        let others = fresh.filter { level == nil || $0.level != level }
+        return Array((sameLevel + others).prefix(Self.suggestionCount))
+    }
 
-            if let description = level.description {
-                Text(description)
-                    .textRole(.footnote)
-                    .foregroundStyle(Theme.ink55)
-                    .fixedSize(horizontal: false, vertical: true)
+    private var recentPages: [SketchbookPage] {
+        Array(app.sketchbook.pages.prefix(Self.recentPageCount))
+    }
+
+    private func lastDrawn(in path: PathModel) -> Date {
+        path.lessons
+            .compactMap { app.progress.progress(for: $0.id)?.completedAt }
+            .max() ?? .distantPast
+    }
+
+    // MARK: - Your drawings
+
+    /// The newest pages of the sketchbook, small, in a row that scrolls sideways.
+    /// The heading and every page go to the Sketchbook tab.
+    private var drawingsStrip: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                app.selectedTab = .sketchbook
+            } label: {
+                SectionTitle(text: "Your drawings", showsChevron: true)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, Theme.gutter)
+            .accessibilityLabel("Your drawings, \(app.sketchbook.count) in your sketchbook")
+            .accessibilityHint("Opens your sketchbook")
+            .accessibilityAddTraits(.isHeader)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(recentPages) { page in
+                        let lesson = app.lesson(id: page.lessonId)
+                        Button {
+                            app.selectedTab = .sketchbook
+                        } label: {
+                            SketchbookPageThumb(page: page,
+                                                tutorial: lesson?.tutorial,
+                                                width: dynamicTypeSize.isAccessibilitySize ? 120 : 96)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Your \(lesson?.title ?? "drawing")")
+                        .accessibilityHint("Opens your sketchbook")
+                    }
+                }
+                .padding(.horizontal, Theme.gutter)
+                .padding(.vertical, 2)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, Theme.gutter)
-        .padding(.top, 14)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isHeader)
     }
 
-    @ViewBuilder
-    private var footer: some View {
-        if isFirstTime {
-            Text("Your sketchbook is empty. Your first finished page goes there.")
-                .textRole(.footnote)
-                .foregroundStyle(Theme.ink40)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, Theme.gutter + 16)
-                .padding(.top, 8)
-                .frame(maxWidth: .infinity)
+    // MARK: - Try something new
+
+    private var trySomethingNew: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SectionTitle(text: "Try something new", showsChevron: false)
+                .accessibilityAddTraits(.isHeader)
+
+            PictureGrid(columns: dynamicTypeSize.isAccessibilitySize ? 1 : 2,
+                        spacing: 14,
+                        centersLastRow: false) {
+                ForEach(suggestions) { path in
+                    NewPathCard(path: path, tint: app.tint(for: path)) {
+                        app.open(path)
+                    }
+                }
+            }
+
+            Button {
+                app.showAllPaths()
+            } label: {
+                Label("See all paths", systemImage: "square.grid.2x2")
+            }
+            .buttonStyle(.secondary)
+            .padding(.top, 6)
         }
     }
 
@@ -278,90 +327,141 @@ struct HomeView: View {
     }
 }
 
-/// One heading's worth of Home: a level and the shelves under it, or no level at
-/// all for the paths the catalog does not group.
-private struct HomeSection: Identifiable {
-    let level: CatalogLevel?
-    let paths: [PathModel]
+/// A section's name on Home, big and bold like the level titles on All paths,
+/// with a chevron when the whole title is a button.
+private struct SectionTitle: View {
+    let text: String
+    let showsChevron: Bool
 
-    /// A level id is never empty, so the unheaded section cannot collide with one.
-    var id: String { level?.id ?? "" }
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text(text)
+                .textRole(.title2)
+                .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+            if showsChevron {
+                Image(systemName: "chevron.right")
+                    .scaledFont(17, .heavy, relativeTo: .title3, design: .default)
+                    .foregroundStyle(Theme.ink40)
+            }
+        }
+        .frame(minHeight: Theme.navTapTarget)
+        .contentShape(Rectangle())
+    }
 }
 
-/// One path as a shelf: its name and "2 of 10" on a header that opens the path, then
-/// its lessons as tiles in a row that scrolls sideways, edge to edge.
+/// One path as a shelf: a band in the path's tint (gold once every lesson is drawn)
+/// with a 5 pt deeper edge, the path's name and a chevron on top — the name is the
+/// button that opens the path — and its lessons as tiles in a row that scrolls
+/// sideways inside the band.
 private struct PathShelf: View {
     let path: PathModel
+    let tint: PathTint
     let progress: ProgressStore
     let onOpenPath: () -> Void
     let onOpenLesson: (Lesson) -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var paint: PathTint { isComplete ? .complete : tint }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let shape = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
+        VStack(alignment: .leading, spacing: 0) {
             header
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
                     // Not lazy: ten tiles, and `scrollTo` must find the next one
                     // before it has ever been on screen. The shelves themselves
                     // are built lazily by Home's outer stack.
-                    HStack(alignment: .top, spacing: 12) {
+                    HStack(alignment: .top, spacing: 14) {
                         ForEach(Array(path.lessons.enumerated()), id: \.element.id) { index, lesson in
                             LessonTile(lesson: lesson,
                                        position: index + 1,
-                                       state: state(of: lesson)) {
+                                       state: state(of: lesson),
+                                       tint: paint) {
                                 onOpenLesson(lesson)
                             }
                             .id(lesson.id)
                         }
                     }
-                    .padding(.horizontal, Theme.gutter)
-                    .padding(.top, 2)
+                    .padding(.horizontal, 16)
+                    // Room for the "Next" flag and the check badge, which sit on
+                    // the tile's top edge.
+                    .padding(.top, 12)
+                    .padding(.bottom, 10)
                 }
                 .onAppear { center(proxy, animated: false) }
-                .onChange(of: nextLessonId) { center(proxy, animated: true) }
+                .onChange(of: nextLessonId) { center(proxy, animated: !reduceMotion) }
             }
         }
-        .padding(.top, 10)
+        .background(paint.soft)
+        .clipShape(shape)
+        .background(alignment: .bottom) {
+            shape.fill(paint.edge).offset(y: 5)
+        }
+        .padding(.bottom, 5)
     }
 
     private var header: some View {
         Button(action: onOpenPath) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
                 Text(path.title)
-                    .textRole(.title3)
+                    .textRole(.title2)
                     .foregroundStyle(Theme.ink)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-                Text(countText)
-                    .textRole(.footnote)
-                    .foregroundStyle(isComplete ? Theme.goldDeep : Theme.ink55)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 Image(systemName: "chevron.right")
-                    .scaledFont(13, .bold, design: .default)
-                    .foregroundStyle(Theme.ink25)
+                    .scaledFont(17, .heavy, relativeTo: .title3, design: .default)
+                    .foregroundStyle(paint.deep)
+                Spacer(minLength: 8)
+                count
             }
-            .padding(.horizontal, Theme.gutter)
-            .frame(minHeight: Theme.navTapTarget)
+            .padding(.horizontal, 18)
+            .padding(.top, 10)
+            .frame(minHeight: Theme.navTapTarget + 10)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(path.title), \(countText)")
+        .accessibilityLabel(accessibilityLabel)
         .accessibilityHint("Opens the whole path")
         .accessibilityAddTraits([.isButton, .isHeader])
     }
 
+    /// "2/10" in the path's deep color on white, or a gold check and "10/10".
+    /// A count of finished drawings, never a percentage and never a target.
+    private var count: some View {
+        HStack(spacing: 4) {
+            if isComplete {
+                Image(systemName: "checkmark")
+                    .scaledFont(12, .heavy, relativeTo: .footnote, design: .default)
+            }
+            Text("\(drawn)/\(path.lessonCount)")
+                .scaledFont(15, .heavy, relativeTo: .footnote)
+                .monospacedDigit()
+        }
+        .foregroundStyle(paint.deep)
+        .padding(.vertical, 5)
+        .padding(.horizontal, 10)
+        .background(Capsule().fill(Theme.paper))
+        .fixedSize()
+    }
+
     private var drawn: Int { progress.drawnCount(in: path) }
-    private var isComplete: Bool { drawn == path.lessonCount }
+    private var isComplete: Bool { drawn == path.lessonCount && path.lessonCount > 0 }
     private var nextLessonId: String? { progress.nextLesson(in: path)?.id }
 
-    /// "2 of 10", "All 10 drawn", or "10 drawings" before anything is drawn. A count
-    /// of finished work, never a percentage and never a target.
-    private var countText: String {
-        if isComplete { return "All \(path.lessonCount) drawn" }
-        guard drawn > 0 else {
-            return "\(path.lessonCount) \(path.lessonCount == 1 ? "drawing" : "drawings")"
+    /// The name, what the path is about (no longer printed), and the count.
+    private var accessibilityLabel: String {
+        var parts = [path.title]
+        if let description = path.description { parts.append(description) }
+        if isComplete {
+            parts.append("all \(path.lessonCount) drawn")
+        } else {
+            parts.append("\(drawn) of \(path.lessonCount) drawn")
         }
-        return "\(drawn) of \(path.lessonCount) drawn"
+        return parts.joined(separator: ", ")
     }
 
     private func state(of lesson: Lesson) -> LessonTile.State {
@@ -378,6 +478,60 @@ private struct PathShelf: View {
         } else {
             proxy.scrollTo(nextLessonId, anchor: .center)
         }
+    }
+}
+
+/// A path not yet started, offered under "Try something new": the path's soft tint
+/// with a 4 pt deeper edge, its first lesson drawn in color on white paper, and its
+/// name. The same card as All paths, minus the count. The description is read by
+/// VoiceOver only.
+private struct NewPathCard: View {
+    let path: PathModel
+    let tint: PathTint
+    let action: () -> Void
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
+        Button(action: action) {
+            VStack(spacing: 8) {
+                DrawingThumbnail(tutorial: path.lessons.first?.tutorial,
+                                 strokeColor: nil,
+                                 showsFills: true)
+                    .frame(maxWidth: 100)
+                    .frame(height: 96)
+                    .padding(10)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: Theme.thumbCornerRadius, style: .continuous)
+                            .fill(Theme.paper)
+                    )
+
+                Text(path.title)
+                    .scaledFont(18, .heavy, relativeTo: .headline)
+                    .tracking(-0.2)
+                    .foregroundStyle(Theme.ink)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity)
+
+                Spacer(minLength: 0)
+            }
+            .padding(.init(top: 10, leading: 10, bottom: 12, trailing: 10))
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(shape.fill(tint.soft))
+            .background(alignment: .bottom) {
+                shape.fill(tint.edge).offset(y: 4)
+            }
+            .padding(.bottom, 4)
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel([path.title, path.description, "\(path.lessonCount) \(path.lessonCount == 1 ? "lesson" : "lessons")"]
+            .compactMap { $0 }
+            .joined(separator: ", "))
+        .accessibilityHint("Starts this path")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
