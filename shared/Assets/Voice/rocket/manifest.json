@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "rocket",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:33:43.445Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Here's a rocket on the pad, fins down, flame lit. Build it from the nose down, then count down and go.",
+      "textHash": "4f7106ad9a9f764eb0349ed857560306113dbe4f28ac51748f1dd5084335823e",
+      "durationMs": 7120
+    },
+    "body": {
+      "file": "body.m4a",
+      "text": "Start at the tip of the nose. Draw the left side, curving down to the bottom.",
+      "textHash": "c91c3d89b67c5b22e7fe83658b178c39476664d36c00fd7dc5c9b2f92a9f1d31",
+      "durationMs": 4960
+    },
+    "body-2": {
+      "file": "body-2.m4a",
+      "text": "Back to the tip. Take the right side down the same way, and close the bottom.",
+      "textHash": "c3e3f4f0d719e7fde52fb2fe5ca925397379f86598da8c9f37da65e642000051",
+      "durationMs": 4800
+    },
+    "nose-line": {
+      "file": "nose-line.m4a",
+      "text": "One straight line across, near the top. Everything above it is the nose cone.",
+      "textHash": "e3ecd154660fd77a577ae9b6d2ee7f13cf758f7b41c6c1380e1cbbdbded37b58",
+      "durationMs": 5600
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "The window is a circle in the middle of the body, with room all around it.",
+      "textHash": "83f8bbc2ff8b2425f92364f020716fe08931c59dbff50ce0c2a290161dc1bdca",
+      "durationMs": 4720
+    },
+    "fins": {
+      "file": "fins.m4a",
+      "text": "A fin goes on each side at the bottom, like two swept-back wings.",
+      "textHash": "07d660a9ba3d523547bbdce77c01de875c2c9ec5a5f7eae2bc285faedff8b0db",
+      "durationMs": 4080
+    },
+    "flame": {
+      "file": "flame.m4a",
+      "text": "Under the rocket, hang a flame: wide at the top, down to one soft point.",
+      "textHash": "bf367f23897508d48afee0027d248291550f81021eaec96a803341cc8b911c5f",
+      "durationMs": 5520
+    },
+    "inner-flame": {
+      "file": "inner-flame.m4a",
+      "text": "A smaller flame sits inside it, the same teardrop shape.",
+      "textHash": "3254983c124c87aa5e13e5dbc4760e8ed35b6116f6dc7717701b21bd143981fa",
+      "durationMs": 4160
+    },
+    "body-color": {
+      "file": "body-color.m4a",
+      "text": "Color the body gray.",
+      "textHash": "8cf77b74a8452ad9d125c7dcea37f9bf2f3c77a485f844ee2b2014d900e37c4c",
+      "durationMs": 1680
+    },
+    "red": {
+      "file": "red.m4a",
+      "text": "Color the nose cone and both fins red.",
+      "textHash": "aa68d8a105efbd92aa964dd7fcf30e888a81cc65b941eba28c55d2e42c03c555",
+      "durationMs": 2800
+    },
+    "flames": {
+      "file": "flames.m4a",
+      "text": "Color the flame orange, and the little one inside it yellow.",
+      "textHash": "cd991b78af9d9e3a7435d6d532eebf4526a46c7ab5361c43413121b07aca0988",
+      "durationMs": 4480
+    },
+    "window-color": {
+      "file": "window-color.m4a",
+      "text": "Color the window blue.",
+      "textHash": "1b6772e520ad5a403cd39edfb2032edd17341161c3df641740ce92b56f5057c6",
+      "durationMs": 1600
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your rocket is ready. Five, four, three, two, one.",
+      "textHash": "433289be0129aafb7483ea3024379920a2f466766a99257ecbb3c8993b15fb49",
+      "durationMs": 6320
+    }
+  }
+}
