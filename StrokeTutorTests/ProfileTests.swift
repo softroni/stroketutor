@@ -45,24 +45,24 @@ final class ProfileTests: XCTestCase {
 
         model.progress.markCompleted("palm-tree-4", pathId: "trees")
         _ = model.sketchbook.add(image: SketchbookStoreTests.image(), lessonId: "palm-tree-4", pathId: "trees")
-        model.preferences.leftHanded = true
+        model.preferences.narrationEnabled = false
 
         model.switchProfile(to: second.id)
 
         XCTAssertEqual(model.activeProfile.id, second.id)
         XCTAssertFalse(model.progress.isCompleted("palm-tree-4"))
         XCTAssertTrue(model.sketchbook.isEmpty)
-        XCTAssertFalse(model.preferences.leftHanded)
-        model.preferences.reduceMotionOverride = true
+        XCTAssertTrue(model.preferences.narrationEnabled)
+        model.preferences.currentPathId = "cars"
         model.preferences.defaultSpeed = 2.0
 
         model.switchProfile(to: first.id)
 
         XCTAssertTrue(model.progress.isCompleted("palm-tree-4"))
         XCTAssertEqual(model.sketchbook.count, 1)
-        XCTAssertTrue(model.preferences.leftHanded)
-        XCTAssertFalse(model.preferences.reduceMotionOverride,
-                       "Reduce motion belongs to the learner who turned it on.")
+        XCTAssertFalse(model.preferences.narrationEnabled)
+        XCTAssertNotEqual(model.preferences.currentPathId, "cars",
+                          "The path belongs to the learner who chose it.")
         XCTAssertEqual(model.preferences.defaultSpeed, 1.0)
 
         // And the same from disk, as the next launch reads it.
@@ -71,7 +71,7 @@ final class ProfileTests: XCTestCase {
         XCTAssertTrue(relaunched.shouldAskWhoIsDrawing)
         XCTAssertEqual(relaunched.activeProfile.id, first.id, "The learner who drew last opens.")
         relaunched.switchProfile(to: second.id)
-        XCTAssertTrue(relaunched.preferences.reduceMotionOverride)
+        XCTAssertEqual(relaunched.preferences.currentPathId, "cars")
         XCTAssertEqual(relaunched.preferences.defaultSpeed, 2.0)
         XCTAssertTrue(relaunched.sketchbook.isEmpty)
     }
@@ -143,8 +143,6 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(model.preferences.currentPathId, "cars")
         XCTAssertFalse(model.preferences.narrationEnabled)
         XCTAssertEqual(model.preferences.defaultSpeed, 2.0)
-        XCTAssertTrue(model.preferences.reduceMotionOverride)
-        XCTAssertTrue(model.preferences.leftHanded)
 
         // The originals go only after the commit.
         XCTAssertFalse(FileManager.default.fileExists(atPath: base.appendingPathComponent("progress.json").path))
@@ -170,7 +168,7 @@ final class ProfileTests: XCTestCase {
         XCTAssertTrue(store.profiles.isEmpty, "Nothing is committed before the rename.")
         XCTAssertTrue(FileManager.default.fileExists(atPath: base.appendingPathComponent("progress.json").path))
         XCTAssertEqual(SketchbookStore(baseDirectory: base).count, 1)
-        XCTAssertEqual(defaults.object(forKey: Settings.LegacyKey.leftHanded) as? Bool, true)
+        XCTAssertEqual(defaults.object(forKey: Settings.LegacyKey.narrationEnabled) as? Bool, false)
 
         // A kill leaves its staging folder behind; the next launch sweeps it.
         let leftover = store.rootDirectory.appendingPathComponent(".staging-\(UUID().uuidString)")
@@ -186,7 +184,7 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(model.profiles.count, 1)
         XCTAssertTrue(model.progress.isCompleted("palm-tree-4"))
         XCTAssertNotNil(model.sketchbook.page(id: page.id))
-        XCTAssertTrue(model.preferences.leftHanded)
+        XCTAssertFalse(model.preferences.narrationEnabled)
     }
 
     func testAnInterruptedCleanUpIsFinishedNotRepeated() throws {
@@ -196,7 +194,7 @@ final class ProfileTests: XCTestCase {
 
         // Killed after the commit but before the originals were removed.
         ProgressStore(baseDirectory: base).markCompleted("stale", pathId: "p")
-        defaults.set(true, forKey: Settings.LegacyKey.leftHanded)
+        defaults.set(false, forKey: Settings.LegacyKey.narrationEnabled)
         defaults.removeObject(forKey: LegacyProfileMigration.committedKey)
 
         let second = makeModel()
@@ -205,7 +203,7 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(second.profiles.count, 1, "The committed profile is not made twice.")
         XCTAssertFalse(second.progress.isCompleted("stale"))
         XCTAssertFalse(FileManager.default.fileExists(atPath: base.appendingPathComponent("progress.json").path))
-        XCTAssertNil(defaults.object(forKey: Settings.LegacyKey.leftHanded))
+        XCTAssertNil(defaults.object(forKey: Settings.LegacyKey.narrationEnabled))
     }
 
     func testAMigrationThatCannotWriteRunsOnTheOriginalsForTheSession() throws {
@@ -222,7 +220,7 @@ final class ProfileTests: XCTestCase {
         XCTAssertNotNil(model.temporaryProfile)
         XCTAssertTrue(model.progress.isCompleted("palm-tree-4"), "The originals are in use this session.")
         XCTAssertEqual(model.sketchbook.count, 1)
-        XCTAssertTrue(model.preferences.leftHanded)
+        XCTAssertFalse(model.preferences.narrationEnabled)
         XCTAssertFalse(model.canDelete(model.activeProfile))
 
         try FileManager.default.removeItem(at: blocker)
@@ -243,7 +241,7 @@ final class ProfileTests: XCTestCase {
 
         model.push(.paths)
         model.selectedTab = .sketchbook
-        model.push(.about)
+        model.push(.narrationSettings)
         model.presentPlayer(lesson)
         // What the player registers while it is on screen.
         var savedTo: UUID?
@@ -343,8 +341,6 @@ final class ProfileTests: XCTestCase {
         defaults.set("cars", forKey: Settings.LegacyKey.currentPathId)
         defaults.set(false, forKey: Settings.LegacyKey.narrationEnabled)
         defaults.set(2.0, forKey: Settings.LegacyKey.defaultSpeed)
-        defaults.set(true, forKey: Settings.LegacyKey.reduceMotionOverride)
-        defaults.set(true, forKey: Settings.LegacyKey.leftHanded)
         return page
     }
 }

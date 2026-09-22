@@ -160,15 +160,13 @@ struct PlayerScreen: View {
     }
 
     /// The 96 pt band at the top of the paper: narration on one side, the reference
-    /// on the other. Left-handed swaps them, so the drawing hand covers neither.
+    /// on the other.
     private var chipBand: some View {
-        // Two overlays rather than a reordered row, so the thumbnail keeps its view
-        // identity — and its loaded picture — when the handedness setting changes.
         Color.clear
             .allowsHitTesting(false)
             .frame(height: 84)
-            .overlay(alignment: isLeftHanded ? .topTrailing : .topLeading) { narrationChip }
-            .overlay(alignment: isLeftHanded ? .topLeading : .topTrailing) { referenceThumb }
+            .overlay(alignment: .topLeading) { narrationChip }
+            .overlay(alignment: .topTrailing) { referenceThumb }
             .padding(.horizontal, 16)
             .padding(.top, 12)
     }
@@ -221,8 +219,8 @@ struct PlayerScreen: View {
                                 Color.clear
                                     .allowsHitTesting(false)
                                     .frame(height: 64)
-                                    .overlay(alignment: isLeftHanded ? .trailing : .leading) { narrationChip }
-                                    .overlay(alignment: isLeftHanded ? .leading : .trailing) {
+                                    .overlay(alignment: .leading) { narrationChip }
+                                    .overlay(alignment: .trailing) {
                                         ReferenceThumb(reference: lesson.reference, side: 64) {
                                             showReference = true
                                         }
@@ -282,7 +280,6 @@ struct PlayerScreen: View {
         PlayerWideBar(stepIndex: isOrientation ? nil : player.currentStepIndex,
                       stepCount: max(lesson.stepCount, 1),
                       actions: actions,
-                      isLeftHanded: isLeftHanded,
                       leadingInset: safeAreaInsets.left,
                       trailingInset: safeAreaInsets.right,
                       onClose: close,
@@ -515,7 +512,6 @@ struct PlayerScreen: View {
                         canGoBack: player.canGoToPreviousStep,
                         showsBack: !isOrientation,
                         replayLabel: isOrientation ? "Watch it come together again" : "Watch this step again",
-                        isLeftHanded: isLeftHanded,
                         primaryFontSize: isLandscape ? 19 : nil,
                         isCompact: isWidePage,
                         onBack: goBack,
@@ -567,11 +563,7 @@ struct PlayerScreen: View {
 
     // MARK: - State
 
-    private var isLeftHanded: Bool { app.preferences.leftHanded }
-
-    private var reduceMotion: Bool {
-        systemReduceMotion || app.preferences.reduceMotionOverride
-    }
+    private var reduceMotion: Bool { systemReduceMotion }
 
     /// The side panel needs a 312 pt column beside a useful paper; at accessibility
     /// type sizes the stack cannot hold, so portrait wins whatever the phone does.

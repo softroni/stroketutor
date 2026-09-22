@@ -3,8 +3,7 @@ import Observation
 import OSLog
 
 /// The preferences that belong to a learner rather than to the device: which path Home
-/// shows, whether Lina speaks, how fast a lesson starts, and the two accessibility
-/// choices. Two siblings on one iPad can want different answers to every one of
+/// shows, whether Lina speaks, and how fast a lesson starts. Two siblings on one iPad can want different answers to every one of
 /// these, so each profile keeps its own `preferences.json`.
 ///
 /// Device-wide choices — onboarding, the reminder, "Also save to Photos", the
@@ -19,8 +18,6 @@ final class ProfilePreferences {
         var currentPathId = ""
         var narrationEnabled = true
         var defaultSpeed = 1.0
-        var reduceMotionOverride = false
-        var leftHanded = false
 
         init() {}
 
@@ -30,8 +27,6 @@ final class ProfilePreferences {
             currentPathId = try container.decodeIfPresent(String.self, forKey: .currentPathId) ?? defaults.currentPathId
             narrationEnabled = try container.decodeIfPresent(Bool.self, forKey: .narrationEnabled) ?? defaults.narrationEnabled
             defaultSpeed = Self.validSpeed(try container.decodeIfPresent(Double.self, forKey: .defaultSpeed))
-            reduceMotionOverride = try container.decodeIfPresent(Bool.self, forKey: .reduceMotionOverride) ?? defaults.reduceMotionOverride
-            leftHanded = try container.decodeIfPresent(Bool.self, forKey: .leftHanded) ?? defaults.leftHanded
         }
 
         /// The values a pre-profiles build kept in `UserDefaults`, for the migration.
@@ -40,8 +35,6 @@ final class ProfilePreferences {
             currentPathId = defaults.string(forKey: Settings.LegacyKey.currentPathId) ?? currentPathId
             narrationEnabled = defaults.object(forKey: Settings.LegacyKey.narrationEnabled) as? Bool ?? narrationEnabled
             defaultSpeed = Self.validSpeed(defaults.object(forKey: Settings.LegacyKey.defaultSpeed) as? Double)
-            reduceMotionOverride = defaults.object(forKey: Settings.LegacyKey.reduceMotionOverride) as? Bool ?? reduceMotionOverride
-            leftHanded = defaults.object(forKey: Settings.LegacyKey.leftHanded) as? Bool ?? leftHanded
         }
 
         /// A speed the player no longer offers (1.5× was one) falls back to 1×
@@ -60,10 +53,6 @@ final class ProfilePreferences {
     var narrationEnabled: Bool { didSet { save() } }
     /// The speed a lesson starts at: 0.5, 1, 2 or 4.
     var defaultSpeed: Double { didSet { save() } }
-    /// Turns the app's own motion off even when the system setting is on.
-    var reduceMotionOverride: Bool { didSet { save() } }
-    /// Moves the player's controls to the left.
-    var leftHanded: Bool { didSet { save() } }
 
     /// Nil keeps everything in memory — the fallback when a profile has no folder.
     private let fileURL: URL?
@@ -75,8 +64,6 @@ final class ProfilePreferences {
         currentPathId = values.currentPathId
         narrationEnabled = values.narrationEnabled
         defaultSpeed = values.defaultSpeed
-        reduceMotionOverride = values.reduceMotionOverride
-        leftHanded = values.leftHanded
     }
 
     /// An in-memory set, for the migration's fallback session.
@@ -90,8 +77,6 @@ final class ProfilePreferences {
         values.currentPathId = currentPathId
         values.narrationEnabled = narrationEnabled
         values.defaultSpeed = defaultSpeed
-        values.reduceMotionOverride = reduceMotionOverride
-        values.leftHanded = leftHanded
         return values
     }
 
@@ -104,8 +89,6 @@ final class ProfilePreferences {
         currentPathId = values.currentPathId
         narrationEnabled = values.narrationEnabled
         defaultSpeed = values.defaultSpeed
-        reduceMotionOverride = values.reduceMotionOverride
-        leftHanded = values.leftHanded
     }
 
     static func write(_ values: Values, to directory: URL) throws {

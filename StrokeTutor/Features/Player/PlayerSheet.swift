@@ -139,8 +139,7 @@ struct PlayerInstructionText: View {
 }
 
 /// One row for every state: `◀` and `↻` as round quiet buttons, then the wide
-/// primary. Left-handed mirrors it, so the thumb that holds the pen is never the
-/// thumb that has to reach across.
+/// primary.
 struct PlayerActionRow: View {
     let primaryTitle: String
     /// True while the step is still drawing: the primary is outlined rather than
@@ -152,7 +151,6 @@ struct PlayerActionRow: View {
     /// The intro before step one has nothing to go back to: only "watch again".
     var showsBack: Bool = true
     var replayLabel: String = "Watch this step again"
-    var isLeftHanded: Bool = false
     var primaryFontSize: CGFloat?
     /// The 48 pt version for the wide page's bar (`PlayerWideBar`): small round
     /// buttons and a primary that takes its label's width rather than the row's.
@@ -163,19 +161,11 @@ struct PlayerActionRow: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: Theme.stackSpacing) {
-            if isLeftHanded {
-                primary
-                if showsQuietControls {
-                    replayButton
-                    if showsBack { backButton }
-                }
-            } else {
-                if showsQuietControls {
-                    if showsBack { backButton }
-                    replayButton
-                }
-                primary
+            if showsQuietControls {
+                if showsBack { backButton }
+                replayButton
             }
+            primary
         }
     }
 

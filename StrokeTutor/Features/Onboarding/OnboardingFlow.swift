@@ -179,10 +179,8 @@ struct OnboardingFlow: View {
                 set: { app.preferences.narrationEnabled = $0 })
     }
 
-    /// The system setting, or the app's own override in Settings.
-    private var reducesMotion: Bool {
-        systemReducesMotion || app.preferences.reduceMotionOverride
-    }
+    /// The system's Reduce Motion setting.
+    private var reducesMotion: Bool { systemReducesMotion }
 
     /// `-onboardingBeat ob-2` on the scheme or on `simctl launch`, so a beat in the
     /// middle of the flow can be reached and compared with `v3.html` without tapping

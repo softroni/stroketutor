@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A list row whose control is a switch (`.list-row` with `.toggle`): the shape of
-/// "Also save to Photos", "Reduce motion", "Left-handed layout". Green when on, as
+/// "Also save to Photos". Green when on, as
 /// the system switch is with the app's accent.
 struct ToggleRow: View {
     let title: String

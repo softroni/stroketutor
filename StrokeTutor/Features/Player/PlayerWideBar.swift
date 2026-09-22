@@ -4,17 +4,14 @@ import SwiftUI
 /// panel held, on a 64 pt white bar along the bottom of a full-height paper, so a
 /// wide drawing keeps the rest of the screen to itself while the learner copies it.
 ///
-/// Reading left to right for a right-handed learner: close, the ⋯ menu, the step
-/// label — which is a button, the way back to the words — and the narration chip;
-/// then, on the far side, the reference thumbnail and the same action row as the
-/// sheet, small. Left-handed mirrors the whole row, so the primary is under the
-/// thumb that is free and the pen hand covers nothing on the way there.
+/// Reading left to right: close, the ⋯ menu, the step label — which is a button,
+/// the way back to the words — and the narration chip; then, on the far side, the
+/// reference thumbnail and the same action row as the sheet, small.
 struct PlayerWideBar<Menu: View, Chip: View, Reference: View>: View {
     /// The step in play, zero-based. Nil before the lesson starts.
     let stepIndex: Int?
     let stepCount: Int
     let actions: PlayerActionRow
-    var isLeftHanded: Bool = false
     /// The screen's horizontal safe insets: the paper runs under the island, the
     /// bar's white with it, but its buttons stay clear.
     var leadingInset: CGFloat = 0
@@ -31,21 +28,12 @@ struct PlayerWideBar<Menu: View, Chip: View, Reference: View>: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            if isLeftHanded {
-                actionCluster
-                Spacer(minLength: 8)
-                chip()
-                stepButton
-                menuButton
-                closeButton
-            } else {
-                closeButton
-                menuButton
-                stepButton
-                chip()
-                Spacer(minLength: 8)
-                actionCluster
-            }
+            closeButton
+            menuButton
+            stepButton
+            chip()
+            Spacer(minLength: 8)
+            actionCluster
         }
         .padding(.leading, 12 + leadingInset)
         .padding(.trailing, 12 + trailingInset)
@@ -66,13 +54,8 @@ struct PlayerWideBar<Menu: View, Chip: View, Reference: View>: View {
 
     private var actionCluster: some View {
         HStack(spacing: 10) {
-            if isLeftHanded {
-                actions
-                reference()
-            } else {
-                reference()
-                actions
-            }
+            reference()
+            actions
         }
     }
 

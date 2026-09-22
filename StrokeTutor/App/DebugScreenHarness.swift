@@ -136,11 +136,6 @@ enum DebugScreenHarness {
             pendingPlayerHarnessState = PlayerHarnessState(stepIndex: max(0, treeLesson.stepCount - 1))
             app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
 
-        case "player-lefthanded":
-            app.preferences.leftHanded = true
-            pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treeLesson))
-            app.cover = .player(lessonId: treeLesson.id, resumeFrom: nil)
-
         case "leave-sheet":
             pendingPlayerHarnessState = PlayerHarnessState(stepIndex: midStep(of: treeLesson),
                                                            showsLeaveSheet: true)
@@ -234,10 +229,6 @@ enum DebugScreenHarness {
             app.settings.reminderEnabled = true
             app.selectedTab = .settings
             app.push(.reminderSettings)
-
-        case "about":
-            app.selectedTab = .settings
-            app.push(.about)
 
         case "profiles-picker":
             ensureSecondLearner(in: app)

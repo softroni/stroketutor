@@ -17,8 +17,6 @@ enum AppRoute: Hashable {
     case narrationSettings
     /// `st-reminder` — the practice reminder.
     case reminderSettings
-    /// About & credits.
-    case about
     /// One learner's name, picture and the PIN-guarded delete.
     case profile(id: UUID)
 
@@ -27,7 +25,7 @@ enum AppRoute: Hashable {
     /// v3 keeps it on the tab roots and on the two browsing screens (`hp-paths`,
     /// `hp-path`), and drops it on the pushed screens that own the bottom of the
     /// screen themselves with a `.bottom-area`: `hp-preview`, `sk-entry`,
-    /// `st-voice`, `st-reminder` (About is the same kind of page).
+    /// `st-voice`, `st-reminder`.
     ///
     /// It is a fact about the route rather than something the screen announces
     /// once it is on screen, so the bar steps aside in the very same state change
@@ -38,7 +36,7 @@ enum AppRoute: Hashable {
         switch self {
         case .paths, .pathDetail:
             return false
-        case .lessonPreview, .sketchbookEntry, .narrationSettings, .reminderSettings, .about, .profile:
+        case .lessonPreview, .sketchbookEntry, .narrationSettings, .reminderSettings, .profile:
             return true
         }
     }

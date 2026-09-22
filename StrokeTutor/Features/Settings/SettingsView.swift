@@ -1,17 +1,19 @@
 import SwiftUI
 
 /// `st-settings` — the third tab: narration and speed, the sketchbook's one option,
-/// accessibility, the reminder, About and Privacy, and the single destructive row.
+/// the reminder, Rate and Share (once the app is on the App Store), Privacy (the
+/// published policy), and the single destructive row.
+/// "Reset onboarding" is a development-only row.
 /// No account, nothing to manage, nothing that creates an obligation.
 ///
-/// Four white list cards with 2 pt borders, each opened by a 40 pt tinted icon tile
+/// White list cards with 2 pt borders, each opened by a 40 pt tinted icon tile
 /// so the list scans by colour, then the one destructive row alone on its own card
 /// and the version line under it.
 struct SettingsView: View {
     @Environment(AppModel.self) private var app
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var isConfirmingReset = false
     @State private var isConfirmingOnboardingReset = false
+    @State private var isPhotosAccessRefused = false
     @State private var isAddingProfile = false
     @State private var gate: PINGateRequest?
     @State private var pinSheet: PINSheet?
@@ -24,7 +26,6 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        @Bindable var settings = app.settings
         @Bindable var preferences = app.preferences
 
         ScrollView {
@@ -74,29 +75,7 @@ struct SettingsView: View {
                               subtitle: "Your sketchbook keeps its own copy either way.",
                               systemImage: "photo",
                               tint: .gold,
-                              isOn: $settings.alsoSaveToPhotos)
-                }
-
-                // --------------------------------------------------- Accessibility
-                SettingsSectionHeader("Accessibility")
-                ListCard {
-                    SettingsRow(title: "Text size",
-                                subtitle: "Follows the size set on your iPhone.",
-                                value: SettingsFormat.textSize(dynamicTypeSize),
-                                systemImage: "eye",
-                                tint: .blue)
-                    RowDivider()
-                    ToggleRow(title: "Reduce motion",
-                              subtitle: "Steps appear at once instead of drawing on.",
-                              systemImage: "arrow.counterclockwise",
-                              tint: .blue,
-                              isOn: $preferences.reduceMotionOverride)
-                    RowDivider()
-                    ToggleRow(title: "Left-handed layout",
-                              subtitle: "Moves the controls to the left.",
-                              systemImage: "hand.raised",
-                              tint: .blue,
-                              isOn: $preferences.leftHanded)
+                              isOn: alsoSaveToPhotosBinding)
                 }
 
                 // ------------------------------------------------------------ More
@@ -106,11 +85,9 @@ struct SettingsView: View {
                                 value: reminderValue,
                                 systemImage: "bell",
                                 tint: .neutral) { app.push(.reminderSettings) }
+                    #if DEBUG
                     RowDivider()
-                    SettingsRow(title: "About & credits",
-                                systemImage: "info.circle",
-                                tint: .neutral) { app.push(.about) }
-                    RowDivider()
+                    // Development only: a published app has no reason to replay it.
                     // Presents a cover rather than pushing, so no chevron.
                     Button {
                         isConfirmingOnboardingReset = true
@@ -126,24 +103,31 @@ struct SettingsView: View {
                     .buttonStyle(.plain)
                     .accessibilityElement(children: .combine)
                     .accessibilityAddTraits(.isButton)
+                    #endif
+                    if let listing = AppStoreListing.current {
+                        RowDivider()
+                        rateRow(listing)
+                        RowDivider()
+                        shareRow(listing)
+                    }
                     RowDivider()
-                    // Privacy is the same screen scrolled to its privacy section, so
-                    // the two rows can never drift apart. It is a destination link
-                    // rather than an `AppRoute` because a route carries no argument.
-                    NavigationLink {
-                        AboutView(opensAt: .privacy)
-                    } label: {
+                    // The published policy, opened in Safari, so the app and the
+                    // website can never say different things.
+                    Link(destination: Self.privacyPolicyURL) {
                         SettingsCustomRow(title: "Privacy",
                                           subtitle: "Everything stays on this iPhone.") {
                             SettingsIconTile(symbol: "lock.fill", tint: .neutral)
                         } trailing: {
-                            chevron
+                            Image(systemName: "arrow.up.right")
+                                .scaledFont(14, .bold, design: .default)
+                                .foregroundStyle(Theme.ink25)
                         }
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityElement(children: .combine)
-                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAddTraits(.isLink)
+                    .accessibilityHint("Opens the privacy policy in Safari.")
                 }
 
                 // ------------------------------------------------- Reset progress
@@ -214,11 +198,57 @@ struct SettingsView: View {
             Button("Turn off PIN", role: .destructive) { pinSheet = .remove }
             Button("Cancel", role: .cancel) { }
         }
+        .alert("Photos access is off", isPresented: $isPhotosAccessRefused) {
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Not now", role: .cancel) { }
+        } message: {
+            Text("StrokeTutor can only add pages to Photos once you allow it in Settings. Your sketchbook keeps every page either way.")
+        }
+        // Access can be taken away in the Settings app while this screen is away; the
+        // toggle follows, rather than staying on while nothing is saved.
+        .onAppear(perform: turnOffPhotosIfRefused)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            turnOffPhotosIfRefused()
+        }
+        #if DEBUG
         .alert("Reset onboarding?", isPresented: $isConfirmingOnboardingReset) {
             Button("Reset onboarding") { app.resetOnboarding() }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("The introduction plays again from the start. Your progress and sketchbook are kept.")
+        }
+        #endif
+    }
+
+    private static let privacyPolicyURL = URL(string: "https://softroni.com/privacy-policy.html")!
+
+    /// Turning "Also save to Photos" on asks for add-only access first; the switch
+    /// only stays on once iOS says pages can be added. Turning it off never asks.
+    private var alsoSaveToPhotosBinding: Binding<Bool> {
+        Binding(get: { app.settings.alsoSaveToPhotos },
+                set: { isOn in
+                    guard isOn else {
+                        app.settings.alsoSaveToPhotos = false
+                        return
+                    }
+                    Task {
+                        if await PhotoLibraryWriter.requestAccess() {
+                            app.settings.alsoSaveToPhotos = true
+                        } else {
+                            app.settings.alsoSaveToPhotos = false
+                            isPhotosAccessRefused = true
+                        }
+                    }
+                })
+    }
+
+    private func turnOffPhotosIfRefused() {
+        if app.settings.alsoSaveToPhotos && PhotoLibraryWriter.isRefused {
+            app.settings.alsoSaveToPhotos = false
         }
     }
 
@@ -323,6 +353,77 @@ private extension SettingsView {
                 .accessibilityValue(app.pin.isSet ? "On" : "Off")
             }
         }
+    }
+}
+
+// MARK: - Rate and share
+
+/// Where StrokeTutor lives on the App Store. Until the app has a record in App Store
+/// Connect there is nowhere to send anyone, so the Rate and Share rows stay hidden in
+/// a release build; a debug build shows them against an App Store search so the rows
+/// can be seen and tried. Once the record exists, set `appID` to its Apple ID (the
+/// number under App Information in App Store Connect) and both rows go live.
+struct AppStoreListing {
+    /// The app's Apple ID from App Store Connect, e.g. "6740000000". Nil until it exists.
+    static let appID: String? = nil
+
+    /// The page a friend is sent to.
+    let pageURL: URL
+    /// The App Store's "Write a Review" sheet, opened straight from the link.
+    let reviewURL: URL
+
+    static var current: AppStoreListing? {
+        if let appID {
+            return AppStoreListing(
+                pageURL: URL(string: "https://apps.apple.com/app/id\(appID)")!,
+                reviewURL: URL(string: "https://apps.apple.com/app/id\(appID)?action=write-review")!)
+        }
+        #if DEBUG
+        let search = URL(string: "https://apps.apple.com/search?term=StrokeTutor")!
+        return AppStoreListing(pageURL: search, reviewURL: search)
+        #else
+        return nil
+        #endif
+    }
+}
+
+private extension SettingsView {
+    /// Opens the App Store's review sheet. A link the learner chooses to follow,
+    /// rather than `requestReview`, which iOS rations and may silently ignore.
+    func rateRow(_ listing: AppStoreListing) -> some View {
+        Link(destination: listing.reviewURL) {
+            SettingsCustomRow(title: "Rate StrokeTutor",
+                              subtitle: "A review helps other people find it.") {
+                SettingsIconTile(symbol: "star.fill", tint: .gold)
+            } trailing: {
+                Image(systemName: "arrow.up.right")
+                    .scaledFont(14, .bold, design: .default)
+                    .foregroundStyle(Theme.ink25)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isLink)
+        .accessibilityHint("Opens the App Store to write a review.")
+    }
+
+    /// The system share sheet with the App Store link and a line to go with it.
+    func shareRow(_ listing: AppStoreListing) -> some View {
+        ShareLink(item: listing.pageURL,
+                  subject: Text("StrokeTutor"),
+                  message: Text("Learn to draw one stroke at a time with StrokeTutor.")) {
+            SettingsCustomRow(title: "Share StrokeTutor",
+                              subtitle: "Send it to someone who’d like to draw.") {
+                SettingsIconTile(symbol: "square.and.arrow.up", tint: .neutral)
+            } trailing: {
+                EmptyView()
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
     }
 }
 

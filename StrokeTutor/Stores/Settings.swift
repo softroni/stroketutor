@@ -38,10 +38,8 @@ final class Settings {
         static let currentPathId = "currentPathId"
         static let narrationEnabled = "narrationEnabled"
         static let defaultSpeed = "defaultSpeed"
-        static let reduceMotionOverride = "reduceMotionOverride"
-        static let leftHanded = "leftHanded"
 
-        static let all = [currentPathId, narrationEnabled, defaultSpeed, reduceMotionOverride, leftHanded]
+        static let all = [currentPathId, narrationEnabled, defaultSpeed]
     }
 
     /// Shared with `AppPIN` and the migration, which keep their own keys here.

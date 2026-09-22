@@ -180,25 +180,4 @@ enum SettingsFormat {
     static func speed(_ value: Double) -> String {
         value == 1 ? "1×" : String(format: "%g×", value)
     }
-
-    /// The name of the size the learner has chosen in iOS, for the read-only
-    /// Text size row. Apple's own words for the content size categories, shortened
-    /// where the full name would not fit a value column.
-    static func textSize(_ size: DynamicTypeSize) -> String {
-        switch size {
-        case .xSmall: return "Extra small"
-        case .small: return "Small"
-        case .medium: return "Medium"
-        case .large: return "Large"
-        case .xLarge: return "Extra large"
-        case .xxLarge: return "Extra extra large"
-        case .xxxLarge: return "Largest"
-        case .accessibility1: return "Accessibility 1"
-        case .accessibility2: return "Accessibility 2"
-        case .accessibility3: return "Accessibility 3"
-        case .accessibility4: return "Accessibility 4"
-        case .accessibility5: return "Accessibility 5"
-        @unknown default: return "Large"
-        }
-    }
 }

@@ -16,6 +16,20 @@ import UIKit
 enum PhotoLibraryWriter {
     private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "photos")
 
+    /// Whether iOS has already refused (or a restriction blocks) adding to the library.
+    /// Settings reads this so the toggle never claims to be on when nothing can be saved.
+    static var isRefused: Bool {
+        let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        return status == .denied || status == .restricted
+    }
+
+    /// Asks for add-only access at the moment the learner turns the option on, so the
+    /// system prompt comes with an obvious reason. Returns whether pages can be added.
+    static func requestAccess() async -> Bool {
+        let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        return status == .authorized || status == .limited
+    }
+
     static func save(_ image: UIImage) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             guard status == .authorized || status == .limited else {
