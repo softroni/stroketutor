@@ -7,10 +7,11 @@ import SwiftUI
 ///    color, with its path's name on a chip in the path's own tint, and one button.
 /// 2. **Your paths** — one shelf per path the learner is drawing: the current path
 ///    first (even before anything in it is drawn), then every other path they have
-///    started, most recently drawn first. Each shelf is a band in the path's tint
-///    (`PathTint`, the same color it wears on All paths and the Path screen) with
-///    its lessons as tiles scrolling sideways: done in gold, the next in green,
-///    what is coming as a faded outline with a small lock.
+///    started, most recently drawn first. Each shelf sits on the white page — the
+///    path's tint (`PathTint`) only colors its chevron and count — with its lessons
+///    as tiles scrolling sideways, every one in full color on white paper: done in
+///    gold, the next in green, what is coming behind a gray edge and a small lock,
+///    so a learner can see what they will get to draw.
 /// 3. **Your drawings** — once the sketchbook has pages, the latest few photos in a
 ///    strip; a tap goes to the Sketchbook tab.
 /// 4. **Try something new** — up to four paths not yet started, as picture cards
@@ -63,8 +64,7 @@ struct HomeView: View {
                                   progress: app.progress,
                                   onOpenPath: { app.open(path) },
                                   onOpenLesson: { open($0, in: path) })
-                            .padding(.horizontal, Theme.gutter)
-                            .padding(.top, 22)
+                            .padding(.top, 14)
                     }
 
                     if !recentPages.isEmpty {
@@ -351,10 +351,10 @@ private struct SectionTitle: View {
     }
 }
 
-/// One path as a shelf: a band in the path's tint (gold once every lesson is drawn)
-/// with a 5 pt deeper edge, the path's name and a chevron on top — the name is the
-/// button that opens the path — and its lessons as tiles in a row that scrolls
-/// sideways inside the band.
+/// One path as a shelf on the white page: the path's name and a chevron on top —
+/// the name is the button that opens the path — and its lessons as tiles in a row
+/// that scrolls sideways from edge to edge of the screen. The path's tint (gold
+/// once every lesson is drawn) colors only the chevron and the count.
 private struct PathShelf: View {
     let path: PathModel
     let tint: PathTint
@@ -367,7 +367,6 @@ private struct PathShelf: View {
     private var paint: PathTint { isComplete ? .complete : tint }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
         VStack(alignment: .leading, spacing: 0) {
             header
             ScrollViewReader { proxy in
@@ -379,14 +378,13 @@ private struct PathShelf: View {
                         ForEach(Array(path.lessons.enumerated()), id: \.element.id) { index, lesson in
                             LessonTile(lesson: lesson,
                                        position: index + 1,
-                                       state: state(of: lesson),
-                                       tint: paint) {
+                                       state: state(of: lesson)) {
                                 onOpenLesson(lesson)
                             }
                             .id(lesson.id)
                         }
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, Theme.gutter)
                     // Room for the "Next" flag and the check badge, which sit on
                     // the tile's top edge.
                     .padding(.top, 12)
@@ -396,12 +394,6 @@ private struct PathShelf: View {
                 .onChange(of: nextLessonId) { center(proxy, animated: !reduceMotion) }
             }
         }
-        .background(paint.soft)
-        .clipShape(shape)
-        .background(alignment: .bottom) {
-            shape.fill(paint.edge).offset(y: 5)
-        }
-        .padding(.bottom, 5)
     }
 
     private var header: some View {
@@ -418,9 +410,8 @@ private struct PathShelf: View {
                 Spacer(minLength: 8)
                 count
             }
-            .padding(.horizontal, 18)
-            .padding(.top, 10)
-            .frame(minHeight: Theme.navTapTarget + 10)
+            .padding(.horizontal, Theme.gutter)
+            .frame(minHeight: Theme.navTapTarget)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -430,7 +421,7 @@ private struct PathShelf: View {
         .accessibilityAddTraits([.isButton, .isHeader])
     }
 
-    /// "2/10" in the path's deep color on white, or a gold check and "10/10".
+    /// "2/10" in the path's deep color on its soft tint, or a gold check and "10/10".
     /// A count of finished drawings, never a percentage and never a target.
     private var count: some View {
         HStack(spacing: 4) {
@@ -445,7 +436,7 @@ private struct PathShelf: View {
         .foregroundStyle(paint.deep)
         .padding(.vertical, 5)
         .padding(.horizontal, 10)
-        .background(Capsule().fill(Theme.paper))
+        .background(Capsule().fill(paint.soft))
         .fixedSize()
     }
 

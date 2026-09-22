@@ -1,17 +1,17 @@
 import SwiftUI
 
-/// A lesson on one of Home's shelves, which sit on the path's own tint
-/// (`PathTint`): a rounded square with the drawing on it and the lesson's name
-/// underneath. The picture does the talking — a learner who cannot read the name
-/// yet can still choose.
+/// A lesson on one of Home's shelves: a rounded square of white paper with the
+/// lesson drawn on it in its own colors, and the lesson's name underneath. The
+/// picture does the talking — a learner who cannot read the name yet can still
+/// choose.
 ///
 /// * `.done` — white paper, the drawing in its own colors, a gold ring and edge and
 ///   a gold check badge: a finished drawing, as on the path screen's nodes.
 /// * `.next` — white paper, the drawing in color, a green ring and edge and a
 ///   "Next" flag: the one to draw now.
-/// * `.locked` — a lighter wash of the path's tint, the drawing as a faded outline
-///   in the path's deep color, and a small lock: what is coming, in the path's
-///   colors rather than a wall of gray.
+/// * `.locked` — the same full-color drawing on white paper behind a thin gray
+///   border and edge, with a small lock and a quieter name: what is coming, shown
+///   whole so it is something to look forward to.
 struct LessonTile: View {
 
     enum State: Equatable {
@@ -24,7 +24,6 @@ struct LessonTile: View {
     /// The lesson's one-based place in its path, for VoiceOver.
     let position: Int
     let state: State
-    let tint: PathTint
     let action: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -39,7 +38,7 @@ struct LessonTile: View {
                 square
                 Text(lesson.title)
                     .scaledFont(15, .bold, relativeTo: .subheadline)
-                    .foregroundStyle(state == .locked ? tint.deep.opacity(0.7) : Theme.ink)
+                    .foregroundStyle(state == .locked ? Theme.ink55 : Theme.ink)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -56,17 +55,14 @@ struct LessonTile: View {
 
     private var square: some View {
         let shape = RoundedRectangle(cornerRadius: Theme.thumbCornerRadius + 2, style: .continuous)
-        let isLocked = state == .locked
         return DrawingThumbnail(tutorial: lesson.tutorial,
                                 size: Self.size - 34,
-                                strokeColor: isLocked ? tint.deep.opacity(0.32) : nil,
-                                showsFills: !isLocked)
+                                strokeColor: nil,
+                                showsFills: true)
             .frame(width: Self.size, height: Self.size)
-            .background(shape.fill(isLocked ? Theme.paper.opacity(0.5) : Theme.paper))
+            .background(shape.fill(Theme.paper))
             .overlay {
-                if let ringColor {
-                    shape.strokeBorder(ringColor, lineWidth: 4)
-                }
+                shape.strokeBorder(ringColor, lineWidth: state == .locked ? 2 : 4)
             }
             .background(alignment: .bottom) {
                 shape.fill(edgeColor).offset(y: 4)
@@ -90,9 +86,10 @@ struct LessonTile: View {
         case .locked:
             Image(systemName: "lock.fill")
                 .scaledFont(11, .bold, relativeTo: .footnote, design: .default)
-                .foregroundStyle(tint.deep.opacity(0.6))
+                .foregroundStyle(Theme.ink40)
                 .frame(width: 26, height: 26)
-                .background(Circle().fill(Theme.paper))
+                .background(Circle().fill(Theme.surface))
+                .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 2))
                 .padding(8)
         case .next:
             EmptyView()
@@ -115,11 +112,11 @@ struct LessonTile: View {
 
     // MARK: - Paint
 
-    private var ringColor: Color? {
+    private var ringColor: Color {
         switch state {
         case .done: return Theme.gold
         case .next: return Theme.green
-        case .locked: return nil
+        case .locked: return Theme.line
         }
     }
 
@@ -127,7 +124,7 @@ struct LessonTile: View {
         switch state {
         case .done: return Theme.goldDeep
         case .next: return Theme.greenDeep
-        case .locked: return tint.edge
+        case .locked: return Theme.lineStrong
         }
     }
 
