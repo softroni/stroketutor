@@ -95,8 +95,8 @@ struct ParentPINSheet: View {
 
     private var title: String {
         switch stage {
-        case .verifyOld, .none: return "Enter the parent PIN"
-        case .enterNew: return "Choose a parent PIN"
+        case .verifyOld, .none: return "Enter the PIN"
+        case .enterNew: return "Choose a PIN"
         case .confirmNew: return "Enter it again"
         }
     }
@@ -105,7 +105,7 @@ struct ParentPINSheet: View {
         switch (mode, stage) {
         case let (.verify(reason), _): return reason
         case (.change, .verifyOld): return "First, the PIN you use now."
-        case (_, .enterNew): return "Four digits. It is asked for before deleting a kid or resetting progress."
+        case (_, .enterNew): return "Four digits. It is asked for before deleting someone or resetting progress."
         default: return nil
         }
     }

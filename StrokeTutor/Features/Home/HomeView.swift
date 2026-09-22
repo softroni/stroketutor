@@ -132,7 +132,7 @@ struct HomeView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(app.activeProfile.displayName) is drawing")
-        .accessibilityHint("Switch kid or add another")
+        .accessibilityHint("Switch who’s drawing, or add someone")
     }
 
     private var learnTitle: some View {

@@ -21,7 +21,7 @@ struct OnboardingWhoBeat: View {
             ProfileForm(name: $name, avatar: $avatar)
                 .padding(.top, 4)
 
-            OnboardingNote("Brothers and sisters can have their own sketchbook too. Tap your picture on Home to add them.")
+            OnboardingNote("Anyone else who draws here can have their own sketchbook too. Tap your picture on Home to add them.")
                 .padding(.top, 8)
         } footer: {
             Button("Continue") {

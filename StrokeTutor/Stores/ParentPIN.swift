@@ -2,8 +2,9 @@ import CryptoKit
 import Foundation
 import Observation
 
-/// An optional four-digit PIN a parent sets, which then guards the two actions that
-/// destroy a kid's work: deleting a profile and resetting progress. Renaming and
+/// An optional four-digit PIN — shown simply as "PIN", since the grown-up who
+/// sets it is not always a parent — which guards the two actions that destroy
+/// someone's work: deleting a profile and resetting progress. Renaming and
 /// changing a picture are not guarded — they lose nothing.
 ///
 /// Off by default. When it is off, those two actions still ask for confirmation, as

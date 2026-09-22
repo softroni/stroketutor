@@ -34,7 +34,7 @@ struct SettingsView: View {
                     .foregroundStyle(Theme.ink)
                     .accessibilityAddTraits(.isHeader)
 
-                // ------------------------------------------------------------ Kids
+                // ---------------------------------------------------------- People
                 kidsSection
 
                 // ---------------------------------------------------------- Lesson
@@ -183,7 +183,7 @@ struct SettingsView: View {
             Button("Reset progress", role: .destructive) { app.progress.resetAll() }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Every path starts again from lesson 1 for \(app.activeProfile.displayName). Their sketchbook and the other kids are not touched.")
+            Text("Every path starts again from lesson 1 for \(app.activeProfile.displayName). Their sketchbook, and everyone else’s progress, are not touched.")
         }
         .parentGate($gate)
         #if DEBUG
@@ -204,12 +204,12 @@ struct SettingsView: View {
             case .change:
                 ParentPINSheet(mode: .change) { }
             case .remove:
-                ParentPINSheet(mode: .verify(reason: "Needed to turn the parent PIN off.")) {
+                ParentPINSheet(mode: .verify(reason: "Needed to turn the PIN off.")) {
                     app.parentPIN.remove()
                 }
             }
         }
-        .confirmationDialog("Parent PIN", isPresented: $isChoosingPINAction, titleVisibility: .visible) {
+        .confirmationDialog("PIN", isPresented: $isChoosingPINAction, titleVisibility: .visible) {
             Button("Change PIN") { pinSheet = .change }
             Button("Turn off PIN", role: .destructive) { pinSheet = .remove }
             Button("Cancel", role: .cancel) { }
@@ -256,14 +256,16 @@ struct SettingsView: View {
 }
 
 
-// MARK: - Kids
+// MARK: - People
 
 private extension SettingsView {
-    /// Every kid, the way to add one, and the parent PIN. Renaming is a tap away and
-    /// never asks for the PIN; deleting a kid and resetting progress do.
+    /// Everyone who draws here, the way to add someone, and the PIN. The words are
+    /// "people" and "someone", never "kid": a grown-up learning alone should not
+    /// feel the app was made for someone else. Renaming is a tap away and never
+    /// asks for the PIN; deleting someone and resetting progress do.
     var kidsSection: some View {
         Group {
-            SettingsSectionHeader("Kids")
+            SettingsSectionHeader("People")
             ListCard {
                 ForEach(app.profiles) { profile in
                     Button {
@@ -286,7 +288,7 @@ private extension SettingsView {
                 Button {
                     isAddingProfile = true
                 } label: {
-                    SettingsCustomRow(title: "Add another kid") {
+                    SettingsCustomRow(title: "Add someone") {
                         SettingsIconTile(symbol: "plus", tint: .green)
                     } trailing: {
                         EmptyView()
@@ -305,8 +307,8 @@ private extension SettingsView {
                         pinSheet = .create
                     }
                 } label: {
-                    SettingsCustomRow(title: "Parent PIN",
-                                      subtitle: "Asked before deleting a kid or resetting progress.") {
+                    SettingsCustomRow(title: "PIN",
+                                      subtitle: "Asked before deleting someone or resetting progress.") {
                         SettingsIconTile(symbol: "lock.fill", tint: .neutral)
                     } trailing: {
                         Text(app.parentPIN.isSet ? "On" : "Off")

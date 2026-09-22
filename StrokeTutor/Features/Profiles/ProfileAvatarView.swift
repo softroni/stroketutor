@@ -23,7 +23,7 @@ struct ProfileAvatarView: View {
 }
 
 /// The one screen that sets up a kid: a name and a picture, together. Used by
-/// onboarding, "Add another kid" and the profile's own settings page.
+/// onboarding, "Add someone" and the profile's own settings page.
 ///
 /// The name may be left blank — a four-year-old can pick the fox and go — and
 /// then the picture's name stands in for it.
@@ -92,7 +92,7 @@ struct ProfileForm: View {
     }
 }
 
-/// "Add another kid", in a sheet: the form and one button. Never part of
+/// "Add someone", in a sheet: the form and one button. Never part of
 /// onboarding's required steps.
 struct NewProfileSheet: View {
     /// Called with the new kid once their folder is on disk.
@@ -130,7 +130,7 @@ struct NewProfileSheet: View {
                 .background(Theme.page)
             }
             .background(Theme.page)
-            .navigationTitle("Add another kid")
+            .navigationTitle("Add someone")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

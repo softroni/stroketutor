@@ -38,7 +38,7 @@ struct ProfilePickerView: View {
                 Button {
                     isAdding = true
                 } label: {
-                    Label("Add another kid", systemImage: "plus")
+                    Label("Add someone", systemImage: "plus")
                 }
                 .buttonStyle(.quiet)
                 .padding(.top, 8)
@@ -117,8 +117,8 @@ struct ProfileSwitcherSheet: View {
                         Button {
                             isAdding = true
                         } label: {
-                            SettingsCustomRow(title: "Add another kid",
-                                              subtitle: "Each kid gets their own progress and sketchbook.") {
+                            SettingsCustomRow(title: "Add someone",
+                                              subtitle: "Everyone gets their own progress and sketchbook.") {
                                 SettingsIconTile(symbol: "plus", tint: .green)
                             } trailing: {
                                 EmptyView()
@@ -130,7 +130,7 @@ struct ProfileSwitcherSheet: View {
                         .accessibilityAddTraits(.isButton)
                     }
 
-                    Button("Manage kids in Settings") {
+                    Button("Manage in Settings") {
                         dismiss()
                         app.selectedTab = .settings
                         app.popToRoot(.settings)

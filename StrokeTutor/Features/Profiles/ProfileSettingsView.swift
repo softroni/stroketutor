@@ -29,7 +29,7 @@ struct ProfileSettingsView: View {
                         .disabled(app.isTemporary(profile))
 
                     if app.isTemporary(profile) {
-                        SettingsCaption("This kid’s drawings are still being moved into their own folder. Try again after the app next starts.")
+                        SettingsCaption("These drawings are still being moved into their own folder. Try again after the app next starts.")
                     }
 
                     if app.canDelete(profile) {
