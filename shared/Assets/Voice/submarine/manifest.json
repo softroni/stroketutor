@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "submarine",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:40:00.456Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Dive, dive, dive. A submarine is a capsule with round windows, and a periscope to peek above the waves. Watch it surface, then take yours down.",
+      "textHash": "592122d076fc4888d769c35ba8e5f571c2e9737f97417450535518eeef75cc59",
+      "durationMs": 9520
+    },
+    "body-top": {
+      "file": "body-top.m4a",
+      "text": "A submarine is a long capsule. From the middle left, arch up, along the top and down the far end.",
+      "textHash": "a99d6b09228f80005a1b902460df2a59513afbbf895cb83f2e1bc88ef735c256",
+      "durationMs": 7360
+    },
+    "body-bottom": {
+      "file": "body-bottom.m4a",
+      "text": "Go back to the left. Draw the same shape underneath, like a reflection in water.",
+      "textHash": "bb0d1c9ea7ee7879a4b78e8d5bbb3cc96de976dc58c7acf195c6728c53869cc7",
+      "durationMs": 5120
+    },
+    "tower": {
+      "file": "tower.m4a",
+      "text": "The tower sits on top, in the middle: up, over a rounded top, and down.",
+      "textHash": "704f0f0bcd72662eba609eaff48649a3605057ca1e41049c952df02375cf8b2e",
+      "durationMs": 6080
+    },
+    "periscope": {
+      "file": "periscope.m4a",
+      "text": "The periscope rises from the tower, then turns to look ahead. It's an upside-down letter L.",
+      "textHash": "7996ca9418522834c3231de93bb9765d6cdda89af1723dc9125e45e68279426e",
+      "durationMs": 6080
+    },
+    "portholes": {
+      "file": "portholes.m4a",
+      "text": "Three round portholes in a row. Draw the middle one first, then one on each side.",
+      "textHash": "a885826ea4bbc27ec93543e72c058bfd86eb0a412ae54e21ea4e1926df284dfd",
+      "durationMs": 5600
+    },
+    "color-body": {
+      "file": "color-body.m4a",
+      "text": "Color the body yellow.",
+      "textHash": "2270d62dab90537665c20c452a2c719bc91c7b4212330bd3ab664a3df40fb195",
+      "durationMs": 1680
+    },
+    "color-tower": {
+      "file": "color-tower.m4a",
+      "text": "Color the tower orange.",
+      "textHash": "2794f0fdbe4b15b1bdcea2305748627ac6ee5849d3d547511024ac54d942a6f3",
+      "durationMs": 1760
+    },
+    "color-portholes": {
+      "file": "color-portholes.m4a",
+      "text": "Color the portholes blue.",
+      "textHash": "5bc16a0efc4cbaecd7fc014c696b2f03710b10c370a8de0591de4b1b3bb892d5",
+      "durationMs": 1920
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Periscope up, three portholes in a row. What do you think is down there?",
+      "textHash": "9698f825fe9c854c8aa8033148a3fb93609fa6ff9d14f77acc45691ef788d410",
+      "durationMs": 4800
+    }
+  }
+}
