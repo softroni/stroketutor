@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 2,
+  "id": "bicycle",
+  "title": "Bicycle",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "back-wheel",
+      "title": "Draw the back wheel",
+      "instruction": "The back wheel is a big circle. Draw one half, then the other.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 221 415 C 209 415 193 417 183 419 C 172 421 166 424 157 428 C 148 432 137 437 129 443 C 120 448 112 455 105 463 C 97 470 91 478 85 486 C 79 495 75 504 71 514 C 67 523 63 535 61 546 C 59 556 58 567 59 578 C 59 590 61 602 63 612 C 66 623 69 632 73 641 C 78 650 83 660 89 668 C 95 677 102 685 111 692 C 119 700 129 707 138 713 C 147 718 157 722 166 725 C 174 728 182 731 192 732 C 199.5726 733.6828 210.685 734.6576 219.9761 734.3289",
+          "duration": 2,
+          "lineWidth": 17
+        },
+        {
+          "d": "M 221 415 C 232 415 241 416 250 417 C 260 419 270 421 279 425 C 289 429 299 434 308 440 C 318 446 329 455 336 462 C 344 469 349 475 354 483 C 360 491 365 500 369 510 C 374 520 378 532 380 542 C 382 552 382 560 382 570 C 382 580 382 591 380 601 C 379 612 376 622 372 631 C 369 641 365 648 360 657 C 355 665 347 675 340 682 C 333 690 325 698 317 704 C 309 710 302 714 292 719 C 282 723 267 728 255 731 C 244 734 236 734 225 734 C 223.414 734.1586 221.7274 734.2669 219.9761 734.3289",
+          "duration": 2,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "front-wheel",
+      "title": "Draw the front wheel",
+      "instruction": "The front wheel matches it. Leave room between them for the frame.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 780 415 C 767 415 750 417 738 420 C 727 422 718 427 709 431 C 700 435 692 439 685 444 C 678 449 672 454 665 461 C 658 468 649 478 643 488 C 637 497 631 509 627 519 C 623 530 621 541 619 552 C 617 562 617 571 618 580 C 618 590 619 601 621 611 C 624 621 627 630 631 639 C 635 648 641 658 647 667 C 653 675 659 683 667 690 C 674 697 683 704 691 709 C 700 715 708 719 717 723 C 727 727 739 730 749 732 C 759.3147 733.8754 769.6294 734.8715 779.9441 734.1639",
+          "duration": 2,
+          "lineWidth": 17
+        },
+        {
+          "d": "M 780 415 C 792 415 802 416 811 418 C 821 419 828 421 837 425 C 847 428 857 433 866 439 C 875 445 885 453 893 460 C 900 467 905 473 911 481 C 917 489 923 499 928 509 C 932 519 936 532 938 542 C 941 553 941 562 941 573 C 942 583 941 592 939 602 C 937 613 934 624 929 634 C 925 645 920 654 914 663 C 909 671 903 679 895 686 C 888 694 879 701 871 707 C 863 713 856 717 846 721 C 837 725 825 729 814 731 C 803 733 792 734 782 734 C 781.3147 734.0623 780.6294 734.1168 779.9441 734.1639",
+          "duration": 2,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "hubs",
+      "title": "Draw the hubs",
+      "instruction": "Mark the center of each wheel with a tiny circle.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 219.5 553.0 C 232.2 553.0 242.5 563.3 242.5 576.0 C 242.5 588.7 232.2 599.0 219.5 599.0 C 206.8 599.0 196.5 588.7 196.5 576.0 C 196.5 563.3 206.8 553.0 219.5 553.0 Z",
+          "duration": 0.7,
+          "lineWidth": 13
+        },
+        {
+          "d": "M 782.2 553.3 C 794.9 553.3 805.2 563.6 805.2 576.3 C 805.2 589.0 794.9 599.3 782.2 599.3 C 769.5 599.3 759.2 589.0 759.2 576.3 C 759.2 563.6 769.5 553.3 782.2 553.3 Z",
+          "duration": 0.7,
+          "lineWidth": 13
+        }
+      ]
+    },
+    {
+      "id": "seat-tube",
+      "title": "Draw the seat tube",
+      "instruction": "The frame begins with one slanted line, from under the seat down to where the pedals go.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 358.0 309.0 L 470.1 577.4",
+          "duration": 1.4,
+          "lineWidth": 16
+        }
+      ]
+    },
+    {
+      "id": "back-triangle",
+      "title": "Draw the back frame",
+      "instruction": "From the back hub, draw one line to the top of that tube and one to the bottom.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 231.9 556.6 L 375.1 359.7",
+          "duration": 1.34,
+          "lineWidth": 17
+        },
+        {
+          "d": "M 242.4 577.6 L 470.1 577.4",
+          "duration": 1.15,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "main-triangle",
+      "title": "Draw the main frame",
+      "instruction": "Next, a level bar forward from the seat, and a slanted bar up from the pedals to meet it.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 374.9 359.2 L 710.4 359.4",
+          "duration": 1.67,
+          "lineWidth": 17
+        },
+        {
+          "d": "M 470.1 577.4 L 709.7 356.1",
+          "duration": 1.55,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "fork",
+      "title": "Draw the fork",
+      "instruction": "The fork holds the front wheel. From above the bars, come down through the corner to the front hub.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 696.0 278.0 L 719.1 391.5 L 719.7 393.8 L 721.7 401.2 L 723.9 409.2 L 726.2 417.7 L 728.6 426.6 L 731.0 435.5 L 733.3 444.5 L 735.7 453.3 L 737.9 461.7 L 740.1 469.7 L 742.0 477.0 L 744.1 483.8 L 746.3 490.7 L 748.5 497.7 L 750.6 504.7 L 752.8 511.5 L 755.0 518.2 L 757.0 524.7 L 759.0 530.8 L 760.9 536.6 L 762.7 541.8 L 764.3 546.5 L 765.7 550.6 L 767.0 554.0 L 767.0 554.0",
+          "duration": 1.39,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "handlebars",
+      "title": "Draw the handlebars",
+      "instruction": "Lay the handlebars flat across the top, like the top of a T.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 650 276 L 754 277",
+          "duration": 0.5,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "saddle",
+      "title": "Draw the seat",
+      "instruction": "The seat is a small wedge, round at the back and pointed at the front.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 313 264 C 309 264 306 264 304 265 C 301 265 298 266 296 268 C 294 270 292 272 291 274 C 290 276 289 279 289 282 C 289 284 289 288 290 291 C 291 294 292 296 294 299 C 296 301 299 304 302 306 C 304 307 307 308 310 309 C 313 310 317 310 322 310 C 329 310 342 309 356 307 C 369 306 393 303 403 301 C 408 300 412 299 415 298 C 419 296 421 294 422 292 C 422 289 418 285 416 283 C 413 281 410 280 406 279 C 393 276 353 269 338 266 C 328 265 318 264 313 264 Z",
+          "duration": 1.5,
+          "lineWidth": 14
+        }
+      ]
+    },
+    {
+      "id": "seat-color",
+      "title": "Color the seat",
+      "instruction": "Color the seat brown.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 304 257 C 309 257 317 257 325 258 C 343 261 398 271 413 274 C 415 274 416 275 418 276 C 421 278 426 283 428 286 C 430 289 430 291 428 294 C 426 297 420 303 417 305 C 414 307 412 307 409 307 C 400 308 380 310 365 311 C 365 312 365 314 364 315 C 363 316 359 316 356 316 C 353 316 350 316 348 316 C 347 316 348 314 347 314 C 343 314 328 317 321 317 C 316 317 312 317 308 316 C 305 315 303 315 300 313 C 296 310 289 303 286 299 C 283 295 282 293 282 288 C 282 283 282 276 284 271 C 286 266 292 262 295 260 C 298 258 300 257 304 257 Z",
+          "color": "#8A5A33",
+          "duration": 1.1,
+          "fillRule": "evenodd"
+        }
+      ]
+    },
+    {
+      "id": "hub-color",
+      "title": "Color the hubs",
+      "instruction": "Color the hubs gray.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 772 546 C 779 544 789 547 795 550 C 801 553 807 561 810 565 C 812 567 812 569 812 572 C 812 576 813 583 810 588 C 807 593 800 601 794 604 C 789 607 781 606 777 606 C 773 606 771 605 768 603 C 764 600 757 592 754 586 C 752 581 753 574 753 570 C 753 567 753 566 755 564 C 758 560 765 548 772 546 Z M 228 547 C 230 547 231 547 232 548 C 235 550 242 557 244 560 C 246 563 246 566 247 568 C 248 570 251 568 252 570 C 253 572 253 577 253 579 C 253 582 252 584 251 585 C 250 587 247 587 246 588 C 245 589 246 591 245 592 C 243 594 240 599 236 601 C 233 603 228 605 224 606 C 220 607 217 607 213 606 C 210 605 206 603 203 601 C 200 599 196 595 194 592 C 192 589 191 585 190 581 C 190 577 190 571 191 568 C 192 565 192 563 194 561 C 197 558 200 552 206 550 C 212 548 224 547 228 547 Z",
+          "color": "#C9CED6",
+          "duration": 1.1,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}

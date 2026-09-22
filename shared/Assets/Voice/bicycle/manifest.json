@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "bicycle",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:30:45.982Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A bicycle is two circles and a handful of straight lines. There's hardly any coloring, so every line counts. Watch how the lines meet at the corners, then ride along.",
+      "textHash": "1a134f3dde907d43335c5af16b7a6d9defc08738e0caafc31339427bdb1a0213",
+      "durationMs": 10240
+    },
+    "back-wheel": {
+      "file": "back-wheel.m4a",
+      "text": "The back wheel is a big circle. Draw one half, then the other.",
+      "textHash": "56e4435f567a174bd09b02a4c2f5e05bcb9d0a4801c1c5ddc6c59cd49851cb12",
+      "durationMs": 4400
+    },
+    "front-wheel": {
+      "file": "front-wheel.m4a",
+      "text": "The front wheel matches it. Leave room between them for the frame.",
+      "textHash": "15249011f8d5af11aa814ca6ee3cddaa8c77ec5714bda311b52e8fb1639a5703",
+      "durationMs": 3840
+    },
+    "hubs": {
+      "file": "hubs.m4a",
+      "text": "Mark the center of each wheel with a tiny circle.",
+      "textHash": "94995281da92a56dbc0f61306679fa5f8065fbb619f8a8c287a0c080f0f3f586",
+      "durationMs": 3120
+    },
+    "seat-tube": {
+      "file": "seat-tube.m4a",
+      "text": "The frame begins with one slanted line, from under the seat down to where the pedals go.",
+      "textHash": "20496b605bd09fbe3eb62277f489b3cf705fda98ae40ee3adf882b36cf41b060",
+      "durationMs": 5200
+    },
+    "back-triangle": {
+      "file": "back-triangle.m4a",
+      "text": "From the back hub, draw one line to the top of that tube and one to the bottom.",
+      "textHash": "0c194dbfc3793c6f86caf970f4ad483731e1662f7bae0ba34f1f3e2c4626d3c6",
+      "durationMs": 5120
+    },
+    "main-triangle": {
+      "file": "main-triangle.m4a",
+      "text": "Next, a level bar forward from the seat, and a slanted bar up from the pedals to meet it.",
+      "textHash": "5e46da71b4ca227b7a6cde11638b38daed6b972feee5d1e794e64d4264f10ad7",
+      "durationMs": 5920
+    },
+    "fork": {
+      "file": "fork.m4a",
+      "text": "The fork holds the front wheel. From above the bars, come down through the corner to the front hub.",
+      "textHash": "cb8379ff0dbf4aa6988abfa068dab2a916975d5e7b37299a3c8ea1f875569fe9",
+      "durationMs": 5600
+    },
+    "handlebars": {
+      "file": "handlebars.m4a",
+      "text": "Lay the handlebars flat across the top, like the top of a T.",
+      "textHash": "8279c118db9b2388581b0d115d0c2fc43e6d5bba939baa1d14dd82d190fdbde0",
+      "durationMs": 4560
+    },
+    "saddle": {
+      "file": "saddle.m4a",
+      "text": "The seat is a small wedge, round at the back and pointed at the front.",
+      "textHash": "8f2cd6b6cae11cc2ea2ea5761d74fcad2228a151493c5b550d69e8fbdf991131",
+      "durationMs": 4720
+    },
+    "seat-color": {
+      "file": "seat-color.m4a",
+      "text": "Color the seat brown.",
+      "textHash": "406c19f7737bbf8ecef07023aab00f7ad90daacf42167406de9fa1cea3564f1e",
+      "durationMs": 1840
+    },
+    "hub-color": {
+      "file": "hub-color.m4a",
+      "text": "Color the hubs gray.",
+      "textHash": "d541574fb8d0cdd9e22ea91e403ea89bdd8b749dcd46610dcddbd6187eadcd47",
+      "durationMs": 1760
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Two circles and nine lines, and it really is a bicycle. Lean it somewhere safe.",
+      "textHash": "25624002c5c3067521af93b08a6b9d8a17282cd32790ef6109115a450b36bf05",
+      "durationMs": 6000
+    }
+  }
+}
