@@ -1,0 +1,106 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "race-car",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:29:33.054Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Ready, set, go. This race car is long and low, with a wing at the back and a big seven on its side. Follow its shape from tail to nose, then start your engine.",
+      "textHash": "b390f9298074b4c238898abb57e22caac1673b0ccef478539b3d8883992152f6",
+      "durationMs": 11280
+    },
+    "top": {
+      "file": "top.m4a",
+      "text": "A race car hugs the road. From the back, draw one flowing line over the roof and down to the nose.",
+      "textHash": "056d28c781b3bc6a999d13be9d310d378e5171b556460fc18594f0fe5feab895",
+      "durationMs": 6480
+    },
+    "nose": {
+      "file": "nose.m4a",
+      "text": "Bring the pointed nose around and back underneath.",
+      "textHash": "14030897351edb97b8a66bcb44480c4a29486c6309162bb8a7d97cbaa47e26d9",
+      "durationMs": 3280
+    },
+    "floor": {
+      "file": "floor.m4a",
+      "text": "Finish the underside. Flat, arch, flat, arch, and up the short tail.",
+      "textHash": "596f30fcfa6b26934d0aa3d4c0937fbb966711759e3083dd414dbd76dbad0245",
+      "durationMs": 5760
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "The window is long and low, flat on the bottom and curved on top.",
+      "textHash": "b570f1dc4ff5532a1fd3f859d0d341b3cdb23b0b7294725ec7b2fe7009756d0c",
+      "durationMs": 5200
+    },
+    "spoiler": {
+      "file": "spoiler.m4a",
+      "text": "The wing at the back is a letter T. Draw it as an outline, standing on the tail.",
+      "textHash": "09911d6c0005868b842264d9914e3d3af3ca6f431bc06e193300c72187ddf0a0",
+      "durationMs": 5440
+    },
+    "number": {
+      "file": "number.m4a",
+      "text": "Racers wear a number. Draw a circle on the side, then a seven inside it.",
+      "textHash": "97f3d896f9a4199695291ccfa7f2817cd5937c46429bbd926a7dc304f5de60fb",
+      "durationMs": 5040
+    },
+    "tires": {
+      "file": "tires.m4a",
+      "text": "Put a tire in each arch, close to the edge but never touching.",
+      "textHash": "2a8ff12e640e64ffc83e70d119dd78bbd77f29c83dc80477e57c455bfdd7af11",
+      "durationMs": 4160
+    },
+    "hubs": {
+      "file": "hubs.m4a",
+      "text": "Add the two hubs.",
+      "textHash": "da6b0da07769fa4e2f5fc07730da27d4ce7b4327b31b520eeab6019184479a63",
+      "durationMs": 1440
+    },
+    "color-car": {
+      "file": "color-car.m4a",
+      "text": "Color the car red.",
+      "textHash": "d91a45c2c46a9c76d1e2d121e1b36f30c929a9b6e8af13cbec9e6486d4d1e935",
+      "durationMs": 1600
+    },
+    "color-window": {
+      "file": "color-window.m4a",
+      "text": "Color the window blue.",
+      "textHash": "1b6772e520ad5a403cd39edfb2032edd17341161c3df641740ce92b56f5057c6",
+      "durationMs": 1600
+    },
+    "color-wing": {
+      "file": "color-wing.m4a",
+      "text": "Color the wing purple.",
+      "textHash": "279d2e97b4ff79e59d7d20db947f5c3d5668aedd89a4cd1ab4013a689175aecb",
+      "durationMs": 1680
+    },
+    "color-number": {
+      "file": "color-number.m4a",
+      "text": "Color the number circle yellow.",
+      "textHash": "53ae8033247f3bff572e1eb9b038b20859d407e0ba7f8784861d04e46efe318d",
+      "durationMs": 2160
+    },
+    "color-tires": {
+      "file": "color-tires.m4a",
+      "text": "Make the tires black.",
+      "textHash": "27f40071430e5bea0390e2c54fddc1a4b6258ab8054c298e0c5974975979d4a8",
+      "durationMs": 1840
+    },
+    "color-hubs": {
+      "file": "color-hubs.m4a",
+      "text": "Color the hubs cream.",
+      "textHash": "e367537dca5f1f4fff8dbcb43b34c4fc5da749792ebf5e675ef797c5ca5a6646",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Low, fast and wearing number seven. Change the number if you have a lucky one.",
+      "textHash": "32840ca22cdaedd764e2aaac3f3cd69ed8fcd75d55a75f359b56c739ce6d606a",
+      "durationMs": 5120
+    }
+  }
+}
