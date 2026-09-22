@@ -1,0 +1,112 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "excavator",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:26:52.375Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "An excavator is a digging machine with one long arm that bends at an elbow, like yours. Tracks first, then the cab, then the arm. Watch it reach out, then dig in.",
+      "textHash": "dc44504277807ae8af8ee066cb007594ae3ac10eb758eaee67e9c5784be99a87",
+      "durationMs": 11760
+    },
+    "tracks-top": {
+      "file": "tracks-top.m4a",
+      "text": "The tracks are shaped like a pill. Draw the top half, round at both ends.",
+      "textHash": "2fe271acb21a7f1d65a0e556744b8e24d109175c55b28128776cdaafb2393300",
+      "durationMs": 5200
+    },
+    "tracks-bottom": {
+      "file": "tracks-bottom.m4a",
+      "text": "Now the bottom half, back along the ground.",
+      "textHash": "2e354942c435ec11622864296be25f36c5ca0d0edbd5e3dc4cad35b2124c8c78",
+      "durationMs": 2960
+    },
+    "track-wheels": {
+      "file": "track-wheels.m4a",
+      "text": "Three wheels turn inside the tracks. Draw three circles in a row.",
+      "textHash": "0882ca8f1aac35ebba226d3bc1c794ed861baa45706d34824c0d7d3f3d8c9da2",
+      "durationMs": 4000
+    },
+    "body": {
+      "file": "body.m4a",
+      "text": "The body is a low box sitting on the tracks. Its top dips where the arm will stand.",
+      "textHash": "9eedd716c9accb7809c6176a237f4eb64c0f246f0928d863a07a2bd60d606cef",
+      "durationMs": 5760
+    },
+    "cab": {
+      "file": "cab.m4a",
+      "text": "The cab stands on the back of the body. Up, over with soft corners, and down.",
+      "textHash": "7e3966618702e4d8dcb2d1cc765277b89d277f3bf32bde3e6c26b61cda17fc56",
+      "durationMs": 5360
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "Draw the cab's window, a square with soft corners.",
+      "textHash": "75b31215e07e07021e5bdb406cf3e24f09a35790cf2ebfc3f18961f51bd9a06f",
+      "durationMs": 3520
+    },
+    "boom": {
+      "file": "boom.m4a",
+      "text": "The arm starts in the dip. Draw its two long sides, leaning up to the right.",
+      "textHash": "090a6c03308ae7fa3b32c83b47c875f7fa005bdb9a6fdaa1f09f07659c040fba",
+      "durationMs": 5200
+    },
+    "elbow": {
+      "file": "elbow.m4a",
+      "text": "The arm has an elbow. Draw a circle at the top of the two lines.",
+      "textHash": "b9ed60c1a36718b04ab8c507b5492d1bb56f4d0fd4bbdb8ff744a666391edb9f",
+      "durationMs": 4400
+    },
+    "stick": {
+      "file": "stick.m4a",
+      "text": "From the elbow, two more long lines slope down to the right.",
+      "textHash": "6cbc4b9ba99dd2a2e96fef6b5a2018104f4d0fcef9d3f03af2aa107d06daf5c7",
+      "durationMs": 3920
+    },
+    "bucket": {
+      "file": "bucket.m4a",
+      "text": "The bucket hangs at the end. Curve its belly down to a point, then back up.",
+      "textHash": "78a879036c544e74798d3f86172be7e27df17c1f3daa41aa1c914d308c923e5a",
+      "durationMs": 4880
+    },
+    "color-orange": {
+      "file": "color-orange.m4a",
+      "text": "Color the cab, the arm and the elbow orange.",
+      "textHash": "a0444fcf5d276eed3133c857ee11a8d4c95defb787e6c4ddc6542b3819787abf",
+      "durationMs": 3520
+    },
+    "color-body": {
+      "file": "color-body.m4a",
+      "text": "Color the body yellow, and the far half of the arm.",
+      "textHash": "1e1819bd2fc04ff51b7ebdd0f9117693ff3c7ea74af1391d923407a4cc8dadb3",
+      "durationMs": 3120
+    },
+    "color-tracks": {
+      "file": "color-tracks.m4a",
+      "text": "Color the tracks gray, then their wheels cream.",
+      "textHash": "616cd643f6ad4a08cceeff121ed601bc639c73c2e25f8a264badfca1c07091e4",
+      "durationMs": 3120
+    },
+    "color-bucket": {
+      "file": "color-bucket.m4a",
+      "text": "Color the bucket brown.",
+      "textHash": "cc49d01b23f117d92b1e25866b95297655380e9874751a01ed417aec27c06b3d",
+      "durationMs": 1840
+    },
+    "color-window": {
+      "file": "color-window.m4a",
+      "text": "Color the window blue.",
+      "textHash": "1b6772e520ad5a403cd39edfb2032edd17341161c3df641740ce92b56f5057c6",
+      "durationMs": 1600
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Tracks, cab, elbow and bucket. What will your digger dig up first?",
+      "textHash": "8596559d4498259b89921857cb92848d4edcb14296d52706677fb3acbc37f8c4",
+      "durationMs": 4640
+    }
+  }
+}
