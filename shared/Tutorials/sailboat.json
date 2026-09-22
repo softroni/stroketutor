@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 2,
+  "id": "sailboat",
+  "title": "Sailboat",
+  "canvas": { "width": 1000, "height": 1000 },
+  "steps": [
+    {
+      "id": "deck",
+      "title": "Draw the deck",
+      "instruction": "Every boat here starts with its deck. Draw a long line that lifts at the right, to the bow.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 131 649 C 132 645 137 647 142 647 C 151 646 168 646 187 646 C 278 645 597 646 692 645 C 716 645 734 644 752 642 C 769 641 783 640 799 638 C 814 635 830 632 843 629 C 857 626 868 622 877 620 C 884 619 893 617 896 619",
+          "duration": 1.78,
+          "lineWidth": 15
+        }
+      ]
+    },
+    {
+      "id": "hull",
+      "title": "Draw the hull",
+      "instruction": "Now the hull. From the left end, swing down and along. Rise to the bow's tip.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 131 649 C 129 652 132 659 133 667 C 136 675 140 687 144 698 C 149 710 155 726 160 737 C 164 746 168 753 172 759 C 175 765 178 769 182 773 C 186 778 191 783 196 787 C 202 791 208 796 214 799 C 219 803 223 805 230 807 C 242 811 262 818 283 822 C 303 827 327 830 356 832 C 384 834 420 835 457 835 C 493 836 541 835 573 834 C 601 833 625 832 645 829 C 663 827 676 825 691 822 C 707 818 722 814 736 808 C 751 802 766 795 778 787 C 790 779 799 772 808 762 C 818 753 827 741 836 729 C 845 717 854 703 862 688 C 871 674 883 654 888 645 C 891 640 892 636 893 632 C 895 627 898 620 896 619",
+          "duration": 2.22,
+          "lineWidth": 15
+        }
+      ]
+    },
+    {
+      "id": "plank",
+      "title": "Draw the plank line",
+      "instruction": "A plank line runs along the side. Keep both ends inside the hull.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 194 712 C 258 711 485 712 579 711 C 649 711 715 710 754 709 C 776 709 799 707 809 707",
+          "duration": 3.1,
+          "lineWidth": 13
+        }
+      ]
+    },
+    {
+      "id": "mast",
+      "title": "Draw the mast",
+      "instruction": "Stand the mast on the deck: one tall, straight line going up.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 549 644 L 548 140",
+          "duration": 2.5,
+          "lineWidth": 21
+        }
+      ]
+    },
+    {
+      "id": "sail",
+      "title": "Draw the sail",
+      "instruction": "The sail is a triangle on the mast's left. Slant down from the top, then come straight back.",
+      "voiceover": null,
+      "strokes": [
+        {
+          "d": "M 547 194 C 544 195 535 198 532 200 C 528 202 527 203 524 206 C 468 263 252 485 194 545 C 186 553 179 560 175 567 C 171 572 167 580 170 583 C 172 585 183 584 192 584 C 255 584 489 582 549 582",
+          "duration": 4,
+          "lineWidth": 17
+        }
+      ]
+    },
+    {
+      "id": "color-hull",
+      "title": "Color the hull",
+      "instruction": "Color the hull blue.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 883 611 C 884 611 885 610 886 611 C 889 614 900 622 902 627 C 904 632 899 636 896 641 C 886 658 855 709 843 728 C 836 739 829 746 822 754 C 815 762 809 768 800 776 C 791 784 780 793 768 800 C 756 807 742 815 726 820 C 711 826 693 830 675 833 C 657 836 641 839 618 840 C 592 842 557 843 517 843 C 475 843 404 843 365 841 C 332 839 305 835 284 831 C 266 828 252 824 239 819 C 226 814 219 812 208 803 C 196 794 178 776 168 764 C 159 753 156 746 151 733 C 144 716 129 672 124 659 C 123 657 123 656 124 654 C 127 651 134 644 139 639 C 315 639 568 639 667 639 C 694 639 720 638 735 637 C 745 637 756 637 760 636 C 761 636 760 634 761 634 C 763 634 770 635 772 635 C 773 635 772 633 773 633 C 775 633 780 634 781 634 C 782 634 782 633 782 632 C 793 631 803 631 816 628 C 830 625 858 618 867 616 C 868 616 869 617 870 617 C 873 616 880 612 883 611 Z",
+          "color": "#5B8FC7",
+          "duration": 3,
+          "fillRule": "evenodd"
+        }
+      ]
+    },
+    {
+      "id": "color-sail",
+      "title": "Color the sail",
+      "instruction": "Color the sail cream.",
+      "voiceover": null,
+      "strokes": [],
+      "fills": [
+        {
+          "d": "M 536 191 C 542 197 547 202 553 208 C 553 330 553 451 553 573 C 547 578 542 584 536 589 C 484 589 418 590 381 590 C 353 590 335 589 312 588 C 312 589 312 590 311 590 C 308 590 298 589 295 589 C 294 589 294 590 294 591 C 259 591 207 591 188 591 C 185 591 183 591 180 589 C 176 586 170 578 165 572 C 188 548 212 525 235 501 C 237 504 240 508 242 509 C 244 510 247 508 246 506 C 245 504 241 500 238 497 C 337 395 437 293 536 191 Z",
+          "color": "#F6E7B8",
+          "duration": 2.5,
+          "fillRule": "evenodd"
+        }
+      ]
+    }
+  ]
+}

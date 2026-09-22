@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "sailboat",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:35:55.608Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "One hull, one mast, one sail: that's all a sailboat needs to catch the wind. See how few lines it takes, then launch your own.",
+      "textHash": "92c429621963d7ccda67abfb5a2c0c76128b6f0bd9040fe0f7ded2672138cccd",
+      "durationMs": 8400
+    },
+    "deck": {
+      "file": "deck.m4a",
+      "text": "Every boat here starts with its deck. Draw a long line that lifts at the right, to the bow.",
+      "textHash": "95745a3a7390528d22132884d0be1d2f7f22be50d052937d29999886463b2691",
+      "durationMs": 5920
+    },
+    "hull": {
+      "file": "hull.m4a",
+      "text": "Now the hull. From the left end, swing down and along. Rise to the bow's tip.",
+      "textHash": "7c4d16a11120738a8f680d4455cd5bb2137a167892d2c4ae3c46af04610b6f05",
+      "durationMs": 6160
+    },
+    "plank": {
+      "file": "plank.m4a",
+      "text": "A plank line runs along the side. Keep both ends inside the hull.",
+      "textHash": "4697eb95692d77bdd4d96fe353d920c6ce057113aef6f6cc198d71f7e1f30ea4",
+      "durationMs": 4640
+    },
+    "mast": {
+      "file": "mast.m4a",
+      "text": "Stand the mast on the deck: one tall, straight line going up.",
+      "textHash": "f5e26f955b408920108bcd6fe86949f1274a15aa04d9b527ac25c40fb95912e6",
+      "durationMs": 4240
+    },
+    "sail": {
+      "file": "sail.m4a",
+      "text": "The sail is a triangle on the mast's left. Slant down from the top, then come straight back.",
+      "textHash": "ed68d564da4cd1efff3d329d5a898010c3583f2284883d4359779fe495eb3cd6",
+      "durationMs": 6160
+    },
+    "color-hull": {
+      "file": "color-hull.m4a",
+      "text": "Color the hull blue.",
+      "textHash": "3ed3f110abd9099666367b4f1b1b948524f13c4e57169e0a397eaf3555de517c",
+      "durationMs": 1920
+    },
+    "color-sail": {
+      "file": "color-sail.m4a",
+      "text": "Color the sail cream.",
+      "textHash": "8fd15eb7c8a2e912e68f2136cb8e31fdfead8c4dbcd8f242046c6e0e5717c85c",
+      "durationMs": 1760
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your sailboat is ready for a breeze. Which way is the wind blowing?",
+      "textHash": "2614be2d029ef0d85b83ad075677ffb4ddab0c18c1ffd4fbfce8c6d2970595f7",
+      "durationMs": 4560
+    }
+  }
+}

@@ -120,6 +120,13 @@
         "motorcycle",
         "ambulance"
       ]
+    },
+    {
+      "id": "on-the-water",
+      "title": "On the Water",
+      "description": "Boats and ships, from one sail on a hull to a harbour scene.",
+      "level": "core",
+      "lessonIds": ["sailboat"]
     }
   ]
 }
