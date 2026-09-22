@@ -4,7 +4,8 @@ import UIKit
 /// `sk-entry` — one kept page: the photograph large on a band in its path's tint,
 /// with the lesson it was drawn from in color in the corner, then the lesson's name,
 /// one short line ("Plants · Sep 22"), the gold "Drawn" chip, a note, the green way to
-/// draw it again, and the quiet actions. Delete always asks.
+/// draw it again, and the quiet actions. Delete always asks. Tapping the photograph
+/// shows it full screen (`SketchbookPhotoViewer`).
 ///
 /// Plan §32: "Associate the image with lesson, path, and completion date." The only
 /// forward action is to draw it again; the rest is quiet.
@@ -17,6 +18,8 @@ struct SketchbookEntryView: View {
     @State private var note = ""
     @State private var didLoadNote = false
     @State private var isConfirmingDelete = false
+    /// The photograph at full size, while it is shown full screen.
+    @State private var fullScreenPhoto: FullScreenPhoto?
     /// A JPEG in the temporary directory, written so the share sheet hands over a
     /// real file rather than a re-rendered bitmap.
     @State private var shareURL: URL?
@@ -104,6 +107,10 @@ struct SketchbookEntryView: View {
             if !editing { saveNote() }
         }
         .onDisappear { saveNote() }
+        .fullScreenCover(item: $fullScreenPhoto) { photo in
+            SketchbookPhotoViewer(image: photo.image, accessibilityLabel: photo.label)
+                .presentationBackground(.clear)
+        }
         .alert("Delete this page?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {
                 app.sketchbook.delete(page)
@@ -116,19 +123,39 @@ struct SketchbookEntryView: View {
     }
 
     /// The photograph on the path's soft tint, with the tint's deeper edge under it
-    /// as the path cards have, and the lesson's own drawing in its badge.
+    /// as the path cards have, and the lesson's own drawing in its badge. A tap
+    /// shows it full screen; with no photo on the device there is nothing to show.
     private func photoBand(_ page: SketchbookPage, lesson: Lesson?) -> some View {
         let tint = (app.path(forLesson: page.lessonId) ?? app.path(id: page.pathId))
             .map { app.tint(for: $0) }
         let shape = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
+        // A screen-sized copy, decoded once: the full photo is only read to share it
+        // or to look at it full screen.
+        let image = app.sketchbook.thumbnail(for: page, maxPixelSize: 1400)
+        let label = "Your \(lesson?.title ?? "page"), \(SketchbookDate.spoken(page.completedAt))"
 
-        // A screen-sized copy, decoded once: the full photo is only read to share it.
-        return SketchbookShot(image: app.sketchbook.thumbnail(for: page, maxPixelSize: 1400),
-                              tutorial: lesson?.tutorial)
+        let shot = SketchbookShot(image: image, tutorial: lesson?.tutorial)
             .lessonBadge(lesson?.tutorial)
-            .accessibilityElement()
-            .accessibilityLabel("Your \(lesson?.title ?? "page"), \(SketchbookDate.spoken(page.completedAt))")
-            .accessibilityAddTraits(.isImage)
+
+        return Group {
+            if image != nil {
+                Button {
+                    showFullScreen(page, label: label)
+                } label: {
+                    shot
+                }
+                .buttonStyle(PressableSlotStyle())
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(label)
+                .accessibilityHint("Shows it full screen")
+                .accessibilityAddTraits([.isImage, .isButton])
+            } else {
+                shot
+                    .accessibilityElement()
+                    .accessibilityLabel(label)
+                    .accessibilityAddTraits(.isImage)
+            }
+        }
             .padding(12)
             .background(shape.fill(tint?.soft ?? Theme.surface))
             .background(alignment: .bottom) {
@@ -263,6 +290,19 @@ struct SketchbookEntryView: View {
     }
 
     // MARK: - Doing it
+
+    /// The photo for the full-screen viewer.
+    private struct FullScreenPhoto: Identifiable {
+        let id = UUID()
+        let image: UIImage
+        let label: String
+    }
+
+    /// Large enough to zoom into, still a decoded copy rather than the whole file.
+    private func showFullScreen(_ page: SketchbookPage, label: String) {
+        guard let image = app.sketchbook.thumbnail(for: page, maxPixelSize: 3000) else { return }
+        fullScreenPhoto = FullScreenPhoto(image: image, label: label)
+    }
 
     private func saveNote() {
         guard didLoadNote else { return }
