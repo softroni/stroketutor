@@ -213,15 +213,17 @@ struct HomeView: View {
     }
 
     /// Up to four paths without a shelf, the current path's level first — the next
-    /// thing a learner at that level is likely to enjoy — then the catalog's order,
-    /// easiest first.
+    /// thing a learner at that level is likely to enjoy — then the rest, easiest
+    /// level first. Which ones show turns over once a day (`PathSuggestions`), so a
+    /// learner who starts none of them still meets every path in time.
     private var suggestions: [PathModel] {
         let shelved = Set(shelves.map(\.id))
         let fresh = shipped.filter { !shelved.contains($0.id) }
         let level = app.currentPath?.level
-        let sameLevel = fresh.filter { level != nil && $0.level == level }
-        let others = fresh.filter { level == nil || $0.level != level }
-        return Array((sameLevel + others).prefix(Self.suggestionCount))
+        return PathSuggestions.pick(sameLevel: fresh.filter { level != nil && $0.level == level },
+                                    others: fresh.filter { level == nil || $0.level != level },
+                                    count: Self.suggestionCount,
+                                    day: PathSuggestions.dayNumber(of: .now))
     }
 
     private var recentPages: [SketchbookPage] {
@@ -348,6 +350,29 @@ private struct SectionTitle: View {
         }
         .frame(minHeight: Theme.navTapTarget)
         .contentShape(Rectangle())
+    }
+}
+
+/// How "Try something new" chooses its cards: the same all day, a different set
+/// the next. Each group — the current level's paths, then the rest — is rotated by
+/// a whole card count per day, so every day starts on the paths that were not shown
+/// the day before, and the current level still fills the cards first.
+enum PathSuggestions {
+    static func pick<Item>(sameLevel: [Item], others: [Item], count: Int, day: Int) -> [Item] {
+        Array((rotated(sameLevel, by: day * count) + rotated(others, by: day * count)).prefix(count))
+    }
+
+    /// Whole days since a fixed date, in the learner's own calendar, so the cards
+    /// change at their midnight.
+    static func dayNumber(of date: Date, calendar: Calendar = .current) -> Int {
+        let origin = calendar.startOfDay(for: Date(timeIntervalSinceReferenceDate: 0))
+        return calendar.dateComponents([.day], from: origin, to: calendar.startOfDay(for: date)).day ?? 0
+    }
+
+    private static func rotated<Item>(_ items: [Item], by offset: Int) -> [Item] {
+        guard !items.isEmpty else { return items }
+        let start = ((offset % items.count) + items.count) % items.count
+        return Array(items[start...] + items[..<start])
     }
 }
 
