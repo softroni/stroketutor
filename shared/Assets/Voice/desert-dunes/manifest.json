@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "desert-dunes",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:36:39.378Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Out in the desert there is nothing to measure by except a cactus. Ours is drawn twice, once big and once tiny, and that tiny one is what puts the far dune miles away. See it happen, then it's your turn in the sand.",
+      "textHash": "031d0d3f7296c2b7dd79fb4fd9b89c1f5c603e8f0a609478240761d88d9ec286",
+      "durationMs": 13440
+    },
+    "ground": {
+      "file": "ground.m4a",
+      "text": "Flat sand first, one long line from left to right.",
+      "textHash": "5add080fd6eac0468f19bb4317ef38ff023fb64c6e6c6758056b7ab3ee0a8000",
+      "durationMs": 3760
+    },
+    "back-dune-left": {
+      "file": "back-dune-left.m4a",
+      "text": "The tall dune humps up from the left end and comes down again.",
+      "textHash": "3e4578dfcb88bfe7301e3fe27f074c2730fd1588e79caf3c2f5b763231e84576",
+      "durationMs": 4320
+    },
+    "back-dune-right": {
+      "file": "back-dune-right.m4a",
+      "text": "A rounder one humps up on the right, with sand showing between them.",
+      "textHash": "a56717fa650464178686f8ec300f77adedfb54129e40ec89cf85e98d280b0ca4",
+      "durationMs": 4320
+    },
+    "front-dune": {
+      "file": "front-dune.m4a",
+      "text": "The wide dune in front runs across both, low and slow.",
+      "textHash": "9e6f599990787d8f3c7475f6c60bf44c36bd04b6f0a5d2bfe062cf1c4a01c860",
+      "durationMs": 4320
+    },
+    "back-crests": {
+      "file": "back-crests.m4a",
+      "text": "Each dune behind has a line from its top down to its edge. Draw both.",
+      "textHash": "253de7b20a51a71c9ac7f6d3e2cb5da072c9c9d314e3bdbd4202ebbc339d35f0",
+      "durationMs": 4880
+    },
+    "front-crest": {
+      "file": "front-crest.m4a",
+      "text": "The front dune gets one too, curving down to the right.",
+      "textHash": "c9f257519f1d6e207eb5fb9704e0e3b0e3771053b3fb046397714af2b1076205",
+      "durationMs": 3680
+    },
+    "near-cactus": {
+      "file": "near-cactus.m4a",
+      "text": "The big cactus is one outline. Up the post, then out and up for each arm.",
+      "textHash": "5ad6e3bc1cffa043ba55794d70dcfa241c07b34bda2e007c61c9e9c666bedc3f",
+      "durationMs": 5360
+    },
+    "far-cactus": {
+      "file": "far-cactus.m4a",
+      "text": "The same shape again, much smaller, sitting on the dune behind.",
+      "textHash": "8f16381f9c1e04894eafd82c0a63191ff948c0137bd82fee4adff83af95fbf44",
+      "durationMs": 4320
+    },
+    "sunny": {
+      "file": "sunny.m4a",
+      "text": "Color the sunny side of each dune yellow.",
+      "textHash": "2d7968825f361042a5f1e6014b0823a2b0e0c624674eb175d4098f69e3c56607",
+      "durationMs": 2960
+    },
+    "shadow": {
+      "file": "shadow.m4a",
+      "text": "The strip past each crest line is orange.",
+      "textHash": "f53b07f4c0c84aaf94ee1114ff0d70d5522e55e3a46e5cec0d466d718f4972ca",
+      "durationMs": 3040
+    },
+    "cacti": {
+      "file": "cacti.m4a",
+      "text": "Both cacti are dark green.",
+      "textHash": "fc950cfd3b7c112523d7911edb1ec91d181ba9659b221d06ec713b438b7f6167",
+      "durationMs": 2400
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your desert runs a long way back. The little cactus does all the work.",
+      "textHash": "f8353f36ade7b2933b2a7f1605168f026987f9798215170228156fcd91940c34",
+      "durationMs": 4240
+    }
+  }
+}
