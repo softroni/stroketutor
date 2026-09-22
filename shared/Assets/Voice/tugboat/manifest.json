@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "tugboat",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:37:37.983Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Tugboats are small, but they push the biggest ships around. That's why they wear a bumper. Watch this stubby one take shape, then put yours to work.",
+      "textHash": "3c3dd6cced29b97f8eb71677a94de7eba00a82a0e90276e2283794a66bf709d9",
+      "durationMs": 9200
+    },
+    "bumper-top": {
+      "file": "bumper-top.m4a",
+      "text": "A tugboat wears a thick bumper all around. Draw its top line, rising a little at the bow.",
+      "textHash": "c716f9e511c7a2d9bb61ca9c58970adc17a426fa32c60edccf2946deb98e8611",
+      "durationMs": 5840
+    },
+    "bumper-bottom": {
+      "file": "bumper-bottom.m4a",
+      "text": "Round the end and come back underneath. The bumper closes up like a long pill.",
+      "textHash": "d35edaaed8abfc7ebb0b1d0a3edd4e2b9ccb3771292214ba0ddd6d57fa876856",
+      "durationMs": 5440
+    },
+    "hull-side": {
+      "file": "hull-side.m4a",
+      "text": "The hull hangs under the bumper like a deep tub. Drop down on the left and run along the flat bottom.",
+      "textHash": "f2cde3cc86688e6ce8692166584ba067cb2f83ba8f77f9343f1bfd82c6ce0ee5",
+      "durationMs": 6320
+    },
+    "hull-bow": {
+      "file": "hull-bow.m4a",
+      "text": "Then sweep up in one big curve to meet the bumper at the bow.",
+      "textHash": "d1e343d699449ee5d3be66df0eda49f4711353c7522e68896b78fd978d36c941",
+      "durationMs": 4560
+    },
+    "cabin": {
+      "file": "cabin.m4a",
+      "text": "The cabin stands on the bumper. Go up, across with soft corners, and down again.",
+      "textHash": "1ac640cf54d33df5300d3726838fec5d4bbd78db62abc28f7937f9e98f0cac3e",
+      "durationMs": 5840
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "One round window looks out toward the bow.",
+      "textHash": "dbade1073cd8c016bdaa6f6593b07ee2eca8b5a6630751a8503f4fff88672c7f",
+      "durationMs": 2560
+    },
+    "stack": {
+      "file": "stack.m4a",
+      "text": "A smokestack stands on the roof: up, across, down. Add a band near its top.",
+      "textHash": "3d82338c7691cc51b74469050da3f0c7d9f7297fa6476ea6d5bd507a2650ab61",
+      "durationMs": 6320
+    },
+    "hull-color": {
+      "file": "hull-color.m4a",
+      "text": "Color the hull red.",
+      "textHash": "3499cc4bc3a096aac33527288bb3bca4ebf0c0f3538e87cbb24e66571f7319f2",
+      "durationMs": 1680
+    },
+    "cabin-color": {
+      "file": "cabin-color.m4a",
+      "text": "Color the cabin yellow.",
+      "textHash": "83e9ed50c646d0e6b9154e7d2341d6a914e313c65c4e7e1a2687fcd0d5d1e3db",
+      "durationMs": 1840
+    },
+    "bumper-color": {
+      "file": "bumper-color.m4a",
+      "text": "Color the bumper gray.",
+      "textHash": "24f08d7d823441bb6ff165cacd61049a4081e05022f6e26112532ae7a4737580",
+      "durationMs": 1680
+    },
+    "stack-color": {
+      "file": "stack-color.m4a",
+      "text": "Color the smokestack orange and the window blue.",
+      "textHash": "31bb2e2729c996f573171702036fd68afd28bbad584d99820970f57c12843b71",
+      "durationMs": 3120
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Short, round and strong. What big ship will your tugboat push today?",
+      "textHash": "26494f8bdc5dc492ea63dc09b550b96876463f9f275a141c39866cf6333f0df3",
+      "durationMs": 5200
+    }
+  }
+}
