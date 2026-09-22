@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "school-bus",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:21:58.271Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Beep beep, here comes the school bus. It's one long box with four windows and two wheels. Watch it pull up, then hop on with your pen.",
+      "textHash": "a2d13394ad6387faffeb70a813f0439b1c2c9e188ab1eae06804bc2695dd3d01",
+      "durationMs": 9040
+    },
+    "box": {
+      "file": "box.m4a",
+      "text": "The bus is a long box. From the bottom left, go up, along the roof and down, like a wide table.",
+      "textHash": "f74a60264389bfc740bc127384dd036b4d6005c344facd71549cd4e99144a522",
+      "durationMs": 7520
+    },
+    "floor": {
+      "file": "floor.m4a",
+      "text": "Now the floor. Run along the bottom and hop over two round arches, one near each end.",
+      "textHash": "4e2f920068568bf9f72bc2d07b1f8e585453b222e047beafe37e5840a65da1f9",
+      "durationMs": 6240
+    },
+    "windows-left": {
+      "file": "windows-left.m4a",
+      "text": "Windows are squares with soft corners. Draw two of them, side by side.",
+      "textHash": "3c80065f844dce413f15d9412f240c6553cdc0c6d510bcd278d18463c155ecc3",
+      "durationMs": 4720
+    },
+    "windows-right": {
+      "file": "windows-right.m4a",
+      "text": "Two more to the right, and the row of four is full.",
+      "textHash": "d8d7b737c0a9782467cdf080b3ef48b23dafa68ef3981d9da512575d186d4004",
+      "durationMs": 3520
+    },
+    "stripe": {
+      "file": "stripe.m4a",
+      "text": "A long stripe runs under the windows. Stop a little before each end.",
+      "textHash": "6e0378c57eafb15eabb2d62f1d281a2441cb309cf459cb30e04f75e739efe7f0",
+      "durationMs": 4800
+    },
+    "tires": {
+      "file": "tires.m4a",
+      "text": "Tuck a tire under each arch. It's a circle that leaves a thin gap all around.",
+      "textHash": "613b53cecb7db4ac0061e2e7cd3be94a3ba558b68cb946d216098937180db75f",
+      "durationMs": 5520
+    },
+    "hubs": {
+      "file": "hubs.m4a",
+      "text": "Give each tire a hub, a small circle in its center.",
+      "textHash": "0797339668e25d1f7d41cb8c1e4a36ed37fd01cbc1512f74cbf0add2240e4c34",
+      "durationMs": 3920
+    },
+    "color-body": {
+      "file": "color-body.m4a",
+      "text": "Color the bus yellow.",
+      "textHash": "bae492803696900869cc795166ec0588a13c72e5f09f2260c1e355236cb37ea9",
+      "durationMs": 1600
+    },
+    "color-windows": {
+      "file": "color-windows.m4a",
+      "text": "Color the windows blue.",
+      "textHash": "aa5375404a0257ef12dee08322ae050c3b1bc6edb3655c0f2f74ed58b7e892a9",
+      "durationMs": 1600
+    },
+    "color-tires": {
+      "file": "color-tires.m4a",
+      "text": "The tires are black.",
+      "textHash": "845efdccff35449a50eba740b1cbf12aef04da8799131ee10aef16136a58dc3f",
+      "durationMs": 1440
+    },
+    "color-hubs": {
+      "file": "color-hubs.m4a",
+      "text": "Color the hubs gray.",
+      "textHash": "d541574fb8d0cdd9e22ea91e403ea89bdd8b749dcd46610dcddbd6187eadcd47",
+      "durationMs": 1760
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Four windows, two wheels and a stripe down the side. Next stop, your school.",
+      "textHash": "2552ba1737fa1254cc08abaf8ba4695ae7d410595ba026df82fb45d09ba05b92",
+      "durationMs": 5920
+    }
+  }
+}

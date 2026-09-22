@@ -482,6 +482,16 @@
       }
     },
     {
+      "id": "school-bus",
+      "status": "approved",
+      "objective": "Long box with four windows and two wheels",
+      "reference": {
+        "file": "school-bus.svg",
+        "source": "OpenAI image model, prompt style-v2 (docs/curriculum/wheels-prompts.md), generated 2026-09-21",
+        "license": "AI-generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",
