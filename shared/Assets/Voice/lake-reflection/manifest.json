@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "lake-reflection",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:37:30.293Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Still water copies whatever stands beside it, only upside down and paler. We will draw everything twice. Watch the lake fill up, then fill your own.",
+      "textHash": "35ae3dd826eb8dd0f8b2ff3caca82fafaebece71886b03b8b33389d5f942e516",
+      "durationMs": 9360
+    },
+    "shore": {
+      "file": "shore.m4a",
+      "text": "The far shore is one straight line across the middle.",
+      "textHash": "5603e0093292e40cf6375cfb001686a081e014e54cbbcf7d2c72bd366bca666b",
+      "durationMs": 3280
+    },
+    "lake": {
+      "file": "lake.m4a",
+      "text": "The lake hangs below it. One big curve from end to end, like a bowl.",
+      "textHash": "d96e196610e2d15a02721d0dfb020defb0e916a52bdae33d2aad52f7d24a1846",
+      "durationMs": 4880
+    },
+    "mountain": {
+      "file": "mountain.m4a",
+      "text": "A mountain stands on the shore. Up one slope to the point, then down the other.",
+      "textHash": "5f5d933f67027483e104f9d9cdf8a0c4e5c579c5e4c6991c60fee2393e088334",
+      "durationMs": 5120
+    },
+    "trees": {
+      "file": "trees.m4a",
+      "text": "Three pointed trees stand to the right of it, each a narrow triangle.",
+      "textHash": "59dcca4c2057c49960521e15fd6c30124464565880344e32a76c4cd3162c5abe",
+      "durationMs": 4320
+    },
+    "reflections": {
+      "file": "reflections.m4a",
+      "text": "Now the water copies them. Draw each shape again below the line, upside down.",
+      "textHash": "1ab7b944a4ffcf2d55d1c976f011e53028f1c035f7491c550765ca53c76e6057",
+      "durationMs": 5520
+    },
+    "bushes": {
+      "file": "bushes.m4a",
+      "text": "Soft bushes fill the shore between the trees, in low bumps.",
+      "textHash": "4b88b2446734529aee1095e8b973db6b8694decb13cff27998e42b955c3e844e",
+      "durationMs": 4320
+    },
+    "ripples": {
+      "file": "ripples.m4a",
+      "text": "Four short flat lines float in the water, spread well apart.",
+      "textHash": "34efdbad08fe5e4e8d44acec415e42753768d29442c0dacbc02db1cfc1fc009c",
+      "durationMs": 4320
+    },
+    "color-lake": {
+      "file": "color-lake.m4a",
+      "text": "Color the lake blue.",
+      "textHash": "0f26b2d17d51b2180b8c1ba7fcbe17c9db4dd18d7d978351574e04ff9a5db5f8",
+      "durationMs": 1520
+    },
+    "color-mountain": {
+      "file": "color-mountain.m4a",
+      "text": "The mountain is purple and its reflection is gray.",
+      "textHash": "c8944e8c6bae6e8b52f22d77f540645e4c0d304f8735b423e520ad5ce7e37596",
+      "durationMs": 3440
+    },
+    "color-trees": {
+      "file": "color-trees.m4a",
+      "text": "The three trees are dark green.",
+      "textHash": "c670b0977f974e20c847f78afad81d74d42cdb7cab17d89c6d9e0a18877482d0",
+      "durationMs": 2480
+    },
+    "color-tree-reflections": {
+      "file": "color-tree-reflections.m4a",
+      "text": "Their reflections are pale green.",
+      "textHash": "1a05ec87f2c84a574fdb3c04f0539df3a4087f88b38915b53ebaee4dc223de6f",
+      "durationMs": 2320
+    },
+    "color-bushes": {
+      "file": "color-bushes.m4a",
+      "text": "The bushes are green.",
+      "textHash": "22b12ed9b1ba582046953d2ba686dda7936ff29786634f3ff0caeb8029d2a7e8",
+      "durationMs": 1520
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Two drawings for the price of one: the real one, and the one in the water.",
+      "textHash": "13b2594b9cb4a59b51aaa76a9bc525b372e643c2a1c5caedfb21ac69eeffe91e",
+      "durationMs": 4800
+    }
+  }
+}

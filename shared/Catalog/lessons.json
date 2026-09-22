@@ -932,6 +932,16 @@
       }
     },
     {
+      "id": "lake-reflection",
+      "status": "approved",
+      "objective": "Peak and three pines mirrored in a lake with four ripple lines",
+      "reference": {
+        "file": "lake-reflection.svg",
+        "source": "OpenAI image model, prompt style-v2 (docs/curriculum/landscape-prompts.md), generated 2026-09-21, AI-generated for StrokeTutor; owned by Softroni",
+        "license": "AI-generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "balloon-over-the-hill",
       "status": "approved",
       "objective": "Sun, cloud, balloon and pine tree in one scene",
