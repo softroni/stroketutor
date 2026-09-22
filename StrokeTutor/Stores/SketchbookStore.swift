@@ -100,7 +100,7 @@ final class SketchbookStore {
 
     /// The same, with the JPEG encoded and written off the main thread — the capture
     /// flow's Keep. The page lands in *this* store's folder however long it takes:
-    /// if the kid is switched meanwhile, it is still their sketchbook it goes into,
+    /// if the learner is switched meanwhile, it is still their sketchbook it goes into,
     /// and `AppModel` keeps this store alive so the switch back sees it.
     func addPage(image: UIImage,
                  lessonId: String,

@@ -1,12 +1,12 @@
 import Foundation
 import Observation
 
-/// The preferences that belong to the device rather than to a kid, in
+/// The preferences that belong to the device rather than to a learner, in
 /// `UserDefaults`, behind one observable object so a view reads
 /// `settings.alsoSaveToPhotos` rather than repeating an `@AppStorage` key. The
 /// defaults are the calm choice, and nothing is opted in for the learner.
 ///
-/// What each kid chooses for themselves — their path, Lina's voice, speed and the
+/// What each learner chooses for themselves — their path, Lina's voice, speed and the
 /// two accessibility switches — lives in their profile (`ProfilePreferences`).
 /// Before profiles those five were kept here too; `LegacyKey` still names them so
 /// `LegacyProfileMigration` can carry them into the first profile.
@@ -32,7 +32,7 @@ final class Settings {
         ]
     }
 
-    /// The per-kid keys a pre-profiles build wrote here. Read once, by the
+    /// The per-learner keys a pre-profiles build wrote here. Read once, by the
     /// migration, then removed; nothing writes them any more.
     enum LegacyKey {
         static let currentPathId = "currentPathId"
@@ -44,7 +44,7 @@ final class Settings {
         static let all = [currentPathId, narrationEnabled, defaultSpeed, reduceMotionOverride, leftHanded]
     }
 
-    /// Shared with `ParentPIN` and the migration, which keep their own keys here.
+    /// Shared with `AppPIN` and the migration, which keep their own keys here.
     let defaults: UserDefaults
 
     /// True once the learner has been through onboarding. `AppRoot` reads it first.

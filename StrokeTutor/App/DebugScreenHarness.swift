@@ -45,7 +45,7 @@ enum DebugScreenHarness {
         pendingCaptureSavedPage = nil
         raiseDeleteConfirmation = false
         raiseProfileSwitcher = false
-        raiseParentPINCreate = false
+        raisePINCreate = false
 
         // The screens below are captured with two of the shipped drawings: the palm
         // tree (upright) and the red car (wide). They are found by lesson id and not
@@ -240,24 +240,24 @@ enum DebugScreenHarness {
             app.push(.about)
 
         case "profiles-picker":
-            ensureSecondKid(in: app)
+            ensureSecondLearner(in: app)
             app.cover = .profilePicker
 
         case "profiles-switcher":
-            ensureSecondKid(in: app)
+            ensureSecondLearner(in: app)
             raiseProfileSwitcher = true
 
         case "profiles-settings":
-            ensureSecondKid(in: app)
+            ensureSecondLearner(in: app)
             app.selectedTab = .settings
 
         case "profile-detail":
             app.selectedTab = .settings
             app.push(.profile(id: app.activeProfile.id))
 
-        case "parent-pin":
+        case "pin":
             app.selectedTab = .settings
-            raiseParentPINCreate = true
+            raisePINCreate = true
 
         default:
             break // Unknown name: leave the clean, onboarded Home screen showing.
@@ -279,13 +279,13 @@ enum DebugScreenHarness {
     static var raiseDeleteConfirmation = false
     /// Set by `profiles-switcher`; `HomeView` reads and clears it in `onAppear`.
     static var raiseProfileSwitcher = false
-    /// Set by `parent-pin`; `SettingsView` reads and clears it in `onAppear`.
-    static var raiseParentPINCreate = false
+    /// Set by `pin`; `SettingsView` reads and clears it in `onAppear`.
+    static var raisePINCreate = false
 
-    /// Profile screens need a second kid to show anything worth reviewing. Added
+    /// Profile screens need a second learner to show anything worth reviewing. Added
     /// once and left: profiles, unlike the stores above, are not wiped per run.
     @MainActor
-    private static func ensureSecondKid(in app: AppModel) {
+    private static func ensureSecondLearner(in app: AppModel) {
         guard app.profiles.count < 2 else { return }
         app.addProfile(name: "Maya", avatar: .owl)
     }

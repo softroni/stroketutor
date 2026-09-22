@@ -2,8 +2,8 @@ import UIKit
 import XCTest
 @testable import StrokeTutor
 
-/// Profiles: each kid's data stays their own, the move from a pre-profiles install
-/// survives being interrupted, and a switch never lets one kid's work land in
+/// Profiles: each learner's data stays their own, the move from a pre-profiles install
+/// survives being interrupted, and a switch never lets one learner's work land in
 /// another's folder. Every test works in its own temporary directory and
 /// `UserDefaults` suite.
 @MainActor
@@ -27,18 +27,18 @@ final class ProfileTests: XCTestCase {
 
     // MARK: - Isolation
 
-    func testAFreshInstallStartsWithOneUnnamedKid() {
+    func testAFreshInstallStartsWithOneUnnamedLearner() {
         let model = makeModel()
 
         XCTAssertEqual(model.migrationOutcome, .notNeeded)
         XCTAssertEqual(model.profiles.count, 1)
         XCTAssertEqual(model.activeProfile.displayName, ProfileAvatar.fox.name,
                        "A blank name shows the picture's name.")
-        XCTAssertFalse(model.shouldAskWhoIsDrawing, "One kid is never asked who is drawing.")
+        XCTAssertFalse(model.shouldAskWhoIsDrawing, "One learner is never asked who is drawing.")
         XCTAssertNil(model.temporaryProfile)
     }
 
-    func testEachKidKeepsTheirOwnProgressSketchbookAndPreferences() throws {
+    func testEachLearnerKeepsTheirOwnProgressSketchbookAndPreferences() throws {
         let model = makeModel()
         let first = model.activeProfile
         let second = try XCTUnwrap(model.addProfile(name: "Maya", avatar: .owl))
@@ -62,31 +62,31 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(model.sketchbook.count, 1)
         XCTAssertTrue(model.preferences.leftHanded)
         XCTAssertFalse(model.preferences.reduceMotionOverride,
-                       "Reduce motion belongs to the kid who turned it on.")
+                       "Reduce motion belongs to the learner who turned it on.")
         XCTAssertEqual(model.preferences.defaultSpeed, 1.0)
 
         // And the same from disk, as the next launch reads it.
         let relaunched = makeModel()
         XCTAssertEqual(relaunched.profiles.map(\.id), [first.id, second.id])
         XCTAssertTrue(relaunched.shouldAskWhoIsDrawing)
-        XCTAssertEqual(relaunched.activeProfile.id, first.id, "The kid who drew last opens.")
+        XCTAssertEqual(relaunched.activeProfile.id, first.id, "The learner who drew last opens.")
         relaunched.switchProfile(to: second.id)
         XCTAssertTrue(relaunched.preferences.reduceMotionOverride)
         XCTAssertEqual(relaunched.preferences.defaultSpeed, 2.0)
         XCTAssertTrue(relaunched.sketchbook.isEmpty)
     }
 
-    func testAddingAKidDoesNotChangeWhoTheNextLaunchOpens() throws {
+    func testAddingALearnerDoesNotChangeWhoTheNextLaunchOpens() throws {
         let model = makeModel()
         let first = model.activeProfile
         try XCTUnwrap(model.addProfile(name: "Maya", avatar: .owl))
 
         XCTAssertEqual(model.activeProfile.id, first.id)
         XCTAssertEqual(makeModel().activeProfile.id, first.id,
-                       "A kid added from Settings has not drawn yet, so is not the one to open.")
+                       "A learner added from Settings has not drawn yet, so is not the one to open.")
     }
 
-    func testDeletingAKidRemovesOnlyTheirFolder() throws {
+    func testDeletingALearnerRemovesOnlyTheirFolder() throws {
         let model = makeModel()
         let first = model.activeProfile
         let second = try XCTUnwrap(model.addProfile(name: "Sam", avatar: .frog))
@@ -101,14 +101,14 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(model.sketchbook.count, 1)
     }
 
-    func testTheLastKidCannotBeDeleted() throws {
+    func testTheLastLearnerCannotBeDeleted() throws {
         let model = makeModel()
         XCTAssertFalse(model.canDelete(model.activeProfile))
         try model.deleteProfile(model.activeProfile.id)
         XCTAssertEqual(model.profiles.count, 1)
     }
 
-    func testRenamingKeepsTheKidsWork() throws {
+    func testRenamingKeepsTheLearnersWork() throws {
         let model = makeModel()
         model.progress.markCompleted("l", pathId: "p")
 
@@ -267,7 +267,7 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(model.progress.resumeStep(for: lesson.id), 3)
     }
 
-    func testAPageStillSavingWhenTheKidSwitchesStaysWithTheKidWhoTookIt() async throws {
+    func testAPageStillSavingWhenTheLearnerSwitchesStaysWithTheLearnerWhoTookIt() async throws {
         let model = makeModel()
         let first = model.activeProfile
         let second = try XCTUnwrap(model.addProfile(name: "Sam", avatar: .frog))
@@ -280,7 +280,7 @@ final class ProfileTests: XCTestCase {
         let saved = await save.value
         let page = try XCTUnwrap(saved)
 
-        XCTAssertTrue(model.sketchbook.isEmpty, "The new kid's sketchbook is untouched.")
+        XCTAssertTrue(model.sketchbook.isEmpty, "The new learner's sketchbook is untouched.")
         XCTAssertTrue(SketchbookStore(baseDirectory: model.profileStore.directory(for: second.id)).isEmpty)
 
         model.switchProfile(to: first.id)
@@ -289,10 +289,10 @@ final class ProfileTests: XCTestCase {
         XCTAssertNotNil(SketchbookStore(baseDirectory: model.profileStore.directory(for: first.id)).page(id: page.id))
     }
 
-    // MARK: - Parent PIN
+    // MARK: - PIN
 
-    func testTheParentPINGuardsAndPausesAfterRepeatedGuesses() {
-        let pin = ParentPIN(defaults: defaults)
+    func testThePINGuardsAndPausesAfterRepeatedGuesses() {
+        let pin = AppPIN(defaults: defaults)
         XCTAssertFalse(pin.isSet)
 
         pin.set("12a4")
@@ -300,20 +300,20 @@ final class ProfileTests: XCTestCase {
 
         pin.set("2468")
         XCTAssertTrue(pin.isSet)
-        XCTAssertNotEqual(defaults.string(forKey: ParentPIN.Key.hash), "2468", "Only a hash is stored.")
-        XCTAssertTrue(ParentPIN(defaults: defaults).verify("2468"))
+        XCTAssertNotEqual(defaults.string(forKey: AppPIN.Key.hash), "2468", "Only a hash is stored.")
+        XCTAssertTrue(AppPIN(defaults: defaults).verify("2468"))
 
         let start = Date()
-        for _ in 0..<ParentPIN.attemptsBeforePause {
+        for _ in 0..<AppPIN.attemptsBeforePause {
             XCTAssertFalse(pin.verify("0000", at: start))
         }
         XCTAssertTrue(pin.isPaused(at: start))
         XCTAssertFalse(pin.verify("2468", at: start), "A paused pad refuses even the right PIN.")
-        XCTAssertTrue(pin.verify("2468", at: start.addingTimeInterval(ParentPIN.pauseDuration + 1)))
+        XCTAssertTrue(pin.verify("2468", at: start.addingTimeInterval(AppPIN.pauseDuration + 1)))
 
         pin.remove()
         XCTAssertFalse(pin.isSet)
-        XCTAssertFalse(ParentPIN(defaults: defaults).isSet)
+        XCTAssertFalse(AppPIN(defaults: defaults).isSet)
     }
 
     // MARK: - Helpers
@@ -327,7 +327,7 @@ final class ProfileTests: XCTestCase {
     }
 
     /// What a pre-profiles build left behind: files at the top of the folder and
-    /// the per-kid keys in `UserDefaults`.
+    /// the per-learner keys in `UserDefaults`.
     @discardableResult
     private func seedLegacyInstall() throws -> SketchbookPage {
         let progress = ProgressStore(baseDirectory: base)

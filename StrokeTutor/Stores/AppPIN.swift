@@ -2,8 +2,8 @@ import CryptoKit
 import Foundation
 import Observation
 
-/// An optional four-digit PIN — shown simply as "PIN", since the grown-up who
-/// sets it is not always a parent — which guards the two actions that destroy
+/// An optional four-digit PIN, set by whichever grown-up looks after the app — a
+/// parent, or an adult learning alone — which guards the two actions that destroy
 /// someone's work: deleting a profile and resetting progress. Renaming and
 /// changing a picture are not guarded — they lose nothing.
 ///
@@ -13,9 +13,11 @@ import Observation
 /// with the iPad, not someone with the device's files.
 @Observable
 @MainActor
-final class ParentPIN {
+final class AppPIN {
 
     enum Key {
+        // The stored names predate the rename to `AppPIN`. They stay as they are
+        // so a PIN already set keeps working.
         static let hash = "parentPINHash"
         static let salt = "parentPINSalt"
     }

@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import OSLog
 
-/// Every kid on this device, one folder each:
+/// Every learner on this device, one folder each:
 ///
 ///     Application Support/Profiles/<id>/profile.json      who they are
 ///     Application Support/Profiles/<id>/preferences.json  their own choices
@@ -50,7 +50,7 @@ final class ProfileStore {
         profiles.first { $0.id == id }
     }
 
-    /// The kid who drew last, which is who a relaunch opens.
+    /// The learner who drew last, which is who a relaunch opens.
     var mostRecentlyUsed: Profile? {
         profiles.max { $0.lastUsedAt < $1.lastUsedAt }
     }
@@ -107,14 +107,14 @@ final class ProfileStore {
                 let profile = try Self.decoder.decode(Profile.self, from: Data(contentsOf: file))
                 found.append(profile)
             } catch {
-                // Left on disk, never deleted: the kid's pages are still in there.
+                // Left on disk, never deleted: the learner's pages are still in there.
                 Self.log.error("A profile folder could not be read: \(error.localizedDescription, privacy: .public)")
             }
         }
         profiles = found.sorted(by: Self.creationOrder)
     }
 
-    /// Oldest first; two kids made in the same instant keep a stable order.
+    /// Oldest first; two learners made in the same instant keep a stable order.
     private static func creationOrder(_ a: Profile, _ b: Profile) -> Bool {
         (a.createdAt, a.id.uuidString) < (b.createdAt, b.id.uuidString)
     }
@@ -176,16 +176,17 @@ final class ProfileStore {
     }
 
     /// Now, to the millisecond the file keeps, and always later than every date in
-    /// `others` — so the kid switched to last really is the latest, and a kid added
-    /// second really is second, however fast the taps (or a test) come.
+    /// `others` — so the learner switched to last really is the latest, and a
+    /// learner added second really is second, however fast the taps (or a test)
+    /// come.
     private func nextStamp(after others: [Date]) -> Date {
         let now = (Date().timeIntervalSince1970 * 1000).rounded(.down)
         let latest = others.map { ($0.timeIntervalSince1970 * 1000).rounded(.down) }.max() ?? 0
         return Date(timeIntervalSince1970: max(now, latest + 1) / 1000)
     }
 
-    /// Removes a kid and everything in their folder. The caller has already asked
-    /// a parent; this does not ask again.
+    /// Removes a learner and everything in their folder. The caller has already asked
+    /// for the PIN; this does not ask again.
     func delete(_ id: UUID) throws {
         let folder = directory(for: id)
         let doomed = rootDirectory.appendingPathComponent(Self.deletingPrefix + id.uuidString,

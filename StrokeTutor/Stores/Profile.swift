@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// One kid who draws in the app. Each profile owns a folder under
+/// One learner who draws in the app. Each profile owns a folder under
 /// `Application Support/Profiles/<id>/` holding its own progress, sketchbook and
 /// personal preferences; `profile.json` in that folder is this struct.
 ///
@@ -8,13 +8,13 @@ import SwiftUI
 /// it never leaves the device.
 struct Profile: Codable, Identifiable, Hashable {
     let id: UUID
-    /// What the kid typed. May be empty — a small child can pick a picture and go —
-    /// in which case the picture's own name is shown (`displayName`).
+    /// What the learner typed. May be empty — a small child can pick a picture and
+    /// go — in which case the picture's own name is shown (`displayName`).
     var name: String
     var avatar: ProfileAvatar
     let createdAt: Date
-    /// Bumped on every switch, so the most recent kid is the one a relaunch opens.
-    /// A kid who has been added but never switched to has `neverUsed`, so adding
+    /// Bumped on every switch, so the most recent learner is the one a relaunch opens.
+    /// A learner who has been added but never switched to has `neverUsed`, so adding
     /// Maya from Settings does not make her the one the next launch opens.
     var lastUsedAt: Date
     /// True for the one profile made from a pre-profiles install's data. The
@@ -50,7 +50,7 @@ struct Profile: Codable, Identifiable, Hashable {
     }
 }
 
-/// The picture a kid picks. A fixed set of animals, so a child who cannot read yet
+/// The picture a learner picks. A fixed set of animals, so a child who cannot read yet
 /// can still find their own tile, and nothing has to be uploaded or drawn.
 enum ProfileAvatar: String, Codable, CaseIterable, Identifiable {
     case fox, bear, panda, tiger, frog, octopus, owl, turtle, unicorn, whale, bee, lion
@@ -74,7 +74,7 @@ enum ProfileAvatar: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    /// Also the name shown when the kid left theirs blank.
+    /// Also the name shown when the learner left theirs blank.
     var name: String { rawValue.capitalized }
 
     /// The soft disc behind the animal, from the app's own palette.
@@ -88,7 +88,8 @@ enum ProfileAvatar: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    /// The first picture not already taken, so a new kid starts on a different animal.
+    /// The first picture not already taken, so a new learner starts on a different
+    /// animal.
     static func firstUnused(by profiles: [Profile]) -> ProfileAvatar {
         let taken = Set(profiles.map(\.avatar))
         return allCases.first { !taken.contains($0) } ?? .fox

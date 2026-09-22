@@ -1,13 +1,13 @@
 import SwiftUI
 
-/// "Who's drawing?" — the launch screen when more than one kid uses the app. Big
+/// "Who's drawing?" — the launch screen when more than one learner uses the app. Big
 /// tiles, one tap each. Shown once per launch and never on a return from the
-/// background, so a kid mid-lesson who checks another app comes back to their own
+/// background, so a learner mid-lesson who checks another app comes back to their own
 /// drawing.
 struct ProfilePickerView: View {
     @Environment(AppModel.self) private var app
     @State private var isAdding = false
-    /// The kid just added, switched to once the sheet has gone.
+    /// The learner just added, switched to once the sheet has gone.
     @State private var added: UUID?
 
     private let columns = [GridItem(.adaptive(minimum: 140, maximum: 200), spacing: 16)]
@@ -59,7 +59,7 @@ struct ProfilePickerView: View {
     }
 }
 
-/// A kid as a big square card: their animal and their name.
+/// A learner as a big square card: their animal and their name.
 struct ProfileTile: View {
     let profile: Profile
     /// "3 drawings", when the caller knows it.
@@ -89,10 +89,10 @@ struct ProfileTile: View {
 }
 
 /// Opened from the avatar at the top of Home: who is drawing, a tap to hand over,
-/// and the way to add someone. Always reachable, even with one kid, so a family
+/// and the way to add someone. Always reachable, even with one learner, so a family
 /// finds out it can add a second.
 ///
-/// It does not switch by itself: it hands the chosen kid to `onChoose` and closes,
+/// It does not switch by itself: it hands the chosen learner to `onChoose` and closes,
 /// and Home switches once the sheet is gone, so the screen that presented it is not
 /// rebuilt mid-dismissal.
 struct ProfileSwitcherSheet: View {

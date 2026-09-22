@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import SwiftUI
 
-/// The one object every screen reads: the content that shipped, the kid who is
+/// The one object every screen reads: the content that shipped, the learner who is
 /// drawing and their stores, and where the app currently is. Put in the
 /// environment by `AppRoot` and taken with `@Environment(AppModel.self)`.
 ///
@@ -14,7 +14,7 @@ import SwiftUI
 ///
 /// `progress`, `sketchbook` and `preferences` always belong to `activeProfile`.
 /// They change only in `switchProfile(to:)`, which first saves and closes whatever
-/// the previous kid had open.
+/// the previous learner had open.
 @Observable
 @MainActor
 final class AppModel {
@@ -24,10 +24,10 @@ final class AppModel {
     /// Device-wide preferences.
     let settings: Settings
     let profileStore: ProfileStore
-    let parentPIN: ParentPIN
+    let pin: AppPIN
     let library: TutorialLibrary
 
-    /// One kid's three stores, opened together from their folder.
+    /// One learner's three stores, opened together from their folder.
     struct ProfileStores {
         let profileId: UUID
         let progress: ProgressStore
@@ -42,7 +42,7 @@ final class AppModel {
     var sketchbook: SketchbookStore { active.sketchbook }
     var preferences: ProfilePreferences { active.preferences }
 
-    /// Every store opened this session, by profile. Switching back to a kid reuses
+    /// Every store opened this session, by profile. Switching back to a learner reuses
     /// theirs rather than reading the files again, so a page still being saved into
     /// the old instance is never overwritten by a fresh one that missed it.
     private var openedStores: [UUID: ProfileStores] = [:]
@@ -53,7 +53,7 @@ final class AppModel {
     private(set) var temporaryProfile: Profile?
     private(set) var migrationOutcome: LegacyProfileMigration.Outcome
 
-    /// The kids, oldest first.
+    /// The learners, oldest first.
     var profiles: [Profile] {
         (temporaryProfile.map { [$0] } ?? []) + profileStore.profiles
     }
@@ -103,7 +103,7 @@ final class AppModel {
         self.bundle = bundle
         self.settings = settings
         self.profileStore = profileStore
-        parentPIN = ParentPIN(defaults: settings.defaults)
+        pin = AppPIN(defaults: settings.defaults)
         library = TutorialLibrary()
 
         let outcome = LegacyProfileMigration.run(baseDirectory: base,
@@ -124,7 +124,7 @@ final class AppModel {
             profile = existing
             stores = Self.openStores(for: existing, in: profileStore)
         } else if let first = try? profileStore.create(name: "", avatar: .fox) {
-            // A fresh install: one kid, unnamed until onboarding asks.
+            // A fresh install: one learner, unnamed until onboarding asks.
             profile = first
             stores = Self.openStores(for: first, in: profileStore)
         } else {
@@ -191,7 +191,7 @@ final class AppModel {
         keepCurrentPathValid()
     }
 
-    /// Keeps the kid's chosen path pointing at something that exists.
+    /// Keeps the learner's chosen path pointing at something that exists.
     private func keepCurrentPathValid() {
         guard hasLoadedContent,
               !paths.contains(where: { $0.id == preferences.currentPathId }),
@@ -355,9 +355,9 @@ final class AppModel {
 
 extension AppModel {
 
-    /// Whether a fresh launch should ask who is drawing. Only when there is more than
-    /// one kid, and only at launch — coming back from the background keeps whoever
-    /// was drawing.
+    /// Whether a fresh launch should ask who is drawing. Only when there is more
+    /// than one learner, and only at launch — coming back from the background keeps
+    /// whoever was drawing.
     var shouldAskWhoIsDrawing: Bool {
         profiles.count > 1
     }
@@ -367,22 +367,23 @@ extension AppModel {
     }
 
     /// The stores of whoever is drawing right now, for a flow that must keep
-    /// writing to that kid even if the app switches under it.
+    /// writing to that learner even if the app switches under it.
     var activeStores: ProfileStores { active }
 
-    /// Hands the app to another kid, in an order that cannot leak one kid's work
-    /// into another's:
+    /// Hands the app to another learner, in an order that cannot leak one learner's
+    /// work into another's:
     ///
-    /// 1. **Save** — the open lesson writes its step to the current kid's progress.
+    /// 1. **Save** — the open lesson writes its step to the current learner's
+    ///    progress.
     /// 2. **Close** — the player, completion, capture or picker cover goes away.
     /// 3. **Clear** — every tab's stack returns to its root, and Learn is shown.
     /// 4. **Replace** — only then do `progress`, `sketchbook` and `preferences`
-    ///    point at the new kid.
+    ///    point at the new learner.
     ///
     /// A photo still being written when this runs is unaffected: the capture flow
     /// holds the store it started with (`activeStores`), and that store is kept in
     /// `openedStores`, so the page lands in the right sketchbook and is there when
-    /// the first kid comes back.
+    /// the first learner comes back.
     func switchProfile(to id: UUID) {
         guard let target = profiles.first(where: { $0.id == id }) else { return }
 
@@ -407,7 +408,7 @@ extension AppModel {
         keepCurrentPathValid()
     }
 
-    /// A new kid, committed to disk before this returns. Nil if the folder could
+    /// A new learner, committed to disk before this returns. Nil if the folder could
     /// not be written.
     @discardableResult
     func addProfile(name: String, avatar: ProfileAvatar) -> Profile? {
@@ -418,7 +419,7 @@ extension AppModel {
         }
     }
 
-    /// Name and picture only; neither needs a parent.
+    /// Name and picture only; neither needs the PIN.
     func updateProfile(_ id: UUID, name: String, avatar: ProfileAvatar) {
         guard var profile = profileStore.profile(id: id) else { return }
         profile.name = name
@@ -429,14 +430,14 @@ extension AppModel {
         }
     }
 
-    /// Whether this kid can be deleted: never the last one, never the session-only
+    /// Whether this learner can be deleted: never the last one, never the session-only
     /// fallback.
     func canDelete(_ profile: Profile) -> Bool {
         profiles.count > 1 && !isTemporary(profile)
     }
 
-    /// Deletes a kid and everything they drew. The caller has already checked the
-    /// parent PIN (or confirmed, when there is none). Deleting the kid who is
+    /// Deletes a learner and everything they drew. The caller has already checked the
+    /// PIN (or confirmed, when there is none). Deleting the learner who is
     /// drawing hands the app to whoever drew most recently first.
     func deleteProfile(_ id: UUID) throws {
         guard let profile = profiles.first(where: { $0.id == id }), canDelete(profile) else { return }
@@ -450,7 +451,7 @@ extension AppModel {
         openedStores[id] = nil
     }
 
-    /// "Who's drawing?" — shown at launch when there is more than one kid.
+    /// "Who's drawing?" — shown at launch when there is more than one learner.
     func presentProfilePicker() {
         cover = .profilePicker
     }

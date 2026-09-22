@@ -4,10 +4,10 @@ import SwiftUI
 /// what they will do, how a lesson works, what they need, who is drawing, which path
 /// to take, whether Lina speaks, and their first lesson.
 ///
-/// The flow owns the three answers onboarding collects — the kid's name and
+/// The flow owns the three answers onboarding collects — the learner's name and
 /// picture, the path and the voice — and nothing else. It writes the profile when
 /// the learner leaves the who beat, `currentPathId` when they leave the path beat
-/// and `narrationEnabled` the moment the switch is touched, all to the kid who is
+/// and `narrationEnabled` the moment the switch is touched, all to the learner who is
 /// drawing; `hasCompletedOnboarding` is written by `AppRoot` when `onFinished` is
 /// called, so a flow replayed from Settings changes no stored value it was not
 /// asked to.

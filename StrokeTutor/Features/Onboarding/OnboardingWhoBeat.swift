@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// `ob-who` — "Who's drawing?" The kid's name and picture on one screen, for the
+/// `ob-who` — "Who's drawing?" The learner's name and picture on one screen, for the
 /// profile the app made on first launch. The name may stay blank; the picture's
-/// name stands in. Adding a second kid is not asked here — it is one tap on Home
+/// name stands in. Adding a second learner is not asked here — it is one tap on Home
 /// whenever a family wants it.
 struct OnboardingWhoBeat: View {
 

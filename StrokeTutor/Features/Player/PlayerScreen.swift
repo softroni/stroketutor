@@ -589,7 +589,7 @@ struct PlayerScreen: View {
 
     private func appear() {
         PlayerOrientation.allowRotation()
-        // A profile switch calls this first, so the step is saved to this kid.
+        // A profile switch calls this first, so the step is saved to this learner.
         app.sessionSaver = saveSession
         guard !hasLoaded else { return }
         hasLoaded = true

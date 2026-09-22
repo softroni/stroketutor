@@ -1,11 +1,11 @@
 import SwiftUI
 
-/// A kid's animal on its soft disc. Decorative by default: the name beside it is
+/// A learner's animal on its soft disc. Decorative by default: the name beside it is
 /// what VoiceOver reads.
 struct ProfileAvatarView: View {
     let avatar: ProfileAvatar
     var size: CGFloat = 44
-    /// A green ring, for the kid who is drawing now or the picture being chosen.
+    /// A green ring, for the learner who is drawing now or the picture being chosen.
     var isHighlighted = false
 
     var body: some View {
@@ -22,7 +22,7 @@ struct ProfileAvatarView: View {
     }
 }
 
-/// The one screen that sets up a kid: a name and a picture, together. Used by
+/// The one screen that sets up a learner: a name and a picture, together. Used by
 /// onboarding, "Add someone" and the profile's own settings page.
 ///
 /// The name may be left blank — a four-year-old can pick the fox and go — and
@@ -30,7 +30,8 @@ struct ProfileAvatarView: View {
 struct ProfileForm: View {
     @Binding var name: String
     @Binding var avatar: ProfileAvatar
-    /// Pictures other kids already use, shown but not blocked: two foxes is allowed.
+    /// Pictures other learners already use, shown but not blocked: two foxes is
+    /// allowed.
     var takenAvatars: Set<ProfileAvatar> = []
 
     @FocusState private var nameFocused: Bool
@@ -100,7 +101,7 @@ struct ProfileForm: View {
 /// "Add someone", in a sheet: the form and one button. Never part of
 /// onboarding's required steps.
 struct NewProfileSheet: View {
-    /// Called with the new kid once their folder is on disk.
+    /// Called with the new learner once their folder is on disk.
     let onAdded: (Profile) -> Void
     var onCancel: () -> Void
 

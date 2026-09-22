@@ -21,7 +21,7 @@ struct CaptureFlow: View {
     }
 
     @State private var stage: Stage = .primer
-    /// The kid's stores when this flow opened. Keep writes here even if the app has
+    /// The learner's stores when this flow opened. Keep writes here even if the app has
     /// switched to someone else meanwhile, so a page never lands in the wrong
     /// sketchbook.
     @State private var owner: AppModel.ProfileStores?
@@ -395,7 +395,7 @@ struct CaptureFlow: View {
     /// completion date, so the sketchbook and the completion chip agree.
     ///
     /// The JPEG is written off the main thread into the sketchbook this flow opened
-    /// with (`owner`), so the page belongs to the kid who took it however the save
+    /// with (`owner`), so the page belongs to the learner who took it however the save
     /// and a profile switch interleave.
     private func keep(_ image: UIImage) {
         guard !isSaving else { return }

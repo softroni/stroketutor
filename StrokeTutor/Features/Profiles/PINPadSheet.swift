@@ -1,13 +1,13 @@
 import SwiftUI
 
-/// The parent PIN pad, in a sheet. Three jobs:
+/// The PIN pad, in a sheet. Three jobs:
 ///
 /// - **create** — enter four digits, then the same four again.
 /// - **verify** — enter the PIN to let one destructive action through.
 /// - **change** — verify the old PIN, then create a new one.
 ///
-/// Big keys, no keyboard, so it works the same for the parent at every text size.
-struct ParentPINSheet: View {
+/// Big keys, no keyboard, so it works the same for the grown-up at every text size.
+struct PINPadSheet: View {
 
     enum Mode {
         case create
@@ -111,21 +111,21 @@ struct ParentPINSheet: View {
     }
 
     private var isPaused: Bool {
-        app.parentPIN.isPaused(at: now)
+        app.pin.isPaused(at: now)
     }
 
     // MARK: - Pad
 
     private var dots: some View {
         HStack(spacing: 18) {
-            ForEach(0..<ParentPIN.length, id: \.self) { index in
+            ForEach(0..<AppPIN.length, id: \.self) { index in
                 Circle()
                     .fill(index < entry.count ? Theme.ink : Theme.surface2)
                     .frame(width: 18, height: 18)
             }
         }
         .accessibilityElement()
-        .accessibilityLabel("\(entry.count) of \(ParentPIN.length) digits entered")
+        .accessibilityLabel("\(entry.count) of \(AppPIN.length) digits entered")
     }
 
     private var keypad: some View {
@@ -167,17 +167,17 @@ struct ParentPINSheet: View {
             if !entry.isEmpty { entry.removeLast() }
             return
         }
-        guard entry.count < ParentPIN.length else { return }
+        guard entry.count < AppPIN.length else { return }
         entry.append(key)
         message = nil
-        if entry.count == ParentPIN.length { submit(entry) }
+        if entry.count == AppPIN.length { submit(entry) }
     }
 
     private func submit(_ pin: String) {
         entry = ""
         switch stage {
         case .verifyOld, .none:
-            if app.parentPIN.verify(pin) {
+            if app.pin.verify(pin) {
                 if case .change = mode {
                     stage = .enterNew
                 } else {
@@ -185,15 +185,15 @@ struct ParentPINSheet: View {
                 }
             } else {
                 now = Date()
-                message = app.parentPIN.isPaused(at: now)
-                    ? "Too many tries. Wait \(Int(ParentPIN.pauseDuration)) seconds."
+                message = app.pin.isPaused(at: now)
+                    ? "Too many tries. Wait \(Int(AppPIN.pauseDuration)) seconds."
                     : "That is not the PIN."
             }
         case .enterNew:
             stage = .confirmNew(first: pin)
         case let .confirmNew(first):
             if first == pin {
-                app.parentPIN.set(pin)
+                app.pin.set(pin)
                 finish()
             } else {
                 stage = .enterNew
@@ -208,25 +208,25 @@ struct ParentPINSheet: View {
     }
 }
 
-/// What a destructive action needs a parent for. With no PIN set, the action goes
+/// What a destructive action needs the PIN for. With no PIN set, the action goes
 /// straight to its own confirmation; with one, the PIN comes first.
-struct ParentGateRequest: Identifiable {
+struct PINGateRequest: Identifiable {
     let id = UUID()
     let reason: String
     let onApproved: () -> Void
 }
 
 extension View {
-    /// Presents the PIN pad for `request`, and runs its action once a parent has
-    /// entered the PIN — after the pad has closed, so an action that raises its own
+    /// Presents the PIN pad for `request`, and runs its action once the right PIN
+    /// has been entered — after the pad has closed, so an action that raises its own
     /// confirmation is not presenting over a sheet on its way out.
-    func parentGate(_ request: Binding<ParentGateRequest?>) -> some View {
-        modifier(ParentGateModifier(request: request))
+    func pinGate(_ request: Binding<PINGateRequest?>) -> some View {
+        modifier(PINGateModifier(request: request))
     }
 }
 
-private struct ParentGateModifier: ViewModifier {
-    @Binding var request: ParentGateRequest?
+private struct PINGateModifier: ViewModifier {
+    @Binding var request: PINGateRequest?
     @State private var approved: (() -> Void)?
 
     func body(content: Content) -> some View {
@@ -235,7 +235,7 @@ private struct ParentGateModifier: ViewModifier {
             approved = nil
             action?()
         }) { request in
-            ParentPINSheet(mode: .verify(reason: request.reason)) {
+            PINPadSheet(mode: .verify(reason: request.reason)) {
                 approved = request.onApproved
             }
         }

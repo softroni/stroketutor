@@ -19,7 +19,7 @@ enum AppRoute: Hashable {
     case reminderSettings
     /// About & credits.
     case about
-    /// One kid's name, picture and the parent-only actions.
+    /// One learner's name, picture and the PIN-guarded delete.
     case profile(id: UUID)
 
     /// Whether the three-tab bar belongs under this screen.
@@ -56,7 +56,7 @@ enum AppCover: Identifiable, Hashable {
     case completion(lessonId: String)
     /// `sk-capture`.
     case capture(lessonId: String)
-    /// "Who's drawing?", at launch when more than one kid uses the app.
+    /// "Who's drawing?", at launch when more than one learner uses the app.
     case profilePicker
 
     var id: String {

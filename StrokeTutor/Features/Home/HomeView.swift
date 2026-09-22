@@ -21,7 +21,7 @@ struct HomeView: View {
     @Environment(AppModel.self) private var app
     @State private var lockedLesson: LockedLesson?
     @State private var isShowingProfiles = false
-    /// The kid picked in the switcher, handed over once the sheet has closed.
+    /// The learner picked in the switcher, handed over once the sheet has closed.
     @State private var chosenProfile: UUID?
 
     var body: some View {
@@ -120,8 +120,8 @@ struct HomeView: View {
         }
     }
 
-    /// Who is drawing, always in view — even with one kid, so a family finds out a
-    /// second can be added. Opens the switcher.
+    /// Who is drawing, always in view — even with one learner, so a family finds
+    /// out a second can be added. Opens the switcher.
     private var profileButton: some View {
         Button {
             isShowingProfiles = true

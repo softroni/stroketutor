@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import OSLog
 
-/// The preferences that belong to a kid rather than to the device: which path Home
+/// The preferences that belong to a learner rather than to the device: which path Home
 /// shows, whether Lina speaks, how fast a lesson starts, and the two accessibility
 /// choices. Two siblings on one iPad can want different answers to every one of
 /// these, so each profile keeps its own `preferences.json`.
@@ -95,7 +95,7 @@ final class ProfilePreferences {
         return values
     }
 
-    /// Every preference back to its default, for this kid only.
+    /// Every preference back to its default, for this learner only.
     func resetToDefaults() {
         apply(Values())
     }

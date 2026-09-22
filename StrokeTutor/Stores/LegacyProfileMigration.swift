@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 
 /// Moves a pre-profiles install into its first profile, without ever being the
-/// only copy of the kid's work.
+/// only copy of the learner's work.
 ///
 /// Before profiles, one learner's data lived at the top of Application Support
 /// (`progress.json`, `Sketchbook/`) and their preferences in `UserDefaults`. The
@@ -45,7 +45,7 @@ enum LegacyProfileMigration {
     /// rather than mistaken for data still waiting to move.
     static let committedKey = "legacyProfileMigrationCommitted"
 
-    /// The name the first profile is given. The kid can rename it in Settings.
+    /// The name the first profile is given. The learner can rename it in Settings.
     static let migratedProfileName = "Me"
 
     private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "migration")

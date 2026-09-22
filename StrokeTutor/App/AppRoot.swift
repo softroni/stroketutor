@@ -2,7 +2,7 @@ import SwiftUI
 
 /// The root of the app. Loads the content once, shows the tabs, and presents the
 /// full-screen flows on top of them: onboarding on first run, "Who's drawing?" on a
-/// launch with more than one kid, then the player, completion and capture that
+/// launch with more than one learner, then the player, completion and capture that
 /// follow a lesson.
 ///
 /// Covers rather than pushes, because none of these belongs to a tab's back stack
@@ -23,8 +23,8 @@ struct AppRoot: View {
         @Bindable var app = app
 
         MainTabs()
-            // A new kid gets fresh tabs: no scroll position, sheet or half-typed
-            // note from the kid before them survives the switch.
+            // A new learner gets fresh tabs: no scroll position, sheet or half-typed
+            // note from the learner before them survives the switch.
             .id(app.activeProfile.id)
             .environment(app)
             .background(Theme.page.ignoresSafeArea())

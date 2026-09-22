@@ -13,11 +13,11 @@ struct SettingsView: View {
     @State private var isConfirmingReset = false
     @State private var isConfirmingOnboardingReset = false
     @State private var isAddingProfile = false
-    @State private var gate: ParentGateRequest?
+    @State private var gate: PINGateRequest?
     @State private var pinSheet: PINSheet?
     @State private var isChoosingPINAction = false
 
-    /// The parent PIN pad, when it is opened from its own row.
+    /// The PIN pad, when it is opened from its own row.
     private enum PINSheet: Identifiable {
         case create, change, remove
         var id: Self { self }
@@ -35,7 +35,7 @@ struct SettingsView: View {
                     .accessibilityAddTraits(.isHeader)
 
                 // ---------------------------------------------------------- People
-                kidsSection
+                peopleSection
 
                 // ---------------------------------------------------------- Lesson
                 SettingsSectionHeader("Lesson")
@@ -185,11 +185,11 @@ struct SettingsView: View {
         } message: {
             Text("Every path starts again from lesson 1 for \(app.activeProfile.displayName). Their sketchbook, and everyone else’s progress, are not touched.")
         }
-        .parentGate($gate)
+        .pinGate($gate)
         #if DEBUG
         .onAppear {
-            guard DebugScreenHarness.raiseParentPINCreate else { return }
-            DebugScreenHarness.raiseParentPINCreate = false
+            guard DebugScreenHarness.raisePINCreate else { return }
+            DebugScreenHarness.raisePINCreate = false
             pinSheet = .create
         }
         #endif
@@ -200,12 +200,12 @@ struct SettingsView: View {
         .sheet(item: $pinSheet) { sheet in
             switch sheet {
             case .create:
-                ParentPINSheet(mode: .create) { }
+                PINPadSheet(mode: .create) { }
             case .change:
-                ParentPINSheet(mode: .change) { }
+                PINPadSheet(mode: .change) { }
             case .remove:
-                ParentPINSheet(mode: .verify(reason: "Needed to turn the PIN off.")) {
-                    app.parentPIN.remove()
+                PINPadSheet(mode: .verify(reason: "Needed to turn the PIN off.")) {
+                    app.pin.remove()
                 }
             }
         }
@@ -222,10 +222,10 @@ struct SettingsView: View {
         }
     }
 
-    /// With a parent PIN, the PIN first; either way, the confirmation after it.
+    /// With a PIN set, the PIN first; either way, the confirmation after it.
     private func requestReset() {
-        if app.parentPIN.isSet {
-            gate = ParentGateRequest(reason: "Needed to reset \(app.activeProfile.displayName)’s progress.") {
+        if app.pin.isSet {
+            gate = PINGateRequest(reason: "Needed to reset \(app.activeProfile.displayName)’s progress.") {
                 isConfirmingReset = true
             }
         } else {
@@ -263,7 +263,7 @@ private extension SettingsView {
     /// "people" and "someone", never "kid": a grown-up learning alone should not
     /// feel the app was made for someone else. Renaming is a tap away and never
     /// asks for the PIN; deleting someone and resetting progress do.
-    var kidsSection: some View {
+    var peopleSection: some View {
         Group {
             SettingsSectionHeader("People")
             ListCard {
@@ -301,7 +301,7 @@ private extension SettingsView {
                 RowDivider()
 
                 Button {
-                    if app.parentPIN.isSet {
+                    if app.pin.isSet {
                         isChoosingPINAction = true
                     } else {
                         pinSheet = .create
@@ -311,7 +311,7 @@ private extension SettingsView {
                                       subtitle: "Asked before deleting someone or resetting progress.") {
                         SettingsIconTile(symbol: "lock.fill", tint: .neutral)
                     } trailing: {
-                        Text(app.parentPIN.isSet ? "On" : "Off")
+                        Text(app.pin.isSet ? "On" : "Off")
                             .scaledFont(16, .semibold)
                             .foregroundStyle(Theme.ink55)
                     }
@@ -320,7 +320,7 @@ private extension SettingsView {
                 .buttonStyle(.plain)
                 .accessibilityElement(children: .combine)
                 .accessibilityAddTraits(.isButton)
-                .accessibilityValue(app.parentPIN.isSet ? "On" : "Off")
+                .accessibilityValue(app.pin.isSet ? "On" : "Off")
             }
         }
     }

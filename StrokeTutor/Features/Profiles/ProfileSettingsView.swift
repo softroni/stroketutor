@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// One kid's page in Settings: their name and picture, which anyone may change,
-/// and deleting them, which needs a parent.
+/// One learner's page in Settings: their name and picture, which anyone may change,
+/// and deleting them, which needs the PIN when one is set.
 struct ProfileSettingsView: View {
     let profileId: UUID
 
@@ -11,7 +11,7 @@ struct ProfileSettingsView: View {
     @State private var name = ""
     @State private var avatar: ProfileAvatar = .fox
     @State private var hasLoaded = false
-    @State private var gate: ParentGateRequest?
+    @State private var gate: PINGateRequest?
     @State private var isConfirmingDelete = false
     @State private var didFailToDelete = false
 
@@ -66,7 +66,7 @@ struct ProfileSettingsView: View {
         .onChange(of: avatar) { _, _ in save() }
         .onSubmit(save)
         .onDisappear(perform: save)
-        .parentGate($gate)
+        .pinGate($gate)
         .alert("Delete \(profile?.displayName ?? "")?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive, action: delete)
             Button("Cancel", role: .cancel) { }
@@ -88,11 +88,11 @@ struct ProfileSettingsView: View {
         app.updateProfile(profileId, name: name, avatar: avatar)
     }
 
-    /// With a parent PIN, the PIN first; either way, a confirmation that names
+    /// With a PIN set, the PIN first; either way, a confirmation that names
     /// exactly what goes.
     private func requestDelete(_ profile: Profile) {
-        if app.parentPIN.isSet {
-            gate = ParentGateRequest(reason: "Needed to delete \(profile.displayName).") {
+        if app.pin.isSet {
+            gate = PINGateRequest(reason: "Needed to delete \(profile.displayName).") {
                 isConfirmingDelete = true
             }
         } else {
@@ -100,8 +100,8 @@ struct ProfileSettingsView: View {
         }
     }
 
-    /// Deleting the kid who is drawing hands the app to another kid, which already
-    /// clears every stack; deleting anyone else just comes back to Settings.
+    /// Deleting the learner who is drawing hands the app to another learner, which
+    /// already clears every stack; deleting anyone else just comes back to Settings.
     private func delete() {
         let wasActive = profileId == app.activeProfile.id
         do {
