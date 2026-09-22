@@ -223,12 +223,22 @@ enum DebugScreenHarness {
         case "sketchbook-empty":
             app.selectedTab = .sketchbook
 
+        // The album a learner has a few weeks in (see `seedAlbum`), shown by path —
+        // the default — or, for `sketchbook-dates`, by month.
         case "sketchbook-filled":
-            addPlaceholderPage(to: app, lesson: treeLesson)
-            addPlaceholderPage(to: app, lesson: carLesson)
+            seedAlbum(in: app, current: treePath, other: carPath)
+            UserDefaults.standard.set(SketchbookView.Arrangement.paths.rawValue,
+                                      forKey: SketchbookView.arrangementKey)
+            app.selectedTab = .sketchbook
+
+        case "sketchbook-dates":
+            seedAlbum(in: app, current: treePath, other: carPath)
+            UserDefaults.standard.set(SketchbookView.Arrangement.dates.rawValue,
+                                      forKey: SketchbookView.arrangementKey)
             app.selectedTab = .sketchbook
 
         case "entry":
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
             addPlaceholderPage(to: app, lesson: treeLesson)
             app.selectedTab = .sketchbook
             if let page = app.sketchbook.pages.first {
@@ -355,9 +365,135 @@ enum DebugScreenHarness {
         }
     }
 
+    /// A page for `lesson`, photographed `daysAgo` days ago: a stand-in photo of
+    /// that lesson's own drawing (`lessonPhoto(of:)`), so a "Fruit Bowl" page shows a
+    /// fruit bowl.
     @MainActor
-    private static func addPlaceholderPage(to app: AppModel, lesson: Lesson) {
-        _ = app.sketchbook.add(image: placeholderPhoto(), lessonId: lesson.id, pathId: lesson.pathId)
+    private static func addPlaceholderPage(to app: AppModel, lesson: Lesson, daysAgo: Double = 0) {
+        _ = app.sketchbook.add(image: lessonPhoto(of: lesson),
+                               lessonId: lesson.id,
+                               pathId: lesson.pathId,
+                               completedAt: Date().addingTimeInterval(-daysAgo * 86_400))
+    }
+
+    /// A sketchbook a few weeks in: the current path four lessons along, three of
+    /// them photographed and one finished without a photo (its slot shows the gold
+    /// check), and two pages from another path drawn about a month ago, so the
+    /// album has two bands and the date view two months. The current path is made
+    /// current without leaving the Sketchbook tab.
+    @MainActor
+    private static func seedAlbum(in app: AppModel, current: PathModel, other: PathModel) {
+        app.select(current)
+        let recent = Array(current.lessons.prefix(4))
+        for (offset, lesson) in recent.enumerated() {
+            let daysAgo = Double(8 - offset * 2)
+            app.progress.markCompleted(lesson.id, pathId: current.id,
+                                       at: Date().addingTimeInterval(-daysAgo * 86_400))
+            if offset != 2 {
+                addPlaceholderPage(to: app, lesson: lesson, daysAgo: daysAgo)
+            }
+        }
+        guard other.id != current.id else { return }
+        for (offset, lesson) in other.lessons.prefix(2).enumerated() {
+            let daysAgo = Double(30 - offset * 2)
+            app.progress.markCompleted(lesson.id, pathId: other.id,
+                                       at: Date().addingTimeInterval(-daysAgo * 86_400))
+            addPlaceholderPage(to: app, lesson: lesson, daysAgo: daysAgo)
+        }
+    }
+
+    /// A stand-in for a photo of a learner's page: the lesson's own strokes in
+    /// pencil gray, a touch heavier than the lesson draws them and a little off
+    /// true (turned, shifted, each line doubled by a faint second pass), on warm
+    /// off-white paper with light from the top left and a soft vignette. Seeded by
+    /// the lesson id, so the same lesson always comes out the same.
+    static func lessonPhoto(of lesson: Lesson, size: CGSize = CGSize(width: 1200, height: 1600)) -> UIImage {
+        var random = SeededRandom(seed: lesson.id)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            let cg = context.cgContext
+            let space = CGColorSpaceCreateDeviceRGB()
+
+            // Paper, lit from the top left.
+            let paper = [UIColor(red: 0.98, green: 0.965, blue: 0.93, alpha: 1).cgColor,
+                         UIColor(red: 0.93, green: 0.905, blue: 0.85, alpha: 1).cgColor]
+            if let gradient = CGGradient(colorsSpace: space, colors: paper as CFArray, locations: [0, 1]) {
+                cg.drawLinearGradient(gradient, start: .zero,
+                                      end: CGPoint(x: size.width, y: size.height), options: [])
+            }
+
+            // The drawing, fitted inside a margin and set a little askew.
+            let tutorial = lesson.tutorial
+            let bounds = tutorial.drawingBounds
+            if bounds.width > 0, bounds.height > 0 {
+                let box = CGRect(origin: .zero, size: size).insetBy(dx: size.width * 0.14, dy: size.height * 0.16)
+                let scale = min(box.width / bounds.width, box.height / bounds.height)
+                let angle = random.next(in: -2.2...2.2) * .pi / 180
+                let shift = CGPoint(x: random.next(in: -0.02...0.02) * size.width,
+                                    y: random.next(in: -0.02...0.02) * size.height)
+                let center = CGPoint(x: size.width / 2 + shift.x, y: size.height / 2 + shift.y)
+                let transform = CGAffineTransform(translationX: -bounds.midX, y: -bounds.midY)
+                    .concatenating(CGAffineTransform(scaleX: scale, y: scale))
+                    .concatenating(CGAffineTransform(rotationAngle: angle))
+                    .concatenating(CGAffineTransform(translationX: center.x, y: center.y))
+
+                cg.setLineCap(.round)
+                cg.setLineJoin(.round)
+                for step in tutorial.steps {
+                    for stroke in step.strokes {
+                        let width = min(max(CGFloat(stroke.lineWidth) * scale * 0.8, 5), 14)
+                        var path = stroke.path.cgPath.copy(using: [transform]) ?? stroke.path.cgPath
+                        // The firm line.
+                        cg.addPath(path)
+                        cg.setStrokeColor(UIColor(red: 0.29, green: 0.29, blue: 0.32, alpha: 0.86).cgColor)
+                        cg.setLineWidth(width)
+                        cg.strokePath()
+                        // A lighter second pass, a hair off the first.
+                        var nudge = CGAffineTransform(translationX: random.next(in: -3...3),
+                                                      y: random.next(in: -3...3))
+                        path = path.copy(using: &nudge) ?? path
+                        cg.addPath(path)
+                        cg.setStrokeColor(UIColor(red: 0.36, green: 0.36, blue: 0.39, alpha: 0.28).cgColor)
+                        cg.setLineWidth(width * 0.6)
+                        cg.strokePath()
+                    }
+                }
+            }
+
+            // The vignette a phone camera leaves at the corners of a close shot.
+            let vignette = [UIColor(white: 0, alpha: 0).cgColor,
+                            UIColor(white: 0, alpha: 0.05).cgColor,
+                            UIColor(red: 0.2, green: 0.14, blue: 0.06, alpha: 0.22).cgColor]
+            if let gradient = CGGradient(colorsSpace: space, colors: vignette as CFArray, locations: [0, 0.6, 1]) {
+                let center = CGPoint(x: size.width * 0.46, y: size.height * 0.44)
+                cg.drawRadialGradient(gradient,
+                                      startCenter: center, startRadius: 0,
+                                      endCenter: center, endRadius: hypot(size.width, size.height) * 0.56,
+                                      options: [.drawsAfterEndLocation])
+            }
+        }
+    }
+
+    /// A small deterministic generator (SplitMix64), so a seeded photo is the same
+    /// on every run.
+    private struct SeededRandom {
+        private var state: UInt64
+
+        init(seed: String) {
+            state = seed.utf8.reduce(0xcbf2_9ce4_8422_2325) { ($0 ^ UInt64($1)) &* 0x100_0000_01b3 }
+        }
+
+        mutating func next(in range: ClosedRange<CGFloat>) -> CGFloat {
+            state &+= 0x9e37_79b9_7f4a_7c15
+            var z = state
+            z = (z ^ (z >> 30)) &* 0xbf58_476d_1ce4_e5b9
+            z = (z ^ (z >> 27)) &* 0x94d0_49bb_1331_11eb
+            z ^= z >> 31
+            let unit = CGFloat(z >> 11) / CGFloat(1 << 53)
+            return range.lowerBound + (range.upperBound - range.lowerBound) * unit
+        }
     }
 
     /// A photo-shaped stand-in for a photographed page — a paper-coloured

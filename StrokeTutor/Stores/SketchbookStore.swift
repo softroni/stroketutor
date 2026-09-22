@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 import Observation
 import OSLog
 import UIKit
@@ -52,6 +53,10 @@ final class SketchbookStore {
 
     private let directory: URL
     private let indexURL: URL
+    /// Small decoded copies for the grids, so an album of twenty pages does not
+    /// hold twenty full-size photographs in memory. File names are unique per page,
+    /// so an entry can never go stale.
+    @ObservationIgnored private let thumbnails = NSCache<NSString, UIImage>()
     private nonisolated static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "sketchbook")
 
     /// - Parameter baseDirectory: the folder that contains `Sketchbook/`. Defaults to
@@ -80,6 +85,28 @@ final class SketchbookStore {
     /// screen shows as a placeholder rather than an error.
     func image(for page: SketchbookPage) -> UIImage? {
         UIImage(contentsOfFile: directory.appendingPathComponent(page.imageFile).path)
+    }
+
+    /// The photograph scaled down so its longest side is at most `maxPixelSize`
+    /// pixels, decoded once and cached — what the sketchbook's grids draw. Nil when
+    /// the file has gone missing, as with `image(for:)`.
+    func thumbnail(for page: SketchbookPage, maxPixelSize: Int = 600) -> UIImage? {
+        let key = "\(page.imageFile)@\(maxPixelSize)" as NSString
+        if let cached = thumbnails.object(forKey: key) { return cached }
+        let url = directory.appendingPathComponent(page.imageFile)
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+        ]
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return nil
+        }
+        let image = UIImage(cgImage: cgImage)
+        thumbnails.setObject(image, forKey: key)
+        return image
     }
 
     // MARK: - Writing
