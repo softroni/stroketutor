@@ -1,0 +1,106 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "dump-truck",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:24:02.342Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A dump truck has one great trick: its bed tips up and the load slides out the back. Ours is caught mid-tip. See what holds the bed up, then tip your own.",
+      "textHash": "3d7aaeaca1c87d355d5405b16e262e9201e67958ca9de4cbbbf0a2d46abfcf9d",
+      "durationMs": 9680
+    },
+    "frame-top": {
+      "file": "frame-top.m4a",
+      "text": "Everything rides on the frame. Draw its top, a long line with a low bump over each wheel.",
+      "textHash": "084c74db765da65c0b55150a8277839c1f3464863cd6b5e14803c59747aae0a2",
+      "durationMs": 6000
+    },
+    "frame-bottom": {
+      "file": "frame-bottom.m4a",
+      "text": "Now the underside. Close the frame, arching over both wheels.",
+      "textHash": "29f7768dd40f055980c9c7a5f38acfd5ce82874246108566cac81b4bb1242131",
+      "durationMs": 4560
+    },
+    "cab": {
+      "file": "cab.m4a",
+      "text": "The cab stands on the front of the frame. Go up, across the roof and down.",
+      "textHash": "9d882543ad1397f64eda63719af92b87446d963955cdb8eeddd5cdfc45840c02",
+      "durationMs": 5040
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "The driver needs a window. Draw a square with soft corners, high in the cab.",
+      "textHash": "925c86c5e6bd86eba1d7c4476eaa475b0c652d12ae960aa8096f32258faf574c",
+      "durationMs": 5280
+    },
+    "bed-top": {
+      "file": "bed-top.m4a",
+      "text": "The bed is a long box, tipped up. From its low corner, draw the short end and the long top.",
+      "textHash": "2c8c181bdceaaa427fb292d23554f29818b322a737bce98ac4656d2796f7a85d",
+      "durationMs": 6480
+    },
+    "bed-bottom": {
+      "file": "bed-bottom.m4a",
+      "text": "Then the high end and the long bottom, back to where you began.",
+      "textHash": "dcd363930bd233907c84f160d27367dfadb517e70079082237ba2febe09d527c",
+      "durationMs": 4160
+    },
+    "ribs": {
+      "file": "ribs.m4a",
+      "text": "Four ribs make the bed strong. Draw each one straight across, top edge to bottom edge.",
+      "textHash": "68c10b3fcce1913b4c88a3738e5dd68af4a8e20e3c271e98199b629cff232661",
+      "durationMs": 6160
+    },
+    "arm": {
+      "file": "arm.m4a",
+      "text": "One short leaning line holds the bed up. Start on the frame and stop below the bed.",
+      "textHash": "b4694e82ba3ee0dc0f65ba2bd418f2ce2ce7e0d58386ca1c73cf825665546796",
+      "durationMs": 5760
+    },
+    "wheels": {
+      "file": "wheels.m4a",
+      "text": "Each wheel is two circles, a tire in its arch and a hub inside that.",
+      "textHash": "2a2a55b57c85b7bcca2b62eb8c154c42b20be6e4165650bc20042b099ea52ca8",
+      "durationMs": 5680
+    },
+    "color-bed": {
+      "file": "color-bed.m4a",
+      "text": "Color the bed green.",
+      "textHash": "84fd3fbeff9c0eae244c24824f75b7a020177e9e335457c970d5ccc81e4cdd38",
+      "durationMs": 1840
+    },
+    "color-cab": {
+      "file": "color-cab.m4a",
+      "text": "Color the cab red.",
+      "textHash": "599d46b3030e40c4f4369327447e6fe87c4ae9485d38721f7216425e4e16fa7f",
+      "durationMs": 1680
+    },
+    "color-frame": {
+      "file": "color-frame.m4a",
+      "text": "Color the frame brown.",
+      "textHash": "9926268aed2258dbc2ed7fe2d8a7ccd601c300d0910646a2efe79454b5e6af66",
+      "durationMs": 1920
+    },
+    "color-window": {
+      "file": "color-window.m4a",
+      "text": "Color the window blue.",
+      "textHash": "1b6772e520ad5a403cd39edfb2032edd17341161c3df641740ce92b56f5057c6",
+      "durationMs": 1600
+    },
+    "color-wheels": {
+      "file": "color-wheels.m4a",
+      "text": "Color the tires gray, then the hubs cream.",
+      "textHash": "776f05d5bf691cabd1e0bfa9bfa4d0ec599f40ba1a8167d7982a5ceb3d49339b",
+      "durationMs": 3040
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "The bed is up and the load is out. That's one hard-working truck you drew.",
+      "textHash": "470454577448c8e098cf983793c3dd3e1ca1e3677bdf8470776f3546b3c98da2",
+      "durationMs": 4640
+    }
+  }
+}
