@@ -952,6 +952,16 @@
       }
     },
     {
+      "id": "sea-cliffs",
+      "status": "approved",
+      "objective": "Two overlapping headlands, a sea stack and three rows of waves",
+      "reference": {
+        "file": "sea-cliffs.svg",
+        "source": "OpenAI image model, prompt style-v2 (docs/curriculum/landscape-prompts.md), generated 2026-09-21, AI-generated for StrokeTutor; owned by Softroni",
+        "license": "AI-generated for StrokeTutor; owned by Softroni"
+      }
+    },
+    {
       "id": "balloon-over-the-hill",
       "status": "approved",
       "objective": "Sun, cloud, balloon and pine tree in one scene",

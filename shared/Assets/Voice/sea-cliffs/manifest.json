@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "sea-cliffs",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:38:05.523Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Two cliffs reach out into the sea, one behind the other, and a lone rock stands out in the water. Watch the second cliff stop where the first one gets in its way, then walk your own coast.",
+      "textHash": "361fda3d5f588482454281abd5097f2e1b861e34ec782c6de4ce4f049b73eabf",
+      "durationMs": 11520
+    },
+    "near-top": {
+      "file": "near-top.m4a",
+      "text": "The near cliff is a tall block. Draw its left edge and its flat top.",
+      "textHash": "4e0aeac0d7810e2f11009d670fbc3fe9b2af09e52de66bbd4f1141fc83170e8f",
+      "durationMs": 5360
+    },
+    "near-top-2": {
+      "file": "near-top-2.m4a",
+      "text": "From the top corner, down the cliff face and along the foot.",
+      "textHash": "38a518d0075ab0631a741cdc18aa09f8b486abad4aa6824136de250f7f7bc1bc",
+      "durationMs": 3680
+    },
+    "far-cliff": {
+      "file": "far-cliff.m4a",
+      "text": "A second cliff steps down behind it, lower and further right.",
+      "textHash": "db810662a839705a6d6e46258ca3a089941ceb1737cd250fafa3df91c6c41d07",
+      "durationMs": 4160
+    },
+    "grass": {
+      "file": "grass.m4a",
+      "text": "Grass caps both cliffs. A wavy line under each top edge.",
+      "textHash": "4b6db88c04f2bb8925a95e853279bba899b9f1c2813999100232ec92e4ed4bf8",
+      "durationMs": 4400
+    },
+    "far-line": {
+      "file": "far-line.m4a",
+      "text": "The sea meets the sky in one level line, in two pieces.",
+      "textHash": "a22ece10ffd986089a4fff9d0e29cd0e01c86765fc8449cadfa819c22048bb5c",
+      "durationMs": 4080
+    },
+    "stack": {
+      "file": "stack.m4a",
+      "text": "One tall rock stands alone in the water, its top above that line.",
+      "textHash": "09fa96e80741c5aeee233243dcc77a7473835486fdf6c03cbaffc5f6154b11cb",
+      "durationMs": 4800
+    },
+    "waves": {
+      "file": "waves.m4a",
+      "text": "Three wavy lines cross the sea, the lowest one longest.",
+      "textHash": "0259c729a9b20e28a51ce78489f9c1ee5d8dd96207a79f59a3c3f79edba30ebf",
+      "durationMs": 4560
+    },
+    "near-brown": {
+      "file": "near-brown.m4a",
+      "text": "Color the near cliff brown.",
+      "textHash": "c3fd6707711432b69409e0e8012fde621466f404e91dd7bcc9ae481ef75c092d",
+      "durationMs": 2080
+    },
+    "sea-blue": {
+      "file": "sea-blue.m4a",
+      "text": "The sea is blue.",
+      "textHash": "d702f609546240784495333068a9a12eeb58506f1a876d022c1173779b56bf64",
+      "durationMs": 1600
+    },
+    "far-cream": {
+      "file": "far-cream.m4a",
+      "text": "The cliff behind is cream.",
+      "textHash": "60b28db5c49cd5ecfdb296d60ffeadb65c51ecd073320c5ae800b84a2d16fffe",
+      "durationMs": 2080
+    },
+    "grass-green": {
+      "file": "grass-green.m4a",
+      "text": "The grassy tops are green.",
+      "textHash": "483c65620912d00955d074c70c78139ac8d75b89285d84b578a50c1aa1afbf89",
+      "durationMs": 1760
+    },
+    "rock-gray": {
+      "file": "rock-gray.m4a",
+      "text": "The lone rock is gray.",
+      "textHash": "00e65bea7508597d6e0c006e0ecfaca2e95e3718ac2499bf811ab6891722c905",
+      "durationMs": 2160
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "One cliff in front, one behind, and a rock out on its own. Your coast is finished.",
+      "textHash": "130c75440bad157907c076a4b2122356636d592adf233dd7508070a71cc797f7",
+      "durationMs": 6000
+    }
+  }
+}
