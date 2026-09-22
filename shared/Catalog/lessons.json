@@ -772,6 +772,16 @@
       }
     },
     {
+      "id": "planet-with-rings",
+      "status": "approved",
+      "objective": "Circle with a tilted ring passing behind it",
+      "reference": {
+        "file": "planet-with-rings.svg",
+        "source": "Generated picture, OpenAI image model, style-v2, 2026-09-21",
+        "license": "CC0"
+      }
+    },
+    {
       "id": "apple",
       "status": "approved",
       "objective": "Round apple with a stem and leaf",

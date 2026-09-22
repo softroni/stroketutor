@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "planet-with-rings",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:54:03.279Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "This planet wears a ring, and the ring goes behind it at the top and in front at the bottom. Watch which lines stop, then give one a ring of its own.",
+      "textHash": "62fc0015c6a873562466556dee2905dc7b9d037bba229f10a3a6f54c8804c83a",
+      "durationMs": 9360
+    },
+    "planet-top": {
+      "file": "planet-top.m4a",
+      "text": "Start with the planet. Curve over the top, from the ring on the left round to the ring on the right.",
+      "textHash": "b4112dce9bf134d1d1ff62d0c4d4acd7445d62453e6bd39251c6dc215782e8b5",
+      "durationMs": 5600
+    },
+    "planet-bottom": {
+      "file": "planet-bottom.m4a",
+      "text": "Under the ring, close the planet with a wide curve, like the bottom of a ball.",
+      "textHash": "45cc289b16067a9b6c38c132a6c8abd58093cbf267ead8298c00d808136bdb51",
+      "durationMs": 4720
+    },
+    "ring-outer": {
+      "file": "ring-outer.m4a",
+      "text": "The ring is a flat band. Draw its outside edge, a long oval that leans up to the right.",
+      "textHash": "d3873e10455b55ad4c3645193c2a6ffec29d8beb694407d676821c5ea9968c0f",
+      "durationMs": 5920
+    },
+    "ring-inner": {
+      "file": "ring-inner.m4a",
+      "text": "Now the inside edge. It crosses in front of the planet and follows the outside all the way round.",
+      "textHash": "e0a025c3b1e26942e2e1bf1f2a70e96b5fce2f223bca40d69b519baf7c20648a",
+      "durationMs": 6240
+    },
+    "ring-ends": {
+      "file": "ring-ends.m4a",
+      "text": "Two short lines close the hole, one on each side of the planet.",
+      "textHash": "9eaa429cbdebed0fba84057ca35e008abf286eb86a172e5cf7099e799bcd6511",
+      "durationMs": 4400
+    },
+    "planet": {
+      "file": "planet.m4a",
+      "text": "Color the planet orange.",
+      "textHash": "01c1da187c123218468c65d241aa4057862cf679d48e5201cfbd6fa2c22af963",
+      "durationMs": 1760
+    },
+    "ring": {
+      "file": "ring.m4a",
+      "text": "Color the ring yellow.",
+      "textHash": "71a1e3f74b8619651c93c1c501f37b73e7d59d7506eb311709b543276c1cede1",
+      "durationMs": 1840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A planet with a ring around its middle. Yours is tilted, just like the real one.",
+      "textHash": "291aba4fa6ddb92c2dc9658f2dbc6c03da60ac3a745f7c2e4a792753ad1f84f5",
+      "durationMs": 5200
+    }
+  }
+}
