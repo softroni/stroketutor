@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "harbour",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:44:32.588Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Here's where every boat comes home. A lighthouse on its rock, a sailboat, a tugboat, and waves rolling in. You've drawn these boats before, so watch once, then bring them into port.",
+      "textHash": "30fa87444ddad68b162c3889053fe4b130dceb6219c5aba8ca9e56d8a0c83ada",
+      "durationMs": 12240
+    },
+    "rock": {
+      "file": "rock.m4a",
+      "text": "A harbor needs a lighthouse, and a lighthouse needs a rock. Draw a low mound with a flat bottom.",
+      "textHash": "684ed39db996d8fbdfc2c1e8784be8cbd19f139f6fea8a65fe2cefb452b742b6",
+      "durationMs": 6080
+    },
+    "tower": {
+      "file": "tower.m4a",
+      "text": "The tower stands on the rock and leans in as it rises. Two lines across make three bands.",
+      "textHash": "eca1617ff0f9591c9b2a5ebb1f47a3acf1b1e09930734db922bf5df26e0ec2ca",
+      "durationMs": 6240
+    },
+    "lantern": {
+      "file": "lantern.m4a",
+      "text": "On top sits the lantern: two short walls, and a pointed roof like a little hat.",
+      "textHash": "cc3a3f783c9da4b3f02116284657cf108012f808188125d2352657152caec4e1",
+      "durationMs": 5600
+    },
+    "sailboat": {
+      "file": "sailboat.m4a",
+      "text": "On the left, a sailboat. Draw its bowl of a hull, a mast, and a triangle sail.",
+      "textHash": "dbf6f684db9895c678af186731df99076870b7a5ea756064d49e42e0e5283adf",
+      "durationMs": 6640
+    },
+    "tug-hull": {
+      "file": "tug-hull.m4a",
+      "text": "On the right, a tugboat. Draw the long bumper first, then the tub of a hull under it.",
+      "textHash": "a8b3732c7b6e1e89e2e58745877cdf7b0d9bb789084ba93877d666a0d3161dcd",
+      "durationMs": 5920
+    },
+    "tug-cabin": {
+      "file": "tug-cabin.m4a",
+      "text": "Build the tug's cabin, its round window, and a smokestack on the roof.",
+      "textHash": "ec38764063495ae0b87392cd794ae8a3e674bc0de826a559059ec7b90713e2c2",
+      "durationMs": 4880
+    },
+    "waves": {
+      "file": "waves.m4a",
+      "text": "Last, the waves. Each is a wiggle with two humps: three in a row, then two below.",
+      "textHash": "61cb31f2575fd482ada5d18f6f98ca00673be20b5e17397529984df78088834c",
+      "durationMs": 6240
+    },
+    "color-red": {
+      "file": "color-red.m4a",
+      "text": "Color two bands, the roof and the tug's hull red.",
+      "textHash": "b072af3ccd98f07eef3bccb9f0faaca371da6f89f00c3d20bba315427d79aac2",
+      "durationMs": 3920
+    },
+    "color-cream": {
+      "file": "color-cream.m4a",
+      "text": "Color the middle band and the sail cream.",
+      "textHash": "ffbcedb99c423dfc6ba010955f8bb4cce34b1d7ab22e07b59dc430abeb6c7071",
+      "durationMs": 2880
+    },
+    "color-blue": {
+      "file": "color-blue.m4a",
+      "text": "Color the sailboat's hull and the tug's window blue.",
+      "textHash": "43e336f5c520c190eb5464d72cc64731c163c47606d05fb7874c2a1e9bc58b0e",
+      "durationMs": 3520
+    },
+    "color-yellow": {
+      "file": "color-yellow.m4a",
+      "text": "Color the lantern and the tug's cabin yellow.",
+      "textHash": "55686c56c2b18991e07361cfe883cde625ebe36ebbf94b5c2f317ecb7f2d44fc",
+      "durationMs": 2880
+    },
+    "color-gray": {
+      "file": "color-gray.m4a",
+      "text": "Color the rock and the bumper gray, and the smokestack orange.",
+      "textHash": "27f41c82cbc2fb9a3f28cd0c99d594a6168f6e2fd05d1efc815a6ca0e3d3e198",
+      "durationMs": 4800
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "The light is on and the boats are safe in the harbor. You started with one sail, and now you have a whole scene.",
+      "textHash": "208aedd9e58eb5d971f7afc4548242e05268ac95b8f9d4e1608b78653a783da6",
+      "durationMs": 6240
+    }
+  }
+}
