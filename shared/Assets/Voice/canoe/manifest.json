@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "canoe",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:36:47.477Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A canoe goes wherever its paddle takes it. Ours has the paddle resting across it, in front. Watch which lines stop at the paddle, then push off with your pen.",
+      "textHash": "990fe6335616d907b555c078e5b72916f81fd4621f2f9ce001d3fc8640f794ec",
+      "durationMs": 10960
+    },
+    "top": {
+      "file": "top.m4a",
+      "text": "A canoe is shaped like a long smile. Draw the top edge from tip to tip, dipping in the middle.",
+      "textHash": "fbbd9907f14c4ac8a57ffbef646a7e399ca4e0fc396aef2460fb18c42e1ce02a",
+      "durationMs": 6800
+    },
+    "shaft": {
+      "file": "shaft.m4a",
+      "text": "The paddle leans across the canoe. Draw its small handle, then a straight shaft down past the edge.",
+      "textHash": "30391546cc2b562d9ced1d9d85a227c6896c1d84a079e9f0a3df4815a66fa30f",
+      "durationMs": 6560
+    },
+    "blade": {
+      "file": "blade.m4a",
+      "text": "The blade is a long, rounded leaf on the end of the shaft.",
+      "textHash": "61a87e6f89e63d90c5acf3781f721f76eda85d4279a03ca0c07cfe66ea426c8b",
+      "durationMs": 3840
+    },
+    "bottom-left": {
+      "file": "bottom-left.m4a",
+      "text": "Now the canoe's belly. From the left tip, curve down and along until you bump into the blade.",
+      "textHash": "219ae34721ec0245c5b611a729bd6f7179d8625514a19802191a5b2bbc1c5c5b",
+      "durationMs": 5760
+    },
+    "bottom-right": {
+      "file": "bottom-right.m4a",
+      "text": "Carry on past the blade, and rise to the right tip.",
+      "textHash": "7abc56a04050d0e0276e99089436529b4aeb1217526097252d174e00330758c4",
+      "durationMs": 3600
+    },
+    "trim": {
+      "file": "trim.m4a",
+      "text": "Two trim lines follow the top edge, one on each side of the paddle.",
+      "textHash": "0f7d744c5a7e20d73aa6fea49967a28f54956682f86e8e88ec564903a8d072d5",
+      "durationMs": 4560
+    },
+    "canoe-green": {
+      "file": "canoe-green.m4a",
+      "text": "Color the canoe green.",
+      "textHash": "0fe8f935c858a347997cb0d8bad32ab72c00f43de3fbe6fb7d5d07d20da2dea8",
+      "durationMs": 1760
+    },
+    "paddle-brown": {
+      "file": "paddle-brown.m4a",
+      "text": "Color the blade and the handle brown.",
+      "textHash": "d446401610dfc553dee979056e54bf2190fb6900eff2fea08a29cc8686ace8e7",
+      "durationMs": 2480
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Canoe and paddle, waiting at the water's edge. Where would you paddle to?",
+      "textHash": "3a3e044ea583340183e44584df0f8a72aae5b6616e8882261c99fae401afcafa",
+      "durationMs": 4800
+    }
+  }
+}
