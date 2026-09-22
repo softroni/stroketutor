@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "pirate-ship",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:42:09.147Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Ahoy. Every pirate story needs a ship: a big wooden hull, two sails full of wind, and a flag on the tallest mast. Watch her get rigged, then hoist your own sails.",
+      "textHash": "88880d7521ed4dc094c9bc07651755b131e5377dc20657939783826cfbd3f675",
+      "durationMs": 11520
+    },
+    "deck": {
+      "file": "deck.m4a",
+      "text": "Begin at the back of the ship. Draw the high stern, step down, and run the deck to the bow.",
+      "textHash": "999e3fa8fb453c02038fe01c751ba905a2895330a16e4354ac523d2fe8263d85",
+      "durationMs": 5600
+    },
+    "hull": {
+      "file": "hull.m4a",
+      "text": "Now the big wooden belly. From the stern, curve down, along and up to the bow.",
+      "textHash": "0f4d9bce6fee62cad88c3afcbafed9f8ccab6931e940489beec4276b01e0181d",
+      "durationMs": 5680
+    },
+    "details": {
+      "file": "details.m4a",
+      "text": "Add a plank line along the side. Then a pole pointing out from the bow.",
+      "textHash": "effec8020bc47d0868a932275d389116caa05878e89938196ad1efebe79a0eb1",
+      "durationMs": 5120
+    },
+    "main-post": {
+      "file": "main-post.m4a",
+      "text": "The main mast stands in the middle of the deck. For now, draw just a short post.",
+      "textHash": "d14948f3baff202130f3e6db123610f826e713de3f202cb53dc1d169e2953af4",
+      "durationMs": 5280
+    },
+    "main-sail": {
+      "file": "main-sail.m4a",
+      "text": "Hang the main sail on the post. Flat on top and bottom, with both sides bulging toward the bow.",
+      "textHash": "7aedcc10c739678cd1ff4d9a2a249de6a5d09cf9eb7f15be757bbc842282a1c1",
+      "durationMs": 6240
+    },
+    "flag": {
+      "file": "flag.m4a",
+      "text": "The mast carries on above the sail. Fly a small flag from its top, streaming back.",
+      "textHash": "20f3575ef329f9f7b5b44e91e6e384a922ce1c65ac9117102a9e90c936b5f0de",
+      "durationMs": 5600
+    },
+    "front-mast": {
+      "file": "front-mast.m4a",
+      "text": "Build the front mast the same way, only smaller: a post, a sail, and a tip on top.",
+      "textHash": "e474502e91ceb89489970397677712aa9a8e741cd6dcd1f29ad3812c43528833",
+      "durationMs": 5840
+    },
+    "color-hull": {
+      "file": "color-hull.m4a",
+      "text": "Color the hull brown.",
+      "textHash": "6d5c3ddecfbac456aacd3e21116da7d442f93a1c2492a80317c50cced4cb5d65",
+      "durationMs": 1520
+    },
+    "color-sails": {
+      "file": "color-sails.m4a",
+      "text": "Color both sails cream.",
+      "textHash": "d0f93d671e61bb1135b7bc5c838093a61af97da75c4688d47d569f9cf09f33d4",
+      "durationMs": 1920
+    },
+    "color-flag": {
+      "file": "color-flag.m4a",
+      "text": "Color the flag red.",
+      "textHash": "0ee1cf6de940ebf1a30831789e769989374b15dae569c7260a42a141ca6bdcd6",
+      "durationMs": 1840
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Sails full, flag flying. Where is the treasure buried?",
+      "textHash": "c7846fdc4648d2bf3dd14aa0da1a6415268e71d032a165479971fede9ca2acc4",
+      "durationMs": 4320
+    }
+  }
+}
