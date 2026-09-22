@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "car",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:22:57.921Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "This little car is all curves: a bump for the trunk, a dome for the roof, a bump for the hood. See the three bumps join up, then take yours for a spin.",
+      "textHash": "64e8e654823e58efa429cfd55093d15a32a7bc3e0d40c207d1d6df1db312ac6b",
+      "durationMs": 10240
+    },
+    "trunk": {
+      "file": "trunk.m4a",
+      "text": "The back of the car is a low bump. From the bottom left, curve up and over to the dip.",
+      "textHash": "3e2d3324143d0737819ee9d7f55628aaf5a7f206ea95c596ed8e1c7407aeaaea",
+      "durationMs": 5120
+    },
+    "roof": {
+      "file": "roof.m4a",
+      "text": "Next, the roof. It's a big dome from this dip to the next one, like a hill.",
+      "textHash": "5332ac7bef838694635fb8c191a01012c45e0991f8771e86044ab82ce4054601",
+      "durationMs": 5840
+    },
+    "hood": {
+      "file": "hood.m4a",
+      "text": "One more bump makes the hood. Curve over and down to the bottom right.",
+      "textHash": "fc69adb3170707980e80a9f152185da3e2c92bd94f027ad8a69d9d08f6a423cc",
+      "durationMs": 4880
+    },
+    "floor": {
+      "file": "floor.m4a",
+      "text": "Close the car underneath. Go straight along, with an arch over each wheel.",
+      "textHash": "7c94ded356d6db01f9a7d4265eb46b32d41242de22e8fb345b60426b07f54d4a",
+      "durationMs": 5200
+    },
+    "window-back": {
+      "file": "window-back.m4a",
+      "text": "The back window fits under the dome. It's straight below and beside, curved on top.",
+      "textHash": "639d478285de1962d18309e50718ad10c6d34afb5b6aef2a0bf7e35f911abf9c",
+      "durationMs": 5600
+    },
+    "window-front": {
+      "file": "window-front.m4a",
+      "text": "The front window is its mirror, across a strip of orange.",
+      "textHash": "742b959e9731eafb1c11eb0d579799b7cd4025d4bdf4538d6ab1f9bdbd5b5492",
+      "durationMs": 3920
+    },
+    "tires": {
+      "file": "tires.m4a",
+      "text": "A tire sits inside each arch without touching it. Draw both circles.",
+      "textHash": "b6d7a3e77492ce84a23c88e5f1f36202372972482d4898594e1b32f8f637c23c",
+      "durationMs": 4560
+    },
+    "hubs": {
+      "file": "hubs.m4a",
+      "text": "Each tire needs a small circle inside, the hub.",
+      "textHash": "76953d157a18242bfadcc111865d8185f1b5d56f33442207d377a1b29a30fa94",
+      "durationMs": 3680
+    },
+    "color-car": {
+      "file": "color-car.m4a",
+      "text": "Color the car orange.",
+      "textHash": "0e6a2890ad410fe77c4a9d5b88bc0cd7220be4218391b5d733af2af5b7671e09",
+      "durationMs": 1760
+    },
+    "color-windows": {
+      "file": "color-windows.m4a",
+      "text": "Color the windows blue.",
+      "textHash": "aa5375404a0257ef12dee08322ae050c3b1bc6edb3655c0f2f74ed58b7e892a9",
+      "durationMs": 1600
+    },
+    "color-tires": {
+      "file": "color-tires.m4a",
+      "text": "Color the tires gray.",
+      "textHash": "cba3da4f96b6f19f687912df10607dcd5c9130ce3c225ab65e954d1b10f27b3e",
+      "durationMs": 1840
+    },
+    "color-hubs": {
+      "file": "color-hubs.m4a",
+      "text": "Color the hubs cream.",
+      "textHash": "e367537dca5f1f4fff8dbcb43b34c4fc5da749792ebf5e675ef797c5ca5a6646",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Round roof, round wheels, and not one sharp corner. Where will you drive it first?",
+      "textHash": "59465bb4588be82cfe045fe74a0f0f858cda6f4a048868fb57a72630fd5df21f",
+      "durationMs": 5520
+    }
+  }
+}
