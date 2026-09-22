@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "country-road",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:38:58.896Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Here is the oldest trick there is: two edges of a road, aimed at one spot far away. Everything beside it shrinks as it goes. Watch the posts get smaller, then follow your own road.",
+      "textHash": "d1836f9a9df6ecc7fabedf9eb1c33df26fcbbb2c16a46e391040190baafa4cf0",
+      "durationMs": 10720
+    },
+    "panel": {
+      "file": "panel.m4a",
+      "text": "The land is one wide box. Draw the bottom edge and both sides.",
+      "textHash": "0e20f434fd77b4248e1c52e9b2d074715f7732d2ea0bbc9f063f2d43e56f9f25",
+      "durationMs": 5360
+    },
+    "far-line": {
+      "file": "far-line.m4a",
+      "text": "A level line across the top of the box. That is as far as you can see.",
+      "textHash": "383c897837ce204a9fa50c9e472ddd4f879827ea11c356176eecc24e17c7071d",
+      "durationMs": 4640
+    },
+    "road": {
+      "file": "road.m4a",
+      "text": "The road is a triangle. Two lines from the bottom, meeting at one spot on that line.",
+      "textHash": "f902744a33b3aa02b7ad16ea85b51bd4b260c53b6e3166085c44b0ae19881671",
+      "durationMs": 6080
+    },
+    "posts": {
+      "file": "posts.m4a",
+      "text": "Five posts down the right side. The nearest is tallest, each one smaller.",
+      "textHash": "3696190eedba7320f4d913e320dec820104d27d5cd5e3bdfa2de65a3ceb8134b",
+      "durationMs": 4800
+    },
+    "hedges": {
+      "file": "hedges.m4a",
+      "text": "Bushes line the far edge in low bumps. Two tall trees stand on the right.",
+      "textHash": "d40316df86578ef1c1e5354fbe39466d468d70d5c3162b6b6a158f82970f7a60",
+      "durationMs": 5360
+    },
+    "sun": {
+      "file": "sun.m4a",
+      "text": "A circle up in the sky. One straight ray above, below and each side.",
+      "textHash": "e0099c721b15cf224a5ef01115a8e391802e020e94fb7704297e8a5577761de2",
+      "durationMs": 4720
+    },
+    "rays": {
+      "file": "rays.m4a",
+      "text": "Four more rays go in the gaps between them. Eight in all.",
+      "textHash": "b618f588a1ac6a0b266c127e5ec65443bdc5265eebbfc6f9f1ddd6f5b28c0925",
+      "durationMs": 4080
+    },
+    "color-road": {
+      "file": "color-road.m4a",
+      "text": "Color the road cream.",
+      "textHash": "a2a477d98e4ec2f9f955dee1614ec5c5fded6c67b9a0e73178cf051007cab8ac",
+      "durationMs": 1520
+    },
+    "color-left": {
+      "file": "color-left.m4a",
+      "text": "The left field is green.",
+      "textHash": "98a9c550513a028ee5db98fd8044ebe77c9d3728edc9d74bbfc002042c2b7b92",
+      "durationMs": 2240
+    },
+    "color-right": {
+      "file": "color-right.m4a",
+      "text": "The right field is pale green.",
+      "textHash": "c5b2e80a2e5596119f53460e2edb095cb3a465951482f67fc78e117065c4b4d4",
+      "durationMs": 2160
+    },
+    "color-bushes": {
+      "file": "color-bushes.m4a",
+      "text": "The bushes are dark green.",
+      "textHash": "f203b60377d23649987939d727b8117ed71ef4fddb8a33a0d194fc04d1ecd11d",
+      "durationMs": 1920
+    },
+    "color-posts": {
+      "file": "color-posts.m4a",
+      "text": "The posts and trunks are brown, and the sun is yellow.",
+      "textHash": "eb180bf8450fc93179c7506947de99ef9be86dc3d2fd5098cbfe4eaa410a59f0",
+      "durationMs": 3440
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Five posts, five sizes, one road. Your page suddenly has a long way to go.",
+      "textHash": "cbda93b69f68394a800bce4124b1a3da4cc5d57e9a59d2505bbbab53a45ceae2",
+      "durationMs": 5680
+    }
+  }
+}
