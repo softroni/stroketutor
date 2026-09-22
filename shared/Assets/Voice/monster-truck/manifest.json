@@ -1,0 +1,106 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "monster-truck",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:28:23.227Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Monster trucks are nearly all wheel. We start with two giant tires, give them chunky treads, and set a small truck on top. Watch the wheels go on first, then go big.",
+      "textHash": "b0f53df6e9da42bd65defb4d481ffc4992cdeacc8b2d3c2c4332633a98a4d464",
+      "durationMs": 10880
+    },
+    "tire-left": {
+      "file": "tire-left.m4a",
+      "text": "Start with a giant tire. Draw the left half of the circle, then the right half.",
+      "textHash": "6a170f4f09004849168baba048a2b2573f0f203ab43775fcd4fb103a85d3c47c",
+      "durationMs": 5440
+    },
+    "tire-right": {
+      "file": "tire-right.m4a",
+      "text": "The second tire is the same size. Leave a gap between the two.",
+      "textHash": "ef49753b7dfe840f83a770bbd677c3f9a58376f488f51164179ed9241b660597",
+      "durationMs": 4320
+    },
+    "hubs": {
+      "file": "hubs.m4a",
+      "text": "Each tire has a big round hub. Draw a circle in the middle of both.",
+      "textHash": "a11555e2b2bd711cd864dc136b94987fc58ac57fae04281f58bc60485f067a48",
+      "durationMs": 4800
+    },
+    "treads-left-plus": {
+      "file": "treads-left-plus.m4a",
+      "text": "Treads are short lines that point at the hub. On the left tire, draw four like a plus sign.",
+      "textHash": "bc989fd7fdfe9331d9e7cd8122ce1f3f1ba8120ccc2ec5a4d8f81a8e124d168c",
+      "durationMs": 6000
+    },
+    "treads-left-x": {
+      "file": "treads-left-x.m4a",
+      "text": "Then four more in between, like a letter X. That makes eight.",
+      "textHash": "df8819613e611964a726460cd1edeb06d6496af0e573bcd86d13e53fbcd5292f",
+      "durationMs": 4320
+    },
+    "treads-right-plus": {
+      "file": "treads-right-plus.m4a",
+      "text": "Same again on the right tire. Top, bottom, left and right.",
+      "textHash": "94f478b4ef67acba92d9012189d1eacc5621aeabf4b0dd2a79162015280670f6",
+      "durationMs": 4240
+    },
+    "treads-right-x": {
+      "file": "treads-right-x.m4a",
+      "text": "Fill in its four slanted treads.",
+      "textHash": "87fca21e60af3823bee7a1fd603e48ce53d8b3dc9ecc3d80a642d75dc447345e",
+      "durationMs": 2480
+    },
+    "body-top": {
+      "file": "body-top.m4a",
+      "text": "Now the truck. Draw a low bed, step up over the cab, and slope down the hood.",
+      "textHash": "773d2a1b88af20bff51ea3501a0d0212eece78aec780a49d3ffd3426078b083f",
+      "durationMs": 5440
+    },
+    "body-bottom": {
+      "file": "body-bottom.m4a",
+      "text": "Underneath, swoop over each tire in a wide arch. Keep a gap above the rubber.",
+      "textHash": "592984b2a95584930d3d1689f255b5852ec0cfad4db8d95df2b7b6f9840abef7",
+      "durationMs": 5840
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "The cab gets one square window.",
+      "textHash": "a0fc7b83bd35b6d23c195b0002b1c076f8ca90b959cb8cb32eb3535f650db234",
+      "durationMs": 2480
+    },
+    "color-truck": {
+      "file": "color-truck.m4a",
+      "text": "Color the truck purple.",
+      "textHash": "656ff31efa958b3722a32210f76bd40d9144169cbc43f54d859c85ab13a0e32e",
+      "durationMs": 1600
+    },
+    "color-tires": {
+      "file": "color-tires.m4a",
+      "text": "Color both tires gray.",
+      "textHash": "1baf5b36cbe446d4ed857268f9bfd5019fc2ea9bfb5b376adea2ac9c5c68f5ff",
+      "durationMs": 2160
+    },
+    "color-hubs": {
+      "file": "color-hubs.m4a",
+      "text": "Color the hubs cream.",
+      "textHash": "e367537dca5f1f4fff8dbcb43b34c4fc5da749792ebf5e675ef797c5ca5a6646",
+      "durationMs": 1680
+    },
+    "color-window": {
+      "file": "color-window.m4a",
+      "text": "Color the window blue.",
+      "textHash": "1b6772e520ad5a403cd39edfb2032edd17341161c3df641740ce92b56f5057c6",
+      "durationMs": 1600
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Giant tires, tiny truck. Nothing is going to get in its way.",
+      "textHash": "cbb2ddf71fa056ba9cee68eb665efd7a8b474f5861deb9f17cbb44fc78e2c37f",
+      "durationMs": 4560
+    }
+  }
+}
