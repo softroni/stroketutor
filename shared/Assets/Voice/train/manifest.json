@@ -1,0 +1,118 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "train",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:25:18.431Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "All aboard. A little steam engine is pulling one freight car. It's mostly boxes, with four wheels below. Watch the train line up, then get yours moving.",
+      "textHash": "9e94915fc5548230a21256f55d42874b7fb841cf78a5af4430270fd83aa12e4d",
+      "durationMs": 9440
+    },
+    "engine-frame": {
+      "file": "engine-frame.m4a",
+      "text": "The engine rides on a long flat bar. Draw it with two arches underneath.",
+      "textHash": "bbc24adc59c86ddcc7c7aa900eedbc5f8a164f62808b79d46cb00f8c0cf38907",
+      "durationMs": 5040
+    },
+    "cab": {
+      "file": "cab.m4a",
+      "text": "The cab is the tall box at the back of the bar, where the driver stands.",
+      "textHash": "e82329f58688797d03c31188bbce3a487819ff2cdb08822e16a590dea2e5c7b9",
+      "durationMs": 4320
+    },
+    "cab-window": {
+      "file": "cab-window.m4a",
+      "text": "Give the cab one square window, up high.",
+      "textHash": "53dcca74cbe42decc9774aa23c9aeed118f39dabb051ae22732030c300c24d6b",
+      "durationMs": 2800
+    },
+    "boiler": {
+      "file": "boiler.m4a",
+      "text": "The boiler lies in front of the cab, long and low. Its nose is round.",
+      "textHash": "0e829254d61dff6b9484d876423879d875d83b3f0cdfbe34def2e5dbce047db8",
+      "durationMs": 5360
+    },
+    "stack": {
+      "file": "stack.m4a",
+      "text": "A smokestack stands on the boiler. It gets wider toward the top, like a flowerpot.",
+      "textHash": "da3158da98da1562bef3d12045b3a228f02f100ced5c9d8a6891288fcb63bf30",
+      "durationMs": 5280
+    },
+    "car-frame": {
+      "file": "car-frame.m4a",
+      "text": "Behind the engine comes the freight car. It needs a bar with two arches too.",
+      "textHash": "cf007d5f4308182591284869a13743dadd1dd3d78e73e9d4c02506f5f8eaa41d",
+      "durationMs": 5440
+    },
+    "car-box": {
+      "file": "car-box.m4a",
+      "text": "Set an open box on that bar. Up, across and down.",
+      "textHash": "c20c68c60fc19850d5f1b1668ca9e7352b8dd55eb5e63e225a0484108dfc0584",
+      "durationMs": 4480
+    },
+    "coupling": {
+      "file": "coupling.m4a",
+      "text": "A short dash links the car to the engine.",
+      "textHash": "dba1db552256798fd7b67821e709a903a23cda5e704f5a08c44e3fdd56758d7a",
+      "durationMs": 2960
+    },
+    "tires": {
+      "file": "tires.m4a",
+      "text": "Four wheels, one under each arch. Draw the four circles.",
+      "textHash": "1c61a0e134693f08cdc5b5d717a1ab2cfeba419048061bc523aceccddb1ae3bb",
+      "durationMs": 4160
+    },
+    "hubs": {
+      "file": "hubs.m4a",
+      "text": "Then a little hub in the center of every wheel.",
+      "textHash": "c645ded0360910e9da3bfb9fc03a63be449c35a1b3849ba3fe7095b46c7faf7e",
+      "durationMs": 3680
+    },
+    "color-boiler": {
+      "file": "color-boiler.m4a",
+      "text": "Color the boiler red.",
+      "textHash": "7cbbdb88ee087c42fb12f323b527a9d7005b7bef9a3ad25ad544351fd8979322",
+      "durationMs": 1680
+    },
+    "color-cab": {
+      "file": "color-cab.m4a",
+      "text": "Color the cab dark green.",
+      "textHash": "c01da49abdfa75c514331f116cdbe327b8dd173f3b15ecc54b1a7815954f539c",
+      "durationMs": 2320
+    },
+    "color-car": {
+      "file": "color-car.m4a",
+      "text": "Color the freight car orange.",
+      "textHash": "22eea0a44651e7c9889f3ecb35c569806d7f8a1fd47bef0a36ae5f52c9de8f1e",
+      "durationMs": 2160
+    },
+    "color-frames": {
+      "file": "color-frames.m4a",
+      "text": "Both frames are brown.",
+      "textHash": "e1813906bae529b91784372acfdadf30649bd25d40468edcefe37fef89cd63bb",
+      "durationMs": 1920
+    },
+    "color-window-stack": {
+      "file": "color-window-stack.m4a",
+      "text": "Color the window blue, then the smokestack purple.",
+      "textHash": "d50e65d4fe47c221baa25efdf6b44efae9da7d087a23943509eb26c2c029f469",
+      "durationMs": 3440
+    },
+    "color-wheels": {
+      "file": "color-wheels.m4a",
+      "text": "Color the tires gray, then the hubs cream.",
+      "textHash": "776f05d5bf691cabd1e0bfa9bfa4d0ec599f40ba1a8167d7982a5ceb3d49339b",
+      "durationMs": 3040
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "An engine, a car and a link between them. Add more cars if you like. It's your railroad.",
+      "textHash": "ac544c18bb61ed34b763f975407092b38b76a2012941fb4f83928a1ebbbcc290",
+      "durationMs": 5760
+    }
+  }
+}

@@ -108,7 +108,7 @@
       "title": "Wheels",
       "description": "Everything that rolls, from a box-shaped bus to an ambulance with its cross and roof light.",
       "level": "core",
-      "lessonIds": ["school-bus", "car", "dump-truck"]
+      "lessonIds": ["school-bus", "car", "dump-truck", "train"]
     }
   ]
 }
