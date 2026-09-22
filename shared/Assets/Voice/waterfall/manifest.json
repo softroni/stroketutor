@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "waterfall",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:37:46.237Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Falling water has no shape of its own, so we show it with straight lines and a puff of mist where it lands. Watch it come down, then turn your own water on.",
+      "textHash": "f856823ca1f9517e8f653535ae220962ddfb37e56e75d6c74bbfd957c0e843f8",
+      "durationMs": 8960
+    },
+    "left-side": {
+      "file": "left-side.m4a",
+      "text": "The cliff is a tall block. Draw the top edge, then down the left side.",
+      "textHash": "7987915bc611d0bf724c7a816e0e201f62daeab72a3ea0a5b33dfc3545d3df61",
+      "durationMs": 4880
+    },
+    "right-side": {
+      "file": "right-side.m4a",
+      "text": "Now the right side, lumpy like the left. A gap runs down the middle.",
+      "textHash": "07047199c3bd2191eb5b0f6d4eaa41e16d3253a5ed4e0a1054488f3673c7c3d0",
+      "durationMs": 4640
+    },
+    "fall": {
+      "file": "fall.m4a",
+      "text": "Two straight lines drop through the gap, from top to bottom.",
+      "textHash": "2c740a627d1603c3ed1e9aafe71d83a3670a0dc1d51be701e5bd8fc0e85b7683",
+      "durationMs": 3440
+    },
+    "water-lines": {
+      "file": "water-lines.m4a",
+      "text": "Three more straight lines inside, side by side, the middle one lower.",
+      "textHash": "ff72788c260310a345f30adc7c37882a4b981b9447ae366b24df2ba6470fbb9f",
+      "durationMs": 5040
+    },
+    "mist": {
+      "file": "mist.m4a",
+      "text": "Where the water lands there is mist. Draw a cloud with three bumps on top.",
+      "textHash": "b75c2a779c7953c398b4e944a4d71680b5870fb51f782ed11abc80d39d0e26c7",
+      "durationMs": 5440
+    },
+    "pool": {
+      "file": "pool.m4a",
+      "text": "The pool spreads out below in one wide, wavy curve.",
+      "textHash": "10d1fac179525b00a16aeaff69538fb1a9232cc95798b862b5376a44c32cdc1b",
+      "durationMs": 3920
+    },
+    "rocks": {
+      "file": "rocks.m4a",
+      "text": "Three rocks sit in the water, each a low dome, all different sizes.",
+      "textHash": "6a48ac4e7bdb9ade9ebc8a40cdb30d162999d03ca911eaf936039f2b92293792",
+      "durationMs": 4800
+    },
+    "ripples": {
+      "file": "ripples.m4a",
+      "text": "A small curve each side of every rock, like water moving around it.",
+      "textHash": "72b265a3e6e3c5a26ccf146dbbb1450332bb49116b06fba26364a4158915df3b",
+      "durationMs": 4480
+    },
+    "bushes": {
+      "file": "bushes.m4a",
+      "text": "Bushes grow on the cliff, four soft clumps at the corners.",
+      "textHash": "79a8182e2146e54c308cabb95bf1d452bcb4af44e124989e73e0009def1fb889",
+      "durationMs": 4160
+    },
+    "water-blue": {
+      "file": "water-blue.m4a",
+      "text": "Color the falling water and the pool blue.",
+      "textHash": "55413d293af6761ac81ad64f8e2bdc675fa571249175d0d10022ae66e6ea215f",
+      "durationMs": 3040
+    },
+    "cliff-brown": {
+      "file": "cliff-brown.m4a",
+      "text": "The cliff and the three rocks are brown.",
+      "textHash": "7a2e6382ee39572cf751d69a445ac890ddc18f1c497b34c004f0025649e904f6",
+      "durationMs": 2640
+    },
+    "bushes-mist": {
+      "file": "bushes-mist.m4a",
+      "text": "The bushes are green, and the mist is gray.",
+      "textHash": "a78203ea279da934f848e8c228a620a9aff474e139917b1fe95893eea6040b56",
+      "durationMs": 2800
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "You can almost feel the spray, and it is only straight lines and one cloud.",
+      "textHash": "326a1bc2f8aafa6aae406c6cc5b1bbc23e10737d108f25cd4b3b09635c18d293",
+      "durationMs": 4720
+    }
+  }
+}
