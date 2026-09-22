@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "ufo",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:34:07.152Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A flying saucer is two curves that meet in a point at each end. Ours has its light on underneath. Watch it come together, then switch yours on.",
+      "textHash": "7cfff1ce340328816c10b36912d2ea0b7f2a1e4dedee6618dd74cf030ff68eb9",
+      "durationMs": 8960
+    },
+    "saucer-top": {
+      "file": "saucer-top.m4a",
+      "text": "The saucer is shaped like a lens. Draw the top curve, from the left point to the right point.",
+      "textHash": "c328e10c085ea4238a129d0664619793da6efc4e3a529edbf537e00a99085bc1",
+      "durationMs": 5520
+    },
+    "saucer-bottom": {
+      "file": "saucer-bottom.m4a",
+      "text": "The underside is a shallower curve. Come back from the right point to close it.",
+      "textHash": "5f49bd4aeea0efdae85ab1a04fb64f55500ea66297ced21a7a9254e1b41a178a",
+      "durationMs": 4800
+    },
+    "dome": {
+      "file": "dome.m4a",
+      "text": "A dome sits on top, in the middle: half a circle standing on the saucer.",
+      "textHash": "d2a4a523af217fe9667cc17860728d6e3473a5089f85de43e0848ab91a5566c2",
+      "durationMs": 5120
+    },
+    "lights": {
+      "file": "lights.m4a",
+      "text": "Three round lights go in a row along the side, evenly spread.",
+      "textHash": "16b8c413d2841cf976e908c6bdfa9450c5a32f5bf68f33a76e9cc9086e1759ab",
+      "durationMs": 4080
+    },
+    "beam": {
+      "file": "beam.m4a",
+      "text": "The beam drops straight down from the middle: two slanted sides and a flat bottom.",
+      "textHash": "ee21903927797f52a894a965c948af1225ee4499636f05672dbc60a8cba9488f",
+      "durationMs": 5040
+    },
+    "saucer": {
+      "file": "saucer.m4a",
+      "text": "Color the saucer gray.",
+      "textHash": "29f5cb47caef917d50d15b2d31c1949864334782bd9b33b878cb9dec750f75e6",
+      "durationMs": 1680
+    },
+    "dome-color": {
+      "file": "dome-color.m4a",
+      "text": "Color the dome blue, and the three lights orange.",
+      "textHash": "39e2c019812f1696bc6001d1ac3ac27633ce4d6dd8ee3f7b237b82ba3707649d",
+      "durationMs": 3600
+    },
+    "beam-color": {
+      "file": "beam-color.m4a",
+      "text": "Color the beam yellow.",
+      "textHash": "dd90e34d47c30456bdb1a48a1668b0a0610d314506cb4198fa62c5bf2f9d1fe7",
+      "durationMs": 1600
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Something is being looked at down there. Your saucer found it first.",
+      "textHash": "56d0838b0b7d53f55e47f8b5d9f6d8d2173636d36ef12722a535df4059ae1516",
+      "durationMs": 4080
+    }
+  }
+}
