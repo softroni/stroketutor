@@ -3,7 +3,8 @@ import SwiftUI
 /// The lesson a photograph was drawn from, small and in its own colors, on a white
 /// rounded tile that sits in a corner of the photo — so a learner sees what was
 /// taught right next to what they drew, without a word. Used on every photo the
-/// Sketchbook shows: the album slots, the date cards and the entry screen.
+/// app shows: the album slots, the date cards, the entry screen and Home's
+/// "Your drawings" strip.
 ///
 /// Decoration only: the photo's own accessibility label already names the lesson.
 struct LessonBadge: View {

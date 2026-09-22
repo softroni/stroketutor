@@ -261,6 +261,7 @@ struct HomeView: View {
                             SketchbookPageThumb(page: page,
                                                 tutorial: lesson?.tutorial,
                                                 width: dynamicTypeSize.isAccessibilitySize ? 120 : 96)
+                                .lessonBadge(lesson?.tutorial)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Your \(lesson?.title ?? "drawing")")
