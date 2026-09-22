@@ -1,12 +1,15 @@
 import SwiftUI
 
-/// `hp-path` — one path: where it leads drawn large at the top, what it is, how far
-/// through it the learner is, and every lesson as a node.
+/// `hp-path` — one path, told in pictures: a big hero in the path's own color
+/// (`PathTint`) with the last lesson drawn in color, where the path leads; a short
+/// count over a chunky bar; then every lesson as a big, colorful node. The path's name
+/// is the nav title and its description is left to VoiceOver, so the screen itself
+/// carries almost no words.
 ///
-/// Three states. **Default** shows the destination on white paper, the count and the
-/// next lesson. **Locked** is the same screen with the sheet up, raised by tapping a
-/// grey node (or handed over by Home). **Complete** turns the destination gold, says
-/// so in one sentence, and offers somewhere to go next.
+/// Three states. **Default** shows the "Goal" hero and "2 of 10 drawn". **Locked** is
+/// the same screen with the sheet up, raised by tapping a gray node (or handed over
+/// by Home). **Complete** turns the hero gold ("All 10 drawn"), says "Path complete!"
+/// and offers somewhere to go next.
 ///
 /// It is the root of the Path tab, showing whichever path is current, so it has no
 /// back button. Its title is the way to another path instead: "Landscape ⌄" pushes
@@ -54,26 +57,8 @@ struct PathDetailView: View {
                          })
 
             ScrollView {
-                VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+                VStack(alignment: .leading, spacing: 18) {
                     destination(for: path, isComplete: isComplete)
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(isComplete
-                             ? "You have drawn every \(PathCopy.subject(of: path)) in this path."
-                             : path.title)
-                            .textRole(.title1)
-                            .foregroundStyle(Theme.ink)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityAddTraits(.isHeader)
-
-                        if let description = path.description {
-                            Text(description)
-                                .textRole(.subhead)
-                                .foregroundStyle(Theme.ink55)
-                                .lineSpacing(5)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    }
 
                     if isComplete {
                         completeActions(for: path)
@@ -83,23 +68,15 @@ struct PathDetailView: View {
 
                     PathNodesView(lessons: path.lessons,
                                   progress: app.progress,
-                                  dateStyle: .long) { lesson in
+                                  dateStyle: .short,
+                                  nodeSize: 100) { lesson in
                         open(lesson, in: path)
-                    }
-
-                    if !isComplete {
-                        Text("Lessons open one after another. Each one reuses what the last one taught.")
-                            .textRole(.footnote)
-                            .foregroundStyle(Theme.ink40)
-                            .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal, 12)
-                            .frame(maxWidth: .infinity)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, Theme.gutter)
-                .padding(.bottom, 16)
+                .padding(.top, 4)
+                .padding(.bottom, 20)
             }
         }
         // On appear for a hand-over that arrives with a new path (the root is keyed
@@ -109,97 +86,105 @@ struct PathDetailView: View {
         .onChange(of: app.pendingLockedLessonId) { raiseSheetIfHandedOver(in: path) }
     }
 
-    /// Where the path leads, on a wide sheet of paper: the last lesson's drawing at
-    /// 200 pt with a gold chip on it. Not tappable — it would land on a locked
-    /// lesson, and the nodes below already offer everything that is open.
+    /// Where the path leads: a hero card in the path's soft tint (gold once every
+    /// lesson is drawn) with a 5 pt deeper edge, the last lesson drawn in its own
+    /// colors on a white panel, a "Goal" chip on the panel and the lesson's name under
+    /// it. Not tappable — it would land on a locked lesson, and the nodes below
+    /// already offer everything that is open.
     private func destination(for path: PathModel, isComplete: Bool) -> some View {
         let last = path.lessons.last
-        let position = path.lessonCount
-        let drawnDate = last.flatMap { app.progress.progress(for: $0.id)?.completedAt }
+        let tint = isComplete ? PathTint.complete : app.tint(for: path)
+        let shape = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
+        let panel = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius - 10, style: .continuous)
 
-        return RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
-            .fill(isComplete ? Theme.goldSoft : Theme.paper)
-            .frame(height: 214)
-            // The drawing is fitted to its own bounds, so unlike the mockup's
-            // street scene it fills whatever box it is given right to the edges.
-            // It therefore takes the band *between* the chip and the label rather
-            // than the whole card, and nothing is ever drawn under either of them.
-            .overlay {
-                DrawingThumbnail(tutorial: last?.tutorial,
-                                 strokeColor: isComplete ? Theme.goldDeep : Theme.ink)
-                    .padding(.top, 44)
-                    .padding(.bottom, 34)
-                    .padding(.horizontal, 16)
-            }
-            .overlay(alignment: .topLeading) {
-                Chip(text: isComplete
-                     ? "\(path.lessonCount) of \(path.lessonCount) drawn"
-                     : "Where this path leads",
-                     systemImage: isComplete ? "checkmark" : nil,
-                     style: .gold)
-                    .padding(14)
-            }
-            .overlay(alignment: .bottomLeading) {
-                Text(destinationLabel(for: last,
-                                      position: position,
-                                      isComplete: isComplete,
-                                      drawnDate: drawnDate))
-                    .textRole(.footnote)
-                    .foregroundStyle(isComplete ? Theme.goldDeep : Theme.ink55)
-                    .lineLimit(1)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 12)
-            }
-            .overlay {
-                if !isComplete {
-                    RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
-                        .strokeBorder(Theme.line, lineWidth: 2)
+        return VStack(spacing: 10) {
+            // The drawing is fitted to its own bounds, so it fills whatever box it
+            // is given right to the edges. It therefore sits below the chip's band
+            // rather than under it.
+            DrawingThumbnail(tutorial: last?.tutorial, strokeColor: nil, showsFills: true)
+                .padding(.top, 50)
+                .padding(.bottom, 16)
+                .padding(.horizontal, 18)
+                .frame(maxWidth: .infinity)
+                .frame(height: 236)
+                .background(panel.fill(Theme.paper))
+                .overlay(alignment: .topLeading) {
+                    goalChip(isComplete: isComplete, count: path.lessonCount)
+                        .padding(12)
                 }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous))
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(isComplete
-                                ? "Every lesson drawn. \(last?.title ?? "")"
-                                : "Where this path leads: \(last?.title ?? "")")
-    }
 
-    private func destinationLabel(for lesson: Lesson?,
-                                  position: Int,
-                                  isComplete: Bool,
-                                  drawnDate: Date?) -> String {
-        guard let lesson else { return "" }
-        if isComplete, let drawnDate {
-            return "\(lesson.title) · Drawn \(Self.longDate.string(from: drawnDate))"
+            Text(last?.title ?? "")
+                .textRole(.title3)
+                .foregroundStyle(isComplete ? Theme.goldDeep : Theme.ink)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 8)
         }
-        return "Lesson \(position) · \(lesson.title)"
+        .padding(.init(top: 10, leading: 10, bottom: 12, trailing: 10))
+        .background(shape.fill(tint.soft))
+        .background(alignment: .bottom) {
+            shape.fill(tint.edge).offset(y: 5)
+        }
+        .padding(.bottom, 5)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(destinationAccessibilityLabel(for: path, last: last, isComplete: isComplete))
     }
 
-    /// "2 of 10 drawn" with the next lesson beside it, over a 12 pt green bar. A
-    /// count of finished drawings, never a percentage and never a target.
+    /// "Goal" with a flag, or "All 10 drawn" with a check: white on gold, so it
+    /// reads on every tint and on the gold of a finished path alike.
+    private func goalChip(isComplete: Bool, count: Int) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: isComplete ? "checkmark" : "flag.fill")
+                .scaledFont(14, .heavy, relativeTo: .footnote, design: .default)
+            Text(isComplete ? "All \(count) drawn" : "Goal")
+                .scaledFont(15, .heavy, relativeTo: .footnote)
+        }
+        .foregroundStyle(.white)
+        .padding(.vertical, 7)
+        .padding(.horizontal, 12)
+        .background(Capsule().fill(Theme.gold))
+    }
+
+    /// The path's name and description, which the screen no longer prints, lead the
+    /// hero's label so VoiceOver still hears what the path is about.
+    private func destinationAccessibilityLabel(for path: PathModel,
+                                               last: Lesson?,
+                                               isComplete: Bool) -> String {
+        var parts = [path.title]
+        if let description = path.description { parts.append(description) }
+        let lastTitle = last?.title ?? ""
+        parts.append(isComplete
+                     ? "Every lesson drawn. \(lastTitle)"
+                     : "Where this path leads: \(lastTitle)")
+        return parts.joined(separator: ". ")
+    }
+
+    /// "2 of 10 drawn" over a chunky bar in the path's deep color. A count of
+    /// finished drawings, never a percentage and never a target; the next lesson is
+    /// named by its node, so it is not repeated here.
     private func progressBlock(for path: PathModel, drawn: Int) -> some View {
-        let next = app.progress.nextLesson(in: path)
-        return VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(drawn) of \(path.lessonCount) drawn")
-                    .textRole(.headline)
-                    .foregroundStyle(Theme.ink)
-                Spacer(minLength: 0)
-                if let next {
-                    Text("Next: \(next.title)")
-                        .textRole(.footnote)
-                        .foregroundStyle(Theme.ink55)
-                        .lineLimit(1)
-                }
-            }
-            ProgressBar(value: Double(drawn) / Double(max(path.lessonCount, 1)))
+        VStack(alignment: .leading, spacing: 8) {
+            Text("\(drawn) of \(path.lessonCount) drawn")
+                .textRole(.headline)
+                .foregroundStyle(Theme.ink)
+            ProgressBar(value: Double(drawn) / Double(max(path.lessonCount, 1)),
+                        tint: app.tint(for: path).deep)
                 .accessibilityHidden(true)
         }
         .accessibilityElement(children: .combine)
     }
 
-    /// The finished path: one green button somewhere new, one quiet way to look back.
+    /// The finished path: one short cheer, one green button somewhere new, one quiet
+    /// way to look back.
     private func completeActions(for path: PathModel) -> some View {
         VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+            Text("Path complete!")
+                .textRole(.title1)
+                .foregroundStyle(Theme.ink)
+                .frame(maxWidth: .infinity)
+                .accessibilityAddTraits(.isHeader)
+
             Button("Choose another path") { app.push(.paths) }
                 .buttonStyle(.primary)
 
@@ -211,9 +196,6 @@ struct PathDetailView: View {
             .buttonStyle(.quiet)
             .frame(maxWidth: .infinity)
             .padding(.top, -8)
-
-            ProgressBar(value: 1, tint: Theme.gold)
-                .accessibilityHidden(true)
         }
     }
 
@@ -262,10 +244,4 @@ struct PathDetailView: View {
         guard let lesson = path.lesson(id: id) else { return }
         raiseSheet(for: lesson, in: path)
     }
-
-    private static let longDate: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("d MMMM")
-        return formatter
-    }()
 }

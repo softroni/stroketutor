@@ -1,16 +1,17 @@
 import SwiftUI
 
-/// The path itself (`.path` on `hp-home` and `hp-path`): the lessons as nodes on a
-/// gentle zig-zag, rows offset ±40 pt, the label on the outer side. Progress is a
-/// column of finished drawings rather than a number.
+/// The path itself (`.path` on `hp-path`): the lessons as big, colorful nodes on a
+/// gentle zig-zag, rows offset ±40 pt, a short label on the outer side — the title
+/// and one line ("Drawn Sep 22", "Next · 12 steps", "After Tulip"). Progress is a
+/// column of finished drawings in color rather than a number.
 ///
 /// The state of each node is derived here from the store, so Home and the path
 /// detail can never disagree: a lesson is unlocked when every earlier lesson in the
 /// same list has been completed.
 struct PathNodesView: View {
 
-    /// How a finished lesson's date is written. Home has little room and says
-    /// "Drawn 3 Sep"; the path detail has the width and says "Drawn 3 September".
+    /// How a finished lesson's date is written: "Drawn Sep 3" (`short`, what
+    /// `hp-path` uses, to keep the label short) or "Drawn September 3" (`long`).
     enum DateStyle {
         case short
         case long
@@ -19,6 +20,8 @@ struct PathNodesView: View {
     let lessons: [Lesson]
     let progress: ProgressStore
     var dateStyle: DateStyle = .short
+    /// The circle's diameter. `hp-path` draws them at 100 pt.
+    var nodeSize: CGFloat = Theme.nodeSize
     let onTap: (Lesson) -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -43,13 +46,13 @@ struct PathNodesView: View {
         let node = Button {
             onTap(lesson)
         } label: {
-            LessonNode(state: state, drawing: lesson.tutorial)
+            LessonNode(state: state, drawing: lesson.tutorial, size: nodeSize)
         }
         .buttonStyle(.plain)
 
         let label = VStack(alignment: isRight ? .trailing : .leading, spacing: 2) {
             Text(lesson.title)
-                .scaledFont(16, .heavy)
+                .scaledFont(18, .heavy)
                 .tracking(-0.2)
                 .foregroundStyle(state == .locked ? Theme.ink40 : Theme.ink)
             Text(subtitle(for: lesson, at: index, state: state))
@@ -98,7 +101,7 @@ struct PathNodesView: View {
         }
     }
 
-    /// "Drawn 3 Sep" · "Paused at step 9" · "Next · 7 steps" · "After Small Cottage"
+    /// "Drawn Sep 3" · "Paused at step 9" · "Next · 7 steps" · "After Small Cottage"
     /// · "Lesson 5".
     private func subtitle(for lesson: Lesson, at index: Int, state: LessonNode.State) -> String {
         switch state {

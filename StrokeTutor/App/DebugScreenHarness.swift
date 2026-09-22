@@ -90,10 +90,16 @@ enum DebugScreenHarness {
 
         case "paths":
             // All paths is reached from the Path tab's title, so it is pushed there.
+            // The current path is two lessons in and another is finished, so a
+            // started card, a finished one and fresh ones can all be seen.
+            markFirst(2, of: treePath, in: app)
+            if carPath.id != treePath.id { markFirst(carPath.lessonCount, of: carPath, in: app) }
             app.open(treePath)
             app.push(.paths)
 
         case "path-default":
+            // Two lessons drawn, so done, current and locked nodes all show.
+            markFirst(2, of: treePath, in: app)
             app.open(treePath)
 
         case "path-locked":
@@ -102,11 +108,12 @@ enum DebugScreenHarness {
             // behind the real one is the only way to raise this sheet.
             let locked = harnessLesson(from: treeLesson, suffix: "harness-locked")
             app.debugAppendLesson(locked, toPathId: treePath.id)
+            markFirst(2, of: treePath, in: app)
             app.pendingLockedLessonId = locked.id
             app.open(treePath)
 
         case "path-complete":
-            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            markFirst(treePath.lessonCount, of: treePath, in: app)
             app.open(treePath)
 
         case "preview-default":
@@ -326,6 +333,18 @@ enum DebugScreenHarness {
               objective: lesson.objective,
               complexity: lesson.complexity,
               reference: lesson.reference)
+    }
+
+    /// Marks a path's first `count` lessons drawn, a day apart and oldest first, as
+    /// a learner would have drawn them.
+    @MainActor
+    private static func markFirst(_ count: Int, of path: PathModel, in app: AppModel) {
+        let lessons = path.lessons.prefix(count)
+        for (offset, lesson) in lessons.enumerated() {
+            let daysAgo = Double(lessons.count - offset)
+            app.progress.markCompleted(lesson.id, pathId: path.id,
+                                       at: Date().addingTimeInterval(-daysAgo * 86_400))
+        }
     }
 
     @MainActor

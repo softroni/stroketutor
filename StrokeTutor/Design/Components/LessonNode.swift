@@ -1,12 +1,17 @@
 import SwiftUI
 
-/// A lesson on the path (`.node`): an 84 pt circle with a 5 pt edge under it and the
-/// lesson's finished drawing inside at 60 pt.
+/// A lesson on the path (`.node`): a circle (`size`, 100 pt on `hp-path`) with a 5 pt
+/// edge under it and the lesson's drawing inside at about two thirds of the circle.
+/// Open lessons show the drawing in its own colors, so unlocking one visibly turns
+/// its color on.
 ///
-/// * `.done` — gold, white strokes, a gold-deep check badge bottom right.
-/// * `.current` — white with a 4 pt green ring and a slow halo (still under Reduce
-///   Motion). The only thing on Home that moves.
-/// * `.locked` — surface grey, strokes at 25 % ink.
+/// * `.done` — white with a thick gold ring and a gold-deep edge, the drawing in
+///   color, a gold check badge bottom right.
+/// * `.current` — white with a green ring, a green-deep edge and a slow halo (still
+///   under Reduce Motion), the drawing in color. The only thing on the screen that
+///   moves.
+/// * `.locked` — surface gray, the drawing as a 25 % ink outline without fills, a
+///   lock badge.
 struct LessonNode: View {
 
     enum State: Equatable {
@@ -29,12 +34,13 @@ struct LessonNode: View {
                 .offset(y: 5)
             Circle()
                 .fill(fillColor)
-            if state == .current {
-                Circle().strokeBorder(Theme.green, lineWidth: 4)
+            if let ringColor {
+                Circle().strokeBorder(ringColor, lineWidth: ringWidth)
             }
             DrawingThumbnail(tutorial: drawing,
-                             size: size * 0.71,
-                             strokeColor: strokeColor)
+                             size: size * 0.64,
+                             strokeColor: state == .locked ? Theme.ink25 : nil,
+                             showsFills: state != .locked)
         }
         .frame(width: size, height: size)
         .background(alignment: .center) { halo }
@@ -61,22 +67,25 @@ struct LessonNode: View {
         }
     }
 
+    /// The badges grow with the node, so a 100 pt node does not wear an 84 pt one's.
+    private var badgeSize: CGFloat { (size * 0.32).rounded() }
+
     @ViewBuilder
     private var badge: some View {
         if state == .done {
             Image(systemName: "checkmark")
-                .scaledFont(15, .heavy, design: .default)
+                .font(.system(size: badgeSize * 0.5, weight: .heavy))
                 .foregroundStyle(.white)
-                .frame(width: 28, height: 28)
-                .background(Circle().fill(Theme.goldDeep))
+                .frame(width: badgeSize, height: badgeSize)
+                .background(Circle().fill(Theme.gold))
                 .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 3))
                 .offset(x: 4, y: 2)
         } else if state == .locked {
             Image(systemName: "lock.fill")
-                .scaledFont(13, .bold, design: .default)
-                .foregroundStyle(Theme.ink25)
-                .frame(width: 26, height: 26)
-                .background(Circle().fill(Theme.surface))
+                .font(.system(size: badgeSize * 0.45, weight: .bold))
+                .foregroundStyle(Theme.ink40)
+                .frame(width: badgeSize, height: badgeSize)
+                .background(Circle().fill(Theme.surface2))
                 .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 3))
                 .offset(x: 4, y: 2)
         }
@@ -86,25 +95,27 @@ struct LessonNode: View {
 
     private var fillColor: Color {
         switch state {
-        case .done: return Theme.gold
-        case .current: return Theme.paper
+        case .done, .current: return Theme.paper
         case .locked: return Theme.surface
         }
     }
+
+    private var ringColor: Color? {
+        switch state {
+        case .done: return Theme.gold
+        case .current: return Theme.green
+        case .locked: return nil
+        }
+    }
+
+    /// Thick enough to read as the node's color at a glance: about 6 pt at 100 pt.
+    private var ringWidth: CGFloat { max(4, (size * 0.06).rounded()) }
 
     private var edgeColor: Color {
         switch state {
         case .done: return Theme.goldDeep
         case .current: return Theme.greenDeep
         case .locked: return Theme.surface2
-        }
-    }
-
-    private var strokeColor: Color {
-        switch state {
-        case .done: return .white
-        case .current: return Theme.ink
-        case .locked: return Theme.ink25
         }
     }
 }
