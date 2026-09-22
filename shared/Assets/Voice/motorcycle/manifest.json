@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "motorcycle",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:33:32.776Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Vroom vroom! A motorcycle is a bicycle with muscles: fat tires, an engine, a tank, a seat and a long exhaust pipe. Watch the parts bolt on, then kick-start yours.",
+      "textHash": "2530d4977b0d4cbd969af264683e4b40d9fb6f7efa0c066e9cea34131e169b3a",
+      "durationMs": 12560
+    },
+    "tires": {
+      "file": "tires.m4a",
+      "text": "Two fat tires come first. Draw two big circles, far enough apart for an engine.",
+      "textHash": "6da3c777d5e0350f4e5c4d866334466d1dfe1fee114c113c92b0d70fc607fd0c",
+      "durationMs": 6240
+    },
+    "hubs": {
+      "file": "hubs.m4a",
+      "text": "Inside each tire goes a smaller circle.",
+      "textHash": "df03abf0ebc829bf4b8d862224c3c2482f02bef17771ccedbcb0c178bb6051e3",
+      "durationMs": 3200
+    },
+    "engine": {
+      "file": "engine.m4a",
+      "text": "The engine is a box with round corners, low between the wheels.",
+      "textHash": "b370ecd62a6e2f3bd1edcc51d2d59b2f79dc4c7cdef5dfbd9f3a33d78795d313",
+      "durationMs": 4560
+    },
+    "tank": {
+      "file": "tank.m4a",
+      "text": "The gas tank sits on the front of the engine. It's high and round in front, thin at the back.",
+      "textHash": "a8abbe1c54e13d96d3086557ee8ca6a0098c837628a698e631cc2bd6ea83e875",
+      "durationMs": 5920
+    },
+    "seat": {
+      "file": "seat.m4a",
+      "text": "Behind the tank, draw a short low seat.",
+      "textHash": "e89f4145ffffc095acf60b785c09c72d8a7ceed3d45ab0e24f649350d15f1f6a",
+      "durationMs": 2960
+    },
+    "exhaust": {
+      "file": "exhaust.m4a",
+      "text": "The exhaust is a long pipe from behind the seat, out over the back tire. Round off its end.",
+      "textHash": "fc43acc5b59a5cbf5c03daf95a672b21a655c55491103705cf12f174092412cd",
+      "durationMs": 6320
+    },
+    "fork": {
+      "file": "fork.m4a",
+      "text": "One strong line is the fork. From the front hub, go up past the tank, then bend back for the handlebar.",
+      "textHash": "de6ecf8a463560bac639907929f7f4fe01a78c3cd6e55993c0654a30727d5006",
+      "durationMs": 6880
+    },
+    "engine-color": {
+      "file": "engine-color.m4a",
+      "text": "Color the engine purple.",
+      "textHash": "ee34069208d792a1cfc2040b71f83213bcfd160441f01a5d2d6de61ae2b5d058",
+      "durationMs": 1680
+    },
+    "tank-color": {
+      "file": "tank-color.m4a",
+      "text": "Color the tank red.",
+      "textHash": "a2eb7ce03f607389853161c11bb42f7200bcf9697b763fb84abaf7eaba1fc5fe",
+      "durationMs": 1520
+    },
+    "seat-color": {
+      "file": "seat-color.m4a",
+      "text": "Color the seat brown.",
+      "textHash": "406c19f7737bbf8ecef07023aab00f7ad90daacf42167406de9fa1cea3564f1e",
+      "durationMs": 1840
+    },
+    "exhaust-color": {
+      "file": "exhaust-color.m4a",
+      "text": "Color the exhaust yellow.",
+      "textHash": "1141eb17d2ffe27bb0cfc3dd0bcc96016ff064025d25a993d773697602e48a3a",
+      "durationMs": 1840
+    },
+    "wheels-color": {
+      "file": "wheels-color.m4a",
+      "text": "Color the tires gray, then the hubs cream.",
+      "textHash": "776f05d5bf691cabd1e0bfa9bfa4d0ec599f40ba1a8167d7982a5ceb3d49339b",
+      "durationMs": 3040
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Tank, seat, pipe and two fat tires. That bike looks loud, even on paper.",
+      "textHash": "d795ab39d9cddf47434c30024112a591f5d342ca14e9be4d44a763c9404845dd",
+      "durationMs": 6640
+    }
+  }
+}
