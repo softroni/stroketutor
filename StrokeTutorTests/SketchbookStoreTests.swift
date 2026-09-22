@@ -38,6 +38,29 @@ final class SketchbookStoreTests: XCTestCase {
         XCTAssertNotNil(reloaded.image(for: restored))
     }
 
+    /// The album grids draw scaled-down copies: no longer than asked on the long
+    /// side, still upright and portrait, and nil once the photo is gone.
+    func testAThumbnailIsSmallAndUpright() throws {
+        let store = SketchbookStore(baseDirectory: directory)
+        let page = try XCTUnwrap(store.add(image: Self.image(size: CGSize(width: 900, height: 1200)),
+                                           lessonId: "l", pathId: "p"))
+
+        let thumbnail = try XCTUnwrap(store.thumbnail(for: page, maxPixelSize: 300))
+        let pixels = CGSize(width: thumbnail.size.width * thumbnail.scale,
+                            height: thumbnail.size.height * thumbnail.scale)
+        XCTAssertEqual(max(pixels.width, pixels.height), 300, accuracy: 1)
+        XCTAssertLessThan(pixels.width, pixels.height, "A portrait page stays portrait.")
+
+        // A camera photo is stored sideways and tagged to draw upright; so is its thumbnail.
+        let camera = DebugScreenHarness.sensorOriented(Self.image(size: CGSize(width: 900, height: 1200)))
+        let shot = try XCTUnwrap(store.add(image: camera, lessonId: "l", pathId: "p"))
+        let upright = try XCTUnwrap(store.thumbnail(for: shot, maxPixelSize: 300))
+        XCTAssertLessThan(upright.size.width, upright.size.height)
+
+        let missing = SketchbookPage(lessonId: "l", pathId: "p", imageFile: "gone.jpg")
+        XCTAssertNil(store.thumbnail(for: missing))
+    }
+
     func testPagesComeBackNewestFirst() throws {
         let store = SketchbookStore(baseDirectory: directory)
         let old = Date(timeIntervalSince1970: 1_000_000)

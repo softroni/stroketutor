@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// `st-settings` — the third tab: narration and speed, the sketchbook's one option,
-/// the reminder, Rate and Share (once the app is on the App Store), Privacy (the
-/// published policy), and the single destructive row.
+/// `st-settings` — the third tab: narration and speed, the sketchbook's one option
+/// and its privacy promise, the reminder, Rate and Share (once the app is on the
+/// App Store), Privacy (the published policy), and the single destructive row.
 /// "Reset onboarding" is a development-only row.
 /// No account, nothing to manage, nothing that creates an obligation.
 ///
@@ -77,6 +77,9 @@ struct SettingsView: View {
                               tint: .gold,
                               isOn: alsoSaveToPhotosBinding)
                 }
+                // The promise for grown-ups, kept here rather than under the
+                // learner's drawings (`sk-book` is pictures only).
+                SettingsCaption("Kept on this iPhone. Nothing in the sketchbook is uploaded or shared.")
 
                 // ------------------------------------------------------------ More
                 SettingsSectionHeader("More")

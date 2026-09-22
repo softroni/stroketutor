@@ -1,8 +1,10 @@
 import SwiftUI
 import UIKit
 
-/// `sk-entry` — one kept page: the photograph large, the lesson it came from, the
-/// date, a note, and the quiet actions. Delete always asks.
+/// `sk-entry` — one kept page: the photograph large on a band in its path's tint,
+/// with the lesson it was drawn from in color in the corner, then the lesson's name,
+/// one short line ("Plants · Sep 22"), the gold "Drawn" chip, a note, the green way to
+/// draw it again, and the quiet actions. Delete always asks.
 ///
 /// Plan §32: "Associate the image with lesson, path, and completion date." The only
 /// forward action is to draw it again; the rest is quiet.
@@ -68,10 +70,7 @@ struct SketchbookEntryView: View {
 
         return ScrollView {
             VStack(spacing: Theme.stackSpacing) {
-                SketchbookShot(image: app.sketchbook.image(for: page), tutorial: lesson?.tutorial)
-                    .accessibilityElement()
-                    .accessibilityLabel("Your \(lesson?.title ?? "page"), \(Self.spokenDate.string(from: page.completedAt))")
-                    .accessibilityAddTraits(.isImage)
+                photoBand(page, lesson: lesson)
 
                 facts(page, lesson: lesson)
 
@@ -83,7 +82,7 @@ struct SketchbookEntryView: View {
                     } label: {
                         Label("Draw it again", systemImage: "pencil")
                     }
-                    .buttonStyle(.secondary)
+                    .buttonStyle(.primary)
                     .padding(.top, 4)
                 }
 
@@ -116,8 +115,30 @@ struct SketchbookEntryView: View {
         }
     }
 
-    /// Title, the lesson's place in its path, the full date, and the gold "Drawn"
-    /// chip. Above the accessibility sizes the chip drops below the text.
+    /// The photograph on the path's soft tint, with the tint's deeper edge under it
+    /// as the path cards have, and the lesson's own drawing in its badge.
+    private func photoBand(_ page: SketchbookPage, lesson: Lesson?) -> some View {
+        let tint = (app.path(forLesson: page.lessonId) ?? app.path(id: page.pathId))
+            .map { app.tint(for: $0) }
+        let shape = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
+
+        // A screen-sized copy, decoded once: the full photo is only read to share it.
+        return SketchbookShot(image: app.sketchbook.thumbnail(for: page, maxPixelSize: 1400),
+                              tutorial: lesson?.tutorial)
+            .lessonBadge(lesson?.tutorial)
+            .accessibilityElement()
+            .accessibilityLabel("Your \(lesson?.title ?? "page"), \(SketchbookDate.spoken(page.completedAt))")
+            .accessibilityAddTraits(.isImage)
+            .padding(12)
+            .background(shape.fill(tint?.soft ?? Theme.surface))
+            .background(alignment: .bottom) {
+                shape.fill(tint?.edge ?? Theme.line).offset(y: 5)
+            }
+            .padding(.bottom, 5)
+    }
+
+    /// Title, one short line, and the gold "Drawn" chip. Above the accessibility
+    /// sizes the chip drops below the text.
     private func facts(_ page: SketchbookPage, lesson: Lesson?) -> some View {
         ViewThatFits(in: .horizontal) {
             HStack(alignment: .top, spacing: Theme.stackSpacing) {
@@ -131,6 +152,7 @@ struct SketchbookEntryView: View {
                 Chip(text: "Drawn", systemImage: "checkmark", style: .gold)
             }
         }
+        .padding(.top, 4)
     }
 
     private func factsText(_ page: SketchbookPage, lesson: Lesson?) -> some View {
@@ -140,31 +162,26 @@ struct SketchbookEntryView: View {
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
-            if let meta = metaLine(page, lesson: lesson) {
-                Text(meta)
-                    .textRole(.subhead)
-                    .foregroundStyle(Theme.ink55)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Text(page.completedAt.formatted(date: .complete, time: .omitted))
-                .textRole(.footnote)
+            Text(metaLine(page))
+                .textRole(.subhead)
                 .foregroundStyle(Theme.ink55)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityLabel(spokenMetaLine(page))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// "Trees · Lesson 1 of 8 · 16 steps". Whatever the catalog can no longer tell
-    /// us is simply left out rather than guessed.
-    private func metaLine(_ page: SketchbookPage, lesson: Lesson?) -> String? {
-        var parts: [String] = []
-        let path = app.path(id: page.pathId)
-        if let path { parts.append(path.title) }
-        if let lesson, let path, let position = path.position(of: lesson.id) {
-            parts.append("Lesson \(position) of \(path.lessonCount)")
-        }
-        if let lesson { parts.append(lesson.stepCountText) }
-        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    /// "Plants · Sep 22": the path, when the catalog still has it, and the day.
+    private func metaLine(_ page: SketchbookPage) -> String {
+        let day = SketchbookDate.short(page.completedAt)
+        guard let path = app.path(forLesson: page.lessonId) ?? app.path(id: page.pathId) else { return day }
+        return "\(path.title) · \(day)"
+    }
+
+    private func spokenMetaLine(_ page: SketchbookPage) -> String {
+        let day = SketchbookDate.spoken(page.completedAt)
+        guard let path = app.path(forLesson: page.lessonId) ?? app.path(id: page.pathId) else { return day }
+        return "\(path.title), \(day)"
     }
 
     /// One calm surface row. The placeholder steers the note towards observation
@@ -270,11 +287,4 @@ struct SketchbookEntryView: View {
             return nil
         }
     }
-
-    /// "28 August", for VoiceOver.
-    private static let spokenDate: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("d MMMM")
-        return formatter
-    }()
 }
