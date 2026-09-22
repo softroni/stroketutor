@@ -162,7 +162,7 @@
       "title": "Space",
       "description": "Moons, planets and spacecraft, ending with the solar system drawn on orbit ellipses.",
       "level": "core",
-      "lessonIds": ["crescent-moon", "planet-with-rings", "star"]
+      "lessonIds": ["crescent-moon", "planet-with-rings", "star", "comet"]
     }
   ]
 }

@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "comet",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:33:03.069Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A comet is a ball of ice with a tail of fire behind it. Ours is coming right at us. See how the tail is built, then let one fly past.",
+      "textHash": "6de10185b1629b30c9af6c41a28fbe3c09a9f06de508b1c08c73e04a537552ca",
+      "durationMs": 9120
+    },
+    "ball": {
+      "file": "ball.m4a",
+      "text": "The comet's head is a plain circle, down at the right. Draw it whole.",
+      "textHash": "4b8a4c0eed54c27ef36dc8c649fb5eaa3daa09eaacbe40aeb86d69477cb28ff1",
+      "durationMs": 4880
+    },
+    "upper-edge": {
+      "file": "upper-edge.m4a",
+      "text": "The tail streams up to the left. From the top of the ball, run its upper edge out.",
+      "textHash": "61fb5db9bc767251216f9d715d6726288ae598e9d51a2e6410e057d7d5a73b6e",
+      "durationMs": 4800
+    },
+    "top-licks": {
+      "file": "top-licks.m4a",
+      "text": "The edge is cut into licks. Add the pointed ones, on out to the far tip.",
+      "textHash": "69e19fd60b22028b1892beb33c0413c782c2fa0c238883e5a6cc9aba12927e61",
+      "durationMs": 5200
+    },
+    "lower-edge": {
+      "file": "lower-edge.m4a",
+      "text": "Come back to the ball and run the lower edge out the same way.",
+      "textHash": "7656417aa8f81031ab4278501990fe60666a19ccd29e24618e205f97fa658b6a",
+      "durationMs": 4000
+    },
+    "lower-licks": {
+      "file": "lower-licks.m4a",
+      "text": "Give that edge its licks too, pointing back the way the comet came.",
+      "textHash": "0f68367d57e7375b1ca32c0cd8e9b184b72d3afb91f7f3eb359e758efcdd190b",
+      "durationMs": 4240
+    },
+    "flame": {
+      "file": "flame.m4a",
+      "text": "A second flame sits inside the tail, the same shape but smaller.",
+      "textHash": "00e42af03da83375f4bd7ddb64a41b8a0280d96485eff4482b10025fdbbdc561",
+      "durationMs": 4240
+    },
+    "tail": {
+      "file": "tail.m4a",
+      "text": "Color the tail yellow.",
+      "textHash": "6b4a89011d04d64f20d6ffee58e5c2b2e1426668f0cde5e4130f99f3c9e33103",
+      "durationMs": 1600
+    },
+    "inner": {
+      "file": "inner.m4a",
+      "text": "Color the flame inside it orange.",
+      "textHash": "266ec4fb6b3beaea73194d6cdf83b6437dcb569cff52efc42ad8e99664ff8ba2",
+      "durationMs": 2880
+    },
+    "head": {
+      "file": "head.m4a",
+      "text": "Color the ball blue.",
+      "textHash": "d1286dcb04bd56e12961970e7610745ee163626f097edd9f38d481abaf66de71",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your comet is halfway across the page. Nothing in space moves faster.",
+      "textHash": "5cce2231ee5982e8ffce83dc419980fa2db51f5f9fad0488376fb85cc9e15e93",
+      "durationMs": 4560
+    }
+  }
+}
