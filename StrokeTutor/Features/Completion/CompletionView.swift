@@ -229,8 +229,8 @@ struct CompletionView: View {
             if isPathDone {
                 Button("Choose another path") {
                     app.dismissCover()
-                    app.selectedTab = .learn
-                    app.popToRoot(.learn)
+                    app.selectedTab = .path
+                    app.popToRoot(.path)
                     app.push(.paths)
                 }
                 .buttonStyle(.secondary)

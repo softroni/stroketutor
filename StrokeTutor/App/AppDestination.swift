@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Turns a pushed `AppRoute` into its screen. One place, shared by all three tab
+/// Turns a pushed `AppRoute` into its screen. One place, shared by all four tab
 /// stacks, so a route means the same thing wherever it is pushed from.
 struct AppDestination: View {
     let route: AppRoute
@@ -9,8 +9,6 @@ struct AppDestination: View {
         switch route {
         case .paths:
             PathsView()
-        case let .pathDetail(pathId):
-            PathDetailView(pathId: pathId)
         case let .lessonPreview(lessonId):
             LessonPreviewView(lessonId: lessonId)
         case let .sketchbookEntry(pageId):

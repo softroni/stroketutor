@@ -4,8 +4,9 @@ import SwiftUI
 /// drawn in it, and the current path outlined in green.
 ///
 /// Switching costs nothing: progress is kept per path, so a learner can leave one
-/// half-drawn and come back to it (BRIEF §6). Opening a card makes that path current
-/// immediately, so Back returns to a Home screen that reflects the new choice.
+/// half-drawn and come back to it (BRIEF §6). Pushed on the Path tab from its title;
+/// opening a card makes that path current and returns to the tab's root, which
+/// then shows it (`AppModel.open(_:)`).
 ///
 /// When the catalog groups its paths into levels — Starter, Core, Advanced — the
 /// cards are listed under those names, easiest first. A level only groups and

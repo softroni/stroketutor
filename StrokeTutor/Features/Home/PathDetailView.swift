@@ -7,16 +7,21 @@ import SwiftUI
 /// next lesson. **Locked** is the same screen with the sheet up, raised by tapping a
 /// grey node (or handed over by Home). **Complete** turns the destination gold, says
 /// so in one sentence, and offers somewhere to go next.
+///
+/// It is the root of the Path tab, showing whichever path is current, so it has no
+/// back button. Its title is the way to another path instead: "Landscape ⌄" pushes
+/// All paths, and choosing a card there makes that path current and comes back to
+/// this root showing it (`AppModel.open(_:)`).
 struct PathDetailView: View {
-    let pathId: String
+    /// The current path's id; nil before a path has been chosen.
+    let pathId: String?
 
     @Environment(AppModel.self) private var app
-    @Environment(\.dismiss) private var dismiss
     @State private var lockedLesson: LockedLesson?
 
     var body: some View {
         Group {
-            if let path = app.path(id: pathId), !path.isEmpty {
+            if let pathId, let path = app.path(id: pathId), !path.isEmpty {
                 content(for: path)
             } else {
                 missingPath
@@ -43,7 +48,10 @@ struct PathDetailView: View {
         let isComplete = drawn == path.lessonCount
 
         return VStack(spacing: 0) {
-            InlineNavBar(title: path.title) { dismiss() }
+            InlineNavBar(title: path.title,
+                         titleAction: NavBarTitleAction(name: "choose another path") {
+                             app.push(.paths)
+                         })
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.stackSpacing) {
@@ -94,7 +102,11 @@ struct PathDetailView: View {
                 .padding(.bottom, 16)
             }
         }
+        // On appear for a hand-over that arrives with a new path (the root is keyed
+        // by it, so it appears afresh), and on change for one that arrives while
+        // this path is already the root — the tab root does not appear again.
         .onAppear { raiseSheetIfHandedOver(in: path) }
+        .onChange(of: app.pendingLockedLessonId) { raiseSheetIfHandedOver(in: path) }
     }
 
     /// Where the path leads, on a wide sheet of paper: the last lesson's drawing at
@@ -205,14 +217,22 @@ struct PathDetailView: View {
         }
     }
 
+    /// No path chosen yet, or the current one has nothing installed. A tab root
+    /// cannot send the learner back, so it offers the way forward instead.
     private var missingPath: some View {
         VStack(spacing: 0) {
-            InlineNavBar(title: "Path") { dismiss() }
-            Text("This path is no longer installed.")
-                .textRole(.body)
-                .foregroundStyle(Theme.ink55)
-                .padding(Theme.gutter)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            InlineNavBar(title: "Path")
+            VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+                Text("Pick a path to start")
+                    .textRole(.title1)
+                    .foregroundStyle(Theme.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+                Button("See all paths") { app.push(.paths) }
+                    .buttonStyle(.primary)
+            }
+            .padding(Theme.gutter)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
     }
 
@@ -233,8 +253,9 @@ struct PathDetailView: View {
         lockedLesson = LockedLesson(lesson: lesson, blocking: blocking, position: index + 1)
     }
 
-    /// Home sends a locked node here with the sheet already up. The hand-over is
-    /// cleared as it is read, so coming back later opens a plain screen.
+    /// A locked node handed over with the sheet already up (`pendingLockedLessonId`).
+    /// The hand-over is cleared as it is read, so coming back later opens a plain
+    /// screen.
     private func raiseSheetIfHandedOver(in path: PathModel) {
         guard let id = app.pendingLockedLessonId else { return }
         app.pendingLockedLessonId = nil

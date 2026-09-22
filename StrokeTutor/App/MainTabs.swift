@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// The app under the covers: three tabs (Learn · Sketchbook · Settings) with the
-/// custom v3 tab bar, and one `NavigationStack` per tab so a back stack survives a
-/// tab switch. All three stay alive; the inactive ones are hidden rather than torn
+/// The app under the covers: four tabs (Home · Path · Sketchbook · Settings) with
+/// the custom v3 tab bar, and one `NavigationStack` per tab so a back stack survives
+/// a tab switch. All four stay alive; the inactive ones are hidden rather than torn
 /// down, so returning to a tab lands where it was left.
 ///
 /// The tab bar is drawn over the stacks rather than under them, and the screens
@@ -29,9 +29,16 @@ struct MainTabs: View {
 
         ZStack(alignment: .bottom) {
             ZStack {
-                tab(.learn, path: $app.learnPath) { HomeView() }
-                tab(.sketchbook, path: $app.sketchbookPath) { SketchbookView() }
-                tab(.settings, path: $app.settingsPath) { SettingsView() }
+                tab(.home, path: $app.homeStack) { HomeView() }
+                tab(.path, path: $app.pathStack) {
+                    // Keyed by the path it shows, so choosing another path gives
+                    // the root fresh state — a locked sheet raised for the old path
+                    // cannot stay up over the new one.
+                    PathDetailView(pathId: app.currentPath?.id)
+                        .id(app.currentPath?.id)
+                }
+                tab(.sketchbook, path: $app.sketchbookStack) { SketchbookView() }
+                tab(.settings, path: $app.settingsStack) { SettingsView() }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 

@@ -29,10 +29,14 @@ StrokeTutor/
   App/
     AppRoot.swift               first run → OnboardingFlow (fullScreenCover), else MainTabs; presents the player cover
     AppModel.swift              @Observable @MainActor: catalog, library, progress, sketchbook, settings, navigation
-    MainTabs.swift              three tabs (Learn · Sketchbook · Settings), custom tab bar per v3 (.tabbar), one
-                                NavigationStack per tab so back stacks survive tab switches
-    AppRoute.swift              enum of pushed routes (paths, pathDetail(id), lessonPreview(id), sketchbookEntry(id),
-                                settings sub-pages) + the cover routes (player, completion, capture)
+    MainTabs.swift              four tabs (Home · Path · Sketchbook · Settings), custom tab bar per v3 (.tabbar), one
+                                NavigationStack per tab (homeStack, pathStack, sketchbookStack, settingsStack) so back
+                                stacks survive tab switches; the Path tab's stack root is
+                                PathDetailView(pathId: currentPath?.id), keyed by that id so choosing another path
+                                gives the root fresh state
+    AppRoute.swift              enum of pushed routes (paths, lessonPreview(id), sketchbookEntry(id), settings
+                                sub-pages) + the cover routes (player, completion, capture); pathDetail removed — the
+                                Path tab's root already shows the current path
   Design/
     Theme.swift                 v3 tokens: colours, type, radii, spacing, shadows (values below)
     ButtonStyles.swift          TactileButtonStyle (.primary .secondary .soft .ink .whiteOnGreen .pending) with the
@@ -51,7 +55,8 @@ StrokeTutor/
     SketchbookStore.swift       SketchbookPage records + JPEGs in Application Support/Sketchbook
   Features/
     Onboarding/                 OnboardingFlow + one view per beat (ob-splash … ob-ready)
-    Home/                       HomeView (hp-home), PathsView (hp-paths), PathDetailView (hp-path), LessonPreviewView (hp-preview)
+    Home/                       HomeView (hp-home), PathDetailView (hp-path, the Path tab's stack root), PathsView
+                                (hp-paths, pushed from the Path tab's title), LessonPreviewView (hp-preview)
     Player/                     PlayerScreen (pl-player, pl-landscape), PlayerSheet, LeaveSheet (pl-leave), ReferenceSheet
     Completion/                 CompletionView (sk-complete), CaptureFlow (sk-capture: primer · camera/photos · review · saved)
     Sketchbook/                 SketchbookView (sk-book), SketchbookEntryView (sk-entry)
@@ -105,7 +110,7 @@ Motion); `.locked` surface fill, strokes at ink25. The drawing inside is the les
 `PathNodesView(lessons:progress:onTap:)` lays rows on a zig-zag (x offset ±40 pt alternating), label on the outer side:
 title 16/heavy, sub 13/semibold ink55 ("Drawn 3 Sep" · "Next · 7 steps" · "After Small Cottage").
 
-Tab bar: white, 2 pt top line, three tabs, 26 pt glyphs (pencil, book, gear from SF Symbols) in a 56 × 30 pill,
+Tab bar: white, 2 pt top line, four tabs, 26 pt glyphs (house, map, book, gearshape from SF Symbols) in a 56 × 30 pill,
 greenSoft pill + green glyph and label when active, labels 11.5/heavy ink40 otherwise.
 
 Lina (`LinaView(pose:size:)`): draw her with SwiftUI shapes in the same proportions as `#lina-neutral` in
@@ -163,12 +168,16 @@ use `Image`. A missing file shows the warm placeholder from v3 (`.photo--warm`) 
   lesson preview of that lesson. Writes `hasCompletedOnboarding`, `currentPathId`.
 - **Home** `hp-home`: title + gold chip with the sketchbook count; the hero banner (Continue · <path> / Start here ·
   <path>; next lesson; "Lesson n of m · About k min"; the drawing on a white thumb; white-on-green "Start drawing");
-  eyebrow "<Path> · n of m drawn" with "All paths"; the node path of the current path. Empty catalog: a plain card
-  "No lessons are installed." `hp-paths`: cards per path with a drawing/icon tile, progress bar or "Not started",
-  current path outlined green. `hp-path`: destination drawing large, description, progress, all nodes; tapping a locked
-  node presents the locked sheet ("Finish <previous> first."); complete variant. `hp-preview`: reference and finished
-  drawing side by side, title, "About k min · n steps", complexity dots, objective card, Lina line, Start drawing
-  (or "Continue from step n" + "Start over" when a resume point exists).
+  a shelf of every path grouped by level — tapping a shelf header sets `currentPathId` and switches to the Path tab.
+  Empty catalog: a plain card "No lessons are installed." `hp-preview`: reference and finished drawing side by side,
+  title, "About k min · n steps", complexity dots, objective card, Lina line, Start drawing (or "Continue from step n"
+  + "Start over" when a resume point exists). Reached from Home's own stack, or (switching to the Path tab first)
+  from a node on `hp-path`, or from Sketchbook/Settings.
+- **Path** `hp-path`: the Path tab's stack root — no back chevron; the nav-bar title is a switcher ("<Path>" +
+  chevron-down) that pushes `hp-paths`. Destination drawing large, description, progress, all nodes; tapping a locked
+  node presents the locked sheet ("Finish <previous> first."); complete variant offers "Choose another path" →
+  `hp-paths`. `hp-paths`: pushed only from the switcher; cards per path with a drawing/icon tile, progress bar or "Not
+  started", current path outlined green; picking one sets `currentPathId` and pops back to the Path tab's root.
 - **Player** `pl-player pl-landscape pl-leave`: exactly the v3 anatomy (56 pt header: close, "Step n of m" over
   `StepSegments`, more menu with speed and restart; full-bleed white paper fitted to `drawingBounds`; narration chip
   top-left only when narration is enabled and an audio file exists (none ship yet, so it is hidden, but the component

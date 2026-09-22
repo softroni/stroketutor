@@ -53,7 +53,7 @@ struct SketchbookView: View {
         }
     }
 
-    /// 36/800 with the gold count chip on the right, the same chip as on Learn — a
+    /// 36/800 with the gold count chip on the right, the same chip as on Home — a
     /// fact, not a score. Above the accessibility sizes the chip drops below.
     private var titleRow: some View {
         ViewThatFits(in: .horizontal) {

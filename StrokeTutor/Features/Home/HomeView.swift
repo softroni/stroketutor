@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// `hp-home` — the Learn tab, and the app's home. Two questions, answered in order.
+/// `hp-home` — the Home tab, and the app's home. Two questions, answered in order.
 /// *What do I draw next?* — the hero banner, one tap. *What else is there?* — every
 /// path as a shelf: one row per path, its lessons as square tiles of the finished
 /// drawings, scrolling sideways. A learner chooses by picture, not by reading.
@@ -43,7 +43,7 @@ struct HomeView: View {
                         ForEach(section.paths) { path in
                             PathShelf(path: path,
                                       progress: app.progress,
-                                      onOpenPath: { app.push(.pathDetail(pathId: path.id)) },
+                                      onOpenPath: { app.open(path) },
                                       onOpenLesson: { open($0, in: path) })
                         }
                     }
@@ -85,14 +85,14 @@ struct HomeView: View {
 
     // MARK: - Title
 
-    /// "Learn", with the gold sketchbook chip beside it — or, the first time, one
+    /// "Home", with the gold sketchbook chip beside it — or, the first time, one
     /// line of context under it instead, because there is nothing to count yet.
     @ViewBuilder
     private func title(for path: PathModel?) -> some View {
         if isFirstTime, let path {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center, spacing: 8) {
-                    learnTitle
+                    homeTitle
                     Spacer(minLength: 0)
                     profileButton
                 }
@@ -105,7 +105,7 @@ struct HomeView: View {
             }
         } else {
             HStack(alignment: .center, spacing: 8) {
-                learnTitle
+                homeTitle
                 Spacer(minLength: 0)
                 Button {
                     app.selectedTab = .sketchbook
@@ -135,8 +135,8 @@ struct HomeView: View {
         .accessibilityHint("Switch who’s drawing, or add someone")
     }
 
-    private var learnTitle: some View {
-        Text("Learn")
+    private var homeTitle: some View {
+        Text("Home")
             .textRole(.largeTitle)
             .foregroundStyle(Theme.ink)
             .accessibilityAddTraits(.isHeader)

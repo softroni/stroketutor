@@ -256,9 +256,10 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(savedTo, first.id, "The session is saved before the stores change.")
         XCTAssertNil(model.cover)
         XCTAssertNil(model.sessionSaver)
-        XCTAssertTrue(model.learnPath.isEmpty)
-        XCTAssertTrue(model.sketchbookPath.isEmpty)
-        XCTAssertEqual(model.selectedTab, .learn)
+        XCTAssertTrue(model.homeStack.isEmpty)
+        XCTAssertTrue(model.pathStack.isEmpty)
+        XCTAssertTrue(model.sketchbookStack.isEmpty)
+        XCTAssertEqual(model.selectedTab, .home)
         XCTAssertNil(model.progress.resumeStep(for: lesson.id))
 
         model.switchProfile(to: first.id)

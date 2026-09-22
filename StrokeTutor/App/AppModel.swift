@@ -73,13 +73,15 @@ final class AppModel {
 
     // MARK: - Navigation
 
-    var selectedTab: MainTab = .learn
+    var selectedTab: MainTab = .home
     /// One back stack per tab. Typed arrays rather than `NavigationPath`s so the
     /// screen on top can be read — `MainTabs` asks it whether the tab bar belongs
-    /// under it.
-    var learnPath: [AppRoute] = []
-    var sketchbookPath: [AppRoute] = []
-    var settingsPath: [AppRoute] = []
+    /// under it. Named `…Stack` so the Path tab's reads as a stack of screens and
+    /// not as a `PathModel`.
+    var homeStack: [AppRoute] = []
+    var pathStack: [AppRoute] = []
+    var sketchbookStack: [AppRoute] = []
+    var settingsStack: [AppRoute] = []
     /// The full-screen flow on top of the tabs, if any.
     var cover: AppCover? {
         didSet {
@@ -87,9 +89,9 @@ final class AppModel {
             sessionSaver = nil
         }
     }
-    /// A locked lesson tapped on Home. `hp-home` sends a grey node to `hp-path`
-    /// with the locked sheet already up; the path detail reads this on appear and
-    /// clears it, so the sheet is raised once and never again on a later visit.
+    /// A locked lesson handed to the Path tab. `hp-path` reads this on appear, and
+    /// whenever it changes while the tab is already showing, and clears it, so the
+    /// sheet is raised once and never again on a later visit.
     var pendingLockedLessonId: String?
 
     private let bundle: Bundle
@@ -240,17 +242,22 @@ final class AppModel {
         return progress.nextLesson(in: path)
     }
 
-    /// Chooses the path Home shows (`hp-paths`, and the onboarding beats `ob-level` and `ob-path`).
+    /// Chooses the path the Path tab and Home's hero show (`hp-paths`, and the onboarding beats `ob-level` and `ob-path`).
     func select(_ path: PathModel) {
         preferences.currentPathId = path.id
     }
 
-    /// Makes a path the learner's current choice, then opens its detail screen.
-    /// Keeping those actions together prevents Home and the path-card outline from
-    /// lagging behind the detail screen the learner just chose.
+    /// Makes a path the learner's current choice and shows it on the Path tab.
+    ///
+    /// The Path tab's root always shows the current path, so choosing one is
+    /// selecting it and bringing that root forward. The stack is emptied first:
+    /// from All paths (pushed on the Path tab) that lands on the path just chosen,
+    /// and from Home it cannot leave an older screen covering it. Keeping the three
+    /// together means Home, the path-card outline and the Path tab never disagree.
     func open(_ path: PathModel) {
         select(path)
-        push(.pathDetail(pathId: path.id))
+        popToRoot(.path)
+        selectedTab = .path
     }
 
     /// Makes the lesson's path the current one, if it is not already. A lesson the
@@ -268,32 +275,40 @@ final class AppModel {
     /// switch.
     func push(_ route: AppRoute) {
         switch selectedTab {
-        case .learn: learnPath.append(route)
-        case .sketchbook: sketchbookPath.append(route)
-        case .settings: settingsPath.append(route)
+        case .home: homeStack.append(route)
+        case .path: pathStack.append(route)
+        case .sketchbook: sketchbookStack.append(route)
+        case .settings: settingsStack.append(route)
         }
     }
 
     /// The screen on top of a tab's stack, or nil when the tab is at its root.
     func topRoute(of tab: MainTab) -> AppRoute? {
         switch tab {
-        case .learn: return learnPath.last
-        case .sketchbook: return sketchbookPath.last
-        case .settings: return settingsPath.last
+        case .home: return homeStack.last
+        case .path: return pathStack.last
+        case .sketchbook: return sketchbookStack.last
+        case .settings: return settingsStack.last
         }
     }
 
     func popToRoot(_ tab: MainTab? = nil) {
         switch tab ?? selectedTab {
-        case .learn: learnPath = []
-        case .sketchbook: sketchbookPath = []
-        case .settings: settingsPath = []
+        case .home: homeStack = []
+        case .path: pathStack = []
+        case .sketchbook: sketchbookStack = []
+        case .settings: settingsStack = []
         }
     }
 
-    /// Opens a lesson's preview from anywhere in the Learn tab.
+    /// Opens a lesson's preview. Home and Path both browse lessons, so a preview
+    /// opened from either lands on that tab's own stack and Back returns there.
+    /// From anywhere else — the sketchbook, a cover, a deep link — it goes to the
+    /// Path tab, where lessons belong.
     func showPreview(of lesson: Lesson) {
-        selectedTab = .learn
+        if selectedTab != .home && selectedTab != .path {
+            selectedTab = .path
+        }
         push(.lessonPreview(lessonId: lesson.id))
     }
 
@@ -377,7 +392,7 @@ extension AppModel {
     /// 1. **Save** — the open lesson writes its step to the current learner's
     ///    progress.
     /// 2. **Close** — the player, completion, capture or picker cover goes away.
-    /// 3. **Clear** — every tab's stack returns to its root, and Learn is shown.
+    /// 3. **Clear** — every tab's stack returns to its root, and Home is shown.
     /// 4. **Replace** — only then do `progress`, `sketchbook` and `preferences`
     ///    point at the new learner.
     ///
@@ -394,10 +409,11 @@ extension AppModel {
         cover = nil
         pendingLockedLessonId = nil
 
-        learnPath = []
-        sketchbookPath = []
-        settingsPath = []
-        selectedTab = .learn
+        homeStack = []
+        pathStack = []
+        sketchbookStack = []
+        settingsStack = []
+        selectedTab = .home
 
         guard target.id != activeProfile.id else { return }
         let stores = openedStores[target.id] ?? Self.openStores(for: target, in: profileStore)

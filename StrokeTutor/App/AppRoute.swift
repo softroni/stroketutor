@@ -5,10 +5,10 @@ import Foundation
 /// models: a route stays valid across a content reload, and a stack only ever
 /// holds small hashable values.
 enum AppRoute: Hashable {
-    /// `hp-paths` — every path.
+    /// `hp-paths` — every path. The one path itself (`hp-path`) is not a route:
+    /// it is the root of the Path tab, and choosing a path swaps what that root
+    /// shows rather than pushing another copy of it.
     case paths
-    /// `hp-path` — one path, its drawing and all its nodes.
-    case pathDetail(pathId: String)
     /// `hp-preview` — one lesson before it starts.
     case lessonPreview(lessonId: String)
     /// `sk-entry` — one page of the sketchbook.
@@ -20,10 +20,10 @@ enum AppRoute: Hashable {
     /// One learner's name, picture and the PIN-guarded delete.
     case profile(id: UUID)
 
-    /// Whether the three-tab bar belongs under this screen.
+    /// Whether the tab bar belongs under this screen.
     ///
-    /// v3 keeps it on the tab roots and on the two browsing screens (`hp-paths`,
-    /// `hp-path`), and drops it on the pushed screens that own the bottom of the
+    /// v3 keeps it on the tab roots (`hp-path` among them) and on the one pushed
+    /// browsing screen, `hp-paths`, and drops it on the pushed screens that own the bottom of the
     /// screen themselves with a `.bottom-area`: `hp-preview`, `sk-entry`,
     /// `st-voice`, `st-reminder`.
     ///
@@ -34,7 +34,7 @@ enum AppRoute: Hashable {
     /// height and again without it, and anything pinned to the bottom would jump.
     var hidesTabBar: Bool {
         switch self {
-        case .paths, .pathDetail:
+        case .paths:
             return false
         case .lessonPreview, .sketchbookEntry, .narrationSettings, .reminderSettings, .profile:
             return true
@@ -73,9 +73,14 @@ enum AppCover: Identifiable, Hashable {
     }
 }
 
-/// The three tabs of `MainTabs`: Learn · Sketchbook · Settings.
+/// The four tabs of `MainTabs`: Home · Path · Sketchbook · Settings.
+///
+/// Home is for browsing — every path's shelf — and Path is the one path the learner
+/// is working through. They are two tabs rather than one stack so the path a
+/// learner is on is always one tap away, never buried under whatever they browsed.
 enum MainTab: String, Hashable, CaseIterable, Identifiable {
-    case learn
+    case home
+    case path
     case sketchbook
     case settings
 
@@ -83,7 +88,8 @@ enum MainTab: String, Hashable, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .learn: return "Learn"
+        case .home: return "Home"
+        case .path: return "Path"
         case .sketchbook: return "Sketchbook"
         case .settings: return "Settings"
         }
@@ -92,7 +98,8 @@ enum MainTab: String, Hashable, CaseIterable, Identifiable {
     /// The SF Symbol shown in the tab's 56 × 30 pill.
     var symbol: String {
         switch self {
-        case .learn: return "pencil"
+        case .home: return "house"
+        case .path: return "map"
         case .sketchbook: return "book"
         case .settings: return "gearshape"
         }

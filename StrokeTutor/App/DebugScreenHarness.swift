@@ -64,8 +64,9 @@ enum DebugScreenHarness {
             ?? treeLesson
         guard let carPath = app.path(id: carLesson.pathId) else { return }
 
-        app.selectedTab = .learn
-        app.popToRoot(.learn)
+        app.selectedTab = .home
+        app.popToRoot(.home)
+        app.popToRoot(.path)
         app.popToRoot(.sketchbook)
         app.popToRoot(.settings)
 
@@ -88,10 +89,12 @@ enum DebugScreenHarness {
             addPlaceholderPage(to: app, lesson: treeLesson)
 
         case "paths":
+            // All paths is reached from the Path tab's title, so it is pushed there.
+            app.open(treePath)
             app.push(.paths)
 
         case "path-default":
-            app.push(.pathDetail(pathId: treePath.id))
+            app.open(treePath)
 
         case "path-locked":
             // See `AppModel.debugAppendLesson`: the catalog has one lesson per
@@ -100,11 +103,11 @@ enum DebugScreenHarness {
             let locked = harnessLesson(from: treeLesson, suffix: "harness-locked")
             app.debugAppendLesson(locked, toPathId: treePath.id)
             app.pendingLockedLessonId = locked.id
-            app.push(.pathDetail(pathId: treePath.id))
+            app.open(treePath)
 
         case "path-complete":
             app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
-            app.push(.pathDetail(pathId: treePath.id))
+            app.open(treePath)
 
         case "preview-default":
             app.push(.lessonPreview(lessonId: treeLesson.id))
