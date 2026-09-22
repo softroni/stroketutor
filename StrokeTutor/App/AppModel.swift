@@ -349,9 +349,10 @@ final class AppModel {
         cover = .completion(lessonId: lesson.id)
     }
 
-    /// "Add to sketchbook" — the capture flow.
-    func presentCapture(_ lesson: Lesson) {
-        cover = .capture(lessonId: lesson.id)
+    /// "Add to sketchbook" — the capture flow. `fromSketchbook` when it is opened
+    /// from a finished lesson's empty Sketchbook slot rather than after the lesson.
+    func presentCapture(_ lesson: Lesson, fromSketchbook: Bool = false) {
+        cover = .capture(lessonId: lesson.id, fromSketchbook: fromSketchbook)
     }
 
     /// Closes whatever cover is up and goes back to the tabs.

@@ -98,15 +98,16 @@ struct AppRoot: View {
                 missingLesson
             }
 
-        case let .capture(lessonId):
+        case let .capture(lessonId, fromSketchbook):
             if let lesson = app.lesson(id: lessonId) {
                 #if DEBUG
                 CaptureFlow(lesson: lesson,
+                           fromSketchbook: fromSketchbook,
                            debugReviewImage: DebugScreenHarness.pendingCaptureReviewImage,
                            debugSavedPage: DebugScreenHarness.pendingCaptureSavedPage,
                            debugOpensCornerEditor: DebugScreenHarness.pendingCaptureOpensCornerEditor)
                 #else
-                CaptureFlow(lesson: lesson)
+                CaptureFlow(lesson: lesson, fromSketchbook: fromSketchbook)
                 #endif
             } else {
                 missingLesson

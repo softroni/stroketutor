@@ -10,6 +10,9 @@ import UIKit
 /// surprised later about where the picture went.
 struct CaptureFlow: View {
     let lesson: Lesson
+    /// Opened from a finished lesson's empty Sketchbook slot: the learner came to
+    /// add a photo, so leaving goes back to the Sketchbook rather than to the path.
+    let fromSketchbook: Bool
 
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -53,8 +56,9 @@ struct CaptureFlow: View {
     /// Screenshot harness only: raise the corner editor once auto-crop answers.
     @State private var opensCornerEditorAfterAutoCrop = false
 
-    init(lesson: Lesson) {
+    init(lesson: Lesson, fromSketchbook: Bool = false) {
         self.lesson = lesson
+        self.fromSketchbook = fromSketchbook
     }
 
     #if DEBUG
@@ -66,10 +70,12 @@ struct CaptureFlow: View {
     /// initialiser above. `debugOpensCornerEditor` raises the corner editor over
     /// the review once auto-crop has answered.
     init(lesson: Lesson,
+         fromSketchbook: Bool = false,
          debugReviewImage: UIImage?,
          debugSavedPage: SketchbookPage?,
          debugOpensCornerEditor: Bool = false) {
         self.lesson = lesson
+        self.fromSketchbook = fromSketchbook
         if let debugReviewImage {
             _stage = State(initialValue: .review(ReviewPhoto(original: debugReviewImage)))
             _opensCornerEditorAfterAutoCrop = State(initialValue: debugOpensCornerEditor)
@@ -133,10 +139,14 @@ struct CaptureFlow: View {
     /// choice. "Choose from Photos" needs no permission at all.
     private var primer: some View {
         VStack(spacing: 0) {
-            navigationBar(title: nil, leading: .back) {
+            navigationBar(title: nil, leading: fromSketchbook ? .close : .back) {
                 // Back to the screen this flow was opened from, without recording
                 // the lesson as finished a second time.
-                app.cover = .completion(lessonId: lesson.id)
+                if fromSketchbook {
+                    app.dismissCover()
+                } else {
+                    app.cover = .completion(lessonId: lesson.id)
+                }
             }
 
             ScrollView {
@@ -193,7 +203,7 @@ struct CaptureFlow: View {
                 }
                 .buttonStyle(.secondary)
 
-                Button("Not now") { app.returnToPathDetail(for: lesson) }
+                Button("Not now") { leave() }
                     .buttonStyle(.quiet)
                     .frame(maxWidth: .infinity)
             }
@@ -403,13 +413,17 @@ struct CaptureFlow: View {
                     app.dismissCover()
                     app.selectedTab = .sketchbook
                 } label: {
-                    Label("Open your sketchbook", systemImage: "book")
+                    Label(fromSketchbook ? "Back to your sketchbook" : "Open your sketchbook",
+                          systemImage: "book")
                 }
                 .buttonStyle(app.nextLesson(after: lesson) == nil ? .primary : .secondary)
 
-                Button("Done") { app.returnToPathDetail(for: lesson) }
-                    .buttonStyle(.quiet)
-                    .frame(maxWidth: .infinity)
+                // From the Sketchbook, the button above already goes back there.
+                if !fromSketchbook {
+                    Button("Done") { leave() }
+                        .buttonStyle(.quiet)
+                        .frame(maxWidth: .infinity)
+                }
             }
             .padding(.horizontal, Theme.gutter)
             .padding(.vertical, Theme.stackSpacing)
@@ -461,6 +475,15 @@ struct CaptureFlow: View {
         current.corners = corners
         current.displayed = page
         stage = .review(current)
+    }
+
+    /// "Not now" and "Done": back to where the learner came from.
+    private func leave() {
+        if fromSketchbook {
+            app.dismissCover()
+        } else {
+            app.returnToPathDetail(for: lesson)
+        }
     }
 
     private func retake() {

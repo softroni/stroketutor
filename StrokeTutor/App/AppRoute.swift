@@ -52,8 +52,9 @@ enum AppCover: Identifiable, Hashable {
     case player(lessonId: String, resumeFrom: Int?)
     /// `sk-complete`.
     case completion(lessonId: String)
-    /// `sk-capture`.
-    case capture(lessonId: String)
+    /// `sk-capture`. `fromSketchbook` is a photo added later from a Sketchbook
+    /// slot, so leaving goes back there rather than to the path.
+    case capture(lessonId: String, fromSketchbook: Bool = false)
     /// "Who's drawing?", at launch when more than one learner uses the app.
     case profilePicker
 
@@ -65,8 +66,8 @@ enum AppCover: Identifiable, Hashable {
             return "player-\(lessonId)-\(resumeFrom.map(String.init) ?? "start")"
         case let .completion(lessonId):
             return "completion-\(lessonId)"
-        case let .capture(lessonId):
-            return "capture-\(lessonId)"
+        case let .capture(lessonId, fromSketchbook):
+            return "capture-\(lessonId)\(fromSketchbook ? "-sketchbook" : "")"
         case .profilePicker:
             return "profile-picker"
         }

@@ -8,8 +8,9 @@ import SwiftUI
 /// current path first and then the most recently drawn. Each band has one slot per
 /// lesson, in path order — the latest photo where there is one, and where there is
 /// not, the lesson's drawing as a faint outline on a dashed slot, so the empty
-/// places show what is still to collect. An open empty slot opens the lesson's
-/// preview; a locked one does nothing.
+/// places show what is still to collect. An empty slot for a finished lesson opens
+/// the camera to add its photo, the next one opens the lesson's preview, and a
+/// locked one does nothing.
 ///
 /// **Dates** is the same pages as tinted cards grouped by month, newest first, each
 /// with the lesson's name and a short date. The choice is remembered.
@@ -457,8 +458,9 @@ private struct PhotoSlot: View {
 /// A lesson with no photo yet: its drawing as a faint outline on a dashed, half-white
 /// slot. The current path's next lesson is outlined in green with a pencil (green is
 /// the way forward, so only the path the learner is on gets it); one finished
-/// without a photo carries a small gold check. Open slots open the lesson's preview; locked
-/// ones are not controls at all.
+/// without a photo carries a small gold camera. A finished slot opens the camera, since
+/// the drawing is already on paper and only the photo is missing; the next one opens
+/// the lesson's preview; locked ones are not controls at all.
 private struct EmptySlot: View {
     let slot: AlbumSlot
     let path: PathModel
@@ -469,14 +471,18 @@ private struct EmptySlot: View {
     var body: some View {
         if slot.isOpen {
             Button {
-                app.showPreview(of: slot.lesson)
+                if slot.isDone {
+                    app.presentCapture(slot.lesson, fromSketchbook: true)
+                } else {
+                    app.showPreview(of: slot.lesson)
+                }
             } label: {
                 face
             }
             .buttonStyle(PressableSlotStyle())
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(accessibilityLabel)
-            .accessibilityHint("Opens the lesson")
+            .accessibilityHint(slot.isDone ? "Adds a photo of your page" : "Opens the lesson")
             .accessibilityAddTraits(.isButton)
         } else {
             face
@@ -503,7 +509,7 @@ private struct EmptySlot: View {
             if slot.isNext {
                 marker(systemImage: "pencil", fill: Theme.green)
             } else if slot.isDone {
-                marker(systemImage: "checkmark", fill: Theme.gold)
+                marker(systemImage: "camera.fill", fill: Theme.gold)
             }
         }
     }
@@ -581,7 +587,7 @@ private struct DateCard: View {
 }
 
 /// A slight dip while a slot is held, and none with Reduce Motion.
-private struct PressableSlotStyle: ButtonStyle {
+struct PressableSlotStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func makeBody(configuration: Configuration) -> some View {
