@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "airplane",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:49:03.000Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "This is the plane that takes people on vacation, and everything on it hangs off one long tube. Watch the wings go on, then board your own.",
+      "textHash": "2140542a08f8951d8d84188906c26fc03af6197f216da88880a14256f1a0a0d7",
+      "durationMs": 7760
+    },
+    "body-top": {
+      "file": "body-top.m4a",
+      "text": "The body is a long tube. Run its flat top line from the tail to the nose.",
+      "textHash": "82f7f87b6d9ec93bccf044624b3fae8e6d939b722653fed3896dfb7f12a3bd5d",
+      "durationMs": 5360
+    },
+    "body-bottom": {
+      "file": "body-bottom.m4a",
+      "text": "Round the nose and bring the belly line back to the tail.",
+      "textHash": "c05de35c562761201e2a494b511ea70cdc191845e52b867c43b5e0fe9c972b9b",
+      "durationMs": 3600
+    },
+    "wing-below": {
+      "file": "wing-below.m4a",
+      "text": "A wing sweeps back under the middle, hanging below the body.",
+      "textHash": "a80514f25669ee52c01318d8c6534de02c2672b2b9387f3faa73149c2da7ebac",
+      "durationMs": 4080
+    },
+    "wing-above": {
+      "file": "wing-above.m4a",
+      "text": "The far wing shows above the body, pointing back the same way.",
+      "textHash": "3b2aa8a7de7057486e8a612754aa97e2b7ac72ce626f81db238f3b147ca92f50",
+      "durationMs": 4000
+    },
+    "tail-fin": {
+      "file": "tail-fin.m4a",
+      "text": "The tail fin stands at the very back, leaning toward the tail.",
+      "textHash": "a690c0101ba894c502d2fe8fc13c5a2d9a4ce8a7385f04fe03e0574410008ac4",
+      "durationMs": 4160
+    },
+    "windows": {
+      "file": "windows.m4a",
+      "text": "Four round windows go in a row along the side.",
+      "textHash": "7375fb0872119b58545d46a886a644edd257d927b182a5ede77e768f85a54ef6",
+      "durationMs": 3120
+    },
+    "color-body": {
+      "file": "color-body.m4a",
+      "text": "Color the body cream.",
+      "textHash": "956aba2ea176b5f0c01ea32820780aa5a4845b9126e4dc5afa298c251ab2052c",
+      "durationMs": 1680
+    },
+    "color-wings": {
+      "file": "color-wings.m4a",
+      "text": "Color both wings and the tail fin red.",
+      "textHash": "bf5292d801498bc45276a2b5ec948f02547bc68e5c16d57ed22a5dcf0602d9ba",
+      "durationMs": 2880
+    },
+    "color-windows": {
+      "file": "color-windows.m4a",
+      "text": "The windows are blue.",
+      "textHash": "2b313458a9e26ab3afb75e6768a3acfcc5fb1518eeebae30d38b6aa7bc6c70d6",
+      "durationMs": 1760
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Wings on, windows in. Your plane is cleared for the runway.",
+      "textHash": "ab013a17478c1dcf57f0e6852bf1e90f59ea18634990a70dd7c2bd24976151ce",
+      "durationMs": 4080
+    }
+  }
+}
