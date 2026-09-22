@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "fishing-boat",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:39:19.431Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Early morning, calm water, one rod over the side. This little fishing boat has a cabin to keep the rain off. Watch it get ready, then cast your own line.",
+      "textHash": "7be77b625df4b1ff213edeac59f33904147f8ecf64f2ad5efcfa6052d8948f25",
+      "durationMs": 10240
+    },
+    "deck": {
+      "file": "deck.m4a",
+      "text": "Start with the deck: a level line that curves up at the right into a pointed bow.",
+      "textHash": "71e34b9ebd8113d42600e7a8c21d6c2bb668458c3bd2ae4ee3533053ee763ef5",
+      "durationMs": 5280
+    },
+    "hull": {
+      "file": "hull.m4a",
+      "text": "Hang the hull under it. From the left end, curve down, along the bottom and up to the point.",
+      "textHash": "a6ec9535c9cb70b4f590cdd366fbd92169aaf0403dbe2933106d2fa3a2686461",
+      "durationMs": 5600
+    },
+    "plank": {
+      "file": "plank.m4a",
+      "text": "One plank line goes along the side, a little shorter than the hull.",
+      "textHash": "6d5e4b46888922b71a39cfc9177a3c158ad85735e52df790179944f58b76d680",
+      "durationMs": 4320
+    },
+    "cabin": {
+      "file": "cabin.m4a",
+      "text": "The cabin begins as two upright walls on the deck.",
+      "textHash": "80a76b361efb5674eca2690d30bdf0f4dbddf9155fcf07d3303294ce8f0b3835",
+      "durationMs": 3520
+    },
+    "roof": {
+      "file": "roof.m4a",
+      "text": "Lay a flat roof across the walls. It's a slab with round ends, wider than the cabin.",
+      "textHash": "e1a62f793d59214703585f6122b5bc1742e98a378a6fe6df9919b5d7982334aa",
+      "durationMs": 5520
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "Give the cabin a square window with soft corners.",
+      "textHash": "3c05ee78f01ec6320ce71b94ee8a6bba46a4f5a31689aa0be1c72a62d2420f59",
+      "durationMs": 3280
+    },
+    "rod": {
+      "file": "rod.m4a",
+      "text": "The fishing rod leans out over the stern. One straight line from the deck, up and to the left.",
+      "textHash": "76c20d06df7d7ad07df5bfd0ec3f6142d9eac32c412e48d9d2292206718dfd5f",
+      "durationMs": 5920
+    },
+    "line": {
+      "file": "line.m4a",
+      "text": "Drop the fishing line straight down from the rod's tip. Finish with a tiny hook, like a letter J.",
+      "textHash": "8fc0dc66284b6eba22e226ce2a1df314221ebe33e5c180ea735fe25cf9db17b2",
+      "durationMs": 6400
+    },
+    "color-hull": {
+      "file": "color-hull.m4a",
+      "text": "Color the hull dark green.",
+      "textHash": "d3d9dd3fcbf2548316ee086b8df19c531d10a1dadd651504251a4b085842ddbb",
+      "durationMs": 2240
+    },
+    "color-cabin": {
+      "file": "color-cabin.m4a",
+      "text": "Color the cabin yellow.",
+      "textHash": "83e9ed50c646d0e6b9154e7d2341d6a914e313c65c4e7e1a2687fcd0d5d1e3db",
+      "durationMs": 1840
+    },
+    "color-roof": {
+      "file": "color-roof.m4a",
+      "text": "Color the roof brown and the window blue.",
+      "textHash": "3cad8d7ac507c821249f502421cc456edf3d3c6b3a91225426fb8ba841897337",
+      "durationMs": 2960
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "The line is in the water. Now all you need is patience.",
+      "textHash": "9490491561dc2839a8123cd5ab8f080113c4ddfdf4d52e20cbafeb5638f2b810",
+      "durationMs": 3760
+    }
+  }
+}
