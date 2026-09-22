@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "hot-air-balloon",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:46:48.163Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Balloons fly early, while the air is still. A burner fills the bag and up goes the basket. Watch it take to the sky, then fill one of your own.",
+      "textHash": "aed53b225e8a0600fb4c020e8596ebf7df561832fdc1eac9dc413d1a9c79dbff",
+      "durationMs": 9440
+    },
+    "balloon-left": {
+      "file": "balloon-left.m4a",
+      "text": "The balloon is one big teardrop. Set off at the top and curve down its left side.",
+      "textHash": "761d6f24ad0552c4e8c03e01b6d03ac5680452d0ccde63f5591f69233ec37690",
+      "durationMs": 5520
+    },
+    "balloon-right": {
+      "file": "balloon-right.m4a",
+      "text": "Return to the top and send the same curve down the right.",
+      "textHash": "6fcf628f6956a2a0dc936fbaeccca6290679601640a4288609656361f84f4fd9",
+      "durationMs": 3520
+    },
+    "mouth": {
+      "file": "mouth.m4a",
+      "text": "A straight line across the bottom closes the balloon. That opening is the mouth.",
+      "textHash": "450e79fe018b9bd65874840ae591204cdde72550af21582a97efbc064022d4ac",
+      "durationMs": 5120
+    },
+    "stripes": {
+      "file": "stripes.m4a",
+      "text": "Two long curves split the bag into three stripes, top to bottom.",
+      "textHash": "a23878fe1f2b767691531e4972a84e98ce774656f5210a9f9a64009acfb9427e",
+      "durationMs": 4480
+    },
+    "skirt": {
+      "file": "skirt.m4a",
+      "text": "Under the mouth, two short lines lean in toward the basket.",
+      "textHash": "cecbcd79fee3b4660a645a601a4a3e3be903552c304408f2a6922ff3763863a3",
+      "durationMs": 4000
+    },
+    "basket": {
+      "file": "basket.m4a",
+      "text": "The basket is a little tub. Draw all four sides in one go.",
+      "textHash": "d711d4317729ddd827eda905f7210be28670189aa75b555734c6bb29f61164d9",
+      "durationMs": 4880
+    },
+    "color-sides": {
+      "file": "color-sides.m4a",
+      "text": "Color the outer stripes red.",
+      "textHash": "768a3cc2950a13d6302d6321633654d6d4c131075e082e642e4283eb1b915397",
+      "durationMs": 2160
+    },
+    "color-middle": {
+      "file": "color-middle.m4a",
+      "text": "The middle stripe is yellow.",
+      "textHash": "f9eb358258e0a3f3e546d9eb04cb0c0cf813823c8c5e7029c76a07fe28388db1",
+      "durationMs": 1760
+    },
+    "color-basket": {
+      "file": "color-basket.m4a",
+      "text": "Color the basket brown.",
+      "textHash": "1c76e4e52b684ac3ee2097ceb080112ac19b76e99bd7036858ef087534a65cb7",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your balloon is full and the basket is waiting. Where would you drift off to?",
+      "textHash": "ba075c56c51e1f2074353ae5c58dc17506dc9d6f06734b75fdd9986fdf5d2450",
+      "durationMs": 4720
+    }
+  }
+}
