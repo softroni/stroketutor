@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "forest-path",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T03:42:32.335Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Ready to draw a forest path? Watch the whole thing once, then grab your pen.",
+      "textHash": "dfd1cc2c1ca00b68b6ad46f1decc90aa46b6bc679fb782dae7269605e57204d2",
+      "durationMs": 5120
+    },
+    "canopy": {
+      "file": "canopy.m4a",
+      "text": "The leaves are one long cloud across the top, with round humps.",
+      "textHash": "e4a75556cfb757c94926aff58d7448cf904dc48bf430687a67f80d6210cd43e7",
+      "durationMs": 4480
+    },
+    "front-trunks": {
+      "file": "front-trunks.m4a",
+      "text": "Two thick trunks hang from it, one at each side. Both reach the ground.",
+      "textHash": "747892ca5488e4293acd3f464fbb290a0d988220b11ba6dbe20e95697b2042c0",
+      "durationMs": 5040
+    },
+    "middle-trunks": {
+      "file": "middle-trunks.m4a",
+      "text": "Two thinner trunks stand inside them, stopping higher up.",
+      "textHash": "e55c5c3bc9c7140c7044d1481ac0de1a5a77353d032ba20b990cbcf77bc1c16d",
+      "durationMs": 4320
+    },
+    "back-trunks": {
+      "file": "back-trunks.m4a",
+      "text": "Two more, thinner still, nearest the middle of the page.",
+      "textHash": "812d89ab61e1799af5da56d46975203cae3d5f28421ee406c528baf551aa0b5a",
+      "durationMs": 3920
+    },
+    "path-left": {
+      "file": "path-left.m4a",
+      "text": "The path is wide at the bottom. Draw that line, then its left edge curving in.",
+      "textHash": "f42f788c27467bef14fa44a7fbd9fc19f01ba8f79b77e2cb156568734d359eed",
+      "durationMs": 5360
+    },
+    "path-right": {
+      "file": "path-right.m4a",
+      "text": "Its right edge does the same, and the two nearly meet far away.",
+      "textHash": "34120f756d510313cc3e9ba0cf0c4dabfb9d5039b01b5643222077c9c8a41f4e",
+      "durationMs": 4560
+    },
+    "left-bushes": {
+      "file": "left-bushes.m4a",
+      "text": "Round bushes sit at the feet of the trees on the left.",
+      "textHash": "ef621a3e58b5e6a1cb5483c60464473bdafe326acde5903c2cbb71dc51fe65ee",
+      "durationMs": 3840
+    },
+    "right-bushes": {
+      "file": "right-bushes.m4a",
+      "text": "Three more bushes on the right, the same soft bumps.",
+      "textHash": "58f88a129fa8ee64c563d3185a3f02b52599e227cf919120f365f9c09b68ecbe",
+      "durationMs": 3600
+    },
+    "leaves-color": {
+      "file": "leaves-color.m4a",
+      "text": "Color the leaves dark green.",
+      "textHash": "37c36c171b5582415476c5356ac240bf3cec4633f332c334fcfe464a600af38f",
+      "durationMs": 2080
+    },
+    "trunks-color": {
+      "file": "trunks-color.m4a",
+      "text": "The trunks are brown.",
+      "textHash": "33f99484b424dd2e644d9471c9e7b3ff0bad5db8a47314269c5e9acbd9a5c086",
+      "durationMs": 1840
+    },
+    "path-color": {
+      "file": "path-color.m4a",
+      "text": "The path is cream.",
+      "textHash": "fbd1be6adba711c121d4c31a0a238136c99e0fdbfb742f4a98053d6480e4125c",
+      "durationMs": 2000
+    },
+    "bushes-color": {
+      "file": "bushes-color.m4a",
+      "text": "The bushes are green.",
+      "textHash": "22b12ed9b1ba582046953d2ba686dda7936ff29786634f3ff0caeb8029d2a7e8",
+      "durationMs": 1520
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "And that’s a forest path. Hold it up and have a good look. You made that.",
+      "textHash": "288d8a6708b4a6d47d55b508fc75cda13b2b342cec90cddac022de7a3b1398b3",
+      "durationMs": 4880
+    }
+  }
+}
