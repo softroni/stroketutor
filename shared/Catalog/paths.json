@@ -153,7 +153,8 @@
         "glider",
         "helicopter",
         "drone",
-        "jet"
+        "jet",
+        "balloon-over-the-hill"
       ]
     }
   ]

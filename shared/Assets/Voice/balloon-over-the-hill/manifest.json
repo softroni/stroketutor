@@ -1,0 +1,100 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "balloon-over-the-hill",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-22T02:52:33.503Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Everything is calm up here. A sun, a cloud, a balloon and one pine tree on a green hill. Watch the sky fill up piece by piece, then make it yours.",
+      "textHash": "037ab0b9bdffa542d4fce045f2a00830ebc5f9c8510c4ef72d1fa5708d1efc57",
+      "durationMs": 11120
+    },
+    "sun": {
+      "file": "sun.m4a",
+      "text": "The sun is a circle high on the left. Four rays point up, down and out to the sides.",
+      "textHash": "3869cedbf9330f4382a5ade72d4d401c042f425dbcea6b8fe9908f8facb9cd4c",
+      "durationMs": 6000
+    },
+    "rays": {
+      "file": "rays.m4a",
+      "text": "Four more rays fill the gaps, so the sun points all around.",
+      "textHash": "916a6527d9dc421553bce25bb15f7ed07d050669ee69c55d63ea096fba8ab0ec",
+      "durationMs": 4080
+    },
+    "cloud": {
+      "file": "cloud.m4a",
+      "text": "A cloud floats along beside it: three soft bumps on top, flat underneath.",
+      "textHash": "1602c65eff0cebaeec29636b87669a971004497e6896de6e5b3a405039b1e439",
+      "durationMs": 5680
+    },
+    "balloon-sides": {
+      "file": "balloon-sides.m4a",
+      "text": "The balloon hangs at the right. Curve down one side, then the other, then the basket.",
+      "textHash": "3148b38c7a7eb92c7c12f4588fc31e8919ef9ec7870f9b196de908c986e60bc3",
+      "durationMs": 5440
+    },
+    "balloon-lines": {
+      "file": "balloon-lines.m4a",
+      "text": "Two curves stripe the bag. Two straight lines close the mouth and basket.",
+      "textHash": "c459c0d517c372b8ec52ef47364769f8e97ddbdaeed58efcbe70400ef03ddb74",
+      "durationMs": 4800
+    },
+    "tree": {
+      "file": "tree.m4a",
+      "text": "A pine tree stands on the left: three triangles and a short trunk.",
+      "textHash": "4a4e52fadebe9064e10c628137f50426a253fb0856016d44353f6e9aa17fc7f6",
+      "durationMs": 4320
+    },
+    "hill": {
+      "file": "hill.m4a",
+      "text": "The hill is one long curve. It runs out from the trunk to both edges.",
+      "textHash": "8d7f8dd55fcf26e4b7925178725246cfdffad60d79fc28f915df4d687a69ec4e",
+      "durationMs": 4880
+    },
+    "grass-left": {
+      "file": "grass-left.m4a",
+      "text": "Tufts of grass poke up out of the hill. Draw two of them on the left.",
+      "textHash": "79de465cf93ef90738396146f1a2f4bd65d41c0c1a5ed25fe1dd64030d120853",
+      "durationMs": 4400
+    },
+    "grass-right": {
+      "file": "grass-right.m4a",
+      "text": "Two more tufts sprout over on the right.",
+      "textHash": "ff08c57252454508347d019ad2aa6c464c9981cad5e872cda6dc6295ebaba878",
+      "durationMs": 3120
+    },
+    "color-yellow": {
+      "file": "color-yellow.m4a",
+      "text": "Color the sun yellow, and the balloon's middle stripe as well.",
+      "textHash": "ad0fb0fe8db18ec296207339147611ebab7d837d32f996e8a023be1790a6fcc8",
+      "durationMs": 4000
+    },
+    "color-red": {
+      "file": "color-red.m4a",
+      "text": "The two side stripes are red.",
+      "textHash": "882b5c6208c664595f3ba5e5d41a0b9a35b623932ccde9f7a3f4768c1a125fe6",
+      "durationMs": 2240
+    },
+    "color-tree": {
+      "file": "color-tree.m4a",
+      "text": "The pine's lower branches and the grass are dark green. Trunk and basket are brown.",
+      "textHash": "6c6b059e0d92c548a9635d7b25e55170213e17c37de9b96ff1358dbff158f8d0",
+      "durationMs": 5360
+    },
+    "color-cloud-hill": {
+      "file": "color-cloud-hill.m4a",
+      "text": "Last, color the cloud gray. The hill and the tree's top are light green.",
+      "textHash": "47bd20d8b66f5a00fc570ae53b7820c1ad09bbb50d7a6b24624eabe3be9ff88f",
+      "durationMs": 5360
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "A whole afternoon on one page: sun, cloud, hill and a balloon going somewhere. That is the In the Air path finished.",
+      "textHash": "dfb15c4dca4c122bfc6ba52133b7783a85a908e976ad705af372e2e6421ac7c4",
+      "durationMs": 8080
+    }
+  }
+}
