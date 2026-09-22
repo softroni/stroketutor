@@ -49,8 +49,13 @@ struct ProfileForm: View {
             Text("Name")
                 .textRole(.headline)
                 .foregroundStyle(Theme.ink)
-            TextField(avatar.name, text: $name)
+            // Ink, a green caret and an ink-40 placeholder, set here rather than left
+            // to the system: in dark mode those default to white on this light field.
+            TextField("", text: $name, prompt: Text(avatar.name).foregroundStyle(Theme.ink40))
+                .textFieldStyle(.plain)
                 .textRole(.body)
+                .foregroundStyle(Theme.ink)
+                .tint(Theme.green)
                 .textContentType(.givenName)
                 .textInputAutocapitalization(.words)
                 .autocorrectionDisabled()
