@@ -28,7 +28,7 @@ struct OnboardingRail: View {
 
     /// 0...1.
     let progress: Double
-    /// What VoiceOver reads for the bar: "Step 2 of 7".
+    /// What VoiceOver reads for the bar: "Step 2 of 8".
     let stepLabel: String
     var onBack: (() -> Void)?
     var onSkip: (() -> Void)?
@@ -189,9 +189,8 @@ struct OnboardingNote: View {
 }
 
 extension PathModel {
-    /// The subject glyph the path wears in onboarding, matching the icons of
-    /// `ob-path`. A path the catalog adds later gets the neutral mark rather than a
-    /// wrong one.
+    /// The subject glyph the path wears in onboarding, on the chip of `ob-ready`. A
+    /// path the catalog adds later gets the neutral mark rather than a wrong one.
     ///
     /// Every glyph here is an SF Symbol from SF Symbols 4 or earlier, so all of them
     /// exist on the deployment target (iOS 17). The ids are the curriculum's, level
@@ -222,6 +221,110 @@ extension PathModel {
         case "streets", "streets-and-places": return "signpost.right"
         default: return "scribble"
         }
+    }
+}
+
+extension CatalogLevel {
+    /// The few words under the level's name on `ob-level`, which say who it is for
+    /// rather than what it teaches: the catalog's own line is written for `hp-paths`
+    /// and is too long for a first question. A level the catalog adds later shows
+    /// its name alone.
+    var onboardingLine: String? {
+        switch id {
+        case "starter": return "New to drawing"
+        case "core": return "Some practice"
+        case "advanced": return "Ready for more"
+        default: return nil
+        }
+    }
+}
+
+// MARK: - Choosing a first path
+
+/// What `ob-level` and `ob-path` offer, worked out from the catalog and nothing
+/// else: the levels that have a path a learner can open, in the catalog's order,
+/// and under each at most four of its paths, in catalog order too.
+///
+/// A catalog without levels, or one whose shipped paths name none, has nothing to
+/// ask on `ob-level`: `levels` is then empty and `paths(in:)` offers the first four
+/// paths instead. Nothing left out here is hidden from the learner — a path past
+/// the fourth, or one no level claims, is on `hp-paths` like every other.
+struct OnboardingPathChoices {
+
+    /// A level with the paths `ob-path` shows under it.
+    struct Level: Identifiable, Hashable {
+        let level: CatalogLevel
+        /// One to `maximumPaths`, in catalog order.
+        let paths: [PathModel]
+
+        var id: String { level.id }
+
+        /// The path to take when there is nothing to pick between, so the flow can
+        /// go past `ob-path` without asking. Nil when there are two or more.
+        var onlyPath: PathModel? { paths.count == 1 ? paths.first : nil }
+    }
+
+    /// Four picture cards fill two rows, which is as many as the beat shows.
+    static let maximumPaths = 4
+
+    /// The levels to ask about, easiest first. Empty when there is no level to ask.
+    let levels: [Level]
+    /// Every path a learner can open, in catalog order.
+    private let shipped: [PathModel]
+
+    /// `paths` in catalog order, as `AppModel` holds them. A path with no lesson in
+    /// the bundle is not offered, and a level with no path left is not asked about.
+    init(levels catalogLevels: [CatalogLevel], paths: [PathModel]) {
+        let shipped = paths.filter { !$0.isEmpty }
+        self.shipped = shipped
+
+        var seen: Set<String> = []
+        levels = catalogLevels.compactMap { level in
+            guard seen.insert(level.id).inserted else { return nil }
+            let offered = shipped.filter { $0.level == level.id }.prefix(Self.maximumPaths)
+            return offered.isEmpty ? nil : Level(level: level, paths: Array(offered))
+        }
+    }
+
+    /// True when `ob-level` has something to ask.
+    var asksForLevel: Bool { !levels.isEmpty }
+
+    func level(id: String?) -> Level? {
+        guard let id else { return nil }
+        return levels.first { $0.id == id }
+    }
+
+    /// The level a path belongs to, whether or not it is one of the four `ob-path`
+    /// shows — so a flow replayed from Settings opens on the learner's own level.
+    func level(ofPath pathId: String?) -> Level? {
+        guard let pathId, let path = shipped.first(where: { $0.id == pathId }) else { return nil }
+        return level(id: path.level)
+    }
+
+    /// The paths `ob-path` offers: the level's, or the first four when there are no
+    /// levels to choose from.
+    func paths(in level: Level?) -> [PathModel] {
+        guard asksForLevel else { return Array(shipped.prefix(Self.maximumPaths)) }
+        return level?.paths ?? []
+    }
+
+    /// The level `ob-level` shows as chosen: the one tapped, else the level of the
+    /// path tapped on `ob-path` before coming back, else the level of the path the
+    /// learner already has, else the easiest.
+    func chosenLevel(tapped levelId: String?, tappedPath: String?, storedPath: String?) -> Level? {
+        level(id: levelId)
+            ?? level(ofPath: tappedPath)
+            ?? level(ofPath: storedPath)
+            ?? levels.first
+    }
+
+    /// The path `ob-path` shows as chosen among the ones it offers: the one tapped,
+    /// else the one the learner already has, else the first.
+    func chosenPath(in level: Level?, tapped pathId: String?, storedPath: String?) -> PathModel? {
+        let offered = paths(in: level)
+        return offered.first { $0.id == pathId }
+            ?? offered.first { $0.id == storedPath }
+            ?? offered.first
     }
 }
 

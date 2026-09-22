@@ -54,8 +54,8 @@ final class CurrentPathTests: XCTestCase {
         XCTAssertEqual(model.learnPath.count, 1)
     }
 
-    private static let treeLessonId = "palm-tree-4"
-    private static let carLessonId = "classic-red-car"
+    private static let treeLessonId = "pine-tree"
+    private static let carLessonId = "car"
 
     private func makeModel() -> AppModel {
         let model = AppModel(bundle: .appUnderTest,

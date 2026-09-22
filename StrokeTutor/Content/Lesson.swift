@@ -59,6 +59,10 @@ struct PathModel: Identifiable, Hashable {
     let id: String
     let title: String
     let description: String?
+    /// The id of the catalog level the path belongs to, or nil when the catalog has
+    /// no levels or the path names none. Copied from `CatalogPath.level`, so it is
+    /// always a level the catalog carries.
+    let level: String?
     let lessons: [Lesson]
 
     var lessonCount: Int { lessons.count }

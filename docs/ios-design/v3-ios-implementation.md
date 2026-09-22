@@ -154,10 +154,13 @@ use `Image`. A missing file shows the warm placeholder from v3 (`.photo--warm`) 
 
 ## Screen contracts (Phase 2; ids are the v3.html anchors)
 
-- **Onboarding** `ob-splash ob-1 ob-2 ob-3 ob-path ob-voice ob-ready`: `OnboardingFlow(onFinished:)`; a thick green
-  progress bar with a back chevron; Lina + speech bubble; single-choice path rows from the real catalog (first path
-  preselected); the voice beat writes `narrationEnabled`; the last beat shows the chosen path's first lesson drawing
-  itself and its Start drawing → the lesson preview of that lesson. Writes `hasCompletedOnboarding`, `currentPathId`.
+- **Onboarding** `ob-splash ob-1 ob-2 ob-3 ob-who ob-level ob-path ob-voice ob-ready` (8-step progress rail,
+  `ob-1`=1 … `ob-ready`=8): `OnboardingFlow(onFinished:)`; a thick green progress bar with a back chevron; Lina +
+  speech bubble; `ob-who` collects name + avatar; `ob-level` and `ob-path` are single-choice rows/cards from the
+  real catalog (first level, then first path in that level, preselected) — a level with exactly one shipped path
+  (Advanced → Landscape today) skips `ob-path` and writes `currentPathId` directly; the voice beat writes
+  `narrationEnabled`; the last beat shows the chosen path's first lesson drawing itself and its Start drawing → the
+  lesson preview of that lesson. Writes `hasCompletedOnboarding`, `currentPathId`.
 - **Home** `hp-home`: title + gold chip with the sketchbook count; the hero banner (Continue · <path> / Start here ·
   <path>; next lesson; "Lesson n of m · About k min"; the drawing on a white thumb; white-on-green "Start drawing");
   eyebrow "<Path> · n of m drawn" with "All paths"; the node path of the current path. Empty catalog: a plain card

@@ -181,7 +181,7 @@ final class CatalogLevelsTests: XCTestCase {
                    "gear", "fantasy-objects", "lettering",
                    "trees", "cars"]
         for id in ids {
-            let path = PathModel(id: id, title: id, description: nil, lessons: [])
+            let path = PathModel(id: id, title: id, description: nil, level: nil, lessons: [])
             XCTAssertNotEqual(path.onboardingSymbol, "scribble", "\(id) has no symbol of its own.")
             XCTAssertNotNil(UIImage(systemName: path.onboardingSymbol),
                             "\(path.onboardingSymbol) is not an SF Symbol on this system.")
@@ -189,7 +189,7 @@ final class CatalogLevelsTests: XCTestCase {
     }
 
     func testAPathTheCatalogAddsLaterGetsTheNeutralMark() {
-        let path = PathModel(id: "something-new", title: "Something new", description: nil, lessons: [])
+        let path = PathModel(id: "something-new", title: "Something new", description: nil, level: nil, lessons: [])
         XCTAssertEqual(path.onboardingSymbol, "scribble")
     }
 

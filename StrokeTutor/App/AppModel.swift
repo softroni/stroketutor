@@ -182,6 +182,7 @@ final class AppModel {
             return PathModel(id: path.id,
                              title: path.title,
                              description: path.description,
+                             level: path.level,
                              lessons: lessons)
         }
 
@@ -239,7 +240,7 @@ final class AppModel {
         return progress.nextLesson(in: path)
     }
 
-    /// Chooses the path Home shows (`hp-paths`, and the onboarding beat `ob-path`).
+    /// Chooses the path Home shows (`hp-paths`, and the onboarding beats `ob-level` and `ob-path`).
     func select(_ path: PathModel) {
         preferences.currentPathId = path.id
     }
@@ -473,6 +474,7 @@ extension AppModel {
         paths[index] = PathModel(id: existing.id,
                                  title: existing.title,
                                  description: existing.description,
+                                 level: existing.level,
                                  lessons: existing.lessons + [lesson])
     }
 }

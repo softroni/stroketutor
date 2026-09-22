@@ -1,16 +1,19 @@
 import SwiftUI
 
-/// `ob-splash` … `ob-ready` — the eight beats a learner sees once: what the app is,
-/// what they will do, how a lesson works, what they need, who is drawing, which path
-/// to take, whether Lina speaks, and their first lesson.
+/// `ob-splash` … `ob-ready` — the nine beats a learner sees once: what the app is,
+/// what they will do, how a lesson works, what they need, who is drawing, how much
+/// they have drawn before, which path to take, whether Lina speaks, and their first
+/// lesson. A beat with nothing to ask is passed over: `ob-level` when the catalog
+/// has no levels, and `ob-path` when the level chosen has a single path.
 ///
 /// The flow owns the three answers onboarding collects — the learner's name and
-/// picture, the path and the voice — and nothing else. It writes the profile when
-/// the learner leaves the who beat, `currentPathId` when they leave the path beat
-/// and `narrationEnabled` the moment the switch is touched, all to the learner who is
-/// drawing; `hasCompletedOnboarding` is written by `AppRoot` when `onFinished` is
-/// called, so a flow replayed from Settings changes no stored value it was not
-/// asked to.
+/// picture, the path and the voice — and nothing else; the level only narrows the
+/// paths offered and is never stored. It writes the profile when the learner leaves
+/// the who beat, `currentPathId` when they leave the path beat (or the level beat,
+/// when that level's one path is the answer) and `narrationEnabled` the moment the
+/// switch is touched, all to the learner who is drawing; `hasCompletedOnboarding`
+/// is written by `AppRoot` when `onFinished` is called, so a flow replayed from
+/// Settings changes no stored value it was not asked to.
 struct OnboardingFlow: View {
 
     /// Called once, with the lesson to open next, or nil to land on Home.
@@ -24,6 +27,9 @@ struct OnboardingFlow: View {
     @Environment(\.accessibilityReduceMotion) private var systemReducesMotion
 
     @State private var beat: Beat?
+    /// The level the learner has tapped. Never stored: it only chooses which paths
+    /// `ob-path` offers.
+    @State private var pendingLevelId: String?
     /// The path the learner has tapped, before Continue commits it.
     @State private var pendingPathId: String?
 
@@ -32,7 +38,7 @@ struct OnboardingFlow: View {
         self.initialBeat = initialBeat
     }
 
-    /// The eight beats, in order. `progress` is the rail's fill; the launch beat has
+    /// The nine beats, in order. `progress` is the rail's fill; the launch beat has
     /// no rail at all.
     enum Beat: String, CaseIterable, Hashable {
         case launch = "ob-splash"
@@ -40,11 +46,14 @@ struct OnboardingFlow: View {
         case method = "ob-2"
         case kit = "ob-3"
         case who = "ob-who"
+        case level = "ob-level"
         case path = "ob-path"
         case voice = "ob-voice"
         case ready = "ob-ready"
 
-        /// One of seven rail positions, from 1/7 to 100 %.
+        /// One of eight rail positions, from 1/8 to 100 %. A beat the flow passes
+        /// over leaves its step unfilled, so the bar jumps ahead rather than lying
+        /// about how far there is to go.
         var step: Int {
             switch self {
             case .launch: return 0
@@ -52,13 +61,14 @@ struct OnboardingFlow: View {
             case .method: return 2
             case .kit: return 3
             case .who: return 4
-            case .path: return 5
-            case .voice: return 6
-            case .ready: return 7
+            case .level: return 5
+            case .path: return 6
+            case .voice: return 7
+            case .ready: return 8
             }
         }
 
-        static let railSteps = 7
+        static let railSteps = 8
 
         var progress: Double { Double(step) / Double(Self.railSteps) }
 
@@ -106,12 +116,30 @@ struct OnboardingFlow: View {
 
         case .who:
             OnboardingWhoBeat(rail: rail(for: .who, back: .kit, skippable: false),
-                              onContinue: { go(.path) })
+                              onContinue: { go(choices.asksForLevel ? .level : .path) })
+
+        case .level:
+            OnboardingLevelBeat(levels: choices.levels,
+                                selectedLevelId: selectedLevel?.id,
+                                rail: rail(for: .level, back: .who, skippable: false),
+                                onSelect: choose,
+                                onContinue: {
+                                    // A level with one path has nothing to pick
+                                    // between, so that path is the answer.
+                                    if let only = selectedLevel?.onlyPath {
+                                        app.select(only)
+                                        go(.voice)
+                                    } else {
+                                        go(.path)
+                                    }
+                                })
 
         case .path:
-            OnboardingPathBeat(paths: visiblePaths,
+            OnboardingPathBeat(paths: pathsForSelectedLevel,
                                selectedPathId: selectedPath?.id,
-                               rail: rail(for: .path, back: .who, skippable: false),
+                               rail: rail(for: .path,
+                                          back: choices.asksForLevel ? .level : .who,
+                                          skippable: false),
                                onSelect: { pendingPathId = $0.id },
                                onContinue: {
                                    if let path = selectedPath { app.select(path) }
@@ -120,7 +148,7 @@ struct OnboardingFlow: View {
 
         case .voice:
             OnboardingVoiceBeat(narrationEnabled: narrationBinding,
-                                rail: rail(for: .voice, back: .path, skippable: false),
+                                rail: rail(for: .voice, back: voiceBack, skippable: false),
                                 onContinue: { go(.ready) })
 
         case .ready:
@@ -141,11 +169,26 @@ struct OnboardingFlow: View {
                        onSkip: skippable ? { go(.who) } : nil)
     }
 
+    /// Where the voice beat's chevron returns to: the path beat, or the level beat
+    /// when the path beat was passed over.
+    private var voiceBack: Beat {
+        choices.asksForLevel && selectedLevel?.onlyPath != nil ? .level : .path
+    }
+
     // MARK: - Moving
 
     private func go(_ target: Beat) {
         withAnimation(reducesMotion ? nil : .easeInOut(duration: 0.22)) {
             beat = target
+        }
+    }
+
+    /// Moves the level selection. A path tapped earlier that the new level does
+    /// not offer is forgotten, so the path beat opens on one it can show.
+    private func choose(_ level: OnboardingPathChoices.Level) {
+        pendingLevelId = level.id
+        if let pendingPathId, !level.paths.contains(where: { $0.id == pendingPathId }) {
+            self.pendingPathId = nil
         }
     }
 
@@ -157,16 +200,32 @@ struct OnboardingFlow: View {
         app.paths.filter { !$0.isEmpty }
     }
 
-    /// The path the picker shows as chosen: what was tapped, else what Settings
-    /// already holds, else the first path in the catalog.
+    /// The levels and the paths under them, from the catalog.
+    private var choices: OnboardingPathChoices {
+        OnboardingPathChoices(levels: app.catalog.levels, paths: visiblePaths)
+    }
+
+    /// The level the level beat shows as chosen: what was tapped, else the level of
+    /// the path chosen so far — so a flow replayed from Settings opens on the
+    /// learner's own level — else the first. Nil when there are no levels.
+    private var selectedLevel: OnboardingPathChoices.Level? {
+        choices.chosenLevel(tapped: pendingLevelId,
+                            tappedPath: pendingPathId,
+                            storedPath: app.preferences.currentPathId)
+    }
+
+    /// What the path beat offers: the chosen level's paths, or the first paths in
+    /// the catalog when there is no level to choose.
+    private var pathsForSelectedLevel: [PathModel] {
+        choices.paths(in: selectedLevel)
+    }
+
+    /// The path the picker shows as chosen, always one it offers: what was tapped,
+    /// else what Settings already holds, else the first path offered.
     private var selectedPath: PathModel? {
-        if let pendingPathId, let path = visiblePaths.first(where: { $0.id == pendingPathId }) {
-            return path
-        }
-        if let stored = visiblePaths.first(where: { $0.id == app.preferences.currentPathId }) {
-            return stored
-        }
-        return visiblePaths.first
+        choices.chosenPath(in: selectedLevel,
+                           tapped: pendingPathId,
+                           storedPath: app.preferences.currentPathId)
     }
 
     /// The drawing the launch and the first beats show, before a path is chosen.

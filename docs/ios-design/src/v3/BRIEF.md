@@ -48,7 +48,9 @@ up) and look at every variant. Nothing may be clipped inside a phone unless the 
 | Onboarding | `ob-1` | "Have you ever wanted to draw what you see?" — Lina + a reference photo → drawing | |
 | Onboarding | `ob-2` | The method: watch · draw on paper · tap I drew it (three tiles, animated stroke) | |
 | Onboarding | `ob-3` | What you need: a pen, paper, five minutes | |
-| Onboarding | `ob-path` | Choose a path: single-choice rows, Houses selected | |
+| Onboarding | `ob-who` | Name + avatar. Exists in the app; no mockup article yet — see `10-onboarding.html` beat numbering | |
+| Onboarding | `ob-level` | Choose a level: three full-width cards (Starter/Core/Advanced), Starter selected | |
+| Onboarding | `ob-path` | Choose a path: picture-card grid of the chosen level's paths, first selected | |
 | Onboarding | `ob-voice` | Meet the voice: narration on/off, a sample line | |
 | Onboarding | `ob-ready` | Your first lesson is ready → `hp-preview` | |
 | Home & paths | `hp-home` | Learn tab: hero card + the Houses path as nodes; variants in-progress · first-time | 20-home-paths.html |

@@ -1,8 +1,11 @@
 import SwiftUI
 
-/// `ob-path` — "What would you like to draw first?" Single-choice rows straight
-/// from the catalog, the first path preselected so Continue is never blocked, and
-/// no Skip: Skip lands on the who beat just before this one.
+/// `ob-path` — "Pick one to start." The paths of the level chosen on `ob-level`, at
+/// most four, as pictures of what the learner will draw first: two to a row, a
+/// third on its own row centered under the first two. One column at the
+/// accessibility text sizes, so a title has the width to wrap in. The first path is
+/// preselected so Continue is never blocked, and there is no Skip: Skip lands on
+/// the who beat, before the level was asked.
 ///
 /// A tap moves the selection and never advances. Continue writes `currentPathId`.
 struct OnboardingPathBeat: View {
@@ -14,21 +17,20 @@ struct OnboardingPathBeat: View {
     let onContinue: () -> Void
 
     @Environment(\.onboardingReducesMotion) private var reducesMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         OnboardingBeatFrame(rail: rail) {
             TutorSays(pose: .neutral,
-                      text: "What would you like to draw first? You can change this any time.")
+                      text: "Pick one to start. The rest are waiting in Paths.")
 
             if paths.isEmpty {
                 emptyCatalog
             } else {
-                VStack(spacing: Theme.stackSpacing) {
+                PictureGrid(columns: dynamicTypeSize.isAccessibilitySize ? 1 : 2,
+                            spacing: Theme.stackSpacing) {
                     ForEach(paths) { path in
-                        ChoiceRow(title: path.title,
-                                  subtitle: subtitle(for: path),
-                                  systemImage: path.onboardingSymbol,
-                                  isSelected: path.id == selectedPathId) {
+                        PathPictureCard(path: path, isSelected: path.id == selectedPathId) {
                             onSelect(path)
                         }
                     }
@@ -42,14 +44,6 @@ struct OnboardingPathBeat: View {
         }
     }
 
-    /// "10 lessons · starts with a simple house" — the count and the first lesson,
-    /// both from the catalog. Nothing here is written into the app.
-    private func subtitle(for path: PathModel) -> String {
-        let count = path.lessonCount == 1 ? "1 lesson" : "\(path.lessonCount) lessons"
-        guard let first = path.lessons.first else { return count }
-        return "\(count) · starts with \(first.title)"
-    }
-
     private var emptyCatalog: some View {
         Text("No lessons are installed.")
             .textRole(.headline)
@@ -59,4 +53,55 @@ struct OnboardingPathBeat: View {
             .cardBackground()
     }
 
+}
+
+/// Equal columns, filled row by row, with every card in a row given the row's
+/// tallest height. A last row that is not full is centered rather than left
+/// hanging at the leading edge — three paths read as two and one under them.
+private struct PictureGrid: Layout {
+    let columns: Int
+    let spacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.replacingUnspecifiedDimensions().width
+        let heights = rowHeights(of: subviews, columnWidth: columnWidth(in: width))
+        let height = heights.reduce(0, +) + spacing * CGFloat(max(heights.count - 1, 0))
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let column = columnWidth(in: bounds.width)
+        let heights = rowHeights(of: subviews, columnWidth: column)
+        var y = bounds.minY
+
+        for (row, height) in heights.enumerated() {
+            let first = row * columns
+            let count = min(columns, subviews.count - first)
+            let rowWidth = column * CGFloat(count) + spacing * CGFloat(count - 1)
+            var x = bounds.minX + (bounds.width - rowWidth) / 2
+
+            for index in first..<(first + count) {
+                subviews[index].place(at: CGPoint(x: x, y: y),
+                                      anchor: .topLeading,
+                                      proposal: ProposedViewSize(width: column, height: height))
+                x += column + spacing
+            }
+            y += height + spacing
+        }
+    }
+
+    private func columnWidth(in width: CGFloat) -> CGFloat {
+        let count = CGFloat(max(columns, 1))
+        return max((width - spacing * (count - 1)) / count, 0)
+    }
+
+    /// Each row as tall as its tallest card wants to be at the column's width.
+    private func rowHeights(of subviews: Subviews, columnWidth: CGFloat) -> [CGFloat] {
+        let perRow = max(columns, 1)
+        return stride(from: 0, to: subviews.count, by: perRow).map { first in
+            subviews[first..<min(first + perRow, subviews.count)]
+                .map { $0.sizeThatFits(ProposedViewSize(width: columnWidth, height: nil)).height }
+                .max() ?? 0
+        }
+    }
 }
