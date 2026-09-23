@@ -136,7 +136,9 @@ struct CaptureFlow: View {
     // MARK: - primer
 
     /// Shown before the camera is ever asked for, so "Don't Allow" is an informed
-    /// choice. "Choose from Photos" needs no permission at all.
+    /// choice. "Choose from Photos" needs no permission at all. The drawing card
+    /// names the page being photographed and offers the lesson again for a page
+    /// left unfinished.
     private var primer: some View {
         VStack(spacing: 0) {
             navigationBar(title: nil, leading: fromSketchbook ? .close : .back) {
@@ -168,6 +170,9 @@ struct CaptureFlow: View {
                         .textRole(.bodyRegular)
                         .foregroundStyle(Theme.ink55)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    drawingCard
+                        .padding(.top, 8)
 
                     ListCard(isSoft: true) {
                         promise("Photos stay on this iPhone, inside StrokeTutor.")
@@ -210,6 +215,69 @@ struct CaptureFlow: View {
             .padding(.horizontal, Theme.gutter)
             .padding(.vertical, Theme.stackSpacing)
         }
+    }
+
+    /// Which drawing this photo is for: the lesson's finished page, its path and
+    /// its name, so the learner photographs the right sheet. Under it, a way back
+    /// into the lesson for a page that was not finished on paper — continuing from
+    /// the step the learner left off at when a later try stopped part-way.
+    private var drawingCard: some View {
+        let resumeStep = app.progress.resumeStep(for: lesson.id)
+        return ListCard {
+            HStack(spacing: 14) {
+                PageThumb(tutorial: lesson.tutorial, cornerRadius: 12, showsFills: true)
+                    .frame(width: 64)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("This photo is for")
+                        .textRole(.footnote)
+                        .foregroundStyle(Theme.ink55)
+                    Text(lesson.title)
+                        .scaledFont(20, .heavy, relativeTo: .headline)
+                        .tracking(-0.2)
+                        .foregroundStyle(Theme.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if let place = lessonPlace {
+                        Text(place)
+                            .textRole(.subhead)
+                            .foregroundStyle(Theme.ink55)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 18)
+            .accessibilityElement(children: .combine)
+
+            RowDivider()
+
+            Button {
+                if let resumeStep {
+                    app.presentPlayer(lesson, resumeFrom: resumeStep)
+                } else {
+                    app.presentPlayer(lesson)
+                }
+            } label: {
+                Label(resumeStep.map { "Not finished? Continue from step \($0 + 1)" }
+                          ?? "Not finished? Draw it again",
+                      systemImage: "arrow.counterclockwise")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .buttonStyle(.quietLink)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 4)
+            .accessibilityHint("Opens the lesson, so you can finish the page before the photo")
+        }
+    }
+
+    /// "Sky & Weather · Lesson 2", or nil for a lesson the catalog has no path for.
+    private var lessonPlace: String? {
+        guard let path = app.path(id: lesson.pathId) else { return nil }
+        guard let position = path.position(of: lesson.id) else { return path.title }
+        return "\(path.title) · Lesson \(position)"
     }
 
     /// One of the three promises: a green check tile and a line (`.list--soft` row).
