@@ -293,8 +293,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				INFOPLIST_KEY_CFBundleDisplayName = "Paper Coach";
 				PRODUCT_BUNDLE_IDENTIFIER = com.softroni.StrokeTutor;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Paper Coach";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -317,8 +318,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				INFOPLIST_KEY_CFBundleDisplayName = "Paper Coach";
 				PRODUCT_BUNDLE_IDENTIFIER = com.softroni.StrokeTutor;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Paper Coach";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

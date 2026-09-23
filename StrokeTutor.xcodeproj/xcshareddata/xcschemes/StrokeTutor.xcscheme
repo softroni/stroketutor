@@ -6,7 +6,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AB000000000000000000003A"
-               BuildableName = "StrokeTutor.app"
+               BuildableName = "Paper Coach.app"
                BlueprintName = "StrokeTutor"
                ReferencedContainer = "container:StrokeTutor.xcodeproj">
             </BuildableReference>
@@ -31,7 +31,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB000000000000000000003A"
-            BuildableName = "StrokeTutor.app"
+            BuildableName = "Paper Coach.app"
             BlueprintName = "StrokeTutor"
             ReferencedContainer = "container:StrokeTutor.xcodeproj">
          </BuildableReference>
@@ -42,7 +42,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB000000000000000000003A"
-            BuildableName = "StrokeTutor.app"
+            BuildableName = "Paper Coach.app"
             BlueprintName = "StrokeTutor"
             ReferencedContainer = "container:StrokeTutor.xcodeproj">
          </BuildableReference>

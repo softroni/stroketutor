@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>StrokeTutor</string>
+	<string>Paper Coach</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -35,9 +35,9 @@
 	     launch, and the photo-library key is the add-only one because the app writes
 	     a photo and never reads the library. -->
 	<key>NSCameraUsageDescription</key>
-	<string>StrokeTutor uses the camera when you choose to photograph a drawing you have finished, so the page can be kept in your sketchbook on this iPhone.</string>
+	<string>Paper Coach uses the camera when you choose to photograph a drawing you have finished, so the page can be kept in your sketchbook on this iPhone.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>StrokeTutor saves a photo of a finished drawing to your photo library only while "Also save to Photos" is on. It never reads your library.</string>
+	<string>Paper Coach saves a photo of a finished drawing to your photo library only while "Also save to Photos" is on. It never reads your library.</string>
 
 	<key>UIApplicationSceneManifest</key>
 	<dict>
