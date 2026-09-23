@@ -21,8 +21,13 @@ struct MainTabs: View {
     /// same state change that pushes the screen. Only the showing tab is asked, so
     /// a hidden bar in one stack cannot follow the learner into another.
     private var tabBarHidden: Bool {
-        app.topRoute(of: app.selectedTab)?.hidesTabBar ?? false
+        keyboardShown || (app.topRoute(of: app.selectedTab)?.hidesTabBar ?? false)
     }
+
+    /// Whether the keyboard is up. The bar would otherwise ride on top of it, with
+    /// its reserved space, and take a third of what is left above the keys from a
+    /// search's results; typing is not the moment to change tabs.
+    @State private var keyboardShown = false
 
     var body: some View {
         @Bindable var app = app
@@ -51,6 +56,12 @@ struct MainTabs: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: tabBarHidden)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            keyboardShown = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            keyboardShown = false
+        }
         .background(Theme.page)
     }
 
@@ -63,10 +74,10 @@ struct MainTabs: View {
             root()
                 // A tab's root always sits above the bar; a pushed screen says so
                 // through its route.
-                .reservesTabBarSpace()
+                .reservesTabBarSpace(!keyboardShown)
                 .navigationDestination(for: AppRoute.self) { route in
                     AppDestination(route: route)
-                        .reservesTabBarSpace(!route.hidesTabBar)
+                        .reservesTabBarSpace(!route.hidesTabBar && !keyboardShown)
                 }
         }
         .opacity(isActive ? 1 : 0)

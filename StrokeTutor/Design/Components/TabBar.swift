@@ -89,12 +89,16 @@ struct TabBar: View {
 extension View {
     /// Keeps a screen's content clear of the tab bar, for the screens that show it.
     /// See `TabBar.spacer` for why the room is reserved rather than measured.
-    @ViewBuilder
+    ///
+    /// The inset is always there and only folds to nothing when the room is not
+    /// wanted: `reserves` changes while a screen is up (the keyboard takes the bar
+    /// away), and swapping the modifier in and out would give the screen a new
+    /// identity, throwing away its state mid-search.
     func reservesTabBarSpace(_ reserves: Bool = true) -> some View {
-        if reserves {
-            safeAreaInset(edge: .bottom, spacing: 0) { TabBar.spacer }
-        } else {
-            self
+        safeAreaInset(edge: .bottom, spacing: 0) {
+            TabBar.spacer
+                .frame(height: reserves ? nil : 0)
+                .clipped()
         }
     }
 }

@@ -48,6 +48,7 @@ enum DebugScreenHarness {
         raiseProfileSwitcher = false
         raisePINCreate = false
         pendingLessonsJump = nil
+        pendingLessonsSearch = nil
         app.pathsWelcomePending = false
 
         // The screens below are captured with two of the shipped drawings: the palm
@@ -116,16 +117,22 @@ enum DebugScreenHarness {
             app.pathsWelcomePending = true
             app.showAllPaths()
 
-        case "lessons", "lessons-deep":
+        case "lessons", "lessons-deep", "lessons-search":
             // The Lessons tab with the catalog in three states at once: the first
             // path finished (a gold chip), the second part-way, the rest untouched.
             // The deep variant jumps to the fourth path, so the chip band can be
-            // seen holding its place with the list well past the top.
+            // seen holding its place with the list well past the top. The search
+            // variant opens the search field with `-STLessonsSearch <words>` typed
+            // in ("rokcet" when the argument is left out: a typo that still finds
+            // the rocket; "dragon" shows the no-results card, "" the empty field).
             for (path, count) in zip(shipped, [shipped.first?.lessonCount ?? 0, 3]) {
                 markFirst(count, of: path, in: app)
             }
             if name == "lessons-deep", shipped.count > 3 {
                 pendingLessonsJump = shipped[3].id
+            }
+            if name == "lessons-search" {
+                pendingLessonsSearch = UserDefaults.standard.string(forKey: "STLessonsSearch") ?? "rokcet"
             }
             app.popToRoot(.lessons)
             app.selectedTab = .lessons
@@ -362,9 +369,12 @@ enum DebugScreenHarness {
     static var raiseProfileSwitcher = false
     /// Set by `pin`; `SettingsView` reads and clears it in `onAppear`.
     static var raisePINCreate = false
-    /// Set by `lessons-deep`; `LessonsView` reads and clears it in `onAppear` and
+    /// Set by `lessons-deep`; `LessonsView` reads it just after appearing (not
+    /// clearing it: the tab is rebuilt once the harness resets the learner) and
     /// jumps its list to that path, since where a scroll sits is its own `@State`.
     static var pendingLessonsJump: String?
+    /// Set by `lessons-search`; `LessonsView` reads it the same way, opens its search field and types these words, since both are its own `@State`.
+    static var pendingLessonsSearch: String?
 
     /// Profile screens need a second learner to show anything worth reviewing. Added
     /// once and left: profiles, unlike the stores above, are not wiped per run.
