@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// The Lessons tab: every lesson the app ships, two to a row, grouped under its
-/// path. Home keeps to what a learner is drawing and a few doors onward, which can
+/// The Lessons tab: every lesson the app ships, three to a row on a phone and six
+/// on an iPad, grouped under its path. Home keeps to what a learner is drawing and a few doors onward, which can
 /// make a big catalog look small; this screen shows all of it at once, so how
 /// much there is to draw is never in doubt.
 ///
@@ -24,6 +24,7 @@ import SwiftUI
 struct LessonsView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var lockedLesson: LockedLesson?
     /// The path whose lessons fill the top of the list: the chip that is filled in.
     @State private var activePathId: String?
@@ -255,9 +256,14 @@ struct LessonsView: View {
 
     // MARK: - Grid
 
-    /// Two columns on a phone; one at the accessibility text sizes, where two
-    /// names side by side would not fit.
-    private var columnCount: Int { dynamicTypeSize.isAccessibilitySize ? 1 : 2 }
+    /// Three columns on a phone, six on an iPad (or any regular-width window). The
+    /// biggest text sizes take fewer, so the names under the tiles still fit.
+    private var columnCount: Int {
+        let isWide = horizontalSizeClass == .regular
+        if dynamicTypeSize.isAccessibilitySize { return isWide ? 3 : 1 }
+        if dynamicTypeSize > .xLarge { return isWide ? 4 : 2 }
+        return isWide ? 6 : 3
+    }
 
     /// Each tile is as wide as its column. One column is kept to a size that still
     /// leaves the next row peeking in.
