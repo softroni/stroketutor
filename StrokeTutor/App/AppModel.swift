@@ -482,6 +482,18 @@ extension AppModel {
     /// A learner's age group, stamped with today's date. The caller has already
     /// asked for the PIN when the change needs it (`ageChangeNeedsPIN`).
     func setAgeGroup(_ id: UUID, to ageGroup: AgeGroup, at now: Date = Date()) {
+        // The session-only learner is not on disk: keep the answer for this launch,
+        // so what analytics may send still follows it.
+        if var temporary = temporaryProfile, temporary.id == id {
+            temporary.ageGroup = ageGroup
+            temporary.ageGroupAnsweredAt = now
+            temporaryProfile = temporary
+            if id == activeProfile.id {
+                activeProfile = temporary
+                analytics.identify(temporary)
+            }
+            return
+        }
         guard var profile = profileStore.profile(id: id) else { return }
         profile.ageGroup = ageGroup
         profile.ageGroupAnsweredAt = now

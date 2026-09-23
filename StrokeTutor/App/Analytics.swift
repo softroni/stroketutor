@@ -9,12 +9,16 @@ import Foundation
 /// is made here, once, not in each sink:
 ///
 /// - **child** (under 13, or never said): anonymous events only. The id is made
-///   fresh every launch, so a session's funnel can be read but a child is never
-///   followed from one day to the next; no person profile, no autocapture, no
-///   session replay.
+///   fresh every launch, one per learner, so a session's funnel can be read but a
+///   child is never followed from one day to the next, nor mixed up with a
+///   sibling; no person profile, no autocapture, no session replay.
 /// - **teen** (13 to 17): events under the learner's own id, autocapture, but no
 ///   session replay.
 /// - **adult**: everything a sink offers.
+///
+/// Whenever the id changes — another learner, or the same one moving in or out of
+/// the child tier — the sink is told to `reset()` first, so it never links a
+/// child's anonymous events to a person it can identify.
 ///
 /// Nothing a learner typed — their name — is ever sent. The id is the profile's
 /// random UUID, which names nothing.
@@ -22,26 +26,31 @@ import Foundation
 final class Analytics {
 
     private let sink: AnalyticsSink
-    /// Made once per launch: the id every child-tier event carries.
-    private let sessionId: String
+    /// The id each child-tier learner's events carry, made the first time they
+    /// draw in this launch and forgotten when the app quits.
+    private var sessionIds: [UUID: String] = [:]
+    private var hasIdentified = false
 
     private(set) var policy = AnalyticsPolicy(tier: .child)
-    private(set) var distinctId: String
+    private(set) var distinctId = UUID().uuidString
     private var ageGroup: AgeGroup?
 
     init(sink: AnalyticsSink) {
         self.sink = sink
-        let sessionId = UUID().uuidString
-        self.sessionId = sessionId
-        distinctId = sessionId
     }
 
     /// Says who is drawing now. Called at launch, on every switch, and whenever the
     /// learner's age group changes.
     func identify(_ profile: Profile) {
+        let newPolicy = AnalyticsPolicy(tier: profile.privacyTier)
+        let newId = newPolicy.keepsPersonProfile ? profile.id.uuidString : sessionId(for: profile.id)
+        if hasIdentified && newId != distinctId {
+            sink.reset()
+        }
+        hasIdentified = true
         ageGroup = profile.ageGroup
-        policy = AnalyticsPolicy(tier: profile.privacyTier)
-        distinctId = policy.keepsPersonProfile ? profile.id.uuidString : sessionId
+        policy = newPolicy
+        distinctId = newId
         sink.identify(distinctId: distinctId,
                       properties: [AnalyticsEvent.Key.ageGroup: ageGroupKey],
                       policy: policy)
@@ -53,6 +62,13 @@ final class Analytics {
         sink.capture(AnalyticsEvent(name: event.name, properties: properties),
                      distinctId: distinctId,
                      policy: policy)
+    }
+
+    private func sessionId(for profileId: UUID) -> String {
+        if let existing = sessionIds[profileId] { return existing }
+        let made = UUID().uuidString
+        sessionIds[profileId] = made
+        return made
     }
 
     /// The stored key, or `unanswered` for a learner never asked — distinct from
@@ -108,10 +124,14 @@ struct AnalyticsEvent: Equatable {
 protocol AnalyticsSink: AnyObject {
     func identify(distinctId: String, properties: [String: String], policy: AnalyticsPolicy)
     func capture(_ event: AnalyticsEvent, distinctId: String, policy: AnalyticsPolicy)
+    /// Forget whoever was drawing: the next `identify` is someone new, never to be
+    /// merged with them. PostHog's `reset()`.
+    func reset()
 }
 
 /// Sends nothing. The app's sink until an analytics service is chosen.
 final class NoAnalyticsSink: AnalyticsSink {
     func identify(distinctId: String, properties: [String: String], policy: AnalyticsPolicy) {}
     func capture(_ event: AnalyticsEvent, distinctId: String, policy: AnalyticsPolicy) {}
+    func reset() {}
 }

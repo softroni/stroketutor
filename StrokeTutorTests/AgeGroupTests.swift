@@ -180,6 +180,34 @@ final class AgeGroupTests: XCTestCase {
         XCTAssertEqual(model.analytics.policy.tier, .adult)
     }
 
+    func testTwoChildrenInOneLaunchNeverShareAnId() throws {
+        let model = makeModel()
+        let first = model.activeProfile
+        let second = try XCTUnwrap(model.addProfile(name: "Leo", avatar: .frog))
+        let firstId = model.analytics.distinctId
+
+        model.switchProfile(to: second.id)
+        XCTAssertNotEqual(model.analytics.distinctId, firstId)
+
+        model.switchProfile(to: first.id)
+        XCTAssertEqual(model.analytics.distinctId, firstId, "The same child keeps their id for the whole launch.")
+    }
+
+    func testTheSinkIsResetWheneverTheIdChanges() throws {
+        let model = makeModel()
+        XCTAssertEqual(sink.resets, 0, "The first identify has no one to forget.")
+
+        model.setAgeGroup(model.activeProfile.id, to: .from10To12)
+        XCTAssertEqual(sink.resets, 0, "Answering within the child tier keeps the same anonymous id.")
+
+        model.setAgeGroup(model.activeProfile.id, to: .adult)
+        XCTAssertEqual(sink.resets, 1, "A child's anonymous events are never merged into the adult they became.")
+
+        let other = try XCTUnwrap(model.addProfile(name: "Maya", avatar: .owl))
+        model.switchProfile(to: other.id)
+        XCTAssertEqual(sink.resets, 2, "Another learner is someone new.")
+    }
+
     func testNoNameIsEverSent() {
         let model = makeModel()
         model.updateProfile(model.activeProfile.id, name: "Ada Lovelace", avatar: .owl)
@@ -215,6 +243,7 @@ private final class RecordingSink: AnalyticsSink {
 
     private(set) var identified: [Identified] = []
     private(set) var captured: [Captured] = []
+    private(set) var resets = 0
 
     func identify(distinctId: String, properties: [String: String], policy: AnalyticsPolicy) {
         identified.append(Identified(distinctId: distinctId, properties: properties, policy: policy))
@@ -222,5 +251,9 @@ private final class RecordingSink: AnalyticsSink {
 
     func capture(_ event: AnalyticsEvent, distinctId: String, policy: AnalyticsPolicy) {
         captured.append(Captured(event: event, distinctId: distinctId, policy: policy))
+    }
+
+    func reset() {
+        resets += 1
     }
 }

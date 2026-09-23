@@ -49,6 +49,12 @@ struct OnboardingAgeBeat: View {
 
     private func answer(_ ageGroup: AgeGroup) {
         let id = app.activeProfile.id
+        // A replay that keeps the same answer keeps the date it was first given.
+        guard ageGroup != app.activeProfile.ageGroup else {
+            app.analytics.track(.onboardingAgeAnswered)
+            onContinue()
+            return
+        }
         let commit = {
             app.setAgeGroup(id, to: ageGroup)
             app.analytics.track(.onboardingAgeAnswered)

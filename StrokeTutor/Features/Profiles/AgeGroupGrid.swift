@@ -10,7 +10,11 @@ struct AgeGroupGrid: View {
     let selection: AgeGroup?
     let onSelect: (AgeGroup) -> Void
 
-    @Environment(\.onboardingReducesMotion) private var reducesMotion
+    @Environment(\.onboardingReducesMotion) private var onboardingReducesMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReducesMotion
+
+    /// Onboarding resolves Reduce Motion itself; Settings does not, so ask both.
+    private var reducesMotion: Bool { onboardingReducesMotion || systemReducesMotion }
 
     var body: some View {
         PictureGrid(columns: 2, spacing: Theme.stackSpacing) {
