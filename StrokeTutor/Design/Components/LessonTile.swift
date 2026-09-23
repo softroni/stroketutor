@@ -5,8 +5,9 @@ import SwiftUI
 /// picture does the talking — a learner who cannot read the name yet can still
 /// choose.
 ///
-/// * `.done` — white paper, the drawing in its own colors, a gold ring and edge and
-///   a gold check badge: a finished drawing, as on the path screen's nodes.
+/// * `.done` — white paper, the drawing in its own colors, the same thin gray border
+///   and edge as a locked tile, and a small green check where the lock would sit: a
+///   finished drawing, as on the path screen's nodes.
 /// * `.next` — white paper, the drawing in color, a green ring and edge and a
 ///   "Next" flag: the one to draw now.
 /// * `.locked` — the same full-color drawing on white paper behind a thin gray
@@ -66,7 +67,7 @@ struct LessonTile: View {
             .frame(width: size, height: size)
             .background(shape.fill(Theme.paper))
             .overlay {
-                shape.strokeBorder(ringColor, lineWidth: state == .locked ? 2 : 4)
+                shape.strokeBorder(ringColor, lineWidth: state == .next ? 4 : 2)
             }
             .background(alignment: .bottom) {
                 shape.fill(edgeColor).offset(y: 4)
@@ -81,12 +82,12 @@ struct LessonTile: View {
         switch state {
         case .done:
             Image(systemName: "checkmark")
-                .scaledFont(13, .heavy, relativeTo: .footnote, design: .default)
+                .scaledFont(11, .heavy, relativeTo: .footnote, design: .default)
                 .foregroundStyle(.white)
-                .frame(width: 30, height: 30)
-                .background(Circle().fill(Theme.gold))
-                .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 3))
-                .offset(x: 6, y: -6)
+                .frame(width: 26, height: 26)
+                .background(Circle().fill(Theme.green))
+                .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 2))
+                .padding(8)
         case .locked:
             Image(systemName: "lock.fill")
                 .scaledFont(11, .bold, relativeTo: .footnote, design: .default)
@@ -118,17 +119,15 @@ struct LessonTile: View {
 
     private var ringColor: Color {
         switch state {
-        case .done: return Theme.gold
         case .next: return Theme.green
-        case .locked: return Theme.line
+        case .done, .locked: return Theme.line
         }
     }
 
     private var edgeColor: Color {
         switch state {
-        case .done: return Theme.goldDeep
         case .next: return Theme.greenDeep
-        case .locked: return Theme.lineStrong
+        case .done, .locked: return Theme.lineStrong
         }
     }
 

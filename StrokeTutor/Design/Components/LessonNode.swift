@@ -5,8 +5,8 @@ import SwiftUI
 /// Every lesson shows its drawing in its own colors, locked ones too, so a learner
 /// can see what is coming; the ring, the edge and the badge carry the state.
 ///
-/// * `.done` — white with a thick gold ring and a gold-deep edge, the drawing in
-///   color, a gold check badge bottom right.
+/// * `.done` — white with the same thin gray ring and edge as a locked node, the
+///   drawing in color, a green check badge where the lock would sit.
 /// * `.current` — white with a green ring, a green-deep edge and a slow halo (still
 ///   under Reduce Motion), the drawing in color. The only thing on the screen that
 ///   moves.
@@ -34,7 +34,7 @@ struct LessonNode: View {
                 .offset(y: 5)
             Circle()
                 .fill(fillColor)
-            Circle().strokeBorder(ringColor, lineWidth: state == .locked ? 3 : ringWidth)
+            Circle().strokeBorder(ringColor, lineWidth: state == .current ? ringWidth : 3)
             DrawingThumbnail(tutorial: drawing,
                              size: size * 0.64,
                              strokeColor: nil,
@@ -72,10 +72,10 @@ struct LessonNode: View {
     private var badge: some View {
         if state == .done {
             Image(systemName: "checkmark")
-                .font(.system(size: badgeSize * 0.5, weight: .heavy))
+                .font(.system(size: badgeSize * 0.45, weight: .heavy))
                 .foregroundStyle(.white)
                 .frame(width: badgeSize, height: badgeSize)
-                .background(Circle().fill(Theme.gold))
+                .background(Circle().fill(Theme.green))
                 .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 3))
                 .offset(x: 4, y: 2)
         } else if state == .locked {
@@ -95,9 +95,8 @@ struct LessonNode: View {
 
     private var ringColor: Color {
         switch state {
-        case .done: return Theme.gold
         case .current: return Theme.green
-        case .locked: return Theme.line
+        case .done, .locked: return Theme.line
         }
     }
 
@@ -106,9 +105,8 @@ struct LessonNode: View {
 
     private var edgeColor: Color {
         switch state {
-        case .done: return Theme.goldDeep
         case .current: return Theme.greenDeep
-        case .locked: return Theme.lineStrong
+        case .done, .locked: return Theme.lineStrong
         }
     }
 }
