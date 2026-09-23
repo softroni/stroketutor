@@ -53,7 +53,7 @@ struct Profile: Codable, Identifiable, Hashable {
 /// The picture a learner picks. A fixed set of animals, so a child who cannot read yet
 /// can still find their own tile, and nothing has to be uploaded or drawn.
 enum ProfileAvatar: String, Codable, CaseIterable, Identifiable {
-    case fox, bear, panda, tiger, frog, octopus, owl, turtle, unicorn, whale, bee, lion
+    case fox, bear, panda, tiger, frog, octopus, owl, turtle, unicorn, whale, bee, lion, cat, koala, penguin
 
     var id: String { rawValue }
 
@@ -71,6 +71,9 @@ enum ProfileAvatar: String, Codable, CaseIterable, Identifiable {
         case .whale: return "🐳"
         case .bee: return "🐝"
         case .lion: return "🦁"
+        case .cat: return "🐱"
+        case .koala: return "🐨"
+        case .penguin: return "🐧"
         }
     }
 
@@ -85,6 +88,7 @@ enum ProfileAvatar: String, Codable, CaseIterable, Identifiable {
         case .panda, .owl: return Theme.surface2
         case .frog, .turtle: return Theme.greenSoft
         case .unicorn, .whale: return Theme.blueSoft
+        case .cat, .koala, .penguin: return Theme.surface2
         }
     }
 
