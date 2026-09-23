@@ -8,6 +8,8 @@ import SwiftUI
 /// and each icon is easy to tell apart: a filled glyph shaded light to deep, always
 /// in color. The active tab adds a pill in its soft color, a label in its deep
 /// color and a little bounce when it is picked; the others keep 40 % ink labels.
+/// Only the tab being picked moves: the one it replaces drops its pill and size
+/// at once, with no bounce.
 ///
 /// Five tabs at 375 pt leave each one about 70 pt, which holds the 56 pt pill.
 /// "Sketchbook" is the widest label and runs close to its column even at the
@@ -15,6 +17,9 @@ import SwiftUI
 /// the glyph or being cut to an ellipsis.
 struct TabBar: View {
     @Binding var selection: MainTab
+    /// How many times each tab has been picked. The bounce keys off this count
+    /// rather than `isActive`, which also changes on the tab being left.
+    @State private var bounces: [MainTab: Int] = [:]
 
     var body: some View {
         HStack(spacing: 0) {
@@ -38,6 +43,9 @@ struct TabBar: View {
                 .fill(Theme.line)
                 .frame(height: 2)
         }
+        .onChange(of: selection) { _, picked in
+            bounces[picked, default: 0] += 1
+        }
     }
 
     /// The bar drawn as a stationary overlay is never part of a screen's own
@@ -60,7 +68,7 @@ struct TabBar: View {
                     LinearGradient(colors: [tint.deep.opacity(0.7), tint.deep],
                                    startPoint: .top, endPoint: .bottom)
                 )
-                .symbolEffect(.bounce, value: isActive)
+                .symbolEffect(.bounce, value: bounces[tab, default: 0])
                 .frame(width: 56, height: 30)
                 .background(
                     Capsule().fill(isActive ? tint.soft : .clear)
@@ -72,7 +80,7 @@ struct TabBar: View {
                 .minimumScaleFactor(0.6)
                 .foregroundStyle(isActive ? tint.deep : Theme.ink40)
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isActive)
+        .animation(isActive ? .spring(response: 0.3, dampingFraction: 0.6) : nil, value: isActive)
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
     }
