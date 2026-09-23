@@ -65,7 +65,7 @@ final class ProfilePreferences {
 
     /// Nil keeps everything in memory — the fallback when a profile has no folder.
     private let fileURL: URL?
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "preferences")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "preferences")
 
     init(directory: URL?) {
         fileURL = directory?.appendingPathComponent(Self.fileName)

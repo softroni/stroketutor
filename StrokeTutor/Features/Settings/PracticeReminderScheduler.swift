@@ -19,7 +19,7 @@ import UserNotifications
 /// requested — a number on the icon is a count, and this app counts nothing.
 enum PracticeReminderScheduler {
 
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "reminder")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "reminder")
 
     /// What the learner has already decided about notifications.
     enum Authorization {

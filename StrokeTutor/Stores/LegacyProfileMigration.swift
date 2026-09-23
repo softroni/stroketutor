@@ -48,7 +48,7 @@ enum LegacyProfileMigration {
     /// The name the first profile is given. The learner can rename it in Settings.
     static let migratedProfileName = "Me"
 
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "migration")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "migration")
 
     static func run(baseDirectory: URL,
                     defaults: UserDefaults,

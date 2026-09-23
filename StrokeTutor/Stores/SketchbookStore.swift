@@ -57,7 +57,7 @@ final class SketchbookStore {
     /// hold twenty full-size photographs in memory. File names are unique per page,
     /// so an entry can never go stale.
     @ObservationIgnored private let thumbnails = NSCache<NSString, UIImage>()
-    private nonisolated static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "sketchbook")
+    private nonisolated static let log = Logger(subsystem: "com.softroni.papercoach", category: "sketchbook")
 
     /// - Parameter baseDirectory: the folder that contains `Sketchbook/`. Defaults to
     ///   Application Support; a test passes a temporary directory.

@@ -56,7 +56,7 @@ final class VoiceLibrary {
     private var appLines: AppVoiceManifest??
     private let fileManager = FileManager.default
 
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "voice")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "voice")
 
     convenience init(bundle: Bundle = .main) {
         self.init(root: bundle.resourceURL?.appendingPathComponent("Voice", isDirectory: true))

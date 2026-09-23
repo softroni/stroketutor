@@ -26,7 +26,7 @@ final class ProfileStore {
 
     let rootDirectory: URL
     private let fileManager: FileManager
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "profiles")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "profiles")
 
     static let folderName = "Profiles"
     static let profileFileName = "profile.json"

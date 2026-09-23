@@ -55,7 +55,7 @@ final class ProgressStore {
     static let newLearnerLessonCount = 3
 
     private let fileURL: URL
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "progress")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "progress")
 
     /// - Parameter baseDirectory: where `progress.json` lives. Defaults to
     ///   Application Support; a test passes a temporary directory.

@@ -13,7 +13,7 @@ enum CatalogLoader {
     /// file to `shared/Catalog` needs no code change.
     static let bundleSubdirectory = "Catalog"
 
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "catalog")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "catalog")
 
     /// What one load produced: the catalog, and everything that was skipped.
     struct Result {

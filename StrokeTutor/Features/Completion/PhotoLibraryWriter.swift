@@ -14,7 +14,7 @@ import UIKit
 /// Failing is quiet on purpose: the page is already safe in the sketchbook, which is
 /// what the learner asked for, so a refused library is a log line and not an alert.
 enum PhotoLibraryWriter {
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "photos")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "photos")
 
     /// Whether iOS has already refused (or a restriction blocks) adding to the library.
     /// Settings reads this so the toggle never claims to be on when nothing can be saved.

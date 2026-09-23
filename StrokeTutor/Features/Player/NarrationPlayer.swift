@@ -33,7 +33,7 @@ final class NarrationPlayer {
     @ObservationIgnored private var interruptions: NSObjectProtocol?
     @ObservationIgnored private var isSessionActive = false
 
-    private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "voice")
+    private static let log = Logger(subsystem: "com.softroni.papercoach", category: "voice")
 
     convenience init(bundle: Bundle = .main) {
         self.init(library: VoiceLibrary(bundle: bundle))
