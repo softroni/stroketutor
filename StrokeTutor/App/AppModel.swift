@@ -26,6 +26,8 @@ final class AppModel {
     let profileStore: ProfileStore
     let pin: AppPIN
     let library: TutorialLibrary
+    /// Told who is drawing on every switch; see `Analytics` for what it may send.
+    let analytics: Analytics
 
     /// One learner's three stores, opened together from their folder.
     struct ProfileStores {
@@ -102,7 +104,8 @@ final class AppModel {
 
     init(bundle: Bundle = .main,
          settings: Settings? = nil,
-         storeDirectory: URL? = nil) {
+         storeDirectory: URL? = nil,
+         analyticsSink: AnalyticsSink? = nil) {
         let settings = settings ?? Settings()
         let base = storeDirectory ?? AppStorageLocation.applicationSupport()
         let profileStore = ProfileStore(baseDirectory: base)
@@ -111,6 +114,7 @@ final class AppModel {
         self.profileStore = profileStore
         pin = AppPIN(defaults: settings.defaults)
         library = TutorialLibrary()
+        analytics = Analytics(sink: analyticsSink ?? NoAnalyticsSink())
 
         let outcome = LegacyProfileMigration.run(baseDirectory: base,
                                                  defaults: settings.defaults,
@@ -147,6 +151,7 @@ final class AppModel {
         activeProfile = profile
         active = stores
         openedStores[profile.id] = stores
+        analytics.identify(profile)
     }
 
     private static func openStores(for profile: Profile, in store: ProfileStore) -> ProfileStores {
@@ -448,6 +453,7 @@ extension AppModel {
         activeProfile = target
         profileStore.markUsed(target.id)
         if let updated = profileStore.profile(id: target.id) { activeProfile = updated }
+        analytics.identify(activeProfile)
         keepCurrentPathValid()
     }
 
@@ -471,6 +477,26 @@ extension AppModel {
         if id == activeProfile.id, let updated = profileStore.profile(id: id) {
             activeProfile = updated
         }
+    }
+
+    /// A learner's age group, stamped with today's date. The caller has already
+    /// asked for the PIN when the change needs it (`ageChangeNeedsPIN`).
+    func setAgeGroup(_ id: UUID, to ageGroup: AgeGroup, at now: Date = Date()) {
+        guard var profile = profileStore.profile(id: id) else { return }
+        profile.ageGroup = ageGroup
+        profile.ageGroupAnsweredAt = now
+        profileStore.update(profile)
+        if id == activeProfile.id, let updated = profileStore.profile(id: id) {
+            activeProfile = updated
+            analytics.identify(updated)
+        }
+    }
+
+    /// True when moving this learner to `ageGroup` loosens how their data is
+    /// treated and a PIN is set to guard it. With no PIN there is nothing to ask.
+    func ageChangeNeedsPIN(_ id: UUID, to ageGroup: AgeGroup) -> Bool {
+        guard pin.isSet, let profile = profiles.first(where: { $0.id == id }) else { return false }
+        return AgeGroup.loosensPrivacy(from: profile.ageGroup, to: ageGroup)
     }
 
     /// Whether this learner can be deleted: never the last one, never the session-only

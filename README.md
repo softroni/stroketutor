@@ -813,6 +813,22 @@ pricing element: largest type, highest contrast, leading position. That includes
 free period is not enough. Apple Guideline 3.1.2(c); see <https://developer.apple.com/app-store/subscriptions/>.
 Read Apple's current guidance before building and cite it in code. Never copy a flow from competitor screenshots.
 
+**Age group, ahead of analytics (2026-09-23).** PostHog and Superwall are planned. The app will not be submitted to
+the Kids category, so it is a mixed-audience app: the audience is 8 to 16, and adults use it too. Onboarding now asks
+`ob-age`, after `ob-who`: six bands (Under 6, 6–9, 10–12, 13–15, 16–17, 18+) in a 2×3 grid, nothing preselected, and
+"Prefer not to say". The answer and its date are kept on each profile, with stable keys (`under6` … `18plus`,
+`preferNotToSay`), and can be changed on the learner's page in Settings. When a PIN is set, moving someone to a less
+protected tier needs it.
+- **`Analytics`** (`StrokeTutor/App/Analytics.swift`) is the only way out. Today its sink is `NoAnalyticsSink`, so
+  nothing is sent. A PostHog or Superwall sink must honour `AnalyticsPolicy`:
+  - under 13, "prefer not to say" or never asked: anonymous events, with an id that lasts one launch;
+  - 13 to 17: the profile's own id, no session replay;
+  - 18+: everything.
+- **The name typed on `ob-who` is never sent.**
+- **Before either SDK ships:** put the paywall behind the PIN on child-tier profiles and word it for the parent;
+  update the privacy label; check both vendors' terms for apps children use; check the state app-store age laws and
+  Apple's Declared Age Range API.
+
 ---
 
 ## Baseline (M0)

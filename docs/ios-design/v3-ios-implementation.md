@@ -159,9 +159,10 @@ use `Image`. A missing file shows the warm placeholder from v3 (`.photo--warm`) 
 
 ## Screen contracts (Phase 2; ids are the v3.html anchors)
 
-- **Onboarding** `ob-splash ob-1 ob-2 ob-3 ob-who ob-level ob-path ob-voice ob-ready` (8-step progress rail,
-  `ob-1`=1 … `ob-ready`=8): `OnboardingFlow(onFinished:)`; a thick green progress bar with a back chevron; Lina +
-  speech bubble; `ob-who` collects name + avatar; `ob-level` and `ob-path` are single-choice rows/cards from the
+- **Onboarding** `ob-splash ob-1 ob-2 ob-3 ob-who ob-age ob-level ob-path ob-voice ob-ready` (9-step progress rail,
+  `ob-1`=1 … `ob-ready`=9): `OnboardingFlow(onFinished:)`; a thick green progress bar with a back chevron; Lina +
+  speech bubble; `ob-who` collects name + avatar; `ob-age` asks for one of six age bands in a 2×3 grid, nothing
+  preselected, with "Prefer not to say" under Continue, and writes `ageGroup` to the profile; `ob-level` and `ob-path` are single-choice rows/cards from the
   real catalog (first level, then first path in that level, preselected) — a level with exactly one shipped path
   (Advanced → Landscape today) skips `ob-path` and writes `currentPathId` directly; the voice beat writes
   `narrationEnabled`; the last beat shows the chosen path's first lesson drawing itself and its Start drawing → the

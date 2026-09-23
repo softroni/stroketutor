@@ -28,7 +28,7 @@ struct OnboardingRail: View {
 
     /// 0...1.
     let progress: Double
-    /// What VoiceOver reads for the bar: "Step 2 of 8".
+    /// What VoiceOver reads for the bar: "Step 2 of 9".
     let stepLabel: String
     var onBack: (() -> Void)?
     var onSkip: (() -> Void)?

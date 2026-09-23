@@ -4,8 +4,9 @@ import SwiftUI
 /// `Application Support/Profiles/<id>/` holding its own progress, sketchbook and
 /// personal preferences; `profile.json` in that folder is this struct.
 ///
-/// No account and no sign-in: a profile is a name and a picture, nothing more, and
-/// it never leaves the device.
+/// No account and no sign-in: a profile is a name, a picture and an age group,
+/// nothing more. The name never leaves the device; the random id and the age group
+/// may, and only through `Analytics`, under the rules set out there.
 struct Profile: Codable, Identifiable, Hashable {
     let id: UUID
     /// What the learner typed. May be empty — a small child can pick a picture and
@@ -20,19 +21,35 @@ struct Profile: Codable, Identifiable, Hashable {
     /// True for the one profile made from a pre-profiles install's data. The
     /// migration reads it to know it has already committed.
     var migratedFromLegacy: Bool
+    /// Asked on `ob-age`. Nil for a learner who has not been asked yet — one added
+    /// from Home, or one from a build before the question — who is treated as a
+    /// child until someone answers.
+    var ageGroup: AgeGroup?
+    /// When `ageGroup` was last chosen. A child who picked "6–9" is not 6–9 three
+    /// years later; this says how old the answer is.
+    var ageGroupAnsweredAt: Date?
 
     init(id: UUID = UUID(),
          name: String,
          avatar: ProfileAvatar,
          createdAt: Date = Date(),
          lastUsedAt: Date = Profile.neverUsed,
-         migratedFromLegacy: Bool = false) {
+         migratedFromLegacy: Bool = false,
+         ageGroup: AgeGroup? = nil,
+         ageGroupAnsweredAt: Date? = nil) {
         self.id = id
         self.name = name
         self.avatar = avatar
         self.createdAt = createdAt
         self.lastUsedAt = lastUsedAt
         self.migratedFromLegacy = migratedFromLegacy
+        self.ageGroup = ageGroup
+        self.ageGroupAnsweredAt = ageGroupAnsweredAt
+    }
+
+    /// How carefully this learner's data is treated. See `AgeGroup.privacyTier`.
+    var privacyTier: PrivacyTier {
+        ageGroup?.privacyTier ?? .child
     }
 
     static let neverUsed = Date(timeIntervalSince1970: 0)

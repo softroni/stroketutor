@@ -105,7 +105,7 @@ struct PINPadSheet: View {
         switch (mode, stage) {
         case let (.verify(reason), _): return reason
         case (.change, .verifyOld): return "First, the PIN you use now."
-        case (_, .enterNew): return "Four digits. It is asked for before deleting someone or resetting progress."
+        case (_, .enterNew): return "Four digits. It is asked for before deleting someone, resetting progress or moving someone to an older age group."
         default: return nil
         }
     }

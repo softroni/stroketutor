@@ -4,7 +4,8 @@ import Observation
 
 /// An optional four-digit PIN, set by whichever grown-up looks after the app — a
 /// parent, or an adult learning alone — which guards the two actions that destroy
-/// someone's work: deleting a profile and resetting progress. Renaming and
+/// someone's work, deleting a profile and resetting progress, and the one that
+/// loosens a child's protections: moving them to an older age group. Renaming and
 /// changing a picture are not guarded — they lose nothing.
 ///
 /// Off by default. When it is off, those two actions still ask for confirmation, as

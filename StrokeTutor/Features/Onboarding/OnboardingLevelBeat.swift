@@ -3,7 +3,7 @@ import SwiftUI
 /// `ob-level` — "How much have you drawn before?" One card per level the catalog
 /// has something shipped for, in the catalog's order, each showing the first
 /// drawing of its first path. The first level is preselected so Continue is never
-/// blocked, and there is no Skip: Skip lands on the who beat just before this one.
+/// blocked, and there is no Skip: Skip lands on the who beat, two before this one.
 ///
 /// A tap moves the selection and never advances. The level is only a way into
 /// `ob-path` and is never stored; Continue hands it back to the flow, which decides

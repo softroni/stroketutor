@@ -1,16 +1,18 @@
 import SwiftUI
 
-/// `ob-splash` … `ob-ready` — the nine beats a learner sees once: what the app is,
-/// what they will do, how a lesson works, what they need, who is drawing, how much
-/// they have drawn before, which path to take, whether Lina speaks, and their first
-/// lesson. A beat with nothing to ask is passed over: `ob-level` when the catalog
-/// has no levels, and `ob-path` when the level chosen has a single path.
+/// `ob-splash` … `ob-ready` — the ten beats a learner sees once: what the app is,
+/// what they will do, how a lesson works, what they need, who is drawing, how old
+/// they are, how much they have drawn before, which path to take, whether Lina
+/// speaks, and their first lesson. A beat with nothing to ask is passed over:
+/// `ob-level` when the catalog has no levels, and `ob-path` when the level chosen
+/// has a single path.
 ///
-/// The flow owns the three answers onboarding collects — the learner's name and
-/// picture, the path and the voice — and nothing else; the level only narrows the
-/// paths offered and is never stored. It writes the profile when the learner leaves
-/// the who beat, `currentPathId` when they leave the path beat (or the level beat,
-/// when that level's one path is the answer) and `narrationEnabled` the moment the
+/// The flow owns the four answers onboarding collects — the learner's name and
+/// picture, their age group, the path and the voice — and nothing else; the level
+/// only narrows the paths offered and is never stored. It writes the profile when
+/// the learner leaves the who beat and again when they leave the age beat,
+/// `currentPathId` when they leave the path beat (or the level beat, when that
+/// level's one path is the answer) and `narrationEnabled` the moment the
 /// switch is touched, all to the learner who is drawing; `hasCompletedOnboarding`
 /// is written by `AppRoot` when `onFinished` is called, so a flow replayed from
 /// Settings changes no stored value it was not asked to.
@@ -38,7 +40,7 @@ struct OnboardingFlow: View {
         self.initialBeat = initialBeat
     }
 
-    /// The nine beats, in order. `progress` is the rail's fill; the launch beat has
+    /// The ten beats, in order. `progress` is the rail's fill; the launch beat has
     /// no rail at all.
     enum Beat: String, CaseIterable, Hashable {
         case launch = "ob-splash"
@@ -46,12 +48,13 @@ struct OnboardingFlow: View {
         case method = "ob-2"
         case kit = "ob-3"
         case who = "ob-who"
+        case age = "ob-age"
         case level = "ob-level"
         case path = "ob-path"
         case voice = "ob-voice"
         case ready = "ob-ready"
 
-        /// One of eight rail positions, from 1/8 to 100 %. A beat the flow passes
+        /// One of nine rail positions, from 1/9 to 100 %. A beat the flow passes
         /// over leaves its step unfilled, so the bar jumps ahead rather than lying
         /// about how far there is to go.
         var step: Int {
@@ -61,14 +64,15 @@ struct OnboardingFlow: View {
             case .method: return 2
             case .kit: return 3
             case .who: return 4
-            case .level: return 5
-            case .path: return 6
-            case .voice: return 7
-            case .ready: return 8
+            case .age: return 5
+            case .level: return 6
+            case .path: return 7
+            case .voice: return 8
+            case .ready: return 9
             }
         }
 
-        static let railSteps = 8
+        static let railSteps = 9
 
         var progress: Double { Double(step) / Double(Self.railSteps) }
 
@@ -85,7 +89,11 @@ struct OnboardingFlow: View {
         }
         .environment(\.onboardingReducesMotion, reducesMotion)
         .onAppear {
-            if beat == nil { beat = initialBeat ?? Self.launchArgumentBeat ?? .launch }
+            if beat == nil {
+                let first = initialBeat ?? Self.launchArgumentBeat ?? .launch
+                beat = first
+                app.analytics.track(.onboardingBeatViewed(first.rawValue))
+            }
         }
     }
 
@@ -116,12 +124,16 @@ struct OnboardingFlow: View {
 
         case .who:
             OnboardingWhoBeat(rail: rail(for: .who, back: .kit, skippable: false),
+                              onContinue: { go(.age) })
+
+        case .age:
+            OnboardingAgeBeat(rail: rail(for: .age, back: .who, skippable: false),
                               onContinue: { go(choices.asksForLevel ? .level : .path) })
 
         case .level:
             OnboardingLevelBeat(levels: choices.levels,
                                 selectedLevelId: selectedLevel?.id,
-                                rail: rail(for: .level, back: .who, skippable: false),
+                                rail: rail(for: .level, back: .age, skippable: false),
                                 onSelect: choose,
                                 onContinue: {
                                     // A level with one path has nothing to pick
@@ -138,7 +150,7 @@ struct OnboardingFlow: View {
             OnboardingPathBeat(paths: pathsForSelectedLevel,
                                selectedPathId: selectedPath?.id,
                                rail: rail(for: .path,
-                                          back: choices.asksForLevel ? .level : .who,
+                                          back: choices.asksForLevel ? .level : .age,
                                           skippable: false),
                                onSelect: { pendingPathId = $0.id },
                                onContinue: {
@@ -155,8 +167,8 @@ struct OnboardingFlow: View {
             OnboardingReadyBeat(lesson: selectedPath?.lessons.first,
                                 path: selectedPath,
                                 rail: rail(for: .ready, back: .voice, skippable: false),
-                                onStart: { onFinished(selectedPath?.lessons.first) },
-                                onLookAround: { onFinished(nil) })
+                                onStart: { finish(with: selectedPath?.lessons.first) },
+                                onLookAround: { finish(with: nil) })
         }
     }
 
@@ -181,6 +193,12 @@ struct OnboardingFlow: View {
         withAnimation(reducesMotion ? nil : .easeInOut(duration: 0.22)) {
             beat = target
         }
+        app.analytics.track(.onboardingBeatViewed(target.rawValue))
+    }
+
+    private func finish(with lesson: Lesson?) {
+        app.analytics.track(.onboardingFinished(startedLesson: lesson != nil))
+        onFinished(lesson)
     }
 
     /// Moves the level selection. A path tapped earlier that the new level does

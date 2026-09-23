@@ -155,7 +155,7 @@ final class ProfileStore {
         return profile
     }
 
-    /// Name and picture. Written in place: `profile.json` is replaced atomically, so
+    /// Name, picture or age group. Written in place: `profile.json` is replaced atomically, so
     /// a rename interrupted halfway leaves the old name, never a broken file.
     func update(_ profile: Profile) {
         guard let index = profiles.firstIndex(where: { $0.id == profile.id }) else { return }
