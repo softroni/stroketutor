@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// The app under the covers: four tabs (Home · Path · Sketchbook · Settings) with
+/// The app under the covers: five tabs (Home · Path · Lessons · Sketchbook · Settings) with
 /// the custom v3 tab bar, and one `NavigationStack` per tab so a back stack survives
-/// a tab switch. All four stay alive; the inactive ones are hidden rather than torn
+/// a tab switch. All five stay alive; the inactive ones are hidden rather than torn
 /// down, so returning to a tab lands where it was left.
 ///
 /// The tab bar is drawn over the stacks rather than under them, and the screens
@@ -37,6 +37,7 @@ struct MainTabs: View {
                     PathDetailView(pathId: app.currentPath?.id)
                         .id(app.currentPath?.id)
                 }
+                tab(.lessons, path: $app.lessonsStack) { LessonsView() }
                 tab(.sketchbook, path: $app.sketchbookStack) { SketchbookView() }
                 tab(.settings, path: $app.settingsStack) { SettingsView() }
             }

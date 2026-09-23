@@ -80,6 +80,7 @@ final class AppModel {
     /// not as a `PathModel`.
     var homeStack: [AppRoute] = []
     var pathStack: [AppRoute] = []
+    var lessonsStack: [AppRoute] = []
     var sketchbookStack: [AppRoute] = []
     var settingsStack: [AppRoute] = []
     /// The full-screen flow on top of the tabs, if any.
@@ -93,6 +94,9 @@ final class AppModel {
     /// whenever it changes while the tab is already showing, and clears it, so the
     /// sheet is raised once and never again on a later visit.
     var pendingLockedLessonId: String?
+    /// Bumped to bring the Lessons tab back to its top — Home's "See all lessons"
+    /// lands on the count and the first path, not wherever the list was left.
+    var lessonsScrollToTop = 0
 
     private let bundle: Bundle
 
@@ -269,6 +273,14 @@ final class AppModel {
         pathStack = [.paths]
     }
 
+    /// Shows every lesson — Home's "See all lessons". The Lessons tab opens at its
+    /// root, scrolled to the top, so the button always lands on the whole catalog.
+    func showAllLessons() {
+        popToRoot(.lessons)
+        lessonsScrollToTop += 1
+        selectedTab = .lessons
+    }
+
     /// Makes the lesson's path the current one, if it is not already. A lesson the
     /// catalog no longer names leaves the choice alone rather than pointing Home at
     /// a path that is not in `paths`.
@@ -286,6 +298,7 @@ final class AppModel {
         switch selectedTab {
         case .home: homeStack.append(route)
         case .path: pathStack.append(route)
+        case .lessons: lessonsStack.append(route)
         case .sketchbook: sketchbookStack.append(route)
         case .settings: settingsStack.append(route)
         }
@@ -296,6 +309,7 @@ final class AppModel {
         switch tab {
         case .home: return homeStack.last
         case .path: return pathStack.last
+        case .lessons: return lessonsStack.last
         case .sketchbook: return sketchbookStack.last
         case .settings: return settingsStack.last
         }
@@ -305,17 +319,18 @@ final class AppModel {
         switch tab ?? selectedTab {
         case .home: homeStack = []
         case .path: pathStack = []
+        case .lessons: lessonsStack = []
         case .sketchbook: sketchbookStack = []
         case .settings: settingsStack = []
         }
     }
 
-    /// Opens a lesson's preview. Home and Path both browse lessons, so a preview
-    /// opened from either lands on that tab's own stack and Back returns there.
-    /// From anywhere else — the sketchbook, a cover, a deep link — it goes to the
-    /// Path tab, where lessons belong.
+    /// Opens a lesson's preview. Home, Path and Lessons all browse lessons, so a
+    /// preview opened from any of them lands on that tab's own stack and Back
+    /// returns there. From anywhere else — the sketchbook, a cover, a deep link —
+    /// it goes to the Path tab, where lessons belong.
     func showPreview(of lesson: Lesson) {
-        if selectedTab != .home && selectedTab != .path {
+        if ![.home, .path, .lessons].contains(selectedTab) {
             selectedTab = .path
         }
         push(.lessonPreview(lessonId: lesson.id))
@@ -421,6 +436,7 @@ extension AppModel {
 
         homeStack = []
         pathStack = []
+        lessonsStack = []
         sketchbookStack = []
         settingsStack = []
         selectedTab = .home

@@ -24,13 +24,16 @@ struct LessonTile: View {
     /// The lesson's one-based place in its path, for VoiceOver.
     let position: Int
     let state: State
+    /// The square's edge. Home's shelves use the default; the Lessons grid passes
+    /// its column's width.
+    var size: CGFloat = LessonTile.defaultSize
     let action: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// The square's edge. Two and a half tiles fit inside a shelf on a phone, so
+    /// The shelf tile's edge. Two and a half tiles fit inside a shelf on a phone, so
     /// the shelf always shows that there is more to the right.
-    static let size: CGFloat = 124
+    static let defaultSize: CGFloat = 124
 
     var body: some View {
         Button(action: action) {
@@ -42,7 +45,7 @@ struct LessonTile: View {
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(width: Self.size, alignment: .topLeading)
+                    .frame(width: size, alignment: .topLeading)
             }
         }
         .buttonStyle(LessonTileButtonStyle(reduceMotion: reduceMotion))
@@ -56,10 +59,11 @@ struct LessonTile: View {
     private var square: some View {
         let shape = RoundedRectangle(cornerRadius: Theme.thumbCornerRadius + 2, style: .continuous)
         return DrawingThumbnail(tutorial: lesson.tutorial,
-                                size: Self.size - 34,
+                                // 90 pt on the 124 pt shelf tile, in proportion at any size.
+                                size: size * 90 / 124,
                                 strokeColor: nil,
                                 showsFills: true)
-            .frame(width: Self.size, height: Self.size)
+            .frame(width: size, height: size)
             .background(shape.fill(Theme.paper))
             .overlay {
                 shape.strokeBorder(ringColor, lineWidth: state == .locked ? 2 : 4)

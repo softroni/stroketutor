@@ -90,6 +90,35 @@ final class CurrentPathTests: XCTestCase {
         XCTAssertTrue(model.pathStack.isEmpty)
     }
 
+    /// The Lessons tab browses every lesson, so its previews stay on its own stack
+    /// and Back returns to the grid, not to the Path tab.
+    func testAPreviewFromLessonsIsPushedOnLessons() throws {
+        let model = makeModel()
+        let lesson = try XCTUnwrap(model.lesson(id: Self.treeLessonId))
+        model.selectedTab = .lessons
+
+        model.showPreview(of: lesson)
+
+        XCTAssertEqual(model.selectedTab, .lessons)
+        XCTAssertEqual(model.lessonsStack, [.lessonPreview(lessonId: lesson.id)])
+        XCTAssertTrue(model.pathStack.isEmpty)
+    }
+
+    /// Home's "See all lessons" lands on the Lessons tab's root, even when a preview
+    /// was left open there.
+    func testSeeAllLessonsShowsTheLessonsRoot() throws {
+        let model = makeModel()
+        let lesson = try XCTUnwrap(model.lesson(id: Self.treeLessonId))
+        model.selectedTab = .lessons
+        model.showPreview(of: lesson)
+        model.selectedTab = .home
+
+        model.showAllLessons()
+
+        XCTAssertEqual(model.selectedTab, .lessons)
+        XCTAssertTrue(model.lessonsStack.isEmpty)
+    }
+
     /// Anywhere else — here the sketchbook's "Draw the next one" — a preview goes to
     /// the Path tab, and the sketchbook's stack is left as it was.
     func testAPreviewFromTheSketchbookLandsOnThePathTab() throws {

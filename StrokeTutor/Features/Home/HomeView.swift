@@ -16,10 +16,10 @@ import SwiftUI
 ///    strip; a tap goes to the Sketchbook tab.
 /// 4. **Try something new** — up to four paths not yet started, as picture cards
 ///    in their tints (the path's first lesson in color on white paper), and "See
-///    all paths". Gone once every path is started.
+///    all 100 lessons", which opens the Lessons tab. Gone once every path is started.
 ///
 /// Home only shows what a learner is doing and a few doors onward, so it stays
-/// short however big the catalog grows; All paths is the full list. Level names
+/// short however big the catalog grows; the Lessons tab is the full list. Level names
 /// and descriptions, path descriptions and "Lesson 3 of 10" are not printed —
 /// VoiceOver still reads the descriptions and the lesson's place.
 ///
@@ -293,10 +293,13 @@ struct HomeView: View {
                 }
             }
 
+            // The whole catalog's size, said on Home, so a few shelves never read
+            // as all there is.
             Button {
-                app.showAllPaths()
+                app.showAllLessons()
             } label: {
-                Label("See all paths", systemImage: "square.grid.2x2")
+                Label("See all \(shipped.reduce(0) { $0 + $1.lessonCount }) lessons",
+                      systemImage: "square.grid.2x2")
             }
             .buttonStyle(.secondary)
             .padding(.top, 6)
@@ -323,10 +326,7 @@ struct HomeView: View {
             app.showPreview(of: lesson)
             return
         }
-        guard let index = path.lessons.firstIndex(where: { $0.id == lesson.id }),
-              let blocking = path.lessons.prefix(index).first(where: { !app.progress.isCompleted($0.id) })
-        else { return }
-        lockedLesson = LockedLesson(lesson: lesson, blocking: blocking, position: index + 1)
+        lockedLesson = LockedLesson(lesson: lesson, in: path, progress: app.progress)
     }
 }
 

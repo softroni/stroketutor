@@ -2,12 +2,13 @@ import SwiftUI
 
 /// The tab bar of v3 (`.tabbar`): white, a 2 pt top line, 26 pt glyphs in a
 /// 56 × 30 pill that turns green-soft when the tab is active, 11.5/heavy labels at
-/// 40 % ink otherwise. Home · Path · Sketchbook · Settings, in that order, everywhere.
+/// 40 % ink otherwise. Home · Path · Lessons · Sketchbook · Settings, in that order,
+/// everywhere.
 ///
-/// Four tabs at 375 pt leave each one about 88 pt, which holds the pill and
-/// "Sketchbook" at the default size. Near `Theme.maximumTypeScale` (1.6×)
-/// "Sketchbook" would outgrow its column, so a label shrinks to fit on one line
-/// rather than wrapping under the glyph or being cut to an ellipsis.
+/// Five tabs at 375 pt leave each one about 70 pt, which holds the 56 pt pill.
+/// "Sketchbook" is the widest label and runs close to its column even at the
+/// default size, so a label shrinks to fit on one line rather than wrapping under
+/// the glyph or being cut to an ellipsis.
 struct TabBar: View {
     @Binding var selection: MainTab
 

@@ -229,10 +229,7 @@ struct PathDetailView: View {
     }
 
     private func raiseSheet(for lesson: Lesson, in path: PathModel) {
-        guard let index = path.lessons.firstIndex(where: { $0.id == lesson.id }),
-              let blocking = path.lessons.prefix(index).first(where: { !app.progress.isCompleted($0.id) })
-        else { return }
-        lockedLesson = LockedLesson(lesson: lesson, blocking: blocking, position: index + 1)
+        lockedLesson = LockedLesson(lesson: lesson, in: path, progress: app.progress)
     }
 
     /// A locked node handed over with the sheet already up (`pendingLockedLessonId`).

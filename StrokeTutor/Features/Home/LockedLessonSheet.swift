@@ -11,6 +11,22 @@ struct LockedLesson: Identifiable {
     let position: Int
 
     var id: String { lesson.id }
+
+    /// The sheet's value for a lesson that is still locked, or nil when nothing
+    /// before it is left to draw — then the lesson is open and the caller shows it.
+    @MainActor
+    init?(lesson: Lesson, in path: PathModel, progress: ProgressStore) {
+        guard let index = path.lessons.firstIndex(where: { $0.id == lesson.id }),
+              let blocking = path.lessons.prefix(index).first(where: { !progress.isCompleted($0.id) })
+        else { return nil }
+        self.init(lesson: lesson, blocking: blocking, position: index + 1)
+    }
+
+    init(lesson: Lesson, blocking: Lesson, position: Int) {
+        self.lesson = lesson
+        self.blocking = blocking
+        self.position = position
+    }
 }
 
 /// The locked sheet of `hp-path`: the drawing greyed in a 72 pt tile, the lesson's

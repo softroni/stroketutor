@@ -74,14 +74,17 @@ enum AppCover: Identifiable, Hashable {
     }
 }
 
-/// The four tabs of `MainTabs`: Home · Path · Sketchbook · Settings.
+/// The five tabs of `MainTabs`: Home · Path · Lessons · Sketchbook · Settings.
 ///
 /// Home is for browsing — every path's shelf — and Path is the one path the learner
 /// is working through. They are two tabs rather than one stack so the path a
 /// learner is on is always one tap away, never buried under whatever they browsed.
+/// Lessons is the whole catalog at once, every lesson under its path, so how much
+/// there is to draw is never hidden behind the few paths Home has room for.
 enum MainTab: String, Hashable, CaseIterable, Identifiable {
     case home
     case path
+    case lessons
     case sketchbook
     case settings
 
@@ -91,6 +94,7 @@ enum MainTab: String, Hashable, CaseIterable, Identifiable {
         switch self {
         case .home: return "Home"
         case .path: return "Path"
+        case .lessons: return "Lessons"
         case .sketchbook: return "Sketchbook"
         case .settings: return "Settings"
         }
@@ -101,6 +105,7 @@ enum MainTab: String, Hashable, CaseIterable, Identifiable {
         switch self {
         case .home: return "house"
         case .path: return "map"
+        case .lessons: return "square.grid.2x2"
         case .sketchbook: return "book"
         case .settings: return "gearshape"
         }
