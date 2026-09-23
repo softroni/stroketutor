@@ -214,7 +214,7 @@ final class AgeGroupTests: XCTestCase {
         model.setAgeGroup(model.activeProfile.id, to: .adult)
         model.analytics.track(.onboardingAgeAnswered)
 
-        let sent = sink.identified.flatMap { $0.properties.values }
+        let sent: [String] = sink.identified.flatMap { $0.properties.values }
             + sink.captured.flatMap { $0.event.properties.values }
         XCTAssertFalse(sent.contains { $0.contains("Ada") })
     }
