@@ -47,6 +47,7 @@ enum DebugScreenHarness {
         raiseDeleteConfirmation = false
         raiseProfileSwitcher = false
         raisePINCreate = false
+        pendingLessonsJump = nil
 
         // The screens below are captured with two of the shipped drawings: the palm
         // tree (upright) and the red car (wide). They are found by lesson id and not
@@ -104,6 +105,20 @@ enum DebugScreenHarness {
             if carPath.id != treePath.id { markFirst(carPath.lessonCount, of: carPath, in: app) }
             app.open(treePath)
             app.push(.paths)
+
+        case "lessons", "lessons-deep":
+            // The Lessons tab with the catalog in three states at once: the first
+            // path finished (a gold chip), the second part-way, the rest untouched.
+            // The deep variant jumps to the fourth path, so the chip band can be
+            // seen holding its place with the list well past the top.
+            for (path, count) in zip(shipped, [shipped.first?.lessonCount ?? 0, 3]) {
+                markFirst(count, of: path, in: app)
+            }
+            if name == "lessons-deep", shipped.count > 3 {
+                pendingLessonsJump = shipped[3].id
+            }
+            app.popToRoot(.lessons)
+            app.selectedTab = .lessons
 
         case "path-default":
             // Two lessons drawn, so done, current and locked nodes all show.
@@ -337,6 +352,9 @@ enum DebugScreenHarness {
     static var raiseProfileSwitcher = false
     /// Set by `pin`; `SettingsView` reads and clears it in `onAppear`.
     static var raisePINCreate = false
+    /// Set by `lessons-deep`; `LessonsView` reads and clears it in `onAppear` and
+    /// jumps its list to that path, since where a scroll sits is its own `@State`.
+    static var pendingLessonsJump: String?
 
     /// Profile screens need a second learner to show anything worth reviewing. Added
     /// once and left: profiles, unlike the stores above, are not wiped per run.
