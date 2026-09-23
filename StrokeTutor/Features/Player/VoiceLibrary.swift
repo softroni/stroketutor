@@ -25,9 +25,9 @@ struct VoiceManifest: Decodable, Equatable {
 }
 
 /// `shared/Assets/Voice/app/manifest.json`: the lines Lina says outside a lesson —
-/// her hello on `ob-voice` and in Settings, and the eight closing lines of
-/// `sk-complete`. The same shape as a lesson's manifest, keyed by line id
-/// (`APP_LINE_IDS` in the same contract).
+/// her hello on `ob-voice` and in Settings, the eight closing lines of
+/// `sk-complete`, and her welcome on `hp-paths`. The same shape as a lesson's
+/// manifest, keyed by line id (`APP_LINE_IDS` in the same contract).
 struct AppVoiceManifest: Decodable, Equatable {
     let manifestVersion: Int
     let voiceName: String?

@@ -208,7 +208,8 @@ export interface VoiceReferenceRecord {
 
 /**
  * The lines the app asks for by name, outside any lesson: the voice
- * introducing herself, and what she says when a lesson or a path is finished.
+ * introducing herself, what she says when a lesson or a path is finished, and
+ * what she says the first time an early learner lands on All paths.
  *
  * **These ids never change.** The iOS app looks each one up in
  * `shared/Assets/Voice/app/manifest.json` by exactly this string, so a renamed
@@ -225,6 +226,7 @@ export const APP_LINE_IDS = [
   'path-2',
   'path-3',
   'path-4',
+  'paths-welcome',
 ] as const
 
 export type AppLineId = (typeof APP_LINE_IDS)[number]

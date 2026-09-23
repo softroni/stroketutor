@@ -131,7 +131,7 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `POST /api/voice/lessons/:lesson/narrate`      `{ stepId, another? }` → records one step
  * - `POST /api/voice/lessons/:lesson/publish`      the AAC files and the manifest into shared/Assets/Voice/
  * - `DELETE /api/voice/lessons/:lesson/published`  takes them out again
- * - `GET  /api/voice/app`                 Lina's own lines (onboarding, the eight completions) and their recordings
+ * - `GET  /api/voice/app`                 Lina's own lines (onboarding, the eight completions, the paths welcome) and their recordings
  * - `PUT  /api/voice/app/lines/:id`       `{ text }` → the words of one app line; the id is fixed
  * - `POST /api/voice/app/narrate`         `{ id, another? }` → records one app line
  * - `POST /api/voice/app/publish`         the AAC files and the manifest into shared/Assets/Voice/app/

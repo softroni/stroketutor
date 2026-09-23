@@ -774,8 +774,8 @@ export async function publishVoice(lessonId: string, deps: VoiceDeps): Promise<{
 // ---------- Lina's own lines ----------
 
 /**
- * What the app says outside any lesson: the voice introducing herself, and the
- * eight completion lines.
+ * What the app says outside any lesson: the voice introducing herself, the
+ * eight completion lines, and the one-time welcome to All paths.
  *
  * The ids are the app's (`APP_LINE_IDS`) and never change; the words are the
  * creator's and change as often as they like. Everything else is the lesson
@@ -836,7 +836,7 @@ async function publishedAppState(
   }
 }
 
-/** The id as one of the app's, or a refusal naming the nine it could have been. */
+/** The id as one of the app's, or a refusal naming the ones it could have been. */
 function mustBeAppLineId(id: unknown): AppLineId {
   const wanted = text(id, 'The line id').trim()
   if (!(APP_LINE_IDS as readonly string[]).includes(wanted)) {
@@ -897,7 +897,7 @@ export async function narrateAppLine(
  * No lesson gates this one — these lines belong to the app itself, not to
  * anything in the catalog — but the rest of the rule is the lesson's: it
  * refuses while a line is missing or out of date, because an app that finds
- * eight of nine files plays silence on the ninth screen.
+ * all but one file plays silence on the missing screen.
  */
 export async function publishAppLines(deps: VoiceDeps): Promise<{ files: string[] }> {
   const narration = await appLines(deps)

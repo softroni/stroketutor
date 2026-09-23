@@ -97,7 +97,8 @@ export const SUGGESTED_SCRIPT: ScriptLine[] = [
  * `hello` is heard twice (onboarding's "Meet the voice", and the sample button
  * in Settings). The eight completions are the last thing said on a screen the
  * learner has just finished, so each hands them the next thing instead of
- * applauding.
+ * applauding. `paths-welcome` is heard once, the first time an early learner
+ * leaves a lesson-complete screen onto All paths instead of their own path.
  */
 export const APP_LINES: AppLine[] = [
   {
@@ -144,5 +145,10 @@ export const APP_LINES: AppLine[] = [
     id: 'path-4',
     where: 'Path complete, 4 of 4',
     text: 'You have the shape of the subject now. The rest is time with a pen.',
+  },
+  {
+    id: 'paths-welcome',
+    where: 'All paths, once, after the first lessons',
+    text: "There's a lot more to draw here. Pick whatever you like next.",
   },
 ]

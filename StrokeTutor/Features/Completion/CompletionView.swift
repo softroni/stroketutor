@@ -78,7 +78,7 @@ struct CompletionView: View {
                     .accessibilitySortPriority(10)
             }
 
-            linaLine
+            LinaLineRow(text: linaText)
                 .accessibilitySortPriority(8)
 
             tiles
@@ -181,21 +181,6 @@ struct CompletionView: View {
         }
     }
 
-    /// Lina's round portrait and one plain line — no bubble (`.sk-lina`).
-    private var linaLine: some View {
-        HStack(alignment: .top, spacing: 12) {
-            LinaFace(size: 48)
-            Text(linaText)
-                .textRole(.body)
-                .foregroundStyle(Theme.ink70)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 1)
-        }
-        .padding(.horizontal, 2)
-        .accessibilityElement(children: .combine)
-    }
-
     /// Two `.tile`s: steps and drawing time, or drawings and the span of the path.
     private var tiles: some View {
         ViewThatFits(in: .horizontal) {
@@ -244,7 +229,7 @@ struct CompletionView: View {
                 .buttonStyle(.secondary)
             }
 
-            Button("Not now") { app.returnToPathDetail(for: lesson) }
+            Button("Not now") { app.leaveCompletion(for: lesson) }
                 .buttonStyle(.quiet)
                 .frame(maxWidth: .infinity)
         }

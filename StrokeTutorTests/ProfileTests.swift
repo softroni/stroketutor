@@ -76,6 +76,42 @@ final class ProfileTests: XCTestCase {
         XCTAssertTrue(relaunched.sketchbook.isEmpty)
     }
 
+    /// All paths' welcome is shown once per learner: remembered across a relaunch,
+    /// and one sibling having had it does not use up the other's.
+    func testHavingSeenThePathsWelcomeIsKeptPerLearner() throws {
+        let model = makeModel()
+        let first = model.activeProfile
+        let second = try XCTUnwrap(model.addProfile(name: "Maya", avatar: .owl))
+        XCTAssertFalse(model.preferences.hasSeenPathsWelcome)
+
+        model.preferences.hasSeenPathsWelcome = true
+        model.switchProfile(to: second.id)
+        XCTAssertFalse(model.preferences.hasSeenPathsWelcome)
+
+        let relaunched = makeModel()
+        XCTAssertEqual(relaunched.activeProfile.id, second.id)
+        XCTAssertFalse(relaunched.preferences.hasSeenPathsWelcome)
+        relaunched.switchProfile(to: first.id)
+        XCTAssertTrue(relaunched.preferences.hasSeenPathsWelcome)
+    }
+
+    /// A `preferences.json` written before the welcome existed has no key for it,
+    /// and reads as a learner who has not had it — with everything else intact.
+    func testPreferencesWithoutThePathsWelcomeKeyReadAsNotSeen() throws {
+        let json = #"{"currentPathId":"cars","narrationEnabled":false,"defaultSpeed":2}"#
+        let values = try JSONDecoder().decode(ProfilePreferences.Values.self, from: Data(json.utf8))
+        XCTAssertFalse(values.hasSeenPathsWelcome)
+        XCTAssertEqual(values.currentPathId, "cars")
+        XCTAssertFalse(values.narrationEnabled)
+        XCTAssertEqual(values.defaultSpeed, 2.0)
+
+        // And the same through the file the store actually reads.
+        try Data(json.utf8).write(to: base.appendingPathComponent(ProfilePreferences.fileName))
+        let preferences = ProfilePreferences(directory: base)
+        XCTAssertFalse(preferences.hasSeenPathsWelcome)
+        XCTAssertEqual(preferences.currentPathId, "cars")
+    }
+
     func testAddingALearnerDoesNotChangeWhoTheNextLaunchOpens() throws {
         let model = makeModel()
         let first = model.activeProfile

@@ -42,7 +42,8 @@ struct LinaView: View {
 }
 
 /// Lina's round portrait (`.face`): the head only, in a circle. 32 pt in the
-/// narration chip, 48 pt beside her line on the completion screen.
+/// narration chip, 48 pt beside her line (`LinaLineRow`) on the completion screen
+/// and on All paths' welcome.
 struct LinaFace: View {
     var size: CGFloat = 32
 

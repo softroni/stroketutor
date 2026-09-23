@@ -92,8 +92,9 @@ final class NarrationPlayer {
 
     // MARK: - The app's own lines
 
-    /// One of `Voice/app/`: `hello` on the onboarding beat and in Settings, and the
-    /// eight `lesson-N` / `path-N` lines of the completion screen.
+    /// One of `Voice/app/`: `hello` on the onboarding beat and in Settings, the
+    /// eight `lesson-N` / `path-N` lines of the completion screen, and
+    /// `paths-welcome` on All paths' one-time welcome.
     func hasAppLine(_ id: String) -> Bool {
         library.appAudioURL(id) != nil
     }

@@ -3,7 +3,7 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-13T22:36:26.368Z",
+  "generatedAt": "2026-09-23T18:35:40.930Z",
   "lines": {
     "hello": {
       "file": "hello.m4a",
@@ -58,6 +58,12 @@
       "text": "You have the shape of the subject now. The rest is time with a pen.",
       "textHash": "3593ef9685c08b9f35b91417d36890f0ff3d53a7eaecd0a63203edd5815ef0e5",
       "durationMs": 4000
+    },
+    "paths-welcome": {
+      "file": "paths-welcome.m4a",
+      "text": "There's a lot more to draw here. Pick whatever you like next.",
+      "textHash": "88e97aec5ffbafa7911b3dd03452e3dd06101339194065108e9548d99eeefb74",
+      "durationMs": 3840
     }
   }
 }

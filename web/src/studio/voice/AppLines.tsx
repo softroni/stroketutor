@@ -22,9 +22,10 @@ export interface AppLinesProps {
 }
 
 /**
- * Lina's own lines: the nine things the app says outside any lesson — the voice
- * introducing herself on the onboarding screen and in Settings, and what she
- * says when each lesson and each path is finished.
+ * Lina's own lines: the things the app says outside any lesson — the voice
+ * introducing herself on the onboarding screen and in Settings, what she says
+ * when each lesson and each path is finished, and what she says the first
+ * time an early learner lands on All paths.
  *
  * It is the narration table again, with two differences. The ids are the app's
  * and cannot be added to, renamed or deleted — iOS looks each one up by name —
@@ -104,8 +105,9 @@ export function AppLinesPanel({ voices, castVoiceId, player, queue, unavailable 
     <section className="st-panel st-narrate st-app-lines">
       <h2 className="st-label">Lina’s own lines</h2>
       <p className="st-field__hint">
-        What the app says outside any lesson: the voice introducing herself, and the eight completion
-        screens. The ids are fixed — iOS asks for each by name — but the words are yours.
+        What the app says outside any lesson: the voice introducing herself, the eight completion
+        screens, and the one-time welcome to All paths. The ids are fixed — iOS asks for each by name —
+        but the words are yours.
       </p>
 
       {error ? (

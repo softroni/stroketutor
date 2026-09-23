@@ -104,7 +104,7 @@ export function publishBlocker(input: {
 /**
  * Why "Publish Lina's lines" is off, or null when it is ready. Shorter than a
  * lesson's, because these lines belong to no lesson: there is nothing to
- * publish first, only a voice to cast and nine lines to record.
+ * publish first, only a voice to cast and the lines to record.
  */
 export function appPublishBlocker(input: { summary: NarrationSummary; castVoiceId: string | null }): string | null {
   if (!input.castVoiceId) return 'Cast a voice as Lina first.'

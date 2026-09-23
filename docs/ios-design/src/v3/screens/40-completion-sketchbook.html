@@ -371,7 +371,8 @@ article[id^="sk-"] .sk-shot::after { content: ""; position: absolute; inset: 0; 
       <ul>
         <li><b>default</b> — mid-path. "Add to sketchbook" → <code>sk-capture</code> primer (straight to the camera when video access is already authorised); "Next lesson" → <code>hp-preview</code>; "Not now" → <code>hp-path</code>. Completion is written before this screen appears, so "Not now" loses nothing.</li>
         <li><b>path-done</b> — <code>path.lessonIds.last == lesson.id</code>. Instead of one page, a 5 × 2 contact sheet of all ten drawings (the newest ringed gold, check badge). Secondary becomes "Choose another path" → <code>hp-paths</code>. Cells show the learner's photo when one exists, else the tutorial strokes.</li>
-        <li>No auto-dismiss, no timer <span class="tag tag--plan">§31</span>. One <code>.success</code> haptic on appear; no sound.</li>
+        <li>No auto-dismiss, no timer <span class="tag tag--plan">§31</span>. One <code>.success</code> haptic on appear; Lina's line plays with it (narration on, same as in the player).</li>
+        <li><b>An early learner's first rest.</b> For a learner with three or fewer lessons done, the first time they leave this screen by "Not now", or by "Done" on <code>sk-capture</code> after "Add to sketchbook", the destination is <code>hp-paths</code> (All paths) instead of <code>hp-path</code> (their own path) — once per learner. All paths then carries its own one-time welcome header and line (see <code>hp-paths</code>). "Next lesson" is never redirected, and every later rest goes back to <code>hp-path</code> as usual.</li>
       </ul>
       <h4>What changed in v3</h4>
       <ul>

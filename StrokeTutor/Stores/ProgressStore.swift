@@ -47,6 +47,13 @@ final class ProgressStore {
 
     private(set) var records: [LessonProgress] = []
 
+    /// How many finished lessons still count as a new learner's early ones. One
+    /// number for the two places that ask: `hp-preview` shows "how a lesson works"
+    /// while fewer than this are drawn, and leaving `sk-complete` after one of the
+    /// first this-many lessons may land on `hp-paths`' one-time welcome
+    /// (`AppModel.shouldShowPathsWelcome`).
+    static let newLearnerLessonCount = 3
+
     private let fileURL: URL
     private static let log = Logger(subsystem: "com.softroni.StrokeTutor", category: "progress")
 

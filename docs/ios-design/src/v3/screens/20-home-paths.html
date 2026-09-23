@@ -478,6 +478,7 @@ LessonNode(state: .done(date) | .current | .locked, drawing: tutorial)   // Canv
         <li>Any open card → <code>hp-path</code> for that path (started or not). Tapping a card does <em>not</em> change <code>currentPathId</code>; starting a lesson does.</li>
         <li>"Coming later" rows are inert. No notify-me, no sign-up <span class="tag tag--plan">§32</span>.</li>
         <li>Order: started paths by most recent completion, then unstarted paths in catalog order, then the unpublished list from the catalog's <code>status</code>.</li>
+        <li><b>One-time first-visit header.</b> The first time an early learner (three or fewer lessons done) is sent here from a lesson-complete screen's "Not now" or "Done" (see <code>sk-complete</code>), this screen opens with a header above the intro line: a written title, "N paths to explore" — N counted from the shipped catalog only, never a placeholder or "Coming later" row — and a row with Lina's <code>.face</code> and one line she says once, "There's a lot more to draw here. Pick whatever you like next." (app line <code>paths-welcome</code>). The current path keeps its ordinary green outline and "Now" badge underneath; the header adds to the screen, it does not change how any card reads. The header is shown once per learner — gone as soon as they leave this screen, never shown again after that, and never shown to a learner who did not arrive this way (opening "All paths" from the tab bar or from Home never triggers it).</li>
       </ul>
       <h4>What changed in v3</h4>
       <ul>

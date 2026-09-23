@@ -232,8 +232,8 @@ choose between several candidates. Speech is made on the creator's own MLX-Audio
       in Settings, `lesson-1`…`path-4` on the completion screen — and every one of those screens keeps its written
       fallback for a line that was not published. Xcode refuses to build when `shared/Assets/Voice/` is missing
       altogether, so the folder is kept in a checkout by its README.
-- [ ] Not yet: nothing is published under `shared/Assets/Voice/` — the creator publishes the lessons, then their
-      voice and Lina's own lines, and the app speaks from the next build.
+- [x] Published. `shared/Assets/Voice/` now carries narration for most of the catalog's lessons and Lina's own
+      lines (`Voice/app/`); the app speaks from the checked-in build.
 
 #### S7 · Reviewing a lesson
 Asked for on 2026-09-12, after reviewing the classic red car.
@@ -807,6 +807,23 @@ Read Apple's current camera and photo-library permission guidance before buildin
 **Built with M7 (2026-09-13):** capture primer, camera or Photos, review, saved; pages as JPEG + JSON index in
 Application Support; sketchbook tab by month; entry with note, share and delete; opt-in "Also save to Photos".
 Usage strings cite App Store Review Guideline 5.1.1(ii). Crop and straighten is a disabled stub.
+
+### Follow-up · First rest goes to All paths (2026-09-23)
+The first time an early learner (three or fewer lessons done) leaves a lesson-complete screen by "Not now", or by
+"Done" after adding the drawing to the sketchbook, they land on All paths (`hp-paths`) instead of their own path's
+page, with a one-time header: the written title "N paths to explore" and a row with Lina's face and a new line she
+says once. "Next lesson" is unchanged.
+- [x] iOS: the redirect for an early learner's first rest (`AppModel.leaveCompletion(for:)`, once per learner via
+      `ProfilePreferences.hasSeenPathsWelcome`), and the one-time header on All paths with `LinaLineRow`. Tests in
+      `CurrentPathTests`, `ProfileTests` and `NarrationTests`; debug screen `-STScreen paths-welcome`.
+- [x] Lina's app line `paths-welcome`, "There's a lot more to draw here. Pick whatever you like next.", recorded
+      and published to `shared/Assets/Voice/app/`.
+- [x] Web: `APP_LINE_IDS` extended to ten ids (`web/src/voice/types.ts`, `web/src/voice/suggestions.ts`); counts and
+      sentences hard-coded to nine app lines / eight completions fixed across the Voice page, server and CLI, and
+      their tests. Web tests pass (except two pre-existing, unrelated failures where `docs/curriculum/plan.json`
+      has grown past the curriculum-plan fixtures' expected counts).
+- [x] Design notes: `docs/ios-design/src/v3/screens/20-home-paths.html` (`hp-paths`) and
+      `.../40-completion-sketchbook.html` (`sk-complete`), rebuilt into `v3.html`.
 
 ### M9 · Content expansion
 Add paths only once the Studio workflow is repeatable.

@@ -39,9 +39,6 @@ struct LessonPreviewView: View {
     @ScaledMetric(relativeTo: .body) private var beatCircleSize: CGFloat = 58
     @ScaledMetric(relativeTo: .body) private var beatBadgeSize: CGFloat = 22
 
-    /// Lessons finished before "how a lesson works" stops being shown.
-    static let newLearnerLessonCount = 3
-
     var body: some View {
         Group {
             if let lesson = app.lesson(id: lessonId) {
@@ -60,7 +57,7 @@ struct LessonPreviewView: View {
         let resumeStep = app.progress.resumeStep(for: lesson.id)
         let tint = tint(for: lesson)
         let showsHowItWorks = resumeStep == nil
-            && app.progress.completedCount < Self.newLearnerLessonCount
+            && app.progress.completedCount < ProgressStore.newLearnerLessonCount
 
         return VStack(spacing: 0) {
             InlineNavBar(title: navTitle(for: lesson)) { dismiss() }
@@ -311,8 +308,8 @@ struct LessonPreviewView: View {
 
     /// Every lesson in three pictures, each on its own soft color, so a child who
     /// skips the words still knows what to do. Shown only to a new learner (fewer
-    /// than `newLearnerLessonCount` lessons finished). Side by side, or one under the
-    /// other when the text is large.
+    /// than `ProgressStore.newLearnerLessonCount` lessons finished). Side by side,
+    /// or one under the other when the text is large.
     @ViewBuilder
     private var howItWorks: some View {
         let beats: [(symbol: String, text: String, spoken: String, style: Chip.Style)] = [

@@ -43,3 +43,16 @@ enum CompletionLines {
         return Line(id: "\(isPathDone ? "path" : "lesson")-\(index + 1)", text: texts[index])
     }
 }
+
+/// What Lina says on `hp-paths`' one-time welcome, the first time a new learner
+/// leaves `sk-complete` to rest (`AppModel.leaveCompletion(for:)`). One line, not a
+/// rotation like `CompletionLines`, because it is only ever said once.
+///
+/// The words on screen are the recording's own (`NarrationPlayer.appLineText`), so
+/// the two cannot drift; `fallbackText` is written here for a build the Studio has
+/// not published the line into, where the screen still shows it, silently.
+enum PathsWelcomeLine {
+    /// The id in `Voice/app/`, one of the Studio's `APP_LINE_IDS`.
+    static let id = "paths-welcome"
+    static let fallbackText = "There's a lot more to draw here. Pick whatever you like next."
+}

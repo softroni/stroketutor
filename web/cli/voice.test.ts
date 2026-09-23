@@ -306,7 +306,7 @@ describe('the voice commands', () => {
 
     const printed = await t.studio('voice app list')
     expect(printed.stdout).toContain('Onboarding and Settings: meet the voice')
-    expect(printed.stdout).toContain('9 lines, 9 still to make')
+    expect(printed.stdout).toContain('10 lines, 10 still to make')
 
     const written = await t.json<AppNarration>(['voice', 'app', 'set', 'lesson-2', 'You did the hard part twice.'])
     expect(written.lines.find((line) => line.id === 'lesson-2')!.text).toBe('You did the hard part twice.')
@@ -318,16 +318,16 @@ describe('the voice commands', () => {
     await t.studio('voice cast house-chatterbox')
     const recorded = await t.studio('voice app narrate')
     expect(recorded.code).toBe(0)
-    expect(recorded.stdout).toContain('1 of 9')
-    expect(recorded.stdout).toContain('Recorded 9 lines of Lina’s own.')
-    expect(tts.speech).toHaveLength(9)
+    expect(recorded.stdout).toContain('1 of 10')
+    expect(recorded.stdout).toContain('Recorded 10 lines of Lina’s own.')
+    expect(tts.speech).toHaveLength(10)
 
     const again = await t.json<{ recorded: unknown[] }>('voice app narrate')
     expect(again.recorded).toEqual([])
 
     const published = await t.studio('voice app publish')
     expect(published.code).toBe(0)
-    expect(published.stdout).toContain('10 files')
+    expect(published.stdout).toContain('11 files')
     expect(published.stdout).toContain('git add -- shared/Assets/Voice/app/hello.m4a')
 
     const manifest = JSON.parse(
@@ -344,7 +344,7 @@ describe('the voice commands', () => {
   it('takes Lina’s own lines along with `publish --all`, and says when it cannot', async () => {
     await narrateHouse()
     const without = await t.studio('voice publish --all')
-    expect(without.stdout).toContain('Lina’s own lines were skipped: 9 lines still to make')
+    expect(without.stdout).toContain('Lina’s own lines were skipped: 10 lines still to make')
     expect(existsSync(path.join(t.shared, 'Assets', 'Voice', 'app'))).toBe(false)
 
     await t.studio('voice app narrate')

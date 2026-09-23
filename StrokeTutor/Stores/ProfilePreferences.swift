@@ -4,7 +4,8 @@ import OSLog
 
 /// The preferences that belong to a learner rather than to the device: which path Home
 /// shows, whether Lina speaks, and how fast a lesson starts. Two siblings on one iPad can want different answers to every one of
-/// these, so each profile keeps its own `preferences.json`.
+/// these, so each profile keeps its own `preferences.json` — along with whether
+/// that learner has had All paths' one-time welcome.
 ///
 /// Device-wide choices — onboarding, the reminder, "Also save to Photos", the
 /// landscape layout — stay in `Settings`.
@@ -18,6 +19,7 @@ final class ProfilePreferences {
         var currentPathId = ""
         var narrationEnabled = true
         var defaultSpeed = 1.0
+        var hasSeenPathsWelcome = false
 
         init() {}
 
@@ -27,6 +29,7 @@ final class ProfilePreferences {
             currentPathId = try container.decodeIfPresent(String.self, forKey: .currentPathId) ?? defaults.currentPathId
             narrationEnabled = try container.decodeIfPresent(Bool.self, forKey: .narrationEnabled) ?? defaults.narrationEnabled
             defaultSpeed = Self.validSpeed(try container.decodeIfPresent(Double.self, forKey: .defaultSpeed))
+            hasSeenPathsWelcome = try container.decodeIfPresent(Bool.self, forKey: .hasSeenPathsWelcome) ?? defaults.hasSeenPathsWelcome
         }
 
         /// The values a pre-profiles build kept in `UserDefaults`, for the migration.
@@ -53,6 +56,12 @@ final class ProfilePreferences {
     var narrationEnabled: Bool { didSet { save() } }
     /// The speed a lesson starts at: 0.5, 1, 2 or 4.
     var defaultSpeed: Double { didSet { save() } }
+    /// Whether this learner has been shown `hp-paths`' one-time welcome, the header
+    /// and Lina's line that meet them the first time they leave `sk-complete` to
+    /// rest. Per learner, because each sibling gets their own first time; "Reset
+    /// progress" clears lessons, not this, so a learner who starts over is not
+    /// welcomed a second time.
+    var hasSeenPathsWelcome: Bool { didSet { save() } }
 
     /// Nil keeps everything in memory — the fallback when a profile has no folder.
     private let fileURL: URL?
@@ -64,6 +73,7 @@ final class ProfilePreferences {
         currentPathId = values.currentPathId
         narrationEnabled = values.narrationEnabled
         defaultSpeed = values.defaultSpeed
+        hasSeenPathsWelcome = values.hasSeenPathsWelcome
     }
 
     /// An in-memory set, for the migration's fallback session.
@@ -77,6 +87,7 @@ final class ProfilePreferences {
         values.currentPathId = currentPathId
         values.narrationEnabled = narrationEnabled
         values.defaultSpeed = defaultSpeed
+        values.hasSeenPathsWelcome = hasSeenPathsWelcome
         return values
     }
 
@@ -89,6 +100,7 @@ final class ProfilePreferences {
         currentPathId = values.currentPathId
         narrationEnabled = values.narrationEnabled
         defaultSpeed = values.defaultSpeed
+        hasSeenPathsWelcome = values.hasSeenPathsWelcome
     }
 
     static func write(_ values: Values, to directory: URL) throws {

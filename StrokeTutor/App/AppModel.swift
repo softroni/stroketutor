@@ -96,6 +96,12 @@ final class AppModel {
     /// whenever it changes while the tab is already showing, and clears it, so the
     /// sheet is raised once and never again on a later visit.
     var pendingLockedLessonId: String?
+    /// All paths is on screen as a new learner's one-time welcome (`hp-paths`, see
+    /// `leaveCompletion(for:)`): its header and Lina's line show while this is set.
+    /// Held here, not in the screen, because it is decided as the completion cover
+    /// closes; `hp-paths` clears it when it goes away, so coming back to it — or a
+    /// relaunch, since this is never saved — shows the ordinary screen.
+    var pathsWelcomePending = false
     /// Bumped to bring the Lessons tab back to its top — Home's "See all lessons"
     /// lands on the count and the first path, not wherever the list was left.
     var lessonsScrollToTop = 0
@@ -438,6 +444,7 @@ extension AppModel {
 
         cover = nil
         pendingLockedLessonId = nil
+        pathsWelcomePending = false
 
         homeStack = []
         pathStack = []

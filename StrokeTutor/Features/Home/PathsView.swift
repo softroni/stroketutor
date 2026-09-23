@@ -18,17 +18,34 @@ import SwiftUI
 /// The mockup also shows a soft "Coming later" list under the cards. The catalog has
 /// no way to declare an unpublished path (`shared/catalog.schema.json`), and the app
 /// never invents content, so that list appears here only once the schema carries it.
+///
+/// Once per learner, the screen opens with a welcome: the first time a new learner
+/// leaves `sk-complete` to rest, they land here rather than on their path
+/// (`AppModel.leaveCompletion(for:)`), and a header — "10 paths to explore" and
+/// Lina's line beside her face — sits above the cards. Lina says the line aloud
+/// once, if it was recorded and narration is on. The header shows only while
+/// `AppModel.pathsWelcomePending` is set, and leaving the screen clears it, so
+/// Back, a tab switch or a later visit all find the ordinary screen. The path
+/// just drawn is already the current one, outlined in green with its "Now" badge.
 struct PathsView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
+    /// Lina reads the welcome's line once, if it was recorded and narration is on.
+    @State private var narration = NarrationPlayer()
+
     var body: some View {
-        VStack(spacing: 0) {
+        let sections = self.sections
+        return VStack(spacing: 0) {
             InlineNavBar(title: "Paths") { dismiss() }
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+                    if showsWelcome(sections) {
+                        welcome(pathCount: sections.reduce(0) { $0 + $1.paths.count })
+                    }
+
                     if sections.isEmpty {
                         Text("No lessons are installed.")
                             .textRole(.body)
@@ -65,7 +82,54 @@ struct PathsView: View {
         }
         .background(Theme.page)
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear { speakWelcome() }
+        .onDisappear {
+            narration.deactivate()
+            app.pathsWelcomePending = false
+        }
     }
+
+    // MARK: - The welcome
+
+    /// The welcome is for a learner arriving from their first rest, and only when
+    /// there are cards to welcome them to.
+    private func showsWelcome(_ sections: [PathsSection]) -> Bool {
+        app.pathsWelcomePending && !sections.isEmpty
+    }
+
+    /// "10 paths to explore", then Lina's line. The count is of the cards below —
+    /// shipped paths with lessons in them — not of everything the catalog names.
+    private func welcome(pathCount: Int) -> some View {
+        VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+            Text(pathCount == 1 ? "1 path to explore" : "\(pathCount) paths to explore")
+                .textRole(.title1)
+                .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 2)
+                .accessibilityAddTraits(.isHeader)
+
+            LinaLineRow(text: welcomeText)
+        }
+        .padding(.top, 8)
+    }
+
+    /// The recording's own words when the line shipped, so what is written is what
+    /// Lina says; the same sentence from `PathsWelcomeLine` when it did not.
+    private var welcomeText: String {
+        narration.appLineText(PathsWelcomeLine.id) ?? PathsWelcomeLine.fallbackText
+    }
+
+    /// Said once, as the welcome arrives. A learner who has turned Lina off, or a
+    /// line that was never recorded, reads it in silence.
+    private func speakWelcome() {
+        guard showsWelcome(sections),
+              app.preferences.narrationEnabled,
+              narration.hasAppLine(PathsWelcomeLine.id) else { return }
+        narration.playAppLine(PathsWelcomeLine.id)
+    }
+
+    // MARK: - The cards
 
     /// The cards, in the order and the groups the screen draws them: the catalog's
     /// level sections, each ordered on its own, and a last section without a heading

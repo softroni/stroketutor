@@ -933,7 +933,7 @@ describe('Lina’s own lines', () => {
     castVoice('house-chatterbox', deps)
     const nothing = await refusal(() => publishAppLines(deps))
     expect(nothing.status).toBe(422)
-    expect(nothing.message).toContain('9 lines have no recording')
+    expect(nothing.message).toContain('10 lines have no recording')
 
     await narrateApp()
     await setAppLine('path-1', 'Now go and find one outside.', deps)
@@ -970,7 +970,7 @@ describe('Lina’s own lines', () => {
 
     expect((await appLines(deps)).published).toMatchObject({
       voiceId: 'house-chatterbox',
-      lineCount: 9,
+      lineCount: APP_LINE_IDS.length,
       behind: false,
     })
 
@@ -980,7 +980,7 @@ describe('Lina’s own lines', () => {
     expect((await appLines(deps)).published!.behind).toBe(true)
 
     const removed = await deletePublishedAppLines(deps)
-    expect(removed.files).toHaveLength(10)
+    expect(removed.files).toHaveLength(APP_LINE_IDS.length + 1)
     expect(existsSync(path.join(shared, appFolder))).toBe(false)
     expect((await appLines(deps)).published).toBe(null)
     // Removing again is fine, and the recordings stayed in the workspace.

@@ -156,6 +156,121 @@ final class CurrentPathTests: XCTestCase {
         XCTAssertEqual(model.currentPath?.id, treePath.id)
     }
 
+    // MARK: - All paths' welcome
+
+    /// A new learner's first rest after a lesson lands on All paths, pushed on the
+    /// Path tab over the lesson's path, with the one-time welcome waiting — and the
+    /// welcome is remembered as seen at once.
+    func testTheFirstRestAfterALessonShowsAllPathsWithTheWelcome() throws {
+        let model = makeModel()
+        let carPath = try XCTUnwrap(model.path(forLesson: Self.carLessonId))
+        let treePath = try XCTUnwrap(model.path(forLesson: Self.treeLessonId))
+        let tree = try XCTUnwrap(model.lesson(id: Self.treeLessonId))
+
+        model.open(carPath)
+        model.showPreview(of: tree)
+        model.presentCompletion(tree)
+        model.select(carPath)
+        XCTAssertTrue(model.shouldShowPathsWelcome)
+
+        model.leaveCompletion(for: tree)
+
+        XCTAssertNil(model.cover)
+        XCTAssertEqual(model.selectedTab, .path)
+        XCTAssertEqual(model.pathStack, [.paths], "Back from All paths returns to the lesson's path.")
+        XCTAssertEqual(model.currentPath?.id, treePath.id)
+        XCTAssertTrue(model.pathsWelcomePending)
+        XCTAssertTrue(model.preferences.hasSeenPathsWelcome)
+        XCTAssertFalse(model.shouldShowPathsWelcome)
+    }
+
+    /// The welcome is once per learner: the next rest, after another lesson, goes to
+    /// the lesson's path as it always did.
+    func testTheNextRestReturnsToThePathRoot() throws {
+        let model = makeModel()
+        let treePath = try XCTUnwrap(model.path(forLesson: Self.treeLessonId))
+        let tree = try XCTUnwrap(model.lesson(id: Self.treeLessonId))
+        let car = try XCTUnwrap(model.lesson(id: Self.carLessonId))
+
+        model.presentCompletion(tree)
+        model.leaveCompletion(for: tree)
+        // All paths goes away, as it does when the learner leaves it.
+        model.pathsWelcomePending = false
+
+        model.presentCompletion(car)
+        model.leaveCompletion(for: car)
+
+        XCTAssertNil(model.cover)
+        XCTAssertEqual(model.selectedTab, .path)
+        XCTAssertTrue(model.pathStack.isEmpty)
+        XCTAssertEqual(model.currentPath?.id, car.pathId)
+        XCTAssertNotEqual(model.currentPath?.id, treePath.id)
+        XCTAssertFalse(model.pathsWelcomePending)
+    }
+
+    /// A learner already past their early lessons — here four drawn, from before
+    /// the welcome existed — is not welcomed as if they were new.
+    func testALearnerPastTheirEarlyLessonsIsNotWelcomed() throws {
+        let model = makeModel()
+        let lessons = model.paths.flatMap(\.lessons)
+        let count = ProgressStore.newLearnerLessonCount + 1
+        XCTAssertGreaterThanOrEqual(lessons.count, count)
+        for lesson in lessons.prefix(count - 1) {
+            model.progress.markCompleted(lesson.id, pathId: lesson.pathId)
+        }
+        let last = lessons[count - 1]
+        model.presentCompletion(last)
+        XCTAssertEqual(model.progress.completedCount, count)
+
+        model.leaveCompletion(for: last)
+
+        XCTAssertEqual(model.selectedTab, .path)
+        XCTAssertTrue(model.pathStack.isEmpty)
+        XCTAssertEqual(model.currentPath?.id, last.pathId)
+        XCTAssertFalse(model.pathsWelcomePending)
+        XCTAssertFalse(model.preferences.hasSeenPathsWelcome,
+                       "Nothing was shown, so nothing is remembered as seen.")
+    }
+
+    /// "Next lesson" is not a rest: a learner who chains two lessons still gets the
+    /// welcome when they first stop.
+    func testChainingLessonsStillShowsTheWelcomeAtTheFirstRest() throws {
+        let model = makeModel()
+        let tree = try XCTUnwrap(model.lesson(id: Self.treeLessonId))
+        let car = try XCTUnwrap(model.lesson(id: Self.carLessonId))
+
+        model.presentCompletion(tree)
+        model.dismissCover()
+        model.showPreview(of: car)
+        model.presentPlayer(car)
+        model.presentCompletion(car)
+        XCTAssertEqual(model.progress.completedCount, 2)
+
+        model.leaveCompletion(for: car)
+
+        XCTAssertEqual(model.pathStack, [.paths])
+        XCTAssertEqual(model.currentPath?.id, car.pathId)
+        XCTAssertTrue(model.pathsWelcomePending)
+        XCTAssertTrue(model.preferences.hasSeenPathsWelcome)
+    }
+
+    /// Handing the app to another learner never carries the welcome with it.
+    func testSwitchingLearnerClearsThePendingWelcome() throws {
+        let model = makeModel()
+        let tree = try XCTUnwrap(model.lesson(id: Self.treeLessonId))
+        let second = try XCTUnwrap(model.addProfile(name: "Maya", avatar: .owl))
+
+        model.presentCompletion(tree)
+        model.leaveCompletion(for: tree)
+        XCTAssertTrue(model.pathsWelcomePending)
+
+        model.switchProfile(to: second.id)
+
+        XCTAssertFalse(model.pathsWelcomePending)
+        XCTAssertTrue(model.pathStack.isEmpty)
+        XCTAssertFalse(model.preferences.hasSeenPathsWelcome, "The second learner has their own first time.")
+    }
+
     private static let treeLessonId = "pine-tree"
     private static let carLessonId = "car"
 

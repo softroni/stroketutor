@@ -48,6 +48,7 @@ enum DebugScreenHarness {
         raiseProfileSwitcher = false
         raisePINCreate = false
         pendingLessonsJump = nil
+        app.pathsWelcomePending = false
 
         // The screens below are captured with two of the shipped drawings: the palm
         // tree (upright) and the red car (wide). They are found by lesson id and not
@@ -105,6 +106,15 @@ enum DebugScreenHarness {
             if carPath.id != treePath.id { markFirst(carPath.lessonCount, of: carPath, in: app) }
             app.open(treePath)
             app.push(.paths)
+
+        case "paths-welcome":
+            // A new learner's first rest after a lesson: All paths with its
+            // one-time header and Lina's line, the tree's path current, as
+            // `AppModel.leaveCompletion(for:)` leaves it.
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            app.select(treePath)
+            app.pathsWelcomePending = true
+            app.showAllPaths()
 
         case "lessons", "lessons-deep":
             // The Lessons tab with the catalog in three states at once: the first

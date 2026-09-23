@@ -172,6 +172,22 @@ final class NarrationTests: XCTestCase {
         }
     }
 
+    // MARK: - All paths' welcome
+
+    /// The welcome on `hp-paths` asks `Voice/app/` for `paths-welcome`, so the app's
+    /// own bundle must carry that line and its recording — read from the build
+    /// under test, not from a folder made by hand.
+    func testTheBundledAppLinesIncludeThePathsWelcome() throws {
+        let library = VoiceLibrary(bundle: .appUnderTest)
+        let manifest = try XCTUnwrap(library.appManifest(), "Voice/app/manifest.json is not in the bundle.")
+        let line = try XCTUnwrap(manifest.lines[PathsWelcomeLine.id],
+                                 "The app manifest has no \(PathsWelcomeLine.id) line.")
+        XCTAssertEqual(line.file, "\(PathsWelcomeLine.id).m4a")
+        XCTAssertFalse(line.text.isEmpty)
+        XCTAssertNotNil(library.appAudioURL(PathsWelcomeLine.id),
+                        "\(line.file) is named by the manifest but is not in the bundle.")
+    }
+
     // MARK: - A folder laid out as the bundle's is
 
     private func publish(lesson: String, manifest: String?, files: [String]) throws {

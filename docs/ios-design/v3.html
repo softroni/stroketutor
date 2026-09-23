@@ -353,9 +353,6 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
 /* ---------------------------------------------------------------- nav bar */
 .navbar { flex: none; height: 56px; display: grid; grid-template-columns: 60px 1fr 60px; align-items: center; padding: 0 8px; }
 .navbar .title { text-align: center; font-weight: 800; font-size: 17px; letter-spacing: -.2px; }
-.title-switch { justify-self: center; display: flex; align-items: center; gap: 3px; background: none; border: 0; font: inherit; color: var(--ink); cursor: pointer; padding: 6px 4px; }
-.title-switch .title { padding: 0; }
-.title-switch svg { width: 16px; height: 16px; color: var(--ink-40); }
 .nav-btn { width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; background: transparent; border: 0; color: var(--ink); font: inherit; cursor: pointer; padding: 0; }
 .nav-btn.filled { background: var(--surface); }
 .nav-btn svg { width: 24px; height: 24px; }
@@ -682,7 +679,6 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
     <!-- ====== Icons (SF Symbols stand-ins, 24×24, stroke = currentColor) ====== -->
     <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M5 9 L12 16 L19 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 L10 17.5 L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5 L19 12 L8 19 Z" fill="currentColor"/></symbol>
@@ -704,7 +700,6 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7 h14 M9 7 V4.5 h6 V7 M7 7 l1 13 h8 l1 -13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-paper" viewBox="0 0 24 24"><path d="M6 3 h8 l4 4 v14 H6 Z M14 3 v4 h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
     <symbol id="i-house" viewBox="0 0 24 24"><path d="M4 11 L12 4 l8 7 v9 H4 Z M10 20 v-6 h4 v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
-    <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 6 L8.5 4 L15.5 6 L21 4 v14 l-5.5 2 l-7 -2 l-5.5 2 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M8.5 4 v14 M15.5 6 v14" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
     <symbol id="i-tree" viewBox="0 0 24 24"><path d="M12 3 L5 13 h4 l-3 5 h12 l-3 -5 h4 Z M12 18 v3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
     <symbol id="i-flower" viewBox="0 0 24 24"><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 4 a3 3 0 0 1 0 6 a3 3 0 0 1 0 -6 M18 10 a3 3 0 0 1 -6 0 a3 3 0 0 1 6 0 M12 16 a3 3 0 0 1 0 -6 a3 3 0 0 1 0 6 M6 10 a3 3 0 0 1 6 0 a3 3 0 0 1 -6 0 M12 16 v5" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
     <symbol id="i-mountain" viewBox="0 0 24 24"><path d="M3 19 L9 8 l3 5 l3 -7 l6 13 Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
@@ -726,7 +721,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
     <div class="mast">
       <p class="eyebrow">Design specification · iOS · v3</p>
       <h1>Stroke<em>Tutor</em></h1>
-      <p class="meta"><b>22 screens</b> with developer notes · 2026-09-22</p>
+      <p class="meta"><b>22 screens</b> with developer notes · 2026-09-23</p>
     </div>
     <div class="find"><input type="search" id="find" placeholder="Find a screen" autocomplete="off" spellcheck="false"><kbd>/</kbd></div>
     <section class="ix-group">
@@ -744,7 +739,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
   <a class="ix-item" href="#ob-ready" data-target="ob-ready"><span class="ix-n">08</span><span class="ix-t">Your first lesson is ready</span></a>
 </section>
 <section class="ix-group"><h3><span class="ix-roman">II</span>Home &amp; paths<span class="ix-count">4</span></h3>
-  <a class="ix-item" href="#hp-home" data-target="hp-home"><span class="ix-n">09</span><span class="ix-t">Home</span></a>
+  <a class="ix-item" href="#hp-home" data-target="hp-home"><span class="ix-n">09</span><span class="ix-t">Learn (home)</span></a>
   <a class="ix-item" href="#hp-paths" data-target="hp-paths"><span class="ix-n">10</span><span class="ix-t">All paths</span></a>
   <a class="ix-item" href="#hp-path" data-target="hp-path"><span class="ix-n">11</span><span class="ix-t">Path detail (Houses)</span></a>
   <a class="ix-item" href="#hp-preview" data-target="hp-preview"><span class="ix-n">12</span><span class="ix-t">Lesson preview</span></a>
@@ -817,7 +812,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
   <tr><td>Spacing</td><td>gutter 20 · stack 12 · section 20 · card padding 20</td><td>all screens</td></tr>
   <tr><td>Tap target</td><td>60 pt minimum, 44 pt for nav-bar glyphs, nodes 84 pt</td><td><code>Theme.minimumTapTarget</code></td></tr>
   <tr><td>Node</td><td>84 pt circle, 5 pt edge; done gold, current white + 4 pt green ring + pulsing halo, locked surface</td><td><code>LessonNode</code> (new)</td></tr>
-  <tr><td>Tab bar</td><td>4 tabs, 26 pt glyphs in a 56 × 30 pill (green-soft when active), 11.5 pt labels</td><td>Home · Path · Sketchbook · Settings</td></tr>
+  <tr><td>Tab bar</td><td>3 tabs, 26 pt glyphs in a 56 × 30 pill (green-soft when active), 11.5 pt labels</td><td>Learn · Sketchbook · Settings</td></tr>
 </table>
 
 <h3>What does not change</h3>
@@ -1964,7 +1959,7 @@ Button("Look around first")       { done = true; route = .home }.buttonStyle(.qu
 
 
 <!-- 20-home-paths.html -->
-<!-- 20-home-paths.html · v3 — Home tab, Path tab, all paths, lesson preview. Group: Home & paths. -->
+<!-- 20-home-paths.html · v3 — Learn tab, all paths, path detail, lesson preview. Group: Home & paths. -->
 
 <style>
 /* Scoped to the four hp-* screens. Everything else comes from v3/design-system.css. */
@@ -2120,9 +2115,9 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
 </defs></svg>
 
 <!-- ========================================================================= hp-home -->
-<article class="screen" id="hp-home" data-title="Home" data-group="Home &amp; paths">
+<article class="screen" id="hp-home" data-title="Learn (home)" data-group="Home &amp; paths">
   <header>
-    <h2>Home — the app's home screen</h2>
+    <h2>Learn — the home screen</h2>
     <p class="lede">The app's home: one lesson to start, the current path as a line of drawings underneath, and nothing that counts against the learner.</p>
   </header>
   <div class="screen-layout">
@@ -2139,7 +2134,7 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
           <div class="screen-body screen-body--scroll stack" style="padding-top:6px;padding-bottom:16px">
 
             <div class="row row--between">
-              <h1 class="t-large-title">Home</h1>
+              <h1 class="t-large-title">Learn</h1>
               <button class="chip chip--gold" type="button" data-goto="sk-book" style="border:0;font-family:inherit;cursor:pointer"><svg><use href="#i-book"/></svg>6 drawings</button>
             </div>
 
@@ -2159,7 +2154,7 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
             <!-- The path -->
             <div class="row row--between" style="padding:8px 4px 0">
               <p class="t-eyebrow muted">Houses · 2 of 10 drawn</p>
-              <button class="btn btn-text btn-text--blue hp-link" type="button" data-goto="hp-path">All paths</button>
+              <button class="btn btn-text btn-text--blue hp-link" type="button" data-goto="hp-paths">All paths</button>
             </div>
             <div class="path">
               <div class="node-row" style="--x:-40px">
@@ -2206,8 +2201,7 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
             <button class="btn btn-text hp-link" type="button" data-goto="hp-path" style="align-self:center">See the whole path</button>
           </div>
           <nav class="tabbar">
-            <button class="tab is-active" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab is-active" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>
@@ -2220,7 +2214,7 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
           <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
           <div class="screen-body screen-body--scroll stack" style="padding-top:6px;padding-bottom:16px">
 
-            <h1 class="t-large-title">Home</h1>
+            <h1 class="t-large-title">Learn</h1>
             <p class="t-body-reg muted" style="margin-top:-6px">You chose Houses. Here is where it starts.</p>
 
             <div class="card card--hero">
@@ -2237,7 +2231,7 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
 
             <div class="row row--between" style="padding:8px 4px 0">
               <p class="t-eyebrow muted">Houses · Ten drawings</p>
-              <button class="btn btn-text btn-text--blue hp-link" type="button" data-goto="hp-path">All paths</button>
+              <button class="btn btn-text btn-text--blue hp-link" type="button" data-goto="hp-paths">All paths</button>
             </div>
             <div class="path">
               <div class="node-row" style="--x:-40px">
@@ -2284,8 +2278,7 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
             <p class="t-footnote muted-2 center" style="padding:0 16px">Your sketchbook is empty. Your first finished page goes there.</p>
           </div>
           <nav class="tabbar">
-            <button class="tab is-active" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab is-active" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>
@@ -2300,15 +2293,15 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
       <p>One question, one answer: <em>what do I draw next?</em> The hero answers it in one tap; the path underneath shows where it leads <span class="tag tag--plan">§29</span>. No streaks, XP or goals — nothing on this screen can go down <span class="tag tag--plan">§30</span>.</p>
       <h4>Layout</h4>
       <ul>
-        <li>Scrolling body between the status bar and the four-tab bar, 20 pt gutters, 12 pt between blocks. Title 36/800; the gold chip on the right is a fact (sketchbook pages), tappable → <code>sk-book</code>.</li>
+        <li>Scrolling body between the status bar and the three-tab bar, 20 pt gutters, 12 pt between blocks. Title 36/800; the gold chip on the right is a fact (sketchbook pages), tappable → <code>sk-book</code>.</li>
         <li><code>.card--hero</code>: eyebrow "Continue · Houses" 12/800, title 24/800, meta 15/600 at 78 % white, a 96 pt white <code>.thumb</code> of the <em>next</em> lesson's finished drawing (stroke 30 on the 1000 canvas), white 64 pt primary with green text — the only primary on the screen.</li>
-        <li>Path header: eyebrow "Houses · 2 of 10 drawn" and a blue text link "All paths" — switches to the Path tab (<code>hp-path</code>), where the switcher reaches <code>hp-paths</code>.</li>
-        <li><code>.path</code>: all ten lessons as 84 pt nodes, rows alternating <code>--x</code> ±40 pt, labels 16/800 + 13/600 on the outer side, 22 pt between rows. Node art = the lesson's finished drawing at 60 pt, stroke 34. The list ends with "See the whole path", which also switches to the Path tab.</li>
+        <li>Path header: eyebrow "Houses · 2 of 10 drawn" and a blue text link "All paths" → <code>hp-paths</code>.</li>
+        <li><code>.path</code>: all ten lessons as 84 pt nodes, rows alternating <code>--x</code> ±40 pt, labels 16/800 + 13/600 on the outer side, 22 pt between rows. Node art = the lesson's finished drawing at 60 pt, stroke 34. The list ends with "See the whole path" → <code>hp-path</code>.</li>
         <li>Lina is not here. She belongs to onboarding, the narration chip and completion; a tutor on every launch reads as mascot motivation <span class="tag tag--plan">§30</span>.</li>
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
-        <li><b>in-progress</b> — hero = first not-done lesson of <code>currentPathId</code>. Hero button and the green node → <code>hp-preview</code> on the Home stack; a gold node → <code>hp-preview</code> for that lesson (draw it again); a grey node switches to the Path tab (<code>hp-path</code>) with the locked sheet naming the lesson that comes first.</li>
+        <li><b>in-progress</b> — hero = first not-done lesson of <code>currentPathId</code>. Hero button and the green node → <code>hp-preview</code>; a gold node → <code>hp-preview</code> for that lesson (draw it again); a grey node → <code>hp-path</code> with the locked sheet naming the lesson that comes first.</li>
         <li><b>first-time</b> — straight from <code>ob-ready</code>: one line under the title, eyebrow "Start here", node 1 current, 2–10 locked, an honest empty-sketchbook line instead of the chip.</li>
         <li><b>Path finished</b> (not drawn): the hero reads "You have drawn every house in this path" with <b>Choose another path</b> → <code>hp-paths</code>; see <code>hp-path</code> variant <i>complete</i>.</li>
         <li>Nothing animates on appear except the current node's slow halo (2.2 s, off under Reduce Motion). Progress changes only after a completion.</li>
@@ -2320,13 +2313,8 @@ article[id^="hp-"] .node-label span.c-green { color: var(--green); }
         <li>Type up a size everywhere (title 36, hero title 24, labels 16); tactile 4 pt-edge buttons; gold = drawn, green = next, grey = later.</li>
       </ul>
       <h4>SwiftUI mapping</h4>
-      <pre>TabView {
-  NavigationStack(path: $homeStack) { HomeView() }
-  NavigationStack(path: $pathStack) { PathDetailView(pathId: currentPath?.id).id(currentPath?.id) }
-  NavigationStack(path: $sketchbookStack) { SketchbookView() }
-  NavigationStack(path: $settingsStack) { SettingsView() }
-}
-ScrollView { LazyVStack(spacing: 12) { TitleRow(pages: progress.photoCount); HeroCard(next); PathShelf(catalog.pathsByLevel, currentPathId) } }
+      <pre>TabView { NavigationStack { LearnHomeView() }; SketchbookView(); SettingsView() }
+ScrollView { LazyVStack(spacing: 12) { TitleRow(pages: progress.photoCount); HeroCard(next); PathHeader; PathView(path, progress) } }
 LessonNode(state: .done(date) | .current | .locked, drawing: tutorial)   // Canvas of the tutorial's strokes</pre>
       <h4>Accessibility</h4>
       <ul>
@@ -2356,7 +2344,7 @@ LessonNode(state: .done(date) | .current | .locked, drawing: tutorial)   // Canv
           <div class="island"></div>
           <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
           <div class="navbar">
-            <button class="nav-btn start" type="button" data-goto="hp-path" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <button class="nav-btn start" type="button" data-goto="hp-home" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
             <div class="title">Paths</div>
             <span></span>
           </div>
@@ -2426,8 +2414,7 @@ LessonNode(state: .done(date) | .current | .locked, drawing: tutorial)   // Canv
             <p class="t-footnote muted-2 center" style="padding:0 12px">These are being drawn now. They appear here when they are ready — no sign-up, no notification.</p>
           </div>
           <nav class="tabbar">
-            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab is-active" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab is-active" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>
@@ -2439,19 +2426,20 @@ LessonNode(state: .done(date) | .current | .locked, drawing: tutorial)   // Canv
     <aside class="notes">
       <h3>Developer notes</h3>
       <h4>Purpose</h4>
-      <p>Switching subjects freely, with progress kept per path <span class="tag tag--plan">§6</span>. Pushed from the path switcher in the Path tab's nav bar; the tab bar stays because this is still the Path stack.</p>
+      <p>Switching subjects freely, with progress kept per path <span class="tag tag--plan">§6</span>. Pushed from "All paths" on Home; the tab bar stays because this is still the Learn stack.</p>
       <h4>Layout</h4>
       <ul>
-        <li>Inline nav bar "Paths" with a back chevron → <code>hp-path</code>; one 17/400 line of intro.</li>
+        <li>Inline nav bar "Paths" with a back chevron → <code>hp-home</code>; one 17/400 line of intro.</li>
         <li><b>Path card</b> (<code>.hp-pcard</code>): 2 pt border with a 3 pt edge, radius 24; a 72 pt white paper <code>.thumb</code> with the subject's drawing (stroke 34); title 20/800; one 13/600 description; then either an 8 pt progress bar + "2 of 10 drawn · Next: Small Cottage", or a grey chip "Not started · 8 lessons". Chevron at 25 % ink. Minimum height 100 pt.</li>
         <li>The current path (<code>currentPathId</code>) gets the 2.5 pt green border — the same "selected" language as onboarding's choice rows.</li>
         <li><b>Coming later</b>: a <code>.list--soft</code> with 40 pt icon tiles and no chevron, no button semantics. Icons come from the shared sheet and five screen-prefixed ones (<code>hp-i-*</code>).</li>
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
-        <li>Any open card → <code>hp-path</code> for that path (started or not). Tapping a card sets <code>currentPathId</code> and pops back to the Path tab's root, which now shows that path.</li>
+        <li>Any open card → <code>hp-path</code> for that path (started or not). Tapping a card does <em>not</em> change <code>currentPathId</code>; starting a lesson does.</li>
         <li>"Coming later" rows are inert. No notify-me, no sign-up <span class="tag tag--plan">§32</span>.</li>
         <li>Order: started paths by most recent completion, then unstarted paths in catalog order, then the unpublished list from the catalog's <code>status</code>.</li>
+        <li><b>One-time first-visit header.</b> The first time an early learner (three or fewer lessons done) is sent here from a lesson-complete screen's "Not now" or "Done" (see <code>sk-complete</code>), this screen opens with a header above the intro line: a written title, "N paths to explore" — N counted from the shipped catalog only, never a placeholder or "Coming later" row — and a row with Lina's <code>.face</code> and one line she says once, "There's a lot more to draw here. Pick whatever you like next." (app line <code>paths-welcome</code>). The current path keeps its ordinary green outline and "Now" badge underneath; the header adds to the screen, it does not change how any card reads. The header is shown once per learner — gone as soon as they leave this screen, never shown again after that, and never shown to a learner who did not arrive this way (opening "All paths" from the tab bar or from Home never triggers it).</li>
       </ul>
       <h4>What changed in v3</h4>
       <ul>
@@ -2461,7 +2449,7 @@ LessonNode(state: .done(date) | .current | .locked, drawing: tutorial)   // Canv
       </ul>
       <h4>SwiftUI mapping</h4>
       <pre>List-free ScrollView { VStack(spacing: 12) { ForEach(catalog.paths) { PathCard(path, progress) } ; ComingLaterList(catalog.unpublished) } }
-PathCard: Button { app.open(path) } label: { HStack { DrawingThumb(path.coverLessonId); VStack { title; description; progressOrChip }; chevron } }   // open() selects it, empties the Path stack, and switches to that tab</pre>
+PathCard: NavigationLink(value: Route.path(id)) { HStack { DrawingThumb(path.coverLessonId); VStack { title; description; progressOrChip }; chevron } }</pre>
       <h4>Accessibility</h4>
       <ul>
         <li>VoiceOver: "Houses, 2 of 10 drawn, next Small Cottage, button" — the bar is hidden because the label says it. Later rows: "Landscapes, coming later" with no button trait.</li>
@@ -2494,8 +2482,8 @@ PathCard: Button { app.open(path) } label: { HStack { DrawingThumb(path.coverLes
           <div class="island"></div>
           <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
           <div class="navbar">
-            <span></span>
-            <button class="title-switch" type="button" data-goto="hp-paths"><span class="title">Houses</span><svg><use href="#i-chevron-down"/></svg></button>
+            <button class="nav-btn start" type="button" data-goto="hp-home" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses</div>
             <span></span>
           </div>
           <div class="screen-body screen-body--scroll stack" style="padding-bottom:16px">
@@ -2561,8 +2549,7 @@ PathCard: Button { app.open(path) } label: { HStack { DrawingThumb(path.coverLes
             <p class="t-footnote muted-2 center" style="padding:0 12px">Lessons open one after another. Each one reuses what the last one taught.</p>
           </div>
           <nav class="tabbar">
-            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab is-active" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab is-active" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>
@@ -2574,8 +2561,8 @@ PathCard: Button { app.open(path) } label: { HStack { DrawingThumb(path.coverLes
           <div class="island"></div>
           <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
           <div class="navbar">
-            <span></span>
-            <button class="title-switch" type="button" data-goto="hp-paths"><span class="title">Houses</span><svg><use href="#i-chevron-down"/></svg></button>
+            <button class="nav-btn start" type="button" data-goto="hp-home" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses</div>
             <span></span>
           </div>
           <div class="screen-body stack" style="padding-bottom:16px">
@@ -2610,8 +2597,7 @@ PathCard: Button { app.open(path) } label: { HStack { DrawingThumb(path.coverLes
             </div>
           </div>
           <nav class="tabbar">
-            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab is-active" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab is-active" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>
@@ -2638,8 +2624,8 @@ PathCard: Button { app.open(path) } label: { HStack { DrawingThumb(path.coverLes
           <div class="island"></div>
           <div class="status-bar"><span>9:41</span><span class="icons"><svg><use href="#i-status-signal"/></svg><svg><use href="#i-status-wifi"/></svg><svg style="width:28px"><use href="#i-status-battery"/></svg></span></div>
           <div class="navbar">
-            <span></span>
-            <button class="title-switch" type="button" data-goto="hp-paths"><span class="title">Houses</span><svg><use href="#i-chevron-down"/></svg></button>
+            <button class="nav-btn start" type="button" data-goto="hp-home" aria-label="Back"><svg><use href="#i-chevron-left"/></svg></button>
+            <div class="title">Houses</div>
             <span></span>
           </div>
           <div class="screen-body screen-body--scroll stack" style="padding-bottom:16px">
@@ -2700,8 +2686,7 @@ PathCard: Button { app.open(path) } label: { HStack { DrawingThumb(path.coverLes
             </div>
           </div>
           <nav class="tabbar">
-            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab is-active" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab is-active" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>
@@ -2716,7 +2701,7 @@ PathCard: Button { app.open(path) } label: { HStack { DrawingThumb(path.coverLes
       <p><span class="tag tag--plan">§29</span> asks for ordered progression, the next lesson, completed and locked lessons, and a destination example. All five are on the first fold: the big drawing, the count, two gold nodes, the green one.</p>
       <h4>Layout</h4>
       <ul>
-        <li>This is the Path tab's root: no back chevron. The nav bar title is a switcher — "Houses" + chevron-down → <code>hp-paths</code> (All paths). Tab bar shown, Path active.</li>
+        <li>Inline nav bar "Houses", back → <code>hp-home</code>. Tab bar kept: still the Learn stack.</li>
         <li><b>Destination sheet</b> (<code>.hp-dest</code>): 196 pt white paper, radius 28, 2 pt line; the last lesson's drawing at 220 pt (stroke 14); gold chip "Where this path leads" top-left; "Lesson 10 · Small Street Scene" 13/600 bottom-left. Not tappable — it would land on a locked lesson.</li>
         <li>Title 30/800 with the full <code>paths.json.description</code> at 15/600 — the one place it is not truncated. Then "2 of 10 drawn" 17/700 with "Next: Small Cottage" and a 12 pt green bar. No percentage.</li>
         <li><b>The path</b>: the same <code>.path</code> as Home, all ten nodes, labels carrying the full date ("Drawn 3 September") or the unlock reason. 22 pt between rows, ±40 pt zig-zag.</li>
@@ -3836,7 +3821,8 @@ article[id^="sk-"] .sk-shot::after { content: ""; position: absolute; inset: 0; 
       <ul>
         <li><b>default</b> — mid-path. "Add to sketchbook" → <code>sk-capture</code> primer (straight to the camera when video access is already authorised); "Next lesson" → <code>hp-preview</code>; "Not now" → <code>hp-path</code>. Completion is written before this screen appears, so "Not now" loses nothing.</li>
         <li><b>path-done</b> — <code>path.lessonIds.last == lesson.id</code>. Instead of one page, a 5 × 2 contact sheet of all ten drawings (the newest ringed gold, check badge). Secondary becomes "Choose another path" → <code>hp-paths</code>. Cells show the learner's photo when one exists, else the tutorial strokes.</li>
-        <li>No auto-dismiss, no timer <span class="tag tag--plan">§31</span>. One <code>.success</code> haptic on appear; no sound.</li>
+        <li>No auto-dismiss, no timer <span class="tag tag--plan">§31</span>. One <code>.success</code> haptic on appear; Lina's line plays with it (narration on, same as in the player).</li>
+        <li><b>An early learner's first rest.</b> For a learner with three or fewer lessons done, the first time they leave this screen by "Not now", or by "Done" on <code>sk-capture</code> after "Add to sketchbook", the destination is <code>hp-paths</code> (All paths) instead of <code>hp-path</code> (their own path) — once per learner. All paths then carries its own one-time welcome header and line (see <code>hp-paths</code>). "Next lesson" is never redirected, and every later rest goes back to <code>hp-path</code> as usual.</li>
       </ul>
       <h4>What changed in v3</h4>
       <ul>
@@ -4108,8 +4094,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
             <p class="t-footnote muted-2 center" style="padding-top:8px">Kept on this iPhone. Nothing here is uploaded or shared.</p>
           </div>
           <nav class="tabbar">
-            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab is-active" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>
@@ -4136,8 +4121,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
             <div class="spacer"></div>
           </div>
           <nav class="tabbar">
-            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab is-active" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>
@@ -4153,7 +4137,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       <p><span class="tag tag--plan">§32</span> "Allow browsing by path/date without turning it into a social feed." One promise: these are yours, they are here, nobody else can see them.</p>
       <h4>Layout</h4>
       <ul>
-        <li>Scrolling body. 36/800 title with the <code>chip--gold</code> count on the right, the same chip as on Home (a fact, not a score).</li>
+        <li>Scrolling body. 36/800 title with the <code>chip--gold</code> count on the right, the same chip as on Learn (a fact, not a score).</li>
         <li>Month headers 20/800 with a "4 pages" footnote at 55 % ink, plain text, not sticky.</li>
         <li>Grid: two columns, 12 pt gutter, 16 pt row gap. Cell = <code>.sk-shot</code> (3 : 4 white card, warm photo, white sheet rotated −1.6°, the lesson's strokes on it) + name 16/800 + "Fri 11 Sep · Trees" 13/600.</li>
         <li>Tab bar with Sketchbook active; identical markup to every tab screen.</li>
@@ -4161,7 +4145,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       <h4>States &amp; interactions</h4>
       <ul>
         <li><b>filled</b> — newest first, grouped by month (<code>Calendar.dateComponents([.year, .month])</code>). A lesson drawn twice produces two cells; do not collapse them.</li>
-        <li><b>empty</b> — one sentence, a blank page with the next lesson's drawing at 25 % ink, and a secondary "Start a lesson" → <code>hp-preview</code>, switching to the Path tab. Never "You haven't drawn anything yet."</li>
+        <li><b>empty</b> — one sentence, a blank page with the next lesson's drawing at 25 % ink, and a secondary "Start a lesson" → <code>hp-preview</code>. Never "You haven't drawn anything yet."</li>
         <li>Tap a cell → <code>sk-entry</code>. Long-press → <code>.contextMenu</code> (Share, Save to Photos, Delete) with the cell as preview. No multi-select, no search, no pull-to-refresh (nothing is fetched).</li>
         <li>Data: <code>@Query(sort: \.completedAt, order: .reverse)</code>; lesson and path titles joined from the catalog at display time. Thumbnails from <code>&lt;uuid&gt;-thumb.jpg</code>, decoded off the main thread, cached by entry id. An entry whose lesson left the catalog still shows, as "Lesson removed".</li>
       </ul>
@@ -4169,7 +4153,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       <ul>
         <li>One grouping (by month) instead of a path/date segmented control: fewer controls, and the date is what a sketchbook page carries. Path stays on the meta line.</li>
         <li>Cells are white 3 : 4 page cards with the photo inside, matching <code>.page-thumb</code> everywhere else; the v1 pen badge is gone because the sheet itself shows the drawing.</li>
-        <li>The gold count chip mirrors the Home tab; the empty state uses the tactile secondary button, not a bordered invitation card.</li>
+        <li>The gold count chip mirrors the Learn tab; the empty state uses the tactile secondary button, not a bordered invitation card.</li>
       </ul>
       <h4>SwiftUI mapping</h4>
 <pre>SketchbookView
@@ -4290,7 +4274,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
-        <li><b>default</b> — tap or pinch the photo → full-screen zoomable viewer, swipe down to dismiss. "Draw it again" → <code>hp-preview</code> for this lesson, switching to the Path tab.</li>
+        <li><b>default</b> — tap or pinch the photo → full-screen zoomable viewer, swipe down to dismiss. "Draw it again" → <code>hp-preview</code> for this lesson.</li>
         <li><b>Share</b> (row or nav) → system share sheet with the 2048 px JPEG: a private export to Messages, Mail, Files or AirDrop. No in-app sharing, no link, no post.</li>
         <li><b>delete</b> — always confirmed with a destructive alert whose body says what survives: the photo and note go, the <code>LessonProgress</code> row stays; deleting never re-locks a lesson. Then <code>modelContext.delete(entry)</code>, remove both files, pop to <code>sk-book</code>. Cheap softening if wanted: a 10 s Undo toast before <code>removeItem</code>.</li>
         <li>Data: one <code>SketchbookEntry</code> (id, lessonId, pathId, completedAt, imageFile, note). "Lesson 1 of 8" from <code>paths[pathId].lessonIds.firstIndex</code>; drop "of 8" if the lesson left the path.</li>
@@ -4468,8 +4452,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
             <p class="t-footnote muted-2 center" style="padding:10px 0 4px">StrokeTutor 1.0 (12)</p>
           </div>
           <nav class="tabbar">
-            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-house"/></svg></span>Home</button>
-            <button class="tab" type="button" data-goto="hp-path"><span class="ico"><svg><use href="#i-map"/></svg></span>Path</button>
+            <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
             <button class="tab" type="button" data-goto="sk-book"><span class="ico"><svg><use href="#i-book"/></svg></span>Sketchbook</button>
             <button class="tab is-active" type="button" data-goto="st-settings"><span class="ico"><svg><use href="#i-gear"/></svg></span>Settings</button>
           </nav>

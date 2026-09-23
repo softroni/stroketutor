@@ -545,12 +545,14 @@ struct CaptureFlow: View {
         stage = .review(current)
     }
 
-    /// "Not now" and "Done": back to where the learner came from.
+    /// "Not now" and "Done": back to where the learner came from — the sketchbook,
+    /// or the way out of `sk-complete` (`AppModel.leaveCompletion(for:)`), which for
+    /// a new learner's first rest is All paths' welcome.
     private func leave() {
         if fromSketchbook {
             app.dismissCover()
         } else {
-            app.returnToPathDetail(for: lesson)
+            app.leaveCompletion(for: lesson)
         }
     }
 
