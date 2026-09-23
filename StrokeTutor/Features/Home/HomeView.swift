@@ -296,10 +296,9 @@ struct HomeView: View {
             // The whole catalog's size, said on Home, so a few shelves never read
             // as all there is.
             Button {
-                app.showAllLessons()
+                app.showAllPaths()
             } label: {
-                Label("See all \(shipped.reduce(0) { $0 + $1.lessonCount }) lessons",
-                      systemImage: "square.grid.2x2")
+                Label("See all paths", systemImage: "square.grid.2x2")
             }
             .buttonStyle(.secondary)
             .padding(.top, 6)
