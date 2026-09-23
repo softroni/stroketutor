@@ -100,14 +100,29 @@ enum MainTab: String, Hashable, CaseIterable, Identifiable {
         }
     }
 
-    /// The SF Symbol shown in the tab's 56 × 30 pill.
+    /// The SF Symbol shown in the tab's 56 × 30 pill. Filled, so the tab's color
+    /// has a shape to fill rather than a thin outline.
     var symbol: String {
         switch self {
-        case .home: return "house"
-        case .path: return "map"
-        case .lessons: return "square.grid.2x2"
-        case .sketchbook: return "book"
-        case .settings: return "gearshape"
+        case .home: return "house.fill"
+        case .path: return "map.fill"
+        case .lessons: return "square.grid.2x2.fill"
+        case .sketchbook: return "book.fill"
+        case .settings: return "gearshape.fill"
+        }
+    }
+
+    /// The tab's own color, so each icon in the bar is bright and easy to tell
+    /// apart. Drawn from the path palette (`PathTint`) and Lina's clay. No tab
+    /// wears the app's green, which means "the way forward", or gold, whose deep
+    /// shade reads brown at glyph size.
+    var tint: PathTint {
+        switch self {
+        case .home: return PathTint(soft: Theme.claySoft, edge: "#F7C9B6", deep: Theme.clay)
+        case .path: return PathTint.palette[0]        // sky
+        case .lessons: return PathTint.palette[5]     // lavender
+        case .sketchbook: return PathTint.palette[2]  // pink
+        case .settings: return PathTint.palette[6]    // aqua
         }
     }
 }

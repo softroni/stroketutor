@@ -41,7 +41,7 @@ struct PathTint: Equatable {
     /// Gold, for a path whose every lesson has been drawn.
     static let complete = PathTint(soft: Theme.goldSoft, edge: "#F0DDAE", deep: Theme.goldDeep)
 
-    private init(soft: Color, edge: String, deep: Color) {
+    init(soft: Color, edge: String, deep: Color) {
         self.soft = soft
         self.edge = Color(hex: edge) ?? soft
         self.deep = deep
