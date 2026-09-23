@@ -6,7 +6,7 @@ import SwiftUI
 /// choose.
 ///
 /// * `.done` — white paper, the drawing in its own colors, the same thin gray border
-///   and edge as a locked tile, and a small green check where the lock would sit: a
+///   and edge as a locked tile, and a small green check on the lock's soft gray disc: a
 ///   finished drawing, as on the path screen's nodes.
 /// * `.next` — white paper, the drawing in color, a green ring and edge and a
 ///   "Next" flag: the one to draw now.
@@ -83,9 +83,9 @@ struct LessonTile: View {
         case .done:
             Image(systemName: "checkmark")
                 .scaledFont(11, .heavy, relativeTo: .footnote, design: .default)
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.green)
                 .frame(width: 26, height: 26)
-                .background(Circle().fill(Theme.green))
+                .background(Circle().fill(Theme.surface))
                 .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 2))
                 .padding(8)
         case .locked:

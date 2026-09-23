@@ -6,7 +6,7 @@ import SwiftUI
 /// can see what is coming; the ring, the edge and the badge carry the state.
 ///
 /// * `.done` — white with the same thin gray ring and edge as a locked node, the
-///   drawing in color, a green check badge where the lock would sit.
+///   drawing in color, a green check on the lock badge's gray disc.
 /// * `.current` — white with a green ring, a green-deep edge and a slow halo (still
 ///   under Reduce Motion), the drawing in color. The only thing on the screen that
 ///   moves.
@@ -73,9 +73,9 @@ struct LessonNode: View {
         if state == .done {
             Image(systemName: "checkmark")
                 .font(.system(size: badgeSize * 0.45, weight: .heavy))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.green)
                 .frame(width: badgeSize, height: badgeSize)
-                .background(Circle().fill(Theme.green))
+                .background(Circle().fill(Theme.surface2))
                 .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 3))
                 .offset(x: 4, y: 2)
         } else if state == .locked {
