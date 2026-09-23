@@ -795,6 +795,11 @@ decision of 2026-09-12; no audio ships yet, so the narration chip stays hidden);
 hidden rather than shown empty; the player fits the paper to the drawing's bounds. Still open: crop/straighten in
 capture, a real contact address and privacy URL on About, landscape verified only structurally.
 
+**Soft lock (2026-09-23, creator's decision).** Lessons inside a path still show as locked until the ones before them
+are drawn, but the locked sheet now offers "Try it anyway" under "Go to <previous>". Completion is self-reported, so a
+lock with no way round it would only push a learner to tap "I drew it" through lessons they wanted to skip. A lesson
+drawn early counts as drawn; the lessons in front of it stay next, and later ones stay locked behind them.
+
 ### M8 · Private sketchbook
 Photograph the finished page and store it locally, linked to the lesson, path and date. No feed, no accounts.
 Read Apple's current camera and photo-library permission guidance before building, and cite it in code.

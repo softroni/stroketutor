@@ -44,6 +44,26 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertEqual(store.nextLesson(in: path)?.id, path.lessons[1].id)
     }
 
+    /// "Try it anyway" on the locked sheet lets a learner finish a lesson out of
+    /// order. That lesson counts as drawn, but the order is still recommended: the
+    /// lessons in front of it stay next, and later ones stay locked behind them.
+    func testALessonDrawnOutOfOrderCountsButKeepsTheOrder() throws {
+        let path = try Self.makePath(lessonCount: 4)
+        let store = ProgressStore(baseDirectory: directory)
+
+        store.markCompleted(path.lessons[0].id, pathId: path.id)
+        store.markCompleted(path.lessons[2].id, pathId: path.id)
+
+        XCTAssertEqual(store.drawnCount(in: path), 2)
+        XCTAssertEqual(store.nextLesson(in: path)?.id, path.lessons[1].id)
+        XCTAssertFalse(store.isUnlocked(path.lessons[3], in: path))
+
+        let locked = try XCTUnwrap(LockedLesson(lesson: path.lessons[3], in: path, progress: store))
+        XCTAssertEqual(locked.blocking.id, path.lessons[1].id)
+        XCTAssertEqual(locked.position, 4)
+        XCTAssertNil(LockedLesson(lesson: path.lessons[1], in: path, progress: store))
+    }
+
     func testAPathDrawnToTheEndOffersNoNextLesson() throws {
         let path = try Self.makePath(lessonCount: 2)
         let store = ProgressStore(baseDirectory: directory)

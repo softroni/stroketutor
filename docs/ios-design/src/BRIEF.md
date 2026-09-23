@@ -36,7 +36,8 @@ completion screen, and only if it earns it.
 
 ## Learning model (§6, §7)
 - **Paths** are subjects (Houses, Trees, Flowers, Mountains, Landscapes, Streets & Places, Plants & Leaves, Water &
-  Coast, Everyday Objects, Architecture Details — candidate list). Inside a path lessons **unlock sequentially**;
+  Coast, Everyday Objects, Architecture Details — candidate list). Inside a path lessons **unlock sequentially** as a
+  recommendation: the locked sheet names the lesson to draw first and also offers "Try it anyway";
   across paths the learner switches freely, and progress is remembered per path. A path holds roughly 8–12 lessons.
 - **Lesson anatomy:** reference photo → preview of the finished pen drawing → optional one-idea orientation → guided
   step (animate, stop) → learner draws on paper → "I drew it" → repeat → completion → invite to photograph the page.

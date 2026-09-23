@@ -37,6 +37,8 @@ struct LessonProgress: Codable, Identifiable, Hashable {
 ///
 /// A path unlocks in order: a lesson is available when every earlier lesson in its
 /// path has been completed at least once (`v3.html#hp-path`, the locked sheet).
+/// The lock recommends an order and does not enforce it: the sheet's "Try it anyway"
+/// opens a locked lesson, and finishing it counts like any other.
 /// "Reset progress" clears this store and nothing else — sketchbook pages are the
 /// learner's own work and are never deleted by it (`st-settings`).
 @Observable

@@ -30,15 +30,19 @@ struct LockedLesson: Identifiable {
 }
 
 /// The locked sheet of `hp-path`: the drawing greyed in a 72 pt tile, the lesson's
-/// place, "Finish <previous> first.", one line on why, and two ways out.
+/// place, "Finish <previous> first.", one line on why, and three ways out.
 ///
-/// There is no unlock offer and no price. Locking is a teaching decision — a lesson
-/// reuses what the one before it taught — so the only honest answer is the lesson
-/// that comes first (BRIEF §6).
+/// There is no price. Locking is a teaching decision — a lesson reuses what the one
+/// before it taught — so the sheet recommends the lesson that comes first (BRIEF §6).
+/// It is a recommendation, not a wall: "Try it anyway" opens the locked lesson now.
+/// A learner who wants this drawing and cannot reach it would only tap "I drew it"
+/// through the lessons in front of it, and the order would teach nothing.
 struct LockedLessonSheet: View {
     let locked: Lesson
     let blocking: Lesson
     let position: Int
+    /// Opens the lesson it is handed: `blocking` for "Go to …", `locked` for "Try it
+    /// anyway".
     let onGo: (Lesson) -> Void
     let onDismiss: () -> Void
 
@@ -78,6 +82,10 @@ struct LockedLessonSheet: View {
                 .buttonStyle(.primary)
                 .padding(.top, 4)
 
+            Button("Try it anyway") { onGo(locked) }
+                .buttonStyle(.secondary)
+                .accessibilityHint("Opens \(locked.title) before \(blocking.title).")
+
             Button("Not now", action: onDismiss)
                 .buttonStyle(.quiet)
                 .frame(maxWidth: .infinity)
@@ -87,7 +95,7 @@ struct LockedLessonSheet: View {
         .padding(.bottom, Theme.stackSpacing)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Theme.card)
-        .presentationDetents([.height(340)])
+        .presentationDetents([.height(412)])
         .presentationDragIndicator(.visible)
         .accessibilityAddTraits(.isModal)
     }
