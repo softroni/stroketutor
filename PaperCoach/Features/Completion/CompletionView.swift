@@ -26,9 +26,23 @@ struct CompletionView: View {
         return last.id == lesson.id && path.lessons.allSatisfy { app.progress.isCompleted($0.id) }
     }
 
+    /// The first lesson of the guided first run: no "Next lesson", and "Not now"
+    /// goes on to the sketchbook tour (`AppModel.isGuidedFirstRun(_:)`).
+    private var isGuided: Bool { app.isGuidedFirstRun(lesson) }
+
+    /// The next lesson when it needs Premium: shown as a gold card, with a free
+    /// lesson from another path under it, instead of "Next lesson".
+    private var premiumNext: Lesson? {
+        guard !isGuided, !isPathDone else { return nil }
+        return app.premiumNextLesson(after: lesson)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            if dynamicTypeSize.isAccessibilitySize {
+            // The gold card and the free lesson under it take the room the page
+            // would have grown into, so the page takes a fixed height and the
+            // screen scrolls, as it does at the accessibility sizes.
+            if dynamicTypeSize.isAccessibilitySize || premiumNext != nil {
                 ScrollView { body(isScrolling: true) }
             } else {
                 body(isScrolling: false)
@@ -211,7 +225,10 @@ struct CompletionView: View {
             }
             .buttonStyle(.primary)
 
-            if isPathDone {
+            if isGuided {
+                // The first run leads on to the sketchbook, not to another lesson.
+                EmptyView()
+            } else if isPathDone {
                 Button("Choose another path") {
                     app.dismissCover()
                     app.selectedTab = .path
@@ -219,6 +236,16 @@ struct CompletionView: View {
                     app.push(.paths)
                 }
                 .buttonStyle(.secondary)
+            } else if let premiumNext {
+                PremiumNextCard(lesson: premiumNext) {
+                    _ = app.offerPremiumIfNeeded(for: premiumNext)
+                }
+                if let free = app.freeLessonSuggestion(besides: lesson) {
+                    FreeLessonRow(lesson: free) {
+                        app.dismissCover()
+                        app.showPreview(of: free)
+                    }
+                }
             } else if let next = app.nextLesson(after: lesson) {
                 // "The secondary says only 'Next lesson' so a long localised title
                 // can never break it."
@@ -229,9 +256,15 @@ struct CompletionView: View {
                 .buttonStyle(.secondary)
             }
 
-            Button("Not now") { app.leaveCompletion(for: lesson) }
-                .buttonStyle(.quiet)
-                .frame(maxWidth: .infinity)
+            Button("Not now") {
+                if isGuided {
+                    app.showFirstRunSketchbook()
+                } else {
+                    app.leaveCompletion(for: lesson)
+                }
+            }
+            .buttonStyle(.quiet)
+            .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, Theme.gutter)
         .padding(.top, Theme.stackSpacing)

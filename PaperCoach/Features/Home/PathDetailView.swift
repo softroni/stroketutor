@@ -69,7 +69,8 @@ struct PathDetailView: View {
                     PathNodesView(lessons: path.lessons,
                                   progress: app.progress,
                                   dateStyle: .short,
-                                  nodeSize: 100) { lesson in
+                                  nodeSize: 100,
+                                  isPremium: { app.needsPremium($0) }) { lesson in
                         open(lesson, in: path)
                     }
                 }
@@ -221,6 +222,7 @@ struct PathDetailView: View {
     // MARK: - Tapping a node
 
     private func open(_ lesson: Lesson, in path: PathModel) {
+        if app.offerPremiumIfNeeded(for: lesson) { return }
         guard !app.progress.isUnlocked(lesson, in: path) else {
             app.showPreview(of: lesson)
             return

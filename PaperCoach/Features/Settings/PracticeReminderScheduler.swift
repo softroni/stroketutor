@@ -5,7 +5,8 @@ import UserNotifications
 /// Everything the app asks of `UNUserNotificationCenter`, in one place.
 ///
 /// **Permission is requested here and nowhere else, and only from the learner's own
-/// hand on the Practice reminder switch.** Apple's current guidance — Human
+/// hand: on the Practice reminder switch, or on "Try for free" under the promise of
+/// a reminder before the free week ends (`TrialReminder`).** Apple's current guidance — Human
 /// Interface Guidelines › Managing notifications
 /// (<https://developer.apple.com/design/human-interface-guidelines/managing-notifications>)
 /// and User Notifications › Asking permission to use notifications

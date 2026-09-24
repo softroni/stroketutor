@@ -101,6 +101,12 @@ struct AnalyticsEvent: Equatable {
         static let ageGroup = "age_group"
         static let beat = "beat"
         static let startedLesson = "started_lesson"
+        static let lessonId = "lesson_id"
+        static let entry = "entry"
+        static let screen = "screen"
+        static let outcome = "outcome"
+        static let plan = "plan"
+        static let subscribed = "subscribed"
     }
 
     /// An onboarding beat came on screen. `beat` is its id: `ob-age`, `ob-level`…
@@ -115,6 +121,30 @@ struct AnalyticsEvent: Equatable {
     /// Onboarding ended, straight into the first lesson or onto Home.
     static func onboardingFinished(startedLesson: Bool) -> AnalyticsEvent {
         AnalyticsEvent(name: "ob_finished", properties: [Key.startedLesson: startedLesson ? "true" : "false"])
+    }
+
+    /// A crowned lesson was tapped without Premium.
+    static func premiumLessonTapped(lessonId: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "premium_lesson_tapped", properties: [Key.lessonId: lessonId])
+    }
+
+    /// A screen of the way to Premium came up: `more_coming`, `free_week`,
+    /// `reminder`, `paywall`, `grown_up`, `parental_check`, `grown_up_paywall`,
+    /// `pending`. `entry` is where the way was opened from.
+    static func offerScreenViewed(_ screen: String, entry: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "offer_screen_viewed", properties: [Key.screen: screen, Key.entry: entry])
+    }
+
+    /// What came of a tap on a buy button: `purchased`, `pending`, `cancelled`,
+    /// `failed`.
+    static func purchaseAttempted(plan: String, outcome: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "purchase_attempted", properties: [Key.plan: plan, Key.outcome: outcome])
+    }
+
+    /// The way to Premium closed, with or without a subscription.
+    static func offerFinished(entry: String, subscribed: Bool) -> AnalyticsEvent {
+        AnalyticsEvent(name: "offer_finished",
+                       properties: [Key.entry: entry, Key.subscribed: subscribed ? "true" : "false"])
     }
 }
 

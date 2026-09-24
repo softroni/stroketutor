@@ -28,6 +28,9 @@ final class AppModel {
     let library: TutorialLibrary
     /// Told who is drawing on every switch; see `Analytics` for what it may send.
     let analytics: Analytics
+    /// Premium: the subscriptions and whether this Apple account holds one. Shared
+    /// by every learner on the device.
+    let premium: PremiumStore
 
     /// One learner's three stores, opened together from their folder.
     struct ProfileStores {
@@ -106,6 +109,20 @@ final class AppModel {
     /// lands on the count and the first path, not wherever the list was left.
     var lessonsScrollToTop = 0
 
+    // MARK: - Premium
+
+    /// The Premium lesson drawer (`PremiumLessonSheet`), over the tabs or over the
+    /// cover that asked for it.
+    var premiumOffer: PremiumOffer?
+    /// The way on the drawer's button chose. The drawer has to be gone before a
+    /// cover can come up, so `AppRoot` opens this from the drawer's dismissal.
+    @ObservationIgnored var offerAfterDrawer: OfferEntry?
+    /// A young learner closed the drawer with "Not now" this session: further crown
+    /// taps show `premiumNudge` instead of the drawer. Never saved.
+    var hasClosedKidDrawer = false
+    /// "Ask a grown-up to unlock Mushroom", on screen for a moment.
+    var premiumNudge: PremiumNudge?
+
     private let bundle: Bundle
 
     init(bundle: Bundle = .main,
@@ -121,6 +138,7 @@ final class AppModel {
         pin = AppPIN(defaults: settings.defaults)
         library = TutorialLibrary()
         analytics = Analytics(sink: analyticsSink ?? NoAnalyticsSink())
+        premium = PremiumStore(defaults: settings.defaults)
 
         let outcome = LegacyProfileMigration.run(baseDirectory: base,
                                                  defaults: settings.defaults,
@@ -340,7 +358,11 @@ final class AppModel {
     /// preview opened from any of them lands on that tab's own stack and Back
     /// returns there. From anywhere else — the sketchbook, a cover, a deep link —
     /// it goes to the Path tab, where lessons belong.
+    ///
+    /// A Premium lesson without Premium offers the free week instead
+    /// (`offerPremiumIfNeeded(for:)`), so no way into a lesson skips that door.
     func showPreview(of lesson: Lesson) {
+        if offerPremiumIfNeeded(for: lesson) { return }
         if ![.home, .path, .lessons].contains(selectedTab) {
             selectedTab = .path
         }
@@ -359,6 +381,7 @@ final class AppModel {
     /// resumed lessons, and previews that proceed into the player aligned with the
     /// immediate path-card selection handled by `open(_:)`.
     func presentPlayer(_ lesson: Lesson, resumeFrom: Int? = nil) {
+        if offerPremiumIfNeeded(for: lesson) { return }
         selectPath(ofLesson: lesson)
         progress.markOpened(lesson.id, pathId: lesson.pathId, step: resumeFrom)
         cover = .player(lessonId: lesson.id, resumeFrom: resumeFrom)
@@ -399,6 +422,7 @@ final class AppModel {
     /// else stored is touched.
     func resetOnboarding() {
         settings.hasCompletedOnboarding = false
+        finishFirstRun()
         presentOnboarding()
     }
 }

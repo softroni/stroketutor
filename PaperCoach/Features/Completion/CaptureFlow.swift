@@ -469,28 +469,49 @@ struct CaptureFlow: View {
             }
 
             VStack(spacing: Theme.stackSpacing) {
-                if let next = app.nextLesson(after: lesson) {
-                    Button("Next lesson") {
-                        app.dismissCover()
-                        app.showPreview(of: next)
+                if isGuided {
+                    // The first run's one way on: the sketchbook this page just
+                    // went into, open on its path.
+                    Button {
+                        app.showFirstRunSketchbook()
+                    } label: {
+                        Label("Open your sketchbook", systemImage: "book")
                     }
                     .buttonStyle(.primary)
-                }
+                } else {
+                    if let premiumNext = app.premiumNextLesson(after: lesson), !fromSketchbook {
+                        PremiumNextCard(lesson: premiumNext) {
+                            _ = app.offerPremiumIfNeeded(for: premiumNext)
+                        }
+                        if let free = app.freeLessonSuggestion(besides: lesson) {
+                            FreeLessonRow(lesson: free) {
+                                app.dismissCover()
+                                app.showPreview(of: free)
+                            }
+                        }
+                    } else if let next = app.nextLesson(after: lesson) {
+                        Button("Next lesson") {
+                            app.dismissCover()
+                            app.showPreview(of: next)
+                        }
+                        .buttonStyle(.primary)
+                    }
 
-                Button {
-                    app.dismissCover()
-                    app.selectedTab = .sketchbook
-                } label: {
-                    Label(fromSketchbook ? "Back to your sketchbook" : "Open your sketchbook",
-                          systemImage: "book")
-                }
-                .buttonStyle(app.nextLesson(after: lesson) == nil ? .primary : .secondary)
+                    Button {
+                        app.dismissCover()
+                        app.selectedTab = .sketchbook
+                    } label: {
+                        Label(fromSketchbook ? "Back to your sketchbook" : "Open your sketchbook",
+                              systemImage: "book")
+                    }
+                    .buttonStyle(app.nextLesson(after: lesson) == nil ? .primary : .secondary)
 
-                // From the Sketchbook, the button above already goes back there.
-                if !fromSketchbook {
-                    Button("Done") { leave() }
-                        .buttonStyle(.quiet)
-                        .frame(maxWidth: .infinity)
+                    // From the Sketchbook, the button above already goes back there.
+                    if !fromSketchbook {
+                        Button("Done") { leave() }
+                            .buttonStyle(.quiet)
+                            .frame(maxWidth: .infinity)
+                    }
                 }
             }
             .padding(.horizontal, Theme.gutter)
@@ -551,10 +572,16 @@ struct CaptureFlow: View {
     private func leave() {
         if fromSketchbook {
             app.dismissCover()
+        } else if isGuided {
+            app.showFirstRunSketchbook()
         } else {
             app.leaveCompletion(for: lesson)
         }
     }
+
+    /// The first lesson of the guided first run: the page leads to the sketchbook
+    /// tour, with no "Next lesson" and no "Done".
+    private var isGuided: Bool { !fromSketchbook && app.isGuidedFirstRun(lesson) }
 
     private func retake() {
         didFailToSave = false

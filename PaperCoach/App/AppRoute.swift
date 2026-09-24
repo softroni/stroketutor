@@ -57,6 +57,13 @@ enum AppCover: Identifiable, Hashable {
     case capture(lessonId: String, fromSketchbook: Bool = false)
     /// "Who's drawing?", at launch when more than one learner uses the app.
     case profilePicker
+    /// The guided first run's sketchbook tour: the album of the path just started,
+    /// with one way on.
+    case firstRunSketchbook
+    /// The way to Premium: "More coming", the free week and the paywall after the
+    /// first run, or the paywall alone (a grown-up's check first, for a child)
+    /// after a Premium lesson's drawer.
+    case offer(OfferEntry)
 
     var id: String {
         switch self {
@@ -70,8 +77,54 @@ enum AppCover: Identifiable, Hashable {
             return "capture-\(lessonId)\(fromSketchbook ? "-sketchbook" : "")"
         case .profilePicker:
             return "profile-picker"
+        case .firstRunSketchbook:
+            return "first-run-sketchbook"
+        case let .offer(entry):
+            return "offer-\(entry.id)"
         }
     }
+}
+
+/// Where the way to Premium was opened from, which decides where it starts and
+/// where it leaves the learner.
+enum OfferEntry: Hashable, Identifiable {
+    /// The end of the guided first run: "More coming" first, then the free week.
+    case onboarding
+    /// A Premium lesson's drawer: straight to the paywall, or to a grown-up.
+    case premiumLesson(lessonId: String)
+    /// The Premium row in Settings.
+    case settings
+
+    var id: String {
+        switch self {
+        case .onboarding: return "onboarding"
+        case let .premiumLesson(lessonId): return "lesson-\(lessonId)"
+        case .settings: return "settings"
+        }
+    }
+
+    /// The name analytics knows it by.
+    var analyticsName: String {
+        switch self {
+        case .onboarding: return "onboarding"
+        case .premiumLesson: return "premium_lesson"
+        case .settings: return "settings"
+        }
+    }
+}
+
+/// A Premium lesson whose drawer is up (`PremiumLessonSheet`).
+struct PremiumOffer: Identifiable, Hashable {
+    let lessonId: String
+    var id: String { lessonId }
+}
+
+/// The short line a young learner sees instead of the drawer, once they have
+/// closed it this session: "Ask a grown-up to unlock Mushroom".
+struct PremiumNudge: Identifiable, Equatable {
+    let id = UUID()
+    let lessonId: String
+    let title: String
 }
 
 /// The five tabs of `MainTabs`: Home · Path · Lessons · Sketchbook · Settings.

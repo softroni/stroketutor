@@ -13,21 +13,28 @@ struct PlayerHeader<Menu: View>: View {
     /// What the intro is showing, in place of "Before you start".
     var caption: String?
     var isCompact: Bool = false
+    /// False on the guided first lesson: the close button and the ⋯ menu are left
+    /// off, their columns kept empty so the step label stays centred.
+    var showsExits: Bool = true
     let onClose: () -> Void
     @ViewBuilder let menu: () -> Menu
 
     var body: some View {
         HStack(spacing: 0) {
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .scaledFont(19, .bold, design: .default)
-                    .foregroundStyle(Theme.ink)
-                    .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
-                    .contentShape(Rectangle())
+            if showsExits {
+                Button(action: onClose) {
+                    Image(systemName: "xmark")
+                        .scaledFont(19, .bold, design: .default)
+                        .foregroundStyle(Theme.ink)
+                        .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .frame(width: side, alignment: .leading)
+                .accessibilityLabel("Close lesson")
+            } else {
+                Color.clear.frame(width: side, height: 1)
             }
-            .buttonStyle(.plain)
-            .frame(width: side, alignment: .leading)
-            .accessibilityLabel("Close lesson")
 
             VStack(spacing: 6) {
                 Text(label)
@@ -41,17 +48,21 @@ struct PlayerHeader<Menu: View>: View {
             .frame(maxWidth: .infinity)
             .accessibilityElement(children: .combine)
 
-            SwiftUI.Menu {
-                menu()
-            } label: {
-                Image(systemName: "ellipsis")
-                    .scaledFont(19, .bold, design: .default)
-                    .foregroundStyle(Theme.ink)
-                    .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
-                    .contentShape(Rectangle())
+            if showsExits {
+                SwiftUI.Menu {
+                    menu()
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .scaledFont(19, .bold, design: .default)
+                        .foregroundStyle(Theme.ink)
+                        .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
+                        .contentShape(Rectangle())
+                }
+                .frame(width: side, alignment: .trailing)
+                .accessibilityLabel("More options. Speed, narration, start over")
+            } else {
+                Color.clear.frame(width: side, height: 1)
             }
-            .frame(width: side, alignment: .trailing)
-            .accessibilityLabel("More options. Speed, narration, start over")
         }
         .padding(.horizontal, isCompact ? 0 : 8)
         .frame(height: isCompact ? 44 : 56)

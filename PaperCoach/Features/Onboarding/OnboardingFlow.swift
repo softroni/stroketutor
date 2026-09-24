@@ -174,7 +174,7 @@ struct OnboardingFlow: View {
                                 path: selectedPath,
                                 rail: rail(for: .ready, back: .voice, skippable: false),
                                 onStart: { finish(with: selectedPath?.lessons.first) },
-                                onLookAround: { finish(with: nil) })
+                                onContinueWithoutLesson: { finish(with: nil) })
         }
     }
 

@@ -34,22 +34,55 @@ struct AppRoot: View {
                 #if DEBUG
                 DebugScreenHarness.applyIfRequested(to: app)
                 #endif
+                app.premium.start()
                 if !app.settings.hasCompletedOnboarding {
                     // No slide up on first run: the launch screen gives way
                     // straight to the splash, so Home never shows under it first.
                     var transaction = Transaction()
                     transaction.disablesAnimations = true
                     withTransaction(transaction) { app.presentOnboarding() }
+                } else if app.settings.firstRunStage != nil, !isScreenshotLaunch {
+                    // A first run the app was closed in the middle of: back to the
+                    // same stop, with nothing of the tabs showing first.
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+                    withTransaction(transaction) { app.resumeFirstRun() }
                 } else if app.shouldAskWhoIsDrawing, !isScreenshotLaunch {
                     // Once per launch, here; never on a return from the background.
                     app.presentProfilePicker()
                 }
                 await rescheduleReminderIfEnabled()
             }
+            // The Premium drawer over the tabs. When a cover is up, the cover's own
+            // copy below shows it instead, so it is never asked of a view that is
+            // already presenting.
+            .sheet(item: drawer(overCover: false), onDismiss: { app.openOfferAfterDrawer() }) { offer in
+                PremiumLessonSheet(lessonId: offer.lessonId)
+                    .environment(app)
+            }
+            .overlay(alignment: .top) {
+                if let nudge = app.premiumNudge, app.cover == nil {
+                    PremiumNudgeToast(nudge: nudge)
+                        .padding(.top, 8)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(.easeOut(duration: 0.25), value: app.premiumNudge)
             .fullScreenCover(item: $app.cover) { cover in
                 content(for: cover)
                     .environment(app)
+                    .sheet(item: drawer(overCover: true), onDismiss: { app.openOfferAfterDrawer() }) { offer in
+                        PremiumLessonSheet(lessonId: offer.lessonId)
+                            .environment(app)
+                    }
             }
+    }
+
+    /// The drawer's binding for one of its two hosts: the tabs while no cover is up,
+    /// the cover while one is.
+    private func drawer(overCover: Bool) -> Binding<PremiumOffer?> {
+        Binding(get: { (app.cover != nil) == overCover ? app.premiumOffer : nil },
+                set: { if $0 == nil { app.premiumOffer = nil } })
     }
 
     private var isScreenshotLaunch: Bool {
@@ -80,8 +113,9 @@ struct AppRoot: View {
             OnboardingFlow(onFinished: { lesson in
                 app.finishOnboarding()
                 // `ob-ready` already showed the lesson and its Start drawing, so
-                // the preview would ask the same question twice: open the player.
-                if let lesson { app.presentPlayer(lesson) }
+                // the preview would ask the same question twice: open the player,
+                // as the first stop of the guided first run.
+                if let lesson { app.beginFirstRun(with: lesson) }
             })
 
         case let .player(lessonId, resumeFrom):
@@ -121,6 +155,12 @@ struct AppRoot: View {
 
         case .profilePicker:
             ProfilePickerView()
+
+        case .firstRunSketchbook:
+            FirstRunSketchbookView()
+
+        case let .offer(entry):
+            OfferFlow(entry: entry)
         }
     }
 

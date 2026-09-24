@@ -535,7 +535,8 @@ struct LessonsView: View {
                 LessonTile(lesson: entry.lesson,
                            position: entry.position,
                            state: state(of: entry.lesson, nextId: nextId),
-                           size: tileSize) {
+                           size: tileSize,
+                           isPremium: app.needsPremium(entry.lesson)) {
                     open(entry.lesson, in: path)
                 }
             }
@@ -550,9 +551,10 @@ struct LessonsView: View {
         return lesson.id == nextId ? .next : .locked
     }
 
-    /// The same rule as Home: an open lesson shows its preview, a locked one says
-    /// which lesson comes first.
+    /// The same rule as Home: a crowned lesson offers Premium, an open lesson shows
+    /// its preview, a locked one says which lesson comes first.
     private func open(_ lesson: Lesson, in path: PathModel) {
+        if app.offerPremiumIfNeeded(for: lesson) { return }
         guard !app.progress.isUnlocked(lesson, in: path) else {
             app.showPreview(of: lesson)
             return

@@ -13,6 +13,8 @@ import SwiftUI
 /// * `.locked` — the same full-color drawing on white paper behind a thin gray
 ///   border and edge, with a small lock and a quieter name: what is coming, shown
 ///   whole so it is something to look forward to.
+///
+/// A Premium lesson, without Premium, also wears a gold crown in the bottom corner.
 struct LessonTile: View {
 
     enum State: Equatable {
@@ -28,6 +30,10 @@ struct LessonTile: View {
     /// The square's edge. Home's shelves use the default; the Lessons grid passes
     /// its column's width.
     var size: CGFloat = LessonTile.defaultSize
+    /// A gold crown in the bottom corner: the lesson needs Premium
+    /// (`AppModel.needsPremium(_:)`). Independent of `state` — a Premium lesson can
+    /// be next, locked or even drawn.
+    var isPremium: Bool = false
     let action: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -73,6 +79,11 @@ struct LessonTile: View {
                 shape.fill(edgeColor).offset(y: 4)
             }
             .overlay(alignment: .topTrailing) { badge }
+            .overlay(alignment: .bottomTrailing) {
+                if isPremium {
+                    CrownBadge(size: 28).padding(7)
+                }
+            }
             .overlay(alignment: .topLeading) { flag }
             .padding(.bottom, 4)
     }
@@ -138,7 +149,7 @@ struct LessonTile: View {
         case .next: status = "next to draw"
         case .locked: status = "locked"
         }
-        return "Lesson \(position), \(lesson.title), \(status)"
+        return "Lesson \(position), \(lesson.title), \(status)\(isPremium ? ", Premium" : "")"
     }
 }
 

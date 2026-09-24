@@ -25,10 +25,13 @@ final class Settings {
         static let reminderDays = "reminderDays"
         static let reminderTime = "reminderTime"
         static let landscapeWidePage = "landscapeWidePage"
+        static let firstRunStage = "firstRunStage"
+        static let firstRunLessonId = "firstRunLessonId"
 
         static let all = [
             hasCompletedOnboarding, alsoSaveToPhotos, reminderEnabled,
-            reminderDays, reminderTime, landscapeWidePage
+            reminderDays, reminderTime, landscapeWidePage,
+            firstRunStage, firstRunLessonId
         ]
     }
 
@@ -70,6 +73,18 @@ final class Settings {
         }
     }
 
+    /// Where a new learner is in the guided first run that follows onboarding —
+    /// their first lesson, the sketchbook tour, then the offer — so a relaunch picks
+    /// it up where it stopped rather than dropping them on Home. Nil once it is over,
+    /// and on every device that finished onboarding before it existed.
+    var firstRunStage: FirstRunStage? {
+        didSet { writeOptional(firstRunStage?.rawValue, Key.firstRunStage) }
+    }
+    /// The lesson the first run is built around: the one `ob-ready` started.
+    var firstRunLessonId: String? {
+        didSet { writeOptional(firstRunLessonId, Key.firstRunLessonId) }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         hasCompletedOnboarding = defaults.object(forKey: Key.hasCompletedOnboarding) as? Bool ?? false
@@ -78,6 +93,8 @@ final class Settings {
         reminderDays = defaults.string(forKey: Key.reminderDays) ?? "12345"
         reminderTime = defaults.string(forKey: Key.reminderTime) ?? "07:30"
         landscapeWidePage = defaults.object(forKey: Key.landscapeWidePage) as? Bool
+        firstRunStage = defaults.string(forKey: Key.firstRunStage).flatMap(FirstRunStage.init(rawValue:))
+        firstRunLessonId = defaults.string(forKey: Key.firstRunLessonId)
     }
 
     /// Puts every key back to its default. Used by tests and by nothing in the UI:
@@ -90,9 +107,31 @@ final class Settings {
         reminderDays = "12345"
         reminderTime = "07:30"
         landscapeWidePage = nil
+        firstRunStage = nil
+        firstRunLessonId = nil
     }
 
     private func write(_ value: Any, _ key: String) {
         defaults.set(value, forKey: key)
     }
+
+    private func writeOptional(_ value: String?, _ key: String) {
+        if let value {
+            defaults.set(value, forKey: key)
+        } else {
+            defaults.removeObject(forKey: key)
+        }
+    }
+}
+
+/// The three stops of the guided first run, in order. The learner cannot leave any
+/// of them except forward: the lesson has no close button, the sketchbook tour has
+/// one way on, and the offer ends only on its paywall.
+enum FirstRunStage: String, Codable {
+    /// The first lesson, its completion screen and the photo of the page.
+    case lesson
+    /// The sketchbook, open on the path the lesson belongs to.
+    case sketchbook
+    /// "More coming", the free week and the paywall (or a grown-up's version).
+    case offer
 }

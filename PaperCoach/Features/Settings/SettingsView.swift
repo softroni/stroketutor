@@ -18,6 +18,9 @@ struct SettingsView: View {
     @State private var gate: PINGateRequest?
     @State private var pinSheet: PINSheet?
     @State private var isChoosingPINAction = false
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
+    @Environment(\.openURL) private var openURL
 
     /// The PIN pad, when it is opened from its own row.
     private enum PINSheet: Identifiable {
@@ -37,6 +40,9 @@ struct SettingsView: View {
 
                 // ---------------------------------------------------------- People
                 peopleSection
+
+                // --------------------------------------------------------- Premium
+                premiumSection
 
                 // ---------------------------------------------------------- Lesson
                 SettingsSectionHeader("Lesson")
@@ -228,6 +234,60 @@ struct SettingsView: View {
     }
 
     private static let privacyPolicyURL = URL(string: "https://softroni.com/privacy-policy.html")!
+
+    /// Where the App Store lets the account holder change or cancel a subscription.
+    private static let manageSubscriptionsURL = URL(string: "https://apps.apple.com/account/subscriptions")!
+
+    // MARK: - Premium
+
+    /// Whether Premium is on for this Apple account, the way to it (or to manage
+    /// it), and Restore. A child's tap goes through the grown-up's check first,
+    /// like any other way to the paywall (`OfferFlow`).
+    private var premiumSection: some View {
+        VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+            SettingsSectionHeader("Premium")
+            ListCard {
+                SettingsRow(title: "Paper Coach Premium",
+                            subtitle: app.premium.isPremium
+                                ? "Every lesson on every path."
+                                : "Lessons 1 to \(PremiumAccess.freeLessonsPerPath) of every path are free.",
+                            value: app.premium.isPremium ? "Active" : nil,
+                            systemImage: "crown.fill",
+                            tint: .gold) {
+                    if app.premium.isPremium {
+                        openURL(Self.manageSubscriptionsURL)
+                    } else {
+                        app.presentOffer(.settings)
+                    }
+                }
+                RowDivider()
+                SettingsRow(title: isRestoring ? "Restoring…" : "Restore purchases",
+                            systemImage: "arrow.clockwise",
+                            tint: .neutral) {
+                    restorePurchases()
+                }
+            }
+        }
+        .alert("Restore purchases",
+               isPresented: Binding(get: { restoreMessage != nil },
+                                    set: { if !$0 { restoreMessage = nil } })) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(restoreMessage ?? "")
+        }
+    }
+
+    private func restorePurchases() {
+        guard !isRestoring else { return }
+        isRestoring = true
+        Task {
+            let restored = await app.premium.restore()
+            isRestoring = false
+            restoreMessage = restored
+                ? "Premium is active on this iPhone."
+                : "This Apple Account has no Paper Coach Premium to restore."
+        }
+    }
 
     /// Turning "Also save to Photos" on asks for add-only access first; the switch
     /// only stays on once iOS says pages can be added. Turning it off never asks.

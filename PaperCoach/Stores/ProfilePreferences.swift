@@ -20,6 +20,7 @@ final class ProfilePreferences {
         var narrationEnabled = true
         var defaultSpeed = 1.0
         var hasSeenPathsWelcome = false
+        var wishList: [String] = []
 
         init() {}
 
@@ -30,6 +31,7 @@ final class ProfilePreferences {
             narrationEnabled = try container.decodeIfPresent(Bool.self, forKey: .narrationEnabled) ?? defaults.narrationEnabled
             defaultSpeed = Self.validSpeed(try container.decodeIfPresent(Double.self, forKey: .defaultSpeed))
             hasSeenPathsWelcome = try container.decodeIfPresent(Bool.self, forKey: .hasSeenPathsWelcome) ?? defaults.hasSeenPathsWelcome
+            wishList = try container.decodeIfPresent([String].self, forKey: .wishList) ?? defaults.wishList
         }
 
         /// The values a pre-profiles build kept in `UserDefaults`, for the migration.
@@ -62,6 +64,10 @@ final class ProfilePreferences {
     /// progress" clears lessons, not this, so a learner who starts over is not
     /// welcomed a second time.
     var hasSeenPathsWelcome: Bool { didSet { save() } }
+    /// Premium lessons a young learner saved "for later" from the lesson drawer,
+    /// oldest first, by lesson id. The grown-up's paywall shows them, so the
+    /// grown-up sees what the child is asking for.
+    var wishList: [String] { didSet { save() } }
 
     /// Nil keeps everything in memory — the fallback when a profile has no folder.
     private let fileURL: URL?
@@ -74,6 +80,7 @@ final class ProfilePreferences {
         narrationEnabled = values.narrationEnabled
         defaultSpeed = values.defaultSpeed
         hasSeenPathsWelcome = values.hasSeenPathsWelcome
+        wishList = values.wishList
     }
 
     /// An in-memory set, for the migration's fallback session.
@@ -88,6 +95,7 @@ final class ProfilePreferences {
         values.narrationEnabled = narrationEnabled
         values.defaultSpeed = defaultSpeed
         values.hasSeenPathsWelcome = hasSeenPathsWelcome
+        values.wishList = wishList
         return values
     }
 
@@ -101,6 +109,16 @@ final class ProfilePreferences {
         narrationEnabled = values.narrationEnabled
         defaultSpeed = values.defaultSpeed
         hasSeenPathsWelcome = values.hasSeenPathsWelcome
+        wishList = values.wishList
+    }
+
+    /// Adds the lesson to the wish list, or takes it off if it is already there.
+    func toggleWish(_ lessonId: String) {
+        if let index = wishList.firstIndex(of: lessonId) {
+            wishList.remove(at: index)
+        } else {
+            wishList.append(lessonId)
+        }
     }
 
     static func write(_ values: Values, to directory: URL) throws {

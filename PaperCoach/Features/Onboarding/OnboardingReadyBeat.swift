@@ -1,17 +1,20 @@
 import SwiftUI
 
 /// `ob-ready` — "Your first lesson is ready." The end of the flow: the chosen path's
-/// first lesson draws itself, and there is one way in with one quiet alternative.
+/// first lesson draws itself, and there is one way in.
 ///
 /// Not a congratulation — the learner has not done anything yet. One line from Lina,
-/// one lesson, one button.
+/// one lesson, one button. There is no way around it: the first lesson is where the
+/// guided first run begins (`AppModel.beginFirstRun(with:)`). Only when no lesson is
+/// installed does the button become "Continue", so the flow can still end.
 struct OnboardingReadyBeat: View {
 
     let lesson: Lesson?
     let path: PathModel?
     let rail: OnboardingRail
     let onStart: () -> Void
-    let onLookAround: () -> Void
+    /// The way out when there is no lesson to start.
+    let onContinueWithoutLesson: () -> Void
 
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -37,9 +40,10 @@ struct OnboardingReadyBeat: View {
             if lesson != nil {
                 Button("Start drawing", action: onStart)
                     .buttonStyle(.primary)
+            } else {
+                Button("Continue", action: onContinueWithoutLesson)
+                    .buttonStyle(.primary)
             }
-            Button("Look around first", action: onLookAround)
-                .buttonStyle(.quiet)
         }
     }
 

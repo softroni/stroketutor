@@ -283,6 +283,7 @@ struct PlayerScreen: View {
                       leadingInset: safeAreaInsets.left,
                       trailingInset: safeAreaInsets.right,
                       onClose: close,
+                      showsExits: !isGuided,
                       onWords: { choosePage(wide: false) },
                       menu: { moreMenu },
                       chip: { narrationChip },
@@ -448,6 +449,7 @@ struct PlayerScreen: View {
                      stepCount: max(lesson.stepCount, 1),
                      caption: caption,
                      isCompact: isCompact,
+                     showsExits: !isGuided,
                      onClose: close) {
             moreMenu
         }
@@ -522,6 +524,10 @@ struct PlayerScreen: View {
     // MARK: - Words
 
     private var isOrientation: Bool { player.isAwaitingBegin }
+
+    /// The first lesson after onboarding: no close button and no ⋯ menu, so the
+    /// only way out is to finish it (`AppModel.isGuidedFirstRun(_:)`).
+    private var isGuided: Bool { app.isGuidedFirstRun(lesson) }
 
     /// Before step one the sentence is what Lina is saying: the line published for
     /// this lesson's intro, or the words the Studio would have recorded for it.
@@ -758,6 +764,7 @@ struct PlayerScreen: View {
     /// During the intro there is no place to keep yet, so the close button just
     /// closes; the sheet's promise only makes sense once step one has started.
     private func close() {
+        guard !isGuided else { return }
         narration.stop()
         if isOrientation {
             leave()

@@ -22,6 +22,8 @@ struct PathNodesView: View {
     var dateStyle: DateStyle = .short
     /// The circle's diameter. `hp-path` draws them at 100 pt.
     var nodeSize: CGFloat = Theme.nodeSize
+    /// Whether a lesson needs Premium: its node wears a crown and its line says so.
+    var isPremium: (Lesson) -> Bool = { _ in false }
     let onTap: (Lesson) -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -46,7 +48,8 @@ struct PathNodesView: View {
         let node = Button {
             onTap(lesson)
         } label: {
-            LessonNode(state: state, drawing: lesson.tutorial, size: nodeSize)
+            LessonNode(state: state, drawing: lesson.tutorial, size: nodeSize,
+                       isPremium: isPremium(lesson))
         }
         .buttonStyle(.plain)
 
@@ -104,6 +107,11 @@ struct PathNodesView: View {
     /// "Drawn Sep 3" · "Paused at step 9" · "Next · 7 steps" · "After Small Cottage"
     /// · "Lesson 5".
     private func subtitle(for lesson: Lesson, at index: Int, state: LessonNode.State) -> String {
+        // "Next · Premium", "Lesson 5 · Premium": a Premium lesson says so where a
+        // free one says how long it is or what comes first.
+        if isPremium(lesson), state != .done {
+            return state == .current ? "Next · Premium" : "Lesson \(index + 1) · Premium"
+        }
         switch state {
         case .done:
             if let date = progress.progress(for: lesson.id)?.completedAt {

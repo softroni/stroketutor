@@ -44,7 +44,7 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M7 | iOS product shell | §29–31 | started ahead of M6 at the creator's request (2026-09-13) | 🟡 Built to the v3 design; awaits M6 content and creator review | see git log |
 | M8 | Private sketchbook | §32 | with M7 | 🟡 Built (photo capture, local pages, notes, delete); crop/straighten pending | see git log |
 | M9 | Content expansion | §33 Phase 9 | gated | ⬜ Not started | |
-| M10 | Monetization / distribution | §33 Phase 10 | gated | ⬜ Not started | |
+| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; needs App Store Connect products and a device test | see git log |
 
 Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see notes).
 
@@ -850,6 +850,36 @@ protected tier needs it.
 - **Before either SDK ships:** put the paywall behind the PIN on child-tier profiles and word it for the parent;
   update the privacy label; check both vendors' terms for apps children use; check the state app-store age laws and
   Apple's Declared Age Range API.
+
+**Premium and the guided first run (2026-09-24).** Designed as a clickable wireframe with the creator first, then built.
+- **What is free:** every path is open, and lessons 1–3 of each are free (`PremiumAccess.freeLessonsPerPath`). From
+  lesson 4 a lesson wears a gold crown (bottom right on a tile, top right on a node, "Lesson 4 · Premium" on the path)
+  beside the order lock, which still teaches the order. Tapping a crown opens the Premium drawer before anything else.
+  A subscriber sees no crowns.
+- **StoreKit 2** (`PaperCoach/Stores/PremiumStore.swift`): one group, `com.softroni.papercoach.premium.yearly` (with
+  a one-week free introductory offer) and `…premium.monthly` (none), both Family Sharing. `PaperCoach.storekit` at the
+  repository root mirrors them with placeholder prices; choose it under Scheme › Run › Options › StoreKit
+  Configuration. Premium belongs to the Apple account, so every learner on the device shares it.
+- **The guided first run** (`AppModel+FirstRun.swift`, stage saved in `Settings.firstRunStage`): `ob-ready` has no
+  "Look around first"; the first lesson has no close button or ⋯ menu; completion and the saved photo have no "Next
+  lesson" or "Done"; both lead to the sketchbook tour (the lesson's path only, no Paths/Dates switch, no tab bar), then
+  "More coming" (the path's other lessons sliding past) → 7 days free → the reminder promise (asks for notification
+  permission) → the paywall. A relaunch returns to the same stop.
+- **The paywall** leads with the billed amount in the largest type and names it on the button, per Apple's
+  subscription page (quoted in `PaywallView.swift`); "View more plans" opens Yearly/Monthly; Restore, Terms of Use and
+  Privacy are on it. The one way out is "Continue with free lessons". A trial reminder is scheduled two days before
+  the free week ends (`TrialReminder`).
+- **Children** (the child privacy tier: under 13, or "prefer not to say") never see a price: the drawer says "Ask a
+  grown-up" and "Save it for later" (a wish list per learner), then "This part is for a grown-up" → the parental check
+  (the app's PIN when one is set, else a sum written in words) → a paywall written for the parent, showing the child's
+  drawing and wish list. After a child closes the drawer once, more crowns only nudge for the rest of the session.
+- **Teens** get the adult flow; an Ask to Buy purchase shows "Waiting for a grown-up to say yes" and unlocks when
+  approved (`Transaction.updates`).
+- After lesson 3 of a path, completion and the saved photo show "Next: … · Premium" as a gold card, and a free lesson
+  from another path under it. Settings has a Premium row (the paywall, or Manage Subscriptions) and Restore.
+- **Still to do by hand:** create the two products and the free week in App Store Connect with the ids above, turn on
+  Family Sharing for both, set the prices, and try the whole flow on a device against the StoreKit configuration and
+  then the sandbox. Not built or run in this environment, which has no Xcode.
 
 ---
 

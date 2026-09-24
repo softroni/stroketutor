@@ -321,6 +321,9 @@ struct HomeView: View {
     /// names the lesson that has to come first, right here — the learner asked
     /// "why not this one yet", and the answer does not need another screen.
     private func open(_ lesson: Lesson, in path: PathModel) {
+        // A crowned lesson offers Premium before anything else, even while the
+        // lesson before it is still to draw: wanting it is the moment to offer.
+        if app.offerPremiumIfNeeded(for: lesson) { return }
         guard !app.progress.isUnlocked(lesson, in: path) else {
             app.showPreview(of: lesson)
             return
@@ -386,6 +389,7 @@ private struct PathShelf: View {
     let onOpenPath: () -> Void
     let onOpenLesson: (Lesson) -> Void
 
+    @Environment(AppModel.self) private var app
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var paint: PathTint { isComplete ? .complete : tint }
@@ -402,7 +406,8 @@ private struct PathShelf: View {
                         ForEach(Array(path.lessons.enumerated()), id: \.element.id) { index, lesson in
                             LessonTile(lesson: lesson,
                                        position: index + 1,
-                                       state: state(of: lesson)) {
+                                       state: state(of: lesson),
+                                       isPremium: app.needsPremium(lesson)) {
                                 onOpenLesson(lesson)
                             }
                             .id(lesson.id)

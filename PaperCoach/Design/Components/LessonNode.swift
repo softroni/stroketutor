@@ -23,6 +23,9 @@ struct LessonNode: View {
     let state: State
     let drawing: PreparedTutorial?
     var size: CGFloat = Theme.nodeSize
+    /// A gold crown at the top corner: the lesson needs Premium. The bottom corner
+    /// keeps the check or the lock.
+    var isPremium: Bool = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @SwiftUI.State private var isPulsing = false
@@ -43,6 +46,11 @@ struct LessonNode: View {
         .frame(width: size, height: size)
         .background(alignment: .center) { halo }
         .overlay(alignment: .bottomTrailing) { badge }
+        .overlay(alignment: .topTrailing) {
+            if isPremium {
+                CrownBadge(size: badgeSize).offset(x: 4, y: -2)
+            }
+        }
         .padding(.bottom, 5)
     }
 

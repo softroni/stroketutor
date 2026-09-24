@@ -123,23 +123,11 @@ struct SketchbookView: View {
     /// then the one drawn in most recently. A lesson drawn twice shows its newest
     /// photo; the older ones are still under Dates.
     private var albums: [Album] {
-        let pages = app.sketchbook.pages // Newest first.
         let currentId = app.currentPath?.id
         let built: [Album] = app.paths.compactMap { path in
-            let slots = path.lessons.map { lesson in
-                let ofLesson = pages.filter { $0.lessonId == lesson.id }
-                return AlbumSlot(lesson: lesson,
-                                 page: ofLesson.first,
-                                 pageCount: ofLesson.count,
-                                 isDone: app.progress.isCompleted(lesson.id),
-                                 isOpen: app.progress.isCompleted(lesson.id)
-                                     || app.progress.isUnlocked(lesson, in: path),
-                                 isNext: path.id == currentId
-                                     && app.progress.nextLesson(in: path)?.id == lesson.id)
-            }
-            let latest = slots.compactMap(\.page?.completedAt).max()
-            guard let latest else { return nil }
-            return Album(path: path, tint: app.tint(for: path), slots: slots, latest: latest)
+            let album = Self.album(for: path, in: app)
+            // A path with no photo yet has no page in the album.
+            return album.slots.contains { $0.page != nil } ? album : nil
         }
         return built.sorted { lhs, rhs in
             if (lhs.path.id == currentId) != (rhs.path.id == currentId) {
@@ -295,6 +283,27 @@ struct SketchbookView: View {
         return app.paths.first(where: { !$0.isEmpty })?.lessons.first
     }
 
+    /// One path's page of the album: a slot per lesson, in path order, each with
+    /// its newest photo if there is one. `latest` is the newest photo's date, or now
+    /// for a path with none (the first run's tour shows one of those).
+    static func album(for path: PathModel, in app: AppModel) -> Album {
+        let pages = app.sketchbook.pages // Newest first.
+        let currentId = app.currentPath?.id
+        let slots = path.lessons.map { lesson in
+            let ofLesson = pages.filter { $0.lessonId == lesson.id }
+            return AlbumSlot(lesson: lesson,
+                             page: ofLesson.first,
+                             pageCount: ofLesson.count,
+                             isDone: app.progress.isCompleted(lesson.id),
+                             isOpen: app.progress.isCompleted(lesson.id)
+                                 || app.progress.isUnlocked(lesson, in: path),
+                             isNext: path.id == currentId
+                                 && app.progress.nextLesson(in: path)?.id == lesson.id)
+        }
+        let latest = slots.compactMap(\.page?.completedAt).max() ?? Date()
+        return Album(path: path, tint: app.tint(for: path), slots: slots, latest: latest)
+    }
+
     // MARK: - Grouping by month
 
     private struct Month: Identifiable {
@@ -331,7 +340,7 @@ struct SketchbookView: View {
 // MARK: - The album
 
 /// One path's page of the album.
-private struct Album: Identifiable {
+struct Album: Identifiable {
     let path: PathModel
     let tint: PathTint
     let slots: [AlbumSlot]
@@ -343,7 +352,7 @@ private struct Album: Identifiable {
 }
 
 /// One lesson's place in an album.
-private struct AlbumSlot: Identifiable {
+struct AlbumSlot: Identifiable {
     let lesson: Lesson
     /// The newest photo of it, if any.
     let page: SketchbookPage?
@@ -360,8 +369,11 @@ private struct AlbumSlot: Identifiable {
 /// A path's band: its soft tint with the 4 pt deeper edge the path cards have, the
 /// path's name big and bold with a small "3/10" (lessons photographed), and a
 /// three-column grid of slots.
-private struct AlbumBand: View {
+struct AlbumBand: View {
     let album: Album
+    /// False on the first run's tour: the slots are pictures to look at, not ways
+    /// into a lesson or a photo, since the tour has one way on.
+    var isBrowsable = true
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
@@ -372,9 +384,11 @@ private struct AlbumBand: View {
             PictureGrid(columns: 3, spacing: 10, centersLastRow: false) {
                 ForEach(album.slots) { slot in
                     if let page = slot.page {
-                        PhotoSlot(page: page, lesson: slot.lesson, pageCount: slot.pageCount)
+                        PhotoSlot(page: page, lesson: slot.lesson, pageCount: slot.pageCount,
+                                  isBrowsable: isBrowsable)
                     } else {
-                        EmptySlot(slot: slot, path: album.path, tint: album.tint)
+                        EmptySlot(slot: slot, path: album.path, tint: album.tint,
+                                  isBrowsable: isBrowsable)
                     }
                 }
             }
@@ -417,6 +431,7 @@ private struct PhotoSlot: View {
     let page: SketchbookPage
     let lesson: Lesson?
     let pageCount: Int
+    var isBrowsable = true
 
     @Environment(AppModel.self) private var app
 
@@ -424,28 +439,33 @@ private struct PhotoSlot: View {
         Button {
             app.push(.sketchbookEntry(pageId: page.id))
         } label: {
-            SketchbookShot(image: app.sketchbook.thumbnail(for: page),
-                           tutorial: lesson?.tutorial,
-                           cornerRadius: 12)
-                .lessonBadge(lesson?.tutorial)
-                // A light lift, so a kept page sits on the band like a sticker.
-                .shadow(color: .black.opacity(0.12), radius: 3, y: 2)
-                .background {
-                    if pageCount > 1 {
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Theme.paper)
-                            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .strokeBorder(Theme.line, lineWidth: 2))
-                            .rotationEffect(.degrees(4))
-                            .offset(x: 3, y: 1)
-                    }
-                }
+            shot
         }
         .buttonStyle(PressableSlotStyle())
+        .disabled(!isBrowsable)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
-        .accessibilityHint("Opens the page")
-        .accessibilityAddTraits(.isButton)
+        .accessibilityHint(isBrowsable ? "Opens the page" : "")
+        .accessibilityAddTraits(isBrowsable ? .isButton : .isImage)
+    }
+
+    private var shot: some View {
+        SketchbookShot(image: app.sketchbook.thumbnail(for: page),
+                       tutorial: lesson?.tutorial,
+                       cornerRadius: 12)
+            .lessonBadge(lesson?.tutorial)
+            // A light lift, so a kept page sits on the band like a sticker.
+            .shadow(color: .black.opacity(0.12), radius: 3, y: 2)
+            .background {
+                if pageCount > 1 {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Theme.paper)
+                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(Theme.line, lineWidth: 2))
+                        .rotationEffect(.degrees(4))
+                        .offset(x: 3, y: 1)
+                }
+            }
     }
 
     private var accessibilityLabel: String {
@@ -465,11 +485,12 @@ private struct EmptySlot: View {
     let slot: AlbumSlot
     let path: PathModel
     let tint: PathTint
+    var isBrowsable = true
 
     @Environment(AppModel.self) private var app
 
     var body: some View {
-        if slot.isOpen {
+        if slot.isOpen && isBrowsable {
             Button {
                 if slot.isDone {
                     app.presentCapture(slot.lesson, fromSketchbook: true)

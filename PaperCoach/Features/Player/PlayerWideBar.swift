@@ -17,6 +17,9 @@ struct PlayerWideBar<Menu: View, Chip: View, Reference: View>: View {
     var leadingInset: CGFloat = 0
     var trailingInset: CGFloat = 0
     let onClose: () -> Void
+    /// False on the guided first lesson, which has no way out but forward: the
+    /// close button and the ⋯ menu are left off.
+    var showsExits: Bool = true
     /// Brings the panel — and the sentence — back over the paper.
     let onWords: () -> Void
     @ViewBuilder let menu: () -> Menu
@@ -28,8 +31,10 @@ struct PlayerWideBar<Menu: View, Chip: View, Reference: View>: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            closeButton
-            menuButton
+            if showsExits {
+                closeButton
+                menuButton
+            }
             stepButton
             chip()
             Spacer(minLength: 8)
