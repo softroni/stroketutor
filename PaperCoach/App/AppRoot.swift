@@ -75,7 +75,7 @@ struct AppRoot: View {
                 guard phase == .active, app.hasLoadedContent else { return }
                 Task { await app.premium.refreshEntitlements() }
             }
-            .fullScreenCover(item: $app.cover) { cover in
+            .fullScreenCover(item: $app.cover, onDismiss: { app.coverDidDismiss() }) { cover in
                 content(for: cover)
                     .environment(app)
                     .sheet(item: drawer(overCover: true), onDismiss: { app.openOfferAfterDrawer() }) { offer in
@@ -118,11 +118,12 @@ struct AppRoot: View {
         switch cover {
         case .onboarding:
             OnboardingFlow(onFinished: { lesson in
-                app.finishOnboarding()
                 // `ob-ready` already showed the lesson and its Start drawing, so
                 // the preview would ask the same question twice: open the player,
-                // as the first stop of the guided first run.
-                if let lesson { app.beginFirstRun(with: lesson) }
+                // as the first stop of the guided first run — once the onboarding
+                // cover has finished closing (`finishOnboarding(startingWith:)`).
+                if let lesson { app.markFirstRunStarted(with: lesson) }
+                app.finishOnboarding(startingWith: lesson)
             })
 
         case let .player(lessonId, resumeFrom):

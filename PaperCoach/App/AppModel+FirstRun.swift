@@ -27,11 +27,12 @@ extension AppModel {
         settings.firstRunStage == .lesson && settings.firstRunLessonId == lesson.id
     }
 
-    /// `ob-ready`'s "Start drawing": the first run begins with this lesson.
-    func beginFirstRun(with lesson: Lesson) {
+    /// `ob-ready`'s "Start drawing": the first run begins with this lesson. Only
+    /// recorded here; the player opens once the onboarding cover has closed
+    /// (`finishOnboarding(startingWith:)`), and is guided because of this record.
+    func markFirstRunStarted(with lesson: Lesson) {
         settings.firstRunLessonId = lesson.id
         settings.firstRunStage = .lesson
-        presentPlayer(lesson)
     }
 
     /// From completion or the photo: the sketchbook tour.

@@ -5,7 +5,7 @@ import SwiftUI
 ///
 /// Not a congratulation — the learner has not done anything yet. One line from Lina,
 /// one lesson, one button. There is no way around it: the first lesson is where the
-/// guided first run begins (`AppModel.beginFirstRun(with:)`). Only when no lesson is
+/// guided first run begins (`AppModel.markFirstRunStarted(with:)`). Only when no lesson is
 /// installed does the button become "Continue", so the flow can still end.
 struct OnboardingReadyBeat: View {
 
