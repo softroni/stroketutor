@@ -35,7 +35,11 @@ struct AppRoot: View {
                 DebugScreenHarness.applyIfRequested(to: app)
                 #endif
                 if !app.settings.hasCompletedOnboarding {
-                    app.presentOnboarding()
+                    // No slide up on first run: the launch screen gives way
+                    // straight to the splash, so Home never shows under it first.
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+                    withTransaction(transaction) { app.presentOnboarding() }
                 } else if app.shouldAskWhoIsDrawing, !isScreenshotLaunch {
                     // Once per launch, here; never on a return from the background.
                     app.presentProfilePicker()

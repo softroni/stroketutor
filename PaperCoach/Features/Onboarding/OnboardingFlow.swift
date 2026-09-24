@@ -106,7 +106,7 @@ struct OnboardingFlow: View {
             Color.clear
 
         case .launch:
-            OnboardingLaunchBeat(lesson: firstLessonOfFirstPath) { go(.intro) }
+            OnboardingLaunchBeat { go(.intro) }
 
         case .intro:
             OnboardingIntroBeat(lesson: firstLessonOfFirstPath,
