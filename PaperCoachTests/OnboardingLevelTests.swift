@@ -30,16 +30,16 @@ final class OnboardingLevelTests: XCTestCase {
         XCTAssertEqual(choices.levels.map(\.id), ["starter", "core", "advanced"])
 
         let starter = try XCTUnwrap(choices.level(id: "starter"))
-        XCTAssertEqual(starter.paths.map(\.id), ["sky-weather", "fruits", "food-treats"])
+        XCTAssertEqual(starter.paths.map(\.id), ["plants", "fruits", "sky-weather", "forms"])
         XCTAssertNil(starter.onlyPath)
 
         let core = try XCTUnwrap(choices.level(id: "core"))
-        XCTAssertEqual(core.paths.map(\.id), ["forms", "plants", "wheels", "on-the-water"],
-                       "Core ships six paths; the first four, in catalog order, are offered.")
+        XCTAssertEqual(core.paths.map(\.id), ["wheels", "on-the-water", "in-the-air", "space"],
+                       "Only the first four paths, in catalog order, are offered.")
 
         let advanced = try XCTUnwrap(choices.level(id: "advanced"))
-        XCTAssertEqual(advanced.onlyPath?.id, "landscape",
-                       "A level with one path is the answer on its own.")
+        XCTAssertEqual(advanced.paths.map(\.id), ["food-treats", "landscape"])
+        XCTAssertNil(advanced.onlyPath)
     }
 
     // MARK: - Grouping
@@ -95,6 +95,25 @@ final class OnboardingLevelTests: XCTestCase {
         XCTAssertEqual(choices.chosenLevel(tapped: "gone", tappedPath: nil, storedPath: nil)?.id, "starter")
     }
 
+    func testTheAgeSuggestsTheLevel() throws {
+        let choices = OnboardingPathChoices(
+            levels: [Self.level("starter"), Self.level("core"), Self.level("advanced")],
+            paths: [try Self.path("fruits", level: "starter"), try Self.path("plants", level: "core"),
+                    try Self.path("gear", level: "advanced")])
+        let expected: [AgeGroup: String] = [
+            .preferNotToSay: "starter", .under6: "starter", .from6To9: "starter",
+            .from10To12: "core", .from13To15: "core",
+            .from16To17: "advanced", .adult: "advanced",
+        ]
+        for (age, level) in expected {
+            XCTAssertEqual(choices.chosenLevel(tapped: nil, tappedPath: nil, ageGroup: age,
+                                               storedPath: "fruits")?.id, level, age.title)
+        }
+        XCTAssertEqual(choices.chosenLevel(tapped: "starter", tappedPath: nil, ageGroup: .adult,
+                                           storedPath: nil)?.id, "starter",
+                       "A tapped level wins over the age.")
+    }
+
     /// A path past the fourth is not on `ob-path`, but its level still is the
     /// learner's; the picker then opens on the first path it can show.
     func testAPathPastTheFourthStillChoosesItsLevel() throws {
@@ -104,17 +123,17 @@ final class OnboardingLevelTests: XCTestCase {
 
         let level = choices.chosenLevel(tapped: nil, tappedPath: nil, storedPath: "e")
         XCTAssertEqual(level?.id, "core")
-        XCTAssertEqual(choices.chosenPath(in: level, tapped: nil, storedPath: "e")?.id, "a")
+        XCTAssertEqual(choices.chosenPath(in: level, tapped: nil)?.id, "a")
     }
 
     func testTheChosenPathIsAlwaysOneTheLevelOffers() throws {
         let choices = try Self.twoLevels()
         let core = try XCTUnwrap(choices.level(id: "core"))
 
-        XCTAssertEqual(choices.chosenPath(in: core, tapped: nil, storedPath: nil)?.id, "plants")
-        XCTAssertEqual(choices.chosenPath(in: core, tapped: nil, storedPath: "wheels")?.id, "wheels")
-        XCTAssertEqual(choices.chosenPath(in: core, tapped: "plants", storedPath: "wheels")?.id, "plants")
-        XCTAssertEqual(choices.chosenPath(in: core, tapped: "fruits", storedPath: "fruits")?.id, "plants",
+        XCTAssertEqual(choices.chosenPath(in: core, tapped: nil)?.id, "plants",
+                       "Any level opens on its first path, whatever the learner already has.")
+        XCTAssertEqual(choices.chosenPath(in: core, tapped: "wheels")?.id, "wheels")
+        XCTAssertEqual(choices.chosenPath(in: core, tapped: "fruits")?.id, "plants",
                        "A path of another level is never shown as chosen.")
     }
 

@@ -309,22 +309,24 @@ struct OnboardingPathChoices {
     }
 
     /// The level `ob-level` shows as chosen: the one tapped, else the level of the
-    /// path tapped on `ob-path` before coming back, else the level of the path the
-    /// learner already has, else the easiest.
-    func chosenLevel(tapped levelId: String?, tappedPath: String?, storedPath: String?) -> Level? {
+    /// path tapped on `ob-path` before coming back, else the level suggested by the
+    /// learner's age, else the level of the path the learner already has, else the
+    /// easiest.
+    func chosenLevel(tapped levelId: String?, tappedPath: String?,
+                     ageGroup: AgeGroup? = nil, storedPath: String?) -> Level? {
         level(id: levelId)
             ?? level(ofPath: tappedPath)
+            ?? level(id: ageGroup?.suggestedLevelId)
             ?? level(ofPath: storedPath)
             ?? levels.first
     }
 
     /// The path `ob-path` shows as chosen among the ones it offers: the one tapped,
-    /// else the one the learner already has, else the first.
-    func chosenPath(in level: Level?, tapped pathId: String?, storedPath: String?) -> PathModel? {
+    /// else the first. The path the learner already has is not consulted, so any
+    /// level opens on its first path.
+    func chosenPath(in level: Level?, tapped pathId: String?) -> PathModel? {
         let offered = paths(in: level)
-        return offered.first { $0.id == pathId }
-            ?? offered.first { $0.id == storedPath }
-            ?? offered.first
+        return offered.first { $0.id == pathId } ?? offered.first
     }
 }
 

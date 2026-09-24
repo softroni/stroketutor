@@ -50,6 +50,16 @@ enum AgeGroup: String, Codable, CaseIterable, Identifiable {
         }
     }
 
+    /// The catalog level `ob-level` opens on for this age: the youngest and anyone
+    /// who did not say start at the beginning.
+    var suggestedLevelId: String {
+        switch self {
+        case .under6, .from6To9, .preferNotToSay: return "starter"
+        case .from10To12, .from13To15: return "core"
+        case .from16To17, .adult: return "advanced"
+        }
+    }
+
     /// How carefully the learner's data is treated. Anyone who did not say is
     /// treated as a child: the careful default, and no reason to pick a false age.
     var privacyTier: PrivacyTier {

@@ -128,7 +128,13 @@ struct OnboardingFlow: View {
 
         case .age:
             OnboardingAgeBeat(rail: rail(for: .age, back: .who, skippable: false),
-                              onContinue: { go(choices.asksForLevel ? .level : .path) })
+                              onContinue: {
+                                  // A new age means a new suggested level, so an
+                                  // earlier tap no longer stands in its way.
+                                  pendingLevelId = nil
+                                  pendingPathId = nil
+                                  go(choices.asksForLevel ? .level : .path)
+                              })
 
         case .level:
             OnboardingLevelBeat(levels: choices.levels,
@@ -223,12 +229,13 @@ struct OnboardingFlow: View {
         OnboardingPathChoices(levels: app.catalog.levels, paths: visiblePaths)
     }
 
-    /// The level the level beat shows as chosen: what was tapped, else the level of
-    /// the path chosen so far — so a flow replayed from Settings opens on the
-    /// learner's own level — else the first. Nil when there are no levels.
+    /// The level the level beat shows as chosen: what was tapped, else the level
+    /// the learner's age suggests, else the level of the path chosen so far, else
+    /// the first. Nil when there are no levels.
     private var selectedLevel: OnboardingPathChoices.Level? {
         choices.chosenLevel(tapped: pendingLevelId,
                             tappedPath: pendingPathId,
+                            ageGroup: app.activeProfile.ageGroup,
                             storedPath: app.preferences.currentPathId)
     }
 
@@ -239,11 +246,9 @@ struct OnboardingFlow: View {
     }
 
     /// The path the picker shows as chosen, always one it offers: what was tapped,
-    /// else what Settings already holds, else the first path offered.
+    /// else the first path offered.
     private var selectedPath: PathModel? {
-        choices.chosenPath(in: selectedLevel,
-                           tapped: pendingPathId,
-                           storedPath: app.preferences.currentPathId)
+        choices.chosenPath(in: selectedLevel, tapped: pendingPathId)
     }
 
     /// The drawing the launch and the first beats show, before a path is chosen.

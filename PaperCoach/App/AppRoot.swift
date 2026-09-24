@@ -79,7 +79,9 @@ struct AppRoot: View {
         case .onboarding:
             OnboardingFlow(onFinished: { lesson in
                 app.finishOnboarding()
-                if let lesson { app.showPreview(of: lesson) }
+                // `ob-ready` already showed the lesson and its Start drawing, so
+                // the preview would ask the same question twice: open the player.
+                if let lesson { app.presentPlayer(lesson) }
             })
 
         case let .player(lessonId, resumeFrom):
