@@ -55,9 +55,32 @@ final class PremiumStore {
     }
 
     /// True while the Apple account holds an active subscription, trial included.
-    private(set) var isPremium: Bool {
-        didSet { defaults.set(isPremium, forKey: Self.cacheKey) }
+    /// In a debug build, the override in Settings can say otherwise
+    /// (`debugOverride`).
+    var isPremium: Bool {
+        #if DEBUG
+        switch debugOverride {
+        case .appStore: break
+        case .locked: return false
+        case .unlocked: return true
+        }
+        #endif
+        return hasSubscription
     }
+
+    /// What StoreKit last said about the Apple account, whatever the override.
+    private(set) var hasSubscription: Bool {
+        didSet { defaults.set(hasSubscription, forKey: Self.cacheKey) }
+    }
+
+    /// Development only: "Premium" in Settings can lock or unlock every lesson
+    /// without buying anything, to try both sides of the paywall. Always
+    /// `.appStore` in a release build, which never reads or writes it.
+    enum DebugOverride: String, CaseIterable, Identifiable {
+        case appStore, locked, unlocked
+        var id: String { rawValue }
+    }
+    private(set) var debugOverride: DebugOverride = .appStore
     private(set) var yearly: Product?
     private(set) var weekly: Product?
     private(set) var loadState: LoadState = .idle
@@ -73,11 +96,24 @@ final class PremiumStore {
     private static let log = Logger(subsystem: "com.softroni.papercoach", category: "premium")
 
     static let cacheKey = "premiumActive"
+    static let debugOverrideKey = "premiumDebugOverride"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        isPremium = defaults.bool(forKey: Self.cacheKey)
+        hasSubscription = defaults.bool(forKey: Self.cacheKey)
+        #if DEBUG
+        debugOverride = defaults.string(forKey: Self.debugOverrideKey)
+            .flatMap(DebugOverride.init(rawValue:)) ?? .appStore
+        #endif
     }
+
+    #if DEBUG
+    /// Sets the development override and keeps it across launches.
+    func setDebugOverride(_ choice: DebugOverride) {
+        debugOverride = choice
+        defaults.set(choice.rawValue, forKey: Self.debugOverrideKey)
+    }
+    #endif
 
     // MARK: - Starting
 
@@ -177,7 +213,7 @@ final class PremiumStore {
                 trialEnd = transaction.expirationDate
             }
         }
-        isPremium = active
+        hasSubscription = active
         trialEndsAt = trialEnd
         await TrialReminder.sync(trialEndsAt: trialEnd)
     }
@@ -213,7 +249,8 @@ final class PremiumStore {
     }
 
     /// "Restore": asks the App Store for this account's purchases, then reads them.
-    /// Returns whether Premium is active afterwards.
+    /// Returns whether the account holds Premium afterwards, whatever the
+    /// development override says.
     @discardableResult
     func restore() async -> Bool {
         do {
@@ -222,7 +259,7 @@ final class PremiumStore {
             Self.log.warning("Restore did not finish: \(error.localizedDescription, privacy: .public)")
         }
         await refreshEntitlements()
-        return isPremium
+        return hasSubscription
     }
 }
 

@@ -3,7 +3,7 @@ import SwiftUI
 /// `st-settings` — the third tab: narration and speed, the sketchbook's one option
 /// and its privacy promise, the reminder, Rate and Share (once the app is on the
 /// App Store), Privacy (the published policy), and the single destructive row.
-/// "Reset onboarding" is a development-only row.
+/// "Reset onboarding" and "Premium for testing" are development-only rows.
 /// No account, nothing to manage, nothing that creates an obligation.
 ///
 /// White list cards with 2 pt borders, each opened by a 40 pt tinted icon tile
@@ -266,6 +266,10 @@ struct SettingsView: View {
                             tint: .neutral) {
                     restorePurchases()
                 }
+                #if DEBUG
+                RowDivider()
+                debugPremiumRow
+                #endif
             }
         }
         .alert("Restore purchases",
@@ -276,6 +280,43 @@ struct SettingsView: View {
             Text(restoreMessage ?? "")
         }
     }
+
+    #if DEBUG
+    /// Development only: locks or unlocks every lesson without the App Store, to
+    /// try the crowns, the drawer and the paywall, and then the app as a
+    /// subscriber sees it. "App Store" goes back to what the account really holds.
+    private var debugPremiumRow: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 14) {
+                SettingsIconTile(symbol: "hammer.fill", tint: .neutral)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Premium for testing")
+                        .textRole(.headline)
+                        .foregroundStyle(Theme.ink)
+                    Text("Development builds only. The App Store account is not touched.")
+                        .textRole(.footnote)
+                        .foregroundStyle(Theme.ink55)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            SegmentedPicker(options: PremiumStore.DebugOverride.allCases,
+                            title: { choice in
+                                switch choice {
+                                case .appStore: return "App Store"
+                                case .locked: return "Locked"
+                                case .unlocked: return "Unlocked"
+                                }
+                            },
+                            selection: Binding(get: { app.premium.debugOverride },
+                                               set: { app.premium.setDebugOverride($0) }))
+                .accessibilityLabel("Premium for testing")
+        }
+        .padding(.vertical, 14)
+        .padding(.horizontal, 18)
+    }
+    #endif
 
     private func restorePurchases() {
         guard !isRestoring else { return }

@@ -860,6 +860,9 @@ protected tier needs it.
   a one-week free introductory offer, $19.99/year) and `…premium.weekly` ($1.99/week, no trial), both Family Sharing. `PaperCoach.storekit` at the
   repository root mirrors them at those prices; choose it under Scheme › Run › Options › StoreKit
   Configuration. Premium belongs to the Apple account, so every learner on the device shares it.
+- **Testing without buying** (debug builds only): Settings › Premium › "Premium for testing" switches between
+  App Store (what the account really holds), Locked and Unlocked. It is kept across launches
+  (`PremiumStore.debugOverride`) and never compiled into a release build.
 - **The guided first run** (`AppModel+FirstRun.swift`, stage saved in `Settings.firstRunStage`): `ob-ready` has no
   "Look around first"; the first lesson has no close button or ⋯ menu; completion and the saved photo have no "Next
   lesson" or "Done"; both lead to the sketchbook tour (the lesson's path only, no Paths/Dates switch, no tab bar), then
