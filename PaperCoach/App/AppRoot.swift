@@ -46,7 +46,7 @@ struct AppRoot: View {
                 }
                 await rescheduleReminderIfEnabled()
             }
-            .fullScreenCover(item: $app.cover) { cover in
+            .fullScreenCover(item: $app.cover, onDismiss: app.coverDidDismiss) { cover in
                 content(for: cover)
                     .environment(app)
             }
@@ -78,10 +78,9 @@ struct AppRoot: View {
         switch cover {
         case .onboarding:
             OnboardingFlow(onFinished: { lesson in
-                app.finishOnboarding()
                 // `ob-ready` already showed the lesson and its Start drawing, so
                 // the preview would ask the same question twice: open the player.
-                if let lesson { app.presentPlayer(lesson) }
+                app.finishOnboarding(startingWith: lesson)
             })
 
         case let .player(lessonId, resumeFrom):
