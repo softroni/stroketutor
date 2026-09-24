@@ -1,6 +1,6 @@
 import UIKit
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// Levels group the paths on `hp-paths` and recommend an order to work through
 /// them. They never lock anything, and a catalog without them is still a catalog —

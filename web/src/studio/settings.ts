@@ -1,4 +1,4 @@
-const MODEL_KEY = 'stroketutor:model'
+const MODEL_KEY = 'papercoach:model'
 
 /**
  * The creator's chosen generation model. A per-browser preference, so it lives

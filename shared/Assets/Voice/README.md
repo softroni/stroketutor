@@ -1,7 +1,7 @@
 # Voice
 
 Lina's recordings, written by the Studio (`npm run studio -- voice publish <lesson>`) and bundled by
-the iOS app as `Voice/` — one folder reference in `StrokeTutor.xcodeproj`, so a lesson narrated
+the iOS app as `Voice/` — one folder reference in `PaperCoach.xcodeproj`, so a lesson narrated
 tomorrow needs no change to the project file.
 
 ```
@@ -17,7 +17,7 @@ Voice/
 ```
 
 The shapes are `VoiceManifest` and `AppVoiceManifest` in `web/src/voice/types.ts`; the app reads them
-in `StrokeTutor/Features/Player/VoiceLibrary.swift`. The manifest, not the folder, is what says a
+in `PaperCoach/Features/Player/VoiceLibrary.swift`. The manifest, not the folder, is what says a
 recording exists: a folder without one is a publish that did not finish, and the app stays silent for
 it. A lesson with no recordings is silent and hides its narration chip, which is what every lesson
 did before any audio shipped at all.

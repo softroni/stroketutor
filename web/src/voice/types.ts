@@ -4,7 +4,7 @@
  * voice, Lina, is cast here from candidate voices, and lessons are narrated
  * with the cast voice, then published as `shared/Assets/Voice/<lessonId>/`
  * (one AAC file per step and a manifest), exactly as
- * `StrokeTutor/Features/Player/NarrationPlayer.swift` expects.
+ * `PaperCoach/Features/Player/NarrationPlayer.swift` expects.
  *
  * Speech is made on the creator's private text-to-speech server (an MLX-Audio
  * server on their tailnet, OpenAI-compatible `/v1/audio/speech`), never by an

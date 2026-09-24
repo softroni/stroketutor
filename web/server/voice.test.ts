@@ -53,7 +53,7 @@ let converter: ReturnType<typeof fakeConverter>
 let deps: VoiceDeps
 
 beforeEach(async () => {
-  root = await mkdtemp(path.join(tmpdir(), 'stroketutor-voice-'))
+  root = await mkdtemp(path.join(tmpdir(), 'papercoach-voice-'))
   shared = path.join(root, 'shared')
   for (const folder of ['Tutorials', 'Catalog', 'Assets']) {
     await cp(path.join(FIXTURE_SHARED, folder), path.join(shared, folder), { recursive: true })
@@ -520,7 +520,7 @@ describe('writing the spoken lines', () => {
 
     const body = router.calls[0].body
     expect(body.model).toBe('vendor/text-model')
-    expect((body.response_format as { json_schema: { name: string } }).json_schema.name).toBe('stroketutor_spoken_lines')
+    expect((body.response_format as { json_schema: { name: string } }).json_schema.name).toBe('papercoach_spoken_lines')
     const system = (body.messages as { content: string }[])[0].content
     expect(system).toContain('At most 22 words')
     expect(system).toContain('At most one exclamation mark in the whole lesson')

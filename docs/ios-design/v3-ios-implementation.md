@@ -11,21 +11,21 @@ checklist) for everything v3 did not restate.
 
 **Constraints**
 - iOS 17+, SwiftUI, Swift 5 language mode, no third-party packages. Xcode 26 with the iPhone 17 simulator.
-- The Xcode project uses folder-synchronized groups: any file under `StrokeTutor/` is compiled, any file under
-  `StrokeTutorTests/` is a test. Never edit `project.pbxproj` by hand. `shared/Tutorials`, `shared/Catalog` and
+- The Xcode project uses folder-synchronized groups: any file under `PaperCoach/` is compiled, any file under
+  `PaperCoachTests/` is a test. Never edit `project.pbxproj` by hand. `shared/Tutorials`, `shared/Catalog` and
   `shared/Assets/References` are bundled as folder references (`Tutorials/`, `Catalog/`, `References/` in the bundle).
 - The existing player core stays and is wrapped: `PlayerViewModel` (state machine), `DrawingCanvasView`,
   `StrokeShape`, `SVGPathParser`, `TutorialLoader` (lenient), `TutorialLibrary`. Change them only where this plan says.
 - Everything in `shared/` is read-only for this work. Do not touch `web/`.
 - Tone: adult, calm, short sentences (BRIEF §Tone). At most one exclamation mark in the whole app.
-- Build and run only in the simulator: `xcodebuild -project StrokeTutor.xcodeproj -scheme StrokeTutor -destination
+- Build and run only in the simulator: `xcodebuild -project PaperCoach.xcodeproj -scheme PaperCoach -destination
   'platform=iOS Simulator,name=iPhone 17' -derivedDataPath <your own path> build`. Tests: the same with `test`.
 
 ## Architecture
 
 ```
-StrokeTutor/
-  StrokeTutorApp.swift          @main → AppRoot
+PaperCoach/
+  PaperCoachApp.swift          @main → AppRoot
   App/
     AppRoot.swift               first run → OnboardingFlow (fullScreenCover), else MainTabs; presents the player cover
     AppModel.swift              @Observable @MainActor: catalog, library, progress, sketchbook, settings, navigation

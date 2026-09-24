@@ -1,5 +1,5 @@
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// `ob-level` asks how much the learner has drawn, and `ob-path` then offers at most
 /// four paths of that level. Both are worked out from the catalog alone, so these

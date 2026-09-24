@@ -4,13 +4,13 @@ A guided physical-sketching system for adult beginners. The phone is a calm inst
 meaningful drawing step, stops, and waits while the learner copies that step onto real paper with a real pen.
 Nothing continues until the learner taps "I drew it".
 
-The direction of the project is set by the master plan, [docs/StrokeTutor_Master_Plan.pdf](docs/StrokeTutor_Master_Plan.pdf).
+The direction of the project is set by the master plan, [docs/PaperCoach_Master_Plan.pdf](docs/PaperCoach_Master_Plan.pdf).
 Read it before proposing architecture, schema or content-pipeline changes. This README tracks delivery of that
 plan as milestones.
 
 ```
 shared/                 contract read by both players: schema v1, Tutorials/, conformance/
-StrokeTutor/            SwiftUI learner app (iOS)        StrokeTutorTests/  iOS tests
+PaperCoach/            SwiftUI learner app (iOS)        PaperCoachTests/  iOS tests
 web/                    React/Vite player → Paper Coach Studio (private authoring tool)
 docs/                   master plan
 ```
@@ -472,7 +472,7 @@ OpenRouter stays optional (`--model`). See [web/README.md](web/README.md#the-com
   the file work, validating with the Studio's own validators loaded through Vite rather than a copy of them.
 - **How writes are guarded:**
   - A write names the version it replaces: a SHA-256 of the file as read. A stale version gets 409, and a missing one on an existing file gets 428.
-  - Writes must be same-origin and carry an `X-StrokeTutor-Studio` header.
+  - Writes must be same-origin and carry an `X-PaperCoach-Studio` header.
   - Files are written to a temporary name, then renamed into place.
 - **Reading through the API.** In dev the Studio reads `shared/` through `/api/library` instead of bundling it, so a save never reloads the page.
   Without the server (a static build) it falls back to a read-only bundled copy. *If a dev server served the Studio from before M3, restart it
@@ -841,7 +841,7 @@ the Kids category, so it is a mixed-audience app: the audience is 8 to 16, and a
 "Prefer not to say". The answer and its date are kept on each profile, with stable keys (`under6` … `18plus`,
 `preferNotToSay`), and can be changed on the learner's page in Settings. When a PIN is set, moving someone to a less
 protected tier needs it.
-- **`Analytics`** (`StrokeTutor/App/Analytics.swift`) is the only way out. Today its sink is `NoAnalyticsSink`, so
+- **`Analytics`** (`PaperCoach/App/Analytics.swift`) is the only way out. Today its sink is `NoAnalyticsSink`, so
   nothing is sent. A PostHog or Superwall sink must honour `AnalyticsPolicy`:
   - under 13, "prefer not to say" or never asked: anonymous events, with an id that lasts one launch;
   - 13 to 17: the profile's own id, no session replay;
@@ -861,7 +861,7 @@ Recorded 2026-09-11 on the PoC as first committed (`c43cd04`), with no code chan
 |---|---|
 | `npm test` (Vitest 3.2) | ✅ 58 passed: 25 SVG path parser, 33 conformance and golden-file |
 | `npm run build` (tsc + Vite 6.4) | ✅ 175 modules, 301 kB JS (96 kB gzip) |
-| `xcodebuild test` (Xcode 26.6, iPhone 17 simulator) | ✅ 35 passed, 0 failures, across the 3 suites in `StrokeTutorTests/` |
+| `xcodebuild test` (Xcode 26.6, iPhone 17 simulator) | ✅ 35 passed, 0 failures, across the 3 suites in `PaperCoachTests/` |
 | simple-house / cat-face on web | ✅ both load and animate; "Step 1 of 5 · Draw the walls" / "Step 1 of 6 · Draw the head" |
 | simple-house / cat-face on iOS | ✅ both selectable and animating in the simulator |
 
@@ -892,7 +892,7 @@ are rejected by the web and tolerated (clamped, ignored or defaulted, with a war
 2. Implement the milestone's checklist.
 3. `cd web && npm test && npm run build`. Run the iOS tests too when `shared/` or iOS changed:
    ```bash
-   xcodebuild test -project StrokeTutor.xcodeproj -scheme StrokeTutor -destination 'platform=iOS Simulator,name=iPhone 17'
+   xcodebuild test -project PaperCoach.xcodeproj -scheme PaperCoach -destination 'platform=iOS Simulator,name=iPhone 17'
    ```
 4. Verify UI changes in the browser (`npm run dev`).
 5. Update the table, the checklist and **Next up** here. Record any departure from the master plan, with the reason.

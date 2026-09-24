@@ -1,6 +1,6 @@
 import CoreGraphics
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The sketchbook rule: which drawings get the wide page on their side and the
 /// "turn sideways" nudge upright. The line is 4:3 either way, so the rule is only

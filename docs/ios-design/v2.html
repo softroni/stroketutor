@@ -235,7 +235,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
 /* ============================================================================
    Paper Coach iOS design system (mockup tokens)
    Shared by every screen fragment in docs/ios-design/src/screens/.
-   Values mirror StrokeTutor/Views/Theme.swift where one exists; the rest are
+   Values mirror PaperCoach/Views/Theme.swift where one exists; the rest are
    proposals for M7 and are documented in the handbook.
    1 CSS px = 1 iOS point. Phone frame = iPhone 16 Pro logical size (393 × 852).
    ========================================================================== */
@@ -734,7 +734,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
 
     <article class="handbook is-active" id="handbook">
       <h2>Developer handbook</h2>
-<p>This document is the layout and behaviour specification for the Paper Coach iOS learner app: every screen, every state, and the notes an engineer needs to build it in SwiftUI. It was designed from the master plan (<code>docs/StrokeTutor_Master_Plan.pdf</code>, Part VI §29–§32 and Part I §1–§7), from the player that already exists in <code>StrokeTutor/</code>, and from Duolingo's onboarding, home and completion patterns on Mobbin, used for craft only. Nothing in <code>StrokeTutor/</code>, <code>web/</code> or <code>shared/</code> was changed to make it.</p>
+<p>This document is the layout and behaviour specification for the Paper Coach iOS learner app: every screen, every state, and the notes an engineer needs to build it in SwiftUI. It was designed from the master plan (<code>docs/PaperCoach_Master_Plan.pdf</code>, Part VI §29–§32 and Part I §1–§7), from the player that already exists in <code>PaperCoach/</code>, and from Duolingo's onboarding, home and completion patterns on Mobbin, used for craft only. Nothing in <code>PaperCoach/</code>, <code>web/</code> or <code>shared/</code> was changed to make it.</p>
 
 <h3>How to read this document</h3>
 <ul>
@@ -7084,7 +7084,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
             <div class="list">
               <div class="list-row">
                 <span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-info"/></svg></span>
-                <span class="grow"><span class="lbl">Contact</span><span class="sub">hello@stroketutor.app</span></span>
+                <span class="grow"><span class="lbl">Contact</span><span class="sub">hello@papercoach.app</span></span>
                 <svg class="chevron"><use href="#i-chevron-right"/></svg>
               </div>
               <div class="list-row">
@@ -7188,7 +7188,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
               <p class="t-body-reg muted">The camera is used in one place: photographing your finished page. The photo goes straight into your sketchbook on this iPhone.</p>
             </div>
 
-            <p class="cap">Questions: hello@stroketutor.app</p>
+            <p class="cap">Questions: hello@papercoach.app</p>
           </div>
           <div class="home-indicator"></div>
         </div>
@@ -7234,7 +7234,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
         <li><em>Analytics at all?</em> “No analytics by default” is written above. The honest options are none, or a strictly local, opt-in, aggregate-only counter that is never transmitted. Anything else means rewriting this page and filling in App Privacy — and an analytics SDK is the first thing that would break the “no network connection” claim.</li>
         <li><em>Crash reporting</em> counts as analytics to a reader, even though Apple's own crash reports are opt-in at the OS level and collect nothing for us. Recommendation: rely on Xcode Organizer only, and say nothing, because nothing is collected by us.</li>
         <li><em>iCloud backup of the sketchbook.</em> Included in the device backup by default, which most people want and which contradicts nothing on this page — but “stays on this device” is then approximately, not literally, true. Recommendation: leave backup on and change the line to “Your drawings stay on this iPhone and in your own iPhone backup.”</li>
-        <li><em>Contact address.</em> <code>hello@stroketutor.app</code> is a placeholder; App Store review requires a real, monitored one.</li>
+        <li><em>Contact address.</em> <code>hello@papercoach.app</code> is a placeholder; App Store review requires a real, monitored one.</li>
         <li><em>Privacy policy URL.</em> The App Store listing requires a hosted policy even when the app collects nothing. That URL is the one piece of this that cannot live only in the app — and opening it is the one thing on this screen that needs the network, which is why it is a listing link rather than a row here.</li>
       </ul>
 
@@ -7263,7 +7263,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
       <ul>
         <li>Credit rows are one element each: “House With Chimney. Unsplash, Unsplash License.” The thumbnail is decorative.</li>
         <li>The privacy list is read as five statements; do not make them buttons, they do nothing.</li>
-        <li>Contact row opens Mail via <code>mailto:</code>; label it “Contact, hello@stroketutor.app” with hint “Opens Mail.”</li>
+        <li>Contact row opens Mail via <code>mailto:</code>; label it “Contact, hello@papercoach.app” with hint “Opens Mail.”</li>
       </ul>
 
       <h4>Open questions</h4>

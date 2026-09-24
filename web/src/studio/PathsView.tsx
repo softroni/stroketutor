@@ -91,7 +91,7 @@ function matches(row: Row, filter: Filter): boolean {
   }
 }
 
-const UI_KEY = 'stroketutor.studio.paths'
+const UI_KEY = 'papercoach.studio.paths'
 
 interface ViewPrefs {
   filter: Filter
@@ -121,8 +121,8 @@ function writePrefs(prefs: ViewPrefs) {
   }
 }
 
-const PATH_DRAG = 'application/x-stroketutor-path'
-const LESSON_DRAG = 'application/x-stroketutor-lesson'
+const PATH_DRAG = 'application/x-papercoach-path'
+const LESSON_DRAG = 'application/x-papercoach-lesson'
 
 /**
  * The curriculum (master plan §15): every path, the lessons of the selected

@@ -1,6 +1,6 @@
 import SwiftUI
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The player's state machine. The rule these cover is the one a learner feels:
 /// the primary button always does what its label says, whether or not Lina has

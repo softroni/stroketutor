@@ -1,6 +1,6 @@
 import UIKit
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The corner geometry behind auto-crop and the corner editor, the perspective
 /// correction, and Vision's detection on the screenshot harness's synthetic photo.

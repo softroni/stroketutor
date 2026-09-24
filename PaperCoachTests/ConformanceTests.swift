@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// Runs the shared conformance corpus.
 ///

@@ -1,6 +1,6 @@
 import CoreGraphics
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 final class SVGPathParserTests: XCTestCase {
 

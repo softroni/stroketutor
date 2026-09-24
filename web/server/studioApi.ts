@@ -51,7 +51,7 @@ import { openWorkspace, type Workspace } from './workspaceStore'
  * refuses for foreign origins, so a stray website cannot write into the
  * repository or spend OpenRouter credits.
  */
-export const STUDIO_HEADER = 'x-stroketutor-studio'
+export const STUDIO_HEADER = 'x-papercoach-studio'
 
 const MAX_JSON_BYTES = 2 * 1024 * 1024
 /** A generation request carries the photo as base64, a third larger than the file. */
@@ -162,7 +162,7 @@ export function studioApi(options: StudioApiOptions): Plugin {
   }
 
   return {
-    name: 'stroketutor-studio-api',
+    name: 'papercoach-studio-api',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/api', (req, res) => {

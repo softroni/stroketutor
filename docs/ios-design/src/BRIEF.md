@@ -2,7 +2,7 @@
 
 You are designing one part of the Paper Coach iOS learner app as an interactive HTML mockup with developer notes.
 Read this file, then `CONTRACT.md`, `design-system.css`, `symbols.svg.html` and `screens/_example.html`.
-The repo root is `/Users/zakaria/dev/softroni/stroketutor`; the master plan is `docs/StrokeTutor_Master_Plan.pdf`
+The repo root is `/Users/zakaria/dev/softroni/stroketutor`; the master plan is `docs/PaperCoach_Master_Plan.pdf`
 (a text extraction is at the path given in your prompt). Do not change anything outside `docs/ios-design/src/screens/`.
 
 ## The product in one paragraph
@@ -62,7 +62,7 @@ in a calm adult voice — do that in your mockups, e.g. "Draw one square in the 
 wall."
 
 ## The player today (EXISTING — mirror it, then improve it)
-`StrokeTutor/Player/PlayerViewModel.swift` state machine: `idle → drawing(step) → awaitingUser(step) → drawing(step+1)
+`PaperCoach/Player/PlayerViewModel.swift` state machine: `idle → drawing(step) → awaitingUser(step) → drawing(step+1)
 … → finished`. Strokes in a step play strictly in sequence; a pencil-tip dot follows the active stroke; earlier steps
 stay on the paper faded; the current step draws over them; the finished screen shows the whole drawing at full
 strength. Controls: **I drew it** (primary, green, 68 pt, 26 pt heavy rounded), **Watch again** (secondary), and a

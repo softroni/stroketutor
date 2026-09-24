@@ -1,5 +1,5 @@
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// Home, the green outline on the path cards and the Path tab's root all read
 /// `currentPath`. Choosing a path must update that value and bring the Path tab

@@ -115,7 +115,7 @@ type SaveState =
   | { kind: 'saving' }
   | { kind: 'failed'; message: string; issues: ValidationIssue[] }
 
-const PREFS_KEY = 'stroketutor.studio.workspace'
+const PREFS_KEY = 'papercoach.studio.workspace'
 
 interface WorkspacePrefs {
   rail: boolean

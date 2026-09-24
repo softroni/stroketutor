@@ -1,6 +1,6 @@
 import UIKit
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// Profiles: each learner's data stays their own, the move from a pre-profiles install
 /// survives being interrupted, and a switch never lets one learner's work land in

@@ -1,7 +1,7 @@
 import CoreGraphics
 import SwiftUI
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 final class TutorialLoaderTests: XCTestCase {
 

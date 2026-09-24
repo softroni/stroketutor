@@ -1,6 +1,6 @@
 import SwiftUI
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The Lessons tab's search: what a learner types and what it finds.
 final class LessonSearchTests: XCTestCase {

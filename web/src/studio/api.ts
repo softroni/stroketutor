@@ -8,7 +8,7 @@ import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput
 import { mockVoiceApi } from './voice/mockVoiceApi'
 
 // Every write carries this header; see STUDIO_HEADER in server/studioApi.ts.
-const WRITE_HEADERS = { 'X-StrokeTutor-Studio': '1' }
+const WRITE_HEADERS = { 'X-PaperCoach-Studio': '1' }
 
 /** A refusal from the Studio server, with the validation issues behind it. */
 export class ApiError extends Error {

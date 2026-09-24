@@ -92,7 +92,7 @@ export async function requestLesson(
   options: OpenRouterOptions,
 ): Promise<Candidate> {
   const completion = await completeJSON(
-    { model: request.model, messages: buildMessages(request), schemaName: 'stroketutor_lesson', schema: OUTPUT_SCHEMA },
+    { model: request.model, messages: buildMessages(request), schemaName: 'papercoach_lesson', schema: OUTPUT_SCHEMA },
     options,
   )
   const output = parseOutput(completion.content)

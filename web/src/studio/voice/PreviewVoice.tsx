@@ -9,7 +9,7 @@ import { routeHref } from '../route'
 
 import { useAudioPlayer } from './useAudioPlayer'
 
-const SPEAK_KEY = 'stroketutor.studio.preview.speak'
+const SPEAK_KEY = 'papercoach.studio.preview.speak'
 
 /**
  * Lina in the lesson's Preview: each step is spoken as the learner would hear

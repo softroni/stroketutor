@@ -22,7 +22,7 @@ let writer: RepoWriter
 let workspace: Workspace
 
 beforeEach(async () => {
-  root = await mkdtemp(path.join(tmpdir(), 'stroketutor-workspace-'))
+  root = await mkdtemp(path.join(tmpdir(), 'papercoach-workspace-'))
   shared = path.join(root, 'shared')
   for (const folder of ['Tutorials', 'Catalog', 'Assets']) {
     await cp(path.join(FIXTURE_SHARED, folder), path.join(shared, folder), { recursive: true })

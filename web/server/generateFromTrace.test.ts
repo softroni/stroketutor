@@ -99,7 +99,7 @@ describe('generateFromTrace', () => {
 
     // The model saw positions and sizes, never path data, and then the picture.
     const body = router.calls[0].body
-    expect(body.response_format.json_schema.name).toBe('stroketutor_svg_lesson')
+    expect(body.response_format.json_schema.name).toBe('papercoach_svg_lesson')
     const user = body.messages[1]
     expect(user.content[0].text).toContain('s2: 100,100 to 300,300; 200; open')
     expect(user.content[0].text).toContain('f1: #E8C872')

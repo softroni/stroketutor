@@ -28,7 +28,7 @@ export interface StepEditorProps {
   stepVoice?: (stepId: string) => ReactNode
 }
 
-const STEP_DRAG_TYPE = 'application/x-stroketutor-step'
+const STEP_DRAG_TYPE = 'application/x-papercoach-step'
 
 /**
  * The teaching structure, editable (§18). Every step is one compact line with

@@ -267,7 +267,7 @@ describe('regenerate', () => {
 
     const body = router.calls[0].body
     expect(body.max_tokens).toBe(REGENERATE_OUTPUT_TOKENS)
-    expect(body.response_format.json_schema.name).toBe('stroketutor_instructions')
+    expect(body.response_format.json_schema.name).toBe('papercoach_instructions')
     const [system, user] = body.messages
     expect(system.content).toContain('Your layer: the words.')
     const text = user.content[0].text

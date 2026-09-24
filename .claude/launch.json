@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "stroketutor-web",
+      "name": "papercoach-web",
       "runtimeExecutable": "npm",
       "runtimeArgs": [
         "--prefix",

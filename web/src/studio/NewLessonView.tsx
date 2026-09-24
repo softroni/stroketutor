@@ -738,7 +738,7 @@ function PhotoDrop({
   )
 }
 
-const RECENT_KEY = 'stroketutor.studio.recentReferences'
+const RECENT_KEY = 'papercoach.studio.recentReferences'
 
 interface RecentReferences {
   sources: string[]

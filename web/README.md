@@ -2,13 +2,13 @@
 
 The private authoring tool for Paper Coach lessons, built around the browser player that
 tutorials are tested on before they ship to the iOS app. See the
-[master plan](../docs/StrokeTutor_Master_Plan.pdf) (Part III) and the milestone tracker in the
+[master plan](../docs/PaperCoach_Master_Plan.pdf) (Part III) and the milestone tracker in the
 [root README](../README.md).
 
 Both apps read the same JSON — literally the same files, in [`../shared`](../shared).
 The schema, the golden tutorials, the curriculum catalog and the conformance corpus live there
 and are read by this app and by the iOS target; neither side keeps a copy. `src/player/svgPath.ts`
-is a port of `StrokeTutor/Parsing/SVGPathParser.swift` — same grammar, same
+is a port of `PaperCoach/Parsing/SVGPathParser.swift` — same grammar, same
 rejections, same character indices in error messages.
 
 What keeps the two honest is `shared/conformance/`: a corpus of documents with the
@@ -179,7 +179,7 @@ touches `shared/`, and only when publishing or unpublishing:
   replaces, and a file changed on disk in the meantime is refused rather than overwritten;
 - atomically (temporary file, then rename), formatted like the hand-written golden files.
 
-Writes must be same-origin and carry an `X-StrokeTutor-Studio` header. In dev the Studio reads the
+Writes must be same-origin and carry an `X-PaperCoach-Studio` header. In dev the Studio reads the
 working library through `/api/library` rather than bundling it, so saving never reloads the page.
 
 The workspace saves each edit about a second after the creator stops, one save at a time, naming the
@@ -199,7 +199,7 @@ The tutor has a voice, Lina, and she is cast here rather than chosen once in cod
 several candidates, has each read the same audition lines, and the creator picks one. Every lesson is
 then narrated with that voice, one recording per step, and published as
 `shared/Assets/Voice/<lessonId>/<stepId>.m4a` with a `manifest.json` beside it — exactly what
-`StrokeTutor/Features/Player/NarrationPlayer.swift` opens.
+`PaperCoach/Features/Player/NarrationPlayer.swift` opens.
 
 Speech is made on the creator's own Mac (an MLX-Audio server on their tailnet), never by an outside
 provider and never with a key. `STUDIO_TTS_URL` is the speech endpoint (default

@@ -1,5 +1,5 @@
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The age group: its stored keys never move, an older `profile.json` still reads,
 /// the PIN guards only the changes that loosen a child's protections, and what

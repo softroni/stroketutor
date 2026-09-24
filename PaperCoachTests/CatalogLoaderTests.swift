@@ -1,5 +1,5 @@
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The catalog is what decides which lessons exist and in what order, so these
 /// tests guard both the shipped files and the loader's leniency.
@@ -74,12 +74,12 @@ final class CatalogLoaderTests: XCTestCase {
 
     static func temporaryDirectory() -> URL {
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("StrokeTutorTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("PaperCoachTests-\(UUID().uuidString)", isDirectory: true)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }
 
     static func scratchDefaults() -> UserDefaults {
-        UserDefaults(suiteName: "StrokeTutorTests-\(UUID().uuidString)") ?? .standard
+        UserDefaults(suiteName: "PaperCoachTests-\(UUID().uuidString)") ?? .standard
     }
 }

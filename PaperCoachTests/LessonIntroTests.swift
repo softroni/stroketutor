@@ -1,6 +1,6 @@
 import SwiftUI
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The intro before step one keeps the timeline of `web/src/player/intro.ts` and the
 /// words of `web/src/voice/bookends.ts`, so the app and the Studio agree.

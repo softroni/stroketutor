@@ -16,7 +16,7 @@ let shared: string
 let workspace: Workspace
 
 beforeEach(async () => {
-  root = await mkdtemp(path.join(tmpdir(), 'stroketutor-history-'))
+  root = await mkdtemp(path.join(tmpdir(), 'papercoach-history-'))
   shared = path.join(root, 'shared')
   await cp(path.join(FIXTURE_SHARED, 'Tutorials'), path.join(shared, 'Tutorials'), { recursive: true })
   await cp(path.join(FIXTURE_SHARED, 'Catalog'), path.join(shared, 'Catalog'), { recursive: true })

@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// What the app reads out of `Voice/`, and what it says when the folder is not what
 /// it expects. The contract is `web/src/voice/types.ts` (`VoiceManifest`,

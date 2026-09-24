@@ -143,6 +143,6 @@ lives in the Studio's workspace only: **a planned lesson is never published**, s
 
 ```bash
 cd web && npm test
-xcodebuild test -project StrokeTutor.xcodeproj -scheme StrokeTutor \
+xcodebuild test -project PaperCoach.xcodeproj -scheme PaperCoach \
   -destination 'platform=iOS Simulator,name=iPhone 17'
 ```

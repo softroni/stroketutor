@@ -16,7 +16,7 @@ let writer: RepoWriter
 
 beforeEach(async () => {
   // A scratch copy of the frozen shared/, with a sibling file the writer must never reach.
-  root = await mkdtemp(path.join(tmpdir(), 'stroketutor-writer-'))
+  root = await mkdtemp(path.join(tmpdir(), 'papercoach-writer-'))
   shared = path.join(root, 'shared')
   await cp(path.join(FIXTURE_SHARED, 'Tutorials'), path.join(shared, 'Tutorials'), { recursive: true })
   await cp(path.join(FIXTURE_SHARED, 'Catalog'), path.join(shared, 'Catalog'), { recursive: true })

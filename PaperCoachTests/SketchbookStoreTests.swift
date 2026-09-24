@@ -1,6 +1,6 @@
 import UIKit
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The sketchbook writes real files, so every test here works in a temporary
 /// directory and cleans up after itself.

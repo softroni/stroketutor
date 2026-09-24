@@ -41,7 +41,7 @@ export interface Outcome {
 export async function openTestStudio(
   options: { generation?: Partial<GenerateDeps>; browser?: BrowserBridge; tts?: Partial<TtsDeps> } = {},
 ): Promise<TestStudio> {
-  const root = await mkdtemp(path.join(tmpdir(), 'stroketutor-cli-'))
+  const root = await mkdtemp(path.join(tmpdir(), 'papercoach-cli-'))
   const shared = path.join(root, 'shared')
   for (const folder of ['Tutorials', 'Catalog', 'Assets']) {
     await cp(path.join(FIXTURE_SHARED, folder), path.join(shared, folder), { recursive: true })

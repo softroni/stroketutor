@@ -1,5 +1,5 @@
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 /// The unlock rule and the JSON round-trip. Every store here is pointed at a
 /// temporary directory, so a test never touches the simulator's real data.

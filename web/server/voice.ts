@@ -536,7 +536,7 @@ export async function writeSpokenLines(
         note,
         keepWritten: !overwrite,
       }),
-      schemaName: 'stroketutor_spoken_lines',
+      schemaName: 'papercoach_spoken_lines',
       schema: SPOKEN_LINES_SCHEMA,
     },
     { apiKey, ...(generation.fetch ? { fetch: generation.fetch } : {}) },

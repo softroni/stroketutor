@@ -200,7 +200,7 @@ export async function addReference(
     params: {
       protocolVersion: '2025-03-26',
       capabilities: {},
-      clientInfo: { name: 'stroketutor-studio', version: '1' },
+      clientInfo: { name: 'papercoach-studio', version: '1' },
     },
   })
   await rpc(deps, { jsonrpc: '2.0', method: 'notifications/initialized' })
@@ -311,7 +311,7 @@ const CONVERTERS: { command: string; args: (input: string, output: string) => st
  * files the Studio wrote itself into a temporary directory.
  */
 export async function convertToM4a(wav: Uint8Array): Promise<Uint8Array> {
-  const folder = await mkdtemp(path.join(tmpdir(), 'stroketutor-voice-'))
+  const folder = await mkdtemp(path.join(tmpdir(), 'papercoach-voice-'))
   const input = path.join(folder, 'line.wav')
   const output = path.join(folder, 'line.m4a')
   try {

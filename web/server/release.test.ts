@@ -23,8 +23,8 @@ let deps: VoiceDeps
 let git: Git
 
 beforeEach(async () => {
-  root = await mkdtemp(path.join(tmpdir(), 'stroketutor-release-'))
-  remote = await mkdtemp(path.join(tmpdir(), 'stroketutor-remote-'))
+  root = await mkdtemp(path.join(tmpdir(), 'papercoach-release-'))
+  remote = await mkdtemp(path.join(tmpdir(), 'papercoach-remote-'))
   const shared = path.join(root, 'shared')
   for (const folder of ['Tutorials', 'Catalog', 'Assets']) {
     await cp(path.join(FIXTURE_SHARED, folder), path.join(shared, folder), { recursive: true })

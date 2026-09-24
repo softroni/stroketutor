@@ -20,14 +20,14 @@
 			containerPortal = AB0000000000000000000041 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = AB000000000000000000003A;
-			remoteInfo = StrokeTutor;
+			remoteInfo = PaperCoach;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		AB0000000000000000000027 /* Tutorials */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Tutorials; sourceTree = "<group>"; };
-		AB000000000000000000002A /* StrokeTutor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StrokeTutor.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AB000000000000000000002B /* StrokeTutorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StrokeTutorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB000000000000000000002A /* PaperCoach.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PaperCoach.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB000000000000000000002B /* PaperCoachTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PaperCoachTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB0000000000000000000050 /* conformance */ = {isa = PBXFileReference; lastKnownFileType = folder; path = conformance; sourceTree = "<group>"; };
 		AB0000000000000000000055 /* tutorial.schema.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tutorial.schema.json; sourceTree = "<group>"; };
 		AB0000000000000000000061 /* Catalog */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Catalog; sourceTree = "<group>"; };
@@ -41,13 +41,13 @@
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = AB000000000000000000003A /* StrokeTutor */;
+			target = AB000000000000000000003A /* PaperCoach */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AB0000000000000000000031 /* StrokeTutor */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB0000000000000000000060 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = StrokeTutor; sourceTree = "<group>"; };
-		AB0000000000000000000032 /* StrokeTutorTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = StrokeTutorTests; sourceTree = "<group>"; };
+		AB0000000000000000000031 /* PaperCoach */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB0000000000000000000060 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PaperCoach; sourceTree = "<group>"; };
+		AB0000000000000000000032 /* PaperCoachTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PaperCoachTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,8 +71,8 @@
 		AB0000000000000000000033 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AB000000000000000000002A /* StrokeTutor.app */,
-				AB000000000000000000002B /* StrokeTutorTests.xctest */,
+				AB000000000000000000002A /* PaperCoach.app */,
+				AB000000000000000000002B /* PaperCoachTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -80,8 +80,8 @@
 		AB0000000000000000000034 = {
 			isa = PBXGroup;
 			children = (
-				AB0000000000000000000031 /* StrokeTutor */,
-				AB0000000000000000000032 /* StrokeTutorTests */,
+				AB0000000000000000000031 /* PaperCoach */,
+				AB0000000000000000000032 /* PaperCoachTests */,
 				AB0000000000000000000056 /* shared */,
 				AB0000000000000000000033 /* Products */,
 			);
@@ -103,9 +103,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AB000000000000000000003A /* StrokeTutor */ = {
+		AB000000000000000000003A /* PaperCoach */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AB000000000000000000003D /* Build configuration list for PBXNativeTarget "StrokeTutor" */;
+			buildConfigurationList = AB000000000000000000003D /* Build configuration list for PBXNativeTarget "PaperCoach" */;
 			buildPhases = (
 				AB0000000000000000000035 /* Sources */,
 				AB0000000000000000000037 /* Frameworks */,
@@ -116,16 +116,16 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				AB0000000000000000000031 /* StrokeTutor */,
+				AB0000000000000000000031 /* PaperCoach */,
 			);
-			name = StrokeTutor;
-			productName = StrokeTutor;
-			productReference = AB000000000000000000002A /* StrokeTutor.app */;
+			name = PaperCoach;
+			productName = PaperCoach;
+			productReference = AB000000000000000000002A /* PaperCoach.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AB000000000000000000003B /* StrokeTutorTests */ = {
+		AB000000000000000000003B /* PaperCoachTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AB000000000000000000003E /* Build configuration list for PBXNativeTarget "StrokeTutorTests" */;
+			buildConfigurationList = AB000000000000000000003E /* Build configuration list for PBXNativeTarget "PaperCoachTests" */;
 			buildPhases = (
 				AB0000000000000000000038 /* Sources */,
 				AB0000000000000000000039 /* Frameworks */,
@@ -137,11 +137,11 @@
 				AB000000000000000000003F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				AB0000000000000000000032 /* StrokeTutorTests */,
+				AB0000000000000000000032 /* PaperCoachTests */,
 			);
-			name = StrokeTutorTests;
-			productName = StrokeTutorTests;
-			productReference = AB000000000000000000002B /* StrokeTutorTests.xctest */;
+			name = PaperCoachTests;
+			productName = PaperCoachTests;
+			productReference = AB000000000000000000002B /* PaperCoachTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -163,7 +163,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AB000000000000000000003C /* Build configuration list for PBXProject "StrokeTutor" */;
+			buildConfigurationList = AB000000000000000000003C /* Build configuration list for PBXProject "PaperCoach" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -176,8 +176,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AB000000000000000000003A /* StrokeTutor */,
-				AB000000000000000000003B /* StrokeTutorTests */,
+				AB000000000000000000003A /* PaperCoach */,
+				AB000000000000000000003B /* PaperCoachTests */,
 			);
 		};
 /* End PBXProject section */
@@ -224,7 +224,7 @@
 /* Begin PBXTargetDependency section */
 		AB000000000000000000003F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AB000000000000000000003A /* StrokeTutor */;
+			target = AB000000000000000000003A /* PaperCoach */;
 			targetProxy = AB0000000000000000000040 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -287,7 +287,7 @@
 				DEVELOPMENT_TEAM = PLQFG9VC25;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = StrokeTutor/Info.plist;
+				INFOPLIST_FILE = PaperCoach/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -295,7 +295,7 @@
 				MARKETING_VERSION = 1.0;
 				INFOPLIST_KEY_CFBundleDisplayName = "Paper Coach";
 				PRODUCT_BUNDLE_IDENTIFIER = com.softroni.papercoach;
-				PRODUCT_NAME = "Paper Coach";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -312,7 +312,7 @@
 				DEVELOPMENT_TEAM = PLQFG9VC25;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = StrokeTutor/Info.plist;
+				INFOPLIST_FILE = PaperCoach/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -320,7 +320,7 @@
 				MARKETING_VERSION = 1.0;
 				INFOPLIST_KEY_CFBundleDisplayName = "Paper Coach";
 				PRODUCT_BUNDLE_IDENTIFIER = com.softroni.papercoach;
-				PRODUCT_NAME = "Paper Coach";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -338,7 +338,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StrokeTutor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/StrokeTutor";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PaperCoach.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PaperCoach";
 			};
 			name = Debug;
 		};
@@ -354,14 +354,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StrokeTutor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/StrokeTutor";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PaperCoach.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PaperCoach";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AB000000000000000000003C /* Build configuration list for PBXProject "StrokeTutor" */ = {
+		AB000000000000000000003C /* Build configuration list for PBXProject "PaperCoach" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AB0000000000000000000042 /* Debug */,
@@ -370,7 +370,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AB000000000000000000003D /* Build configuration list for PBXNativeTarget "StrokeTutor" */ = {
+		AB000000000000000000003D /* Build configuration list for PBXNativeTarget "PaperCoach" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AB0000000000000000000044 /* Debug */,
@@ -379,7 +379,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AB000000000000000000003E /* Build configuration list for PBXNativeTarget "StrokeTutorTests" */ = {
+		AB000000000000000000003E /* Build configuration list for PBXNativeTarget "PaperCoachTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AB0000000000000000000046 /* Debug */,

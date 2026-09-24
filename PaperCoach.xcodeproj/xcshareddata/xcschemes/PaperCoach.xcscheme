@@ -6,9 +6,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AB000000000000000000003A"
-               BuildableName = "Paper Coach.app"
-               BlueprintName = "StrokeTutor"
-               ReferencedContainer = "container:StrokeTutor.xcodeproj">
+               BuildableName = "PaperCoach.app"
+               BlueprintName = "PaperCoach"
+               ReferencedContainer = "container:PaperCoach.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -19,9 +19,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AB000000000000000000003B"
-               BuildableName = "StrokeTutorTests.xctest"
-               BlueprintName = "StrokeTutorTests"
-               ReferencedContainer = "container:StrokeTutor.xcodeproj">
+               BuildableName = "PaperCoachTests.xctest"
+               BlueprintName = "PaperCoachTests"
+               ReferencedContainer = "container:PaperCoach.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -31,9 +31,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB000000000000000000003A"
-            BuildableName = "Paper Coach.app"
-            BlueprintName = "StrokeTutor"
-            ReferencedContainer = "container:StrokeTutor.xcodeproj">
+            BuildableName = "PaperCoach.app"
+            BlueprintName = "PaperCoach"
+            ReferencedContainer = "container:PaperCoach.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -42,9 +42,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AB000000000000000000003A"
-            BuildableName = "Paper Coach.app"
-            BlueprintName = "StrokeTutor"
-            ReferencedContainer = "container:StrokeTutor.xcodeproj">
+            BuildableName = "PaperCoach.app"
+            BlueprintName = "PaperCoach"
+            ReferencedContainer = "container:PaperCoach.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

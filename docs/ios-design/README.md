@@ -36,7 +36,7 @@ build.mjs               node build.mjs [--check|--lax]   assembles all three fro
 src/
   BRIEF.md              the product brief the screens were designed from
   CONTRACT.md           the fragment format (one <article> per screen, ids, variants, data-goto links)
-  design-system.css     tokens and components; mirrors StrokeTutor/Views/Theme.swift where one exists
+  design-system.css     tokens and components; mirrors PaperCoach/Views/Theme.swift where one exists
   symbols.svg.html      Lina (four poses) and the icon set, inlined once
   shell-v2.html         the document chrome of v2.html: index rail, sketch mat, spec-sheet notes, contact sheet
   shell.html            the first chrome (index.html)
@@ -45,5 +45,5 @@ src/
   v3/                   the v3 design: BRIEF.md, design-system.css, handbook.html, screens/ (same ids as above)
 ```
 
-Nothing under `StrokeTutor/`, `web/` or `shared/` is touched by this folder. To preview while editing:
+Nothing under `PaperCoach/`, `web/` or `shared/` is touched by this folder. To preview while editing:
 `python3 -m http.server 4173 --directory docs/ios-design` (or the `ios-design` entry in `.claude/launch.json`).

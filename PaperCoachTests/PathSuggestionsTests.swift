@@ -1,5 +1,5 @@
 import XCTest
-@testable import StrokeTutor
+@testable import PaperCoach
 
 final class PathSuggestionsTests: XCTestCase {
 

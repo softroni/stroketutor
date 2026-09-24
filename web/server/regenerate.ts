@@ -114,7 +114,7 @@ async function regenerateLayer(
         drawing,
         reference,
       }),
-      schemaName: `stroketutor_${layer}`,
+      schemaName: `papercoach_${layer}`,
       schema: REGENERATE_SCHEMAS[layer],
       maxTokens: REGENERATE_OUTPUT_TOKENS,
       // Ordering or regrouping many lines reasons at length, like the SVG prompt.

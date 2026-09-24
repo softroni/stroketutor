@@ -108,7 +108,7 @@ export async function generateFromTrace(
         trace: summarise(trace),
         image: input.image,
       }),
-      schemaName: 'stroketutor_svg_lesson',
+      schemaName: 'papercoach_svg_lesson',
       schema: SVG_OUTPUT_SCHEMA,
       maxTokens: TRACE_OUTPUT_TOKENS,
       timeoutMs: TRACE_TIMEOUT_MS,
