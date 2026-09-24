@@ -8,6 +8,12 @@ import SwiftUI
 /// Covers rather than pushes, because none of these belongs to a tab's back stack
 /// (`v3.html`: `ob-*`, `pl-player`, `sk-complete`, `sk-capture`).
 ///
+/// One cover carries every flow. It slides up from the tabs and back down to them;
+/// going from one flow to the next — the player to completion, completion to the
+/// photo, the photo to the sketchbook tour — crossfades inside it. A cover per flow
+/// would slide the first one down, showing the tabs for a moment, before sliding
+/// the next one up.
+///
 /// A DEBUG-only screenshot harness lives beside this file, in
 /// `DebugScreenHarness.swift`. Launched with `-STScreen <name>` (`xcrun simctl
 /// launch … -STScreen home-progress`), it seeds the stores and navigates to one
@@ -18,7 +24,11 @@ import SwiftUI
 /// `CaptureFlow`) are reached anyway.
 struct AppRoot: View {
     @State private var app = AppModel()
+    /// The flow the cover last showed. `app.cover` is nil while the cover slides
+    /// down, and this keeps the flow that is leaving on screen until it is gone.
+    @State private var closingCover: AppCover?
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         @Bindable var app = app
@@ -75,14 +85,50 @@ struct AppRoot: View {
                 guard phase == .active, app.hasLoadedContent else { return }
                 Task { await app.premium.refreshEntitlements() }
             }
-            .fullScreenCover(item: $app.cover, onDismiss: { app.coverDidDismiss() }) { cover in
-                content(for: cover)
+            .onChange(of: app.cover) { _, cover in
+                if let cover { closingCover = cover }
+            }
+            .fullScreenCover(isPresented: coverIsPresented, onDismiss: coverDidDismiss) {
+                coverContent
                     .environment(app)
                     .sheet(item: drawer(overCover: true), onDismiss: { app.openOfferAfterDrawer() }) { offer in
                         PremiumLessonSheet(lessonId: offer.lessonId)
                             .environment(app)
                     }
             }
+    }
+
+    /// Up while there is any flow to show. Swapping one flow for another leaves it up.
+    private var coverIsPresented: Binding<Bool> {
+        Binding(get: { app.cover != nil },
+                set: { if !$0 { app.cover = nil } })
+    }
+
+    /// The flow on the cover, keyed by its id so a new flow is a new screen with
+    /// fresh state, crossfading with the one before it.
+    private var coverContent: some View {
+        let shown = app.cover ?? closingCover
+        return ZStack {
+            Theme.page.ignoresSafeArea()
+
+            if let shown {
+                content(for: shown)
+                    .id(shown.id)
+                    // The flow on its way out takes no taps while it fades, as a
+                    // cover takes none while it slides: a second "Not now" must not
+                    // leave twice.
+                    .transition(AnyTransition.asymmetric(
+                        insertion: .opacity,
+                        removal: AnyTransition.opacity.combined(
+                            with: .modifier(active: HitTesting(isEnabled: false),
+                                            identity: HitTesting(isEnabled: true)))))
+            }
+        }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: shown?.id)
+    }
+
+    private func coverDidDismiss() {
+        if app.cover == nil { closingCover = nil }
     }
 
     /// The drawer's binding for one of its two hosts: the tabs while no cover is up,
@@ -120,8 +166,7 @@ struct AppRoot: View {
             OnboardingFlow(onFinished: { lesson in
                 // `ob-ready` already showed the lesson and its Start drawing, so
                 // the preview would ask the same question twice: open the player,
-                // as the first stop of the guided first run — once the onboarding
-                // cover has finished closing (`finishOnboarding(startingWith:)`).
+                // as the first stop of the guided first run.
                 if let lesson { app.markFirstRunStarted(with: lesson) }
                 app.finishOnboarding(startingWith: lesson)
             })
@@ -185,5 +230,14 @@ struct AppRoot: View {
         .padding(Theme.gutter)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.page.ignoresSafeArea())
+    }
+}
+
+/// `allowsHitTesting` as a modifier, so a transition can switch it.
+private struct HitTesting: ViewModifier {
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        content.allowsHitTesting(isEnabled)
     }
 }

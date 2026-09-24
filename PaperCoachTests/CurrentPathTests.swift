@@ -271,6 +271,31 @@ final class CurrentPathTests: XCTestCase {
         XCTAssertFalse(model.preferences.hasSeenPathsWelcome, "The second learner has their own first time.")
     }
 
+    // MARK: - Leaving onboarding
+
+    /// `ob-ready`'s Start drawing hands the cover straight to the player: the
+    /// cover is never empty in between, so Home does not show on the way.
+    func testFinishingOnboardingWithALessonOpensThePlayerWithoutClosingTheCover() throws {
+        let model = makeModel()
+        let tree = try XCTUnwrap(model.lesson(id: Self.treeLessonId))
+        model.presentOnboarding()
+
+        model.finishOnboarding(startingWith: tree)
+
+        XCTAssertEqual(model.cover, .player(lessonId: tree.id, resumeFrom: nil))
+        XCTAssertTrue(model.settings.hasCompletedOnboarding)
+    }
+
+    func testFinishingOnboardingWithoutALessonClosesTheCover() {
+        let model = makeModel()
+        model.presentOnboarding()
+
+        model.finishOnboarding()
+
+        XCTAssertNil(model.cover)
+        XCTAssertTrue(model.settings.hasCompletedOnboarding)
+    }
+
     private static let treeLessonId = "pine-tree"
     private static let carLessonId = "car"
 

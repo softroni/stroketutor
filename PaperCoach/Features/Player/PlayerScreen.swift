@@ -711,6 +711,9 @@ struct PlayerScreen: View {
         if player.isOnLastStep {
             player.stop()
             successHaptic()
+            // Completion is portrait, like every screen but this one, and fades in
+            // over the player: turn back now rather than once the player is gone.
+            PlayerOrientation.lockToPortrait()
             // `AppModel.presentCompletion` records the finished lesson (and clears
             // the resume point) before it shows `sk-complete`.
             app.presentCompletion(lesson)

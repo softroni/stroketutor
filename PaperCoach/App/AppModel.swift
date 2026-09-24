@@ -413,28 +413,14 @@ final class AppModel {
         cover = nil
     }
 
-    /// Onboarding is over: remember it and show Home.
+    /// Onboarding is over: remember it, and open the lesson it ended on — the
+    /// player takes over the cover from onboarding, with no Home in between — or,
+    /// without one, show Home.
     func finishOnboarding(startingWith lesson: Lesson? = nil) {
         settings.hasCompletedOnboarding = true
-        coverAfterDismiss = lesson.map { .player(lessonId: $0.id, resumeFrom: nil) }
-        cover = nil
-    }
-
-    /// A cover to show once the one on screen has finished closing. Swapping one
-    /// cover straight for another makes SwiftUI build the new content twice, and
-    /// the copy it throws away shuts the audio session the player's intro has just
-    /// started on — so onboarding's Start drawing waits for the dismissal.
-    private var coverAfterDismiss: AppCover?
-
-    /// Called by `AppRoot` when a cover has closed.
-    func coverDidDismiss() {
-        guard let next = coverAfterDismiss else { return }
-        coverAfterDismiss = nil
-        if case let .player(lessonId, _) = next, let lesson = lesson(id: lessonId) {
-            presentPlayer(lesson)
-        } else {
-            cover = next
-        }
+        if let lesson { presentPlayer(lesson) }
+        // No lesson, or one behind Premium whose drawer was asked for instead.
+        if case .onboarding = cover { cover = nil }
     }
 
     /// "Reset onboarding" on `st-settings`: forgets that onboarding was completed

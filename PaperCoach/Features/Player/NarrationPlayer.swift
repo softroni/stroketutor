@@ -33,6 +33,14 @@ final class NarrationPlayer {
     @ObservationIgnored private var interruptions: NSObjectProtocol?
     @ObservationIgnored private var isSessionActive = false
 
+    /// How many players hold the audio session. Every screen that speaks has its
+    /// own player, but the session is the app's: two of them overlap while one
+    /// flow crossfades into the next (the player gives way to completion as Lina
+    /// starts her line there), and a copy SwiftUI builds and throws away still
+    /// runs its `onDisappear`. The session is handed back only when the last
+    /// holder lets go, so a screen leaving never silences the one arriving.
+    private static var sessionHolders = 0
+
     private static let log = Logger(subsystem: "com.softroni.papercoach", category: "voice")
 
     convenience init(bundle: Bundle = .main) {
@@ -126,6 +134,8 @@ final class NarrationPlayer {
         stop()
         guard isSessionActive else { return }
         isSessionActive = false
+        Self.sessionHolders = max(0, Self.sessionHolders - 1)
+        guard Self.sessionHolders == 0 else { return }
         try? AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
     }
 
@@ -172,6 +182,7 @@ final class NarrationPlayer {
                                     options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers])
             try session.setActive(true)
             isSessionActive = true
+            Self.sessionHolders += 1
         } catch {
             // Without a session the voice simply does not play. The lesson does.
             isSessionActive = false
