@@ -122,6 +122,10 @@ final class AppModel {
     var hasClosedKidDrawer = false
     /// "Ask a grown-up to unlock Mushroom", on screen for a moment.
     var premiumNudge: PremiumNudge?
+    /// The finished lesson whose completion or photo screen the drawer was opened
+    /// over, so leaving the offer without subscribing ends that screen the way its
+    /// own "Not now" would (`leaveCompletion(for:)`).
+    @ObservationIgnored var offerReturnLessonId: String?
 
     private let bundle: Bundle
 
@@ -469,6 +473,11 @@ extension AppModel {
         cover = nil
         pendingLockedLessonId = nil
         pathsWelcomePending = false
+        premiumOffer = nil
+        premiumNudge = nil
+        offerAfterDrawer = nil
+        offerReturnLessonId = nil
+        hasClosedKidDrawer = false
 
         homeStack = []
         pathStack = []

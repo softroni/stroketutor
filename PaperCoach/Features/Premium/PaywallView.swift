@@ -33,7 +33,7 @@ struct PaywallView: View {
         OfferScreenFrame {
             HStack {
                 Spacer()
-                RestoreButton { onOutcome(.purchased) }
+                RestoreButton { onOutcome(.restored) }
             }
         } content: {
             PaywallArt()

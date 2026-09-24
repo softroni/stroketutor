@@ -250,6 +250,7 @@ struct CompletionView: View {
                 // "The secondary says only 'Next lesson' so a long localised title
                 // can never break it."
                 Button("Next lesson") {
+                    if app.offerPremiumIfNeeded(for: next) { return }
                     app.dismissCover()
                     app.showPreview(of: next)
                 }

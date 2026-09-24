@@ -40,6 +40,12 @@ extension AppModel {
     /// The drawer's way on. The drawer closes first; `AppRoot` opens the offer when
     /// it has gone (`openOfferAfterDrawer()`).
     func continueFromDrawer(to entry: OfferEntry) {
+        switch cover {
+        case let .completion(lessonId), let .capture(lessonId, false):
+            offerReturnLessonId = lessonId
+        default:
+            offerReturnLessonId = nil
+        }
         offerAfterDrawer = entry
         premiumOffer = nil
     }
@@ -108,9 +114,15 @@ extension AppModel {
                 dismissCover()
             }
         case let .premiumLesson(lessonId):
-            dismissCover()
+            let returnLesson = offerReturnLessonId.flatMap { self.lesson(id: $0) }
+            offerReturnLessonId = nil
             if subscribed, let lesson = self.lesson(id: lessonId) {
+                dismissCover()
                 showPreview(of: lesson)
+            } else if let returnLesson {
+                leaveCompletion(for: returnLesson)
+            } else {
+                dismissCover()
             }
         case .settings:
             dismissCover()

@@ -144,6 +144,7 @@ struct RestoreButton: View {
             Task {
                 let restored = await app.premium.restore()
                 isRestoring = false
+                app.analytics.track(.purchaseAttempted(plan: "restore", outcome: restored ? "restored" : "nothing_found"))
                 if restored {
                     onRestored()
                 } else {

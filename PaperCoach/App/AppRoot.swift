@@ -18,6 +18,7 @@ import SwiftUI
 /// `CaptureFlow`) are reached anyway.
 struct AppRoot: View {
     @State private var app = AppModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         @Bindable var app = app
@@ -63,11 +64,17 @@ struct AppRoot: View {
             .overlay(alignment: .top) {
                 if let nudge = app.premiumNudge, app.cover == nil {
                     PremiumNudgeToast(nudge: nudge)
+                        .environment(app)
                         .padding(.top, 8)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
             .animation(.easeOut(duration: 0.25), value: app.premiumNudge)
+            // A subscription can start, lapse or be refunded while the app is away.
+            .onChange(of: scenePhase) { _, phase in
+                guard phase == .active, app.hasLoadedContent else { return }
+                Task { await app.premium.refreshEntitlements() }
+            }
             .fullScreenCover(item: $app.cover) { cover in
                 content(for: cover)
                     .environment(app)

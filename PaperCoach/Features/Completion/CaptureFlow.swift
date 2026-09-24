@@ -479,7 +479,7 @@ struct CaptureFlow: View {
                     }
                     .buttonStyle(.primary)
                 } else {
-                    if let premiumNext = app.premiumNextLesson(after: lesson), !fromSketchbook {
+                    if let premiumNext = app.premiumNextLesson(after: lesson) {
                         PremiumNextCard(lesson: premiumNext) {
                             _ = app.offerPremiumIfNeeded(for: premiumNext)
                         }
@@ -491,6 +491,9 @@ struct CaptureFlow: View {
                         }
                     } else if let next = app.nextLesson(after: lesson) {
                         Button("Next lesson") {
+                            // The drawer comes up over this cover rather than over
+                            // tabs that are still behind it.
+                            if app.offerPremiumIfNeeded(for: next) { return }
                             app.dismissCover()
                             app.showPreview(of: next)
                         }

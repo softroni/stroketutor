@@ -40,8 +40,13 @@ extension AppModel {
         cover = .firstRunSketchbook
     }
 
-    /// The tour's "Continue": the offer.
+    /// The tour's "Continue": the offer — or, for an Apple account that already
+    /// has Premium (Family Sharing, a reinstall), the end of the first run.
     func startFirstRunOffer() {
+        guard !premium.isPremium else {
+            finishOffer(.onboarding, subscribed: true)
+            return
+        }
         settings.firstRunStage = .offer
         cover = .offer(.onboarding)
     }
@@ -71,7 +76,7 @@ extension AppModel {
         case .sketchbook:
             cover = .firstRunSketchbook
         case .offer:
-            cover = .offer(.onboarding)
+            startFirstRunOffer()
         }
     }
 }

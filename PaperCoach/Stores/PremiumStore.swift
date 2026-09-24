@@ -44,6 +44,8 @@ final class PremiumStore {
         case purchased
         /// Ask to Buy: a family organizer has to approve it first.
         case pending
+        /// "Restore" found an active subscription on this Apple account.
+        case restored
         case cancelled
         case failed
     }
@@ -150,7 +152,6 @@ final class PremiumStore {
             guard case let .verified(transaction) = result,
                   ProductID.all.contains(transaction.productID),
                   transaction.revocationDate == nil else { continue }
-            if let expiry = transaction.expirationDate, expiry < Date() { continue }
             active = true
             if transaction.offerType == .introductory {
                 trialEnd = transaction.expirationDate

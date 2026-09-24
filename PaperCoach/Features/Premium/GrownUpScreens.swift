@@ -183,7 +183,7 @@ struct ParentalGateView: View {
     }
 }
 
-/// "What is twelve times eight?" — two numbers from six to twelve, written out.
+/// "What is twelve times eight?" — six to twelve times six to nine, written out.
 struct ParentalQuestion: Equatable {
     let left: Int
     let right: Int
@@ -236,7 +236,7 @@ struct GrownUpPaywallView: View {
                 Chip(text: "For grown-ups", style: .blue)
                     .padding(.leading, 12)
                 Spacer()
-                RestoreButton { onOutcome(.purchased) }
+                RestoreButton { onOutcome(.restored) }
             }
         } content: {
             childCard

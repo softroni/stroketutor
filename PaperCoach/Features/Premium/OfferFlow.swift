@@ -123,6 +123,8 @@ struct OfferFlow: View {
                 await TrialReminder.requestAndSchedule(trialEndsAt: app.premium.trialEndsAt)
                 finish(subscribed: true)
             }
+        case .restored:
+            finish(subscribed: true)
         case .pending:
             go(.pending)
         case .cancelled, .failed:
