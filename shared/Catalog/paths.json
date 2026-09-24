@@ -19,21 +19,21 @@
   ],
   "paths": [
     {
-      "id": "sky-weather",
-      "title": "Sky & Weather",
-      "description": "From a sun made of a circle and rays to a storm over the mountains: simple shapes first, then overlap, then a whole scene.",
+      "id": "plants",
+      "title": "Plants",
+      "description": "Trees, flowers and potted plants, from stacked triangles to a twisted bonsai, ending on a windowsill garden.",
       "level": "starter",
       "lessonIds": [
-        "sun",
-        "cloud",
-        "lightning-bolt",
-        "rain-cloud",
-        "snowflake",
-        "wave",
-        "mountains",
-        "tornado",
-        "volcano",
-        "mountain-storm"
+        "pine-tree",
+        "tulip",
+        "cactus",
+        "mushroom",
+        "big-oak",
+        "sunflower",
+        "palm-tree",
+        "rose",
+        "bonsai",
+        "windowsill-garden"
       ]
     },
     {
@@ -55,19 +55,37 @@
       ]
     },
     {
+      "id": "sky-weather",
+      "title": "Sky & Weather",
+      "description": "From a sun made of a circle and rays to a storm over the mountains: simple shapes first, then overlap, then a whole scene.",
+      "level": "starter",
+      "lessonIds": [
+        "sun",
+        "cloud",
+        "lightning-bolt",
+        "rain-cloud",
+        "mountains",
+        "wave",
+        "volcano",
+        "tornado",
+        "snowflake",
+        "mountain-storm"
+      ]
+    },
+    {
       "id": "food-treats",
       "title": "Food & Treats",
       "description": "Treats first, then stacked and layered food, ending with a full snack tray.",
-      "level": "starter",
+      "level": "advanced",
       "lessonIds": [
         "donut",
         "popsicle",
-        "ice-cream-cone",
-        "cupcake",
-        "pizza-slice",
-        "fries",
         "burger",
         "boba-tea",
+        "ice-cream-cone",
+        "pizza-slice",
+        "cupcake",
+        "fries",
         "ramen-bowl",
         "snack-tray"
       ]
@@ -76,7 +94,7 @@
       "id": "forms",
       "title": "Forms",
       "description": "The skills path: boxes, cylinders, cones and spheres, then everyday objects built from them, with one light direction.",
-      "level": "core",
+      "level": "starter",
       "lessonIds": [
         "cube",
         "cylinder",
@@ -91,24 +109,6 @@
       ]
     },
     {
-      "id": "plants",
-      "title": "Plants",
-      "description": "Trees, flowers and potted plants, from stacked triangles to a twisted bonsai, ending on a windowsill garden.",
-      "level": "core",
-      "lessonIds": [
-        "pine-tree",
-        "tulip",
-        "cactus",
-        "mushroom",
-        "palm-tree",
-        "sunflower",
-        "big-oak",
-        "rose",
-        "bonsai",
-        "windowsill-garden"
-      ]
-    },
-    {
       "id": "wheels",
       "title": "Wheels",
       "description": "Everything that rolls, from a box-shaped bus to an ambulance with its cross and roof light.",
@@ -117,13 +117,13 @@
         "school-bus",
         "car",
         "dump-truck",
-        "train",
-        "excavator",
         "monster-truck",
-        "race-car",
+        "train",
         "bicycle",
+        "excavator",
         "motorcycle",
-        "ambulance"
+        "ambulance",
+        "race-car"
       ]
     },
     {
@@ -138,8 +138,8 @@
         "speedboat",
         "fishing-boat",
         "submarine",
-        "cruise-ship",
         "pirate-ship",
+        "cruise-ship",
         "longship",
         "harbour"
       ]
@@ -150,8 +150,8 @@
       "description": "Things that fly, from a paper airplane to a busy sky that uses size for depth.",
       "level": "core",
       "lessonIds": [
-        "paper-airplane",
         "hot-air-balloon",
+        "paper-airplane",
         "parachute-crate",
         "blimp",
         "airplane",
@@ -168,11 +168,11 @@
       "description": "Moons, planets and spacecraft, ending with the solar system drawn on orbit ellipses.",
       "level": "core",
       "lessonIds": [
+        "rocket",
         "crescent-moon",
-        "planet-with-rings",
         "star",
         "comet",
-        "rocket",
+        "planet-with-rings",
         "ufo",
         "satellite",
         "mars-rover",
@@ -187,12 +187,12 @@
       "level": "advanced",
       "lessonIds": [
         "rolling-hills",
-        "desert-dunes",
-        "mountain-range",
         "winding-river",
         "lake-reflection",
-        "waterfall",
+        "desert-dunes",
+        "mountain-range",
         "sea-cliffs",
+        "waterfall",
         "forest-path",
         "country-road",
         "mountain-valley"
