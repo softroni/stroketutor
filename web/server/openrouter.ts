@@ -152,7 +152,7 @@ export async function completeJSON(
         Authorization: `Bearer ${options.apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'http://localhost',
-        'X-OpenRouter-Title': 'StrokeTutor Studio',
+        'X-OpenRouter-Title': 'Paper Coach Studio',
       },
       body: JSON.stringify(body),
       signal: controller.signal,

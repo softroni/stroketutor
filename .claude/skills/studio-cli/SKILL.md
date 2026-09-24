@@ -1,11 +1,11 @@
 ---
 name: studio-cli
-description: How to drive StrokeTutor Studio from the terminal with `npm run studio` - every command, its options, selectors, plan files, output, exit codes and the gotchas an agent hits
+description: How to drive Paper Coach Studio from the terminal with `npm run studio` - every command, its options, selectors, plan files, output, exit codes and the gotchas an agent hits
 ---
 
 # The Studio command line
 
-Everything the StrokeTutor Studio UI does can be done from a terminal, on the same workspace, through
+Everything the Paper Coach Studio UI does can be done from a terminal, on the same workspace, through
 the same store, validators and editing operations (`web/cli/`). This skill is the operating manual.
 For *how to author a good lesson* (the drawing method), load `author-lesson`; this skill is *how the
 tool works*. `reference.md` beside this file is every command's `--help`, verbatim.

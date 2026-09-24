@@ -1,12 +1,12 @@
-# StrokeTutor iOS — design brief for the screen agents
+# Paper Coach iOS — design brief for the screen agents
 
-You are designing one part of the StrokeTutor iOS learner app as an interactive HTML mockup with developer notes.
+You are designing one part of the Paper Coach iOS learner app as an interactive HTML mockup with developer notes.
 Read this file, then `CONTRACT.md`, `design-system.css`, `symbols.svg.html` and `screens/_example.html`.
 The repo root is `/Users/zakaria/dev/softroni/stroketutor`; the master plan is `docs/StrokeTutor_Master_Plan.pdf`
 (a text extraction is at the path given in your prompt). Do not change anything outside `docs/ios-design/src/screens/`.
 
 ## The product in one paragraph
-StrokeTutor is a guided *physical* sketching system for adult beginners, especially people around 40 and older who
+Paper Coach is a guided *physical* sketching system for adult beginners, especially people around 40 and older who
 always wanted to draw. The learner uses a real pen and real paper; the phone is a calm instructor. The app animates one
 meaningful drawing step, stops, and waits. The learner copies that step onto paper and taps **"I drew it"** before
 anything continues. Nothing auto-advances; no timer decides readiness (plan §4, §31). There is no digital canvas, no

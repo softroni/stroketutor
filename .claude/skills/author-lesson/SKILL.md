@@ -1,6 +1,6 @@
 ---
 name: author-lesson
-description: Turn a source SVG into a StrokeTutor lesson as a human would draw it, or plan a path of lessons
+description: Turn a source SVG into a Paper Coach lesson as a human would draw it, or plan a path of lessons
 ---
 
 # Author a lesson

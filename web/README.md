@@ -1,6 +1,6 @@
-# StrokeTutor Studio (web)
+# Paper Coach Studio (web)
 
-The private authoring tool for StrokeTutor lessons, built around the browser player that
+The private authoring tool for Paper Coach lessons, built around the browser player that
 tutorials are tested on before they ship to the iOS app. See the
 [master plan](../docs/StrokeTutor_Master_Plan.pdf) (Part III) and the milestone tracker in the
 [root README](../README.md).

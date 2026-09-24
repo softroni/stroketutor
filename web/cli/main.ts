@@ -151,7 +151,7 @@ function overview(): string {
     groups.set(group, [...(groups.get(group) ?? []), command])
   }
   const width = Math.max(...COMMANDS.map((command) => command.name.length))
-  const lines = ['Usage: studio <command> [options]', '', 'The StrokeTutor Studio from the terminal. `studio <command> --help` describes one command.', '']
+  const lines = ['Usage: studio <command> [options]', '', 'The Paper Coach Studio from the terminal. `studio <command> --help` describes one command.', '']
   for (const [group, commands] of groups) {
     if (group !== commands[0].name) lines.push(`${group}:`)
     for (const command of commands) lines.push(`  ${command.name.padEnd(width)}  ${command.summary}`)

@@ -81,7 +81,7 @@ describe('publishing a lesson with everything', () => {
     const message = await git(['log', '-1', '--format=%B'])
     expect(message).toContain('5 steps.')
     expect(message).toContain('Voice: 7 lines as House voice, 7 recorded for this release.')
-    expect(message).toContain('Published from StrokeTutor Studio.')
+    expect(message).toContain('Published from Paper Coach Studio.')
     expect((await git(['status', '--porcelain'])).trim()).toBe('?? notes.txt')
     expect((await gitIn(remote)(['log', '-1', '--format=%s', 'main'])).trim()).toBe(released.git.subject)
   })

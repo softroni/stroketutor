@@ -1,4 +1,4 @@
-# StrokeTutor
+# Paper Coach
 
 A guided physical-sketching system for adult beginners. The phone is a calm instructor. It animates one
 meaningful drawing step, stops, and waits while the learner copies that step onto real paper with a real pen.
@@ -11,7 +11,7 @@ plan as milestones.
 ```
 shared/                 contract read by both players: schema v1, Tutorials/, conformance/
 StrokeTutor/            SwiftUI learner app (iOS)        StrokeTutorTests/  iOS tests
-web/                    React/Vite player → StrokeTutor Studio (private authoring tool)
+web/                    React/Vite player → Paper Coach Studio (private authoring tool)
 docs/                   master plan
 ```
 

@@ -209,7 +209,7 @@ struct SettingsView: View {
             }
             Button("Not now", role: .cancel) { }
         } message: {
-            Text("StrokeTutor can only add pages to Photos once you allow it in Settings. Your sketchbook keeps every page either way.")
+            Text("Paper Coach can only add pages to Photos once you allow it in Settings. Your sketchbook keeps every page either way.")
         }
         // Access can be taken away in the Settings app while this screen is away; the
         // toggle follows, rather than staying on while nothing is saved.
@@ -361,7 +361,7 @@ private extension SettingsView {
 
 // MARK: - Rate and share
 
-/// Where StrokeTutor lives on the App Store. Until the app has a record in App Store
+/// Where Paper Coach lives on the App Store. Until the app has a record in App Store
 /// Connect there is nowhere to send anyone, so the Rate and Share rows stay hidden in
 /// a release build; a debug build shows them against an App Store search so the rows
 /// can be seen and tried. Once the record exists, set `appID` to its Apple ID (the
@@ -382,7 +382,7 @@ struct AppStoreListing {
                 reviewURL: URL(string: "https://apps.apple.com/app/id\(appID)?action=write-review")!)
         }
         #if DEBUG
-        let search = URL(string: "https://apps.apple.com/search?term=StrokeTutor")!
+        let search = URL(string: "https://apps.apple.com/search?term=Paper%20Coach")!
         return AppStoreListing(pageURL: search, reviewURL: search)
         #else
         return nil
@@ -395,7 +395,7 @@ private extension SettingsView {
     /// rather than `requestReview`, which iOS rations and may silently ignore.
     func rateRow(_ listing: AppStoreListing) -> some View {
         Link(destination: listing.reviewURL) {
-            SettingsCustomRow(title: "Rate StrokeTutor",
+            SettingsCustomRow(title: "Rate Paper Coach",
                               subtitle: "A review helps other people find it.") {
                 SettingsIconTile(symbol: "star.fill", tint: .gold)
             } trailing: {
@@ -414,9 +414,9 @@ private extension SettingsView {
     /// The system share sheet with the App Store link and a line to go with it.
     func shareRow(_ listing: AppStoreListing) -> some View {
         ShareLink(item: listing.pageURL,
-                  subject: Text("StrokeTutor"),
-                  message: Text("Learn to draw one stroke at a time with StrokeTutor.")) {
-            SettingsCustomRow(title: "Share StrokeTutor",
+                  subject: Text("Paper Coach"),
+                  message: Text("Learn to draw one stroke at a time with Paper Coach.")) {
+            SettingsCustomRow(title: "Share Paper Coach",
                               subtitle: "Send it to someone who’d like to draw.") {
                 SettingsIconTile(symbol: "square.and.arrow.up", tint: .neutral)
             } trailing: {

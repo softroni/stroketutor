@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://stroketutor.app/schema/tutorial.v2.schema.json",
-  "title": "StrokeTutor Tutorial, version 2",
+  "title": "Paper Coach Tutorial, version 2",
   "description": "Version 1 plus colour: a stroke may carry its own colour, and a step may fill shapes after its strokes. Fills are painted beneath every stroke, so outlines always stay on top. The web player reads versions 1 and 2; the iOS player reads version 1 only until M7.",
   "type": "object",
   "additionalProperties": false,

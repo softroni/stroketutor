@@ -31,7 +31,7 @@ struct OnboardingLaunchBeat: View {
                                        lineWidthScale: 1.35)
                     .frame(width: 292, height: 292)
 
-                Text("StrokeTutor")
+                Text("Paper Coach")
                     .scaledFont(40, .heavy, relativeTo: .largeTitle)
                     .tracking(-1)
                     .foregroundStyle(Theme.ink)
@@ -42,7 +42,7 @@ struct OnboardingLaunchBeat: View {
             }
             .padding(.horizontal, Theme.gutter)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("StrokeTutor")
+            .accessibilityLabel("Paper Coach")
             .accessibilityAddTraits(.isHeader)
 
             Spacer(minLength: 0)

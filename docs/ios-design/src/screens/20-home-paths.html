@@ -1077,7 +1077,7 @@ struct LearnHomeView: View {
           <code>formatMinutes(estimateLearnerSeconds)</code> + <code>steps.count</code>; &ldquo;Drawn 6 September&rdquo; ←
           <code>Progress[lessonId].completedAt</code>, <code>.dateTime.day().month(.wide)</code>, no year inside the
           current year.</li>
-        <li>The done-row thumbnail is the <em>StrokeTutor</em> drawing rendered from the tutorial's strokes (a
+        <li>The done-row thumbnail is the <em>Paper Coach</em> drawing rendered from the tutorial's strokes (a
           <code>Canvas</code> at full strength), not the learner's photo — the photo belongs to the sketchbook. Cache by
           <code>lessonId</code>; ten of them are cheap because they are paths, not bitmaps.</li>
         <li><span class="tag tag--warn">gap</span> Houses publishes one lesson today, so the real screen currently shows
@@ -1128,7 +1128,7 @@ struct LearnHomeView: View {
 
       <h4>Open questions</h4>
       <ul>
-        <li>Should a done lesson's row show the learner's photographed page instead of the StrokeTutor drawing once one
+        <li>Should a done lesson's row show the learner's photographed page instead of the Paper Coach drawing once one
           exists? It is more personal, but it makes the list ten photos and the path stops reading as a curriculum.</li>
         <li>Is the destination always the last lesson, or should the catalog mark one lesson
           <code>isDestination</code>? Last-lesson is assumed here.</li>

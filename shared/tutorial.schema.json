@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://stroketutor.app/schema/tutorial.schema.json",
-  "title": "StrokeTutor Tutorial",
+  "title": "Paper Coach Tutorial",
   "description": "A stroke-by-stroke drawing tutorial. Shared verbatim with the iOS player: both apps must accept exactly the same documents.",
   "type": "object",
   "additionalProperties": false,
