@@ -7,7 +7,7 @@ import SwiftUI
 /// read 2026-09-24:
 /// - "In the purchase flow, the amount that will be billed must be the most prominent
 ///   pricing element in the layout." So the yearly price leads, in the largest type;
-///   the free week and the monthly equivalent sit under it, smaller. The buy button
+///   the free week and the weekly equivalent sit under it, smaller. The buy button
 ///   names the price too (README, M10: a trial button naming only the free period is
 ///   not enough).
 /// - "In the purchase flow for a free trial, clearly indicate how long the free trial
@@ -99,7 +99,7 @@ struct PaywallView: View {
 }
 
 /// The prices, in the order Apple asks for: the amount billed first and largest —
-/// "$39.99 per year" — then the free week, then what it comes to a month, then the
+/// "$19.99 per year" — then the free week, then what it comes to a week, then the
 /// plan's name and length and Family Sharing.
 struct PriceBlock: View {
     /// "Your first 7 days are free", said only while the free week is on offer.
@@ -126,8 +126,8 @@ struct PriceBlock: View {
                     .foregroundStyle(Theme.greenDeep)
                     .multilineTextAlignment(.center)
             }
-            if let perMonth = app.premium.yearlyPricePerMonth {
-                Text("That’s about \(perMonth) a month")
+            if let perWeek = app.premium.yearlyPricePerWeek {
+                Text("That’s about \(perWeek) a week")
                     .textRole(.subhead)
                     .foregroundStyle(Theme.ink55)
             }
@@ -143,7 +143,7 @@ struct PriceBlock: View {
 }
 
 /// A buy button's label: what it does, and under it the price it bills —
-/// "Start my free week / then $39.99/year".
+/// "Start my free week / then $19.99/year".
 struct PurchaseLabel: View {
     let title: String
     let price: String?
@@ -213,7 +213,7 @@ struct FamilySharingChip: View {
     }
 }
 
-/// "View more plans": Yearly (with the free week, when there is one) and Monthly,
+/// "View more plans": Yearly (with the free week, when there is one) and Weekly,
 /// Yearly chosen. The button says what the chosen plan does.
 struct PaywallPlansSheet: View {
     let onBuy: (PremiumStore.Plan) -> Void
@@ -248,13 +248,13 @@ struct PaywallPlansSheet: View {
                         title: "Yearly",
                         detail: isTrial ? "\(PremiumStore.trialDays) days free, then billed yearly" : "Billed every year",
                         price: app.premium.yearlyPrice.map { "\($0)/year" } ?? "",
-                        tag: "Best value")
+                        tag: app.premium.yearlySavingsPercent.map { "Save \($0)%" } ?? "Best value")
             }
-            if app.premium.monthly != nil {
-                planRow(.monthly,
-                        title: "Monthly",
-                        detail: "Billed every month",
-                        price: app.premium.monthlyPrice.map { "\($0)/month" } ?? "",
+            if app.premium.weekly != nil {
+                planRow(.weekly,
+                        title: "Weekly",
+                        detail: "Billed every week",
+                        price: app.premium.weeklyPrice.map { "\($0)/week" } ?? "",
                         tag: nil)
             }
 
@@ -285,7 +285,7 @@ struct PaywallPlansSheet: View {
     private var buttonTitle: String {
         switch plan {
         case .yearly: return isTrial ? "Start my free week" : "Subscribe yearly"
-        case .monthly: return "Subscribe monthly"
+        case .weekly: return "Subscribe weekly"
         }
     }
 
@@ -293,7 +293,7 @@ struct PaywallPlansSheet: View {
     private var buttonPrice: String? {
         switch plan {
         case .yearly: return app.premium.yearlyPrice.map { isTrial ? "then \($0)/year" : "\($0)/year" }
-        case .monthly: return app.premium.monthlyPrice.map { "\($0)/month" }
+        case .weekly: return app.premium.weeklyPrice.map { "\($0)/week" }
         }
     }
 
@@ -304,8 +304,8 @@ struct PaywallPlansSheet: View {
             return isTrial
                 ? "Nothing to pay today. Then \(price)/year. Cancel anytime."
                 : "\(price)/year. Cancel anytime."
-        case .monthly:
-            return "\(app.premium.monthlyPrice ?? "")/month, starting today. Cancel anytime."
+        case .weekly:
+            return "\(app.premium.weeklyPrice ?? "")/week, starting today. Cancel anytime."
         }
     }
 

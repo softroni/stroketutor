@@ -29,7 +29,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "39.99",
+          "displayPrice" : "19.99",
           "familyShareable" : true,
           "groupNumber" : 1,
           "internalID" : "6739000001",
@@ -59,20 +59,20 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "7.99",
+          "displayPrice" : "1.99",
           "familyShareable" : true,
           "groupNumber" : 2,
           "internalID" : "6739000002",
           "localizations" : [
             {
-              "description" : "Every lesson on every path, billed monthly.",
-              "displayName" : "Premium Monthly",
+              "description" : "Every lesson on every path, billed weekly.",
+              "displayName" : "Premium Weekly",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.softroni.papercoach.premium.monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Premium Monthly",
+          "productID" : "com.softroni.papercoach.premium.weekly",
+          "recurringSubscriptionPeriod" : "P1W",
+          "referenceName" : "Premium Weekly",
           "subscriptionGroupID" : "21500001",
           "type" : "RecurringSubscription"
         }

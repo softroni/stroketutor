@@ -8,7 +8,7 @@ import UserNotifications
 /// learner's Apple account holds one, and buying or restoring it.
 ///
 /// One subscription group with two plans. **Yearly** carries the introductory
-/// offer, a free week; **Monthly** has none. Both are Family Sharing, so one
+/// offer, a free week; **Weekly** has none. Both are Family Sharing, so one
 /// grown-up's purchase unlocks every learner on every device in the family. The
 /// ids below must match App Store Connect exactly; `PaperCoach.storekit` at the
 /// repository root mirrors them for testing in Xcode (Scheme › Run › Options ›
@@ -23,8 +23,8 @@ final class PremiumStore {
 
     enum ProductID {
         static let yearly = "com.softroni.papercoach.premium.yearly"
-        static let monthly = "com.softroni.papercoach.premium.monthly"
-        static let all: Set<String> = [yearly, monthly]
+        static let weekly = "com.softroni.papercoach.premium.weekly"
+        static let all: Set<String> = [yearly, weekly]
     }
 
     /// The free week on Yearly. The screens say "7 days", so this is the one number
@@ -35,7 +35,7 @@ final class PremiumStore {
     static let reminderDaysBeforeTrialEnds = 2
 
     enum Plan: String, CaseIterable, Identifiable {
-        case yearly, monthly
+        case yearly, weekly
         var id: String { rawValue }
     }
 
@@ -59,7 +59,7 @@ final class PremiumStore {
         didSet { defaults.set(isPremium, forKey: Self.cacheKey) }
     }
     private(set) var yearly: Product?
-    private(set) var monthly: Product?
+    private(set) var weekly: Product?
     private(set) var loadState: LoadState = .idle
     /// Whether this Apple account can still have the free week. Assumed true until
     /// StoreKit says otherwise, so the offer screens are not wrong while it loads.
@@ -105,7 +105,7 @@ final class PremiumStore {
     func product(for plan: Plan) -> Product? {
         switch plan {
         case .yearly: return yearly
-        case .monthly: return monthly
+        case .weekly: return weekly
         }
     }
 
@@ -117,29 +117,41 @@ final class PremiumStore {
         do {
             let products = try await Product.products(for: Array(ProductID.all))
             yearly = products.first { $0.id == ProductID.yearly }
-            monthly = products.first { $0.id == ProductID.monthly }
+            weekly = products.first { $0.id == ProductID.weekly }
             if let subscription = yearly?.subscription, subscription.introductoryOffer != nil {
                 isEligibleForTrial = await subscription.isEligibleForIntroOffer
             } else if yearly != nil {
                 isEligibleForTrial = false
             }
-            loadState = (yearly == nil && monthly == nil) ? .failed : .loaded
+            loadState = (yearly == nil && weekly == nil) ? .failed : .loaded
         } catch {
             Self.log.error("Products could not be loaded: \(error.localizedDescription, privacy: .public)")
             loadState = .failed
         }
     }
 
-    /// "$39.99", Yearly's price as the App Store writes it for this storefront.
+    /// "$19.99", Yearly's price as the App Store writes it for this storefront.
     var yearlyPrice: String? { yearly?.displayPrice }
 
-    /// Yearly divided by twelve, in the same currency: "$3.33".
-    var yearlyPricePerMonth: String? {
+    /// Yearly divided by 52, in the same currency: "$0.38", to set beside
+    /// Weekly's price.
+    var yearlyPricePerWeek: String? {
         guard let yearly else { return nil }
-        return (yearly.price / 12).formatted(yearly.priceFormatStyle)
+        return (yearly.price / 52).formatted(yearly.priceFormatStyle)
     }
 
-    var monthlyPrice: String? { monthly?.displayPrice }
+    /// "$1.99".
+    var weeklyPrice: String? { weekly?.displayPrice }
+
+    /// How much less Yearly costs than 52 weeks of Weekly, rounded down to a
+    /// whole ten: "80" for $19.99 against $1.99. Nil without both prices, or when
+    /// the saving is too small to mention.
+    var yearlySavingsPercent: Int? {
+        guard let yearly, let weekly, weekly.price > 0 else { return nil }
+        let ratio = NSDecimalNumber(decimal: yearly.price / (weekly.price * 52)).doubleValue
+        let percent = Int((1 - ratio) * 10) * 10
+        return percent >= 10 ? percent : nil
+    }
 
     // MARK: - Entitlement
 

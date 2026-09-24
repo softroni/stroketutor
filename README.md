@@ -857,8 +857,8 @@ protected tier needs it.
   beside the order lock, which still teaches the order. Tapping a crown opens the Premium drawer before anything else.
   A subscriber sees no crowns.
 - **StoreKit 2** (`PaperCoach/Stores/PremiumStore.swift`): one group, `com.softroni.papercoach.premium.yearly` (with
-  a one-week free introductory offer) and `…premium.monthly` (none), both Family Sharing. `PaperCoach.storekit` at the
-  repository root mirrors them with placeholder prices; choose it under Scheme › Run › Options › StoreKit
+  a one-week free introductory offer, $19.99/year) and `…premium.weekly` ($1.99/week, no trial), both Family Sharing. `PaperCoach.storekit` at the
+  repository root mirrors them at those prices; choose it under Scheme › Run › Options › StoreKit
   Configuration. Premium belongs to the Apple account, so every learner on the device shares it.
 - **The guided first run** (`AppModel+FirstRun.swift`, stage saved in `Settings.firstRunStage`): `ob-ready` has no
   "Look around first"; the first lesson has no close button or ⋯ menu; completion and the saved photo have no "Next
@@ -866,7 +866,7 @@ protected tier needs it.
   "More coming" (the path's other lessons sliding past) → 7 days free → the reminder promise (asks for notification
   permission) → the paywall. A relaunch returns to the same stop.
 - **The paywall** leads with the billed amount in the largest type and names it on the button, per Apple's
-  subscription page (quoted in `PaywallView.swift`); "View more plans" opens Yearly/Monthly; Restore, Terms of Use and
+  subscription page (quoted in `PaywallView.swift`); "View more plans" opens Yearly/Weekly; Restore, Terms of Use and
   Privacy are on it. The one way out is "Continue with free lessons". A trial reminder is scheduled two days before
   the free week ends (`TrialReminder`).
 - **Children** (the child privacy tier: under 13, or "prefer not to say") never see a price: the drawer says "Ask a
