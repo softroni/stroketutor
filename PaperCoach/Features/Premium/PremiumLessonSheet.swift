@@ -137,9 +137,8 @@ struct PremiumLessonSheet: View {
 
     /// "7 days free, then $19.99/year. No payment now."
     private func smallPrint(isTrial: Bool) -> String {
-        guard let yearly = app.premium.yearlyPrice else {
-            return isTrial ? "\(PremiumStore.trialDays) days free. No payment now." : "Cancel anytime."
-        }
+        // No price yet: no trial claim either (`PremiumStore.canNameFreeWeek`).
+        guard let yearly = app.premium.yearlyPrice else { return "Cancel anytime." }
         return isTrial
             ? "\(PremiumStore.trialDays) days free, then \(yearly)/year. No payment now."
             : "\(yearly)/year. Cancel anytime."

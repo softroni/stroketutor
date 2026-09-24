@@ -343,6 +343,14 @@ enum DebugScreenHarness {
             app.selectedTab = .settings
             raisePINCreate = true
 
+        case "offer-more-coming":
+            // The first step of the offer at the end of the first run: the first
+            // lesson of a path drawn, the rest of it still ahead.
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            app.markFirstRunStarted(with: treeLesson)
+            app.settings.firstRunStage = .offer
+            app.cover = .offer(.onboarding)
+
         default:
             break // Unknown name: leave the clean, onboarded Home screen showing.
         }

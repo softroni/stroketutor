@@ -244,7 +244,8 @@ struct GrownUpPaywallView: View {
             PriceBlock(trialLine: "Their first \(PremiumStore.trialDays) days are free")
                 .frame(maxWidth: .infinity)
 
-            if isTrial { timeline }
+            // Day 7 names the price, so the timeline waits for it.
+            if app.premium.canNameFreeWeek { timeline }
         } footer: {
             if app.premium.loadState == .loaded, app.premium.yearly != nil {
                 Button("View more plans") { isShowingPlans = true }

@@ -15,6 +15,8 @@ struct MoreComingView: View {
 
     var body: some View {
         OfferScreenFrame {
+            Spacer(minLength: 0)
+
             VStack(alignment: .leading, spacing: 12) {
                 if let path, !upcoming.isEmpty {
                     Chip(text: "\(path.title) · \(upcoming.count) more to draw",
@@ -33,13 +35,19 @@ struct MoreComingView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer(minLength: 8)
+            VStack(spacing: 14) {
+                LessonMarquee(lessons: marqueeLessons)
+                if otherPathLessons.count >= 4 {
+                    // The other paths drift the other way, smaller: there is more
+                    // beyond this path.
+                    LessonMarquee(lessons: otherPathLessons, style: .compact, reversed: true)
+                }
+            }
+            // Edge to edge: the rows run off both sides of the screen.
+            .padding(.horizontal, -Theme.gutter)
+            .padding(.top, 10)
 
-            LessonMarquee(lessons: marqueeLessons)
-                // Edge to edge: the row runs off both sides of the screen.
-                .padding(.horizontal, -Theme.gutter)
-
-            Spacer(minLength: 8)
+            Spacer(minLength: 0)
         } footer: {
             Button(buttonTitle, action: onContinue)
                 .buttonStyle(.primary)
@@ -70,6 +78,14 @@ struct MoreComingView: View {
         return lessons
     }
 
+    /// The first lesson of every other path not already in the top row.
+    private var otherPathLessons: [Lesson] {
+        let shown = Set(marqueeLessons.map(\.id))
+        return app.paths.filter { $0.id != path?.id }
+            .compactMap(\.lessons.first)
+            .filter { !shown.contains($0.id) }
+    }
+
     /// "Your pine tree was just the start."
     private var headline: String {
         guard let lesson else { return "Your first drawing was just the start." }
@@ -97,19 +113,26 @@ struct MoreComingView: View {
 }
 
 /// Lesson cards sliding past in one endless row. The row is drawn twice, end to
-/// end, and moved left by the time that has passed, so it wraps without a seam.
+/// end, and moved by the time that has passed, so it wraps without a seam.
 /// With Reduce Motion it holds still and can be scrolled by hand instead.
 ///
-/// One VoiceOver element: the lessons, named in order.
+/// `.full` cards carry the title and the lesson's place on its path; `.compact`
+/// ones are the drawing alone. One VoiceOver element: the lessons, named in order.
 struct LessonMarquee: View {
+    enum Style { case full, compact }
+
     let lessons: [Lesson]
+    var style: Style = .full
+    /// Slides left to right instead.
+    var reversed = false
 
     @Environment(AppModel.self) private var app
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var startedAt = Date()
 
-    private let cardWidth: CGFloat = 150
-    private let spacing: CGFloat = 14
+    private var cardWidth: CGFloat { style == .full ? 150 : 104 }
+    private var height: CGFloat { style == .full ? 226 : 104 }
+    private var spacing: CGFloat { style == .full ? 14 : 12 }
     /// Points per second: slow enough to read a name as it passes.
     private let speed: CGFloat = 26
 
@@ -121,30 +144,41 @@ struct LessonMarquee: View {
                         .padding(.horizontal, Theme.gutter)
                 }
             } else {
-                TimelineView(.animation) { context in
-                    row(lessons + lessons)
-                        .offset(x: offset(at: context.date))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .clipped()
+                // The doubled row is far wider than the screen. Drawn in an
+                // overlay, its width never reaches the layout around it.
+                Color.clear
+                    .overlay(alignment: .leading) {
+                        TimelineView(.animation) { context in
+                            row(lessons + lessons)
+                                .offset(x: offset(at: context.date))
+                        }
+                    }
+                    .clipped()
             }
         }
-        .frame(height: 226)
+        .frame(height: height)
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Coming up: \(lessons.map(\.title).joined(separator: ", "))")
+        .accessibilityLabel(style == .full
+            ? "Coming up: \(lessons.map(\.title).joined(separator: ", "))"
+            : "More paths: \(lessons.compactMap { app.path(id: $0.pathId)?.title }.joined(separator: ", "))")
     }
 
     private func offset(at date: Date) -> CGFloat {
         let cycle = CGFloat(lessons.count) * (cardWidth + spacing)
         guard cycle > 0 else { return 0 }
-        let travelled = CGFloat(date.timeIntervalSince(startedAt)) * speed
-        return -travelled.truncatingRemainder(dividingBy: cycle)
+        let travelled = (CGFloat(date.timeIntervalSince(startedAt)) * speed)
+            .truncatingRemainder(dividingBy: cycle)
+        return reversed ? travelled - cycle : -travelled
     }
 
     private func row(_ items: [Lesson]) -> some View {
         HStack(spacing: spacing) {
             ForEach(Array(items.enumerated()), id: \.offset) { _, lesson in
-                card(lesson)
+                switch style {
+                case .full: card(lesson)
+                case .compact: tile(lesson)
+                }
             }
         }
         .fixedSize()
@@ -184,6 +218,16 @@ struct LessonMarquee: View {
         .frame(width: cardWidth)
         .background(shape.fill(path.map { app.tint(for: $0).soft } ?? Theme.surface))
         .overlay(shape.strokeBorder(Theme.line, lineWidth: 2))
+    }
+
+    private func tile(_ lesson: Lesson) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 18, style: .continuous)
+        let path = app.path(id: lesson.pathId)
+        return DrawingThumbnail(tutorial: lesson.tutorial, strokeColor: nil, showsFills: true)
+            .padding(16)
+            .frame(width: cardWidth, height: cardWidth)
+            .background(shape.fill(path.map { app.tint(for: $0).soft } ?? Theme.surface))
+            .overlay(shape.strokeBorder(Theme.line, lineWidth: 2))
     }
 }
 

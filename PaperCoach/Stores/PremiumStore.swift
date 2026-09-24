@@ -133,6 +133,14 @@ final class PremiumStore {
     /// "$19.99", Yearly's price as the App Store writes it for this storefront.
     var yearlyPrice: String? { yearly?.displayPrice }
 
+    /// Whether a price block may name the free week: only beside the price it turns
+    /// into. Apple (https://developer.apple.com/app-store/subscriptions/, read
+    /// 2026-09-24): "the amount that will be billed must be the most prominent
+    /// pricing element", and a free trial must state "the price billed once the free
+    /// trial is over". With the App Store unreachable there is no price, so no trial
+    /// claim either.
+    var canNameFreeWeek: Bool { isEligibleForTrial && yearlyPrice != nil }
+
     /// Yearly divided by 52, in the same currency: "$0.38", to set beside
     /// Weekly's price.
     var yearlyPricePerWeek: String? {

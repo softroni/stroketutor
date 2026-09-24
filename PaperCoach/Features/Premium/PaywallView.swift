@@ -101,8 +101,12 @@ struct PaywallView: View {
 /// The prices, in the order Apple asks for: the amount billed first and largest —
 /// "$19.99 per year" — then the free week, then what it comes to a week, then the
 /// plan's name and length and Family Sharing.
+///
+/// Until the App Store answers there is no price, so the block names the plan and
+/// nothing else: no free week, no weekly rate (`PremiumStore.canNameFreeWeek`).
 struct PriceBlock: View {
-    /// "Your first 7 days are free", said only while the free week is on offer.
+    /// "Your first 7 days are free", said only while the free week is on offer and
+    /// its price is on screen.
     let trialLine: String
 
     @Environment(AppModel.self) private var app
@@ -120,7 +124,7 @@ struct PriceBlock: View {
                     .textRole(.title1)
                     .foregroundStyle(Theme.ink)
             }
-            if app.premium.isEligibleForTrial {
+            if app.premium.canNameFreeWeek {
                 Text(trialLine)
                     .scaledFont(18, .heavy, relativeTo: .headline)
                     .foregroundStyle(Theme.greenDeep)
@@ -131,7 +135,8 @@ struct PriceBlock: View {
                     .textRole(.subhead)
                     .foregroundStyle(Theme.ink55)
             }
-            Text("Paper Coach Premium · renews yearly")
+            // Without a price the title above already names the plan.
+            Text(app.premium.yearlyPrice == nil ? "Renews yearly" : "Paper Coach Premium · renews yearly")
                 .textRole(.footnote)
                 .foregroundStyle(Theme.ink55)
                 .padding(.top, 2)
