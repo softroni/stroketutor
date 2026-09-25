@@ -49,6 +49,9 @@ enum DebugScreenHarness {
         raisePINCreate = false
         pendingLessonsJump = nil
         pendingLessonsSearch = nil
+        pendingOfferStep = nil
+        pendingTrialEndsAt = nil
+        pendingOpensPlans = false
         app.pathsWelcomePending = false
 
         // The screens below are captured with two of the shipped drawings: the palm
@@ -355,8 +358,49 @@ enum DebugScreenHarness {
             // The paywall itself, as a grown-up reaches it from Settings > Premium.
             // The App Store subscription review screenshot is taken here. The
             // active learner is made 18+ first: a learner who never gave an age is
-            // a child, and a child is sent to "Ask a grown-up" instead.
+            // a child, and a child is sent to "This part is for a grown-up" instead.
             app.setAgeGroup(app.activeProfile.id, to: .adult)
+            app.selectedTab = .settings
+            app.cover = .offer(.settings)
+
+        case "offer-drawer", "offer-drawer-kid":
+            // The Premium drawer over Home, on the first Premium lesson of the
+            // tree's path: as an 18+ learner sees it (the price, when the App Store
+            // has answered, and "See Premium"), or as a 6-to-9 sees it (the wish
+            // list, a free lesson to draw, "For grown-ups").
+            app.setAgeGroup(app.activeProfile.id, to: name == "offer-drawer" ? .adult : .from6To9)
+            guard let premiumLesson = firstPremiumLesson(preferring: treePath, in: shipped) else { break }
+            app.premiumOffer = PremiumOffer(lessonId: premiumLesson.id)
+
+        case "offer-grown-up-paywall":
+            // The grown-up's paywall, past the parental check: a 6-to-9 learner who
+            // has drawn the tree and starred a Premium lesson, so the child's card
+            // shows their drawing and their wish list.
+            app.setAgeGroup(app.activeProfile.id, to: .from6To9)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            if let premiumLesson = firstPremiumLesson(preferring: treePath, in: shipped),
+               !app.preferences.wishList.contains(premiumLesson.id) {
+                app.preferences.toggleWish(premiumLesson.id)
+            }
+            pendingOfferStep = .grownUpPaywall
+            app.selectedTab = .settings
+            app.cover = .offer(.settings)
+
+        case "offer-plans":
+            // "View more plans" over the paywall, as an 18+ learner opens it: each
+            // row's billed price above the size of the button's title.
+            app.setAgeGroup(app.activeProfile.id, to: .adult)
+            pendingOpensPlans = true
+            app.selectedTab = .settings
+            app.cover = .offer(.settings)
+
+        case "offer-trial-started":
+            // "Your free week has started", as an 18+ learner sees it straight after
+            // the purchase. Nothing is bought: the free week's end is made up, seven
+            // days from now (`pendingTrialEndsAt`).
+            app.setAgeGroup(app.activeProfile.id, to: .adult)
+            pendingOfferStep = .trialStarted
+            pendingTrialEndsAt = Calendar.current.date(byAdding: .day, value: PremiumStore.trialDays, to: Date())
             app.selectedTab = .settings
             app.cover = .offer(.settings)
 
@@ -392,6 +436,30 @@ enum DebugScreenHarness {
     static var pendingLessonsJump: String?
     /// Set by `lessons-search`; `LessonsView` reads it the same way, opens its search field and types these words, since both are its own `@State`.
     static var pendingLessonsSearch: String?
+    /// Set by `offer-grown-up-paywall` and `offer-trial-started`: the step
+    /// `OfferFlow` opens on instead of its usual first one. Taken (read and
+    /// cleared) once, by `takeOfferStep()`, so a later offer opens as usual.
+    static var pendingOfferStep: OfferFlow.Step?
+    /// Set by `offer-trial-started`: the end of a free week that never started,
+    /// so "trial started" has dates to name. `OfferFlow` uses it only while
+    /// `PremiumStore.trialEndsAt` is nil.
+    static var pendingTrialEndsAt: Date?
+
+    /// Set by `offer-plans`: the paywall opens its plans sheet as it appears.
+    /// Taken once, by `takeOpensPlans()`.
+    static var pendingOpensPlans = false
+
+    /// `pendingOfferStep`, once.
+    static func takeOfferStep() -> OfferFlow.Step? {
+        defer { pendingOfferStep = nil }
+        return pendingOfferStep
+    }
+
+    /// `pendingOpensPlans`, once.
+    static func takeOpensPlans() -> Bool {
+        defer { pendingOpensPlans = false }
+        return pendingOpensPlans
+    }
 
     /// Profile screens need a second learner to show anything worth reviewing. Added
     /// once and left: profiles, unlike the stores above, are not wiped per run.
@@ -402,6 +470,18 @@ enum DebugScreenHarness {
     }
 
     // MARK: - Helpers
+
+    /// The first Premium lesson of `path`, or of any other shipped path when it has
+    /// none: the drawer screens need a lesson that wears a crown.
+    @MainActor
+    private static func firstPremiumLesson(preferring path: PathModel, in shipped: [PathModel]) -> Lesson? {
+        for candidate in [path] + shipped.filter({ $0.id != path.id }) {
+            if let lesson = candidate.lessons.first(where: { PremiumAccess.isPremiumLesson($0, in: candidate) }) {
+                return lesson
+            }
+        }
+        return nil
+    }
 
     /// A step past the first and before the last, so "paused" and "awaiting"
     /// screenshots never coincide with the orientation beat or the last-step

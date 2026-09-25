@@ -88,9 +88,10 @@ enum AppCover: Identifiable, Hashable {
 /// Where the way to Premium was opened from, which decides where it starts and
 /// where it leaves the learner.
 enum OfferEntry: Hashable, Identifiable {
-    /// The end of the guided first run: "More coming" first, then the free week.
+    /// The end of the guided first run: "More coming" first, then the paywall.
     case onboarding
-    /// A Premium lesson's drawer: straight to the paywall, or to a grown-up.
+    /// A Premium lesson's drawer: "See Premium" goes straight to the paywall; a
+    /// child's "For grown-ups" goes to the way to a grown-up.
     case premiumLesson(lessonId: String)
     /// The Premium row in Settings.
     case settings
@@ -120,7 +121,7 @@ struct PremiumOffer: Identifiable, Hashable {
 }
 
 /// The short line a young learner sees instead of the drawer, once they have
-/// closed it this session: "Ask a grown-up to unlock Mushroom".
+/// closed it this session: "Mushroom is a Premium lesson".
 struct PremiumNudge: Identifiable, Equatable {
     let id = UUID()
     let lessonId: String

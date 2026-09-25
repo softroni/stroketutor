@@ -5,14 +5,15 @@ import Foundation
 extension AppModel {
 
     /// Whether the learner who is drawing is treated as a child — under 13, or
-    /// never said. A child never sees a price: the drawer and the paywall ask for a
-    /// grown-up, behind the parental check (`ParentalGateView`).
+    /// never said. A child never sees a price: the drawer offers the wish list and a
+    /// free lesson, and the paywall is the grown-up's, behind "For grown-ups" and the
+    /// parental check (`ParentalGateView`).
     var learnerIsChild: Bool {
         activeProfile.privacyTier == .child
     }
 
     /// True when this lesson is past its path's free lessons and Premium is not
-    /// active: it wears a crown, and a tap offers the free week.
+    /// active: it wears a crown, and a tap opens the Premium drawer.
     func needsPremium(_ lesson: Lesson) -> Bool {
         guard !premium.isPremium, let path = path(id: lesson.pathId) else { return false }
         return PremiumAccess.isPremiumLesson(lesson, in: path)
@@ -55,10 +56,29 @@ extension AppModel {
         premiumOffer = nil
     }
 
+    /// The child drawer's "Draw Sun": a free lesson instead. The drawer closes
+    /// first; `AppRoot` opens the lesson when it has gone (`openOfferAfterDrawer()`).
+    func drawFreeLesson(fromDrawer lesson: Lesson) {
+        offerAfterDrawer = nil
+        lessonAfterDrawer = lesson.id
+        premiumOffer = nil
+    }
+
     /// Called as the drawer finishes going away, however it was closed: brings up
-    /// the offer it chose, if any. A child who closed it without asking for a
-    /// grown-up is not shown it again this session (`offerPremiumIfNeeded(for:)`).
+    /// the offer it chose, or the free lesson, if any. A child who closed it without
+    /// going on to "For grown-ups" is not shown it again this session
+    /// (`offerPremiumIfNeeded(for:)`).
     func openOfferAfterDrawer() {
+        if let lessonId = lessonAfterDrawer {
+            lessonAfterDrawer = nil
+            if learnerIsChild { hasClosedKidDrawer = true }
+            guard let lesson = lesson(id: lessonId) else { return }
+            // Over a finished lesson's screen, the free lesson leaves it, as that
+            // screen's own "Or keep going free" row does.
+            if cover != nil { dismissCover() }
+            showPreview(of: lesson)
+            return
+        }
         guard let entry = offerAfterDrawer else {
             if learnerIsChild { hasClosedKidDrawer = true }
             return
@@ -91,6 +111,13 @@ extension AppModel {
         PremiumAccess.freeLessonSuggestion(excludingPath: lesson.pathId,
                                            paths: paths,
                                            progress: progress)
+    }
+
+    /// The child drawer's "Draw Pine Tree": the next free lesson of the tapped
+    /// lesson's own path while it has one, else one from another path
+    /// (`PremiumAccess.freeLessonInstead(of:paths:progress:)`).
+    func freeLessonInstead(of lesson: Lesson) -> Lesson? {
+        PremiumAccess.freeLessonInstead(of: lesson, paths: paths, progress: progress)
     }
 
     /// The lessons on the child's wish list that still need Premium, oldest first.

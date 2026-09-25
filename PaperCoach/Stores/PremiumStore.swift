@@ -94,7 +94,9 @@ final class PremiumStore {
     private(set) var weekly: Product?
     private(set) var loadState: LoadState = .idle
     /// Whether this Apple account can still have the free week. Assumed true until
-    /// StoreKit says otherwise, so the offer screens are not wrong while it loads.
+    /// StoreKit says otherwise, but never named on screen before it has: the products,
+    /// and so the price the free week must sit beside (`canNameFreeWeek`), are set only
+    /// once this is known (`loadProducts()`).
     private(set) var isEligibleForTrial = true
     /// When the free week in use ends, for the reminder; nil outside a trial.
     private(set) var trialEndsAt: Date?
@@ -167,9 +169,16 @@ final class PremiumStore {
         loadState = .loading
         do {
             let products = try await Product.products(for: Array(ProductID.all))
-            yearly = products.first { $0.id == ProductID.yearly }
+            let loadedYearly = products.first { $0.id == ProductID.yearly }
+            // Eligibility first, then the products: the moment a price is on screen,
+            // so is the right answer about the free week. The other way round, an
+            // account that has used it would see "First 7 days free" for as long as
+            // StoreKit took to say so.
+            if let loadedYearly {
+                isEligibleForTrial = await Self.trialEligibility(of: loadedYearly)
+            }
+            yearly = loadedYearly
             weekly = products.first { $0.id == ProductID.weekly }
-            await refreshTrialEligibility()
             // Yearly is the plan every paywall leads with; without it there is
             // nothing to show but the retry.
             loadState = yearly == nil ? .failed : .loaded
@@ -184,11 +193,13 @@ final class PremiumStore {
     /// refunded during this launch is not offered again.
     private func refreshTrialEligibility() async {
         guard let yearly else { return }
-        if let subscription = yearly.subscription, subscription.introductoryOffer != nil {
-            isEligibleForTrial = await subscription.isEligibleForIntroOffer
-        } else {
-            isEligibleForTrial = false
-        }
+        isEligibleForTrial = await Self.trialEligibility(of: yearly)
+    }
+
+    /// Whether Yearly carries a free week this account can still have.
+    private static func trialEligibility(of yearly: Product) async -> Bool {
+        guard let subscription = yearly.subscription, subscription.introductoryOffer != nil else { return false }
+        return await subscription.isEligibleForIntroOffer
     }
 
     /// "$19.99", Yearly's price as the App Store writes it for this storefront.
@@ -295,19 +306,32 @@ final class PremiumStore {
 // MARK: - The trial reminder
 
 /// The one notification the offer screens promise: two days before the free week
-/// ends. It is only scheduled once permission is given — asked on the reminder
-/// screen of onboarding, or when a grown-up starts the week — and is taken away as
-/// soon as there is no trial to remind about.
+/// ends. It is only scheduled once permission is given — asked on the "trial
+/// started" screen (`TrialStartedView`), the first time a free week really begins,
+/// and never before — and is taken away as soon as there is no trial to remind about.
 enum TrialReminder {
 
     static let identifier = "trial-ending"
 
+    /// When the reminder comes: `PremiumStore.reminderDaysBeforeTrialEnds` calendar
+    /// days before the free week ends, at the same time of day — so across a change
+    /// to or from daylight saving it still falls on the day the screens name ("two
+    /// days before"). The screens that name the date use this too, so what they
+    /// promise is what is scheduled.
+    static func reminderDate(trialEndsAt: Date, calendar: Calendar = .current) -> Date {
+        calendar.date(byAdding: .day, value: -PremiumStore.reminderDaysBeforeTrialEnds, to: trialEndsAt)
+            ?? trialEndsAt.addingTimeInterval(-Double(PremiumStore.reminderDaysBeforeTrialEnds) * 86_400)
+    }
+
     /// Asks for permission if it has never been asked, then schedules. For the
-    /// moment a trial has just begun.
+    /// moment a trial has just begun: the one button of `TrialStartedView`.
     static func requestAndSchedule(trialEndsAt: Date?) async {
-        // No trial, nothing to remind about: never ask for a permission this
-        // purchase does not need.
-        if trialEndsAt != nil, await PracticeReminderScheduler.authorization() == .notDetermined {
+        // No trial, or a reminder whose day has already gone (the App Store
+        // sandbox's free week lasts minutes): nothing to remind about, so never ask
+        // for a permission this purchase does not need.
+        if let trialEndsAt,
+           TrialSchedule(endingAt: trialEndsAt).remindsAfter(Date()),
+           await PracticeReminderScheduler.authorization() == .notDetermined {
             _ = await PracticeReminderScheduler.requestAuthorization()
         }
         await sync(trialEndsAt: trialEndsAt)
@@ -319,7 +343,7 @@ enum TrialReminder {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
         guard let trialEndsAt else { return }
-        let fireDate = trialEndsAt.addingTimeInterval(-Double(PremiumStore.reminderDaysBeforeTrialEnds) * 86_400)
+        let fireDate = reminderDate(trialEndsAt: trialEndsAt)
         guard fireDate > Date() else { return }
         guard await PracticeReminderScheduler.authorization() == .allowed else { return }
 
@@ -340,10 +364,12 @@ enum TrialReminder {
         }
     }
 
-    /// "Paper Couch Premium starts on Thursday. Keep drawing with Lina, or cancel
-    /// any time before then in Settings."
+    /// "Paper Couch Premium starts on Thursday. Keep drawing with Lina, or cancel in
+    /// Settings at least a day before." A day, not "any time before then": Apple
+    /// (https://support.apple.com/en-us/118428, read 2026-09-25) says to cancel a
+    /// trial "at least 24 hours before the trial ends".
     static func body(trialEndsAt: Date) -> String {
-        "Paper Couch Premium starts on \(weekday.string(from: trialEndsAt)). Keep drawing with Lina, or cancel any time before then in Settings."
+        "Paper Couch Premium starts on \(weekday.string(from: trialEndsAt)). Keep drawing with Lina, or cancel in Settings at least a day before."
     }
 
     private static let weekday: DateFormatter = {
@@ -351,4 +377,37 @@ enum TrialReminder {
         formatter.setLocalizedDateFormatFromTemplate("EEEE")
         return formatter
     }()
+}
+
+/// The free week's dates, as the offer screens name them: the day the reminder
+/// comes and the day the price starts. Plain values, so the tests read the same
+/// dates as the screens.
+struct TrialSchedule: Equatable {
+    /// The reminder, `PremiumStore.reminderDaysBeforeTrialEnds` days before the end.
+    let reminder: Date
+    /// The end of the free week: the yearly price is billed from here.
+    let end: Date
+
+    /// A free week that would start at `start`: what the paywall's timeline lays
+    /// out before anything is bought.
+    init(startingAt start: Date, calendar: Calendar = .current) {
+        let end = calendar.date(byAdding: .day, value: PremiumStore.trialDays, to: start)
+            ?? start.addingTimeInterval(Double(PremiumStore.trialDays) * 86_400)
+        self.init(endingAt: end)
+    }
+
+    /// A free week that has started and ends at `end`, the date StoreKit gives
+    /// (`PremiumStore.trialEndsAt`).
+    init(endingAt end: Date, calendar: Calendar = .current) {
+        self.end = end
+        reminder = TrialReminder.reminderDate(trialEndsAt: end, calendar: calendar)
+    }
+
+    /// Whether the reminder is still to come at `now`. It is not when the free week
+    /// ends within two days: in the App Store sandbox, where App Review and TestFlight
+    /// buy and a week lasts about three minutes, or for a free week already under
+    /// way. `TrialReminder.sync` schedules nothing then, so no screen may promise it.
+    func remindsAfter(_ now: Date) -> Bool {
+        reminder > now
+    }
 }

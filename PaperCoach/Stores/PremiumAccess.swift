@@ -5,7 +5,7 @@ import Foundation
 ///
 /// Every path is open to everyone, and the first `freeLessonsPerPath` lessons of
 /// each are free. From the next one on, a lesson is Premium: it wears a crown on
-/// its tile and node, and tapping it offers the free week instead of opening it.
+/// its tile and node, and tapping it opens the Premium drawer instead of the lesson.
 /// A subscriber sees no crowns at all.
 ///
 /// The crown says nothing about order. A lesson can be Premium and still locked
@@ -42,5 +42,21 @@ enum PremiumAccess {
             }
         }
         return nil
+    }
+
+    /// The free lesson a child's Premium drawer offers instead of `lesson`. A crown
+    /// can be tapped long before its path's free lessons are drawn, so the path the
+    /// child is on comes first: its next lesson, while that is still free. Past
+    /// them, `freeLessonSuggestion(excludingPath:paths:progress:)`.
+    @MainActor
+    static func freeLessonInstead(of lesson: Lesson,
+                                  paths: [PathModel],
+                                  progress: ProgressStore) -> Lesson? {
+        if let path = paths.first(where: { $0.id == lesson.pathId }),
+           let next = progress.nextLesson(in: path),
+           !isPremiumLesson(next, in: path) {
+            return next
+        }
+        return freeLessonSuggestion(excludingPath: lesson.pathId, paths: paths, progress: progress)
     }
 }

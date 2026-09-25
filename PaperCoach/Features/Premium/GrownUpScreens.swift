@@ -3,9 +3,17 @@ import UIKit
 
 // MARK: - Ask a grown-up
 
-/// A child's way to Premium starts by handing the phone over. Lina says so, and
-/// there are two ways on: the grown-up takes it from here, or the child goes back
-/// to the free lessons. No price, no trial, nothing to buy on this screen.
+/// The gate in front of a child's way to Premium: "This part is for a grown-up."
+/// Reached from the child drawer's "For grown-ups" link, from "More coming" at the
+/// end of a child's first run, and from Settings on a child's profile. Two ways on:
+/// the grown-up takes it from here, or the child goes back to the free lessons. No
+/// price, no trial, nothing to buy on this screen.
+///
+/// It tells the child what the screen is and who it is for, never to go and ask for
+/// Premium: an advertisement's "direct appeal to children to … persuade their
+/// parents or other adults to buy advertised products for them" is banned outright
+/// (UK Digital Markets, Competition and Consumers Act 2024, Schedule 20 para 30; EU
+/// Unfair Commercial Practices Directive, Annex I point 28).
 struct GrownUpHandoffView: View {
     let entry: OfferEntry
     let onGrownUp: () -> Void
@@ -36,7 +44,7 @@ struct GrownUpHandoffView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
 
-            Text("Pass the phone to a parent or another grown-up. They’ll know what to do.")
+            Text("If a grown-up is with you, they can take it from here. The free lessons stay yours either way.")
                 .textRole(.bodyRegular)
                 .foregroundStyle(Theme.ink55)
                 .multilineTextAlignment(.center)
@@ -217,76 +225,41 @@ struct ParentalQuestion: Equatable {
 
 // MARK: - The grown-up's paywall
 
-/// The paywall written for the parent the phone was handed to. The free week, the
-/// reminder and the price on one page: the child's own drawing and the lessons on
-/// their wish list, the price (first and largest, as on `PaywallView`, which cites
-/// Apple's rule), "Their first 7 days are free", and Today → Day 5 → Day 7.
-/// The button also asks for notification permission, since the reminder comes to
-/// this device (`TrialReminder`). "Continue with free lessons" is the way out.
+/// The paywall written for the parent the phone was handed to, in the layout the
+/// learner's paywall uses (`PaywallLayout`; Apple's rules it follows are quoted on
+/// `PaywallView`): the child's
+/// own drawing and the lessons on their wish list, the price first and largest,
+/// "Their first 7 days are free", and the free week's dated timeline. "Continue with
+/// free lessons", under the buy button, is the way out.
+///
+/// The buy button asks for nothing but the purchase. Once a free week has really
+/// started, the "trial started" screen promises the reminder with its dates and asks
+/// for notification permission there, if it never was (`TrialStartedView`).
 struct GrownUpPaywallView: View {
     let entry: OfferEntry
     let onOutcome: (PremiumStore.PurchaseOutcome) -> Void
     let onContinueFree: () -> Void
 
     @Environment(AppModel.self) private var app
-    @State private var isShowingPlans = false
-    @State private var didFail = false
 
     var body: some View {
-        OfferScreenFrame {
-            HStack {
-                Chip(text: "For grown-ups", style: .blue)
-                    .padding(.leading, 12)
-                Spacer()
-                RestoreButton { onOutcome(.restored) }
-            }
-        } content: {
+        PaywallLayout(trialLine: "Their first \(PremiumStore.trialDays) days are free",
+                      isForGrownUp: true,
+                      trialButtonTitle: "Start the free week",
+                      onOutcome: onOutcome,
+                      onContinueFree: onContinueFree) {
+            Chip(text: "For grown-ups", style: .blue)
+                .padding(.leading, 12)
+        } art: {
             childCard
-
-            PriceBlock(trialLine: "Their first \(PremiumStore.trialDays) days are free")
-                .frame(maxWidth: .infinity)
-
-            // Day 7 names the price, so the timeline waits for it.
-            if app.premium.canNameFreeWeek { timeline }
-        } footer: {
-            if app.premium.loadState == .loaded, app.premium.yearly != nil {
-                Button("View more plans") { isShowingPlans = true }
-                    .buttonStyle(.quiet)
-                    .underline()
-                    .padding(.bottom, -6)
-                if didFail {
-                    Text("That did not go through. Please try again.")
-                        .textRole(.footnote)
-                        .foregroundStyle(Theme.danger)
-                }
-                Button { buy(.yearly) } label: {
-                    PurchaseLabel(title: isTrial ? "Start the free week" : "Subscribe",
-                                  price: app.premium.yearlyPrice.map { isTrial ? "then \($0)/year" : "\($0)/year" })
-                }
-                .buttonStyle(.primary)
-                .disabled(app.premium.isPurchasing)
-            } else {
-                OfferLoadingState()
-            }
-            Button("Continue with free lessons", action: onContinueFree)
-                .buttonStyle(.quiet)
-                .underline()
-            LegalLinksRow()
-        }
-        .sheet(isPresented: $isShowingPlans) {
-            PaywallPlansSheet { plan in
-                isShowingPlans = false
-                buy(plan)
-            }
-            .environment(app)
         }
         .onAppear { app.analytics.track(.offerScreenViewed("grown_up_paywall", entry: entry.analyticsName)) }
     }
 
-    private var isTrial: Bool { app.premium.isEligibleForTrial }
-
     /// The child's latest drawing — their photo if they took one, else the lesson —
-    /// beside what they starred for later.
+    /// beside what they starred for later. Straight on the page, no card around it;
+    /// the wish-list tiles are the learner's paywall tiles (`PaywallArt`), white with
+    /// a thin line, so they hold their shape on the white page.
     private var childCard: some View {
         HStack(spacing: 14) {
             latestDrawing
@@ -311,7 +284,7 @@ struct GrownUpPaywallView: View {
                     Text("On their wish list".uppercased())
                         .textRole(.eyebrow)
                         .foregroundStyle(Theme.goldDeep)
-                    HStack(alignment: .top, spacing: 10) {
+                    HStack(alignment: .top, spacing: 6) {
                         ForEach(wishes) { lesson in
                             VStack(spacing: 4) {
                                 DrawingThumbnail(tutorial: lesson.tutorial, strokeColor: nil, showsFills: true)
@@ -319,6 +292,10 @@ struct GrownUpPaywallView: View {
                                     .frame(width: 50, height: 50)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Theme.paper)
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .strokeBorder(Theme.line, lineWidth: 2)
                                     )
                                     .overlay(alignment: .topTrailing) {
                                         Image(systemName: "star.fill")
@@ -328,11 +305,13 @@ struct GrownUpPaywallView: View {
                                             .background(Circle().fill(Theme.goldSoft))
                                             .offset(x: 6, y: -6)
                                     }
+                                // Two lines rather than "Mushro…".
                                 Text(lesson.title)
                                     .scaledFont(12, .bold)
                                     .foregroundStyle(Theme.ink)
-                                    .lineLimit(1)
-                                    .frame(width: 58)
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                                    .frame(width: 72)
                             }
                         }
                     }
@@ -342,11 +321,6 @@ struct GrownUpPaywallView: View {
                 .accessibilityLabel("On their wish list: \(wishes.map(\.title).joined(separator: ", "))")
             }
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
-                .strokeBorder(Theme.line, lineWidth: 2)
-        )
     }
 
     /// The lesson finished most recently.
@@ -370,54 +344,6 @@ struct GrownUpPaywallView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Theme.surface)
                 .accessibilityHidden(true)
-        }
-    }
-
-    /// Today → Day 5 → Day 7, one line each.
-    private var timeline: some View {
-        let reminderDay = PremiumStore.trialDays - PremiumStore.reminderDaysBeforeTrialEnds
-        let price = app.premium.yearlyPrice.map { "\($0)/year" } ?? "Premium"
-        return VStack(alignment: .leading, spacing: 10) {
-            timelineRow(badge: "1", fill: Theme.green, when: "Today",
-                        what: "Every lesson unlocks. No payment now.")
-            timelineRow(badge: "\(reminderDay)", fill: Theme.gold, when: "Day \(reminderDay)",
-                        what: "A reminder arrives on this device.")
-            timelineRow(badge: "\(PremiumStore.trialDays)", fill: Theme.ink55, when: "Day \(PremiumStore.trialDays)",
-                        what: "\(price) starts. Cancel before then and pay nothing.")
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous).fill(Theme.surface)
-        )
-    }
-
-    private func timelineRow(badge: String, fill: Color, when: String, what: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text(badge)
-                .scaledFont(13, .heavy)
-                .foregroundStyle(.white)
-                .frame(width: 28, height: 28)
-                .background(Circle().fill(fill))
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(when)
-                    .textRole(.headline)
-                    .foregroundStyle(Theme.ink)
-                Text(what)
-                    .textRole(.footnote)
-                    .foregroundStyle(Theme.ink55)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .accessibilityElement(children: .combine)
-    }
-
-    private func buy(_ plan: PremiumStore.Plan) {
-        didFail = false
-        OfferPurchase.buy(plan, app: app) { outcome in
-            if outcome == .failed { didFail = true }
-            onOutcome(outcome)
         }
     }
 }

@@ -88,6 +88,35 @@ final class PremiumTests: XCTestCase {
         XCTAssertNil(suggestion, "Fruits' next lesson is the fourth, which is Premium")
     }
 
+    // MARK: - The free lesson in a child's drawer
+
+    func testTheDrawerOffersTheNextFreeLessonOfTheTappedLessonsOwnPath() throws {
+        let plants = try Self.makePath(id: "plants", lessonCount: 10)
+        let fruits = try Self.makePath(id: "fruits", lessonCount: 10)
+        let progress = ProgressStore(baseDirectory: base)
+        // Pine tree drawn, tulip and cactus not; the child taps the crowned mushroom.
+        progress.markCompleted(plants.lessons[0].id, pathId: plants.id)
+
+        let offered = PremiumAccess.freeLessonInstead(of: plants.lessons[3],
+                                                      paths: [plants, fruits],
+                                                      progress: progress)
+
+        XCTAssertEqual(offered?.id, plants.lessons[1].id)
+    }
+
+    func testTheDrawerLooksToOtherPathsOnceItsOwnFreeLessonsAreDrawn() throws {
+        let plants = try Self.makePath(id: "plants", lessonCount: 10)
+        let fruits = try Self.makePath(id: "fruits", lessonCount: 10)
+        let progress = ProgressStore(baseDirectory: base)
+        for lesson in plants.lessons.prefix(3) { progress.markCompleted(lesson.id, pathId: plants.id) }
+
+        let offered = PremiumAccess.freeLessonInstead(of: plants.lessons[3],
+                                                      paths: [plants, fruits],
+                                                      progress: progress)
+
+        XCTAssertEqual(offered?.id, fruits.lessons[0].id)
+    }
+
     // MARK: - The guided first run
 
     func testTheFirstRunStageSurvivesARelaunchAndClearsWhenItEnds() {

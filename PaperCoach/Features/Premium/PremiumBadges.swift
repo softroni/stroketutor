@@ -78,9 +78,13 @@ struct PremiumNextCard: View {
         .accessibilityAddTraits(.isButton)
     }
 
-    /// A child is never told about a free week they cannot start themselves.
+    /// A child is never told about a free week they cannot start themselves, nor
+    /// told to go and ask a grown-up for it (see `PremiumLessonSheet`): the card
+    /// names what its drawer offers them, the wish list.
     private var subtitle: String {
-        if app.learnerIsChild { return "Premium · Ask a grown-up" }
+        if app.learnerIsChild {
+            return app.preferences.wishList.contains(lesson.id) ? "Premium · On your wish list" : "Premium · Save it for later"
+        }
         // The free week is named only beside its price (`PremiumStore.canNameFreeWeek`),
         // and the price lives on the paywall, not on a card.
         return app.premium.isEligibleForTrial ? "Premium · Tap to unlock" : "Premium · Subscribe to unlock"

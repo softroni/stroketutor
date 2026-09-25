@@ -6,9 +6,12 @@ import SwiftUI
 /// ahead on the path just started slide past in one looping row, so the learner
 /// sees what they would be missing. The Premium ones wear their crown.
 ///
-/// One button. For a child it asks for a grown-up; for everyone else it leads to
-/// the free week, or straight to the paywall when the free week has been used.
+/// One button, "Continue", and nothing on this screen starts or sells anything. For
+/// everyone 13 and over it leads to the paywall; for a child, to "This part is for a
+/// grown-up" (`GrownUpHandoffView`) — the button never tells the child to go and ask
+/// for Premium (see that view for why).
 struct MoreComingView: View {
+    let entry: OfferEntry
     let onContinue: () -> Void
 
     @Environment(AppModel.self) private var app
@@ -49,10 +52,12 @@ struct MoreComingView: View {
 
             Spacer(minLength: 0)
         } footer: {
-            Button(buttonTitle, action: onContinue)
+            // "Continue", not "Try for free": this button starts nothing, it only
+            // leads on.
+            Button("Continue", action: onContinue)
                 .buttonStyle(.primary)
         }
-        .onAppear { app.analytics.track(.offerScreenViewed("more_coming", entry: OfferEntry.onboarding.analyticsName)) }
+        .onAppear { app.analytics.track(.offerScreenViewed("more_coming", entry: entry.analyticsName)) }
     }
 
     private var lesson: Lesson? { app.firstRunLesson }
@@ -104,12 +109,6 @@ struct MoreComingView: View {
             parts.append("And there \(otherPaths == 1 ? "is 1 more path" : "are \(otherPaths) more paths") after \(path.title).")
         }
         return parts.isEmpty ? "There is so much more to draw." : parts.joined(separator: " ")
-    }
-
-    private var buttonTitle: String {
-        // "Continue", not "Try for free": this button starts nothing, it only leads
-        // on to the free week (or the paywall).
-        return app.learnerIsChild ? "Ask a grown-up" : "Continue"
     }
 }
 
@@ -232,94 +231,64 @@ struct LessonMarquee: View {
     }
 }
 
-// MARK: - The free week
+// MARK: - The free week has started
 
-/// "Your first week is on us." One message: seven days, nothing to pay today.
-struct FreeWeekView: View {
-    let onContinue: () -> Void
+/// "Your free week has started": shown once a purchase has really begun a free week
+/// (`PremiumStore.trialEndsAt` is set), from either paywall. It keeps the promise the
+/// paywall's timeline made, with its real dates — "Allow notifications next, and
+/// we’ll remind you on Wednesday, September 30, two days before $19.99/year starts
+/// on Friday, October 2" — and it is the one place on the way to Premium that asks
+/// for notification permission.
+///
+/// Why here: Human Interface Guidelines › Privacy
+/// (https://developer.apple.com/design/human-interface-guidelines/privacy), read
+/// 2026-09-25: "Request permission only when your app clearly needs access to the
+/// data or resource." Before a free week has started there is nothing to remind
+/// about, so nothing ahead of the paywall asks. The same page on a screen shown
+/// before the system alert: "Include only one button and make it clear that it opens
+/// the system alert", titled with "a term like “Continue” or “Next”", and "Don’t
+/// include additional actions in your custom screen or window". So there is one
+/// button and no close button, and the words say what it leads to
+/// (`TrialStartedPromise`):
+/// - never asked, and the reminder still to come: "Allow notifications next, and
+///   we’ll remind you on …", and "Continue" — the system prompt, then the reminder
+///   is scheduled if it was allowed, and the flow ends;
+/// - already answered: "Start drawing" ("Back to drawing" for the grown-up, who
+///   hands the phone back) — the reminder is scheduled if notifications are on, and
+///   the flow ends. With them off, the screen says so and names the day the price
+///   starts instead;
+/// - the reminder's day already gone — a free week that ends within two days, as in
+///   the App Store sandbox, where App Review and TestFlight buy and a week lasts
+///   about three minutes: no reminder is promised and none is asked for, since
+///   `TrialReminder.sync` would schedule nothing. The screen names the day the price
+///   starts, and the button is "Start drawing".
+///
+/// Under it, on its own line: how to pay nothing — cancel in the phone's Settings
+/// "at least a day before", not "before then". Apple
+/// (https://support.apple.com/en-us/118428, read 2026-09-25): "cancel it at least 24
+/// hours before the trial ends". The phone's Settings, not the app's: Paper Couch's
+/// own Settings tab cannot cancel anything.
+///
+/// `isForGrownUp` when the week was started on the grown-up's paywall: "Their free
+/// week has started", and the reminder "this device gets".
+struct TrialStartedView: View {
+    let entry: OfferEntry
+    let isForGrownUp: Bool
+    /// When the free week ends and the yearly price is billed.
+    let trialEndsAt: Date
+    let onFinish: () -> Void
 
     @Environment(AppModel.self) private var app
+    /// What the learner has decided about notifications; nil until asked, for the
+    /// moment it takes, so the words and the button never change under the reader.
+    @State private var authorization: PracticeReminderScheduler.Authorization?
+    @State private var isFinishing = false
+    /// When the screen came up: the promise is worked out once, against this.
+    @State private var shownAt = Date()
 
     var body: some View {
         OfferScreenFrame {
             Spacer(minLength: 0)
-
-            VStack(spacing: 0) {
-                Text("\(PremiumStore.trialDays)")
-                    .font(.system(size: 96, weight: .heavy, design: .rounded))
-                    .foregroundStyle(Theme.greenDeep)
-                Text("days free")
-                    .scaledFont(18, .heavy)
-                    .foregroundStyle(Theme.greenDeep)
-                    .padding(.top, -8)
-            }
-            .frame(width: 208, height: 208)
-            .background(Circle().fill(Theme.greenSoft))
-            .accessibilityElement(children: .combine)
-
-            Text("Your first week is on us.")
-                .textRole(.title1)
-                .foregroundStyle(Theme.ink)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityAddTraits(.isHeader)
-
-            Text(detail)
-                .textRole(.bodyRegular)
-                .foregroundStyle(Theme.ink55)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-
-            OfferBenefits()
-                .padding(16)
-                .background(
-                    RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
-                        .fill(Theme.surface)
-                )
-
-            Spacer(minLength: 0)
-        } footer: {
-            Button("Continue", action: onContinue)
-                .buttonStyle(.primary)
-        }
-        .onAppear { app.analytics.track(.offerScreenViewed("free_week", entry: OfferEntry.onboarding.analyticsName)) }
-    }
-
-    /// The free week and what it turns into, together: a trial is never named
-    /// without the price billed after it. `OfferFlow` only shows this screen when
-    /// that price is known (`PremiumStore.canNameFreeWeek`).
-    private var detail: String {
-        let days = PremiumStore.trialDays
-        guard let price = app.premium.yearlyPrice else {
-            return "Draw anything, on every path, for \(days) days."
-        }
-        return "Draw anything, on every path, for \(days) days. Then \(price)/year, unless you cancel before the week ends. You won’t pay anything today."
-    }
-}
-
-// MARK: - The reminder promise
-
-/// "You'll get a reminder 2 days before your trial ends." Lina with a bell, and the
-/// one tap that also asks for notification permission — the moment the learner
-/// can see why it is asked. Whatever they answer, the paywall comes next.
-struct TrialReminderPromiseView: View {
-    let onContinue: () -> Void
-
-    @Environment(AppModel.self) private var app
-    @State private var isAsking = false
-
-    var body: some View {
-        OfferScreenFrame {
-            Spacer(minLength: 0)
-
-            (Text("You’ll get a reminder ")
-             + Text("\(PremiumStore.reminderDaysBeforeTrialEnds) days").foregroundStyle(Theme.green)
-             + Text(" before your trial ends."))
-                .textRole(.title1)
-                .foregroundStyle(Theme.ink)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityAddTraits(.isHeader)
 
             LinaView(pose: .wave, size: 190)
                 .overlay(alignment: .topTrailing) {
@@ -332,26 +301,154 @@ struct TrialReminderPromiseView: View {
                         .offset(x: 30, y: 6)
                         .accessibilityHidden(true)
                 }
-                .padding(.top, 12)
+
+            Text(isForGrownUp ? "Their free week has started" : "Your free week has started")
+                .textRole(.title1)
+                .foregroundStyle(Theme.ink)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+
+            // Laid out, unseen, while the setting is read, so nothing moves when
+            // the words appear.
+            VStack(spacing: 10) {
+                Text(dates(promise ?? .reminderIfAllowed))
+                    .textRole(.bodyRegular)
+                Text(howToPayNothing)
+                    .textRole(.subhead)
+            }
+            .foregroundStyle(Theme.ink55)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            .opacity(promise == nil ? 0 : 1)
 
             Spacer(minLength: 0)
         } footer: {
-            // A neutral "Continue": this tap asks for notification permission, and
-            // Apple wants the button before a permission request to lead on, not to
-            // promise something (App Review Guidelines 5.1.1(iv)).
-            Button("Continue") {
-                guard !isAsking else { return }
-                isAsking = true
-                Task {
-                    if await PracticeReminderScheduler.authorization() == .notDetermined {
-                        _ = await PracticeReminderScheduler.requestAuthorization()
-                    }
-                    isAsking = false
-                    onContinue()
-                }
-            }
-            .buttonStyle(.primary)
+            Button(buttonTitle, action: finish)
+                .buttonStyle(.primary)
+                .opacity(promise == nil ? 0 : 1)
+                .disabled(promise == nil || isFinishing)
         }
-        .onAppear { app.analytics.track(.offerScreenViewed("reminder", entry: OfferEntry.onboarding.analyticsName)) }
+        .task {
+            authorization = await PracticeReminderScheduler.authorization()
+        }
+        .onAppear { app.analytics.track(.offerScreenViewed("trial_started", entry: entry.analyticsName)) }
     }
+
+    private var schedule: TrialSchedule { TrialSchedule(endingAt: trialEndsAt) }
+
+    private var promise: TrialStartedPromise? {
+        authorization.map { TrialStartedPromise(schedule: schedule, authorization: $0, now: shownAt) }
+    }
+
+    /// "Continue" only where it leads to the system prompt.
+    private var buttonTitle: String {
+        if promise?.asksForPermission == true { return "Continue" }
+        return isForGrownUp ? "Back to drawing" : "Start drawing"
+    }
+
+    /// "$19.99/year", or the plan's name should the price be missing.
+    private var billed: String {
+        app.premium.yearlyPrice.map { "\($0)/year" } ?? "Paper Couch Premium"
+    }
+
+    /// The reminder's day and the price's, as far as each is true.
+    private func dates(_ promise: TrialStartedPromise) -> String {
+        let reminder = Self.longDay(schedule.reminder)
+        let days = PremiumStore.reminderDaysBeforeTrialEnds
+        let before = "\(Self.spelled(days)) \(days == 1 ? "day" : "days") before \(billed) starts on \(Self.longDay(schedule.end))"
+        switch promise {
+        case .reminderIfAllowed:
+            return isForGrownUp
+                ? "Allow notifications next, and this device gets a reminder on \(reminder), \(before)."
+                : "Allow notifications next, and we’ll remind you on \(reminder), \(before)."
+        case .reminder:
+            return isForGrownUp
+                ? "This device gets a reminder on \(reminder), \(before)."
+                : "We’ll remind you on \(reminder), \(before)."
+        case .remindersOff:
+            return "Reminders are off on this device. \(billed) starts \(startsWhen)."
+        case .noReminder:
+            return "\(billed) starts \(startsWhen)."
+        }
+    }
+
+    /// "on Friday, October 2"; "later today" or "tomorrow" for a free week about to
+    /// end, as in the sandbox.
+    private var startsWhen: String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(schedule.end) { return "later today" }
+        if calendar.isDateInTomorrow(schedule.end) { return "tomorrow" }
+        return "on \(Self.longDay(schedule.end))"
+    }
+
+    /// "To pay nothing, cancel in your iPhone’s Settings at least a day before it
+    /// starts." The grown-up may be holding the child's phone: "this iPhone’s".
+    private var howToPayNothing: String {
+        "To pay nothing, cancel in \(isForGrownUp ? "this" : "your") \(DeviceName.current)’s Settings at least a day before it starts."
+    }
+
+    /// Asks for permission if it never was and a reminder is still to come (the
+    /// system prompt), schedules the reminder if it is allowed, and ends the flow.
+    /// Once.
+    private func finish() {
+        guard !isFinishing, let promise else { return }
+        isFinishing = true
+        Task {
+            if promise.asksForPermission {
+                await TrialReminder.requestAndSchedule(trialEndsAt: trialEndsAt)
+            } else {
+                await TrialReminder.sync(trialEndsAt: trialEndsAt)
+            }
+            onFinish()
+        }
+    }
+
+    /// "Tuesday, September 29", in the device's own format.
+    private static func longDay(_ date: Date) -> String {
+        date.formatted(.dateTime.weekday(.wide).month(.wide).day())
+    }
+
+    /// "two": the sentence around it is English, so the number is too.
+    private static func spelled(_ number: Int) -> String {
+        spellOut.string(from: NSNumber(value: number)) ?? "\(number)"
+    }
+
+    private static let spellOut: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .spellOut
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter
+    }()
+}
+
+/// What "trial started" can promise, from the free week's dates and this device's
+/// notification setting (`TrialStartedView`). A plain value, so the tests read the
+/// same choice as the screen.
+enum TrialStartedPromise: Equatable {
+    /// The reminder is still to come and permission was never asked: "Allow
+    /// notifications next", and "Continue" shows the system prompt.
+    case reminderIfAllowed
+    /// Notifications are allowed: the reminder is scheduled.
+    case reminder
+    /// Notifications are off on this device: no reminder can come.
+    case remindersOff
+    /// The reminder's day has already gone — a free week ending within two days, as
+    /// in the App Store sandbox: no reminder, and no prompt.
+    case noReminder
+
+    init(schedule: TrialSchedule, authorization: PracticeReminderScheduler.Authorization, now: Date) {
+        guard schedule.remindsAfter(now) else {
+            self = .noReminder
+            return
+        }
+        switch authorization {
+        case .notDetermined: self = .reminderIfAllowed
+        case .allowed: self = .reminder
+        case .denied: self = .remindersOff
+        }
+    }
+
+    /// Only a reminder still to come, never asked about, is worth the system prompt.
+    var asksForPermission: Bool { self == .reminderIfAllowed }
 }

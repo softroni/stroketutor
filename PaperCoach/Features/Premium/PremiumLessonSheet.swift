@@ -2,22 +2,54 @@ import SwiftUI
 import UIKit
 
 /// The drawer that comes up when a crowned lesson is tapped without Premium, over
-/// whatever screen it was tapped on. It can always be closed.
+/// whatever screen it was tapped on — on every tap, never an intro screen first. It
+/// can always be closed: the X, "Not now", or a swipe down. Human Interface
+/// Guidelines › Modality (https://developer.apple.com/design/human-interface-guidelines/modality),
+/// read 2026-09-25: "Always give people an obvious way to dismiss a modal view."
 ///
 /// **For everyone 13 and over**: the lesson's drawing with its crown, "Mushroom is
-/// waiting for you", one line on what Premium holds, and "Start your free week"
-/// (or "Subscribe to unlock", once the free week has been used), which goes
-/// straight to the paywall. "Not now" closes it.
+/// waiting for you", one line on what Premium holds, then the price — "$19.99 per
+/// year", with "First 7 days free" under it, smaller and green, while the free week
+/// is on offer ("Cancel anytime" once it has been used) — and "See Premium", which
+/// opens the paywall and starts nothing. "Not now" closes it.
 ///
-/// **For a child**: no price and no trial. "Mushroom needs a grown-up", "Ask a
-/// grown-up" (the way to the parental check), and "Save it for later", which puts
-/// the lesson on their wish list for the grown-up's paywall to show. Once a child
-/// has closed it, further crowns only nudge (`AppModel.offerPremiumIfNeeded(for:)`).
+/// The price is the largest pricing element here too. Apple, "Auto-renewable
+/// subscriptions" (https://developer.apple.com/app-store/subscriptions/), read
+/// 2026-09-25: "the amount that will be billed must be the most prominent pricing
+/// element in the layout." The free week is never named without that price beside
+/// it (`PremiumStore.canNameFreeWeek`), and before the App Store has answered there
+/// is neither.
+///
+/// **For a child**: no price, no trial, and no appeal to go and get a grown-up to
+/// buy it. An advertisement's "direct appeal to children to buy advertised products
+/// or persuade their parents or other adults to buy advertised products for them"
+/// is banned outright (UK Digital Markets, Competition and Consumers Act 2024,
+/// Schedule 20 para 30, in force 6 April 2025; EU Unfair Commercial Practices
+/// Directive, Annex I point 28). So: "Mushroom is a Premium lesson", "Save it for
+/// later" (the wish list the grown-up's paywall shows), a free lesson to draw
+/// instead — the next one on this lesson's own path while it has one, else one from
+/// another path (`AppModel.freeLessonInstead(of:)`) — "Not now", and a quiet "For
+/// grown-ups" link — the way to the parental check. Once a child has closed it,
+/// further crowns only nudge (`AppModel.offerPremiumIfNeeded(for:)`).
+///
+/// "Save it for later" is the green button until it is pressed. Then it steps back
+/// to a white "On your wish list" and the free lesson turns green: the loudest
+/// button never takes the wish away, and there is always one clear next step. A
+/// second tap within a moment of the first is ignored, so a young child's double tap
+/// does not undo it; a deliberate tap on "On your wish list" later still does.
+///
+/// The drawer is as tall as what it holds (measured), so neither version leaves a
+/// band of empty sheet under "Not now"; with accessibility text sizes it opens full
+/// height and scrolls.
 struct PremiumLessonSheet: View {
     let lessonId: String
 
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    /// The height of everything in the drawer, for its detent; nil until measured.
+    @State private var contentHeight: CGFloat?
+    /// When the wish list last changed from this drawer, to ignore a double tap.
+    @State private var lastWishChange: Date?
 
     var body: some View {
         Group {
@@ -29,7 +61,7 @@ struct PremiumLessonSheet: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Theme.card)
-        .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.height(620), .large])
+        .presentationDetents(detents)
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(28)
     }
@@ -45,7 +77,7 @@ struct PremiumLessonSheet: View {
                     } label: {
                         Image(systemName: "xmark")
                             .scaledFont(17, .bold, design: .default)
-                            .foregroundStyle(Theme.ink40)
+                            .foregroundStyle(Theme.ink55)
                             .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
                             .contentShape(Rectangle())
                     }
@@ -60,13 +92,13 @@ struct PremiumLessonSheet: View {
                     if !isChild {
                         Chip(text: "Premium lesson", systemImage: "crown.fill", style: .gold)
                     }
-                    Text(isChild ? "\(lesson.title) needs a grown-up" : "\(lesson.title) is waiting for you")
+                    Text(isChild ? "\(lesson.title) is a Premium lesson" : "\(lesson.title) is waiting for you")
                         .textRole(.title2)
                         .foregroundStyle(Theme.ink)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityAddTraits(.isHeader)
-                    Text(isChild ? "Ask a grown-up to unlock it, or save it to your wish list for later."
+                    Text(isChild ? "Save it to your wish list, and keep drawing the free lessons."
                                  : explanation(for: lesson))
                         .textRole(.bodyRegular)
                         .foregroundStyle(Theme.ink55)
@@ -84,8 +116,18 @@ struct PremiumLessonSheet: View {
             .padding(.horizontal, Theme.gutter)
             .padding(.top, 8)
             .padding(.bottom, Theme.stackSpacing)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: {
+                contentHeight = $0.rounded(.up)
+            }
         }
         .scrollBounceBehavior(.basedOnSize)
+    }
+
+    /// The drawer's height: its content's, once measured (620 pt until then), and
+    /// full height on offer; full height only with accessibility text sizes.
+    private var detents: Set<PresentationDetent> {
+        if dynamicTypeSize.isAccessibilitySize { return [.large] }
+        return [.height(contentHeight ?? 620), .large]
     }
 
     /// The drawing, big, on white, with its crown.
@@ -118,60 +160,102 @@ struct PremiumLessonSheet: View {
 
     @ViewBuilder
     private func actions(for lesson: Lesson) -> some View {
-        // "Start your free week" only while the price it turns into can be shown
-        // under it (`PremiumStore.canNameFreeWeek`).
-        let isTrial = app.premium.canNameFreeWeek
-        Button(isTrial ? "Start your free week" : "See Premium") {
+        if let yearly = app.premium.yearlyPrice {
+            price(yearly: yearly)
+                .padding(.top, 4)
+        }
+
+        // "See Premium" whatever the offer: this button opens the paywall, where
+        // the price and the free week are laid out; it starts nothing itself.
+        Button("See Premium") {
             app.continueFromDrawer(to: .premiumLesson(lessonId: lesson.id))
         }
         .buttonStyle(.primary)
-        .padding(.top, 8)
-
-        Text(smallPrint(isTrial: isTrial))
-            .textRole(.footnote)
-            .foregroundStyle(Theme.ink70)
-            .multilineTextAlignment(.center)
-            .fixedSize(horizontal: false, vertical: true)
+        .padding(.top, 4)
 
         Button("Not now") { app.closePremiumDrawer() }
             .buttonStyle(.quiet)
     }
 
-    /// "7 days free, then $19.99/year. No payment now."
-    private func smallPrint(isTrial: Bool) -> String {
-        // No price yet: no trial claim either (`PremiumStore.canNameFreeWeek`).
-        guard let yearly = app.premium.yearlyPrice else { return "Cancel anytime." }
-        return isTrial
-            ? "\(PremiumStore.trialDays) days free, then \(yearly)/year. No payment now."
-            : "\(yearly)/year. Cancel anytime."
+    /// "$19.99 per year", and under it, smaller and green, "First 7 days free" while
+    /// the free week is on offer, or "Cancel anytime" once it has been used. The
+    /// billed amount is the largest of the two, and the only one in ink. One
+    /// VoiceOver element.
+    private func price(yearly: String) -> some View {
+        VStack(spacing: 2) {
+            Text("\(yearly) per year")
+                .scaledFont(20, .heavy, relativeTo: .title3)
+                .foregroundStyle(Theme.ink)
+            if app.premium.canNameFreeWeek {
+                Text("First \(PremiumStore.trialDays) days free")
+                    .textRole(.subhead)
+                    .foregroundStyle(Theme.greenDeep)
+            } else {
+                Text("Cancel anytime")
+                    .textRole(.footnote)
+                    .foregroundStyle(Theme.ink55)
+            }
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder
     private func childActions(for lesson: Lesson) -> some View {
         let isWished = app.preferences.wishList.contains(lesson.id)
-        Button("Ask a grown-up") {
-            app.continueFromDrawer(to: .premiumLesson(lessonId: lesson.id))
-        }
-        .buttonStyle(.primary)
-        .padding(.top, 8)
-
         Button {
-            app.preferences.toggleWish(lesson.id)
+            toggleWish(lesson)
         } label: {
             Label(isWished ? "On your wish list" : "Save it for later",
                   systemImage: isWished ? "star.fill" : "star")
         }
-        .buttonStyle(.secondary)
+        // Green until saved; then white, and the free lesson below takes the green.
+        .buttonStyle(TactileButtonStyle(variant: isWished ? .secondary : .primary))
         .accessibilityValue(isWished ? "Saved" : "")
+        .padding(.top, 4)
+
+        if let free = app.freeLessonInstead(of: lesson) {
+            Button("Draw \(free.title)") {
+                app.drawFreeLesson(fromDrawer: free)
+            }
+            .buttonStyle(TactileButtonStyle(variant: isWished ? .primary : .secondary))
+        }
 
         Button("Not now") { app.closePremiumDrawer() }
             .buttonStyle(.quiet)
+
+        // For the grown-up, not the child: small, grey, last. It leads to "This
+        // part is for a grown-up" and the parental check.
+        Button {
+            app.continueFromDrawer(to: .premiumLesson(lessonId: lesson.id))
+        } label: {
+            Text("For grown-ups")
+                .scaledFont(15, .bold)
+                .underline()
+                .foregroundStyle(Theme.ink55)
+                .frame(minHeight: Theme.navTapTarget)
+                .padding(.horizontal, 8)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Saves the lesson to the wish list, or takes it off — but not on a second tap
+    /// within a moment of the last change, which is a double tap, not a change of
+    /// mind.
+    private func toggleWish(_ lesson: Lesson) {
+        let now = Date()
+        if let lastWishChange, now.timeIntervalSince(lastWishChange) < 1 { return }
+        lastWishChange = now
+        app.preferences.toggleWish(lesson.id)
     }
 }
 
 /// What a child sees after closing the drawer once, when they tap another crown:
-/// Lina's face and "Ask a grown-up to unlock Mushroom", for a moment, over the top
-/// of the screen. Tapping it brings the drawer back.
+/// the crown and "Mushroom is a Premium lesson", for a moment, over the top of the
+/// screen. A fact, not an appeal to go and ask for it (see `PremiumLessonSheet`).
+/// Tapping it brings the drawer back.
 struct PremiumNudgeToast: View {
     let nudge: PremiumNudge
 
@@ -182,30 +266,31 @@ struct PremiumNudgeToast: View {
             app.openDrawer(for: nudge)
         } label: {
             HStack(spacing: 10) {
-                LinaFace(size: 34)
-                Text("Ask a grown-up to unlock \(nudge.title)")
+                CrownBadge(size: 30)
+                Text(message)
                     .scaledFont(15, .heavy)
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
-                CrownBadge(size: 26)
             }
             .padding(.vertical, 10)
             .padding(.leading, 10)
-            .padding(.trailing, 14)
+            .padding(.trailing, 16)
             .background(Capsule().fill(Theme.card))
             .overlay(Capsule().strokeBorder(Theme.line, lineWidth: 2))
             .floatShadow()
         }
         .buttonStyle(.plain)
         .padding(.horizontal, Theme.gutter)
-        .accessibilityLabel("Ask a grown-up to unlock \(nudge.title)")
+        .accessibilityLabel(message)
         .accessibilityHint("Opens the lesson’s drawer")
         .task(id: nudge.id) {
-            UIAccessibility.post(notification: .announcement,
-                                 argument: "Ask a grown-up to unlock \(nudge.title)")
+            UIAccessibility.post(notification: .announcement, argument: message)
             try? await Task.sleep(for: .seconds(2.8))
             guard !Task.isCancelled, app.premiumNudge?.id == nudge.id else { return }
             app.premiumNudge = nil
         }
     }
+
+    /// "Mushroom is a Premium lesson".
+    private var message: String { "\(nudge.title) is a Premium lesson" }
 }

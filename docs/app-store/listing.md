@@ -58,10 +58,10 @@ WHAT THE APP DOES
 The phone is a drawing instructor for real pen and paper. Each lesson animates one line, then waits until the learner taps "I drew it". There are 10 paths of 10 lessons. Lessons 1-3 of every path are free; lessons 4-10 wear a gold crown and need Premium.
 
 ONBOARDING AND AGE
-Onboarding asks who is drawing and for an age band. Under 13 or "Prefer not to say" is treated as a child: crowns say "Ask a grown-up" and the price sits behind a parental check (a sum written in words, or the app's PIN if one was set). 13 and over gets the ordinary flow. To reach the paywall directly, choose 18+ during onboarding.
+Onboarding asks who is drawing and for an age band. Under 13 or "Prefer not to say" is treated as a child: a crowned lesson offers a wish list and a free lesson instead, and the price sits behind a small "For grown-ups" link and a parental check (a sum written in words, or the app's PIN if one was set). 13 and over gets the ordinary flow. To reach the paywall directly, choose 18+ during onboarding.
 
 REACHING THE PAYWALL
-On a fresh install the guided first run leads through the first lesson, the sketchbook, "More coming", "7 days free" and the reminder promise to the paywall. Afterwards: Settings > Premium, or tap any crowned lesson. The one way past the paywall without buying is the link "Continue with free lessons".
+On a fresh install the guided first run leads through the first lesson, the sketchbook and "More coming" to the paywall. Afterwards: Settings > Premium, or tap any crowned lesson and then "See Premium" in the lesson's drawer. The one way past the paywall without buying is the link "Continue with free lessons", right under the purchase button. When a purchase starts the free trial, one screen confirms the dates (the reminder two days before the trial ends, and the day billing starts) and, only if notification permission was never asked, its single "Continue" button shows the system prompt. In the sandbox, where the 7-day trial lasts a few minutes, the reminder's day has already passed, so that screen names only when billing starts and asks for no permission.
 
 PRODUCTS (subscription group "Paper Couch Premium", both Family Sharing)
 - com.softroni.papercoach.premium.yearly: auto-renewing, $19.99 per year; eligible new subscribers get the displayed 7-day free trial. This is the recommended plan, shown first.

@@ -6,18 +6,25 @@ import SwiftUI
 /// centred in the space left and scrolling only when it has to, and the buttons
 /// pinned to the bottom. Like `OnboardingBeatFrame`, without the rail — these
 /// screens are one message each, not steps of a questionnaire.
+///
+/// `contentSpacing` is the air between the body's groups: 18 pt on the one-message
+/// screens, more on the paywalls, whose art, price and timeline each need room to
+/// read as their own group.
 struct OfferScreenFrame<Top: View, Content: View, Footer: View>: View {
     private let top: () -> Top
     private let content: () -> Content
     private let footer: () -> Footer
     private let hasTop: Bool
+    private let contentSpacing: CGFloat
 
-    init(@ViewBuilder top: @escaping () -> Top,
+    init(contentSpacing: CGFloat = 18,
+         @ViewBuilder top: @escaping () -> Top,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder footer: @escaping () -> Footer) {
         self.top = top
         self.content = content
         self.footer = footer
+        self.contentSpacing = contentSpacing
         hasTop = true
     }
 
@@ -31,7 +38,7 @@ struct OfferScreenFrame<Top: View, Content: View, Footer: View>: View {
 
             GeometryReader { geometry in
                 ScrollView {
-                    VStack(spacing: 18) {
+                    VStack(spacing: contentSpacing) {
                         content()
                     }
                     .frame(maxWidth: .infinity)
@@ -56,11 +63,13 @@ struct OfferScreenFrame<Top: View, Content: View, Footer: View>: View {
 }
 
 extension OfferScreenFrame where Top == EmptyView {
-    init(@ViewBuilder content: @escaping () -> Content,
+    init(contentSpacing: CGFloat = 18,
+         @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder footer: @escaping () -> Footer) {
         self.top = { EmptyView() }
         self.content = content
         self.footer = footer
+        self.contentSpacing = contentSpacing
         hasTop = false
     }
 }
@@ -88,7 +97,8 @@ struct OfferBenefitRow: View {
     }
 }
 
-/// The three things Premium gives, the same on every paywall.
+/// The three things Premium gives. The paywalls show them in place of the
+/// timeline when there is no free week to lay out (`TrialTimeline`).
 struct OfferBenefits: View {
     @Environment(AppModel.self) private var app
 
@@ -106,6 +116,109 @@ struct OfferBenefits: View {
 
     private var pathCount: Int {
         app.paths.filter { !$0.isEmpty }.count
+    }
+}
+
+/// The free week, day by day, under the price on both paywalls: today, the day the
+/// reminder comes, and the day the price starts, each with its real date, worked out
+/// when the screen shows it ("Tue, Sep 29", in the device's own format).
+///
+/// Apple, "Auto-renewable subscriptions"
+/// (https://developer.apple.com/app-store/subscriptions/), read 2026-09-25: "In the
+/// purchase flow for a free trial, clearly indicate how long the free trial lasts and
+/// the price billed once the free trial is over." The last row says both, with a date.
+/// Breakdowns and extras are "displayed in a subordinate position and size to the
+/// annual price", so nothing here is larger than 15 pt: the price above stays the
+/// largest pricing element (README, M10). Shown only while the free week can be named
+/// beside its price (`PremiumStore.canNameFreeWeek`).
+///
+/// Every row is a promise, so each one says only what will happen:
+/// - the last row gives the day the price starts and says to cancel "at least a day
+///   before", not "before then": Apple (https://support.apple.com/en-us/118428, read
+///   2026-09-25) tells people to cancel a trial "at least 24 hours before the trial
+///   ends", since the renewal can be charged in the day before it;
+/// - the reminder row follows this device's notification setting. The reminder is
+///   scheduled only with permission (`TrialReminder.sync`), asked for once the free
+///   week has started (`TrialStartedView`), so the row says "if you allow
+///   notifications" until it is given, and says how to get the reminder when it was
+///   refused. An Ask to Buy approval, or a purchase the app is closed straight after,
+///   never reaches that screen; the row's condition keeps it true then too.
+struct TrialTimeline: View {
+    /// On the grown-up's paywall: the reminder "arrives on this device", which may be
+    /// the child's, rather than "we send" it to the one reading.
+    let isForGrownUp: Bool
+
+    @Environment(AppModel.self) private var app
+    /// This device's notification setting; nil for the moment it takes to ask.
+    @State private var authorization: PracticeReminderScheduler.Authorization?
+
+    var body: some View {
+        let schedule = TrialSchedule(startingAt: Date())
+        let price = app.premium.yearlyPrice.map { "\($0)/year" } ?? "Paper Couch Premium"
+        VStack(alignment: .leading, spacing: 16) {
+            row(symbol: "lock.open.fill", fill: Theme.green,
+                when: "Today", spokenWhen: "Today",
+                what: "Every lesson unlocks. No payment now.")
+            row(symbol: "bell.fill", fill: Theme.gold,
+                when: Self.shortDay(schedule.reminder), spokenWhen: Self.longDay(schedule.reminder),
+                what: reminderLine)
+            // A card, not a calendar: at this size `calendar` reads as a keyboard,
+            // and this row is about the payment.
+            row(symbol: "creditcard.fill", fill: Theme.ink55,
+                when: Self.shortDay(schedule.end), spokenWhen: Self.longDay(schedule.end),
+                what: "\(price) starts. Cancel at least a day before to pay nothing.")
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .task {
+            authorization = await PracticeReminderScheduler.authorization()
+        }
+    }
+
+    /// Row two, as true as this device's notification setting lets it be.
+    private var reminderLine: String {
+        switch authorization {
+        case .allowed:
+            return isForGrownUp ? "A reminder arrives on this device." : "We send a reminder to this device."
+        case .denied:
+            return "Turn on notifications to get a reminder."
+        case .notDetermined, .none:
+            return isForGrownUp
+                ? "A reminder arrives on this device if notifications are allowed."
+                : "We send a reminder to this device if you allow notifications."
+        }
+    }
+
+    private func row(symbol: String, fill: Color, when: String, spokenWhen: String, what: String) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: symbol)
+                .scaledFont(14, .bold, relativeTo: .subheadline, design: .default)
+                .foregroundStyle(.white)
+                .frame(width: 32, height: 32)
+                .background(Circle().fill(fill))
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(when)
+                    .scaledFont(15, .heavy, relativeTo: .subheadline)
+                    .foregroundStyle(Theme.ink)
+                Text(what)
+                    .textRole(.subhead)
+                    .foregroundStyle(Theme.ink55)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(spokenWhen). \(what)")
+    }
+
+    /// "Tue, Sep 29".
+    private static func shortDay(_ date: Date) -> String {
+        date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+    }
+
+    /// "Tuesday, September 29", for VoiceOver.
+    private static func longDay(_ date: Date) -> String {
+        date.formatted(.dateTime.weekday(.wide).month(.wide).day())
     }
 }
 

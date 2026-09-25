@@ -836,7 +836,9 @@ free period is not enough. Apple Guideline 3.1.2(c); see <https://developer.appl
 Read Apple's current guidance before building and cite it in code. Never copy a flow from competitor screenshots.
 
 **Age group, ahead of analytics (2026-09-23).** PostHog and Superwall are planned. The app will not be submitted to
-the Kids category, so it is a mixed-audience app: the audience is 8 to 16, and adults use it too. Onboarding now asks
+the Kids category, so it is a mixed-audience app. The audience is every age, from kids under 10 to adults over 60
+(decided 2026-09-25): the app is not "intended primarily for kids" (Guideline 5.1.4(a)), but the child tier below
+still protects every under-13 profile, and the listing should show learners of every age. Onboarding now asks
 `ob-age`, after `ob-who`: six bands (Under 6, 6–9, 10–12, 13–15, 16–17, 18+) in a 2×3 grid, nothing preselected, and
 "Prefer not to say". The answer and its date are kept on each profile, with stable keys (`under6` … `18plus`,
 `preferNotToSay`), and can be changed on the learner's page in Settings. When a PIN is set, moving someone to a less
@@ -866,16 +868,46 @@ protected tier needs it.
 - **The guided first run** (`AppModel+FirstRun.swift`, stage saved in `Settings.firstRunStage`): `ob-ready` has no
   "Look around first"; the first lesson has no close button or ⋯ menu; completion and the saved photo have no "Next
   lesson" or "Done"; both lead to the sketchbook tour (the lesson's path only, no Paths/Dates switch, no tab bar), then
-  "More coming" (the path's other lessons sliding past) → 7 days free → the reminder promise (asks for notification
-  permission) → the paywall. A relaunch returns to the same stop.
-- **The paywall** leads with the billed amount in the largest type and names it on the button, per Apple's
-  subscription page (quoted in `PaywallView.swift`); "View more plans" opens Yearly/Weekly; Restore, Terms of Use and
-  Privacy are on it. The one way out is "Continue with free lessons". A trial reminder is scheduled two days before
-  the free week ends (`TrialReminder`).
-- **Children** (the child privacy tier: under 13, or "prefer not to say") never see a price: the drawer says "Ask a
-  grown-up" and "Save it for later" (a wish list per learner), then "This part is for a grown-up" → the parental check
-  (the app's PIN when one is set, else a sum written in words) → a paywall written for the parent, showing the child's
-  drawing and wish list. After a child closes the drawer once, more crowns only nudge for the rest of the session.
+  "More coming" (the path's other lessons sliding past) → the paywall. A relaunch returns to the same stop.
+- **The flow, simplified (2026-09-25).** No intro screen stands before any paywall. A crowned lesson (13+) opens the
+  drawer on every tap — always closable (X, "Not now", swipe) — with "$19.99 per year" and, smaller and green, "First
+  7 days free"; its one button, "See Premium", opens the paywall and starts nothing. After the first run, "More coming"
+  → the paywall. The old "7 days free" screen (a 96 pt trial claim over a body-size price) and the reminder promise
+  before the paywall (a permission asked before anything needed it) are gone. Once a free week has really started,
+  from either paywall, **"Your free week has started"** (`TrialStartedView`) gives the reminder's and the billing's
+  real dates and asks for notification permission there, only if it was never asked: one button, "Continue" (the
+  words say "Allow notifications next", as the HIG's pre-permission guidance asks; Privacy, read 2026-09-25) or
+  "Start drawing" ("Back to drawing" for the grown-up). When the reminder's day has already passed — a free week
+  ending within two days, as in the App Store sandbox, where a week lasts minutes — it promises no reminder and asks
+  for nothing (`TrialStartedPromise`). Under the dates: "To pay nothing, cancel in your iPhone's Settings at least a
+  day before it starts" — Apple says to cancel a trial "at least 24 hours before the trial ends"
+  (support.apple.com/en-us/118428). The step is not brought back after a relaunch or an Ask to Buy approval (it
+  could show a price to a child); the reminder then follows the permission already given. Routing is `OfferRoute`
+  (`OfferFlow.swift`), unit tested in `OfferRouteTests` with the promise and the reminder's day across a change of
+  clocks.
+- **The paywall** (`PaywallView`, and `GrownUpPaywallView` in the same `PaywallLayout`) leads with the billed amount in
+  the largest type and names it on the button, per Apple's subscription page (quoted in `PaywallView.swift`): small
+  art on the plain page (from a lesson, that lesson first), the price block, then a dated timeline (`TrialTimeline`:
+  today · the reminder's day · the day the price starts, all at 15 pt or less) while the free week is on offer, or
+  what Premium gives when it is not (nothing while the App Store is still answering, and the screen holds still
+  while a purchase lands). The reminder row follows the device's notification setting ("if you allow
+  notifications" until allowed); the last row says to cancel "at least a day before to pay nothing". The free week
+  is never named before StoreKit has said the account can have it. The weekly equivalent ("about $0.38 a week")
+  moved to the plans sheet's small print, where each plan's billed price is 24 pt, above the button's 20 pt "Start
+  my free week". "View more plans" opens Yearly/Weekly; Restore, Terms of Use and Privacy are on it. The one way out,
+  "Continue with free lessons", sits right under the buy button. A trial reminder is scheduled two days before the
+  free week ends (`TrialReminder`).
+- **Children** (the child privacy tier: under 13, or "prefer not to say") never see a price, and nothing tells them
+  to go and get a grown-up to buy: an advertisement's direct appeal to children to buy, or to persuade their parents
+  to buy for them, is banned (UK DMCC Act 2024 Sch. 20 para 30, in force 6 April 2025; EU UCPD Annex I point 28).
+  The drawer says "Mushroom is a Premium lesson" and "Save it to your wish list, and keep drawing the free lessons":
+  "Save it for later" (a wish list per learner; once saved it turns white, "On your wish list", a double tap does not
+  undo it, and the free lesson takes the green), "Draw Pine Tree" (the next free lesson of that path, else of
+  another), "Not now", and a
+  small "For grown-ups" link → "This part is for a grown-up" → the parental check (the app's PIN when one is set,
+  else a sum written in words) → a paywall written for the parent, showing the child's drawing and wish list. After
+  a child closes the drawer once, more crowns only show "Mushroom is a Premium lesson" for the rest of the session;
+  the gold "Next" card says "Premium · Save it for later".
 - **Teens** get the adult flow; an Ask to Buy purchase shows "Waiting for a grown-up to say yes" and unlocks when
   approved (`Transaction.updates`).
 - After lesson 3 of a path, completion and the saved photo show "Next: … · Premium" as a gold card, and a free lesson
@@ -885,7 +917,11 @@ protected tier needs it.
   and the listing copy, screenshots and subscription review screenshots are on it. What the API could not do, and
   the exact review notes to paste, are in `docs/app-store/listing.md`. Still to do: availability, review contact,
   App Privacy, a build, and the whole flow on a device against the sandbox.
-- **Harness:** `-STScreen offer-paywall` opens the paywall as an adult (the subscription review screenshot).
+- **Harness** (`DebugScreenHarness.swift`): `-STScreen offer-paywall` opens the paywall as an adult (the subscription
+  review screenshot); `offer-more-coming` the first step after the first run; `offer-drawer` and `offer-drawer-kid`
+  the drawer on a Premium lesson as an 18+ and a 6–9 learner; `offer-grown-up-paywall` the grown-up's paywall for a
+  child with a drawing and a wish; `offer-plans` the plans sheet over the paywall; `offer-trial-started` "Your free
+  week has started" with a made-up end seven days out (debug builds only). Prices appear only when StoreKit answers (the `PaperCoach.storekit` configuration).
 
 ---
 

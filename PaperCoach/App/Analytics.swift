@@ -128,8 +128,8 @@ struct AnalyticsEvent: Equatable {
         AnalyticsEvent(name: "premium_lesson_tapped", properties: [Key.lessonId: lessonId])
     }
 
-    /// A screen of the way to Premium came up: `sketchbook_tour`, `more_coming`, `free_week`,
-    /// `reminder`, `paywall`, `grown_up`, `parental_check`, `grown_up_paywall`,
+    /// A screen of the way to Premium came up: `sketchbook_tour`, `more_coming`,
+    /// `paywall`, `trial_started`, `grown_up`, `parental_check`, `grown_up_paywall`,
     /// `pending`. `entry` is where the way was opened from.
     static func offerScreenViewed(_ screen: String, entry: String) -> AnalyticsEvent {
         AnalyticsEvent(name: "offer_screen_viewed", properties: [Key.screen: screen, Key.entry: entry])

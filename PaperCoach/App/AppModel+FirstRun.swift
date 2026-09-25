@@ -8,9 +8,9 @@ import Foundation
 ///    either way leads on.
 /// 2. **The sketchbook tour** — the album of that lesson's path, so the learner
 ///    sees their page in its slot and the nine still to fill.
-/// 3. **The offer** — "More coming", the free week, the reminder promise and the
-///    paywall (or, for a child, the way to a grown-up). It ends only there, on the
-///    subscription or "Continue with free lessons".
+/// 3. **The offer** — "More coming", then the paywall (or, for a child, the way to
+///    a grown-up), and "trial started" if a free week begins (`OfferFlow`). It ends
+///    only there, on the subscription or "Continue with free lessons".
 ///
 /// The stage is saved (`Settings.firstRunStage`), so closing the app mid-way comes
 /// back to the same stop.
