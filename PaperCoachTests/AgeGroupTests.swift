@@ -122,6 +122,29 @@ final class AgeGroupTests: XCTestCase {
         XCTAssertFalse(model.ageChangeNeedsPIN(id, to: .preferNotToSay))
     }
 
+    func testALearnerCanBeAddedWithOrWithoutAnAgeGroup() throws {
+        let model = makeModel()
+        let unanswered = try XCTUnwrap(model.addProfile(name: "Leo", avatar: .frog))
+        let answered = try XCTUnwrap(model.addProfile(name: "Maya", avatar: .owl, ageGroup: .from10To12))
+
+        XCTAssertNil(unanswered.ageGroup)
+        XCTAssertEqual(answered.ageGroup, .from10To12)
+        XCTAssertNotNil(answered.ageGroupAnsweredAt)
+        XCTAssertEqual(makeModel().profiles.first { $0.id == answered.id }?.ageGroup, .from10To12)
+    }
+
+    func testAddingSomeoneOlderAsksForThePINLikeSettingsDoes() {
+        let model = makeModel()
+        XCTAssertFalse(model.newAgeGroupNeedsPIN(from: nil, to: .adult), "No PIN, nothing to ask.")
+
+        model.pin.set("2468")
+        XCTAssertTrue(model.newAgeGroupNeedsPIN(from: nil, to: .adult))
+        XCTAssertTrue(model.newAgeGroupNeedsPIN(from: .from6To9, to: .from13To15))
+        XCTAssertFalse(model.newAgeGroupNeedsPIN(from: nil, to: .under6))
+        XCTAssertFalse(model.newAgeGroupNeedsPIN(from: nil, to: .preferNotToSay))
+        XCTAssertFalse(model.newAgeGroupNeedsPIN(from: .from13To15, to: .from16To17), "Already let through.")
+    }
+
     // MARK: - Analytics
 
     func testAChildIsNeverFollowedFromOneLaunchToTheNext() {

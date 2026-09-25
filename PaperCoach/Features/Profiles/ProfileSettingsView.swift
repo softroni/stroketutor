@@ -2,7 +2,8 @@ import SwiftUI
 
 /// One learner's page in Settings: their name and picture, which anyone may change;
 /// their age group, which needs the PIN (when one is set) to move to an older,
-/// less protected group; and deleting them, which needs the PIN when one is set.
+/// less protected group; handing the app to them, when someone else is drawing;
+/// and deleting them, which needs the PIN when one is set.
 struct ProfileSettingsView: View {
     let profileId: UUID
 
@@ -63,6 +64,16 @@ struct ProfileSettingsView: View {
                 }
                 .padding(.horizontal, Theme.gutter)
                 .padding(.vertical, 16)
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if let profile, profile.id != app.activeProfile.id, !app.isTemporary(profile) {
+                Button("Switch to \(profile.displayName)") { switchTo(profile) }
+                    .buttonStyle(.primary)
+                    .padding(.horizontal, Theme.gutter)
+                    .padding(.vertical, Theme.stackSpacing)
+                    .background(Theme.page)
+                    .accessibilityHint("Opens their progress and sketchbook on Home.")
             }
         }
         .settingsNavigationBar(profile?.displayName ?? "")
@@ -145,6 +156,13 @@ struct ProfileSettingsView: View {
         guard hasLoaded, let profile, !app.isTemporary(profile) else { return }
         guard Profile.cleaned(name) != profile.name || avatar != profile.avatar else { return }
         app.updateProfile(profileId, name: name, avatar: avatar)
+    }
+
+    /// Keeps any unsaved name first, then hands over the same way "Who's drawing?"
+    /// does, which lands on their Home.
+    private func switchTo(_ profile: Profile) {
+        save()
+        app.switchProfile(to: profile.id)
     }
 
     /// With a PIN set, the PIN first; either way, a confirmation that names

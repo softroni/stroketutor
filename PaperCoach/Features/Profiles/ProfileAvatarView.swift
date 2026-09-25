@@ -98,8 +98,8 @@ struct ProfileForm: View {
     }
 }
 
-/// "Add someone", in a sheet: the form and one button. Never part of
-/// onboarding's required steps.
+/// "Add someone", in a sheet: the form, an optional age group, and one button.
+/// Never part of onboarding's required steps.
 struct NewProfileSheet: View {
     /// Called with the new learner once their folder is on disk.
     let onAdded: (Profile) -> Void
@@ -108,23 +108,30 @@ struct NewProfileSheet: View {
     @Environment(AppModel.self) private var app
     @State private var name = ""
     @State private var avatar: ProfileAvatar = .fox
+    /// Nil until someone answers; the learner can be added without it.
+    @State private var ageGroup: AgeGroup?
+    @State private var gate: PINGateRequest?
     @State private var didFail = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                ProfileForm(name: $name, avatar: $avatar, takenAvatars: Set(app.profiles.map(\.avatar)))
-                    .padding(Theme.gutter)
+                VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+                    ProfileForm(name: $name, avatar: $avatar, takenAvatars: Set(app.profiles.map(\.avatar)))
 
-                if didFail {
-                    Text("That could not be saved. Try again.")
-                        .textRole(.footnote)
-                        .foregroundStyle(Theme.danger)
+                    ageSection
+
+                    if didFail {
+                        Text("That could not be saved. Try again.")
+                            .textRole(.footnote)
+                            .foregroundStyle(Theme.danger)
+                    }
                 }
+                .padding(Theme.gutter)
             }
             .safeAreaInset(edge: .bottom) {
                 Button("Add \(name.isEmpty ? avatar.name : Profile.cleaned(name))") {
-                    if let profile = app.addProfile(name: name, avatar: avatar) {
+                    if let profile = app.addProfile(name: name, avatar: avatar, ageGroup: ageGroup) {
                         onAdded(profile)
                     } else {
                         didFail = true
@@ -144,6 +151,54 @@ struct NewProfileSheet: View {
                 }
             }
         }
+        .pinGate($gate)
         .onAppear { avatar = ProfileAvatar.firstUnused(by: app.profiles) }
+    }
+
+    // MARK: - Age group
+
+    /// The same tiles as the learner's page in Settings, none chosen to start.
+    /// Tapping the chosen one again clears it.
+    private var ageSection: some View {
+        VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+            Text("Age group")
+                .textRole(.headline)
+                .foregroundStyle(Theme.ink)
+                .padding(.top, 8)
+
+            AgeGroupGrid(selection: ageGroup, onSelect: choose)
+
+            Button {
+                choose(.preferNotToSay)
+            } label: {
+                HStack(spacing: 8) {
+                    Text(AgeGroup.preferNotToSay.title)
+                    if ageGroup == .preferNotToSay {
+                        ChoiceCheck()
+                    }
+                }
+            }
+            .buttonStyle(.quiet)
+            .accessibilityAddTraits(ageGroup == .preferNotToSay ? [.isButton, .isSelected] : .isButton)
+
+            SettingsCaption("Optional. Used to suggest lessons that fit."
+                            + (app.pin.isSet ? " Choosing 13 or older asks for the PIN." : ""))
+        }
+    }
+
+    /// Straight away for a child's group or "prefer not to say"; after the PIN for
+    /// an older one, as on the learner's page in Settings.
+    private func choose(_ group: AgeGroup) {
+        guard group != ageGroup else {
+            ageGroup = nil
+            return
+        }
+        if app.newAgeGroupNeedsPIN(from: ageGroup, to: group) {
+            gate = PINGateRequest(reason: "Needed to choose an older age group.") {
+                ageGroup = group
+            }
+        } else {
+            ageGroup = group
+        }
     }
 }

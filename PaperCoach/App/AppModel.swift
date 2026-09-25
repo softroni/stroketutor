@@ -502,14 +502,27 @@ extension AppModel {
     }
 
     /// A new learner, committed to disk before this returns. Nil if the folder could
-    /// not be written.
+    /// not be written. `ageGroup` is optional, as it is everywhere; the caller has
+    /// already asked for the PIN when the answer needs it (`newAgeGroupNeedsPIN`).
     @discardableResult
-    func addProfile(name: String, avatar: ProfileAvatar) -> Profile? {
+    func addProfile(name: String, avatar: ProfileAvatar, ageGroup: AgeGroup? = nil) -> Profile? {
+        let profile: Profile
         do {
-            return try profileStore.create(name: name, avatar: avatar)
+            profile = try profileStore.create(name: name, avatar: avatar)
         } catch {
             return nil
         }
+        guard let ageGroup else { return profile }
+        setAgeGroup(profile.id, to: ageGroup)
+        return profileStore.profile(id: profile.id) ?? profile
+    }
+
+    /// True when moving a learner who does not exist yet from the group chosen so
+    /// far to `ageGroup` would loosen how their data is treated and a PIN is set —
+    /// otherwise "Add someone" would be a way round the PIN that guards the same
+    /// change in Settings.
+    func newAgeGroupNeedsPIN(from chosen: AgeGroup?, to ageGroup: AgeGroup) -> Bool {
+        pin.isSet && AgeGroup.loosensPrivacy(from: chosen, to: ageGroup)
     }
 
     /// Name and picture only; neither needs the PIN.
