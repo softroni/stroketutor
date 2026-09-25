@@ -20,7 +20,6 @@ struct SettingsView: View {
     @State private var isChoosingPINAction = false
     @State private var isRestoring = false
     @State private var restoreMessage: String?
-    @Environment(\.openURL) private var openURL
 
     /// The PIN pad, when it is opened from its own row.
     private enum PINSheet: Identifiable {
@@ -235,14 +234,12 @@ struct SettingsView: View {
 
     private static let privacyPolicyURL = URL(string: "https://softroni.com/privacy-policy.html")!
 
-    /// Where the App Store lets the account holder change or cancel a subscription.
-    private static let manageSubscriptionsURL = URL(string: "https://apps.apple.com/account/subscriptions")!
-
     // MARK: - Premium
 
-    /// Whether Premium is on for this Apple account, the way to it (or to manage
-    /// it), and Restore. A child's tap goes through the grown-up's check first,
-    /// like any other way to the paywall (`OfferFlow`).
+    /// Whether Premium is on for this Apple account, the way to it, and Restore.
+    /// A child's tap goes through the grown-up's check first, like any other way
+    /// to the paywall (`OfferFlow`). Once Premium is active the row only says so:
+    /// it does not lead out to the App Store's subscriptions page.
     private var premiumSection: some View {
         VStack(alignment: .leading, spacing: Theme.stackSpacing) {
             SettingsSectionHeader("Premium")
@@ -253,13 +250,8 @@ struct SettingsView: View {
                                 : "Lessons 1 to \(PremiumAccess.freeLessonsPerPath) of every path are free.",
                             value: app.premium.isPremium ? "Active" : nil,
                             systemImage: "crown.fill",
-                            tint: .gold) {
-                    if app.premium.isPremium {
-                        openURL(Self.manageSubscriptionsURL)
-                    } else {
-                        app.presentOffer(.settings)
-                    }
-                }
+                            tint: .gold,
+                            action: app.premium.isPremium ? nil : { app.presentOffer(.settings) })
                 RowDivider()
                 SettingsRow(title: isRestoring ? "Restoring…" : "Restore purchases",
                             systemImage: "arrow.clockwise",
