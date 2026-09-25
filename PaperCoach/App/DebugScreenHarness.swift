@@ -351,6 +351,15 @@ enum DebugScreenHarness {
             app.settings.firstRunStage = .offer
             app.cover = .offer(.onboarding)
 
+        case "offer-paywall":
+            // The paywall itself, as a grown-up reaches it from Settings > Premium.
+            // The App Store subscription review screenshot is taken here. The
+            // active learner is made 18+ first: a learner who never gave an age is
+            // a child, and a child is sent to "Ask a grown-up" instead.
+            app.setAgeGroup(app.activeProfile.id, to: .adult)
+            app.selectedTab = .settings
+            app.cover = .offer(.settings)
+
         default:
             break // Unknown name: leave the clean, onboarded Home screen showing.
         }

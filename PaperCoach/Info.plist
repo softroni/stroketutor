@@ -27,6 +27,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 
+
 	<!-- Purpose strings. Apple requires one for every protected resource, and the
 	     App Store Review Guidelines, 5.1.1(ii) Data Collection and Storage
 	     (https://developer.apple.com/app-store/review/guidelines/, read 2026-09-13),

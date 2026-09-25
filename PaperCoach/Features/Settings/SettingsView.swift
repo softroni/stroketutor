@@ -508,8 +508,9 @@ private extension SettingsView {
 /// can be seen and tried. Once the record exists, set `appID` to its Apple ID (the
 /// number under App Information in App Store Connect) and both rows go live.
 struct AppStoreListing {
-    /// The app's Apple ID from App Store Connect, e.g. "6740000000". Nil until it exists.
-    static let appID: String? = nil
+    /// The app's Apple ID from App Store Connect ("Paper Coach: Learn to Draw",
+    /// com.softroni.papercoach, record created 2026-09-25).
+    static let appID: String? = "6816231257"
 
     /// The page a friend is sent to.
     let pageURL: URL

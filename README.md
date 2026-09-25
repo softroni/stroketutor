@@ -44,7 +44,7 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M7 | iOS product shell | §29–31 | started ahead of M6 at the creator's request (2026-09-13) | 🟡 Built to the v3 design; awaits M6 content and creator review | see git log |
 | M8 | Private sketchbook | §32 | with M7 | 🟡 Built (photo capture, local pages, notes, delete); crop/straighten pending | see git log |
 | M9 | Content expansion | §33 Phase 9 | gated | ⬜ Not started | |
-| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; needs App Store Connect products and a device test | see git log |
+| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; App Store Connect record, products and listing filled 2026-09-25 (`docs/app-store/listing.md`); needs availability, review contact, App Privacy, a build and a device test | see git log |
 
 Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see notes).
 
@@ -880,9 +880,12 @@ protected tier needs it.
   approved (`Transaction.updates`).
 - After lesson 3 of a path, completion and the saved photo show "Next: … · Premium" as a gold card, and a free lesson
   from another path under it. Settings has a Premium row (the paywall, or Manage Subscriptions) and Restore.
-- **Still to do by hand:** create the two products and the free week in App Store Connect with the ids above, turn on
-  Family Sharing for both, set the prices, and try the whole flow on a device against the StoreKit configuration and
-  then the sandbox. Not built or run in this environment, which has no Xcode.
+- **App Store Connect (2026-09-25):** the record exists ("Paper Coach: Learn to Draw", Apple ID 6816231257,
+  `com.softroni.papercoach`), both products and the free week are set up with Family Sharing and the prices above,
+  and the listing copy, screenshots and subscription review screenshots are on it. What the API could not do, and
+  the exact review notes to paste, are in `docs/app-store/listing.md`. Still to do: availability, review contact,
+  App Privacy, a build, and the whole flow on a device against the sandbox.
+- **Harness:** `-STScreen offer-paywall` opens the paywall as an adult (the subscription review screenshot).
 
 ---
 
