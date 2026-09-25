@@ -183,9 +183,9 @@ struct ParentalGateView: View {
     }
 }
 
-/// "What is twenty-three times seven?" — a two-digit number times three to nine,
-/// written out: past the times tables a ten-year-old knows by heart, and the
-/// words keep it from being read off as digits.
+/// "What is seven times eight?" — two numbers from three to twelve,
+/// written out: a times table any grown-up knows at a glance, and the words keep
+/// it from being read off as digits by a child who cannot read them yet.
 struct ParentalQuestion: Equatable {
     let left: Int
     let right: Int
@@ -199,8 +199,8 @@ struct ParentalQuestion: Equatable {
     static func random(excluding previous: ParentalQuestion? = nil) -> ParentalQuestion {
         var question: ParentalQuestion
         repeat {
-            question = ParentalQuestion(left: Int.random(in: 13...29), right: Int.random(in: 3...9))
-        } while question == previous || question.left % 10 == 0
+            question = ParentalQuestion(left: Int.random(in: 3...12), right: Int.random(in: 3...12))
+        } while question == previous
         return question
     }
 

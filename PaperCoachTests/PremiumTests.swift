@@ -148,6 +148,14 @@ final class PremiumTests: XCTestCase {
         XCTAssertFalse(question.text.contains("8"))
     }
 
+    func testTheParentalQuestionNeverGoesPastTwelve() {
+        for _ in 0..<200 {
+            let question = ParentalQuestion.random()
+            XCTAssertTrue((3...12).contains(question.left))
+            XCTAssertTrue((3...12).contains(question.right))
+        }
+    }
+
     func testANewParentalQuestionIsNeverTheSameAsTheOneBefore() {
         let first = ParentalQuestion.random()
         for _ in 0..<50 {
