@@ -7,7 +7,7 @@
     {
       "id": "top-edge",
       "title": "Draw the top edge",
-      "instruction": "Start at the top left. Sweep down and up again, like a smile.",
+      "instruction": "The top of the banana is a long, gentle curve. Dip down in the middle and rise up to the right.",
       "voiceover": null,
       "strokes": [
         {
@@ -20,7 +20,7 @@
     {
       "id": "bottom-edge",
       "title": "Draw the bottom edge",
-      "instruction": "Start just below the first line. Draw the same smile, a bit deeper.",
+      "instruction": "The belly curves deeper. From the left end, swing down low and up to meet the top line.",
       "voiceover": null,
       "strokes": [
         {
@@ -32,8 +32,8 @@
     },
     {
       "id": "cap",
-      "title": "Draw the stem cap",
-      "instruction": "Start where the bottom edge began. Go up, over the top, and back down.",
+      "title": "Draw the stem",
+      "instruction": "The stem is a little square cap on the left end. Up, across and back down.",
       "voiceover": null,
       "strokes": [
         {
@@ -46,7 +46,7 @@
     {
       "id": "tip",
       "title": "Draw the tip",
-      "instruction": "At the far right, draw a short line across the end.",
+      "instruction": "The other end has a tiny dark tip. Draw a short hook to close it.",
       "voiceover": null,
       "strokes": [
         {
@@ -58,8 +58,8 @@
     },
     {
       "id": "ridges",
-      "title": "Add the ridge lines",
-      "instruction": "Start inside near the left. Draw two curves that follow the bottom edge.",
+      "title": "Draw the ridges",
+      "instruction": "Bananas have edges along their skin. Draw two long lines inside that follow the belly.",
       "voiceover": null,
       "strokes": [
         {
@@ -92,7 +92,7 @@
     {
       "id": "brown",
       "title": "Color the stem and tip",
-      "instruction": "Color the stem cap and the tip brown.",
+      "instruction": "The stem and the tip are brown.",
       "voiceover": null,
       "strokes": [],
       "fills": [

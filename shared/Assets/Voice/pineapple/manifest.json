@@ -4,61 +4,61 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T04:35:00.602Z",
+  "generatedAt": "2026-09-25T03:10:29.908Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "A pineapple looks tricky, but it's an oval, some crisscross lines and a spiky hat. Watch it grow, then it's over to you.",
-      "textHash": "af165ef9439ec442a5da8fe0fccae97c39fe5362e45f6d27a02543fd72bdd6f0",
-      "durationMs": 8080
+      "text": "A pineapple wears a spiky crown of leaves, and its skin is covered in diamonds. Body first, then the crown, then the diamonds. Watch it get dressed up, then give yours a crown too.",
+      "textHash": "69e18369524babdc6fc94d9e72cdafcbd172b5f1f17f3e6477809a24a8294182",
+      "durationMs": 11360
     },
     "body": {
       "file": "body.m4a",
-      "text": "The body is a tall oval. From the top, curve down the left side.",
-      "textHash": "e76ca446d95a8c8c8c563cfd401e60f1c57d9a64c502f0c0521aecafae9a93d8",
-      "durationMs": 4720
+      "text": "The body is a tall oval, like an egg standing up. From the top, curve down the left side.",
+      "textHash": "7a29f87c4f471360b898065fd2ab6053fea16bd6133a919078acd452c0c651d3",
+      "durationMs": 6000
     },
     "body-2": {
       "file": "body-2.m4a",
-      "text": "Now the right side, down to meet it at the bottom.",
-      "textHash": "fcaa6c0d8e43ca9da70b7cd7080faea85810df854e59661a1cce9694bf4f584b",
-      "durationMs": 3520
+      "text": "Then the right side, curving down to meet it at the bottom.",
+      "textHash": "a8696fc59bb1475ef7b80bb6ab9180cf4714225706d0493e654001a523201e4a",
+      "durationMs": 3760
     },
     "middle-leaf": {
       "file": "middle-leaf.m4a",
-      "text": "Now the spiky hat. Draw the tall leaf in the middle first.",
-      "textHash": "0b13830f5efe9845656349442e1cb9f8e0584cf53a6ccee9519c6f14d45c0f8a",
-      "durationMs": 4480
+      "text": "The crown starts with its tallest leaf, standing straight up in the middle.",
+      "textHash": "54b134bdbd8fd10eb21e240cadc2f6b7f28a3ecdde152246de9ee2cc10d31cb2",
+      "durationMs": 4240
     },
     "inner-leaves": {
       "file": "inner-leaves.m4a",
-      "text": "Add a leaf on each side of it. They lean away.",
-      "textHash": "883350a2b18caa9ad20fc93f9b5e86c5124c01b2643edc0573eb74378b81a82d",
-      "durationMs": 3360
+      "text": "Add a leaf on each side of it, leaning out a little.",
+      "textHash": "e1e2ed5759e186fbce3bc757df7ae09c7dd40e96eff1cb7448197a8fbed16e1c",
+      "durationMs": 3200
     },
     "low-leaves": {
       "file": "low-leaves.m4a",
-      "text": "Two leaves curl out low, one on each side.",
-      "textHash": "4e1216a0d9ed382847aa3ec32d96d4be3160379b98a31b3f9f921d8b58522572",
-      "durationMs": 3040
+      "text": "Two long leaves curl out low, one to the left and one to the right.",
+      "textHash": "d2c7281553b7e7e113fe30363b6295a7c4ab46540644291a3523f366667eccac",
+      "durationMs": 4480
     },
     "back-leaves": {
       "file": "back-leaves.m4a",
-      "text": "Two more leaves peek out behind those.",
-      "textHash": "e1e003672c48850ddaee69cd1efd9adf2e0498a0a776827cbd59aa3a487d7ce4",
-      "durationMs": 2560
+      "text": "Two more leaves poke up from behind. They fill the gaps.",
+      "textHash": "c5ca756ded70402e6548d018ed2ba1578113b2215342f8a0ed9246e8cc1bf4f8",
+      "durationMs": 3920
     },
     "hatch-one": {
       "file": "hatch-one.m4a",
-      "text": "Time for the crisscross. Draw the lines that lean one way, top to bottom.",
-      "textHash": "ce5c5e463e14ae8e576501c51ee673cb2d29bd79712f2e22517035d6c3031004",
-      "durationMs": 4960
+      "text": "Now the diamond pattern. Draw four slanted lines across the body, all leaning the same way.",
+      "textHash": "564d1267836b521fa52927e9885f2befef38a689244bf10e4dda32d6a12fdd79",
+      "durationMs": 6560
     },
     "hatch-two": {
       "file": "hatch-two.m4a",
-      "text": "Cross them with lines leaning the other way. Now you have diamonds.",
-      "textHash": "3171f9daf5c3d4dccf27c31245c71c522b77c5142e8eee46bf70b46ddf5da65d",
-      "durationMs": 4240
+      "text": "Four more lines lean the other way and cross them. Diamonds everywhere.",
+      "textHash": "d03d0f61dd3cd905ffa31e74821e83c52272c5211e98e06f479b1ffaa4381315",
+      "durationMs": 5040
     },
     "yellow": {
       "file": "yellow.m4a",
@@ -68,21 +68,21 @@
     },
     "green": {
       "file": "green.m4a",
-      "text": "Most of the leaves are green.",
-      "textHash": "9d819e5513d8f8dd77ff67bbd7edd24ad6b0b3be12fb3102ead77a3c2f6793d5",
+      "text": "Color most of the leaves green.",
+      "textHash": "b0f437275fa7e7074c33c4c32ebcf402aebec21a3c5ad8d21c22f0fa3c88e7e9",
       "durationMs": 1920
     },
     "dark-green": {
       "file": "dark-green.m4a",
-      "text": "Make the two leaves beside the middle dark green.",
-      "textHash": "7b82f9886b52ffde9d87edb3aca96f367fdfb457b87106ed5f5b07c7fcb40bde",
-      "durationMs": 2960
+      "text": "The two leaves beside the middle one are dark green.",
+      "textHash": "c9c7c8e290501464961f975f83e1815c5c4d22d8f7e7f95929f92961650e9919",
+      "durationMs": 3120
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "Spiky on top, diamonds all over. That's a fine pineapple you've drawn.",
-      "textHash": "ff915d177ccb70c6c901aefa9a5a6d81ff04858e8fac57c774a3cbbe3682aaba",
-      "durationMs": 4960
+      "text": "A spiky crown and diamond skin. Your pineapple looks sweet, and just a little bit prickly.",
+      "textHash": "8911a922f303745814fedf087d54c5d5e1499f1842e6094c83ad1cf5d2ba62ef",
+      "durationMs": 5840
     }
   }
 }

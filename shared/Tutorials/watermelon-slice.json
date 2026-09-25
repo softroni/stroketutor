@@ -7,7 +7,7 @@
     {
       "id": "left-side",
       "title": "Draw the left side",
-      "instruction": "The slice is a big triangle. From the tip, draw a straight line down to the left.",
+      "instruction": "A watermelon slice starts as a tall triangle. From the top point, slide straight down to the left.",
       "voiceover": null,
       "strokes": [
         {
@@ -20,7 +20,7 @@
     {
       "id": "right-side",
       "title": "Draw the right side",
-      "instruction": "Now the other side. From the tip again, straight down to the right.",
+      "instruction": "Back to the point, and slide down to the right the same way.",
       "voiceover": null,
       "strokes": [
         {
@@ -33,7 +33,7 @@
     {
       "id": "bottom",
       "title": "Draw the bottom",
-      "instruction": "Close the slice with a curved bottom, like a wide smile.",
+      "instruction": "The bottom is curved. Join the two corners with a line that dips low, like a bowl.",
       "voiceover": null,
       "strokes": [
         {
@@ -46,7 +46,7 @@
     {
       "id": "rind-top",
       "title": "Draw the rind's top line",
-      "instruction": "Next, the rind. Draw a curve from side to side, just above the bottom.",
+      "instruction": "Now the rind. Draw a curve across the slice, a little above the bottom.",
       "voiceover": null,
       "strokes": [
         {
@@ -58,8 +58,8 @@
     },
     {
       "id": "rind-bottom",
-      "title": "Draw the rind's bottom line",
-      "instruction": "Add one more curve under it. Now the rind has a stripe.",
+      "title": "Draw the stripe",
+      "instruction": "One more curve fits between those two. That makes a thin stripe.",
       "voiceover": null,
       "strokes": [
         {
@@ -71,8 +71,8 @@
     },
     {
       "id": "seeds-top",
-      "title": "Draw the top two seeds",
-      "instruction": "Time for seeds. Draw two little teardrops near the top.",
+      "title": "Draw two seeds",
+      "instruction": "Watermelons are full of seeds. Draw two small teardrops near the top, pointing up.",
       "voiceover": null,
       "strokes": [
         {
@@ -89,8 +89,8 @@
     },
     {
       "id": "seeds-bottom",
-      "title": "Draw the bottom three seeds",
-      "instruction": "Three more teardrops go in a row below them.",
+      "title": "Draw three more seeds",
+      "instruction": "Three more teardrops sit in a row underneath. That's five seeds.",
       "voiceover": null,
       "strokes": [
         {
@@ -128,7 +128,7 @@
     {
       "id": "rind",
       "title": "Color the rind",
-      "instruction": "Make the rind dark green.",
+      "instruction": "Color the rind dark green.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -143,7 +143,7 @@
     {
       "id": "stripe",
       "title": "Color the stripe",
-      "instruction": "Fill the thin stripe light green.",
+      "instruction": "The stripe is light green.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -158,7 +158,7 @@
     {
       "id": "seeds",
       "title": "Color the seeds",
-      "instruction": "The seeds are black.",
+      "instruction": "Color all five seeds black.",
       "voiceover": null,
       "strokes": [],
       "fills": [

@@ -4,43 +4,43 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T03:07:18.072Z",
+  "generatedAt": "2026-09-25T03:10:19.796Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "Today we're drawing a banana, curved like a smile in its own yellow peel. Watch how it comes together, then it's your turn.",
-      "textHash": "b464407d9da53d0bd214c2c63fa496108d19fb384f2949e66ac14f2a05159019",
-      "durationMs": 8000
+      "text": "Monkeys love them, and so do lunchboxes. A banana is two long curves that meet at the ends, like a moon lying on its back. Watch it bend, then peel off one of your own.",
+      "textHash": "976f27ec4a431d4d69e705cfbac91b6a0a8c2b1ff08ae88a818fc76816173262",
+      "durationMs": 11280
     },
     "top-edge": {
       "file": "top-edge.m4a",
-      "text": "Start at the top left. Sweep down and up again, like a smile.",
-      "textHash": "25f21ad08195654c570fedb7e188a96485b2af40a6b229d1df74b1dc758545ee",
-      "durationMs": 4480
+      "text": "The top of the banana is a long, gentle curve. Dip down in the middle and rise up to the right.",
+      "textHash": "abfb7da0617946ff9a1076b572b26106c64101f833776d4f151052f0b915c1ca",
+      "durationMs": 6240
     },
     "bottom-edge": {
       "file": "bottom-edge.m4a",
-      "text": "Start just below the first line. Draw the same smile, a bit deeper.",
-      "textHash": "3b38497787917bca1e45a5152e055e4460b16077064430a014016ee1733f54b4",
-      "durationMs": 5040
+      "text": "The belly curves deeper. From the left end, swing down low and up to meet the top line.",
+      "textHash": "37d6384fc992ffe58c9f7eb449a86522d79c7a6d228c445c723ad1c58e6085cb",
+      "durationMs": 5920
     },
     "cap": {
       "file": "cap.m4a",
-      "text": "Start where the bottom edge began. Go up, over the top, and back down.",
-      "textHash": "9e76b29d4bb2e3e270f2ce7625dc99aec5a1680cec554be238d0a83f11fae3ee",
-      "durationMs": 4880
+      "text": "The stem is a little square cap on the left end. Up, across and back down.",
+      "textHash": "e55a75ba1861dc66355aec118afbea66fe49deacf37a4e7216c4dfd30c541e10",
+      "durationMs": 5280
     },
     "tip": {
       "file": "tip.m4a",
-      "text": "At the far right, draw a short line across the end.",
-      "textHash": "e3b18927c38a62bc86abfe7b99c66c5ad720e765d5f4b868ac58e7cc57f1fd75",
-      "durationMs": 3760
+      "text": "The other end has a tiny dark tip. Draw a short hook to close it.",
+      "textHash": "e938e8535699de9c3e86764a7226f46d970077ee340748d57cc017c52aa69c1e",
+      "durationMs": 4560
     },
     "ridges": {
       "file": "ridges.m4a",
-      "text": "Start inside near the left. Draw two curves that follow the bottom edge.",
-      "textHash": "bae252a962562d0be0b2312d5248dd798bf4a47631088dc53d77b888af0f3dfd",
-      "durationMs": 4960
+      "text": "Bananas have edges along their skin. Draw two long lines inside that follow the belly.",
+      "textHash": "1aa8d8e70560ed04690e9742f357c66126ac234bc105541fd6fbc4661dc8dea4",
+      "durationMs": 6000
     },
     "yellow": {
       "file": "yellow.m4a",
@@ -50,15 +50,15 @@
     },
     "brown": {
       "file": "brown.m4a",
-      "text": "Color the stem cap and the tip brown.",
-      "textHash": "27296a0c4d701d39e1ed867cc98d25d1fa4fa87874cdfa4f6a28346f84b20808",
-      "durationMs": 3120
+      "text": "The stem and the tip are brown.",
+      "textHash": "9a6d880a9add3570eb359d4e3dcdf39f94994ac2440b4bc353754ff5665f9a14",
+      "durationMs": 2480
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "There it is, your very own banana, curved and ready to peel.",
-      "textHash": "c3fc2496b219e5e455a1f2a02e027474bd2e0141788b99f532490f8a2911c481",
-      "durationMs": 4560
+      "text": "One yellow banana with a brown stem. Just don't slip on the peel.",
+      "textHash": "de76ae8a74726e3cd5790d4895f67e41cf8f4a82b2f85f3df6e92147738531ac",
+      "durationMs": 4720
     }
   }
 }

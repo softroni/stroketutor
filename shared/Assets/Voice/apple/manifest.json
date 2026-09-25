@@ -4,43 +4,43 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T03:02:45.171Z",
+  "generatedAt": "2026-09-25T03:10:13.163Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "Today we're drawing an apple, the kind you'd find in your lunchbox. Watch how it comes together, then it's your turn.",
-      "textHash": "5483dcdb96a8470494b903dc0cd09f35590dc52cb7bcdef8ad4bc0c1e47f2212",
-      "durationMs": 7120
+      "text": "Apples grow on trees, and this one is ready to pick. It's a round apple with a dip on top, a stem and one leaf. Watch it come around, then pick one of your own.",
+      "textHash": "236f6d3620b720d93d61cbb311b9c90285e3649f22ce5e13e1c8aaf3f0ff817e",
+      "durationMs": 11360
     },
     "left-side": {
       "file": "left-side.m4a",
-      "text": "Start at the top. Draw a big letter C down to the bottom.",
-      "textHash": "9345448635d8ca39f02a13641b614b85a11f3171abc120ea61a4fdfa5444c049",
-      "durationMs": 4160
+      "text": "An apple is a fat circle with a dip on top. From the dip, round the left side down to the bottom.",
+      "textHash": "25afda6b7a6ad9c06e061353f070c34cba918aec7ee2d816a7248263fcc047cf",
+      "durationMs": 6400
     },
     "right-side": {
       "file": "right-side.m4a",
-      "text": "Go back to the top. Draw the same curve the other way, like a mirror.",
-      "textHash": "66f4388314f4dcf4ca9e8115687e5fac5bb72cf443d6fc30f88fdfb538d66fcf",
-      "durationMs": 4480
+      "text": "Now the right side. Start in the dip again and round it down until the two ends meet.",
+      "textHash": "57ac7bc6d5f32fdb74598d25c972488d1cd820ab392b0b1ff01f1d0cb06770a5",
+      "durationMs": 5200
     },
     "stem": {
       "file": "stem.m4a",
-      "text": "Start in the dip. Go up, over the top, and back down.",
-      "textHash": "f44457f054b972e0917c295108cba364005624cbbc53e02e99bb87ded853c4b0",
-      "durationMs": 4000
+      "text": "Poke a short stem up out of the dip. Up, over its little top, and back down.",
+      "textHash": "561d814622aef66c8bc3a08a27fc8ef7493889d2a74fc9282aef34542df3c359",
+      "durationMs": 5440
     },
     "leaf": {
       "file": "leaf.m4a",
-      "text": "Start at the top of the stem. Sweep out to a point, then curve back to the stem.",
-      "textHash": "d5a842e6d82b5ae601929b03d77cbf0a50009591a0d5e3072d7462bf249483ed",
-      "durationMs": 5360
+      "text": "A leaf hangs off the stem. Swoop out to a point and back, like a little boat.",
+      "textHash": "80672b75aeca6d15843241b8955bb4c4f0de2eab972d31cdbd0ab74443326aaa",
+      "durationMs": 5280
     },
     "vein": {
       "file": "vein.m4a",
-      "text": "Draw one line along the middle of the leaf. Stop before the tip.",
-      "textHash": "ad91ad9c409a1cda203f212e1a1c617e07782b1c66983686138b8881cd18b11c",
-      "durationMs": 4320
+      "text": "Give the leaf a vein, one line from the stem toward the point.",
+      "textHash": "fe69596bc187ffcb8d6acd9da41a430fe9adba24ac3090c7ba25b47d5836a616",
+      "durationMs": 4400
     },
     "red": {
       "file": "red.m4a",
@@ -50,9 +50,9 @@
     },
     "green": {
       "file": "green.m4a",
-      "text": "Color the leaf green.",
-      "textHash": "f0468673f7ab02957274c66358409f512b75fc9e177d180b583279f879636c58",
-      "durationMs": 1440
+      "text": "The leaf is green.",
+      "textHash": "5aa1d27a3fa8a794f149cd065eae742af70ad06444c2928982220f24fabdae86",
+      "durationMs": 1520
     },
     "brown": {
       "file": "brown.m4a",
@@ -62,9 +62,9 @@
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "You did it. That's your very own apple, and it looks good enough to eat.",
-      "textHash": "1d1fdb11a264585541001e58e5f52a6fb0fa10f5c13f695526e5b35494926cf3",
-      "durationMs": 4720
+      "text": "One shiny apple with a leaf on top. Will you eat it, or give it to your teacher?",
+      "textHash": "b4c4ff7169ef514269cdcf2d84e99a47dfb4d6e58ca014118dbd4dd0990663fa",
+      "durationMs": 5040
     }
   }
 }

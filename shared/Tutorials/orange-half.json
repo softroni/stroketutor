@@ -7,7 +7,7 @@
     {
       "id": "peel-left",
       "title": "Draw the peel",
-      "instruction": "First the peel, a big circle. From the top, curve round the left to the bottom.",
+      "instruction": "The orange starts as a big circle. From the top, round down the left side.",
       "voiceover": null,
       "strokes": [
         {
@@ -20,7 +20,7 @@
     {
       "id": "peel-right",
       "title": "Finish the peel",
-      "instruction": "Back at the top, curve round the right. The circle closes at the bottom.",
+      "instruction": "From the top again, round down the right side to close it.",
       "voiceover": null,
       "strokes": [
         {
@@ -33,7 +33,7 @@
     {
       "id": "inside-left",
       "title": "Start the inside circle",
-      "instruction": "A second circle sits just inside the first. Draw its left half.",
+      "instruction": "Just inside it goes a second circle. Draw its left half first.",
       "voiceover": null,
       "strokes": [
         {
@@ -46,7 +46,7 @@
     {
       "id": "inside-right",
       "title": "Finish the inside circle",
-      "instruction": "Then its right half. That ring is the peel.",
+      "instruction": "Then its right half. The thin ring between them is the peel.",
       "voiceover": null,
       "strokes": [
         {
@@ -58,8 +58,8 @@
     },
     {
       "id": "middle",
-      "title": "Draw the little circle",
-      "instruction": "Draw a small circle right in the middle.",
+      "title": "Draw the button",
+      "instruction": "Right in the center, draw a little circle the size of a button.",
       "voiceover": null,
       "strokes": [
         {
@@ -72,7 +72,7 @@
     {
       "id": "spokes-plus",
       "title": "Draw four spokes",
-      "instruction": "Draw four spokes out from the little circle, like a plus sign. Stop short of the ring.",
+      "instruction": "Four spokes go out from the button: up, down, left and right. Stop before the ring.",
       "voiceover": null,
       "strokes": [
         {
@@ -100,7 +100,7 @@
     {
       "id": "spokes-x",
       "title": "Draw four more spokes",
-      "instruction": "Next, one spoke between each pair, like a letter X. Now there are eight.",
+      "instruction": "Put one more spoke in each gap, slanting out. Now the wheel has eight.",
       "voiceover": null,
       "strokes": [
         {
@@ -127,8 +127,8 @@
     },
     {
       "id": "tops-right",
-      "title": "Close the segments",
-      "instruction": "Each segment gets a rounded top. Curve from spoke tip to spoke tip down the right side.",
+      "title": "Round the right pieces",
+      "instruction": "Each piece needs a round top. Go down the right side, bumping from spoke to spoke.",
       "voiceover": null,
       "strokes": [
         {
@@ -155,8 +155,8 @@
     },
     {
       "id": "tops-left",
-      "title": "Close the rest",
-      "instruction": "Carry on round like a clock, up the left side. The wheel is full.",
+      "title": "Round the left pieces",
+      "instruction": "Keep going up the left side until all eight pieces are closed.",
       "voiceover": null,
       "strokes": [
         {
@@ -183,8 +183,8 @@
     },
     {
       "id": "segments",
-      "title": "Color the segments",
-      "instruction": "Color all eight segments golden yellow.",
+      "title": "Color the pieces",
+      "instruction": "Color all eight pieces golden yellow.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -199,7 +199,7 @@
     {
       "id": "peel",
       "title": "Color the peel",
-      "instruction": "Color the peel ring orange.",
+      "instruction": "Color the peel orange.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -214,7 +214,7 @@
     {
       "id": "rest",
       "title": "Color the rest",
-      "instruction": "Color the gaps cream, and the little circle too.",
+      "instruction": "The space around the pieces is cream, and so is the button.",
       "voiceover": null,
       "strokes": [],
       "fills": [

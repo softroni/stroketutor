@@ -7,7 +7,7 @@
     {
       "id": "left-leaves",
       "title": "Draw the left leaf",
-      "instruction": "Draw a pointed leaf up to the left.",
+      "instruction": "Start with the leafy hat. Draw a pointed leaf curling up to the left.",
       "voiceover": null,
       "strokes": [
         {
@@ -20,7 +20,7 @@
     {
       "id": "right-leaves-2",
       "title": "Draw the right leaf",
-      "instruction": "Now the same leaf on the other side, like a mirror.",
+      "instruction": "Now its twin on the right, curling up the other way.",
       "voiceover": null,
       "strokes": [
         {
@@ -33,7 +33,7 @@
     {
       "id": "right-leaves",
       "title": "Draw the stem",
-      "instruction": "Draw the stem between two leaves.",
+      "instruction": "A short stem pokes up between the two leaves. Up, across the top and down.",
       "voiceover": null,
       "strokes": [
         {
@@ -46,7 +46,7 @@
     {
       "id": "middle-leaf",
       "title": "Draw the middle leaf",
-      "instruction": "Now a middle leaf. Draw a letter V pointing down.",
+      "instruction": "One leaf hangs down in the middle, a narrow letter V.",
       "voiceover": null,
       "strokes": [
         {
@@ -59,7 +59,7 @@
     {
       "id": "leaf-edges",
       "title": "Draw the leaf edges",
-      "instruction": "Draw the lower edge of the leaves on each side.",
+      "instruction": "Finish the hat with the bottom edge of the leaves, one on each side, out to the tips.",
       "voiceover": null,
       "strokes": [
         {
@@ -77,7 +77,7 @@
     {
       "id": "berry",
       "title": "Draw the berry",
-      "instruction": "To make a berry, curve down to a soft point, then curve back up.",
+      "instruction": "The berry is shaped like a heart. Curve down from the leaves to a soft point, and back up.",
       "voiceover": null,
       "strokes": [
         {
@@ -120,7 +120,7 @@
     {
       "id": "green",
       "title": "Color the leafy top",
-      "instruction": "Color the leaves and stem green.",
+      "instruction": "The leaves and the stem are green.",
       "voiceover": null,
       "strokes": [],
       "fills": [

@@ -7,7 +7,7 @@
     {
       "id": "front-cherry",
       "title": "Draw the front cherry",
-      "instruction": "Start at the top. Draw a big letter C down to the bottom.",
+      "instruction": "The front cherry is a circle. From the top, curve down its left side.",
       "voiceover": null,
       "strokes": [
         {
@@ -20,7 +20,7 @@
     {
       "id": "front-side",
       "title": "Finish the front cherry",
-      "instruction": "Go back to the top. Draw the same curve the other way.",
+      "instruction": "Then round the right side, back to where you began.",
       "voiceover": null,
       "strokes": [
         {
@@ -33,7 +33,7 @@
     {
       "id": "back-cherry",
       "title": "Draw the cherry behind",
-      "instruction": "Start high on the left edge. Sweep round and back to that edge.",
+      "instruction": "The second cherry hides behind the first. Draw only the part that peeks out on the left.",
       "voiceover": null,
       "strokes": [
         {
@@ -46,7 +46,7 @@
     {
       "id": "stems",
       "title": "Draw the stems",
-      "instruction": "Start at the top of each cherry. Curve up to the same point.",
+      "instruction": "Each cherry has a thin stem. Draw both up from the tops until they meet at one point.",
       "voiceover": null,
       "strokes": [
         {
@@ -64,7 +64,7 @@
     {
       "id": "leaf",
       "title": "Draw the leaf",
-      "instruction": "Start where the stems meet. Sweep out to a point and curve back.",
+      "instruction": "A leaf sprouts where the stems meet. Swing out to the right, to a point, and back.",
       "voiceover": null,
       "strokes": [
         {
@@ -76,8 +76,8 @@
     },
     {
       "id": "vein",
-      "title": "Add the leaf's center line",
-      "instruction": "Draw one line along the middle of the leaf. Stop before the tip.",
+      "title": "Draw the vein",
+      "instruction": "Draw a curved line inside the leaf, from the stems toward the tip.",
       "voiceover": null,
       "strokes": [
         {

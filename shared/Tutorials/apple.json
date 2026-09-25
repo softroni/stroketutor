@@ -7,7 +7,7 @@
     {
       "id": "left-side",
       "title": "Draw the left side",
-      "instruction": "Start at the top. Draw a big letter C down to the bottom.",
+      "instruction": "An apple is a fat circle with a dip on top. From the dip, round the left side down to the bottom.",
       "voiceover": null,
       "strokes": [
         {
@@ -20,7 +20,7 @@
     {
       "id": "right-side",
       "title": "Draw the right side",
-      "instruction": "Go back to the top. Draw the same curve the other way, like a mirror.",
+      "instruction": "Now the right side. Start in the dip again and round it down until the two ends meet.",
       "voiceover": null,
       "strokes": [
         {
@@ -33,7 +33,7 @@
     {
       "id": "stem",
       "title": "Draw the stem",
-      "instruction": "Start in the dip. Go up, over the top, and back down.",
+      "instruction": "Poke a short stem up out of the dip. Up, over its little top, and back down.",
       "voiceover": null,
       "strokes": [
         {
@@ -46,7 +46,7 @@
     {
       "id": "leaf",
       "title": "Draw the leaf",
-      "instruction": "Start at the top of the stem. Sweep out to a point, then curve back to the stem.",
+      "instruction": "A leaf hangs off the stem. Swoop out to a point and back, like a little boat.",
       "voiceover": null,
       "strokes": [
         {
@@ -58,8 +58,8 @@
     },
     {
       "id": "vein",
-      "title": "Add the leaf's center line",
-      "instruction": "Draw one line along the middle of the leaf. Stop before the tip.",
+      "title": "Draw the vein",
+      "instruction": "Give the leaf a vein, one line from the stem toward the point.",
       "voiceover": null,
       "strokes": [
         {
@@ -87,7 +87,7 @@
     {
       "id": "green",
       "title": "Color the leaf",
-      "instruction": "Color the leaf green.",
+      "instruction": "The leaf is green.",
       "voiceover": null,
       "strokes": [],
       "fills": [

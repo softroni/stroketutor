@@ -7,7 +7,7 @@
     {
       "id": "top-row",
       "title": "Draw the top row",
-      "instruction": "Start with the top row. Draw four circles side by side, just touching.",
+      "instruction": "Every grape is a circle. Line up four across the top, each one touching the next.",
       "voiceover": null,
       "strokes": [
         {
@@ -35,7 +35,7 @@
     {
       "id": "second-row",
       "title": "Draw the next row",
-      "instruction": "The next row has three grapes. Each one sits in the dip between two above.",
+      "instruction": "Tuck three grapes underneath, each one sitting in a gap above.",
       "voiceover": null,
       "strokes": [
         {
@@ -58,7 +58,7 @@
     {
       "id": "last-grapes",
       "title": "Draw the last grapes",
-      "instruction": "Then a row of two, and one last grape to make the point.",
+      "instruction": "Two more below them, and a single grape at the very bottom. That's ten.",
       "voiceover": null,
       "strokes": [
         {
@@ -81,7 +81,7 @@
     {
       "id": "stalk",
       "title": "Draw the stalk",
-      "instruction": "The grapes hang from a stalk. Trace around its outside, up from the left grape.",
+      "instruction": "The bunch hangs from a woody stalk. Draw its outline up from the top row to its knobby end.",
       "voiceover": null,
       "strokes": [
         {
@@ -108,8 +108,8 @@
     },
     {
       "id": "branches",
-      "title": "Draw the branches",
-      "instruction": "Little branches reach down to the other grapes. Draw the arches between them.",
+      "title": "Draw the twigs",
+      "instruction": "Thin twigs reach down from the stalk to the grapes. Draw them in between.",
       "voiceover": null,
       "strokes": [
         {
@@ -137,7 +137,7 @@
     {
       "id": "leaf",
       "title": "Draw the leaf",
-      "instruction": "A vine leaf has three points. From the stalk, draw up and around all three.",
+      "instruction": "A grape leaf has three points. Draw one on the left, going up and around all three.",
       "voiceover": null,
       "strokes": [
         {
@@ -160,7 +160,7 @@
     {
       "id": "vein",
       "title": "Draw the vein",
-      "instruction": "Give the leaf one vein. Start just below the top point and run down.",
+      "instruction": "One vein runs down the leaf from its middle point.",
       "voiceover": null,
       "strokes": [
         {
@@ -173,7 +173,7 @@
     {
       "id": "tendril",
       "title": "Draw the tendril",
-      "instruction": "Last, a curly tendril. From the stalk, swing out, loop once and wiggle away.",
+      "instruction": "A tendril is a curly string the vine holds on with. Swing out, loop once, and wiggle off.",
       "voiceover": null,
       "strokes": [
         {
@@ -201,7 +201,7 @@
     {
       "id": "shine",
       "title": "Add the shine",
-      "instruction": "Add a little shine on each grape in light purple. It has no outline.",
+      "instruction": "Each grape has a small shiny spot. Color the spots light purple.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -216,7 +216,7 @@
     {
       "id": "brown",
       "title": "Color the stalk",
-      "instruction": "Color the stalk brown.",
+      "instruction": "The stalk is brown.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -231,7 +231,7 @@
     {
       "id": "green",
       "title": "Color the leaf",
-      "instruction": "The leaf is green.",
+      "instruction": "Color the leaf green.",
       "voiceover": null,
       "strokes": [],
       "fills": [

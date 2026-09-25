@@ -4,61 +4,61 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T05:05:49.103Z",
+  "generatedAt": "2026-09-25T03:10:32.497Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "You know these fruits already. Now they all share one bowl. Watch who goes in front, then you try.",
-      "textHash": "2f5910f6ef3aa7088960a1bc22a3e5ba1ededb4ed3a443d71cebb23bc62711ae",
-      "durationMs": 6240
+      "text": "Remember the apple, the pear, the banana and the grapes? They're all back, sharing one big blue bowl. See who sits in front, then fill a bowl of your own.",
+      "textHash": "caad3472a73ebded1f2ad209d16337ae4b3e718fd2a29eb0d82211ebd3541bce",
+      "durationMs": 9920
     },
     "rim-pear": {
       "file": "rim-pear.m4a",
-      "text": "Begin with the bowl's front rim, one long curve. Then the pear: two sides and a stem.",
-      "textHash": "3ae424635016dbce3727a2cca9322136f3e893ff06d8d8438b561ef01b279ed9",
-      "durationMs": 6080
+      "text": "Start with the bowl's front edge, one long curve. The pear sits on it: two sides and a stem.",
+      "textHash": "6467a40d210e3639f30e9b89e303d5dba61179baf640a38ee231629cf0ad14da",
+      "durationMs": 6720
     },
     "apple": {
       "file": "apple.m4a",
-      "text": "The apple leans on the pear. Curve up each side, then a dip at the top and a stem.",
-      "textHash": "b5ea495c77caab1f683e2bb0893e545709bfa3ce6e89d0a4e652d45b4aa8362e",
+      "text": "The apple leans against the pear. Round up each side, dip at the top, and add its stem.",
+      "textHash": "6e1fad3c5ae6113253eb96876d578abc4e1ca94a06653fc9aec0ffd58e09411e",
       "durationMs": 6160
     },
     "leaf": {
       "file": "leaf.m4a",
-      "text": "A leaf points left from the stem. Go out and back, then a line up its middle.",
-      "textHash": "5fc291c27fa6320c75e9e579b7552a3eb8feed08b283ba30dfad3ce6ab2d416c",
-      "durationMs": 5840
+      "text": "A leaf sticks out to the left of the apple's stem. Out and back, then a line through it.",
+      "textHash": "ef622c7df1308eab528887412f1c3cfaa6102aff60e62d8607829fc660e9da74",
+      "durationMs": 5600
     },
     "grapes": {
       "file": "grapes.m4a",
-      "text": "Grapes fill the right side. Draw five curves, each one tucked in behind.",
-      "textHash": "eaad75b723471d8942189a5280e2ca123c212b1d9c142942c6978ebb5d114d1e",
-      "durationMs": 5040
+      "text": "The grapes squeeze in on the right. Draw five round curves, each tucked behind the last.",
+      "textHash": "83c3c74b452b5b5222523b4a6e97505a78375adf4d813ceede12731efd9f170b",
+      "durationMs": 5680
     },
     "grape-stem": {
       "file": "grape-stem.m4a",
-      "text": "The bunch needs a stem. Go up and over to the right, then close the little gap.",
-      "textHash": "5a72f70587b11cdc7e25c71a5322e750ebc742a976cf3ac89ab737f109586021",
-      "durationMs": 5440
+      "text": "Give the grapes a stem that curls up to the right, and close the little gap.",
+      "textHash": "2d3d9d74f2a4d4de37c9175826d22e9c0311591af13a6d68064915c520093e9c",
+      "durationMs": 4400
     },
     "banana": {
       "file": "banana.m4a",
-      "text": "A banana lies across the back. From the leaf, go up and over, then cap each end.",
-      "textHash": "efcbea2a63865b7f7298da4cef210ea4cb03da2eae7f09e2d36272f050d99781",
-      "durationMs": 7200
+      "text": "The banana lies along the back. Go up from the leaf, over the top, and cap both ends.",
+      "textHash": "bcf550fee700608a3d1400035bcafb23efdb900bf1309ab8353376de6f5f249f",
+      "durationMs": 6880
     },
     "banana-lines": {
       "file": "banana-lines.m4a",
-      "text": "Fill in the bits of banana between the fruit. Add three long lines, one carrying on past the stem.",
-      "textHash": "b62363b2ab1de068961f34eaad12c7332b9d27c640b89af83b7ee557f3a54ee5",
-      "durationMs": 6240
+      "text": "Fill in the bits of banana you can see between the fruit, then three long lines along it.",
+      "textHash": "c7654b4aa0c58210f43fcf53c67f65b1f0d4fcd81bf33787b9aaf24db4d5fbfb",
+      "durationMs": 5360
     },
     "bowl": {
       "file": "bowl.m4a",
-      "text": "Back to the bowl. Draw the rim, the sides and a foot. Add a short curve by the grapes.",
-      "textHash": "0edf81931aa2499a64fad7c8dde0433d059431c9604c7539893460a48d5a2bf7",
-      "durationMs": 5600
+      "text": "Now finish the bowl: the back rim, the round sides and a little foot. Add a short curve by the grapes.",
+      "textHash": "85a0ce8773bf574c30ee02e8ea779947e8255bef4aafa33f82030456b0968a8e",
+      "durationMs": 7200
     },
     "blue": {
       "file": "blue.m4a",
@@ -68,27 +68,27 @@
     },
     "red-green": {
       "file": "red-green.m4a",
-      "text": "The apple is red and the pear is light green.",
-      "textHash": "59102badd3b4a456c650484b3115a7dd50159d948384ae4d10602e7d322408c4",
-      "durationMs": 3360
+      "text": "Color the apple red and the pear light green.",
+      "textHash": "aacfdb902ef990c643fad355496300c8d463be8785f9624b8beed192e1d7d922",
+      "durationMs": 3280
     },
     "yellow-purple": {
       "file": "yellow-purple.m4a",
-      "text": "Color the banana yellow and the grapes purple.",
-      "textHash": "33b971bf9cb5d96de5f8cd0815838b99393e5618b150e6ea295d88e738414566",
+      "text": "The banana is yellow and the grapes are purple.",
+      "textHash": "494890000d03feffe2d113355e550ba5727cfc76637ff062ebe6431320967374",
       "durationMs": 3120
     },
     "last-bits": {
       "file": "last-bits.m4a",
-      "text": "Stems and banana ends are brown, the leaves green. Then a soft gray shadow.",
-      "textHash": "f114aa93702cc073a04050a435ceb1ae4b4a85ef501aebb8efc532042ff7233b",
-      "durationMs": 6000
+      "text": "Stems and banana ends are brown, the leaf green. Add a gray shadow under the bowl.",
+      "textHash": "32ba3b388a64ad1ad7a3d1be6c403fd472404d3832c159d17b230dfb24463e25",
+      "durationMs": 5840
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "A whole bowl of fruit, and you drew every piece. That's the Fruits path, finished.",
-      "textHash": "809538f6992b381011ab753ca8312fa9b0bf8a08412d9c25c3463c6fe250e1d3",
-      "durationMs": 5280
+      "text": "Apple, pear, banana and grapes, all in one bowl you drew. That's the Fruits path done. Anyone hungry?",
+      "textHash": "ebae5bad004d0abdea884d28a5f1fcb409e99e1506cc76da6d3c488c5386d60c",
+      "durationMs": 7280
     }
   }
 }

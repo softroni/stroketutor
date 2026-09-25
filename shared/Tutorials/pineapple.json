@@ -7,7 +7,7 @@
     {
       "id": "body",
       "title": "Draw the left side",
-      "instruction": "The body is a tall oval. From the top, curve down the left side.",
+      "instruction": "The body is a tall oval, like an egg standing up. From the top, curve down the left side.",
       "voiceover": null,
       "strokes": [
         {
@@ -20,7 +20,7 @@
     {
       "id": "body-2",
       "title": "Draw the right side",
-      "instruction": "Now the right side, down to meet it at the bottom.",
+      "instruction": "Then the right side, curving down to meet it at the bottom.",
       "voiceover": null,
       "strokes": [
         {
@@ -33,7 +33,7 @@
     {
       "id": "middle-leaf",
       "title": "Draw the middle leaf",
-      "instruction": "Now the spiky hat. Draw the tall leaf in the middle first.",
+      "instruction": "The crown starts with its tallest leaf, standing straight up in the middle.",
       "voiceover": null,
       "strokes": [
         {
@@ -46,7 +46,7 @@
     {
       "id": "inner-leaves",
       "title": "Draw the inner leaves",
-      "instruction": "Add a leaf on each side of it. They lean away.",
+      "instruction": "Add a leaf on each side of it, leaning out a little.",
       "voiceover": null,
       "strokes": [
         {
@@ -64,7 +64,7 @@
     {
       "id": "low-leaves",
       "title": "Draw the low leaves",
-      "instruction": "Two leaves curl out low, one on each side.",
+      "instruction": "Two long leaves curl out low, one to the left and one to the right.",
       "voiceover": null,
       "strokes": [
         {
@@ -82,7 +82,7 @@
     {
       "id": "back-leaves",
       "title": "Draw the leaves behind",
-      "instruction": "Two more leaves peek out behind those.",
+      "instruction": "Two more leaves poke up from behind. They fill the gaps.",
       "voiceover": null,
       "strokes": [
         {
@@ -100,7 +100,7 @@
     {
       "id": "hatch-one",
       "title": "Draw the slanted lines",
-      "instruction": "Time for the crisscross. Draw the lines that lean one way, top to bottom.",
+      "instruction": "Now the diamond pattern. Draw four slanted lines across the body, all leaning the same way.",
       "voiceover": null,
       "strokes": [
         {
@@ -128,7 +128,7 @@
     {
       "id": "hatch-two",
       "title": "Cross them the other way",
-      "instruction": "Cross them with lines leaning the other way. Now you have diamonds.",
+      "instruction": "Four more lines lean the other way and cross them. Diamonds everywhere.",
       "voiceover": null,
       "strokes": [
         {
@@ -171,7 +171,7 @@
     {
       "id": "green",
       "title": "Color the leaves",
-      "instruction": "Most of the leaves are green.",
+      "instruction": "Color most of the leaves green.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -186,7 +186,7 @@
     {
       "id": "dark-green",
       "title": "Color the inner leaves",
-      "instruction": "Make the two leaves beside the middle dark green.",
+      "instruction": "The two leaves beside the middle one are dark green.",
       "voiceover": null,
       "strokes": [],
       "fills": [

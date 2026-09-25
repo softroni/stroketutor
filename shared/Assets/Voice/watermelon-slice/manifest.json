@@ -4,55 +4,55 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T04:41:28.344Z",
+  "generatedAt": "2026-09-25T03:10:10.690Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "Here comes a summer favorite, a slice of watermelon. See how the slice is built, then you draw it.",
-      "textHash": "eeb7439887fb2927baf1a39325e51a113df7e84f8a18bd4f8a1f541c308f1aaa",
-      "durationMs": 5920
+      "text": "On a hot summer day, nothing beats a cold slice of watermelon. It's a triangle with a curved bottom and a stripy rind. Watch the slice take shape, then serve yourself one.",
+      "textHash": "83688a5a536fc1d66b4058ef3f4b1ebdfdf325d779b47e721beb19df01f8cf77",
+      "durationMs": 10960
     },
     "left-side": {
       "file": "left-side.m4a",
-      "text": "The slice is a big triangle. From the tip, draw a straight line down to the left.",
-      "textHash": "b371fb04991224e10fccee7983e11e2c8d9f64023d7d675dc05df2ca779838dd",
-      "durationMs": 5360
+      "text": "A watermelon slice starts as a tall triangle. From the top point, slide straight down to the left.",
+      "textHash": "af43878b802ab392107188511dce7e2d4a50121b2e4488110f84092bf4180c98",
+      "durationMs": 6640
     },
     "right-side": {
       "file": "right-side.m4a",
-      "text": "Now the other side. From the tip again, straight down to the right.",
-      "textHash": "77ea0d140b6492180e4d9c8787707fa426b07518ce3ed38681c415beced3a500",
-      "durationMs": 4400
+      "text": "Back to the point, and slide down to the right the same way.",
+      "textHash": "6a16ca70194f3fb3a82984bd4b2566f1e38cf8f9950525b050a0e93114830c0d",
+      "durationMs": 3760
     },
     "bottom": {
       "file": "bottom.m4a",
-      "text": "Close the slice with a curved bottom, like a wide smile.",
-      "textHash": "22e8c9877763d18060f99e5f0ce32ca3c9e94592c12bd8ea1b5f7c3699e0aba5",
-      "durationMs": 3760
+      "text": "The bottom is curved. Join the two corners with a line that dips low, like a bowl.",
+      "textHash": "4f9b0024b0454a1f1eb5961cd5fbcabf6c9c8d77de26cd8bd7971482fa13f53c",
+      "durationMs": 5120
     },
     "rind-top": {
       "file": "rind-top.m4a",
-      "text": "Next, the rind. Draw a curve from side to side, just above the bottom.",
-      "textHash": "93b07b2184a079bc654cce791ff0551ebdf0f4c412d58a1a727649b7cc908d37",
-      "durationMs": 5680
+      "text": "Now the rind. Draw a curve across the slice, a little above the bottom.",
+      "textHash": "19e73d2fb8acb42a4517e7a8c51bfde7607e7dbc47dd5603c0cf0a3fdde087e7",
+      "durationMs": 5200
     },
     "rind-bottom": {
       "file": "rind-bottom.m4a",
-      "text": "Add one more curve under it. Now the rind has a stripe.",
-      "textHash": "93494acb2360a867f546ae8b16a389d79055f09cf1994cfc073001c3220ca81e",
-      "durationMs": 4000
+      "text": "One more curve fits between those two. That makes a thin stripe.",
+      "textHash": "c10f9bf4189fab771ea9f4ba6e497b0e28c525851cad310b18affc67824a0a47",
+      "durationMs": 4480
     },
     "seeds-top": {
       "file": "seeds-top.m4a",
-      "text": "Time for seeds. Draw two little teardrops near the top.",
-      "textHash": "cf00de2ccdfd04253d23f831d27401828788e6520964d29cd1a81012a40aadf3",
-      "durationMs": 4160
+      "text": "Watermelons are full of seeds. Draw two small teardrops near the top, pointing up.",
+      "textHash": "8e00eb94aea0e1263f326384f01e27aa930f60e7a866fa7a28f8245a69f4db1b",
+      "durationMs": 5760
     },
     "seeds-bottom": {
       "file": "seeds-bottom.m4a",
-      "text": "Three more teardrops go in a row below them.",
-      "textHash": "e020c12f04bd06d3b540c57848d96b0aba8be17c6161813edab41d4f72ef5cae",
-      "durationMs": 3040
+      "text": "Three more teardrops sit in a row underneath. That's five seeds.",
+      "textHash": "9fedab5496bd877b8170cf8f3e8ac234e894bc5e1eb6bc8e2361e11760dd2129",
+      "durationMs": 4320
     },
     "flesh": {
       "file": "flesh.m4a",
@@ -62,27 +62,27 @@
     },
     "rind": {
       "file": "rind.m4a",
-      "text": "Make the rind dark green.",
-      "textHash": "659cd280a59b5ae615d8f871c3e47c2e3c471f2534d4f3ada299c37cc3d7b0dc",
-      "durationMs": 2320
+      "text": "Color the rind dark green.",
+      "textHash": "016f39b3ec0d3d3c07fcbe4734a3ab1cec6c604c805cbd22215824f5fa682890",
+      "durationMs": 2240
     },
     "stripe": {
       "file": "stripe.m4a",
-      "text": "Fill the thin stripe light green.",
-      "textHash": "ab4e80d9270ea7cc2b39879cc7f1f817b023b962bdc657e8613cc8ca1c8e7a0c",
-      "durationMs": 2480
+      "text": "The stripe is light green.",
+      "textHash": "db3c3ef6440fce589b62f2b04ac70618a8a377e84899b563cd952e19a72f4e5d",
+      "durationMs": 2000
     },
     "seeds": {
       "file": "seeds.m4a",
-      "text": "The seeds are black.",
-      "textHash": "73266c78030f41f44178322c0c289ffa0ab27cb6ac3ac6238cbdfab11453eb98",
-      "durationMs": 1600
+      "text": "Color all five seeds black.",
+      "textHash": "6c40922ebace4fc16654b46dad4896482e4a6a112792f93c4ccfe21a664af9f6",
+      "durationMs": 2480
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "That's your watermelon slice. It looks cold and sweet, and you drew every seed.",
-      "textHash": "4b027186d87c15b1fd1d03683fe45255ca76ef82da375a6f331810320640ed96",
-      "durationMs": 5040
+      "text": "Pink inside, green outside and five black seeds. You can almost hear the crunch.",
+      "textHash": "8d77c1982ae79e7e452558cf402227089a2960aff56716d82073647c866696d0",
+      "durationMs": 5280
     }
   }
 }

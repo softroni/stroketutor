@@ -4,61 +4,61 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T05:08:54.731Z",
+  "generatedAt": "2026-09-25T03:10:27.078Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "Grapes are just circles, lots of them, snuggled together. Watch the bunch fill up row by row, then pick up your pen.",
-      "textHash": "af5992de85abd9842ce5e2226488ecd9f60285683d4afb99bfac287aca541931",
-      "durationMs": 7920
+      "text": "Grapes grow in bunches on a vine. Ours has ten grapes piled into a triangle, with a leaf and a curly tendril on top. Count along as they pile up, then make a bunch of your own.",
+      "textHash": "2310e9bee9e129dd69e7d0373b7d25f385aa67890b79f19bdaf0578bdb4fdaa8",
+      "durationMs": 11200
     },
     "top-row": {
       "file": "top-row.m4a",
-      "text": "Start with the top row. Draw four circles side by side, just touching.",
-      "textHash": "58e0802b06912898c62ef8d369e1c03082b6baa5e31d9db228550b0483911015",
-      "durationMs": 5360
+      "text": "Every grape is a circle. Line up four across the top, each one touching the next.",
+      "textHash": "b44ad604f53063653156bcd98b21edf8929d745f36d2560eec670573b6add36d",
+      "durationMs": 5920
     },
     "second-row": {
       "file": "second-row.m4a",
-      "text": "The next row has three grapes. Each one sits in the dip between two above.",
-      "textHash": "93b743f0305a95f29f041d25d63522ebc2926f1343106d7f47177a4c4221d679",
-      "durationMs": 4960
+      "text": "Tuck three grapes underneath, each one sitting in a gap above.",
+      "textHash": "2f157ded2adaf05f0735cb0269deaedeb4eaed49f87b68631c797d8e2e3f50f2",
+      "durationMs": 4480
     },
     "last-grapes": {
       "file": "last-grapes.m4a",
-      "text": "Then a row of two, and one last grape to make the point.",
-      "textHash": "2ba5cc6aa265f763f45e05fc588f94dccf5767762b642593c9272c02f9552846",
-      "durationMs": 3920
+      "text": "Two more below them, and a single grape at the very bottom. That's ten.",
+      "textHash": "c53c556a8b6a9113c2466793beb8f418e2edc7a1a59cde0504d2ef85c39ca58f",
+      "durationMs": 4800
     },
     "stalk": {
       "file": "stalk.m4a",
-      "text": "The grapes hang from a stalk. Trace around its outside, up from the left grape.",
-      "textHash": "8b333ec913fd962544eba3381753b026967f86c7184470909593e75e2293c062",
-      "durationMs": 5280
+      "text": "The bunch hangs from a woody stalk. Draw its outline up from the top row to its knobby end.",
+      "textHash": "3ad58c5a04a520917e42027a8070f1a43336023b48c7ef0983a7c52f93bffebb",
+      "durationMs": 5520
     },
     "branches": {
       "file": "branches.m4a",
-      "text": "Little branches reach down to the other grapes. Draw the arches between them.",
-      "textHash": "9e433a94c10f10bde40f01f74dcfc55c3a0cfea0dff4fb51b9cad1c0e7b20316",
-      "durationMs": 4480
+      "text": "Thin twigs reach down from the stalk to the grapes. Draw them in between.",
+      "textHash": "495b41c6c6a46ee39395c85fc118fc9c878c6a9311bdc86ce336116cc298b13b",
+      "durationMs": 4640
     },
     "leaf": {
       "file": "leaf.m4a",
-      "text": "A vine leaf has three points. From the stalk, draw up and around all three.",
-      "textHash": "3a52dc4b6a0ca9d71424535cf6881e6e3f52c158989dbb403ffa127bdcea31f3",
-      "durationMs": 5600
+      "text": "A grape leaf has three points. Draw one on the left, going up and around all three.",
+      "textHash": "3a0023510bbbf7e22ac5f10c8c9b964268fa0cbb266e974bb0abdec8141d8413",
+      "durationMs": 6320
     },
     "vein": {
       "file": "vein.m4a",
-      "text": "Give the leaf one vein. Start just below the top point and run down.",
-      "textHash": "4d82a63471a94f489456c20a85e644129639a2b94cb84cdeb1d364caaa5b3017",
-      "durationMs": 4880
+      "text": "One vein runs down the leaf from its middle point.",
+      "textHash": "7afd62676f16e6a992a171c76a405668dc85c8051f8c819edd3ba2c52ab90fd8",
+      "durationMs": 3200
     },
     "tendril": {
       "file": "tendril.m4a",
-      "text": "Last, a curly tendril. From the stalk, swing out, loop once and wiggle away.",
-      "textHash": "8c3605236799ef257cc8fac97b69e734892118ecc3a04a642b39f40a9ffec1c5",
-      "durationMs": 7200
+      "text": "A tendril is a curly string the vine holds on with. Swing out, loop once, and wiggle off.",
+      "textHash": "cf90ee3aabed8df8fd08e3bbbff8d9b03bdde91233bbbc2e5f223a51432e47e2",
+      "durationMs": 6080
     },
     "purple": {
       "file": "purple.m4a",
@@ -68,27 +68,27 @@
     },
     "shine": {
       "file": "shine.m4a",
-      "text": "Add a little shine on each grape in light purple. It has no outline.",
-      "textHash": "c745a3720684f650159acc38730a1ef2e8151a16d86d45337abc4ee147908466",
-      "durationMs": 5040
+      "text": "Each grape has a small shiny spot. Color the spots light purple.",
+      "textHash": "cd6b5800786d230dfb2001031b75acc244b6a1a8bd1d8bf945f85f1ec054dc2b",
+      "durationMs": 4960
     },
     "brown": {
       "file": "brown.m4a",
-      "text": "Color the stalk brown.",
-      "textHash": "9fc6c52b25d18f90783e051520d660762653dccab94c857d580074985cf09104",
+      "text": "The stalk is brown.",
+      "textHash": "1bac4b1000874f8626fbd324fec86101f7413a6ad3b3b789c6588c433240bdfc",
       "durationMs": 1680
     },
     "green": {
       "file": "green.m4a",
-      "text": "The leaf is green.",
-      "textHash": "5aa1d27a3fa8a794f149cd065eae742af70ad06444c2928982220f24fabdae86",
-      "durationMs": 1520
+      "text": "Color the leaf green.",
+      "textHash": "f0468673f7ab02957274c66358409f512b75fc9e177d180b583279f879636c58",
+      "durationMs": 1440
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "What a bunch. Every grape in it is yours.",
-      "textHash": "cb8cbffc4a1188a90bd6eec01c6c9dca5f69dfed2a92e440d4e7ada3cbc496ef",
-      "durationMs": 3440
+      "text": "Ten round grapes and a curly tendril. Would you eat them one at a time, or all at once?",
+      "textHash": "da01ca30d09987483e22ae3dde05f566515da41b7bc43470d418625d35d87a44",
+      "durationMs": 5440
     }
   }
 }

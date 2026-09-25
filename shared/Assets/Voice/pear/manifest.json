@@ -4,43 +4,43 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T03:05:54.337Z",
+  "generatedAt": "2026-09-25T03:10:15.323Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "In this lesson we're drawing a pear. It's like an apple that sat down and got comfy. Watch how it comes together, then it's your turn.",
-      "textHash": "3f6732c54d49b854ebaea0d16dad477b9a2d6289c25d82aa3bd1548f97d3518b",
-      "durationMs": 7680
+      "text": "A pear is shaped a bit like a light bulb, small on top and round and heavy at the bottom. Watch the curves swell out, then draw a pear of your own.",
+      "textHash": "f8a935e3a1463ae15fa32fa974caf85badb18728f58abe1d7b9dd00ee6a4a88e",
+      "durationMs": 9360
     },
     "left-side": {
       "file": "left-side.m4a",
-      "text": "Start at the top. Curve down and out, wide at the bottom.",
-      "textHash": "679e797e6da597dbedd8a06d4d34b29cfcdd7dfb0f26af5a48f94d701216b4b5",
-      "durationMs": 4320
+      "text": "The pear starts narrow at the top. Go down the left side, then bulge out wide and round to the bottom.",
+      "textHash": "a10fd602113153e83003f1583cdcacbbd87f03a722927517dbdb4e3e47b9bebf",
+      "durationMs": 6560
     },
     "right-side": {
       "file": "right-side.m4a",
-      "text": "Go back to the top. Mirror that curve down the other side.",
-      "textHash": "64ada0437b2258703fe3204b5d7941b67aada291547d4a972af287d7c5f85989",
-      "durationMs": 3600
+      "text": "Now the right side, the same shape turned around. Its bottom meets the first one.",
+      "textHash": "09b1b2bb281faab236043016635765785be70479c284cf35d9e117737d37f8e6",
+      "durationMs": 5040
     },
     "stem": {
       "file": "stem.m4a",
-      "text": "Start in the dip. Go up and left, over the top, back down.",
-      "textHash": "5c2378dbbe22caa00d816c739b8d93e3abfdb1e78b9f35d84cb0382e0b1ce012",
-      "durationMs": 4560
+      "text": "The stem leans a little to the left. Draw it up from the top, round the end and back down.",
+      "textHash": "8b62e0e9e750d3c082109d5c2495bd74038189cc92f5e5064ec6c8169e23ec3e",
+      "durationMs": 6560
     },
     "leaf": {
       "file": "leaf.m4a",
-      "text": "Start high on the stem. Sweep out to a point, then curve back.",
-      "textHash": "a2dcb6500984defe5b9d0cb0cb0b528799443e619374a34fbf74f7003cc782e4",
-      "durationMs": 4640
+      "text": "A leaf sticks out to the right, high on the stem. Out to a sharp tip and back again.",
+      "textHash": "e06005020d76bf3a2cb470d8a517b6a9e1926728cd8e9a263d6509bc213d0949",
+      "durationMs": 5760
     },
     "vein": {
       "file": "vein.m4a",
-      "text": "Draw one line along the middle of the leaf. Stop before the tip.",
-      "textHash": "ad91ad9c409a1cda203f212e1a1c617e07782b1c66983686138b8881cd18b11c",
-      "durationMs": 4320
+      "text": "Now one straight line through the middle of the leaf.",
+      "textHash": "c0ef3416f680f394293d2bff4fabac15a764d833d947f95a81f38fbe52aefb56",
+      "durationMs": 2960
     },
     "pear-green": {
       "file": "pear-green.m4a",
@@ -56,15 +56,15 @@
     },
     "stem-brown": {
       "file": "stem-brown.m4a",
-      "text": "Color the stem brown.",
-      "textHash": "bb4313fd841e0b74b00594ac1ecae516ceed19efe4f3a61fc23ce8d17358d09b",
-      "durationMs": 1920
+      "text": "The stem is brown.",
+      "textHash": "591c76ba90a92211e409fd78bcf80dc8226b342d98e01e9c05015ead76a5b730",
+      "durationMs": 1360
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "There it is. A pear of your very own, round and heavy and ready for the fruit bowl.",
-      "textHash": "e52544e2ad199d10e6ab95b71eab5c87264608f7b1ed91d33f1563c040c5f99a",
-      "durationMs": 5440
+      "text": "Round at the bottom, narrow at the top. That pear looks juicy enough to drip.",
+      "textHash": "78b020ed15d8c002aecda6ca0fa54732eb32ea19944e742327a29d5a7ab830cc",
+      "durationMs": 6000
     }
   }
 }

@@ -4,49 +4,49 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T03:01:43.291Z",
+  "generatedAt": "2026-09-25T03:10:17.496Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "Today we're drawing cherries, the pair that always hangs from one stem. Watch how it comes together, then it's your turn.",
-      "textHash": "f7f0bad1d3796664c7ab7d13cd4906d4784df2b1d80c0e262a6cd18a7e0dd368",
-      "durationMs": 7600
+      "text": "Cherries grow in pairs, two on one stem, like best friends holding hands. Watch the pair come together, then hang a pair of your own.",
+      "textHash": "e66748c94c0f16dde35cefccedaaf520bec364aff38b0e06fe6262ae6e1a25a3",
+      "durationMs": 8720
     },
     "front-cherry": {
       "file": "front-cherry.m4a",
-      "text": "Start at the top. Draw a big letter C down to the bottom.",
-      "textHash": "9345448635d8ca39f02a13641b614b85a11f3171abc120ea61a4fdfa5444c049",
-      "durationMs": 4160
+      "text": "The front cherry is a circle. From the top, curve down its left side.",
+      "textHash": "80ed18fbe54f2674d04970df85d467345fe7b23f81edef58aca1e2039a3c3372",
+      "durationMs": 4560
     },
     "front-side": {
       "file": "front-side.m4a",
-      "text": "Go back to the top. Draw the same curve the other way.",
-      "textHash": "4f0a3d8368c8eb8b7588743eb61e7ea4fedda350b31b8a9021b1fe0a992b2231",
-      "durationMs": 3840
+      "text": "Then round the right side, back to where you began.",
+      "textHash": "7084e98f2c2ebb679e0f6b10a8a0a1bef389b9f710c41f1a23b86e8d307cac48",
+      "durationMs": 3600
     },
     "back-cherry": {
       "file": "back-cherry.m4a",
-      "text": "Start high on the left edge. Sweep round and back to that edge.",
-      "textHash": "3aa089678352bafce81d6e68ceebb647048f5b1037b757e04b3721c89ca4b68c",
-      "durationMs": 4640
+      "text": "The second cherry hides behind the first. Draw only the part that peeks out on the left.",
+      "textHash": "ef2551a58f0245bc296462447da9dc1609a4a7521f3f14d2453fb2460277319d",
+      "durationMs": 4960
     },
     "stems": {
       "file": "stems.m4a",
-      "text": "Start at the top of each cherry. Curve up to the same point.",
-      "textHash": "4c04b217bf8db2a9d422c8c2ba648807b7945fb86a6ea2a06ff9d46043032b10",
-      "durationMs": 3680
+      "text": "Each cherry has a thin stem. Draw both up from the tops until they meet at one point.",
+      "textHash": "ccddebfdd38101e1e73425e78881f2f306d2fab94980e04e11e1d6697629949d",
+      "durationMs": 5360
     },
     "leaf": {
       "file": "leaf.m4a",
-      "text": "Start where the stems meet. Sweep out to a point and curve back.",
-      "textHash": "3f61910d0ea823c2dbe5c6c12302d2e0a79c9d3beed4dd83e5ee75c72966b426",
-      "durationMs": 4400
+      "text": "A leaf sprouts where the stems meet. Swing out to the right, to a point, and back.",
+      "textHash": "8c459e7208d947058c73b496ae71c815b864221947ef745629184fcb124af3db",
+      "durationMs": 5600
     },
     "vein": {
       "file": "vein.m4a",
-      "text": "Draw one line along the middle of the leaf. Stop before the tip.",
-      "textHash": "ad91ad9c409a1cda203f212e1a1c617e07782b1c66983686138b8881cd18b11c",
-      "durationMs": 4320
+      "text": "Draw a curved line inside the leaf, from the stems toward the tip.",
+      "textHash": "c7f710b92ceae1620ab08c1b6fcfc1a39acb61715d519e920c8081a01010584b",
+      "durationMs": 4480
     },
     "red": {
       "file": "red.m4a",
@@ -62,9 +62,9 @@
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "There they are, your own pair of cherries, ready to hang from a branch.",
-      "textHash": "ce4c9f00798bb8fcec0c3aa381b5ca1980c1389ab84f84ce1f7294ddb54c2540",
-      "durationMs": 4240
+      "text": "Two cherries sharing one stem. Hang them over your ear and you've got cherry earrings.",
+      "textHash": "022283425e5139869eb7eb7a36287fdd7f0b186978192acfd9ad27ab89873846",
+      "durationMs": 5920
     }
   }
 }

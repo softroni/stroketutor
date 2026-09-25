@@ -7,7 +7,7 @@
     {
       "id": "left-side",
       "title": "Draw the left side",
-      "instruction": "Start at the top. Curve down and out, wide at the bottom.",
+      "instruction": "The pear starts narrow at the top. Go down the left side, then bulge out wide and round to the bottom.",
       "voiceover": null,
       "strokes": [
         {
@@ -20,7 +20,7 @@
     {
       "id": "right-side",
       "title": "Draw the right side",
-      "instruction": "Go back to the top. Mirror that curve down the other side.",
+      "instruction": "Now the right side, the same shape turned around. Its bottom meets the first one.",
       "voiceover": null,
       "strokes": [
         {
@@ -33,7 +33,7 @@
     {
       "id": "stem",
       "title": "Draw the stem",
-      "instruction": "Start in the dip. Go up and left, over the top, back down.",
+      "instruction": "The stem leans a little to the left. Draw it up from the top, round the end and back down.",
       "voiceover": null,
       "strokes": [
         {
@@ -46,7 +46,7 @@
     {
       "id": "leaf",
       "title": "Draw the leaf",
-      "instruction": "Start high on the stem. Sweep out to a point, then curve back.",
+      "instruction": "A leaf sticks out to the right, high on the stem. Out to a sharp tip and back again.",
       "voiceover": null,
       "strokes": [
         {
@@ -58,8 +58,8 @@
     },
     {
       "id": "vein",
-      "title": "Add the leaf's center line",
-      "instruction": "Draw one line along the middle of the leaf. Stop before the tip.",
+      "title": "Draw the vein",
+      "instruction": "Now one straight line through the middle of the leaf.",
       "voiceover": null,
       "strokes": [
         {
@@ -102,7 +102,7 @@
     {
       "id": "stem-brown",
       "title": "Color the stem",
-      "instruction": "Color the stem brown.",
+      "instruction": "The stem is brown.",
       "voiceover": null,
       "strokes": [],
       "fills": [

@@ -7,7 +7,7 @@
     {
       "id": "rim-pear",
       "title": "Draw the rim and the pear",
-      "instruction": "Begin with the bowl's front rim, one long curve. Then the pear: two sides and a stem.",
+      "instruction": "Start with the bowl's front edge, one long curve. The pear sits on it: two sides and a stem.",
       "voiceover": null,
       "strokes": [
         {
@@ -35,7 +35,7 @@
     {
       "id": "apple",
       "title": "Draw the apple",
-      "instruction": "The apple leans on the pear. Curve up each side, then a dip at the top and a stem.",
+      "instruction": "The apple leans against the pear. Round up each side, dip at the top, and add its stem.",
       "voiceover": null,
       "strokes": [
         {
@@ -68,7 +68,7 @@
     {
       "id": "leaf",
       "title": "Draw the leaf",
-      "instruction": "A leaf points left from the stem. Go out and back, then a line up its middle.",
+      "instruction": "A leaf sticks out to the left of the apple's stem. Out and back, then a line through it.",
       "voiceover": null,
       "strokes": [
         {
@@ -86,7 +86,7 @@
     {
       "id": "grapes",
       "title": "Draw the grapes",
-      "instruction": "Grapes fill the right side. Draw five curves, each one tucked in behind.",
+      "instruction": "The grapes squeeze in on the right. Draw five round curves, each tucked behind the last.",
       "voiceover": null,
       "strokes": [
         {
@@ -119,7 +119,7 @@
     {
       "id": "grape-stem",
       "title": "Draw the grape stem",
-      "instruction": "The bunch needs a stem. Go up and over to the right, then close the little gap.",
+      "instruction": "Give the grapes a stem that curls up to the right, and close the little gap.",
       "voiceover": null,
       "strokes": [
         {
@@ -142,7 +142,7 @@
     {
       "id": "banana",
       "title": "Draw the banana",
-      "instruction": "A banana lies across the back. From the leaf, go up and over, then cap each end.",
+      "instruction": "The banana lies along the back. Go up from the leaf, over the top, and cap both ends.",
       "voiceover": null,
       "strokes": [
         {
@@ -175,7 +175,7 @@
     {
       "id": "banana-lines",
       "title": "Finish the banana",
-      "instruction": "Fill in the bits of banana between the fruit. Add three long lines, one carrying on past the stem.",
+      "instruction": "Fill in the bits of banana you can see between the fruit, then three long lines along it.",
       "voiceover": null,
       "strokes": [
         {
@@ -213,7 +213,7 @@
     {
       "id": "bowl",
       "title": "Finish the bowl",
-      "instruction": "Back to the bowl. Draw the rim, the sides and a foot. Add a short curve by the grapes.",
+      "instruction": "Now finish the bowl: the back rim, the round sides and a little foot. Add a short curve by the grapes.",
       "voiceover": null,
       "strokes": [
         {
@@ -267,7 +267,7 @@
     {
       "id": "red-green",
       "title": "Color the apple and pear",
-      "instruction": "The apple is red and the pear is light green.",
+      "instruction": "Color the apple red and the pear light green.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -288,7 +288,7 @@
     {
       "id": "yellow-purple",
       "title": "Color the banana and grapes",
-      "instruction": "Color the banana yellow and the grapes purple.",
+      "instruction": "The banana is yellow and the grapes are purple.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -309,7 +309,7 @@
     {
       "id": "last-bits",
       "title": "Color the stems and shadow",
-      "instruction": "Stems and banana ends are brown, the leaves green. Then a soft gray shadow.",
+      "instruction": "Stems and banana ends are brown, the leaf green. Add a gray shadow under the bowl.",
       "voiceover": null,
       "strokes": [],
       "fills": [

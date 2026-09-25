@@ -4,49 +4,49 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-20T03:24:57.847Z",
+  "generatedAt": "2026-09-25T03:10:22.051Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
-      "text": "Hi, Lina here. Ready to draw a strawberry? Watch the whole thing once, then grab your pen.",
-      "textHash": "c7f1cc41962572d9991770ba8a558652ced9026faa3261c6709e7cdff7354e5a",
-      "durationMs": 6480
+      "text": "Strawberries wear their seeds on the outside, and a leafy green hat on top. We'll draw the hat first, then the berry. Watch it once, then it's all yours.",
+      "textHash": "7e07085b155d67479e401ad649a1f0823be7f6c4dc7c79fa97356cd2198d2dd8",
+      "durationMs": 9760
     },
     "left-leaves": {
       "file": "left-leaves.m4a",
-      "text": "Draw a pointed leaf up to the left.",
-      "textHash": "a242f6434b2cafd5e7ab403fb6494a1e909f1b682538f2568f82eaac42729968",
-      "durationMs": 2400
+      "text": "Start with the leafy hat. Draw a pointed leaf curling up to the left.",
+      "textHash": "beefa7857ca05b0afe556236e4e931a207dd70b3f8e69e05718c3cbeb761d4c8",
+      "durationMs": 4560
     },
     "right-leaves-2": {
       "file": "right-leaves-2.m4a",
-      "text": "Now the same leaf on the other side, like a mirror.",
-      "textHash": "d89bc74f7dfa5b0634d5207c66bd1122cb5a31510c60aeb5462a1153b30c9d57",
+      "text": "Now its twin on the right, curling up the other way.",
+      "textHash": "ac9e15df508656c95a04965b3c83804e59edecd9067110f4f243b30202b0e43b",
       "durationMs": 3680
     },
     "right-leaves": {
       "file": "right-leaves.m4a",
-      "text": "Draw the stem between two leaves.",
-      "textHash": "eb835e9b0f9ba844ca5eddaba87740a8b27f474d1c60b6e5034990b854a3f5e2",
-      "durationMs": 2320
+      "text": "A short stem pokes up between the two leaves. Up, across the top and down.",
+      "textHash": "2a8696d1a7b7ed6815a960329ace10712a49f10da2780a1af0677d5bc994614e",
+      "durationMs": 5200
     },
     "middle-leaf": {
       "file": "middle-leaf.m4a",
-      "text": "Now a middle leaf. Draw a letter V pointing down.",
-      "textHash": "ef6f698c3609cab9c74019a1ea589136e5c9a50112b07576132652a680f7f3a2",
-      "durationMs": 4080
+      "text": "One leaf hangs down in the middle, a narrow letter V.",
+      "textHash": "21e5e7e9150354c0cca36abca15cb8fb0b452ae505ac28c3336899a0f495ae94",
+      "durationMs": 4160
     },
     "leaf-edges": {
       "file": "leaf-edges.m4a",
-      "text": "Draw the lower edge of the leaves on each side.",
-      "textHash": "1e34230379de9f81d45afb897518d512bea810a1018de7f3d2279374f6efb883",
-      "durationMs": 2960
+      "text": "Finish the hat with the bottom edge of the leaves, one on each side, out to the tips.",
+      "textHash": "d2df994b4e58da98e3ade0b066bb2599a5c4cf444d5656e798ae9e47ce5fdab6",
+      "durationMs": 5360
     },
     "berry": {
       "file": "berry.m4a",
-      "text": "To make a berry, curve down to a soft point, then curve back up.",
-      "textHash": "24ebe35db5c5954a5c494cfd2f6eb89754c4cdf8bf2fc002798d8b61d5651fa5",
-      "durationMs": 4480
+      "text": "The berry is shaped like a heart. Curve down from the leaves to a soft point, and back up.",
+      "textHash": "33b524136ee581a741686a89826366d0586e3cebe280a687f165218162d20df4",
+      "durationMs": 6000
     },
     "red": {
       "file": "red.m4a",
@@ -62,15 +62,15 @@
     },
     "green": {
       "file": "green.m4a",
-      "text": "Color the leaves and stem green.",
-      "textHash": "13074933b5b6918685da50fdb6e4735fc0cb52c0867a122774d549590f1106d8",
-      "durationMs": 2400
+      "text": "The leaves and the stem are green.",
+      "textHash": "b431be098f91a1d8b1e78114d1f4b58d9b6b11e7e723a117f5e90fe9bd0919f2",
+      "durationMs": 2160
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
-      "text": "And that’s a strawberry. Hold it up and have a good look. You made that!",
-      "textHash": "097d8d9687bece80397d6a378e7167e588d9153f92d573d0f4bf33c0fc4e8aac",
-      "durationMs": 4800
+      "text": "Six seeds, a leafy hat and one juicy berry. That's the best strawberry in the patch.",
+      "textHash": "a07d25cec0c71a60eb99894362bbdde1f9ecb2653ca64f6690929ca297f8e587",
+      "durationMs": 6240
     }
   }
 }
