@@ -51,6 +51,16 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- The app is light. Every colour in Theme.swift is a fixed light-mode literal
+	     transcribed from the v3 design ("Studio white"), so there is no dark palette
+	     for the system to switch to: on a dark-mode phone, anything the system draws
+	     for us — a text field's text and caret, the keyboard, alerts, share sheets —
+	     came out light on our white cards, and the parental check's answer field was
+	     invisible. Locking the appearance here covers UIKit as well as SwiftUI;
+	     AppRoot sets the matching preferredColorScheme. Remove both the day Theme
+	     grows a dark palette. -->
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiresFullScreen</key>

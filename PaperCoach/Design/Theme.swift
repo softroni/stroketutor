@@ -6,7 +6,10 @@ import SwiftUI
 /// `Theme.green` is `--green`, `Theme.cardCornerRadius` is `--r-card`, and so on. The
 /// same colours exist in `Assets.xcassets` under the same names (light only) so a dark
 /// appearance can be added later without touching call sites; the literals below stay
-/// the source of truth until that day.
+/// the source of truth until that day. Because there is no dark palette yet, the app
+/// pins itself to a light appearance — `UIUserInterfaceStyle` in `Info.plist` and
+/// `.preferredColorScheme(.light)` in `AppRoot` — so the system never draws its own
+/// dark text on these white surfaces. Both go when a dark palette lands here.
 enum Theme {
 
     // MARK: - Surfaces

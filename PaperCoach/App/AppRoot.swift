@@ -38,6 +38,10 @@ struct AppRoot: View {
             // note from the learner before them survives the switch.
             .id(app.activeProfile.id)
             .environment(app)
+            // Theme is a light-only palette, so the app stays light whatever the
+            // phone is set to (see UIUserInterfaceStyle in Info.plist, which covers
+            // UIKit's own drawing — keyboards, alerts, text-field carets).
+            .preferredColorScheme(.light)
             .background(Theme.page.ignoresSafeArea())
             .task {
                 guard !app.hasLoadedContent else { return }
