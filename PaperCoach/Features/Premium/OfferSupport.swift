@@ -182,7 +182,7 @@ struct RestoreButton: View {
         } message: {
             Text(failure == .unreachable
                  ? "The App Store could not be reached. Check the connection and try again."
-                 : "This Apple Account has no Paper Coach Premium to restore.")
+                 : "This Apple Account has no Paper Couch Premium to restore.")
         }
     }
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Paper Coach tracks no one and collects nothing: progress, profiles and the
+	<!-- Paper Couch tracks no one and collects nothing: progress, profiles and the
 	     sketchbook stay on the device, and the analytics sink sends nothing
 	     (App/Analytics.swift). The one required-reason API is UserDefaults, for the
 	     app's own settings, PIN hash and cached Premium status: CA92.1. -->

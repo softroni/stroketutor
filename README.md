@@ -1,4 +1,4 @@
-# Paper Coach
+# Paper Couch
 
 A guided physical-sketching system for adult beginners. The phone is a calm instructor. It animates one
 meaningful drawing step, stops, and waits while the learner copies that step onto real paper with a real pen.
@@ -11,7 +11,7 @@ plan as milestones.
 ```
 shared/                 contract read by both players: schema v1, Tutorials/, conformance/
 PaperCoach/            SwiftUI learner app (iOS)        PaperCoachTests/  iOS tests
-web/                    React/Vite player → Paper Coach Studio (private authoring tool)
+web/                    React/Vite player → Paper Couch Studio (private authoring tool)
 docs/                   master plan
 ```
 
@@ -880,7 +880,7 @@ protected tier needs it.
   approved (`Transaction.updates`).
 - After lesson 3 of a path, completion and the saved photo show "Next: … · Premium" as a gold card, and a free lesson
   from another path under it. Settings has a Premium row (the paywall, or Manage Subscriptions) and Restore.
-- **App Store Connect (2026-09-25):** the record exists ("Paper Coach: Learn to Draw", Apple ID 6816231257,
+- **App Store Connect (2026-09-25):** the record exists ("Paper Couch: Learn to Draw", Apple ID 6816231257,
   `com.softroni.papercoach`), both products and the free week are set up with Family Sharing and the prices above,
   and the listing copy, screenshots and subscription review screenshots are on it. What the API could not do, and
   the exact review notes to paste, are in `docs/app-store/listing.md`. Still to do: availability, review contact,

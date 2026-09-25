@@ -68,7 +68,7 @@ export const REGENERATE_SCHEMAS: Record<EditLayer, unknown> = {
   }),
 }
 
-const INTRO = `You improve pen-and-ink drawing lessons for Paper Coach. Adults who never learned to draw copy each step onto real paper with a pen, one step at a time, while a phone animates that step.
+const INTRO = `You improve pen-and-ink drawing lessons for Paper Couch. Adults who never learned to draw copy each step onto real paper with a pen, one step at a time, while a phone animates that step.
 
 The drawing itself is finished and stays exactly as it is. You receive it as numbered lines (s1, s2, …) and colour areas (f1, f2, …) with where each one sits, grouped into the lesson's current steps, plus a picture of the drawing and sometimes the reference it simplifies. You change one layer of the lesson and leave everything else alone.`
 

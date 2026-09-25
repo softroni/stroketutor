@@ -1,6 +1,6 @@
 # iOS learner app · screen designs
 
-Interactive layouts of every screen of the Paper Coach iOS app, with developer notes, made on 2026-09-12 as the
+Interactive layouts of every screen of the Paper Couch iOS app, with developer notes, made on 2026-09-12 as the
 design input to milestone M7 (iOS product shell, master plan §29–§31) and M8 (private sketchbook, §32).
 
 **Open [`v3.html`](v3.html) in a browser** for the current design of the app: white paper, one bold green,

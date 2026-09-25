@@ -97,7 +97,7 @@ describe('generateCandidate', () => {
     expect(url).toBe(OPENROUTER_URL)
     const headers = init.headers as Record<string, string>
     expect(headers.Authorization).toBe('Bearer test-key')
-    expect(headers['X-OpenRouter-Title']).toBe('Paper Coach Studio')
+    expect(headers['X-OpenRouter-Title']).toBe('Paper Couch Studio')
 
     const body = JSON.parse(String(init.body))
     expect(body.model).toBe('vendor/vision-model')

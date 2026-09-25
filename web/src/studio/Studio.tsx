@@ -26,7 +26,7 @@ import './forms.css'
 import './voice.css'
 
 /**
- * Paper Coach Studio: the private authoring tool built around the existing
+ * Paper Couch Studio: the private authoring tool built around the existing
  * player (master plan Part III). Paths and the Lesson Workspace are the main
  * surfaces. Work happens in the local workspace; Publish is the one way into
  * `shared/`. The original importer stays available for testing arbitrary JSON.
@@ -162,7 +162,7 @@ export function Studio() {
             ✎
           </span>
           <span>
-            <span className="st-studio__name">Paper Coach Studio</span>
+            <span className="st-studio__name">Paper Couch Studio</span>
             <span className="st-studio__tagline">Private lesson authoring</span>
           </span>
         </a>

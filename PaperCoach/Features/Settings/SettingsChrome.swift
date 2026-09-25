@@ -163,9 +163,9 @@ extension View {
 
 enum SettingsFormat {
 
-    /// "Paper Coach 1.0 (12)", read from the bundle and never hardcoded.
+    /// "Paper Couch 1.0 (12)", read from the bundle and never hardcoded.
     static func versionLine(bundle: Bundle = .main) -> String {
-        "Paper Coach \(version(bundle: bundle))"
+        "Paper Couch \(version(bundle: bundle))"
     }
 
     /// "1.0 (12)".

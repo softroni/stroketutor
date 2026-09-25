@@ -100,7 +100,7 @@ export const OUTPUT_SCHEMA = {
 } as const
 
 function systemPrompt(canvas: { width: number; height: number }): string {
-  return `You design pen-and-ink drawing lessons for Paper Coach. Adults who never learned to draw copy each step onto real paper with a pen, one step at a time, while a phone animates that step. Turn a real-world reference photo into a simplified drawing a beginner can finish in about five minutes, and teach it in a natural order.
+  return `You design pen-and-ink drawing lessons for Paper Couch. Adults who never learned to draw copy each step onto real paper with a pen, one step at a time, while a phone animates that step. Turn a real-world reference photo into a simplified drawing a beginner can finish in about five minutes, and teach it in a natural order.
 
 Answer in two parts.
 

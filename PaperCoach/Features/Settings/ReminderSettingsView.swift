@@ -113,7 +113,7 @@ struct ReminderSettingsView: View {
     private var deniedCard: some View {
         SettingsCard(isSoft: true) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Notifications are off for Paper Coach")
+                Text("Notifications are off for Paper Couch")
                     .textRole(.headline)
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
@@ -127,7 +127,7 @@ struct ReminderSettingsView: View {
                     }
                 }
                 .buttonStyle(.quietLink)
-                .accessibilityHint("Opens Paper Coach in the Settings app.")
+                .accessibilityHint("Opens Paper Couch in the Settings app.")
             }
         }
     }
@@ -298,7 +298,7 @@ struct NotificationPreviewBanner: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Text("Paper Coach")
+                    Text("Paper Couch")
                         .textRole(.footnote)
                         .foregroundStyle(Theme.ink55)
                     Spacer(minLength: 8)

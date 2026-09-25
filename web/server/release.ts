@@ -174,7 +174,7 @@ export function releaseMessage(input: {
       : '',
     `${changed.length} ${changed.length === 1 ? 'file' : 'files'} in shared/.`,
     '',
-    'Published from Paper Coach Studio.',
+    'Published from Paper Couch Studio.',
   ]
     .filter((line, index, all) => line !== '' || (index > 0 && all[index - 1] !== ''))
     .join('\n')

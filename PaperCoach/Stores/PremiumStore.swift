@@ -4,7 +4,7 @@ import OSLog
 import StoreKit
 import UserNotifications
 
-/// Paper Coach Premium, through StoreKit 2: the two subscriptions, whether the
+/// Paper Couch Premium, through StoreKit 2: the two subscriptions, whether the
 /// learner's Apple account holds one, and buying or restoring it.
 ///
 /// One subscription group with two plans. **Yearly** carries the introductory
@@ -340,10 +340,10 @@ enum TrialReminder {
         }
     }
 
-    /// "Paper Coach Premium starts on Thursday. Keep drawing with Lina, or cancel
+    /// "Paper Couch Premium starts on Thursday. Keep drawing with Lina, or cancel
     /// any time before then in Settings."
     static func body(trialEndsAt: Date) -> String {
-        "Paper Coach Premium starts on \(weekday.string(from: trialEndsAt)). Keep drawing with Lina, or cancel any time before then in Settings."
+        "Paper Couch Premium starts on \(weekday.string(from: trialEndsAt)). Keep drawing with Lina, or cancel any time before then in Settings."
     }
 
     private static let weekday: DateFormatter = {
