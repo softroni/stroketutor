@@ -183,7 +183,9 @@ struct ParentalGateView: View {
     }
 }
 
-/// "What is twelve times eight?" — six to twelve times six to nine, written out.
+/// "What is twenty-three times seven?" — a two-digit number times three to nine,
+/// written out: past the times tables a ten-year-old knows by heart, and the
+/// words keep it from being read off as digits.
 struct ParentalQuestion: Equatable {
     let left: Int
     let right: Int
@@ -197,8 +199,8 @@ struct ParentalQuestion: Equatable {
     static func random(excluding previous: ParentalQuestion? = nil) -> ParentalQuestion {
         var question: ParentalQuestion
         repeat {
-            question = ParentalQuestion(left: Int.random(in: 6...12), right: Int.random(in: 6...9))
-        } while question == previous
+            question = ParentalQuestion(left: Int.random(in: 13...29), right: Int.random(in: 3...9))
+        } while question == previous || question.left % 10 == 0
         return question
     }
 
@@ -447,16 +449,16 @@ struct PurchasePendingView: View {
                         .accessibilityHidden(true)
                 }
 
-            Chip(text: "Request sent", systemImage: "clock", style: .gold)
+            Chip(text: "Almost there", systemImage: "clock", style: .gold)
 
-            Text("Waiting for a grown-up to say yes")
+            Text("Waiting for the App Store")
                 .textRole(.title1)
                 .foregroundStyle(Theme.ink)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
 
-            Text("We asked your family organizer to approve Premium. When they do, every lesson unlocks right here. If they say no, nothing is charged.")
+            Text("The App Store needs one more step before Premium starts, such as a family organizer’s approval or a payment check. When it goes through, every lesson unlocks right here. If it doesn’t, nothing is charged.")
                 .textRole(.bodyRegular)
                 .foregroundStyle(Theme.ink55)
                 .multilineTextAlignment(.center)

@@ -20,6 +20,14 @@ struct SettingsView: View {
     @State private var isChoosingPINAction = false
     @State private var isRestoring = false
     @State private var restoreMessage: String?
+    /// The grown-up question (`ParentalQuestion`), asked before a PIN is made — the
+    /// PIN also opens the way to Premium (`ParentalGateView`), so a child must not
+    /// be able to set one — and before a child's profile leaves the app for a web
+    /// page. `afterGrownUpCheck` runs once it is answered right.
+    @State private var grownUpQuestion: ParentalQuestion?
+    @State private var grownUpAnswer = ""
+    @State private var afterGrownUpCheck: (() -> Void)?
+    @Environment(\.openURL) private var openURL
 
     /// The PIN pad, when it is opened from its own row.
     private enum PINSheet: Identifiable {
@@ -84,7 +92,7 @@ struct SettingsView: View {
                 }
                 // The promise for grown-ups, kept here rather than under the
                 // learner's drawings (`sk-book` is pictures only).
-                SettingsCaption("Kept on this iPhone. Nothing in the sketchbook is uploaded or shared.")
+                SettingsCaption("Kept on this \(DeviceName.current). Nothing in the sketchbook is uploaded; a page only leaves when you share it.")
 
                 // ------------------------------------------------------------ More
                 SettingsSectionHeader("More")
@@ -120,10 +128,18 @@ struct SettingsView: View {
                     }
                     RowDivider()
                     // The published policy, opened in Safari, so the app and the
-                    // website can never say different things.
-                    Link(destination: Self.privacyPolicyURL) {
+                    // website can never say different things. A child's profile asks
+                    // for a grown-up first: nothing leaves the app from a child's
+                    // hands without one (App Review Guidelines 1.3).
+                    Button {
+                        if app.learnerIsChild {
+                            askGrownUp { openURL(Self.privacyPolicyURL) }
+                        } else {
+                            openURL(Self.privacyPolicyURL)
+                        }
+                    } label: {
                         SettingsCustomRow(title: "Privacy",
-                                          subtitle: "Everything stays on this iPhone.") {
+                                          subtitle: "Everything stays on this \(DeviceName.current).") {
                             SettingsIconTile(symbol: "lock.fill", tint: .neutral)
                         } trailing: {
                             Image(systemName: "arrow.up.right")
@@ -201,6 +217,22 @@ struct SettingsView: View {
                 }
             }
         }
+        .alert("Grown-ups only",
+               isPresented: Binding(get: { grownUpQuestion != nil }, set: { if !$0 { grownUpQuestion = nil } }),
+               presenting: grownUpQuestion) { question in
+            TextField("Type the number", text: $grownUpAnswer)
+                .keyboardType(.numberPad)
+            Button("Continue") {
+                let action = afterGrownUpCheck
+                afterGrownUpCheck = nil
+                if Int(grownUpAnswer.trimmingCharacters(in: .whitespaces)) == question.answer {
+                    action?()
+                }
+            }
+            Button("Cancel", role: .cancel) { afterGrownUpCheck = nil }
+        } message: { question in
+            Text("Ask a grown-up to answer this. \(question.text)")
+        }
         .confirmationDialog("PIN", isPresented: $isChoosingPINAction, titleVisibility: .visible) {
             Button("Change PIN") { pinSheet = .change }
             Button("Turn off PIN", role: .destructive) { pinSheet = .remove }
@@ -256,7 +288,12 @@ struct SettingsView: View {
                 SettingsRow(title: isRestoring ? "Restoring…" : "Restore purchases",
                             systemImage: "arrow.clockwise",
                             tint: .neutral) {
-                    restorePurchases()
+                    // Restoring can raise the Apple Account sign-in: a grown-up's.
+                    if app.learnerIsChild {
+                        askGrownUp { restorePurchases() }
+                    } else {
+                        restorePurchases()
+                    }
                 }
                 #if DEBUG
                 RowDivider()
@@ -310,15 +347,26 @@ struct SettingsView: View {
     }
     #endif
 
+    private func askGrownUp(then action: @escaping () -> Void) {
+        grownUpAnswer = ""
+        afterGrownUpCheck = action
+        grownUpQuestion = ParentalQuestion.random()
+    }
+
     private func restorePurchases() {
         guard !isRestoring else { return }
         isRestoring = true
         Task {
-            let restored = await app.premium.restore()
+            let outcome = await app.premium.restore()
             isRestoring = false
-            restoreMessage = restored
-                ? "Premium is active on this iPhone."
-                : "This Apple Account has no Paper Coach Premium to restore."
+            switch outcome {
+            case .restored:
+                restoreMessage = "Premium is active on this \(DeviceName.current)."
+            case .nothingToRestore:
+                restoreMessage = "This Apple Account has no Paper Coach Premium to restore."
+            case .failed:
+                restoreMessage = "The App Store could not be reached. Check the connection and try again."
+            }
         }
     }
 
@@ -430,7 +478,7 @@ private extension SettingsView {
                     if app.pin.isSet {
                         isChoosingPINAction = true
                     } else {
-                        pinSheet = .create
+                        askGrownUp { pinSheet = .create }
                     }
                 } label: {
                     SettingsCustomRow(title: "PIN",

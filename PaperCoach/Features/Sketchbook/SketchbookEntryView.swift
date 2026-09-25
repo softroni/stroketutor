@@ -118,7 +118,7 @@ struct SketchbookEntryView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("The photo and your note are removed from this iPhone. Finishing the lesson still counts.")
+            Text("The photo and your note are removed from this \(DeviceName.current). Finishing the lesson still counts.")
         }
     }
 

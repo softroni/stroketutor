@@ -107,8 +107,9 @@ struct MoreComingView: View {
     }
 
     private var buttonTitle: String {
-        if app.learnerIsChild { return "Ask a grown-up" }
-        return app.premium.isEligibleForTrial ? "Try for free" : "See Premium"
+        // "Continue", not "Try for free": this button starts nothing, it only leads
+        // on to the free week (or the paywall).
+        return app.learnerIsChild ? "Ask a grown-up" : "Continue"
     }
 }
 
@@ -263,7 +264,7 @@ struct FreeWeekView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
 
-            Text("Draw anything, on every path, for \(PremiumStore.trialDays) days. You won’t pay anything today.")
+            Text(detail)
                 .textRole(.bodyRegular)
                 .foregroundStyle(Theme.ink55)
                 .multilineTextAlignment(.center)
@@ -278,10 +279,21 @@ struct FreeWeekView: View {
 
             Spacer(minLength: 0)
         } footer: {
-            Button("Try for free", action: onContinue)
+            Button("Continue", action: onContinue)
                 .buttonStyle(.primary)
         }
         .onAppear { app.analytics.track(.offerScreenViewed("free_week", entry: OfferEntry.onboarding.analyticsName)) }
+    }
+
+    /// The free week and what it turns into, together: a trial is never named
+    /// without the price billed after it. `OfferFlow` only shows this screen when
+    /// that price is known (`PremiumStore.canNameFreeWeek`).
+    private var detail: String {
+        let days = PremiumStore.trialDays
+        guard let price = app.premium.yearlyPrice else {
+            return "Draw anything, on every path, for \(days) days."
+        }
+        return "Draw anything, on every path, for \(days) days. Then \(price)/year, unless you cancel before the week ends. You won’t pay anything today."
     }
 }
 
@@ -324,7 +336,10 @@ struct TrialReminderPromiseView: View {
 
             Spacer(minLength: 0)
         } footer: {
-            Button("Try for free") {
+            // A neutral "Continue": this tap asks for notification permission, and
+            // Apple wants the button before a permission request to lead on, not to
+            // promise something (App Review Guidelines 5.1.1(iv)).
+            Button("Continue") {
                 guard !isAsking else { return }
                 isAsking = true
                 Task {

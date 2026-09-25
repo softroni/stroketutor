@@ -228,57 +228,71 @@ struct PaywallPlansSheet: View {
     @State private var plan: PremiumStore.Plan = .yearly
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.stackSpacing) {
-            HStack {
-                Text("Choose a plan")
-                    .textRole(.title2)
-                    .foregroundStyle(Theme.ink)
-                    .accessibilityAddTraits(.isHeader)
-                Spacer()
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .scaledFont(17, .bold, design: .default)
-                        .foregroundStyle(Theme.ink55)
-                        .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
-                        .contentShape(Rectangle())
+        // Scrolls, so the buy button and the legal links stay reachable at the
+        // medium detent and with large text.
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.stackSpacing) {
+                HStack {
+                    // The subscription's name sits over its plans: this sheet can buy
+                    // one on its own, so it names what is bought (App Review
+                    // Guidelines 3.1.2).
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Choose a plan")
+                            .textRole(.title2)
+                            .foregroundStyle(Theme.ink)
+                            .accessibilityAddTraits(.isHeader)
+                        Text("Paper Coach Premium · auto-renewing")
+                            .textRole(.footnote)
+                            .foregroundStyle(Theme.ink55)
+                    }
+                    Spacer()
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .scaledFont(17, .bold, design: .default)
+                            .foregroundStyle(Theme.ink55)
+                            .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Close plans")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Close plans")
-            }
 
-            if app.premium.yearly != nil {
-                planRow(.yearly,
-                        title: "Yearly",
-                        detail: isTrial ? "\(PremiumStore.trialDays) days free, then billed yearly" : "Billed every year",
-                        price: app.premium.yearlyPrice.map { "\($0)/year" } ?? "",
-                        tag: app.premium.yearlySavingsPercent.map { "Save \($0)%" } ?? "Best value")
-            }
-            if app.premium.weekly != nil {
-                planRow(.weekly,
-                        title: "Weekly",
-                        detail: "Billed every week",
-                        price: app.premium.weeklyPrice.map { "\($0)/week" } ?? "",
-                        tag: nil)
-            }
+                if app.premium.yearly != nil {
+                    planRow(.yearly,
+                            title: "Yearly",
+                            detail: isTrial ? "\(PremiumStore.trialDays) days free, then billed yearly" : "Billed every year",
+                            price: app.premium.yearlyPrice.map { "\($0)/year" } ?? "",
+                            tag: app.premium.yearlySavingsPercent.map { "Save \($0)%" } ?? "Best value")
+                }
+                if app.premium.weekly != nil {
+                    planRow(.weekly,
+                            title: "Weekly",
+                            detail: "Billed every week",
+                            price: app.premium.weeklyPrice.map { "\($0)/week" } ?? "",
+                            tag: nil)
+                }
 
-            Text(terms)
-                .textRole(.footnote)
-                .foregroundStyle(Theme.ink70)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .fixedSize(horizontal: false, vertical: true)
+                Text(terms)
+                    .textRole(.footnote)
+                    .foregroundStyle(Theme.ink70)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .fixedSize(horizontal: false, vertical: true)
 
-            Button { onBuy(plan) } label: {
-                PurchaseLabel(title: buttonTitle, price: buttonPrice)
+                Button { onBuy(plan) } label: {
+                    PurchaseLabel(title: buttonTitle, price: buttonPrice)
+                }
+                .buttonStyle(.primary)
+                .disabled(app.premium.product(for: plan) == nil || app.premium.isPurchasing)
+
+                LegalLinksRow()
             }
-            .buttonStyle(.primary)
-            .disabled(app.premium.product(for: plan) == nil || app.premium.isPurchasing)
+            .padding(.horizontal, Theme.gutter)
+            .padding(.top, Theme.stackSpacing)
+            .padding(.bottom, Theme.stackSpacing)
         }
-        .padding(.horizontal, Theme.gutter)
-        .padding(.top, Theme.stackSpacing)
-        .padding(.bottom, Theme.stackSpacing)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Theme.card)
         .presentationDetents([.medium, .large])

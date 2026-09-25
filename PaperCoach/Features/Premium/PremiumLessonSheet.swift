@@ -118,8 +118,10 @@ struct PremiumLessonSheet: View {
 
     @ViewBuilder
     private func actions(for lesson: Lesson) -> some View {
-        let isTrial = app.premium.isEligibleForTrial
-        Button(isTrial ? "Start your free week" : "Subscribe to unlock") {
+        // "Start your free week" only while the price it turns into can be shown
+        // under it (`PremiumStore.canNameFreeWeek`).
+        let isTrial = app.premium.canNameFreeWeek
+        Button(isTrial ? "Start your free week" : "See Premium") {
             app.continueFromDrawer(to: .premiumLesson(lessonId: lesson.id))
         }
         .buttonStyle(.primary)

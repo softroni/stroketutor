@@ -22,6 +22,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- The only cryptography is CryptoKit hashing the app's PIN on the device, which
+	     is exempt, so no export-compliance question on each upload. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 
 	<!-- Purpose strings. Apple requires one for every protected resource, and the
 	     App Store Review Guidelines, 5.1.1(ii) Data Collection and Storage
@@ -35,7 +39,7 @@
 	     launch, and the photo-library key is the add-only one because the app writes
 	     a photo and never reads the library. -->
 	<key>NSCameraUsageDescription</key>
-	<string>Paper Coach uses the camera when you choose to photograph a drawing you have finished, so the page can be kept in your sketchbook on this iPhone.</string>
+	<string>Paper Coach uses the camera when you choose to photograph a drawing you have finished, so the page can be kept in your sketchbook on this device.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Paper Coach saves a photo of a finished drawing to your photo library only while "Also save to Photos" is on. It never reads your library.</string>
 
@@ -53,7 +57,8 @@
 	<!-- The app is portrait. Landscape is listed because one screen uses it — the
 	     player, where a wide subject draws larger with the phone on its side
 	     (v3.html#pl-landscape). Everywhere else OrientationLockDelegate narrows the
-	     mask back to portrait, so only the player ever rotates. -->
+	     mask back to portrait, so only the player ever rotates. iPad lists the same
+	     three: the delegate's answer wins over this list once the app is running. -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -62,6 +67,7 @@
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
+		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>

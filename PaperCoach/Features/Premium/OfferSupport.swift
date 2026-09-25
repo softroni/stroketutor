@@ -135,20 +135,29 @@ struct RestoreButton: View {
 
     @Environment(AppModel.self) private var app
     @State private var isRestoring = false
-    @State private var nothingFound = false
+    @State private var failure: RestoreFailure?
+
+    private enum RestoreFailure {
+        case nothingFound, unreachable
+    }
 
     var body: some View {
         Button {
             guard !isRestoring else { return }
             isRestoring = true
             Task {
-                let restored = await app.premium.restore()
+                let outcome = await app.premium.restore()
                 isRestoring = false
-                app.analytics.track(.purchaseAttempted(plan: "restore", outcome: restored ? "restored" : "nothing_found"))
-                if restored {
+                switch outcome {
+                case .restored:
+                    app.analytics.track(.purchaseAttempted(plan: "restore", outcome: "restored"))
                     onRestored()
-                } else {
-                    nothingFound = true
+                case .nothingToRestore:
+                    app.analytics.track(.purchaseAttempted(plan: "restore", outcome: "nothing_found"))
+                    failure = .nothingFound
+                case .failed:
+                    app.analytics.track(.purchaseAttempted(plan: "restore", outcome: "failed"))
+                    failure = .unreachable
                 }
             }
         } label: {
@@ -167,10 +176,13 @@ struct RestoreButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Restore purchases")
-        .alert("Nothing to restore", isPresented: $nothingFound) {
+        .alert(failure == .unreachable ? "Could not restore" : "Nothing to restore",
+               isPresented: Binding(get: { failure != nil }, set: { if !$0 { failure = nil } })) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("This Apple Account has no Paper Coach Premium to restore.")
+            Text(failure == .unreachable
+                 ? "The App Store could not be reached. Check the connection and try again."
+                 : "This Apple Account has no Paper Coach Premium to restore.")
         }
     }
 }

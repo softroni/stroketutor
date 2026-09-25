@@ -29,10 +29,10 @@ final class PremiumStore {
 
     /// The free week on Yearly. The screens say "7 days", so this is the one number
     /// to change with the offer in App Store Connect.
-    static let trialDays = 7
+    nonisolated static let trialDays = 7
     /// The reminder promised on the offer screens comes this many days before the
     /// trial ends: day 5 of 7.
-    static let reminderDaysBeforeTrialEnds = 2
+    nonisolated static let reminderDaysBeforeTrialEnds = 2
 
     enum Plan: String, CaseIterable, Identifiable {
         case yearly, weekly
@@ -47,6 +47,15 @@ final class PremiumStore {
         /// "Restore" found an active subscription on this Apple account.
         case restored
         case cancelled
+        case failed
+    }
+
+    enum RestoreOutcome: Equatable {
+        /// The account holds Premium.
+        case restored
+        /// The App Store answered, and there is nothing to restore.
+        case nothingToRestore
+        /// The App Store could not be asked: offline, or sign-in cancelled.
         case failed
     }
 
@@ -124,7 +133,13 @@ final class PremiumStore {
         guard updatesTask == nil else { return }
         updatesTask = Task { [weak self] in
             for await update in Transaction.updates {
-                if case let .verified(transaction) = update {
+                switch update {
+                case let .verified(transaction):
+                    await transaction.finish()
+                case let .unverified(transaction, error):
+                    // It unlocks nothing, but left unfinished it would be delivered
+                    // again on every launch.
+                    Self.log.error("An unverified transaction was ignored: \(error.localizedDescription, privacy: .public)")
                     await transaction.finish()
                 }
                 await self?.refreshEntitlements()
@@ -154,15 +169,25 @@ final class PremiumStore {
             let products = try await Product.products(for: Array(ProductID.all))
             yearly = products.first { $0.id == ProductID.yearly }
             weekly = products.first { $0.id == ProductID.weekly }
-            if let subscription = yearly?.subscription, subscription.introductoryOffer != nil {
-                isEligibleForTrial = await subscription.isEligibleForIntroOffer
-            } else if yearly != nil {
-                isEligibleForTrial = false
-            }
-            loadState = (yearly == nil && weekly == nil) ? .failed : .loaded
+            await refreshTrialEligibility()
+            // Yearly is the plan every paywall leads with; without it there is
+            // nothing to show but the retry.
+            loadState = yearly == nil ? .failed : .loaded
         } catch {
             Self.log.error("Products could not be loaded: \(error.localizedDescription, privacy: .public)")
             loadState = .failed
+        }
+    }
+
+    /// Asks StoreKit whether this account can still have the free week. Called when
+    /// the products load and whenever the entitlement changes, so a trial used or
+    /// refunded during this launch is not offered again.
+    private func refreshTrialEligibility() async {
+        guard let yearly else { return }
+        if let subscription = yearly.subscription, subscription.introductoryOffer != nil {
+            isEligibleForTrial = await subscription.isEligibleForIntroOffer
+        } else {
+            isEligibleForTrial = false
         }
     }
 
@@ -215,6 +240,7 @@ final class PremiumStore {
         }
         hasSubscription = active
         trialEndsAt = trialEnd
+        await refreshTrialEligibility()
         await TrialReminder.sync(trialEndsAt: trialEnd)
     }
 
@@ -249,17 +275,20 @@ final class PremiumStore {
     }
 
     /// "Restore": asks the App Store for this account's purchases, then reads them.
-    /// Returns whether the account holds Premium afterwards, whatever the
-    /// development override says.
+    /// Says whether the account holds Premium afterwards, whatever the development
+    /// override says, or that the App Store could not be asked at all.
     @discardableResult
-    func restore() async -> Bool {
+    func restore() async -> RestoreOutcome {
+        var synced = true
         do {
             try await AppStore.sync()
         } catch {
+            synced = false
             Self.log.warning("Restore did not finish: \(error.localizedDescription, privacy: .public)")
         }
         await refreshEntitlements()
-        return hasSubscription
+        if hasSubscription { return .restored }
+        return synced ? .nothingToRestore : .failed
     }
 }
 

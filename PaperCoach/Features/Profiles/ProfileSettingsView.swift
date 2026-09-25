@@ -50,7 +50,7 @@ struct ProfileSettingsView: View {
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityHint("Removes their progress and sketchbook from this iPhone.")
+                            .accessibilityHint("Removes their progress and sketchbook from this \(DeviceName.current).")
                         }
                         .padding(.top, Theme.sectionSpacing)
                     }
@@ -75,7 +75,7 @@ struct ProfileSettingsView: View {
             Button("Delete", role: .destructive, action: delete)
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Their progress and every page in their sketchbook are removed from this iPhone. This cannot be undone.")
+            Text("Their progress and every page in their sketchbook are removed from this \(DeviceName.current). This cannot be undone.")
         }
     }
 

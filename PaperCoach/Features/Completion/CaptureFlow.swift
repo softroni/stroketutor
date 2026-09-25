@@ -175,7 +175,7 @@ struct CaptureFlow: View {
                         .padding(.top, 8)
 
                     ListCard(isSoft: true) {
-                        promise("Photos stay on this iPhone, inside Paper Coach.")
+                        promise("Photos stay on this \(DeviceName.current), inside Paper Coach.")
                         RowDivider(isSoft: true)
                         promise("Nothing is uploaded. There is no feed to post to.")
                         RowDivider(isSoft: true)
@@ -454,7 +454,7 @@ struct CaptureFlow: View {
                             .foregroundStyle(Theme.ink55)
                             .multilineTextAlignment(.center)
 
-                        Text("Kept on this iPhone only. Nothing is uploaded.")
+                        Text("Kept on this \(DeviceName.current) only. Nothing is uploaded.")
                             .textRole(.footnote)
                             .foregroundStyle(Theme.ink55)
                             .multilineTextAlignment(.center)

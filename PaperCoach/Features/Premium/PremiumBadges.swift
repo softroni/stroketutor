@@ -81,7 +81,9 @@ struct PremiumNextCard: View {
     /// A child is never told about a free week they cannot start themselves.
     private var subtitle: String {
         if app.learnerIsChild { return "Premium · Ask a grown-up" }
-        return app.premium.isEligibleForTrial ? "Premium · Try 7 days free" : "Premium · Subscribe to unlock"
+        // The free week is named only beside its price (`PremiumStore.canNameFreeWeek`),
+        // and the price lives on the paywall, not on a card.
+        return app.premium.isEligibleForTrial ? "Premium · Tap to unlock" : "Premium · Subscribe to unlock"
     }
 }
 

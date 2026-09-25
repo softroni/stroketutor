@@ -58,7 +58,7 @@ struct NarrationSettingsView: View {
                                     tint: .neutral)
                         RowDivider()
                         SettingsRow(title: "Silent switch",
-                                    subtitle: "Lina plays even when your iPhone is on silent. The volume buttons still apply.",
+                                    subtitle: "Lina plays even when your \(DeviceName.current) is on silent. The volume buttons still apply.",
                                     value: "Plays",
                                     systemImage: "speaker.slash.fill",
                                     tint: .neutral)

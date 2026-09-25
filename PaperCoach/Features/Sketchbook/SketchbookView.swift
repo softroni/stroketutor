@@ -225,10 +225,10 @@ struct SketchbookView: View {
                 .buttonStyle(.primary)
             }
 
-            Label("Kept on this iPhone", systemImage: "lock.fill")
+            Label("Kept on this \(DeviceName.current)", systemImage: "lock.fill")
                 .textRole(.footnote)
                 .foregroundStyle(Theme.ink40)
-                .accessibilityLabel("Kept on this iPhone. Nothing here is uploaded or shared.")
+                .accessibilityLabel("Kept on this \(DeviceName.current). Nothing here is uploaded or shared.")
 
             Spacer(minLength: 16)
         }

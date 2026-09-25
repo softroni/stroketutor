@@ -80,6 +80,17 @@ struct MainTabs: View {
                         .reservesTabBarSpace(!route.hidesTabBar && !keyboardShown)
                 }
         }
+        // The screens hide the navigation bar and scroll to the top edge, so without
+        // this their content would slide under the clock and the Dynamic Island. A
+        // strip of page white, exactly as tall as the status bar, keeps the clock on
+        // a clean ground, the way the Lessons band already does for itself.
+        .overlay(alignment: .top) {
+            Color.clear
+                .frame(height: 0)
+                .background(Theme.page)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
         .opacity(isActive ? 1 : 0)
         .allowsHitTesting(isActive)
         .accessibilityHidden(!isActive)

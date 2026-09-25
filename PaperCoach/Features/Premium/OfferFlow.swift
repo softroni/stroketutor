@@ -59,7 +59,9 @@ struct OfferFlow: View {
                 if app.learnerIsChild {
                     go(.grownUp)
                 } else {
-                    go(app.premium.isEligibleForTrial ? .freeWeek : .paywall)
+                    // The free week is only offered beside its price; with the App
+                    // Store unreachable the paywall says so and offers a retry.
+                    go(app.premium.canNameFreeWeek ? .freeWeek : .paywall)
                 }
             })
 
