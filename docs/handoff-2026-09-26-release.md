@@ -2,7 +2,7 @@
 
 The creator asked, at 01:25 CDT before going to sleep: check the screenshot layouts, review the app and the App Store
 Connect page, make sure PostHog and Superwall carry enough events to measure Apple Ads and learner behaviour, upload
-a build and leave version 1.0 ready to submit. **The creator presses Submit for Review; nothing here submits.**
+a build and leave version 1.0 ready to submit. The creator first meant to press Submit; in the morning they asked for it to be submitted once everything checked out.
 
 This file is the checklist and the log. A session that picks the work up continues from the first unchecked item.
 
@@ -91,3 +91,20 @@ Optional:
 - Always filter out `build = debug` and `asa_test_payload = true` (Apple's sample answer in TestFlight and Xcode
   builds). Keyword and campaign names come from the Apple Ads API (`superwall asa keywords …`, or GeoBlitz's
   `scripts/asa/weekly_report.py`, which joins on `keywordId`).
+
+## Morning, 2026-09-26: submitted
+
+- The creator added App Privacy's Advertising Data row and pressed "Add for Review" on the subscriptions, which put
+  only the **subscription group version** into a draft review submission.
+- 6.5" iPhone screenshots are not needed: App Store Connect asks for them only when there is no 6.9" set.
+- Review notes now name the four Superwall designs and where each appears (3,953 of 4,000 chars), and both
+  subscriptions carry review notes (how to reach a paywall, the designs, the parental check). Both are in
+  listing.md.
+- Submitting the draft failed at first: "This is a new subscription group, you need to submit at least one
+  subscription first", and `POST /v1/subscriptionSubmissions` refuses a first subscription ("must be submitted
+  at the same time as an app version"). What works (API spec 4.5): add each **subscription version**
+  (`GET /v1/subscriptions/{id}?include=versions`) as a `reviewSubmissionItems` row with the `subscriptionVersion`
+  relationship, next to the `appStoreVersion` and the `subscriptionGroupVersion`, then `PATCH` the submission
+  `submitted: true`.
+- **Submitted 2026-09-26 12:27 UTC** (submission `ff6bd494-…`): version 1.0 with build 1, the group, Premium
+  Yearly and Premium Weekly. All three read Waiting for Review. Release is automatic after approval.

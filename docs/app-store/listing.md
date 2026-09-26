@@ -70,7 +70,7 @@ The API refused these, or has no endpoint for them, in the order a first submiss
 ## App Review notes (paste into "Notes")
 
 ```
-Paper Couch 1.0 requires no account or sign-in. The learner's work stays on the device: the lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo is kept in the app's own sketchbook (and saved to Photos only while the "Also save to Photos" switch is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or one who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. The app also sends its own usage events, keyed by a random id and never a name, (lessons opened and finished, onboarding and paywall steps) to PostHog for product analytics, with no SDK: for a learner under 13 the id lasts one app launch and no profile is kept, no location is derived, and IP addresses are discarded. Once per install the app asks Apple's AdServices framework which Apple Ads campaign, if any, led to the install; that is Apple's own attribution, needs no tracking permission and uses no advertising identifier, and the app does not request App Tracking Transparency. Purchases always go through StoreKit.
+Paper Couch 1.0 requires no account or sign-in. The learner's work stays on the device: lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo stays in the app's sketchbook (saved to Photos only while "Also save to Photos" is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. The app sends its own usage events (lessons, onboarding and paywall steps), keyed by a random id and never a name, to PostHog without an SDK: for a learner under 13 the id lasts one launch and no profile is kept; no location is derived and IP addresses are discarded. Once per install the app asks Apple's AdServices framework which Apple Ads campaign, if any, led to the install: Apple's own attribution, with no advertising identifier and no App Tracking Transparency request. Purchases always go through StoreKit.
 
 WHAT THE APP DOES
 The phone is a drawing instructor for real pen and paper. Each lesson animates one line, then waits until the learner taps "I drew it". There are 10 paths of 10 lessons. Lessons 1-3 of every path are free; lessons 4-10 wear a gold crown and need Premium.
@@ -86,7 +86,23 @@ PRODUCTS (subscription group "Paper Couch Premium", both Family Sharing)
 - com.softroni.papercoach.premium.weekly: auto-renewing, $1.99 per week; no introductory offer; under "View more plans".
 All displayed prices come from StoreKit. The paywall shows the billed amount as the largest pricing element, names the price on the purchase button, states the trial length and the price charged after it, and carries Restore Purchases, Terms of Use (Apple's standard EULA) and the Privacy Policy. Restore is also in Settings.
 
-For learners 13 and over the paywall may be served by Superwall, so its layout can differ from the one described above while we compare designs. Every design keeps the same rules: the billed amount is the largest pricing element, the purchase button names the price, "Continue with free lessons" is on the first page, and Restore, Terms of Use and the Privacy Policy are always shown. If Superwall cannot answer within a few seconds, the app's own paywall is shown instead.
+SUPERWALL PAYWALLS (learners 13 and over)
+While we compare designs, Superwall may show one of four paywalls instead of the one above: (1) one page like the app's own, with the weekly plan under "View more plans"; (2) both plans as cards on one page; (3) a gift page showing the price, whose "Continue" buys nothing, then design 1; (4) a "What Premium unlocks" page with no price, then design 2. Onboarding shows 1, 3 or 4; Settings > Premium and crowned lessons show 1 or 2. Every page with a price follows the rules above, and every page has "Continue with free lessons", Restore, Terms of Use and the Privacy Policy. If Superwall does not answer within a few seconds, the app's own paywall appears.
+```
+
+
+## Subscription review notes (set 2026-09-26 through the API)
+
+**Yearly** (`6816231377`):
+
+```
+Premium Yearly, $19.99 per year: the recommended plan, shown first on every paywall. Eligible new subscribers get a 7-day free trial, and the screen after the purchase confirms the day billing starts. To reach a paywall: on a fresh install choose 18+ during onboarding and follow the first run to the offer; afterwards use Settings > Premium, or tap a crowned lesson and then "See Premium". Learners 13 and over may get one of four Superwall paywall designs (listed in the app's review notes); every one reads prices from StoreKit, names the billed price on its buy button, and shows "Continue with free lessons", Restore, Terms of Use and the Privacy Policy. For a learner under 13 the paywall sits behind "For grown-ups" and a parental check (a sum written in words).
+```
+
+**Weekly** (`6816231413`):
+
+```
+Premium Weekly, $1.99 per week, no introductory offer. On the app's own paywall and in Superwall designs 1 and 3 it is under "View more plans"; designs 2 and 4 show both plans as cards. To reach a paywall: on a fresh install choose 18+ during onboarding and follow the first run to the offer; afterwards use Settings > Premium, or tap a crowned lesson and then "See Premium". Learners 13 and over may get one of four Superwall paywall designs (listed in the app's review notes); every one reads prices from StoreKit, names the billed price on its buy button, and shows "Continue with free lessons", Restore, Terms of Use and the Privacy Policy. For a learner under 13 the paywall sits behind "For grown-ups" and a parental check (a sum written in words).
 ```
 
 ## Listing copy (already on the record)
