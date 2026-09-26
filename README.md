@@ -44,7 +44,7 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M7 | iOS product shell | §29–31 | started ahead of M6 at the creator's request (2026-09-13) | 🟡 Built to the v3 design; awaits M6 content and creator review | see git log |
 | M8 | Private sketchbook | §32 | with M7 | 🟡 Built (photo capture, local pages, notes, delete); crop/straighten pending | see git log |
 | M9 | Content expansion | §33 Phase 9 | gated | ⬜ Not started | |
-| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; App Store Connect record, products and listing filled 2026-09-25 (`docs/app-store/listing.md`); Superwall for 13+ integrated 2026-09-25, four editor paywalls live in two A/B campaigns and PostHog analytics sending 2026-09-26, App Privacy published (docs/handoff-2026-09-25-superwall.md); needs availability, review contact, a build and a device test | see git log |
+| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; App Store Connect record, products and listing filled 2026-09-25 (`docs/app-store/listing.md`); Superwall for 13+ integrated 2026-09-25, four editor paywalls live in two A/B campaigns and PostHog analytics sending 2026-09-26, App Privacy published (docs/handoff-2026-09-25-superwall.md); 2026-09-26 overnight: framed screenshots for iPhone and iPad, Apple Ads attribution, availability, review contact and build 1.0 (1) uploaded (docs/handoff-2026-09-26-release.md); needs App Privacy's Advertising Data row, the subscriptions ticked on the 1.0 page, a device test and Submit | see git log |
 
 Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see notes).
 
