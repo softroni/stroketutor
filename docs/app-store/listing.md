@@ -37,7 +37,7 @@ The API refused these, or has no endpoint for them, in the order a first submiss
 1. **Availability.** Pricing and Availability › set all territories (the other Softroni apps sell in all 175).
 2. **App Review information** on the 1.0 page: contact Zakaria Chowdhury, apps@softroni.com and the team phone
    number from the GeoBlitz listing; no sign-in required; paste the notes below.
-3. **App Privacy.** No longer "Data Not Collected": Superwall serves the paywall to learners 13 and over (README,
+3. **App Privacy.** ✅ Published 2026-09-26 as below. No longer "Data Not Collected": Superwall serves the paywall to learners 13 and over (README,
    M10 "Superwall"). Declare these types, **none used for tracking** and linked only where marked, as
    `PaperCoach/PrivacyInfo.xcprivacy` does:
    - Purchases › **Purchase History**: Analytics, App Functionality.
@@ -127,7 +127,7 @@ Paper Couch needs no account. Lessons live on your phone, and your photos stay i
 ```
 
 The last line read "…, and nothing is sent anywhere." on the record as filled on 2026-09-25. With Superwall that is no
-longer true for learners 13 and over; the record needs this shorter line before submission.
+longer true for learners 13 and over; the record was changed to this shorter line on 2026-09-26.
 
 **Subscriptions** (display name ≤ 30, description ≤ 45; they match `PaperCoach.storekit`)
 

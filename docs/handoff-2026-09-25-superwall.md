@@ -38,54 +38,87 @@ been finished since.
 - Paywalls-as-code (`superwall/`, framework, `SUPERWALL_CHANNEL=next`) can't push yet: "Superwall for Agents is in
   private beta". The user is emailing support@superwall.com for org-wide access.
 
-## Plan still to do
+## Where it stands (2026-09-26)
 
-**Progress (2026-09-25, evening, on the desktop):** step 1 is done except one check. The build was fixed
-(`StoreKit.Product`, since SuperwallKit has a `Product` too), 31 tests were added (`RemotePaywallsTests`, 273
-pass), and the privacy manifest, listing and review note, and README M10 "Superwall" were written. On a simulator an
-18+ launch started Superwall with no attribution call. Later that evening the last check passed too: on the simulator
-`settings_premium` came back as a holdout skip ("No Superwall paywall for settings_premium: … part of a holdout") and
-the native paywall took its place. Step 1 is done. Both editor paywalls are still empty drafts (version 0), so step 2
-starts from scratch.
+Steps 1, 2, 3 and 5 of the original plan are done; step 4 waits on Superwall. Details below, newest last.
 
-**Progress (2026-09-25, late evening):** step 2 is built, with two extra A/B candidates the user created. All four
-are drafts in the browser editor; none is published or on a campaign.
+### Swift integration (step 1): done
 
-| Paywall | ID | Products | Layout |
+The build was fixed (`StoreKit.Product`, since SuperwallKit has a `Product` too) and `RemotePaywallsTests` added. An
+18+ launch starts Superwall with no attribution call, and while a campaign was all holdout, `settings_premium` fell
+back to the native paywall as designed.
+
+### Editor paywalls (step 2): done, published
+
+The user renamed them on 2026-09-26. Campaigns point at the IDs, so names can change freely.
+
+| Name | ID | Products | Layout |
 |---|---|---|---|
-| Premium | 271754 | `yearly`, `weekly` | One page like `PaywallView`: art, price, free-week timeline (benefits when there is no free week), buy yearly, "View more plans" drawer (Yearly/Weekly, buys the selected plan) |
-| Premium Gift | 271755 | `primary` (yearly), `secondary` (weekly) | Flow: gift page (Lina with a gift, price, "Continue" buys nothing) → the Premium page |
+| Paywall 1 | 271754 | `yearly`, `weekly` | One page like `PaywallView`: art, price, free-week timeline (benefits when there is no free week), buy yearly, "View more plans" drawer (Yearly/Weekly, buys the selected plan) |
+| Flow 1 | 271755 | `primary` (yearly), `secondary` (weekly) | Gift page (Lina with a gift, price, "Continue" buys nothing) → the Paywall 1 page |
 | Paywall 2 | 271784 | `yearly`, `weekly` | Plans up front: headline, both plans as cards on the page (Yearly preselected), no drawer |
-| Flow 2 | 271786 | `yearly`, `weekly` | Flow: "What Premium unlocks" (no price, no trial claim, "See plans") → the Paywall 2 page |
+| Flow 2 | 271786 | `yearly`, `weekly` | "What Premium unlocks" (no price, no trial claim, "See plans") → the Paywall 2 page |
 
 Every page switches its free-week wording on `products.hasIntroductoryOffer`, names the billed price on its buy button,
 and has Restore, Terms of Use, Privacy and "Continue with free lessons" (close). The reminder row says "2 days before it
-ends" (`PremiumStore.reminderDaysBeforeTrialEnds`) and the billing row uses the product's `trialPeriodEndDate`.
-"Save 80%" is typed in (true for US prices). Seen in editor screenshots: Premium (both trial states, drawer with each
-plan), the gift page, Flow 2's first page. Not yet seen: Premium Gift's paywall page, Paywall 2, Flow 2's plans page
-(the editor only screenshots the page on screen in a foreground tab).
+ends" (`PremiumStore.reminderDaysBeforeTrialEnds`); the billing row uses the product's `trialPeriodEndDate`. "Save 80%"
+is typed in (true for US prices). Every page was checked in screenshots (the user sent the three the agent could not
+capture).
 
 Editor gotchas: `write_html` turns horizontal rows into CSS grids sized to their content, so set `display:flex` on them
 afterwards; composite art works best as one inline SVG (a remote PNG drew blank in screenshots); `get_children` lists
-children unsorted, `get_subtree` shows the real `index` order.
+children unsorted, `get_subtree` shows the real `index` order; screenshots only work while the editor tab is in front
+(a phone tab that sleeps drops the session: `session_not_ready`, and needs a fresh pairing code). One CLI state folder
+per paywall (`SUPERWALL_STATE_DIR`) lets several stay attached at once.
 
-Suggested split for step 3 (the user decides): Onboarding offer = Premium / Premium Gift / Flow 2; In-app Premium =
-Premium / Paywall 2. Still outside the repo: the 1.0 description's last line on App Store Connect needs the shorter
-text in `docs/app-store/listing.md` (the API edit was not permitted from the agent session).
+### Campaigns (step 3): live since 2026-09-26
 
-1. Finish the Swift integration (`PaperCoach/App/SuperwallPaywalls.swift`, `RemotePaywalls.swift`, `OfferFlow`,
-   `AppRoot`, SPM package in the project): build, run all tests, native fallback, privacy manifest
-   (`PrivacyInfo.xcprivacy`), listing/review-note privacy text, README M10 "Superwall" section.
-2. Finish the editor paywalls: Premium (single page + plans drawer) and Premium Gift (gift page → paywall page).
-   Reference design: the native paywall screenshots and `PaywallView.swift` / `OfferSupport.swift`.
-3. Attach paywalls to campaigns: Onboarding offer = Premium 50% / Premium Gift 50%, no holdout;
-   In-app Premium = Premium 100%, no holdout. Publish only after reviewing screenshots of both trial states.
-4. Once beta access arrives, push the code paywalls in `superwall/` and switch the campaigns to them.
-5. Then PostHog: an `AnalyticsSink` that honors the age tiers; privacy label; Declared Age Range API (Texas).
+The user set these in the dashboard (the agent's session was not permitted to change live campaigns):
+
+| Campaign | Placements | Variants | Holdout |
+|---|---|---|---|
+| Onboarding offer 109312 | `onboarding_offer` | Paywall 1 34%, Flow 1 33%, Flow 2 33% | 0% |
+| In-app Premium 109313 | `premium_lesson`, `settings_premium` | Paywall 1 50%, Paywall 2 50% | 0% |
+
+No audience filter: the app itself starts Superwall only for learners 13 and over. Checked on the "PC Review" simulator:
+Settings › Premium got Paywall 2 from Superwall with StoreKit prices and the free-week wording. Superwall keeps a user
+in the variant first assigned, so a test device that met a placement while it was all holdout keeps getting the native
+paywall ("PC Superwall" simulator); reinstall the app to reset it.
+
+### PostHog (step 5): done, except the Declared Age Range API
+
+`PostHogSink` (`PaperCoach/App/PostHogSink.swift`, no SDK) posts `Analytics` events to PostHog project 629055 (US
+cloud) in batches. Children's events carry a per-launch id and build no person; 13+ use the profile's random id. Every
+event sets `$geoip_disable`, and the project has "Discard client IP data" on. Tests and screenshot launches send
+nothing; debug builds send with `build: debug`. New drawing events for every tier, to learn what learners want to draw:
+`path_opened`, `lesson_started`, `lesson_completed`, `lesson_left` (step reached), `drawing_saved`,
+`wish_list_changed`. The first live event arrived with no IP stored.
+
+### App Store Connect: done this session
+
+- The 1.0 description's last line now reads "Lessons live on your phone, and your photos stay in the app's
+  sketchbook."
+- App Privacy is published as `docs/app-store/listing.md` lists it: linked (User ID, Product Interaction) and not
+  linked (Device ID, Purchase History, Coarse Location), all for analytics, none for tracking.
+
+## Still to do
+
+1. **The privacy policy page** (https://softroni.com/privacy-policy.html, the link the app opens) should name
+   Superwall and PostHog and say what each receives, matching App Privacy. The user's to change; not checked yet.
+2. **Code paywalls:** once Superwall grants "Superwall for Agents" beta access (the user will say), push the code
+   paywalls in `superwall/` and decide whether they replace the editor ones in the campaigns.
+3. **A PostHog dashboard, "What learners draw",** once real events exist: lessons started and completed by path and
+   by age group (child versus 13+), where `lesson_left` happens by step, the most wished-for Premium lessons, and
+   `drawing_saved` by lesson. Exclude `build = debug`.
+4. **Paywall results:** once a build is live, compare the variants per campaign (Superwall analytics, and the
+   `superwall_*` events in PostHog).
+5. **Declared Age Range API** (Texas), not started.
+6. The first-submission items in `docs/app-store/listing.md` › "Still to do by hand": availability, App Review
+   contact, iPad screenshots or iPhone-only, a build.
 
 ## To set up on the new machine
 
-- `git fetch && git checkout wip/superwall-paywalls`
+- Everything is on `main` (the branch `wip/superwall-paywalls` was fast-forwarded into it).
 - `superwall login` (apps@softroni.com); `export SUPERWALL_CHANNEL=next` for the framework commands;
   `cd superwall && bun install` (or npm install).
 - Recreate `~/.superwall-cli/.env` with `SUPERWALL_API_KEY=sk_…` (copy the key from Superwall Settings → Keys, or
