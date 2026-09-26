@@ -1,8 +1,8 @@
 # Handoff: Superwall A/B paywalls (2026-09-25, moved from the laptop)
 
-Work in progress on branch `wip/superwall-paywalls`. Everything below was mid-flight when the laptop shut down;
-the Swift and `superwall/` files are a snapshot taken while two agents were still editing them, so expect
-unfinished code that may not build yet.
+Started on branch `wip/superwall-paywalls`, merged to `main` on 2026-09-25 once it built and all 273 tests passed.
+Everything below was mid-flight when the laptop shut down; the progress notes under "Plan still to do" say what has
+been finished since.
 
 ## Already done and on `main`
 
@@ -47,6 +47,31 @@ pass), and the privacy manifest, listing and review note, and README M10 "Superw
 `settings_premium` came back as a holdout skip ("No Superwall paywall for settings_premium: … part of a holdout") and
 the native paywall took its place. Step 1 is done. Both editor paywalls are still empty drafts (version 0), so step 2
 starts from scratch.
+
+**Progress (2026-09-25, late evening):** step 2 is built, with two extra A/B candidates the user created. All four
+are drafts in the browser editor; none is published or on a campaign.
+
+| Paywall | ID | Products | Layout |
+|---|---|---|---|
+| Premium | 271754 | `yearly`, `weekly` | One page like `PaywallView`: art, price, free-week timeline (benefits when there is no free week), buy yearly, "View more plans" drawer (Yearly/Weekly, buys the selected plan) |
+| Premium Gift | 271755 | `primary` (yearly), `secondary` (weekly) | Flow: gift page (Lina with a gift, price, "Continue" buys nothing) → the Premium page |
+| Paywall 2 | 271784 | `yearly`, `weekly` | Plans up front: headline, both plans as cards on the page (Yearly preselected), no drawer |
+| Flow 2 | 271786 | `yearly`, `weekly` | Flow: "What Premium unlocks" (no price, no trial claim, "See plans") → the Paywall 2 page |
+
+Every page switches its free-week wording on `products.hasIntroductoryOffer`, names the billed price on its buy button,
+and has Restore, Terms of Use, Privacy and "Continue with free lessons" (close). The reminder row says "2 days before it
+ends" (`PremiumStore.reminderDaysBeforeTrialEnds`) and the billing row uses the product's `trialPeriodEndDate`.
+"Save 80%" is typed in (true for US prices). Seen in editor screenshots: Premium (both trial states, drawer with each
+plan), the gift page, Flow 2's first page. Not yet seen: Premium Gift's paywall page, Paywall 2, Flow 2's plans page
+(the editor only screenshots the page on screen in a foreground tab).
+
+Editor gotchas: `write_html` turns horizontal rows into CSS grids sized to their content, so set `display:flex` on them
+afterwards; composite art works best as one inline SVG (a remote PNG drew blank in screenshots); `get_children` lists
+children unsorted, `get_subtree` shows the real `index` order.
+
+Suggested split for step 3 (the user decides): Onboarding offer = Premium / Premium Gift / Flow 2; In-app Premium =
+Premium / Paywall 2. Still outside the repo: the 1.0 description's last line on App Store Connect needs the shorter
+text in `docs/app-store/listing.md` (the API edit was not permitted from the agent session).
 
 1. Finish the Swift integration (`PaperCoach/App/SuperwallPaywalls.swift`, `RemotePaywalls.swift`, `OfferFlow`,
    `AppRoot`, SPM package in the project): build, run all tests, native fallback, privacy manifest

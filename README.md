@@ -44,7 +44,7 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M7 | iOS product shell | §29–31 | started ahead of M6 at the creator's request (2026-09-13) | 🟡 Built to the v3 design; awaits M6 content and creator review | see git log |
 | M8 | Private sketchbook | §32 | with M7 | 🟡 Built (photo capture, local pages, notes, delete); crop/straighten pending | see git log |
 | M9 | Content expansion | §33 Phase 9 | gated | ⬜ Not started | |
-| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; App Store Connect record, products and listing filled 2026-09-25 (`docs/app-store/listing.md`); Superwall for 13+ integrated 2026-09-25, its paywalls still to design; needs availability, review contact, App Privacy, a build and a device test | see git log |
+| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; App Store Connect record, products and listing filled 2026-09-25 (`docs/app-store/listing.md`); Superwall for 13+ integrated 2026-09-25, four paywall drafts built in its editor (docs/handoff-2026-09-25-superwall.md), not yet on a campaign; needs availability, review contact, App Privacy, a build and a device test | see git log |
 
 Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see notes).
 
