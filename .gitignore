@@ -4,3 +4,7 @@ xcuserdata/
 .studio/
 # Lock + heartbeat for the milestone runner (see README "Working on milestones").
 .milestones/
+
+# Apple device frames (Apple Design Resources licence: no redistribution). Copy them from the
+# Bezel DMGs; see docs/app-store/marketing/README.md.
+docs/app-store/marketing/frames/

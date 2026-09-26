@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Paper Couch screenshots</title>
+<!--
+  Draws one App Store screenshot at its upload size: shots.html?device=iphone&shot=learn.
+  render.mjs serves the repository over http (the lessons and illustrations live in
+  shared/) and saves every shot; open the same URL in a browser to tune one.
+-->
+<style>
+  @font-face {
+    font-family: 'Fredoka';
+    src: url('assets/fonts/Fredoka.ttf') format('truetype');
+    font-weight: 300 700;
+    font-stretch: 75% 125%;
+  }
+  :root {
+    --green-light: #26B571;
+    --green: #1FA463;
+    --green-deep: #127544;
+    --highlight: #FFE08A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #333; }
+
+  .canvas {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 75% 45% at 50% 60%, rgba(255, 255, 255, 0.15), transparent 70%),
+      linear-gradient(168deg, var(--green-light) 0%, var(--green) 40%, var(--green-deep) 100%);
+  }
+
+  .headline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    text-align: center;
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.012em;
+    text-shadow: 0 0.05em 0.25em rgba(0, 0, 0, 0.14);
+  }
+  .headline em { font-style: normal; color: var(--highlight); }
+
+  .device { position: absolute; z-index: 1; filter: drop-shadow(0 40px 50px rgba(0, 0, 0, 0.30)); }
+  .device img { position: absolute; display: block; }
+
+  .sticker { position: absolute; z-index: 3; }
+  .sticker > * { display: block; width: 100%; height: auto; }
+
+  .card {
+    position: absolute;
+    z-index: 2;
+    background: #fff;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.32);
+  }
+  .card .print { position: absolute; overflow: hidden; }
+  .card .print img { position: absolute; display: block; }
+  .card .drawing { position: absolute; mix-blend-mode: multiply; opacity: 0.92; }
+  .tag {
+    position: absolute;
+    padding: 0.16em 0.55em 0.24em;
+    border-radius: 0.3em;
+    background: var(--green);
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 0.12em 0.4em rgba(0, 0, 0, 0.3);
+  }
+</style>
+</head>
+<body>
+<div id="canvas" class="canvas"></div>
+<script type="module">
+  import { DEVICES, SHOTS } from './shots.js';
+
+  const params = new URLSearchParams(location.search);
+  const deviceName = params.get('device') ?? 'iphone';
+  const device = DEVICES[deviceName];
+  const base = SHOTS.find((s) => s.id === params.get('shot')) ?? SHOTS[0];
+  const shot = { ...base, ...(base[deviceName] ?? {}) };
+  const W = device.width;
+  const H = device.height;
+  const canvas = document.getElementById('canvas');
+  canvas.style.width = `${W}px`;
+  canvas.style.height = `${H}px`;
+
+  const el = (tag, cls, style = {}) => {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    Object.assign(node.style, style);
+    return node;
+  };
+  const px = (n) => `${n}px`;
+  const waits = [];
+  const image = (src, cls, style) => {
+    const img = el('img', cls, style);
+    img.src = src;
+    waits.push(img.decode().catch(() => { throw new Error(`missing image ${src}`); }));
+    return img;
+  };
+
+  const headline = el('div', 'headline', { top: px(device.headline.top), fontSize: px(device.headline.size) });
+  headline.innerHTML = shot.title;
+  canvas.append(headline);
+
+  const box = drawDevice();
+  for (const st of shot.stickers ?? []) drawSticker(st, box);
+  if (shot.card) await drawCard(shot.card);
+
+  await document.fonts.ready;
+  await Promise.all(waits);
+  window.ready = true;
+
+  // A placement as fractions of the canvas, in pixels. Centred when x is left out.
+  function place(p, aspect) {
+    const width = p.width * W;
+    return {
+      width,
+      height: width * aspect,
+      left: p.x === undefined ? (W - width) / 2 : p.x * W,
+      top: p.y * H,
+      rot: p.rot ?? 0,
+    };
+  }
+
+  // The device frame with the capture behind its screen. Returns the frame's box,
+  // which the stickers are placed against.
+  function drawDevice() {
+    const [fw, fh] = device.frameSize;
+    const b = place(shot.device ?? device.device, fh / fw);
+    const scale = b.width / fw;
+    const wrap = el('div', 'device', {
+      left: px(b.left), top: px(b.top), width: px(b.width), height: px(b.height),
+      transform: `rotate(${b.rot}deg)`,
+    });
+    const s = device.screen;
+    wrap.append(
+      image(`captures/${deviceName}/${shot.capture}.png`, null, {
+        left: px(s.x * scale), top: px(s.y * scale),
+        width: px(s.width * scale), height: px(s.height * scale),
+        borderRadius: px(s.radius * scale),
+      }),
+      image(device.frame, null, { inset: '0', width: '100%', height: '100%' }),
+    );
+    canvas.append(wrap);
+    return b;
+  }
+
+  function drawSticker(st, b) {
+    const size = st.size * b.width * (device.stickerScale ?? 1);
+    const node = el('div', 'sticker', {
+      width: px(size),
+      left: px(b.left + st.x * b.width),
+      top: px(b.top + st.y * b.height),
+      transform: `translate(-50%, -50%) rotate(${st.rot ?? 0}deg)`,
+      filter: stickerOutline(size),
+    });
+    if (st.name.startsWith('pencil:')) node.innerHTML = pencil(st.name.slice(7));
+    else node.append(image(`../../../shared/Assets/References/${st.name}.svg`));
+    canvas.append(node);
+  }
+
+  // A photo print: white border, the cropped photo, the lesson's pen lines on the
+  // page in it, and a tag across its lower edge.
+  async function drawCard(card) {
+    const [cx, cy, cw, ch] = card.crop;
+    const b = place(card, 1); // height is set below from the crop
+    const border = b.width * 0.035;
+    const inner = b.width - border * 2;
+    const scale = inner / cw;
+    const height = ch * scale + border * 2;
+    const node = el('div', 'card', {
+      left: px(b.left), top: px(b.top), width: px(b.width), height: px(height),
+      borderRadius: px(border * 0.8),
+      transform: `rotate(${b.rot}deg)`,
+    });
+    const print = el('div', 'print', {
+      left: px(border), top: px(border), width: px(inner), height: px(ch * scale),
+      borderRadius: px(border * 0.4),
+    });
+    const photo = image(card.photo, null, { left: px(-cx * scale), top: px(-cy * scale) });
+    waits.push(photo.decode().then(() => { photo.style.width = px(photo.naturalWidth * scale); }));
+    const d = card.drawing;
+    const size = d.size * scale;
+    const drawing = el('div', 'drawing', {
+      width: px(size), height: px(size),
+      left: px((d.cx - cx) * scale - size / 2), top: px((d.cy - cy) * scale - size / 2),
+    });
+    drawing.innerHTML = await lineArt(d.tutorial);
+    print.append(photo, drawing);
+    node.append(print);
+
+    if (card.tag) {
+      const tag = el('div', 'tag', {
+        fontSize: px(device.headline.size * 0.5),
+        left: px(-b.width * 0.06),
+        bottom: px(height * 0.10),
+        transform: 'rotate(-10deg)',
+      });
+      tag.textContent = card.tag;
+      node.append(tag);
+    }
+    canvas.append(node);
+  }
+
+  // A lesson's pen lines (every step that draws, none that colors), as the
+  // learner leaves them on paper.
+  async function lineArt(id) {
+    const tutorial = await (await fetch(`../../../shared/Tutorials/${id}.json`)).json();
+    const { width, height } = tutorial.canvas;
+    const paths = tutorial.steps
+      .flatMap((step) => step.strokes ?? [])
+      .map((s) => `<path d="${s.d}" stroke-width="${(s.lineWidth ?? 10) * 0.75}"/>`)
+      .join('');
+    return `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <filter id="pen"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"/>
+        <feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+      <g fill="none" stroke="#26282b" stroke-linecap="round" stroke-linejoin="round" filter="url(#pen)">${paths}</g>
+    </svg>`;
+  }
+
+  // A die-cut sticker edge: a white rim a few percent of the sticker's width, then
+  // a soft shadow under the whole thing.
+  function stickerOutline(size) {
+    const r = Math.max(4, Math.round(size * 0.022));
+    const rim = [[r, 0], [-r, 0], [0, r], [0, -r]].map(([x, y]) => `drop-shadow(${x}px ${y}px 0 #fff)`);
+    return [...rim, `drop-shadow(0 ${r * 2.2}px ${r * 3}px rgba(0,0,0,0.28))`].join(' ');
+  }
+
+  // A hexagonal pencil lying left (eraser) to right (point), 1000 x 150.
+  function pencil(color) {
+    const bodies = {
+      yellow: ['#FFD25E', '#F5B82E', '#DB9A1E'],
+      green: ['#4CC98A', '#1FA463', '#15804B'],
+      clay: ['#F2896A', '#E4643B', '#BF4E2A'],
+      blue: ['#6E9BF2', '#2F6BE8', '#2352B8'],
+    };
+    const [light, mid, dark] = bodies[color] ?? bodies.yellow;
+    const lead = color === 'yellow' ? '#3A3A3A' : mid;
+    return `<svg viewBox="0 0 1000 150" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#1f1f1f" stroke-width="6" stroke-linejoin="round">
+        <path d="M100 15 H40 a28 28 0 0 0 -28 28 v64 a28 28 0 0 0 28 28 H100 Z" fill="#F4A3B5"/>
+        <rect x="100" y="10" width="80" height="130" fill="#D5D9DE"/>
+        <path d="M180 15 H790 V135 H180 Z" fill="${mid}"/>
+        <path d="M180 15 H790 V55 H180 Z" fill="${light}" stroke="none"/>
+        <path d="M180 95 H790 V135 H180 Z" fill="${dark}" stroke="none"/>
+        <path d="M180 15 H790 V135 H180 Z" fill="none"/>
+        <path d="M790 15 L975 75 L790 135 Z" fill="#F3D2A2"/>
+        <path d="M906 52 L975 75 L906 98 Z" fill="${lead}"/>
+      </g>
+      <g stroke="#9DA3AA" stroke-width="6"><path d="M125 14 V136 M155 14 V136"/></g>
+    </svg>`;
+  }
+</script>
+</body>
+</html>
