@@ -44,7 +44,7 @@ Milestone numbers match the Phases in the master plan's roadmap (§33).
 | M7 | iOS product shell | §29–31 | started ahead of M6 at the creator's request (2026-09-13) | 🟡 Built to the v3 design; awaits M6 content and creator review | see git log |
 | M8 | Private sketchbook | §32 | with M7 | 🟡 Built (photo capture, local pages, notes, delete); crop/straighten pending | see git log |
 | M9 | Content expansion | §33 Phase 9 | gated | ⬜ Not started | |
-| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; App Store Connect record, products and listing filled 2026-09-25 (`docs/app-store/listing.md`); needs availability, review contact, App Privacy, a build and a device test | see git log |
+| M10 | Monetization / distribution | §33 Phase 10 | gated | 🟡 Premium, paywall and guided first run built 2026-09-24; App Store Connect record, products and listing filled 2026-09-25 (`docs/app-store/listing.md`); Superwall for 13+ integrated 2026-09-25, its paywalls still to design; needs availability, review contact, App Privacy, a build and a device test | see git log |
 
 Status key: ⬜ not started · 🟡 in progress · ✅ done · ⏸ blocked (see notes).
 
@@ -843,8 +843,9 @@ still protects every under-13 profile, and the listing should show learners of e
 "Prefer not to say". The answer and its date are kept on each profile, with stable keys (`under6` … `18plus`,
 `preferNotToSay`), and can be changed on the learner's page in Settings. When a PIN is set, moving someone to a less
 protected tier needs it.
-- **`Analytics`** (`PaperCoach/App/Analytics.swift`) is the only way out. Today its sink is `NoAnalyticsSink`, so
-  nothing is sent. A PostHog or Superwall sink must honour `AnalyticsPolicy`:
+- **`Analytics`** (`PaperCoach/App/Analytics.swift`) is the only way out for the app's own events. Today its sink is
+  `NoAnalyticsSink`, so nothing is sent through it (Superwall sends its own, for 13+ only; see "Superwall" below). A
+  PostHog sink must honour `AnalyticsPolicy`:
   - under 13, "prefer not to say" or never asked: anonymous events, with an id that lasts one launch;
   - 13 to 17: the profile's own id, no session replay;
   - 18+: everything.
@@ -922,6 +923,50 @@ protected tier needs it.
   the drawer on a Premium lesson as an 18+ and a 6–9 learner; `offer-grown-up-paywall` the grown-up's paywall for a
   child with a drawing and a wish; `offer-plans` the plans sheet over the paywall; `offer-trial-started` "Your free
   week has started" with a made-up end seven days out (debug builds only). Prices appear only when StoreKit answers (the `PaperCoach.storekit` configuration).
+
+**Superwall, for learners 13 and over (2026-09-25).** Remote paywalls, so their design can be A/B tested without an
+app update. SuperwallKit 4.17 comes in through Swift Package Manager.
+- **Where:** `PaperCoach/App/RemotePaywalls.swift` is the door with no SDK behind it: the placements, what a
+  Superwall paywall's close means (`RemotePaywallResult`) and every rule as plain values (`SuperwallGate`).
+  `PaperCoach/App/SuperwallPaywalls.swift` is the only file that imports SuperwallKit, and holds the purchase
+  controller. `OfferFlow` asks it first wherever the native paywall would come (`.remotePaywall`, the plain page
+  while it decides).
+- **Children never touch it.** It starts at most once per process, and only once a learner 13 or over is drawing:
+  at launch after "Who's drawing?" has been answered, or the first time a 13+ learner becomes active (a switch, or
+  an age group changed). It is configured with event tracking `.none`, which also skips the SDK's install-attribution
+  match (IP address and device fingerprint), then set to `.all` while a 13+ learner draws and back to `.none`
+  whenever a child does. Never `identify`, no user attributes (no age, band or tier). The SDK has no stop: once
+  started, it may still refresh its config while a child draws; the next launch with only children on it does not
+  start it.
+- **Placements:** `onboarding_offer` ("More coming"'s Continue), `premium_lesson` (with `lesson_id`) and
+  `settings_premium`. Registered with no `feature:` block, so a skip (holdout, no audience match, a placement on no
+  campaign) can never unlock Premium. The child's way to a grown-up never asks Superwall.
+- **The native paywall stays.** It shows on a skip, an error, a page that failed to load, Superwall not running, or
+  no answer within four seconds (`SuperwallPaywalls.answerTimeout`); a late Superwall paywall is dismissed rather
+  than stacked on top. Closing Superwall's paywall ends the flow, free, with no second paywall.
+- **Purchases stay in `PremiumStore`** (StoreKit 2): `SuperwallPurchaseController` buys with the product's
+  introductory-offer token and billing plan when Superwall passes them, and `subscriptionStatus` follows
+  `PremiumStore.onPremiumChange` (the `premium` entitlement). A free week still reaches "Your free week has
+  started", and Ask to Buy the waiting screen. The trial reminder is the app's own: the dashboard's paywall
+  Notifications must stay empty, and a paywall that carries one logs a fault when it opens.
+- **Analytics:** an allow-list of Superwall's events is copied into `Analytics` for 13+ learners only
+  (`superwall_trigger_fire`, `superwall_paywall_open|close|decline`, `superwall_transaction_*`,
+  `superwall_free_trial_start`), with the placement, paywall, experiment and variant, and never a price.
+- **Debug:** `-STNativePaywall` forces the native paywall; screenshot launches (`-STScreen`) and the unit tests never
+  start Superwall (`SuperwallGate.isAllowed`).
+- **Dashboard:** project 42098, iOS app 56531, public key in `SuperwallPaywalls.apiKey`, entitlement `premium`,
+  both products. Campaigns **Onboarding offer** (109312, `onboarding_offer`) and **In-app Premium** (109313,
+  `premium_lesson`, `settings_premium`) are 100% holdout until their paywalls are designed. The editor paywalls
+  **Premium** (271754) and **Premium Gift** (271755, a flow) are still empty drafts. Planned: Onboarding offer =
+  Premium 50% / Premium Gift 50%, In-app Premium = Premium 100%, no holdout; publish only after screenshots of both
+  trial states. The same designs as code are in `superwall/`, waiting for "Superwall for Agents" beta access.
+- **Privacy:** `PrivacyInfo.xcprivacy` and the App Privacy answers in `docs/app-store/listing.md` declare purchase
+  history, product interaction, the vendor id and an IP-derived coarse location, none linked or used for tracking;
+  the review note names the SDK.
+- **Verified 2026-09-25:** the build, and `xcodebuild test` 273 passed (31 new in `RemotePaywallsTests`). On the
+  simulator, an 18+ learner's launch started Superwall (config, enrichment, entitlements) with no install-attribution
+  request, and events reached Superwall only after tracking turned on (`config_attributes`, `paywallPreload_*`); a
+  screenshot launch made no Superwall request at all.
 
 ---
 

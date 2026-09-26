@@ -406,15 +406,18 @@ final class SuperwallPurchaseController: PurchaseController {
             return .failed(SuperwallPurchaseError.notAnAppStoreProduct)
         }
 
-        var options: Set<Product.PurchaseOption> = []
+        // `StoreKit.Product`: SuperwallKit has a `Product` of its own.
+        var options: Set<StoreKit.Product.PurchaseOption> = []
         if let token = product.introOfferToken {
             options.insert(.introductoryOfferEligibility(compactJWS: token.token))
         }
         if #available(iOS 26.4, *), let plan = product.billingPlanType {
+            let storeKitPlan: StoreKit.Product.SubscriptionInfo.BillingPlanType
             switch plan {
-            case .upFront: options.insert(.billingPlanType(.upFront))
-            case .monthly: options.insert(.billingPlanType(.monthly))
+            case .upFront: storeKitPlan = .upFront
+            case .monthly: storeKitPlan = .monthly
             }
+            options.insert(.billingPlanType(storeKitPlan))
         }
 
         let outcome = await premium.purchase(storeKitProduct, options: options)

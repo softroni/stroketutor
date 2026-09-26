@@ -37,8 +37,19 @@ The API refused these, or has no endpoint for them, in the order a first submiss
 1. **Availability.** Pricing and Availability › set all territories (the other Softroni apps sell in all 175).
 2. **App Review information** on the 1.0 page: contact Zakaria Chowdhury, apps@softroni.com and the team phone
    number from the GeoBlitz listing; no sign-in required; paste the notes below.
-3. **App Privacy.** Answer "Data Not Collected". The app has no analytics sink, no account, and the sketchbook
-   photos stay on the device (`PaperCoach/PrivacyInfo.xcprivacy` says the same).
+3. **App Privacy.** No longer "Data Not Collected": Superwall serves the paywall to learners 13 and over (README,
+   M10 "Superwall"). Declare these four types, each **not linked to the user** and **not used for tracking**, as
+   `PaperCoach/PrivacyInfo.xcprivacy` does:
+   - Purchases › **Purchase History**: Analytics, App Functionality.
+   - Usage Data › **Product Interaction** (paywall views and taps): Analytics.
+   - Identifiers › **Device ID** (the vendor identifier, IDFV): Analytics, App Functionality.
+   - Location › **Coarse Location** (country, region and city from the IP address): Analytics, App Functionality.
+
+   Superwall's own guide asks only for Purchase History
+   (https://superwall.com/docs/ios/guides/app-privacy-nutrition-labels); the other three are what its requests
+   carried when checked on 2026-09-25 (the vendor id and the IP-derived location on every request, paywall
+   events once tracking is on). The app has no account, never identifies anyone to Superwall, and the sketchbook
+   photos stay on the device.
 4. **iPad 13" screenshots** (2064 × 2752), required while the target includes iPad. On the iPadOS 26 simulator the app
    opens in a window smaller than the screen, so the captures came out with black around them; either decide how
    the app should behave in iPad windowing, or make it iPhone-only (`TARGETED_DEVICE_FAMILY = 1`), which drops the
@@ -52,7 +63,7 @@ The API refused these, or has no endpoint for them, in the order a first submiss
 ## App Review notes (paste into "Notes")
 
 ```
-Paper Couch 1.0 requires no account or sign-in. Everything is on the device: the lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo is kept in the app's own sketchbook (and saved to Photos only while the "Also save to Photos" switch is on). No analytics or third-party SDK is included; nothing is sent off the device.
+Paper Couch 1.0 requires no account or sign-in. The learner's work stays on the device: the lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo is kept in the app's own sketchbook (and saved to Photos only while the "Also save to Photos" switch is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or one who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. Purchases always go through StoreKit.
 
 WHAT THE APP DOES
 The phone is a drawing instructor for real pen and paper. Each lesson animates one line, then waits until the learner taps "I drew it". There are 10 paths of 10 lessons. Lessons 1-3 of every path are free; lessons 4-10 wear a gold crown and need Premium.
@@ -67,6 +78,8 @@ PRODUCTS (subscription group "Paper Couch Premium", both Family Sharing)
 - com.softroni.papercoach.premium.yearly: auto-renewing, $19.99 per year; eligible new subscribers get the displayed 7-day free trial. This is the recommended plan, shown first.
 - com.softroni.papercoach.premium.weekly: auto-renewing, $1.99 per week; no introductory offer; under "View more plans".
 All displayed prices come from StoreKit. The paywall shows the billed amount as the largest pricing element, names the price on the purchase button, states the trial length and the price charged after it, and carries Restore Purchases, Terms of Use (Apple's standard EULA) and the Privacy Policy. Restore is also in Settings.
+
+For learners 13 and over the paywall may be served by Superwall, so its layout can differ from the one described above while we compare designs. Every design keeps the same rules: the billed amount is the largest pricing element, the purchase button names the price, "Continue with free lessons" is on the first page, and Restore, Terms of Use and the Privacy Policy are always shown. If Superwall cannot answer within a few seconds, the app's own paywall is shown instead.
 ```
 
 ## Listing copy (already on the record)
@@ -108,8 +121,11 @@ Privacy Policy: https://softroni.com/privacy-policy
 Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
 YOUR DRAWINGS STAY YOURS
-Paper Couch needs no account. Lessons live on your phone, your photos stay in the app's sketchbook, and nothing is sent anywhere.
+Paper Couch needs no account. Lessons live on your phone, and your photos stay in the app's sketchbook.
 ```
+
+The last line read "…, and nothing is sent anywhere." on the record as filled on 2026-09-25. With Superwall that is no
+longer true for learners 13 and over; the record needs this shorter line before submission.
 
 **Subscriptions** (display name ≤ 30, description ≤ 45; they match `PaperCoach.storekit`)
 

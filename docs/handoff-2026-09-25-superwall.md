@@ -40,6 +40,14 @@ unfinished code that may not build yet.
 
 ## Plan still to do
 
+**Progress (2026-09-25, evening, on the desktop):** step 1 is done except one check. The build was fixed
+(`StoreKit.Product`, since SuperwallKit has a `Product` too), 31 tests were added (`RemotePaywallsTests`, 273
+pass), and the privacy manifest, listing and review note, and README M10 "Superwall" were written. On a simulator an
+18+ launch started Superwall with no attribution call. Later that evening the last check passed too: on the simulator
+`settings_premium` came back as a holdout skip ("No Superwall paywall for settings_premium: … part of a holdout") and
+the native paywall took its place. Step 1 is done. Both editor paywalls are still empty drafts (version 0), so step 2
+starts from scratch.
+
 1. Finish the Swift integration (`PaperCoach/App/SuperwallPaywalls.swift`, `RemotePaywalls.swift`, `OfferFlow`,
    `AppRoot`, SPM package in the project): build, run all tests, native fallback, privacy manifest
    (`PrivacyInfo.xcprivacy`), listing/review-note privacy text, README M10 "Superwall" section.
