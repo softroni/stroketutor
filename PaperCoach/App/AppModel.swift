@@ -31,6 +31,9 @@ final class AppModel {
     /// Premium: the subscriptions and whether this Apple account holds one. Shared
     /// by every learner on the device.
     let premium: PremiumStore
+    /// Superwall's paywalls for learners 13 and over, and the rules that keep it
+    /// away from children. Told who is drawing on every switch and age change.
+    let paywalls: RemotePaywalls
 
     /// One learner's three stores, opened together from their folder.
     struct ProfileStores {
@@ -132,10 +135,13 @@ final class AppModel {
 
     private let bundle: Bundle
 
+    /// `paywalls` is for the tests; the app gets Superwall's (`SuperwallPaywalls.make`),
+    /// which does nothing until `AppRoot` calls `startRemotePaywalls(waitingForPicker:)`.
     init(bundle: Bundle = .main,
          settings: Settings? = nil,
          storeDirectory: URL? = nil,
-         analyticsSink: AnalyticsSink? = nil) {
+         analyticsSink: AnalyticsSink? = nil,
+         paywalls: RemotePaywalls? = nil) {
         let settings = settings ?? Settings()
         let base = storeDirectory ?? AppStorageLocation.applicationSupport()
         let profileStore = ProfileStore(baseDirectory: base)
@@ -144,8 +150,11 @@ final class AppModel {
         self.profileStore = profileStore
         pin = AppPIN(defaults: settings.defaults)
         library = TutorialLibrary()
-        analytics = Analytics(sink: analyticsSink ?? NoAnalyticsSink())
-        premium = PremiumStore(defaults: settings.defaults)
+        let analytics = Analytics(sink: analyticsSink ?? NoAnalyticsSink())
+        let premium = PremiumStore(defaults: settings.defaults)
+        self.analytics = analytics
+        self.premium = premium
+        self.paywalls = paywalls ?? SuperwallPaywalls.make(premium: premium, analytics: analytics)
 
         let outcome = LegacyProfileMigration.run(baseDirectory: base,
                                                  defaults: settings.defaults,
@@ -494,7 +503,12 @@ extension AppModel {
         settingsStack = []
         selectedTab = .home
 
-        guard target.id != activeProfile.id else { return }
+        guard target.id != activeProfile.id else {
+            // "Who's drawing?" answered with the learner already drawing: still an
+            // answer, which Superwall waits for at launch.
+            paywalls.learnerDidChange(tier: activeProfile.privacyTier)
+            return
+        }
         let stores = openedStores[target.id] ?? Self.openStores(for: target, in: profileStore)
         openedStores[target.id] = stores
         active = stores
@@ -502,7 +516,15 @@ extension AppModel {
         profileStore.markUsed(target.id)
         if let updated = profileStore.profile(id: target.id) { activeProfile = updated }
         analytics.identify(activeProfile)
+        paywalls.learnerDidChange(tier: activeProfile.privacyTier)
         keepCurrentPathValid()
+    }
+
+    /// Launch is over: Superwall may start if the learner drawing is 13 or over
+    /// (`SuperwallGate`). When "Who's drawing?" is about to ask, it waits for the
+    /// answer instead of going by whoever drew last. Called once, by `AppRoot`.
+    func startRemotePaywalls(waitingForPicker: Bool) {
+        paywalls.launch(tier: activeProfile.privacyTier, waitingForPicker: waitingForPicker)
     }
 
     /// A new learner, committed to disk before this returns. Nil if the folder could
@@ -552,6 +574,7 @@ extension AppModel {
             if id == activeProfile.id {
                 activeProfile = temporary
                 analytics.identify(temporary)
+                paywalls.learnerDidChange(tier: temporary.privacyTier)
             }
             return
         }
@@ -562,6 +585,7 @@ extension AppModel {
         if id == activeProfile.id, let updated = profileStore.profile(id: id) {
             activeProfile = updated
             analytics.identify(updated)
+            paywalls.learnerDidChange(tier: updated.privacyTier)
         }
     }
 

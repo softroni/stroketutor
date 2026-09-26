@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 120">
+<!-- A gift, drawn like the lessons: flat fills in the app's palette (green, gold) under a #2B2B2B round-capped outline, with Lina's three wave ticks. -->
+<rect x="20" y="56" width="80" height="54" rx="6" fill="#1FA463"/>
+<rect x="13" y="40" width="94" height="20" rx="6" fill="#24B36E"/>
+<rect x="52" y="40" width="16" height="70" fill="#E0A32E"/>
+<path d="M60 40 C52 25 36 17 29.5 25 C24.5 32 36 40 60 40 Z" fill="#E0A32E"/>
+<path d="M60 40 C68 25 84 17 90.5 25 C95.5 32 84 40 60 40 Z" fill="#E0A32E"/>
+<g fill="none" stroke="#2B2B2B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+<rect x="20" y="60" width="80" height="50" rx="6"/>
+<rect x="13" y="40" width="94" height="20" rx="6"/>
+<path d="M52 40 V110 M68 40 V110"/>
+<path d="M60 40 C52 25 36 17 29.5 25 C24.5 32 36 40 60 40 Z"/>
+<path d="M60 40 C68 25 84 17 90.5 25 C95.5 32 84 40 60 40 Z"/>
+</g>
+<ellipse cx="60" cy="39" rx="7" ry="6" fill="#B9821F" stroke="#2B2B2B" stroke-width="4"/>
+<path d="M104 26 l6 -8 M108 38 l10 -4 M98 20 l2 -10" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+</svg>

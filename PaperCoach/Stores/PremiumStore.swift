@@ -37,6 +37,16 @@ final class PremiumStore {
     enum Plan: String, CaseIterable, Identifiable {
         case yearly, weekly
         var id: String { rawValue }
+
+        /// The plan a product id belongs to, for a purchase that started from a
+        /// product rather than a plan (a Superwall paywall's).
+        init?(productId: String) {
+            switch productId {
+            case ProductID.yearly: self = .yearly
+            case ProductID.weekly: self = .weekly
+            default: return nil
+            }
+        }
     }
 
     enum PurchaseOutcome: Equatable {
@@ -79,8 +89,18 @@ final class PremiumStore {
 
     /// What StoreKit last said about the Apple account, whatever the override.
     private(set) var hasSubscription: Bool {
-        didSet { defaults.set(hasSubscription, forKey: Self.cacheKey) }
+        didSet {
+            defaults.set(hasSubscription, forKey: Self.cacheKey)
+            onPremiumChange?()
+        }
     }
+
+    /// Called whenever `isPremium` may have changed: after every read of the
+    /// entitlement, and when the development override moves. `SuperwallPaywalls`
+    /// keeps Superwall's subscription status in step through it. It runs straight
+    /// away, not later, so a purchase or restore has told Superwall before it
+    /// returns — the SDK checks the status the moment its purchase controller answers.
+    @ObservationIgnored var onPremiumChange: (() -> Void)?
 
     /// Development only: "Premium" in Settings can lock or unlock every lesson
     /// without buying anything, to try both sides of the paywall. Always
@@ -123,6 +143,7 @@ final class PremiumStore {
     func setDebugOverride(_ choice: DebugOverride) {
         debugOverride = choice
         defaults.set(choice.rawValue, forKey: Self.debugOverrideKey)
+        onPremiumChange?()
     }
     #endif
 
@@ -257,12 +278,15 @@ final class PremiumStore {
 
     // MARK: - Buying
 
-    func purchase(_ product: Product) async -> PurchaseOutcome {
+    /// Buys `product`. Both paywalls come here: the native ones with no options, and
+    /// Superwall's through `SuperwallPurchaseController`, which passes the options
+    /// its product carries (an introductory-offer eligibility token, a billing plan).
+    func purchase(_ product: Product, options: Set<Product.PurchaseOption> = []) async -> PurchaseOutcome {
         guard !isPurchasing else { return .cancelled }
         isPurchasing = true
         defer { isPurchasing = false }
         do {
-            let result = try await product.purchase()
+            let result = try await product.purchase(options: options)
             switch result {
             case let .success(verification):
                 guard case let .verified(transaction) = verification else {

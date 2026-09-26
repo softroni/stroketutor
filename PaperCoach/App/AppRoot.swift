@@ -50,6 +50,13 @@ struct AppRoot: View {
                 DebugScreenHarness.applyIfRequested(to: app)
                 #endif
                 app.premium.start()
+                // Superwall, only for a learner 13 or over (`SuperwallGate`). On a
+                // launch that asks "Who's drawing?" below, it waits for the answer.
+                let asksWhoIsDrawing = app.settings.hasCompletedOnboarding
+                    && app.settings.firstRunStage == nil
+                    && app.shouldAskWhoIsDrawing
+                    && !isScreenshotLaunch
+                app.startRemotePaywalls(waitingForPicker: asksWhoIsDrawing)
                 if !app.settings.hasCompletedOnboarding {
                     // No slide up on first run: the launch screen gives way
                     // straight to the splash, so Home never shows under it first.

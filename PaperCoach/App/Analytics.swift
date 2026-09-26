@@ -2,8 +2,10 @@ import Foundation
 
 /// Product analytics, behind one door. Screens call `track(_:)`; what happens next
 /// is up to the `AnalyticsSink`, which today is `NoAnalyticsSink` — nothing leaves
-/// the device. A PostHog (or Superwall) sink plugs in here later without any screen
-/// changing.
+/// the device through this door. A PostHog sink plugs in here later without any
+/// screen changing. Superwall, which runs the paywall for learners 13 and over,
+/// sends its own events to Superwall; a short allow-list of them is copied in here
+/// too (`superwallTriggerFired`, `superwallPaywall`), so one funnel can hold both.
 ///
 /// The learner's age group decides what a sink is allowed to do, and that decision
 /// is made here, once, not in each sink:
@@ -107,6 +109,12 @@ struct AnalyticsEvent: Equatable {
         static let outcome = "outcome"
         static let plan = "plan"
         static let subscribed = "subscribed"
+        static let placement = "placement"
+        static let paywallId = "paywall_id"
+        static let experimentId = "experiment_id"
+        static let variantId = "variant_id"
+        static let productId = "product_id"
+        static let triggerResult = "trigger_result"
     }
 
     /// An onboarding beat came on screen. `beat` is its id: `ob-age`, `ob-level`…
@@ -146,6 +154,60 @@ struct AnalyticsEvent: Equatable {
         AnalyticsEvent(name: "offer_finished",
                        properties: [Key.entry: entry, Key.subscribed: subscribed ? "true" : "false"])
     }
+
+    // MARK: Superwall
+
+    /// A placement was registered and Superwall decided what to do with it:
+    /// `trigger_result` is `paywall`, `holdout`, `no_audience_match`,
+    /// `placement_not_found` or `error`, and an experiment's id and variant ride
+    /// along when there is one. Forwarded from Superwall's own events, for learners
+    /// 13 and over only (`SuperwallPaywalls`).
+    static func superwallTriggerFired(placement: String,
+                                      result: String,
+                                      experimentId: String?,
+                                      variantId: String?) -> AnalyticsEvent {
+        var properties = [Key.placement: placement, Key.triggerResult: result]
+        properties[Key.experimentId] = experimentId
+        properties[Key.variantId] = variantId
+        return AnalyticsEvent(name: "superwall_trigger_fire", properties: properties)
+    }
+
+    /// Something that happened on a Superwall paywall, with the paywall, its
+    /// experiment and variant, and the product when there is one. Never a price,
+    /// never an error's text. For learners 13 and over only.
+    static func superwallPaywall(_ kind: SuperwallPaywallEvent,
+                                 context: SuperwallPaywallContext,
+                                 productId: String? = nil) -> AnalyticsEvent {
+        var properties: [String: String] = [:]
+        properties[Key.placement] = context.placement
+        properties[Key.paywallId] = context.paywallId
+        properties[Key.experimentId] = context.experimentId
+        properties[Key.variantId] = context.variantId
+        properties[Key.productId] = productId
+        return AnalyticsEvent(name: kind.rawValue, properties: properties)
+    }
+}
+
+/// The Superwall events forwarded to `Analytics`: the allow-list. Everything else
+/// the SDK reports stays with the SDK.
+enum SuperwallPaywallEvent: String, CaseIterable {
+    case paywallOpen = "superwall_paywall_open"
+    case paywallClose = "superwall_paywall_close"
+    case paywallDecline = "superwall_paywall_decline"
+    case transactionStart = "superwall_transaction_start"
+    case transactionComplete = "superwall_transaction_complete"
+    case transactionFail = "superwall_transaction_fail"
+    case transactionAbandon = "superwall_transaction_abandon"
+    case transactionRestore = "superwall_transaction_restore"
+    case freeTrialStart = "superwall_free_trial_start"
+}
+
+/// Which Superwall paywall an event came from, read off its `PaywallInfo`.
+struct SuperwallPaywallContext: Equatable {
+    var placement: String?
+    var paywallId: String?
+    var experimentId: String?
+    var variantId: String?
 }
 
 /// Where events go. A sink must honour `policy` — it is the sink that knows how

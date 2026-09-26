@@ -1,0 +1,54 @@
+/* The gift page: the shared frame (components/premium/theme.css) with more air. */
+
+.gift-content {
+  gap: 32px;
+}
+
+.gift-art {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+}
+
+.gift-lina {
+  display: block;
+  width: 125px;
+  height: 150px;
+  flex: none;
+  /* Lina's frame is wider than her figure on the left, as on the paywall. */
+  margin-left: -28px;
+}
+
+.gift-box {
+  display: block;
+  width: 94px;
+  height: 91px;
+  flex: none;
+  margin-bottom: 2px;
+}
+
+/* Body text, 17 px medium (Theme .body): well under the 32 px price. */
+.gift-body {
+  max-width: 20rem;
+  margin: 0 auto;
+  color: var(--ink-70);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.41;
+  text-align: center;
+}
+
+@media (max-height: 700px) {
+  .gift-content {
+    gap: 22px;
+  }
+  .gift-lina {
+    width: 100px;
+    height: 120px;
+  }
+  .gift-box {
+    width: 78px;
+    height: 75px;
+  }
+}
