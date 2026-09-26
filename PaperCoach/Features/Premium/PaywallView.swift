@@ -224,7 +224,7 @@ struct PriceBlock: View {
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.center)
             } else {
-                Text("Paper Couch Premium")
+                Text("Paper Coach Premium")
                     .textRole(.title1)
                     .foregroundStyle(Theme.ink)
             }
@@ -235,7 +235,7 @@ struct PriceBlock: View {
                     .multilineTextAlignment(.center)
             }
             // Without a price the title above already names the plan.
-            Text(app.premium.yearlyPrice == nil ? "Renews yearly" : "Paper Couch Premium · renews yearly")
+            Text(app.premium.yearlyPrice == nil ? "Renews yearly" : "Paper Coach Premium · renews yearly")
                 .textRole(.footnote)
                 .foregroundStyle(Theme.ink55)
                 .padding(.top, 2)
@@ -359,7 +359,7 @@ struct PaywallPlansSheet: View {
                             .textRole(.title2)
                             .foregroundStyle(Theme.ink)
                             .accessibilityAddTraits(.isHeader)
-                        Text("Paper Couch Premium · auto-renewing")
+                        Text("Paper Coach Premium · auto-renewing")
                             .textRole(.footnote)
                             .foregroundStyle(Theme.ink55)
                     }

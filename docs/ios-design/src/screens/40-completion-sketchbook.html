@@ -522,7 +522,7 @@ router.present(.completion(lesson))</pre>
             <div class="card card--soft stack">
               <div class="row">
                 <span class="chip chip--green" style="width:38px;height:38px;padding:0;justify-content:center;border-radius:50%"><svg><use href="#i-check"/></svg></span>
-                <p class="t-body grow">Photos stay on this phone, inside Paper Couch.</p>
+                <p class="t-body grow">Photos stay on this phone, inside Paper Coach.</p>
               </div>
               <div class="row">
                 <span class="chip chip--green" style="width:38px;height:38px;padding:0;justify-content:center;border-radius:50%"><svg><use href="#i-check"/></svg></span>
@@ -658,7 +658,7 @@ router.present(.completion(lesson))</pre>
 
       <h4>States &amp; interactions</h4>
       <ul>
-        <li>Entry: from <code>sk-complete</code>. Skip <b>primer</b> when video access is already <code>.authorized</code>. When it is <code>.denied</code>, do not show the camera at all: show a short line “Camera access is off for Paper Couch” with a button to <code>UIApplication.openSettingsURLString</code>, and keep “Choose from Photos” working.</li>
+        <li>Entry: from <code>sk-complete</code>. Skip <b>primer</b> when video access is already <code>.authorized</code>. When it is <code>.denied</code>, do not show the camera at all: show a short line “Camera access is off for Paper Coach” with a button to <code>UIApplication.openSettingsURLString</code>, and keep “Choose from Photos” working.</li>
         <li>Shutter → freeze → <b>review</b>. Retake returns to the live session (do not tear it down). Keep writes the entry and goes to <b>saved</b>.</li>
         <li><b>Auto-crop is optional and must never block saving.</b> Run <code>VNDetectDocumentSegmentationRequest</code> (iOS 15+, falls back to <code>VNDetectRectanglesRequest</code>) on the captured buffer; if it returns a quad with confidence &gt; 0.8, pre-fill the crop and perspective-correct. If it fails, times out (budget 300 ms) or the learner disagrees, keep the full frame. Never show an error about it and never refuse a photo because no page was detected — a page drawn on a cluttered desk is still the learner’s drawing.</li>
         <li>Only two edits exist: crop and straighten (rotation ± 15°). No filters, no brightness, no “enhance”. <span class="tag tag--plan">§32</span> the record is the page, not a product shot.</li>
@@ -679,13 +679,13 @@ router.present(.completion(lesson))</pre>
   var note: String?         // reserved; no UI in M8
 }</pre>
           Store the file <i>name</i>: the container path changes on reinstall and on restore from backup, so an archived absolute URL is a broken image on a new phone.</li>
-        <li><b>Why not <code>PHPhotoLibrary</code> by default:</b> (1) the camera roll is the most shared surface on the phone — shared albums, family devices, AirDrop, screen mirroring — and a beginner’s practice page is exactly what they may not want surfacing there; (2) it needs <code>NSPhotoLibraryAddUsageDescription</code> and a second permission prompt at the best moment of the lesson; (3) we would have to persist a <code>PHAsset.localIdentifier</code>, and a delete or an iCloud “optimise storage” eviction in Photos silently empties a sketchbook page we promised to keep; (4) <span class="tag tag--plan">§32</span> says local and private by default. Offer <b>Settings → “Also save to Photos”</b> (off by default) which additionally writes to a “Paper Couch” album; the container copy remains the source of truth.</li>
+        <li><b>Why not <code>PHPhotoLibrary</code> by default:</b> (1) the camera roll is the most shared surface on the phone — shared albums, family devices, AirDrop, screen mirroring — and a beginner’s practice page is exactly what they may not want surfacing there; (2) it needs <code>NSPhotoLibraryAddUsageDescription</code> and a second permission prompt at the best moment of the lesson; (3) we would have to persist a <code>PHAsset.localIdentifier</code>, and a delete or an iCloud “optimise storage” eviction in Photos silently empties a sketchbook page we promised to keep; (4) <span class="tag tag--plan">§32</span> says local and private by default. Offer <b>Settings → “Also save to Photos”</b> (off by default) which additionally writes to a “Paper Coach” album; the container copy remains the source of truth.</li>
         <li><b>Privacy strings</b> (Info.plist), written in the app’s own voice:
 <pre>NSCameraUsageDescription
-  "Paper Couch uses the camera only to photograph your finished
+  "Paper Coach uses the camera only to photograph your finished
    drawing for your own sketchbook. Photos stay on this iPhone."
 NSPhotoLibraryAddUsageDescription      // only if "Also save to Photos" is on
-  "Paper Couch saves a copy of your finished drawing to your photo
+  "Paper Coach saves a copy of your finished drawing to your photo
    library when you turn that on."</pre>
           <code>PhotosPicker</code> reads out of process, so <b>no</b> <code>NSPhotoLibraryUsageDescription</code> is needed for “Choose from Photos”. Do not add it.</li>
         <li><b>Image sizing:</b> downscale the long edge to 2048 px and write JPEG at quality 0.8 (≈ 350–700 KB per page; 200 pages ≈ 100 MB, acceptable). Use <code>CGImageSourceCreateThumbnailAtIndex</code> with <code>kCGImageSourceThumbnailMaxPixelSize: 2048</code> and <code>kCGImageSourceCreateThumbnailWithTransform: true</code> so the full-resolution buffer is never decoded and EXIF orientation is baked in. Strip GPS before writing — we do not need to know where the learner draws.</li>

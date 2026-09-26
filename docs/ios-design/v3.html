@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paper Couch · iOS screens</title>
-<meta name="description" content="Interactive layouts of every screen of the Paper Couch iOS learner app, with developer notes">
+<title>Paper Coach · iOS screens</title>
+<meta name="description" content="Interactive layouts of every screen of the Paper Coach iOS learner app, with developer notes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -233,7 +233,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
 
 /* ---- product design system (the phones) ---- */
 /* ============================================================================
-   Paper Couch iOS design system · v3  ("Studio white")
+   Paper Coach iOS design system · v3  ("Studio white")
    Shared by every fragment in docs/ios-design/src/v3/screens/.
    1 CSS px = 1 iOS point. Phone frame = iPhone 16 Pro logical size (393 × 852).
 
@@ -777,7 +777,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
 
     <article class="handbook is-active" id="handbook">
       <h2>Design handbook · v3</h2>
-<p>This is the third design of the Paper Couch iOS learner app: the same product, the same flows and the same rules as the first document, with a new visual system built to stand next to Duolingo and Simply Draw on a home screen. White paper, one bold green, tactile buttons, a visible path of lesson nodes, bigger type. Every screen here is interactive: Continue walks through onboarding, a node opens its lesson, <em>Start drawing</em> opens the player, <em>I drew it</em> moves it on.</p>
+<p>This is the third design of the Paper Coach iOS learner app: the same product, the same flows and the same rules as the first document, with a new visual system built to stand next to Duolingo and Simply Draw on a home screen. White paper, one bold green, tactile buttons, a visible path of lesson nodes, bigger type. Every screen here is interactive: Continue walks through onboarding, a node opens its lesson, <em>Start drawing</em> opens the player, <em>I drew it</em> moves it on.</p>
 
 <h3>What v3 changes, and why</h3>
 <table>
@@ -1035,7 +1035,7 @@ article[id^="ob-"] .ob-art { stroke: var(--ink); stroke-linecap: round; stroke-l
   <header>
     <h2>Launch — a house draws itself</h2>
     <p class="lede">White page, the wordmark, and the Simple House drawing itself in three seconds with a green pen tip. The whole product before a word of copy.</p>
-    <p class="lede"><strong>Superseded in the app (2026-09-23):</strong> the launch beat now assembles the app icon on its mint: the sheet lands, a dashed guide appears, the pencil writes the e along it, the sparkles pop and the "Paper Couch" script wordmark rises in, ending on the icon itself (about 4&nbsp;s, tap to skip, Reduce Motion shows the last frame). The house mock below is kept for reference; <code>OnboardingLaunchBeat.swift</code> and <code>SplashArt.swift</code> are the source of truth.</p>
+    <p class="lede"><strong>Superseded in the app (2026-09-23):</strong> the launch beat now assembles the app icon on its mint: the sheet lands, a dashed guide appears, the pencil writes the e along it, the sparkles pop and the "Paper Coach" script wordmark rises in, ending on the icon itself (about 4&nbsp;s, tap to skip, Reduce Motion shows the last frame). The house mock below is kept for reference; <code>OnboardingLaunchBeat.swift</code> and <code>SplashArt.swift</code> are the source of truth.</p>
   </header>
   <div class="screen-layout">
     <div class="device-column">
@@ -1060,7 +1060,7 @@ article[id^="ob-"] .ob-art { stroke: var(--ink); stroke-linecap: round; stroke-l
                 <circle class="ob-tip" r="16" style="--dur:.35s;--delay:2.85s;offset-path:path('M 580 540 L 680 540 L 680 640 L 580 640 Z')"/>
                 <circle class="ob-tip" r="16" style="--dur:.45s;--delay:3.25s;offset-path:path('M 620 348 L 620 200 L 700 200 L 700 407')"/>
               </svg>
-              <p class="ob-word">Paper Couch</p>
+              <p class="ob-word">Paper Coach</p>
               <p class="t-body muted">Pen, paper, five minutes.</p>
             </div>
             <div class="spacer"></div>
@@ -1096,7 +1096,7 @@ article[id^="ob-"] .ob-art { stroke: var(--ink); stroke-linecap: round; stroke-l
   .task { try? await Task.sleep(for: .seconds(0.9)); route() }</pre>
       <h4>Accessibility</h4>
       <ul>
-        <li>One VoiceOver element, "Paper Couch", header trait; the drawing is hidden.</li>
+        <li>One VoiceOver element, "Paper Coach", header trait; the drawing is hidden.</li>
         <li>Reduce Motion: strokes appear complete with a 0.2 s fade; no pen tip. Wordmark is a vector image so the storyboard is crisp at every scale.</li>
       </ul>
       <h4>Open questions</h4>
@@ -3887,7 +3887,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
             <h1 class="t-title1 balance">A photo of the page</h1>
             <p class="t-body-reg muted">Your sketchbook keeps photographs of the real pages you drew, so you can look back at them.</p>
             <div class="list list--soft" style="margin-top:8px">
-              <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">Photos stay on this iPhone, inside Paper Couch.</p></div>
+              <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">Photos stay on this iPhone, inside Paper Coach.</p></div>
               <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">Nothing is uploaded. There is no feed to post to.</p></div>
               <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">They do not go to your Photos library unless you ask.</p></div>
             </div>
@@ -3999,7 +3999,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
-        <li>Skip <b>primer</b> when video access is <code>.authorized</code>. When <code>.denied</code>, no camera: one line "Camera access is off for Paper Couch" with a button to Settings; "Choose from Photos" still works.</li>
+        <li>Skip <b>primer</b> when video access is <code>.authorized</code>. When <code>.denied</code>, no camera: one line "Camera access is off for Paper Coach" with a button to Settings; "Choose from Photos" still works.</li>
         <li>Shutter → freeze → <b>review</b>. Retake keeps the session alive. Keep writes image → <code>fsync</code> → record → navigates; on failure stay on review with the photo in memory.</li>
         <li>Auto-crop (<code>VNDetectDocumentSegmentationRequest</code>, 300 ms budget, confidence &gt; 0.8) finds the paper's four corners and "Your page" shows it straightened with <code>CIPerspectiveCorrection</code>; until then, and when nothing is found, it shows the photo as taken. It never blocks saving: Keep saves whatever "Your page" shows.</li>
         <li>One edit: <b>four-corner perspective correction</b>, which crops and straightens in one gesture (a phone photo of paper is keystoned, not rotated, so a ± 15° straighten could not square it). The corner editor opens full screen on the photo as taken: four round handles (24 pt dot, 48 pt hit target) on the detected corners, or inset 8 % when none were found; the quad outlined in green, the rest dimmed; a loupe above the dragged handle. Handles stay on the photo and stop where the quad would stop being convex. Cancel · Reset (to the detected corners) · Done (corrects off the main thread). No filters, no enhancement.</li>
@@ -4450,7 +4450,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
                 <span class="lbl">Reset progress</span>
               </button>
             </div>
-            <p class="t-footnote muted-2 center" style="padding:10px 0 4px">Paper Couch 1.0 (12)</p>
+            <p class="t-footnote muted-2 center" style="padding:10px 0 4px">Paper Coach 1.0 (12)</p>
           </div>
           <nav class="tabbar">
             <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
@@ -4713,7 +4713,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
             <div class="banner banner--quiet" style="opacity:.6">
               <span class="appicon"><svg><use href="#i-pen"/></svg></span>
               <span class="grow">
-                <span class="row row--between"><span class="t-footnote muted">Paper Couch</span><span class="when">now</span></span>
+                <span class="row row--between"><span class="t-footnote muted">Paper Coach</span><span class="when">now</span></span>
                 <span class="t-headline" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
                 <span class="t-subhead muted" style="display:block;font-weight:500">Your next house is ready.</span>
               </span>
@@ -4764,7 +4764,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
             <div class="banner">
               <span class="appicon"><svg><use href="#i-pen"/></svg></span>
               <span class="grow">
-                <span class="row row--between"><span class="t-footnote muted">Paper Couch</span><span class="when">7:30</span></span>
+                <span class="row row--between"><span class="t-footnote muted">Paper Coach</span><span class="when">7:30</span></span>
                 <span class="t-headline" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
                 <span class="t-subhead muted" style="display:block;font-weight:500">Your next house is ready.</span>
               </span>
@@ -4788,7 +4788,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
-        <li>Toggle on → <code>requestAuthorization([.alert, .sound])</code>, no badge ever; if denied, the toggle returns to off with an inline row “Notifications are off for Paper Couch · Open Settings”. iOS asks only once, so never re-request.</li>
+        <li>Toggle on → <code>requestAuthorization([.alert, .sound])</code>, no badge ever; if denied, the toggle returns to off with an inline row “Notifications are off for Paper Coach · Open Settings”. iOS asks only once, so never re-request.</li>
         <li>Days are multi-select, at least one; deselecting the last turns the reminder off. The time chip opens a compact <code>DatePicker(.hourAndMinute)</code>.</li>
         <li>Every change reschedules: remove all seven <code>reminder.weekday.N</code> requests, then add one repeating <code>UNCalendarNotificationTrigger</code> per selected day. Also reschedule at launch, and cancel everything on toggle off.</li>
         <li>Body text comes from the path title (“Your next house is ready.” / “…tree…”), never the lesson title. All paths done: “Your sketchbook is waiting.”</li>

@@ -36,7 +36,7 @@ struct OnboardingLaunchBeat: View {
         .contentShape(Rectangle())
         .onTapGesture { leave() }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Paper Couch")
+        .accessibilityLabel("Paper Coach")
         .accessibilityAddTraits(.isHeader)
         .accessibilityAction { leave() }
         .task {

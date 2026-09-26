@@ -161,7 +161,7 @@ struct ParentalGateView: View {
         } footer: {
             if usesPIN {
                 Button("Enter the PIN") {
-                    pinRequest = PINGateRequest(reason: "Needed to see Paper Couch Premium.", onApproved: onPass)
+                    pinRequest = PINGateRequest(reason: "Needed to see Paper Coach Premium.", onApproved: onPass)
                 }
                 .buttonStyle(.primary)
             } else {

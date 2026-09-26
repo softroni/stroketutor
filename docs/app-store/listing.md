@@ -1,13 +1,13 @@
-# Paper Couch on App Store Connect
+# Paper Coach on App Store Connect
 
 The record and its copy, as set on 2026-09-25 through the App Store Connect API (see
 `~/.claude/CLAUDE.md` for the key and helper). Everything below is en-US; the app has one locale.
 
 | Item | Value |
 |---|---|
-| App | Paper Couch: Learn to Draw, Apple ID `6816231257` |
+| App | Paper Coach: Learn to Draw, Apple ID `6816231257` |
 | Bundle ID | `com.softroni.papercoach` (team PLQFG9VC25, In-App Purchase capability on) |
-| SKU | `papercouch` |
+| SKU | `papercouch` (set when the record was made, during the Paper Couch naming; App Store Connect cannot change a SKU, and nobody sees it) |
 | Version | 1.0, state Prepare for Submission, release after approval |
 | Price | Free, base territory United States |
 | Categories | Education, then Graphics & Design |
@@ -16,7 +16,7 @@ The record and its copy, as set on 2026-09-25 through the App Store Connect API 
 | Copyright | 2026 Softroni LLC |
 | Privacy policy | https://softroni.com/privacy-policy |
 | Support / marketing | https://softroni.com/support · https://softroni.com |
-| Subscription group | Paper Couch Premium (`22413930`), shown in the app as "Paper Couch" |
+| Subscription group | Paper Coach Premium (`22413930`), shown in the app as "Paper Coach" |
 | Yearly | `com.softroni.papercoach.premium.yearly` (`6816231377`), $19.99, 1-week free trial, Family Sharing, level 1 |
 | Weekly | `com.softroni.papercoach.premium.weekly` (`6816231413`), $1.99, no offer, Family Sharing, level 2 |
 
@@ -70,7 +70,7 @@ The API refused these, or has no endpoint for them, in the order a first submiss
 ## App Review notes (paste into "Notes")
 
 ```
-Paper Couch 1.0 requires no account or sign-in. The learner's work stays on the device: lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo stays in the app's sketchbook (saved to Photos only while "Also save to Photos" is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. The app sends its own usage events (lessons, onboarding and paywall steps), keyed by a random id and never a name, to PostHog without an SDK: for a learner under 13 the id lasts one launch and no profile is kept; no location is derived and IP addresses are discarded. Once per install the app asks Apple's AdServices framework which Apple Ads campaign, if any, led to the install: Apple's own attribution, with no advertising identifier and no App Tracking Transparency request. Purchases always go through StoreKit.
+Paper Coach 1.0 requires no account or sign-in. The learner's work stays on the device: lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo stays in the app's sketchbook (saved to Photos only while "Also save to Photos" is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. The app sends its own usage events (lessons, onboarding and paywall steps), keyed by a random id and never a name, to PostHog without an SDK: for a learner under 13 the id lasts one launch and no profile is kept; no location is derived and IP addresses are discarded. Once per install the app asks Apple's AdServices framework which Apple Ads campaign, if any, led to the install: Apple's own attribution, with no advertising identifier and no App Tracking Transparency request. Purchases always go through StoreKit.
 
 WHAT THE APP DOES
 The phone is a drawing instructor for real pen and paper. Each lesson animates one line, then waits until the learner taps "I drew it". There are 10 paths of 10 lessons. Lessons 1-3 of every path are free; lessons 4-10 wear a gold crown and need Premium.
@@ -81,7 +81,7 @@ Onboarding asks who is drawing and for an age band. Under 13 or "Prefer not to s
 REACHING THE PAYWALL
 On a fresh install the guided first run leads through the first lesson, the sketchbook and "More coming" to the paywall. Afterwards: Settings > Premium, or tap any crowned lesson and then "See Premium" in the lesson's drawer. The one way past the paywall without buying is the link "Continue with free lessons", right under the purchase button. When a purchase starts the free trial, one screen confirms the dates (the reminder two days before the trial ends, and the day billing starts) and, only if notification permission was never asked, its single "Continue" button shows the system prompt. In the sandbox, where the 7-day trial lasts a few minutes, the reminder's day has already passed, so that screen names only when billing starts and asks for no permission.
 
-PRODUCTS (subscription group "Paper Couch Premium", both Family Sharing)
+PRODUCTS (subscription group "Paper Coach Premium", both Family Sharing)
 - com.softroni.papercoach.premium.yearly: auto-renewing, $19.99 per year; eligible new subscribers get the displayed 7-day free trial. This is the recommended plan, shown first.
 - com.softroni.papercoach.premium.weekly: auto-renewing, $1.99 per week; no introductory offer; under "View more plans".
 All displayed prices come from StoreKit. The paywall shows the billed amount as the largest pricing element, names the price on the purchase button, states the trial length and the price charged after it, and carries Restore Purchases, Terms of Use (Apple's standard EULA) and the Privacy Policy. Restore is also in Settings.
@@ -107,7 +107,7 @@ Premium Weekly, $1.99 per week, no introductory offer. On the app's own paywall 
 
 ## Listing copy (already on the record)
 
-**Name** (26/30): Paper Couch: Learn to Draw
+**Name** (26/30): Paper Coach: Learn to Draw
 **Subtitle** (30/30): Easy Line Drawing Step by Step
 **Keywords** (99/100): lessons,sketching,tutorial,mindful,pencil,drawings,how,beginner,sketch,art,simple,guide,pen,adult
 **Promotional text** (150/170): Draw real pictures on real paper. Lina shows one line at a time, then waits while you draw it. Every path starts free, and Premium opens all 100 lessons.
@@ -115,7 +115,7 @@ Premium Weekly, $1.99 per week, no introductory offer. On the app's own paywall 
 **Description**
 
 ```
-Paper Couch turns your phone into a patient drawing teacher for real pen and paper.
+Paper Coach turns your phone into a patient drawing teacher for real pen and paper.
 
 Pick a picture. Lina, your coach, draws one line on the screen and then waits. You copy that line onto your page and tap "I drew it". Nothing moves on until you do. Step by step, the picture appears on your paper, in your own hand.
 
@@ -130,10 +130,10 @@ WHAT YOU GET
 • A gentle practice reminder, if you want one
 
 MADE FOR BEGINNERS
-No tablet, no stylus, no talent required. Paper Couch is for anyone who says "I can't draw": kids, teens and adults. Lessons take five to ten minutes and end with something you made.
+No tablet, no stylus, no talent required. Paper Coach is for anyone who says "I can't draw": kids, teens and adults. Lessons take five to ten minutes and end with something you made.
 
 FREE AND PREMIUM
-Every path is open, and the first three lessons of each path are free. Paper Couch Premium unlocks every lesson on every path:
+Every path is open, and the first three lessons of each path are free. Paper Coach Premium unlocks every lesson on every path:
 • Yearly: $19.99 per year, with a 7-day free trial for new subscribers
 • Weekly: $1.99 per week
 Both plans can be shared with your family through Family Sharing.
@@ -144,7 +144,7 @@ Privacy Policy: https://softroni.com/privacy-policy
 Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
 YOUR DRAWINGS STAY YOURS
-Paper Couch needs no account. Lessons live on your phone, and your photos stay in the app's sketchbook.
+Paper Coach needs no account. Lessons live on your phone, and your photos stay in the app's sketchbook.
 ```
 
 The last line read "…, and nothing is sent anywhere." on the record as filled on 2026-09-25. With Superwall that is no

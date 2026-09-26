@@ -1,6 +1,6 @@
 # App Store screenshots
 
-Framed, captioned screenshots for the Paper Couch listing: eight for the iPhone 6.9" display (1320 × 2868) and the
+Framed, captioned screenshots for the Paper Coach listing: eight for the iPhone 6.9" display (1320 × 2868) and the
 same eight for the iPad 13" display (2064 × 2752), in `out/iphone/` and `out/ipad/`, numbered in listing order.
 They replace the plain simulator captures in `../screenshots/`.
 

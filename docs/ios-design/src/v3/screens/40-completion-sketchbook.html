@@ -436,7 +436,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
             <h1 class="t-title1 balance">A photo of the page</h1>
             <p class="t-body-reg muted">Your sketchbook keeps photographs of the real pages you drew, so you can look back at them.</p>
             <div class="list list--soft" style="margin-top:8px">
-              <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">Photos stay on this iPhone, inside Paper Couch.</p></div>
+              <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">Photos stay on this iPhone, inside Paper Coach.</p></div>
               <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">Nothing is uploaded. There is no feed to post to.</p></div>
               <div class="list-row" style="cursor:default"><span class="leading leading--green"><svg><use href="#i-check"/></svg></span><p class="t-body grow">They do not go to your Photos library unless you ask.</p></div>
             </div>
@@ -548,7 +548,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
-        <li>Skip <b>primer</b> when video access is <code>.authorized</code>. When <code>.denied</code>, no camera: one line "Camera access is off for Paper Couch" with a button to Settings; "Choose from Photos" still works.</li>
+        <li>Skip <b>primer</b> when video access is <code>.authorized</code>. When <code>.denied</code>, no camera: one line "Camera access is off for Paper Coach" with a button to Settings; "Choose from Photos" still works.</li>
         <li>Shutter → freeze → <b>review</b>. Retake keeps the session alive. Keep writes image → <code>fsync</code> → record → navigates; on failure stay on review with the photo in memory.</li>
         <li>Auto-crop (<code>VNDetectDocumentSegmentationRequest</code>, 300 ms budget, confidence &gt; 0.8) finds the paper's four corners and "Your page" shows it straightened with <code>CIPerspectiveCorrection</code>; until then, and when nothing is found, it shows the photo as taken. It never blocks saving: Keep saves whatever "Your page" shows.</li>
         <li>One edit: <b>four-corner perspective correction</b>, which crops and straightens in one gesture (a phone photo of paper is keystoned, not rotated, so a ± 15° straighten could not square it). The corner editor opens full screen on the photo as taken: four round handles (24 pt dot, 48 pt hit target) on the detected corners, or inset 8 % when none were found; the quad outlined in green, the rest dimmed; a loupe above the dragged handle. Handles stay on the photo and stop where the quad would stop being convex. Cancel · Reset (to the detected corners) · Done (corrects off the main thread). No filters, no enhancement.</li>

@@ -266,7 +266,7 @@ struct LessonMarquee: View {
 /// Under it, on its own line: how to pay nothing — cancel in the phone's Settings
 /// "at least a day before", not "before then". Apple
 /// (https://support.apple.com/en-us/118428, read 2026-09-25): "cancel it at least 24
-/// hours before the trial ends". The phone's Settings, not the app's: Paper Couch's
+/// hours before the trial ends". The phone's Settings, not the app's: Paper Coach's
 /// own Settings tab cannot cancel anything.
 ///
 /// `isForGrownUp` when the week was started on the grown-up's paywall: "Their free
@@ -349,7 +349,7 @@ struct TrialStartedView: View {
 
     /// "$19.99/year", or the plan's name should the price be missing.
     private var billed: String {
-        app.premium.yearlyPrice.map { "\($0)/year" } ?? "Paper Couch Premium"
+        app.premium.yearlyPrice.map { "\($0)/year" } ?? "Paper Coach Premium"
     }
 
     /// The reminder's day and the price's, as far as each is true.

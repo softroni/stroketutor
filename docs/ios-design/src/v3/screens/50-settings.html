@@ -139,7 +139,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
                 <span class="lbl">Reset progress</span>
               </button>
             </div>
-            <p class="t-footnote muted-2 center" style="padding:10px 0 4px">Paper Couch 1.0 (12)</p>
+            <p class="t-footnote muted-2 center" style="padding:10px 0 4px">Paper Coach 1.0 (12)</p>
           </div>
           <nav class="tabbar">
             <button class="tab" type="button" data-goto="hp-home"><span class="ico"><svg><use href="#i-pen"/></svg></span>Learn</button>
@@ -402,7 +402,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
             <div class="banner banner--quiet" style="opacity:.6">
               <span class="appicon"><svg><use href="#i-pen"/></svg></span>
               <span class="grow">
-                <span class="row row--between"><span class="t-footnote muted">Paper Couch</span><span class="when">now</span></span>
+                <span class="row row--between"><span class="t-footnote muted">Paper Coach</span><span class="when">now</span></span>
                 <span class="t-headline" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
                 <span class="t-subhead muted" style="display:block;font-weight:500">Your next house is ready.</span>
               </span>
@@ -453,7 +453,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
             <div class="banner">
               <span class="appicon"><svg><use href="#i-pen"/></svg></span>
               <span class="grow">
-                <span class="row row--between"><span class="t-footnote muted">Paper Couch</span><span class="when">7:30</span></span>
+                <span class="row row--between"><span class="t-footnote muted">Paper Coach</span><span class="when">7:30</span></span>
                 <span class="t-headline" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
                 <span class="t-subhead muted" style="display:block;font-weight:500">Your next house is ready.</span>
               </span>
@@ -477,7 +477,7 @@ article[id^="st-"] .banner .t-headline { font-size: 16px; }
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
-        <li>Toggle on → <code>requestAuthorization([.alert, .sound])</code>, no badge ever; if denied, the toggle returns to off with an inline row “Notifications are off for Paper Couch · Open Settings”. iOS asks only once, so never re-request.</li>
+        <li>Toggle on → <code>requestAuthorization([.alert, .sound])</code>, no badge ever; if denied, the toggle returns to off with an inline row “Notifications are off for Paper Coach · Open Settings”. iOS asks only once, so never re-request.</li>
         <li>Days are multi-select, at least one; deselecting the last turns the reminder off. The time chip opens a compact <code>DatePicker(.hourAndMinute)</code>.</li>
         <li>Every change reschedules: remove all seven <code>reminder.weekday.N</code> requests, then add one repeating <code>UNCalendarNotificationTrigger</code> per selected day. Also reschedule at launch, and cancel everything on toggle off.</li>
         <li>Body text comes from the path title (“Your next house is ready.” / “…tree…”), never the lesson title. All paths done: “Your sketchbook is waiting.”</li>

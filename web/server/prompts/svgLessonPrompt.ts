@@ -52,7 +52,7 @@ export const SVG_OUTPUT_SCHEMA = {
   },
 }
 
-const SYSTEM_PROMPT = `You design pen-and-ink drawing lessons for Paper Couch. Adults who never learned to draw copy each step onto real paper with a pen, one step at a time, while a phone animates that step.
+const SYSTEM_PROMPT = `You design pen-and-ink drawing lessons for Paper Coach. Adults who never learned to draw copy each step onto real paper with a pen, one step at a time, while a phone animates that step.
 
 The drawing is already made. It was traced from the creator's own SVG file, and you receive it as a list of numbered lines and colour areas with where each one sits, plus a picture of the finished drawing. Do not invent, change or leave out any geometry. Your job is to teach it: put the lines into steps in the order a person would draw them, then the colours, and write what to do in each step.
 

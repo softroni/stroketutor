@@ -251,7 +251,7 @@ struct SettingsView: View {
             }
             Button("Not now", role: .cancel) { }
         } message: {
-            Text("Paper Couch can only add pages to Photos once you allow it in Settings. Your sketchbook keeps every page either way.")
+            Text("Paper Coach can only add pages to Photos once you allow it in Settings. Your sketchbook keeps every page either way.")
         }
         // Access can be taken away in the Settings app while this screen is away; the
         // toggle follows, rather than staying on while nothing is saved.
@@ -281,7 +281,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: Theme.stackSpacing) {
             SettingsSectionHeader("Premium")
             ListCard {
-                SettingsRow(title: "Paper Couch Premium",
+                SettingsRow(title: "Paper Coach Premium",
                             subtitle: app.premium.isPremium
                                 ? "Every lesson on every path."
                                 : "Lessons 1 to \(PremiumAccess.freeLessonsPerPath) of every path are free.",
@@ -368,7 +368,7 @@ struct SettingsView: View {
             case .restored:
                 restoreMessage = "Premium is active on this \(DeviceName.current)."
             case .nothingToRestore:
-                restoreMessage = "This Apple Account has no Paper Couch Premium to restore."
+                restoreMessage = "This Apple Account has no Paper Coach Premium to restore."
             case .failed:
                 restoreMessage = "The App Store could not be reached. Check the connection and try again."
             }
@@ -507,13 +507,13 @@ private extension SettingsView {
 
 // MARK: - Rate and share
 
-/// Where Paper Couch lives on the App Store. Until the app has a record in App Store
+/// Where Paper Coach lives on the App Store. Until the app has a record in App Store
 /// Connect there is nowhere to send anyone, so the Rate and Share rows stay hidden in
 /// a release build; a debug build shows them against an App Store search so the rows
 /// can be seen and tried. Once the record exists, set `appID` to its Apple ID (the
 /// number under App Information in App Store Connect) and both rows go live.
 struct AppStoreListing {
-    /// The app's Apple ID from App Store Connect ("Paper Couch: Learn to Draw",
+    /// The app's Apple ID from App Store Connect ("Paper Coach: Learn to Draw",
     /// com.softroni.papercoach, record created 2026-09-25).
     static let appID: String? = "6816231257"
 
@@ -542,7 +542,7 @@ private extension SettingsView {
     /// rather than `requestReview`, which iOS rations and may silently ignore.
     func rateRow(_ listing: AppStoreListing) -> some View {
         Link(destination: listing.reviewURL) {
-            SettingsCustomRow(title: "Rate Paper Couch",
+            SettingsCustomRow(title: "Rate Paper Coach",
                               subtitle: "A review helps other people find it.") {
                 SettingsIconTile(symbol: "star.fill", tint: .gold)
             } trailing: {
@@ -561,9 +561,9 @@ private extension SettingsView {
     /// The system share sheet with the App Store link and a line to go with it.
     func shareRow(_ listing: AppStoreListing) -> some View {
         ShareLink(item: listing.pageURL,
-                  subject: Text("Paper Couch"),
-                  message: Text("Learn to draw one stroke at a time with Paper Couch.")) {
-            SettingsCustomRow(title: "Share Paper Couch",
+                  subject: Text("Paper Coach"),
+                  message: Text("Learn to draw one stroke at a time with Paper Coach.")) {
+            SettingsCustomRow(title: "Share Paper Coach",
                               subtitle: "Send it to someone who’d like to draw.") {
                 SettingsIconTile(symbol: "square.and.arrow.up", tint: .neutral)
             } trailing: {

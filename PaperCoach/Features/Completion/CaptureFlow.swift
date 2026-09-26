@@ -175,7 +175,7 @@ struct CaptureFlow: View {
                         .padding(.top, 8)
 
                     ListCard(isSoft: true) {
-                        promise("Photos stay on this \(DeviceName.current), inside Paper Couch.")
+                        promise("Photos stay on this \(DeviceName.current), inside Paper Coach.")
                         RowDivider(isSoft: true)
                         promise("Nothing is uploaded. There is no feed to post to.")
                         RowDivider(isSoft: true)

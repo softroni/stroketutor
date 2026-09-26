@@ -146,7 +146,7 @@ article[id^="st-"] .credit-thumb { width: 44px; height: 44px; border-radius: 10p
                 <span class="grow lbl danger">Reset progress</span>
               </button>
             </div>
-            <p class="t-footnote muted-2 center" style="padding:14px 0 8px">Paper Couch 1.0 (12)</p>
+            <p class="t-footnote muted-2 center" style="padding:14px 0 8px">Paper Coach 1.0 (12)</p>
           </div>
           <nav class="tabbar">
             <button class="tab" type="button" data-goto="hp-home"><svg><use href="#i-pen"/></svg>Learn</button>
@@ -701,7 +701,7 @@ Form {
               <div class="banner" style="opacity:.5;box-shadow:none">
                 <span class="appicon"><svg><use href="#i-pen"/></svg></span>
                 <span class="grow">
-                  <span class="row row--between"><span class="t-footnote">PAPER COUCH</span><span class="when">now</span></span>
+                  <span class="row row--between"><span class="t-footnote">PAPER COACH</span><span class="when">now</span></span>
                   <span class="t-body" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
                   <span class="t-body-reg muted" style="display:block">Your next house is ready.</span>
                 </span>
@@ -748,7 +748,7 @@ Form {
             <div class="banner">
               <span class="appicon"><svg><use href="#i-pen"/></svg></span>
               <span class="grow">
-                <span class="row row--between"><span class="t-footnote">PAPER COUCH</span><span class="when">7:30</span></span>
+                <span class="row row--between"><span class="t-footnote">PAPER COACH</span><span class="when">7:30</span></span>
                 <span class="t-body" style="display:block;margin-top:2px">A few quiet minutes with a pen?</span>
                 <span class="t-body-reg muted" style="display:block">Your next house is ready.</span>
               </span>
@@ -771,7 +771,7 @@ Form {
             <div class="center stack" style="align-items:center;gap:18px">
               <span style="width:96px;height:96px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center"><svg style="width:44px;height:44px"><use href="#i-bell"/></svg></span>
               <p class="t-title1">One quiet reminder?</p>
-              <p class="t-body-reg muted" style="max-width:300px">iPhone will ask for permission next. Paper Couch sends one notification, at a time you choose, and never a second one. No streaks, no counting, no nudging.</p>
+              <p class="t-body-reg muted" style="max-width:300px">iPhone will ask for permission next. Paper Coach sends one notification, at a time you choose, and never a second one. No streaks, no counting, no nudging.</p>
             </div>
           </div>
           <div class="bottom-area">
@@ -795,7 +795,7 @@ Form {
           </div>
           <div class="alert-overlay">
             <div class="alert">
-              <p class="t-headline">“Paper Couch” Would Like to Send You Notifications</p>
+              <p class="t-headline">“Paper Coach” Would Like to Send You Notifications</p>
               <p class="t-footnote muted" style="font-weight:500">Notifications may include alerts and sounds. These can be configured in Settings.</p>
               <div class="divider" style="margin:8px -20px 0"></div>
               <div class="btn-row" style="gap:0">
@@ -853,7 +853,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
       <ul>
         <li><strong>Cancel on toggle off:</strong> <code>removePendingNotificationRequests</code> for all seven ids, every time. Never leave an orphan request — a notification arriving after the learner turned reminders off is the exact betrayal this design is avoiding.</li>
         <li>Re-schedule on every change of days or time, and once at launch, because a learner may have revoked permission in iOS Settings since.</li>
-        <li>If <code>getNotificationSettings()</code> reports <code>.denied</code> while the toggle is on, show an inline row “Notifications are off for Paper Couch · Open Settings” and turn the toggle off. Do not re-request; iOS only asks once.</li>
+        <li>If <code>getNotificationSettings()</code> reports <code>.denied</code> while the toggle is on, show an inline row “Notifications are off for Paper Coach · Open Settings” and turn the toggle off. Do not re-request; iOS only asks once.</li>
         <li><strong>No badge.</strong> <code>.badge</code> is not in the options list: a red dot counting unfinished lessons is a streak by another name.</li>
         <li><code>nextLessonTeaser()</code> reads the next unlocked lesson from the progress store and produces “Your next house is ready.” / “Your next tree is ready.” from the <em>path</em> title, not the lesson title — a notification should not spoil the subject. If nothing is next (all paths complete), use “Your sketchbook is waiting.”</li>
       </ul>
@@ -909,12 +909,12 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
               <span class="thumb" style="width:88px;height:88px;border-radius:22px">
                 <svg viewBox="0 0 1000 1000"><g class="stroke" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/></g></svg>
               </span>
-              <p class="t-title2">Paper Couch</p>
+              <p class="t-title2">Paper Coach</p>
               <p class="t-footnote muted">Version 1.0 (12)</p>
             </div>
 
             <div class="card stack-8">
-              <p class="t-body-reg">Paper Couch teaches you to draw on real paper. Each lesson animates one small step, then stops and waits while you draw that step yourself.</p>
+              <p class="t-body-reg">Paper Coach teaches you to draw on real paper. Each lesson animates one small step, then stops and waits while you draw that step yourself.</p>
             </div>
 
             <div class="list">
@@ -945,7 +945,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
 
             <div class="card card--soft stack-8">
               <p class="t-headline">No network needed</p>
-              <p class="t-body-reg muted">Every lesson is already on your iPhone. Paper Couch does not download anything and does not upload anything.</p>
+              <p class="t-body-reg muted">Every lesson is already on your iPhone. Paper Coach does not download anything and does not upload anything.</p>
             </div>
             <p class="t-footnote muted-2 center" style="padding:6px 0 4px">Made by Softroni · September 2026</p>
           </div>
@@ -1024,7 +1024,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
               </div>
               <div class="list-row">
                 <span class="leading" style="background:var(--green-soft);color:var(--green)"><svg><use href="#i-paper"/></svg></span>
-                <span class="grow"><span class="lbl">Nothing leaves the app</span><span class="sub">Paper Couch makes no network connection at all.</span></span>
+                <span class="grow"><span class="lbl">Nothing leaves the app</span><span class="sub">Paper Coach makes no network connection at all.</span></span>
               </div>
               <div class="list-row">
                 <span class="leading" style="background:var(--ink-10);color:var(--ink-70)"><svg><use href="#i-trash"/></svg></span>
@@ -1162,7 +1162,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
             <div class="list" style="margin-top:8px">
               <div class="list-row"><span class="grow lbl danger">Reset progress</span></div>
             </div>
-            <p class="t-footnote muted-2 center" style="padding:14px 0 8px">Paper Couch 1.0 (12)</p>
+            <p class="t-footnote muted-2 center" style="padding:14px 0 8px">Paper Coach 1.0 (12)</p>
           </div>
           <nav class="tabbar">
             <button class="tab" type="button"><svg><use href="#i-pen"/></svg>Learn</button>
@@ -1250,15 +1250,15 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
               <span class="thumb" style="width:88px;height:88px;border-radius:22px">
                 <svg viewBox="0 0 1000 1000"><g class="stroke" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"><path d="M 250 480 L 750 480 L 750 850 L 250 850 Z"/><path d="M 200 480 L 500 260 L 800 480 Z"/></g></svg>
               </span>
-              <p class="t-title2">Paper Couch</p>
+              <p class="t-title2">Paper Coach</p>
               <p class="t-footnote muted">Version 1.0 (12)</p>
             </div>
             <div class="card card--green stack-8">
               <p class="t-headline c-green">No network needed</p>
-              <p class="t-body-reg">Every lesson is already on your iPhone. Paper Couch does not download anything and does not upload anything, so it works the same in a plane, a cellar or a garden.</p>
+              <p class="t-body-reg">Every lesson is already on your iPhone. Paper Coach does not download anything and does not upload anything, so it works the same in a plane, a cellar or a garden.</p>
             </div>
             <div class="card stack-8">
-              <p class="t-body-reg">Paper Couch teaches you to draw on real paper. Each lesson animates one small step, then stops and waits while you draw that step yourself.</p>
+              <p class="t-body-reg">Paper Coach teaches you to draw on real paper. Each lesson animates one small step, then stops and waits while you draw that step yourself.</p>
             </div>
             <div class="list">
               <div class="list-row"><span class="leading" style="background:var(--accent-soft);color:var(--accent)"><svg><use href="#i-photo"/></svg></span><span class="grow"><span class="lbl">Photo credits &amp; licences</span></span><svg class="chevron"><use href="#i-chevron-right"/></svg></div>
@@ -1280,8 +1280,8 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
           <div class="screen-body stack" style="justify-content:center">
             <div class="center stack" style="align-items:center;gap:16px">
               <span style="width:96px;height:96px;border-radius:50%;background:var(--ink-10);color:var(--ink-55);display:grid;place-items:center"><svg style="width:44px;height:44px"><use href="#i-camera"/></svg></span>
-              <p class="t-title2">Paper Couch can’t use the camera</p>
-              <p class="t-body-reg muted" style="max-width:310px">Camera access is turned off for Paper Couch. You can turn it on in Settings, or add a photo you have already taken.</p>
+              <p class="t-title2">Paper Coach can’t use the camera</p>
+              <p class="t-body-reg muted" style="max-width:310px">Camera access is turned off for Paper Coach. You can turn it on in Settings, or add a photo you have already taken.</p>
             </div>
           </div>
           <div class="bottom-area">
@@ -1304,7 +1304,7 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
                 <svg viewBox="0 0 24 24" style="width:52px;height:52px"><use href="#i-pen"/></svg>
               </span>
               <p class="t-title2">No lessons are installed</p>
-              <p class="t-body-reg muted" style="max-width:300px">This copy of Paper Couch shipped without a curriculum. Nothing you did caused it. Updating the app should put it right.</p>
+              <p class="t-body-reg muted" style="max-width:300px">This copy of Paper Coach shipped without a curriculum. Nothing you did caused it. Updating the app should put it right.</p>
               <button class="btn btn-text" type="button" data-goto="st-about" style="width:auto">About &amp; credits</button>
             </div>
             <div class="spacer"></div>
@@ -1353,17 +1353,17 @@ func reschedule(weekdays: [Int], hour: Int, minute: Int) async {
         <li>The only honest place to say it is About, as one positive sentence (“No network needed”) rather than an error state. That line is shown here promoted into a card; in the shipping About it sits where the <em>about</em> variant of <code>st-about</code> puts it.</li>
         <li>Do not link <code>Network.framework</code> and do not add <code>NSAppTransportSecurity</code> exceptions. If a future build needs neither, reviewers and researchers can both verify the claim.</li>
         <li>This stops being true the day remote downloadable content <span class="tag tag--plan">§39</span> ships. At that point the first real offline state appears — and it should still be quiet: bundled lessons keep working, and only the “more lessons” surface shows a connection message.</li>
-        <li>One near-miss: the App Store privacy policy link and any <code>mailto:</code> leave the app. Those are the system's problem, not ours, and neither needs a network state inside Paper Couch.</li>
+        <li>One near-miss: the App Store privacy policy link and any <code>mailto:</code> leave the app. Those are the system's problem, not ours, and neither needs a network state inside Paper Coach.</li>
       </ul>
 
       <h4>Camera denied</h4>
       <ul>
         <li>Reached from <code>sk-capture</code> when <code>AVCaptureDevice.authorizationStatus(for: .video)</code> is <code>.denied</code> or <code>.restricted</code>. Never present the camera UI first and fail into a black frame.</li>
-        <li>“Open Settings” = <code>UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)</code>. It lands on Paper Couch's own settings page, where the Camera switch is.</li>
+        <li>“Open Settings” = <code>UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)</code>. It lands on Paper Coach's own settings page, where the Camera switch is.</li>
         <li>“Choose an existing photo” uses <code>PhotosPicker</code>, which needs no permission at all under <code>PHPickerViewController</code>'s out-of-process model — so it is a genuine way out, not a second dead end. Keep it even when the camera is available.</li>
         <li>Info.plist strings, written as the learner will read them mid-lesson:
           <pre>NSCameraUsageDescription
-  "Paper Couch uses the camera to photograph your finished drawing
+  "Paper Coach uses the camera to photograph your finished drawing
    so it can go into your sketchbook on this iPhone."
 
 NSPhotoLibraryAddUsageDescription

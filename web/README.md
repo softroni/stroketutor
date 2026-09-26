@@ -1,6 +1,6 @@
-# Paper Couch Studio (web)
+# Paper Coach Studio (web)
 
-The private authoring tool for Paper Couch lessons, built around the browser player that
+The private authoring tool for Paper Coach lessons, built around the browser player that
 tutorials are tested on before they ship to the iOS app. See the
 [master plan](../docs/PaperCoach_Master_Plan.pdf) (Part III) and the milestone tracker in the
 [root README](../README.md).

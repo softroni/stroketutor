@@ -41,7 +41,7 @@ final class PostHogSinkTests: XCTestCase {
         let event = makeSink { _ in .sent }.makeEvent(name: "x", properties: [:], distinctId: "d", policy: adult)
         XCTAssertEqual(event.properties["build"], .string("debug"))
         XCTAssertEqual(event.properties["$app_version"], .string("1.0"))
-        XCTAssertEqual(event.properties["$lib"], .string("paper-couch-ios"))
+        XCTAssertEqual(event.properties["$lib"], .string("paper-coach-ios"))
     }
 
     func testIdentifySendsNothingForAChild() {

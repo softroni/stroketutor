@@ -1,7 +1,7 @@
 import Foundation
 import os
 
-/// Sends `Analytics` events to PostHog (project "Paper Couch", 629055, US cloud)
+/// Sends `Analytics` events to PostHog (project "Paper Coach", 629055, US cloud)
 /// through its batch capture API, with no SDK: only the events `Analytics` names
 /// leave the device, never a tap or a screen on their own, never a recording, and
 /// nothing about the device beyond the app's version.
@@ -121,7 +121,7 @@ final class PostHogSink: AnalyticsSink {
         var values = properties.mapValues(PostHogEvent.Value.string)
         values["$process_person_profile"] = .bool(policy.keepsPersonProfile)
         values["$geoip_disable"] = .bool(true)
-        values["$lib"] = .string("paper-couch-ios")
+        values["$lib"] = .string("paper-coach-ios")
         values["$app_version"] = .string(appVersion)
         values["$os"] = .string("iOS")
         values["build"] = .string(build)

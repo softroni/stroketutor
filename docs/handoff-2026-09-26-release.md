@@ -1,4 +1,4 @@
-# Release prep for Paper Couch 1.0, 2026-09-26 (overnight)
+# Release prep for Paper Coach 1.0, 2026-09-26 (overnight)
 
 The creator asked, at 01:25 CDT before going to sleep: check the screenshot layouts, review the app and the App Store
 Connect page, make sure PostHog and Superwall carry enough events to measure Apple Ads and learner behaviour, upload
@@ -68,9 +68,9 @@ Everything else on the 1.0 page is filled. Before pressing **Add for Review › 
    tracking. Build 1 sends Apple Ads attribution to PostHog, and there is no API for App Privacy.
 2. **On the 1.0 page, "In-App Purchases and Subscriptions": select Premium Yearly and Premium Weekly**, so the
    first subscriptions go to review with the app (both are Ready to Submit).
-3. Recommended: try the purchase flow on a phone (README, M10). Neither Paper Couch nor GeoBlitz has a TestFlight
+3. Recommended: try the purchase flow on a phone (README, M10). Neither Paper Coach nor GeoBlitz has a TestFlight
    group; TestFlight › Internal Testing › "+" › add yourself, and build 1 is there.
-4. **Privacy policy**: its Apple Ads section names only GeoBlitz (resolved by Superwall). Paper Couch asks Apple
+4. **Privacy policy**: its Apple Ads section names only GeoBlitz (resolved by Superwall). Paper Coach asks Apple
    directly and is not named anywhere. A task was queued to draft the change in `~/dev/softroni.com`, whose local
    copy is behind the live page, so reconcile before editing.
 5. Merge `release/1.0` into `main` (build 1 is commit `38ff9f1`; the later commits are docs only) and push.
@@ -78,7 +78,7 @@ Everything else on the 1.0 page is filled. Before pressing **Add for Review › 
 Optional:
 - Age rating "Parental Controls" is answered No; the PIN and the grown-up check could count as Yes. It does not
   change the 4+ rating.
-- Superwall can also chart revenue by Apple Ads keyword if Apple Search Ads is connected for Paper Couch (app
+- Superwall can also chart revenue by Apple Ads keyword if Apple Search Ads is connected for Paper Coach (app
   56531) in its dashboard, as it is for GeoBlitz, but it would only see 13+ learners. PostHog already has every
   tier.
 

@@ -1,5 +1,5 @@
 /**
- * Paper Couch Premium, shared by both paywalls (US English, as the app). Prices are
+ * Paper Coach Premium, shared by both paywalls (US English, as the app). Prices are
  * never written here: they come from the store, formatted for the person's region,
  * and are interpolated as {price}. Every line that names the free week has a
  * sibling without it, for anyone the store says is not eligible.
@@ -8,14 +8,14 @@ export default {
   premium: {
     restore: "Restore",
     restoreLabel: "Restore purchases",
-    restoreFailed: "We couldn't find a Paper Couch Premium purchase to restore.",
+    restoreFailed: "We couldn't find a Paper Coach Premium purchase to restore.",
     purchaseFailed: "That did not go through. Please try again.",
 
     price: "{price} per year",
-    unpricedTitle: "Paper Couch Premium",
+    unpricedTitle: "Paper Coach Premium",
     trialLine: "Your first {days} days are free",
     trialLineOneDay: "Your first day is free",
-    planLine: "Paper Couch Premium · renews yearly",
+    planLine: "Paper Coach Premium · renews yearly",
     planLineUnpriced: "Renews yearly",
     familySharing: "Family Sharing: up to 6 people",
 
@@ -51,7 +51,7 @@ export default {
 
     plans: {
       title: "Choose a plan",
-      subtitle: "Paper Couch Premium · auto-renewing",
+      subtitle: "Paper Coach Premium · auto-renewing",
       close: "Close plans",
       yearly: "Yearly",
       weekly: "Weekly",

@@ -1,6 +1,6 @@
-# Paper Couch iOS · v3 screens — brief for the screen agents
+# Paper Coach iOS · v3 screens — brief for the screen agents
 
-You are redesigning one group of screens of the Paper Couch iOS learner app as an interactive HTML mockup with short
+You are redesigning one group of screens of the Paper Coach iOS learner app as an interactive HTML mockup with short
 developer notes. v3 is a **new look for the app itself**: white paper, bolder type, tactile buttons, a visible path of
 lesson nodes. It must feel as modern and attractive as Duolingo or Simply Draw while keeping the product's adult tone.
 

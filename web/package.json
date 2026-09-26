@@ -6,7 +6,7 @@
   "engines": {
     "node": ">=22.13"
   },
-  "description": "Browser player for Paper Couch interactive draw-along tutorials.",
+  "description": "Browser player for Paper Coach interactive draw-along tutorials.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

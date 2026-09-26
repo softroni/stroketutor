@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Paper Couch tracks no one. Progress, profiles and the sketchbook stay on the
+	<!-- Paper Coach tracks no one. Progress, profiles and the sketchbook stay on the
 	     device.
 
 	     PostHog (App/PostHogSink.swift, no SDK) receives the app's own named events:

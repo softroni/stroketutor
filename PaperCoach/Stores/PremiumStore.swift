@@ -4,7 +4,7 @@ import OSLog
 import StoreKit
 import UserNotifications
 
-/// Paper Couch Premium, through StoreKit 2: the two subscriptions, whether the
+/// Paper Coach Premium, through StoreKit 2: the two subscriptions, whether the
 /// learner's Apple account holds one, and buying or restoring it.
 ///
 /// One subscription group with two plans. **Yearly** carries the introductory
@@ -388,12 +388,12 @@ enum TrialReminder {
         }
     }
 
-    /// "Paper Couch Premium starts on Thursday. Keep drawing with Lina, or cancel in
+    /// "Paper Coach Premium starts on Thursday. Keep drawing with Lina, or cancel in
     /// Settings at least a day before." A day, not "any time before then": Apple
     /// (https://support.apple.com/en-us/118428, read 2026-09-25) says to cancel a
     /// trial "at least 24 hours before the trial ends".
     static func body(trialEndsAt: Date) -> String {
-        "Paper Couch Premium starts on \(weekday.string(from: trialEndsAt)). Keep drawing with Lina, or cancel in Settings at least a day before."
+        "Paper Coach Premium starts on \(weekday.string(from: trialEndsAt)). Keep drawing with Lina, or cancel in Settings at least a day before."
     }
 
     private static let weekday: DateFormatter = {

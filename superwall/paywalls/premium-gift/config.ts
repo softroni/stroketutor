@@ -1,7 +1,7 @@
 import { definePaywall } from "superwall/config";
 
 /**
- * Paper Couch Premium as a gift: `index` (the gift moment), then `paywall` (the
+ * Paper Coach Premium as a gift: `index` (the gift moment), then `paywall` (the
  * same page as `premium`'s index) and its `plans` page. Components, strings and art
  * are shared with `premium` from superwall/components, messages and assets.
  *

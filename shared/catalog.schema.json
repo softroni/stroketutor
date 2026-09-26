@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://papercoach.app/schema/catalog.schema.json",
-  "title": "Paper Couch Curriculum Catalog",
+  "title": "Paper Coach Curriculum Catalog",
   "description": "Where each lesson lives in the curriculum. Kept beside the tutorials, never inside them: tutorial.schema.json says how a drawing plays, this says which path it belongs to, in what order, and how far through authoring it is. Catalog/paths.json is validated against definitions/pathsFile and Catalog/lessons.json against definitions/lessonsFile.",
   "definitions": {
     "id": {

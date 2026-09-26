@@ -154,7 +154,7 @@ struct TrialTimeline: View {
 
     var body: some View {
         let schedule = TrialSchedule(startingAt: Date())
-        let price = app.premium.yearlyPrice.map { "\($0)/year" } ?? "Paper Couch Premium"
+        let price = app.premium.yearlyPrice.map { "\($0)/year" } ?? "Paper Coach Premium"
         VStack(alignment: .leading, spacing: 16) {
             row(symbol: "lock.open.fill", fill: Theme.green,
                 when: "Today", spokenWhen: "Today",
@@ -295,7 +295,7 @@ struct RestoreButton: View {
         } message: {
             Text(failure == .unreachable
                  ? "The App Store could not be reached. Check the connection and try again."
-                 : "This Apple Account has no Paper Couch Premium to restore.")
+                 : "This Apple Account has no Paper Coach Premium to restore.")
         }
     }
 }

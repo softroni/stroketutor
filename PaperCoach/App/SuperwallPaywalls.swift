@@ -401,7 +401,7 @@ final class SuperwallPurchaseController: PurchaseController {
 
     func purchase(product: StoreProduct) async -> PurchaseResult {
         guard let storeKitProduct = product.sk2Product else {
-            // A product sold outside the App Store. Paper Couch sells none.
+            // A product sold outside the App Store. Paper Coach sells none.
             Self.log.error("Superwall asked to buy \(product.productIdentifier, privacy: .public), which is not an App Store product.")
             return .failed(SuperwallPurchaseError.notAnAppStoreProduct)
         }

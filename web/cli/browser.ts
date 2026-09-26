@@ -40,7 +40,7 @@ export async function openBrowser(vite: ViteDevServer | undefined): Promise<Brow
   const server = http.createServer((req, res) => {
     if (req.url === PAGE_PATH) {
       res.setHeader('Content-Type', 'text/html; charset=utf-8')
-      res.end('<!doctype html><meta charset="utf-8"><title>Paper Couch Studio command line</title><script type="module" src="/cli/browser/page.ts"></script>')
+      res.end('<!doctype html><meta charset="utf-8"><title>Paper Coach Studio command line</title><script type="module" src="/cli/browser/page.ts"></script>')
       return
     }
     vite.middlewares(req, res, () => {
