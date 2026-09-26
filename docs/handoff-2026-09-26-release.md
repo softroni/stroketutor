@@ -108,3 +108,31 @@ Optional:
   `submitted: true`.
 - **Submitted 2026-09-26 12:27 UTC** (submission `ff6bd494-…`): version 1.0 with build 1, the group, Premium
   Yearly and Premium Weekly. All three read Waiting for Review. Release is automatic after approval.
+
+## Afternoon, 2026-09-26: renamed back to Paper Coach and resubmitted
+
+"Paper Couch" (commit `e31c860`, 2026-09-25) was a mistake; the product is **Paper Coach**.
+
+- Submission `ff6bd494` was cancelled (16:3x UTC) before review started.
+- Repo: every "Paper Couch" is "Paper Coach" again (`afa25bc`); build number 2. Only the SKU `papercouch` and the
+  profile "Paper Couch App Store" keep the old spelling: neither can be renamed, and learners never see them.
+- App Store Connect: name "Paper Coach: Learn to Draw", description, review notes, subscription group (reference
+  name, display name "Paper Coach Premium", custom app name "Paper Coach") and both subscriptions' reference names.
+  Both subscriptions' review screenshots were replaced with a fresh capture of the native paywall (it read "Paper
+  Couch Premium"). The 16 framed store screenshots never show the name and were kept.
+- Build 1.0 (2) archived from `afa25bc`, exported with the same manual profile, uploaded, VALID, attached.
+- **Resubmitted 2026-09-26 16:50 UTC** (submission `0b2c6236-…`): version 1.0 with build 2, the group, Premium Yearly
+  and Premium Weekly, all Waiting for Review. Release is automatic after approval.
+- PostHog project renamed "Paper Coach"; events carry `$lib paper-coach-ios` from build 2.
+- The same build (Debug) is on Zakaria's iPhone. To install again: archive the Debug configuration
+  (`xcodebuild archive -configuration Debug -destination 'generic/platform=iOS'`), export with method `debugging`
+  and the manual profile **Paper Coach Development** (IOS_APP_DEVELOPMENT, certificate `KK2Q6MZNHK`, device
+  `DP6LF5GLGX`, expires 2027-09-26), then `xcrun devicectl device install app --device 758D1D38-… PaperCoach.ipa`.
+  A plain `xcodebuild build` with a manual profile fails: the SuperwallKit package target refuses one.
+
+Still saying "Paper Couch", outside the repo and waiting on the creator:
+- Superwall paywalls **Paywall 1** (plan line "Paper Couch Premium · renews yearly" and the plans drawer's "Paper
+  Couch Premium · auto-renewing") and **Flow 1** (the same on both pages). Paywall 2 and Flow 2 never name the app.
+  They are served remotely, so fixing and publishing them needs no new build or submission.
+- The Superwall project name ("Paper Couch: Learn to Draw", app 56531), set in its dashboard.
+- softroni.com's privacy policy, if it names the app.
