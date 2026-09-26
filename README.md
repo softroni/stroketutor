@@ -843,9 +843,9 @@ still protects every under-13 profile, and the listing should show learners of e
 "Prefer not to say". The answer and its date are kept on each profile, with stable keys (`under6` … `18plus`,
 `preferNotToSay`), and can be changed on the learner's page in Settings. When a PIN is set, moving someone to a less
 protected tier needs it.
-- **`Analytics`** (`PaperCoach/App/Analytics.swift`) is the only way out for the app's own events. Today its sink is
-  `NoAnalyticsSink`, so nothing is sent through it (Superwall sends its own, for 13+ only; see "Superwall" below). A
-  PostHog sink must honour `AnalyticsPolicy`:
+- **`Analytics`** (`PaperCoach/App/Analytics.swift`) is the only way out for the app's own events. Since 2026-09-26
+  its sink is `PostHogSink` (`NoAnalyticsSink` in tests and screenshot launches); Superwall sends its own events,
+  for 13+ only (see "Superwall" below). The sink honours `AnalyticsPolicy`:
   - under 13, "prefer not to say" or never asked: anonymous events, with an id that lasts one launch;
   - 13 to 17: the profile's own id, no session replay;
   - 18+: everything.

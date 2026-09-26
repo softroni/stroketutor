@@ -131,6 +131,11 @@ struct SettingsView: View {
                     // website can never say different things. A child's profile asks
                     // for a grown-up first: nothing leaves the app from a child's
                     // hands without one (App Review Guidelines 1.3).
+                    //
+                    // The subtitle promises only what holds for everyone: drawings and
+                    // photos never leave the device. Usage events go to PostHog and, for
+                    // learners 13 and over, the paywall comes from Superwall
+                    // (PrivacyInfo.xcprivacy, App Privacy); the policy says so.
                     Button {
                         if app.learnerIsChild {
                             askGrownUp { openURL(Self.privacyPolicyURL) }
@@ -139,7 +144,7 @@ struct SettingsView: View {
                         }
                     } label: {
                         SettingsCustomRow(title: "Privacy",
-                                          subtitle: "Everything stays on this \(DeviceName.current).") {
+                                          subtitle: "Your drawings and photos stay on this \(DeviceName.current).") {
                             SettingsIconTile(symbol: "lock.fill", tint: .neutral)
                         } trailing: {
                             Image(systemName: "arrow.up.right")
