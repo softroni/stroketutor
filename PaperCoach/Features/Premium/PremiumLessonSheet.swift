@@ -249,6 +249,8 @@ struct PremiumLessonSheet: View {
         if let lastWishChange, now.timeIntervalSince(lastWishChange) < 1 { return }
         lastWishChange = now
         app.preferences.toggleWish(lesson.id)
+        app.analytics.track(.wishListChanged(lessonId: lesson.id,
+                                             added: app.preferences.wishList.contains(lesson.id)))
     }
 }
 

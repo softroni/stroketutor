@@ -150,7 +150,7 @@ final class AppModel {
         self.profileStore = profileStore
         pin = AppPIN(defaults: settings.defaults)
         library = TutorialLibrary()
-        let analytics = Analytics(sink: analyticsSink ?? NoAnalyticsSink())
+        let analytics = Analytics(sink: analyticsSink ?? PostHogSink.make(bundle: bundle))
         let premium = PremiumStore(defaults: settings.defaults)
         self.analytics = analytics
         self.premium = premium
@@ -304,6 +304,7 @@ final class AppModel {
     /// and from Home it cannot leave an older screen covering it. Keeping the three
     /// together means Home, the path-card outline and the Path tab never disagree.
     func open(_ path: PathModel) {
+        analytics.track(.pathOpened(pathId: path.id))
         select(path)
         popToRoot(.path)
         selectedTab = .path
@@ -398,6 +399,10 @@ final class AppModel {
     /// immediate path-card selection handled by `open(_:)`.
     func presentPlayer(_ lesson: Lesson, resumeFrom: Int? = nil) {
         if offerPremiumIfNeeded(for: lesson) { return }
+        analytics.track(.lessonStarted(lessonId: lesson.id,
+                                       pathId: lesson.pathId,
+                                       resumed: resumeFrom != nil,
+                                       premiumLesson: path(id: lesson.pathId).map { PremiumAccess.isPremiumLesson(lesson, in: $0) } ?? false))
         selectPath(ofLesson: lesson)
         progress.markOpened(lesson.id, pathId: lesson.pathId, step: resumeFrom)
         cover = .player(lessonId: lesson.id, resumeFrom: resumeFrom)
@@ -411,6 +416,7 @@ final class AppModel {
     /// The lesson is finished: record it, then show `sk-complete`.
     func presentCompletion(_ lesson: Lesson) {
         progress.markCompleted(lesson.id, pathId: lesson.pathId)
+        analytics.track(.lessonCompleted(lessonId: lesson.id, pathId: lesson.pathId))
         cover = .completion(lessonId: lesson.id)
     }
 

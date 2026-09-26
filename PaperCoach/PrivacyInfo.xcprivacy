@@ -3,7 +3,15 @@
 <plist version="1.0">
 <dict>
 	<!-- Paper Couch tracks no one. Progress, profiles and the sketchbook stay on the
-	     device, and the analytics sink sends nothing (App/Analytics.swift).
+	     device.
+
+	     PostHog (App/PostHogSink.swift, no SDK) receives the app's own named events:
+	     which lessons are opened, finished, left, kept and wished for, and the
+	     onboarding and paywall steps. For a learner under 13, or one who did not say,
+	     the id lasts one launch and PostHog keeps no person. For 13 and over the id is
+	     the profile's random UUID, so those events are declared linked (Product
+	     Interaction, User ID). No location is derived ($geoip_disable) and the
+	     project discards IP addresses.
 
 	     Superwall (SuperwallKit, App/SuperwallPaywalls.swift) serves the paywall to
 	     learners 13 and over, and only starts once one is drawing. It is never told
@@ -40,7 +48,7 @@
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeProductInteraction</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
-			<false/>
+			<true/>
 			<key>NSPrivacyCollectedDataTypeTracking</key>
 			<false/>
 			<key>NSPrivacyCollectedDataTypePurposes</key>
@@ -72,6 +80,18 @@
 			<array>
 				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
 				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeUserID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
 			</array>
 		</dict>
 	</array>

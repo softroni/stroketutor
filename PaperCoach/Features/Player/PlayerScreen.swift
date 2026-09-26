@@ -790,6 +790,10 @@ struct PlayerScreen: View {
 
     private func leave() {
         showLeave = false
+        app.analytics.track(.lessonLeft(lessonId: lesson.id,
+                                        pathId: lesson.pathId,
+                                        step: isOrientation ? nil : player.currentStepIndex + 1,
+                                        totalSteps: lesson.stepCount))
         saveSession()
         app.dismissPlayer()
     }

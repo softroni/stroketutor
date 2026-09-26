@@ -1,9 +1,9 @@
 import Foundation
 
 /// Product analytics, behind one door. Screens call `track(_:)`; what happens next
-/// is up to the `AnalyticsSink`, which today is `NoAnalyticsSink` — nothing leaves
-/// the device through this door. A PostHog sink plugs in here later without any
-/// screen changing. Superwall, which runs the paywall for learners 13 and over,
+/// is up to the `AnalyticsSink`: `PostHogSink` in the app (2026-09-26), sending
+/// only the events named below, and `NoAnalyticsSink` in the tests and screenshot
+/// launches. Superwall, which runs the paywall for learners 13 and over,
 /// sends its own events to Superwall; a short allow-list of them is copied in here
 /// too (`superwallTriggerFired`, `superwallPaywall`), so one funnel can hold both.
 ///
@@ -66,6 +66,11 @@ final class Analytics {
                      policy: policy)
     }
 
+    /// The app is going to the background: send what the sink is holding.
+    func flush() {
+        sink.flush()
+    }
+
     private func sessionId(for profileId: UUID) -> String {
         if let existing = sessionIds[profileId] { return existing }
         let made = UUID().uuidString
@@ -115,6 +120,60 @@ struct AnalyticsEvent: Equatable {
         static let variantId = "variant_id"
         static let productId = "product_id"
         static let triggerResult = "trigger_result"
+        static let pathId = "path_id"
+        static let resumed = "resumed"
+        static let premiumLesson = "premium_lesson"
+        static let step = "step"
+        static let totalSteps = "total_steps"
+        static let added = "added"
+    }
+
+    // MARK: Drawing
+
+    /// What learners choose to draw, for every age tier: which lessons they open,
+    /// finish, leave, keep in the sketchbook and wish for. Ids only, never a name
+    /// or a photo.
+
+    /// A path was chosen, from Home or All paths.
+    static func pathOpened(pathId: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "path_opened", properties: [Key.pathId: pathId])
+    }
+
+    /// The player opened on a lesson. `resumed` when it picks up at a saved step;
+    /// `premium_lesson` when the lesson needs Premium (so the learner has it).
+    static func lessonStarted(lessonId: String, pathId: String, resumed: Bool, premiumLesson: Bool) -> AnalyticsEvent {
+        AnalyticsEvent(name: "lesson_started",
+                       properties: [Key.lessonId: lessonId,
+                                    Key.pathId: pathId,
+                                    Key.resumed: resumed ? "true" : "false",
+                                    Key.premiumLesson: premiumLesson ? "true" : "false"])
+    }
+
+    /// The last step was drawn.
+    static func lessonCompleted(lessonId: String, pathId: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "lesson_completed", properties: [Key.lessonId: lessonId, Key.pathId: pathId])
+    }
+
+    /// The learner left the player before the end. `step` is the one on screen,
+    /// counted from 1, or `intro` when step one never began.
+    static func lessonLeft(lessonId: String, pathId: String, step: Int?, totalSteps: Int) -> AnalyticsEvent {
+        AnalyticsEvent(name: "lesson_left",
+                       properties: [Key.lessonId: lessonId,
+                                    Key.pathId: pathId,
+                                    Key.step: step.map(String.init) ?? "intro",
+                                    Key.totalSteps: String(totalSteps)])
+    }
+
+    /// A photo of the finished drawing went into the sketchbook. The photo stays on
+    /// the device; only the lesson is named.
+    static func drawingSaved(lessonId: String, pathId: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "drawing_saved", properties: [Key.lessonId: lessonId, Key.pathId: pathId])
+    }
+
+    /// A Premium lesson went on or came off a child's wish list.
+    static func wishListChanged(lessonId: String, added: Bool) -> AnalyticsEvent {
+        AnalyticsEvent(name: "wish_list_changed",
+                       properties: [Key.lessonId: lessonId, Key.added: added ? "true" : "false"])
     }
 
     /// An onboarding beat came on screen. `beat` is its id: `ob-age`, `ob-level`…
@@ -219,9 +278,15 @@ protocol AnalyticsSink: AnyObject {
     /// Forget whoever was drawing: the next `identify` is someone new, never to be
     /// merged with them. PostHog's `reset()`.
     func reset()
+    /// Send what is waiting now: the app is going to the background.
+    func flush()
 }
 
-/// Sends nothing. The app's sink until an analytics service is chosen.
+extension AnalyticsSink {
+    func flush() {}
+}
+
+/// Sends nothing: the tests, screenshot launches, and any build without a sink.
 final class NoAnalyticsSink: AnalyticsSink {
     func identify(distinctId: String, properties: [String: String], policy: AnalyticsPolicy) {}
     func capture(_ event: AnalyticsEvent, distinctId: String, policy: AnalyticsPolicy) {}

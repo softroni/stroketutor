@@ -618,6 +618,7 @@ struct CaptureFlow: View {
                 return
             }
             didFailToSave = false
+            app.analytics.track(.drawingSaved(lessonId: lesson.id, pathId: lesson.pathId))
             if alsoSaveToPhotos {
                 PhotoLibraryWriter.save(image)
             }

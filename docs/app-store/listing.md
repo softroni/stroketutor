@@ -38,10 +38,12 @@ The API refused these, or has no endpoint for them, in the order a first submiss
 2. **App Review information** on the 1.0 page: contact Zakaria Chowdhury, apps@softroni.com and the team phone
    number from the GeoBlitz listing; no sign-in required; paste the notes below.
 3. **App Privacy.** No longer "Data Not Collected": Superwall serves the paywall to learners 13 and over (README,
-   M10 "Superwall"). Declare these four types, each **not linked to the user** and **not used for tracking**, as
+   M10 "Superwall"). Declare these types, **none used for tracking** and linked only where marked, as
    `PaperCoach/PrivacyInfo.xcprivacy` does:
    - Purchases › **Purchase History**: Analytics, App Functionality.
-   - Usage Data › **Product Interaction** (paywall views and taps): Analytics.
+   - Usage Data › **Product Interaction** (paywall views and taps; with PostHog, the lessons opened, finished and
+     kept): Analytics, **linked** (for 13 and over the events carry the profile's random id).
+   - Identifiers › **User ID** (that random profile id, PostHog, 13 and over only): Analytics, **linked**.
    - Identifiers › **Device ID** (the vendor identifier, IDFV): Analytics, App Functionality.
    - Location › **Coarse Location** (country, region and city from the IP address): Analytics, App Functionality.
 
@@ -63,7 +65,7 @@ The API refused these, or has no endpoint for them, in the order a first submiss
 ## App Review notes (paste into "Notes")
 
 ```
-Paper Couch 1.0 requires no account or sign-in. The learner's work stays on the device: the lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo is kept in the app's own sketchbook (and saved to Photos only while the "Also save to Photos" switch is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or one who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. Purchases always go through StoreKit.
+Paper Couch 1.0 requires no account or sign-in. The learner's work stays on the device: the lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo is kept in the app's own sketchbook (and saved to Photos only while the "Also save to Photos" switch is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or one who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. The app also sends its own usage events, keyed by a random id and never a name, (lessons opened and finished, onboarding and paywall steps) to PostHog for product analytics, with no SDK: for a learner under 13 the id lasts one app launch and no profile is kept, no location is derived, and IP addresses are discarded. Purchases always go through StoreKit.
 
 WHAT THE APP DOES
 The phone is a drawing instructor for real pen and paper. Each lesson animates one line, then waits until the learner taps "I drew it". There are 10 paths of 10 lessons. Lessons 1-3 of every path are free; lessons 4-10 wear a gold crown and need Premium.

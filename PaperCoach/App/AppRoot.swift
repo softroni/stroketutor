@@ -93,6 +93,7 @@ struct AppRoot: View {
             .animation(.easeOut(duration: 0.25), value: app.premiumNudge)
             // A subscription can start, lapse or be refunded while the app is away.
             .onChange(of: scenePhase) { _, phase in
+                if phase == .background { app.analytics.flush() }
                 guard phase == .active, app.hasLoadedContent else { return }
                 Task { await app.premium.refreshEntitlements() }
             }
