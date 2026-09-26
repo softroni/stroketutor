@@ -54,7 +54,7 @@ This file is the checklist and the log. A session that picks the work up continu
     privacy policy URL, categories (Education, Graphics & Design), age rating 4+ with every new question answered,
     content rights, price Free, both subscriptions Ready to Submit.
 - 01:47 Build: archived Release 1.0 (1). The first export failed ("Cloud signing permission error", no profile):
-  the App Manager key cannot use cloud-managed certificates. Created the profile **Paper Couch App Store**
+  the App Manager key cannot use cloud-managed certificates. Created the profile **Paper Couch App Store** (since replaced by "Paper Coach App Store", see the afternoon log)
   (IOS_APP_STORE, the Apple Distribution certificate in this Mac's keychain, serial 294BEF…, expires
   2027-02-21) through the API, installed it, exported with manual signing and uploaded: "Upload succeeded".
 - 01:49 Build 1.0 (1) processed: VALID, no non-exempt encryption, minimum iOS 17.0. Attached to version 1.0, which
@@ -114,8 +114,7 @@ Optional:
 "Paper Couch" (commit `e31c860`, 2026-09-25) was a mistake; the product is **Paper Coach**.
 
 - Submission `ff6bd494` was cancelled (16:3x UTC) before review started.
-- Repo: every "Paper Couch" is "Paper Coach" again (`afa25bc`); build number 2. Only the SKU `papercouch` and the
-  profile "Paper Couch App Store" keep the old spelling: neither can be renamed, and learners never see them.
+- Repo: every "Paper Couch" is "Paper Coach" again (`afa25bc`); build number 2.
 - App Store Connect: name "Paper Coach: Learn to Draw", description, review notes, subscription group (reference
   name, display name "Paper Coach Premium", custom app name "Paper Coach") and both subscriptions' reference names.
   Both subscriptions' review screenshots were replaced with a fresh capture of the native paywall (it read "Paper
@@ -130,9 +129,16 @@ Optional:
   `DP6LF5GLGX`, expires 2027-09-26), then `xcrun devicectl device install app --device 758D1D38-… PaperCoach.ipa`.
   A plain `xcodebuild build` with a manual profile fails: the SuperwallKit package target refuses one.
 
-Still saying "Paper Couch", outside the repo and waiting on the creator:
-- Superwall paywalls **Paywall 1** (plan line "Paper Couch Premium · renews yearly" and the plans drawer's "Paper
-  Couch Premium · auto-renewing") and **Flow 1** (the same on both pages). Paywall 2 and Flow 2 never name the app.
-  They are served remotely, so fixing and publishing them needs no new build or submission.
-- The Superwall project name ("Paper Couch: Learn to Draw", app 56531), set in its dashboard.
-- softroni.com's privacy policy, if it names the app.
+Renamed later that afternoon, everywhere it could be:
+- Superwall: project and iOS app "Paper Coach: Learn to Draw" (`superwall patch /v2/projects/42098/applications/56531
+  -d name=…`; `/v2/applications/56531` 404s), products "Paper Coach Premium (Yearly/Weekly)". Paywall 1 (2 lines) and
+  Flow 1 (3 lines) now read "Paper Coach Premium" in the editor, through `find_replace`; **they need Publish in the
+  editor** to reach the app. Paywall 2 and Flow 2 never named the app.
+- Signing: new App Store profile **Paper Coach App Store** (`82YQLHJRS6`, same distribution certificate `4C45NY4QRJ`,
+  expires 2027-02-21), checked with a local export of build 2; the old "Paper Couch App Store" profile was deleted.
+  Export options for uploads name the new profile.
+- softroni.com privacy policy (`softroni/softroni.com` `9209208`, GitHub Pages): all 25 mentions.
+
+What still says "couch", and why: the SKU `papercouch` (App Store Connect cannot change a SKU), the Superwall app's
+URL slug `paper-couch-learn-to-draw` (the API ignores changes to it), git history, and branch names from earlier
+sessions (for example `privacy/paper-couch` in a softroni.com worktree). None of them is seen by learners.

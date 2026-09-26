@@ -103,9 +103,8 @@ nothing; debug builds send with `build: debug`. New drawing events for every tie
 
 ## Still to do
 
-0. **Rename leftovers (2026-09-26):** Paywall 1 and Flow 1 still say "Paper Couch Premium" in their plan line and
-   plans drawer; the Superwall project is still named "Paper Couch: Learn to Draw". See
-   `docs/handoff-2026-09-26-release.md` › "renamed back to Paper Coach".
+0. **Publish Paywall 1 and Flow 1** in the Superwall editor: their "Paper Coach Premium" text (renamed 2026-09-26)
+   is saved in the drafts but not live until published.
 1. **The privacy policy page** (https://softroni.com/privacy-policy.html, the link the app opens) should name
    Superwall and PostHog and say what each receives, matching App Privacy. The user's to change; not checked yet.
 2. **Code paywalls:** once Superwall grants "Superwall for Agents" beta access (the user will say), push the code
