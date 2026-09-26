@@ -27,6 +27,9 @@ struct AppRoot: View {
     /// The flow the cover last showed. `app.cover` is nil while the cover slides
     /// down, and this keeps the flow that is leaving on screen until it is gone.
     @State private var closingCover: AppCover?
+    /// Set when the app goes to the background, so the next return counts as an
+    /// open, and the launch itself (counted in `.task`) is not counted twice.
+    @State private var returnsFromBackground = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -50,6 +53,10 @@ struct AppRoot: View {
                 DebugScreenHarness.applyIfRequested(to: app)
                 #endif
                 app.premium.start()
+                if countsAsUse {
+                    app.recordAppOpened()
+                    Task { await app.resolveAppleAdsAttribution() }
+                }
                 // Superwall, only for a learner 13 or over (`SuperwallGate`). On a
                 // launch that asks "Who's drawing?" below, it waits for the answer.
                 let asksWhoIsDrawing = app.settings.hasCompletedOnboarding
@@ -93,8 +100,15 @@ struct AppRoot: View {
             .animation(.easeOut(duration: 0.25), value: app.premiumNudge)
             // A subscription can start, lapse or be refunded while the app is away.
             .onChange(of: scenePhase) { _, phase in
-                if phase == .background { app.analytics.flush() }
+                if phase == .background {
+                    app.analytics.flush()
+                    returnsFromBackground = true
+                }
                 guard phase == .active, app.hasLoadedContent else { return }
+                if returnsFromBackground, countsAsUse {
+                    returnsFromBackground = false
+                    app.recordAppOpened()
+                }
                 Task { await app.premium.refreshEntitlements() }
             }
             .onChange(of: app.cover) { _, cover in
@@ -155,6 +169,16 @@ struct AppRoot: View {
         DebugScreenHarness.isActive
         #else
         false
+        #endif
+    }
+
+    /// A launch someone is using: not a screenshot launch, and not the unit tests,
+    /// which run inside the app and must not count opens or ask Apple about ads.
+    private var countsAsUse: Bool {
+        #if DEBUG
+        !isScreenshotLaunch && ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil
+        #else
+        true
         #endif
     }
 

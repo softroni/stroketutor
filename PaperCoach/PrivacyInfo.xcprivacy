@@ -22,6 +22,13 @@
 	     city), none linked to a person and none used for tracking. The SDK's own
 	     manifest declares only purchase history, so the rest is declared here.
 
+	     Apple Ads attribution (App/AppleAdsAttribution.swift, AdServices): the app asks
+	     Apple which Apple Ads campaign, ad group and keyword, if any, led to the
+	     install, and sends those ids to PostHog: once as install_attributed, on the
+	     opens, onboarding, trial and purchase events, and on a 13+ learner's person.
+	     Declared as Advertising Data, linked because of that person. AdServices is
+	     not tracking and needs no ATT prompt.
+
 	     The one required-reason API the app itself uses is UserDefaults, for its
 	     own settings, PIN hash and cached Premium status: CA92.1. SuperwallKit's
 	     bundle declares its own (file timestamps, C617.1). -->
@@ -85,6 +92,18 @@
 		<dict>
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeUserID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeAdvertisingData</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
 			<true/>
 			<key>NSPrivacyCollectedDataTypeTracking</key>

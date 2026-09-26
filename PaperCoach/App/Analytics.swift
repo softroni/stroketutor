@@ -36,6 +36,22 @@ final class Analytics {
     private(set) var policy = AnalyticsPolicy(tier: .child)
     private(set) var distinctId = UUID().uuidString
     private var ageGroup: AgeGroup?
+    /// The Apple Ads campaign that brought this install (`AppleAdsAttribution`), as
+    /// `asa_*` keys, once Apple has answered; empty until then.
+    private(set) var acquisition: [String: String] = [:]
+
+    /// The events that say what an install was worth, which carry `acquisition` so
+    /// opens, onboarding, trials and purchases can be read by campaign and keyword,
+    /// for every tier. A 13+ learner's person carries it too (`identify`), so any
+    /// of their events can; a child has no person, so only these do.
+    static let acquisitionEvents: Set<String> = [
+        "app_opened",
+        "ob_finished",
+        "purchase_attempted",
+        "offer_finished",
+        SuperwallPaywallEvent.transactionComplete.rawValue,
+        SuperwallPaywallEvent.freeTrialStart.rawValue,
+    ]
 
     init(sink: AnalyticsSink) {
         self.sink = sink
@@ -53,13 +69,22 @@ final class Analytics {
         ageGroup = profile.ageGroup
         policy = newPolicy
         distinctId = newId
-        sink.identify(distinctId: distinctId,
-                      properties: [AnalyticsEvent.Key.ageGroup: ageGroupKey],
-                      policy: policy)
+        sink.identify(distinctId: distinctId, properties: personProperties, policy: policy)
+    }
+
+    /// Apple has said which campaign brought the install. Kept for the events in
+    /// `acquisitionEvents` and, for a learner 13 or over, set on their person now.
+    func setAcquisition(_ properties: [String: String]) {
+        acquisition = properties
+        guard hasIdentified else { return }
+        sink.identify(distinctId: distinctId, properties: personProperties, policy: policy)
     }
 
     func track(_ event: AnalyticsEvent) {
         var properties = event.properties
+        if Self.acquisitionEvents.contains(event.name) {
+            properties.merge(acquisition) { own, _ in own }
+        }
         properties[AnalyticsEvent.Key.ageGroup] = ageGroupKey
         sink.capture(AnalyticsEvent(name: event.name, properties: properties),
                      distinctId: distinctId,
@@ -76,6 +101,14 @@ final class Analytics {
         let made = UUID().uuidString
         sessionIds[profileId] = made
         return made
+    }
+
+    /// What a person is set to: the age group and, once known, the campaign. A sink
+    /// keeps no person for a child (`AnalyticsPolicy.keepsPersonProfile`).
+    private var personProperties: [String: String] {
+        var properties = acquisition
+        properties[AnalyticsEvent.Key.ageGroup] = ageGroupKey
+        return properties
     }
 
     /// The stored key, or `unanswered` for a learner never asked — distinct from
@@ -126,6 +159,34 @@ struct AnalyticsEvent: Equatable {
         static let step = "step"
         static let totalSteps = "total_steps"
         static let added = "added"
+        static let firstOpen = "first_open"
+        static let narrationOn = "narration_on"
+        static let reminderOn = "reminder_on"
+        static let saveToPhotosOn = "save_to_photos_on"
+    }
+
+    // MARK: App and acquisition
+
+    /// The app came to the front: a launch, or a return from the background.
+    /// `first_open` on the first launch after install. The three switches say how
+    /// the app is set up — the learner's narration, the device's practice reminder
+    /// and "Also save to Photos" — so their share among active learners can be read
+    /// without an event for every place that changes them.
+    static func appOpened(firstOpen: Bool,
+                          narrationOn: Bool = true,
+                          reminderOn: Bool = false,
+                          saveToPhotosOn: Bool = false) -> AnalyticsEvent {
+        AnalyticsEvent(name: "app_opened",
+                       properties: [Key.firstOpen: firstOpen ? "true" : "false",
+                                    Key.narrationOn: narrationOn ? "true" : "false",
+                                    Key.reminderOn: reminderOn ? "true" : "false",
+                                    Key.saveToPhotosOn: saveToPhotosOn ? "true" : "false"])
+    }
+
+    /// Apple said which Apple Ads campaign brought this install, or that none did
+    /// (`asa_attribution` false). Once per install, whenever the answer arrives.
+    static func installAttributed(_ record: AppleAdsAttribution.Record) -> AnalyticsEvent {
+        AnalyticsEvent(name: "install_attributed", properties: record.analyticsProperties)
     }
 
     // MARK: Drawing

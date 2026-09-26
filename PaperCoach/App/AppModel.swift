@@ -34,6 +34,9 @@ final class AppModel {
     /// Superwall's paywalls for learners 13 and over, and the rules that keep it
     /// away from children. Told who is drawing on every switch and age change.
     let paywalls: RemotePaywalls
+    /// Which Apple Ads campaign, if any, brought this install. Asked by `AppRoot`
+    /// on launch (`resolveAppleAdsAttribution()`), never in the tests.
+    let appleAds: AppleAdsAttribution
 
     /// One learner's three stores, opened together from their folder.
     struct ProfileStores {
@@ -141,7 +144,8 @@ final class AppModel {
          settings: Settings? = nil,
          storeDirectory: URL? = nil,
          analyticsSink: AnalyticsSink? = nil,
-         paywalls: RemotePaywalls? = nil) {
+         paywalls: RemotePaywalls? = nil,
+         appleAds: AppleAdsAttribution? = nil) {
         let settings = settings ?? Settings()
         let base = storeDirectory ?? AppStorageLocation.applicationSupport()
         let profileStore = ProfileStore(baseDirectory: base)
@@ -155,6 +159,12 @@ final class AppModel {
         self.analytics = analytics
         self.premium = premium
         self.paywalls = paywalls ?? SuperwallPaywalls.make(premium: premium, analytics: analytics)
+        let appleAds = appleAds ?? AppleAdsAttribution(defaults: settings.defaults)
+        self.appleAds = appleAds
+        // An answer from an earlier launch rides on this launch's events from the start.
+        if let record = appleAds.record {
+            analytics.setAcquisition(record.analyticsProperties)
+        }
 
         let outcome = LegacyProfileMigration.run(baseDirectory: base,
                                                  defaults: settings.defaults,
@@ -200,6 +210,28 @@ final class AppModel {
                              progress: ProgressStore(baseDirectory: folder),
                              sketchbook: SketchbookStore(baseDirectory: folder),
                              preferences: ProfilePreferences(directory: folder))
+    }
+
+    // MARK: - Opens and acquisition
+
+    private static let hasOpenedKey = "analytics.hasOpened"
+
+    /// The app came to the front: a launch, or a return from the background.
+    func recordAppOpened() {
+        let firstOpen = !settings.defaults.bool(forKey: Self.hasOpenedKey)
+        settings.defaults.set(true, forKey: Self.hasOpenedKey)
+        analytics.track(.appOpened(firstOpen: firstOpen,
+                                   narrationOn: preferences.narrationEnabled,
+                                   reminderOn: settings.reminderEnabled,
+                                   saveToPhotosOn: settings.alsoSaveToPhotos))
+    }
+
+    /// Asks Apple which campaign brought the install, on the launches before it has
+    /// answered, and reports the answer once.
+    func resolveAppleAdsAttribution() async {
+        guard let record = await appleAds.resolve() else { return }
+        analytics.setAcquisition(record.analyticsProperties)
+        analytics.track(.installAttributed(record))
     }
 
     /// Reads the catalog and the tutorials and joins them. Safe to call again.

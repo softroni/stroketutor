@@ -46,16 +46,21 @@ The API refused these, or has no endpoint for them, in the order a first submiss
    - Identifiers › **User ID** (that random profile id, PostHog, 13 and over only): Analytics, **linked**.
    - Identifiers › **Device ID** (the vendor identifier, IDFV): Analytics, App Functionality.
    - Location › **Coarse Location** (country, region and city from the IP address): Analytics, App Functionality.
+   - Usage Data › **Advertising Data** (Apple Ads attribution: the campaign, ad group and keyword ids AdServices
+     returns, sent to PostHog): Analytics, **linked** (on a 13+ learner's person), not tracking. Added to the
+     privacy manifest 2026-09-26 with `AppleAdsAttribution`; **App Privacy on App Store Connect still needs this
+     row added by hand** (there is no API for it) before the build with it is submitted.
 
    Superwall's own guide asks only for Purchase History
    (https://superwall.com/docs/ios/guides/app-privacy-nutrition-labels); the other three are what its requests
    carried when checked on 2026-09-25 (the vendor id and the IP-derived location on every request, paywall
    events once tracking is on). The app has no account, never identifies anyone to Superwall, and the sketchbook
    photos stay on the device.
-4. **iPad 13" screenshots** (2064 × 2752), required while the target includes iPad. On the iPadOS 26 simulator the app
-   opens in a window smaller than the screen, so the captures came out with black around them; either decide how
-   the app should behave in iPad windowing, or make it iPhone-only (`TARGETED_DEVICE_FAMILY = 1`), which drops the
-   requirement.
+4. **iPad 13" screenshots** (2064 × 2752), required while the target includes iPad. Framed and captioned sets for
+   both the iPhone 6.9" and the iPad 13" are ready in `marketing/out/` (see `marketing/README.md`), 2026-09-26, and
+   are not uploaded yet; the iPhone set replaces the six plain captures on the record. On a fresh iPad Pro 13-inch
+   (M5) simulator (iOS 26.5) the app opened full screen, so the black border seen earlier came from that
+   simulator's windowing mode.
 5. **A build.** Archive from Xcode with the PaperCoach scheme, upload, wait for processing, pick it on the 1.0 page.
    Export compliance is already answered in `Info.plist` (`ITSAppUsesNonExemptEncryption` = NO), and the privacy
    manifest ships in the bundle.
