@@ -1,0 +1,177 @@
+{
+  "updated": "2026-09-27T01:00:13-05:00",
+  "headline": "1.0 (2) has been with Apple since Saturday 11:50 AM and review hasn't started. Everything for launch day is ready: this page, the PostHog dashboard, crash reports for 1.0.1, and ads to switch on at approval.",
+  "app": {
+    "live": null,
+    "inReview": {
+      "version": "1.0",
+      "build": "2",
+      "state": "Waiting for review",
+      "tone": "waiting",
+      "since": "2026-09-26T16:50:54.782Z"
+    }
+  },
+  "numbers": [
+    {
+      "label": "First opens",
+      "value": "0",
+      "period": "since 27 Sep",
+      "detail": "real users, release builds"
+    },
+    {
+      "label": "Drawings finished",
+      "value": "0",
+      "period": "since 27 Sep"
+    },
+    {
+      "label": "Purchases",
+      "value": "0",
+      "period": "since 27 Sep",
+      "detail": "both paywalls"
+    }
+  ],
+  "needsYou": [
+    {
+      "title": "Send me the App Store vendor number",
+      "detail": "App Store Connect › Payments and Financial Reports, the number at the top left under your name. Installs, trials and proceeds on this page need it.",
+      "since": "2026-09-27"
+    },
+    {
+      "title": "Revoke the temporary Admin key 4AU7B78386",
+      "detail": "Users and Access › Integrations › Team Keys. It did its one job: switching on App Store analytics reports for Paper Coach.",
+      "since": "2026-09-27"
+    },
+    {
+      "title": "Add Crash Data and Performance Data to App Privacy",
+      "detail": "Both under Diagnostics: not linked to the user, not tracking, App Functionality. Needed before 1.0.1 is submitted, and there is no API for it. Or tell me to do it in your Chrome.",
+      "since": "2026-09-27"
+    }
+  ],
+  "working": [
+    {
+      "title": "Apple's review of 1.0 (2)",
+      "state": "waiting",
+      "detail": "When it is approved: tag 1.0(2) in git, switch on Apple Ads, watch the first real funnel."
+    },
+    {
+      "title": "Apple Ads campaigns for launch day",
+      "state": "next",
+      "detail": "US only, $10 a day. Apple Ads can't see the app until it is live, so the campaigns are made the day it is approved."
+    },
+    {
+      "title": "1.0.1: crash and hang reports",
+      "state": "waiting",
+      "detail": "Ready on release/1.0.1 (306 tests pass). It ships with the first fix, once App Privacy has the Crash Data row."
+    },
+    {
+      "title": "Keyword baseline",
+      "state": "next",
+      "detail": "Where Paper Coach ranks for its keywords on launch day, so later changes can be measured."
+    }
+  ],
+  "log": [
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Studio Today page added"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Checked the live Superwall paywalls: all four say Paper Coach, none say Couch"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "PostHog dashboard 'Paper Coach: how it's going': 16 charts, release builds only"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Crash and hang reports (MetricKit to PostHog) on release/1.0.1 and main; 318 tests pass on main"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Sales and Reports key in; App Store analytics reports switched on for Paper Coach"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Took over Paper Coach's operations: rules agreed with Kevin (fixes and rejections ship on their own; features stay with Kevin)"
+    }
+  ],
+  "experiments": [
+    {
+      "name": "Onboarding offer",
+      "placement": "onboarding_offer",
+      "status": "running, no traffic yet",
+      "note": "3 designs for learners 13+. Down to 2 once traffic shows.",
+      "variants": [
+        {
+          "name": "Paywall 1",
+          "variantId": "643125",
+          "share": 34
+        },
+        {
+          "name": "Flow 1",
+          "variantId": "643126",
+          "share": 33
+        },
+        {
+          "name": "Flow 2",
+          "variantId": "643129",
+          "share": 33
+        }
+      ]
+    },
+    {
+      "name": "In-app Premium",
+      "placement": "premium_lesson, settings_premium",
+      "status": "running, no traffic yet",
+      "note": "Crowned lessons and Settings › Premium, 13+.",
+      "variants": [
+        {
+          "name": "Paywall 1",
+          "variantId": "643130",
+          "share": 50
+        },
+        {
+          "name": "Paywall 2",
+          "variantId": "643131",
+          "share": 50
+        }
+      ]
+    }
+  ],
+  "ads": {
+    "state": "ready",
+    "note": "Starts the day 1.0 is approved: $10 a day, US. The first $150 is the seed; after that the ads spend only what they earn back.",
+    "dailyCap": 10,
+    "spentToDate": 0,
+    "earnedToDate": 0,
+    "spendCeiling": 150,
+    "campaigns": []
+  },
+  "reviews": {
+    "average": null,
+    "count": 0,
+    "latest": []
+  },
+  "links": [
+    {
+      "label": "PostHog dashboard",
+      "url": "https://us.posthog.com/project/629055/dashboard/2140277"
+    },
+    {
+      "label": "App Store Connect",
+      "url": "https://appstoreconnect.apple.com/apps/6816231257/distribution"
+    },
+    {
+      "label": "Superwall",
+      "url": "https://superwall.com/applications/56531"
+    },
+    {
+      "label": "Apple Ads",
+      "url": "https://app-ads.apple.com/cm/app/20605790/report/campaigns"
+    }
+  ],
+  "next": {
+    "at": "2026-09-27T08:00:00-05:00",
+    "what": "Daily check and summary"
+  }
+}

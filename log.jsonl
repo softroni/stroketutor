@@ -1,0 +1,6 @@
+{"at": "2026-09-27T00:57:57-05:00", "text": "Took over Paper Coach's operations: rules agreed with Kevin (fixes and rejections ship on their own; features stay with Kevin)"}
+{"at": "2026-09-27T00:57:57-05:00", "text": "Sales and Reports key in; App Store analytics reports switched on for Paper Coach"}
+{"at": "2026-09-27T00:57:57-05:00", "text": "Crash and hang reports (MetricKit to PostHog) on release/1.0.1 and main; 318 tests pass on main"}
+{"at": "2026-09-27T00:57:57-05:00", "text": "PostHog dashboard 'Paper Coach: how it's going': 16 charts, release builds only"}
+{"at": "2026-09-27T00:57:57-05:00", "text": "Checked the live Superwall paywalls: all four say Paper Coach, none say Couch"}
+{"at": "2026-09-27T00:57:57-05:00", "text": "Studio Today page added"}
