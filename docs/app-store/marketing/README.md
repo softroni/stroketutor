@@ -7,8 +7,8 @@ They replace the plain simulator captures in `../screenshots/`.
 | # | Headline | Screen (`-STScreen`) |
 |---|---|---|
 | 1 | Learn to draw step by step | `player-awaiting`, with a photo of a hand drawing the same palm tree on paper, the marker at the end of the leaf the phone shows |
-| 2 | 100 lessons on 10 paths | `paths` |
-| 3 | Keep every drawing | `sketchbook-filled`, with a photo of hands holding a sketchpad with the sunflower lesson drawn on it |
+| 2 | Draw what you love | `paths` |
+| 3 | Keep every drawing | `sketchbook-filled`, with a photo of hands holding a sketchpad with the sunflower lesson drawn and colored on it |
 | 4 | Finish it in full color | `player-last` |
 | 5 | Watch a line, then draw it | `preview-default` |
 | 6 | Start simple, then level up | `path-default` |
@@ -17,9 +17,10 @@ They replace the plain simulator captures in `../screenshots/`.
 
 The first three are what App Store search shows, side by side at about a third of the phone's width, so they
 say three different things (how it works, what there is to draw, what you keep) with three different drawings.
-Every lesson ends with color steps, which is what #4 claims.
+Every lesson ends with color steps, which is what #4 claims. No caption names a count of lessons or paths, since
+both will grow.
 
-Every headline is something the app does today (listing.md: 100 lessons on 10 paths, three levels, five to ten
+Every headline is something the app does today (listing.md: lessons on many subjects, three levels, five to ten
 minutes a lesson, the sketchbook). The drawings in #1 and #3 are the lessons' own pen strokes,
 read from `shared/Tutorials/`, so they are exactly what a learner draws; in #1, steps 1 to 5 and step 6's arch part-way, ending at the marker's tip (`handDrawing` and `sketchpad` in `shots.js`).
 

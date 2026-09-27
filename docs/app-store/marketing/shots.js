@@ -50,11 +50,12 @@ const handDrawing = {
 };
 
 // Hands holding a blank sketchpad (Pixabay 1791337, 960 x 1280): the part of the
-// photo a print shows, and where on its blank page the finished drawing sits.
+// photo a print shows, and where on its blank page the finished drawing sits, colored
+// in as the lesson's last steps leave it.
 const sketchpad = {
   photo: 'assets/photos/sketchpad-hands.jpg',
   crop: [110, 200, 760, 1080],
-  drawing: { tutorial: 'sunflower', cx: 492, cy: 760, size: 600 },
+  drawing: { tutorial: 'sunflower', cx: 492, cy: 760, size: 600, color: true },
 };
 
 export const SHOTS = [
@@ -79,7 +80,7 @@ export const SHOTS = [
   },
   {
     id: 'paths',
-    title: '<em>100 lessons</em><br>on 10 paths',
+    title: 'Draw what<br><em>you love</em>',
     capture: 'paths',
     stickers: [
       { name: 'ice-cream-cone', x: 0.0, y: 0.10, size: 0.26, rot: -12 },

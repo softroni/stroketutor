@@ -227,11 +227,11 @@
     canvas.append(node);
   }
 
-  // A lesson's pen lines (steps that draw, none that color), as the learner leaves
-  // them on paper: all of them, or with `upTo` ({ step, stroke, t }, step counted
-  // from 1 as the player shows it) the steps before it, its strokes before
-  // `stroke`, and that stroke drawn as far as `t` of its length. `end` is where the
-  // pen is, in lesson units.
+  // A lesson's pen lines, as the learner leaves them on paper: all of them, or with
+  // `upTo` ({ step, stroke, t }, step counted from 1 as the player shows it) the
+  // steps before it, its strokes before `stroke`, and that stroke drawn as far as
+  // `t` of its length. `end` is where the pen is, in lesson units. With `color`, the
+  // lesson's color steps go under the lines too, with a colored-pencil grain.
   async function lineArt(d) {
     const tutorial = await (await fetch(`../../../shared/Tutorials/${d.tutorial}.json`)).json();
     const { width, height } = tutorial.canvas;
@@ -241,7 +241,30 @@
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.innerHTML = `<filter id="pen"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"/>
-        <feDisplacementMap in="SourceGraphic" scale="3"/></filter>`;
+        <feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+      <filter id="crayon" x="-2%" y="-2%" width="104%" height="104%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="3" seed="9" result="noise"/>
+        <feColorMatrix in="noise" type="matrix" result="grain"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.7 0 0 0 0.12"/>
+        <feComposite in="SourceGraphic" in2="grain" operator="in" result="grained"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="3" result="wobble"/>
+        <feDisplacementMap in="grained" in2="wobble" scale="9"/>
+      </filter>`;
+    if (d.color) {
+      const fills = document.createElementNS(ns, 'g');
+      fills.setAttribute('filter', 'url(#crayon)');
+      fills.setAttribute('opacity', '0.9');
+      for (const step of tutorial.steps) {
+        for (const fill of step.fills ?? []) {
+          const path = document.createElementNS(ns, 'path');
+          path.setAttribute('d', fill.d);
+          path.setAttribute('fill', fill.color);
+          path.setAttribute('fill-rule', fill.fillRule ?? 'nonzero');
+          fills.append(path);
+        }
+      }
+      svg.append(fills);
+    }
     const group = document.createElementNS(ns, 'g');
     Object.entries({ fill: 'none', stroke: '#26282b', 'stroke-linecap': 'round',
                      'stroke-linejoin': 'round', filter: 'url(#pen)' })
