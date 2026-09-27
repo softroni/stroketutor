@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-27T09:56:45-05:00",
-  "headline": "1.0 (2) is still waiting for Apple's review (submitted Saturday 11:50 AM). No users, reviews, crashes or ad spend yet; ads and the version tag go on the day it's approved.",
+  "updated": "2026-09-27T14:53:34-05:00",
+  "headline": "1.0 (2) is still waiting for Apple's review, a day after it was submitted (Saturday 11:50 AM). No users, reviews, crashes or ad spend yet; ads and the version tag go on the day it's approved.",
   "app": {
     "live": null,
     "inReview": {
@@ -169,7 +169,7 @@
     {
       "title": "Apple's review of 1.0 (2)",
       "state": "waiting",
-      "detail": "When it is approved: tag 1.0(2) in git, switch on Apple Ads, watch the first real funnel."
+      "detail": "Submitted Saturday 11:50 AM; checked again Sunday afternoon, still waiting. When it is approved: tag 1.0(2) in git, switch on Apple Ads, watch the first real funnel."
     },
     {
       "title": "Apple Ads campaigns for launch day",
@@ -188,6 +188,10 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-09-27T14:53:34-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"
+    },
     {
       "at": "2026-09-27T09:56:45-05:00",
       "text": "docs/next-builds.md: what to build next for revenue (price test prerequisite, price test, the grown-up's door, rating prompt)"
@@ -313,7 +317,7 @@
     }
   ],
   "next": {
-    "at": "2026-09-27T08:00:00-05:00",
+    "at": "2026-09-28T08:00:00-05:00",
     "what": "Daily check and summary"
   }
 }
