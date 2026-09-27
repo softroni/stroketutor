@@ -7,6 +7,9 @@
 # The simulator must be booted with a Debug build of PaperCoach installed. Each
 # screen is launched fresh, given a few seconds to settle, and saved as
 # captures/<device>/<screen>.png. The status bar is set to Apple's 9:41 first.
+# A lesson screen draws the palm tree unless another lesson is named after an @:
+# `player-last@donut` launches with `-STLesson donut` and saves
+# captures/<device>/player-last@donut.png.
 set -euo pipefail
 
 udid=$1 device=$2; shift 2
@@ -20,7 +23,11 @@ xcrun simctl status_bar $udid override --time "9:41" --dataNetwork wifi --wifiMo
 
 for screen in "$@"; do
   xcrun simctl terminate $udid $bundle 2>/dev/null || true
-  xcrun simctl launch $udid $bundle -STScreen $screen >/dev/null
+  if [[ $screen == *@* ]]; then
+    xcrun simctl launch $udid $bundle -STScreen ${screen%%@*} -STLesson ${screen#*@} >/dev/null
+  else
+    xcrun simctl launch $udid $bundle -STScreen $screen >/dev/null
+  fi
   sleep ${SETTLE:-8}
   xcrun simctl io $udid screenshot --type=png $out/$screen.png >/dev/null 2>&1
   if [[ $device == ipad ]]; then

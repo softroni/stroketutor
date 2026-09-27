@@ -113,7 +113,7 @@ export const SHOTS = [
   {
     id: 'color',
     title: 'Finish it<br><em>in full color</em>',
-    capture: 'player-last',
+    capture: 'player-last@donut',
     stickers: [
       { name: 'pencil:clay', x: 0.0, y: 0.58, size: 0.56, rot: -64 },
       { name: 'pencil:green', x: 0.06, y: 0.74, size: 0.56, rot: -40 },
@@ -123,7 +123,7 @@ export const SHOTS = [
   {
     id: 'method',
     title: 'Watch a line,<br><em>then draw it</em>',
-    capture: 'preview-default',
+    capture: 'preview-default@rocket',
     stickers: [
       { name: 'hot-air-balloon', x: 0.0, y: 0.11, size: 0.30, rot: -10 },
       { name: 'pencil:green', x: 1.0, y: 0.68, size: 0.58, rot: 62 },
@@ -147,7 +147,7 @@ export const SHOTS = [
   {
     id: 'done',
     title: 'A finished picture<br><em>in minutes</em>',
-    capture: 'completion-default',
+    capture: 'completion-default@sailboat',
     stickers: [
       { name: 'star', x: 0.02, y: 0.09, size: 0.24, rot: -16 },
       { name: 'gift-box', x: 1.01, y: 0.60, size: 0.26, rot: 10 },

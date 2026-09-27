@@ -58,9 +58,12 @@ enum DebugScreenHarness {
         // tree (upright) and the red car (wide). They are found by lesson id and not
         // by the path they sit in, so renaming a path in the catalog cannot empty
         // this file; a catalog that carries neither falls back to the first two
-        // paths that shipped with anything at all.
+        // paths that shipped with anything at all. `-STLesson <id>` puts another
+        // lesson (and its path) in the palm tree's place, so the App Store art can
+        // show a different drawing on each screen.
         let shipped = app.paths.filter { !$0.isEmpty }
-        guard let treeLesson = app.lesson(id: "palm-tree") ?? shipped.first?.lessons.first,
+        let chosenLesson = UserDefaults.standard.string(forKey: "STLesson").flatMap { app.lesson(id: $0) }
+        guard let treeLesson = chosenLesson ?? app.lesson(id: "palm-tree") ?? shipped.first?.lessons.first,
               let treePath = app.path(id: treeLesson.pathId)
         else {
             return // The catalog carries no lesson with a tutorial behind it.
