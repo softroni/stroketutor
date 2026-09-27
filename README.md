@@ -93,7 +93,8 @@ usually on its side. Built the same day, for the version after 1.0:
 - **Navigation.** In a window at least 960 pt wide, a sidebar (`SideBar`) replaces the tab bar and lists every path
   with its count. Screens read `\.isWideLayout` (`WideLayout`, from 700 pt):
   - Home has a large hero;
-  - Path shows the hero beside its nodes;
+  - Path shows the hero beside its nodes when both fit (892 pt), and one readable column otherwise, so the zig-zag
+    never runs into the Goal card;
   - Lesson preview puts the picture beside the reference, Lina, the steps as small sheets and the button;
   - Completion shows the page beside its words when the window is on its side, and one wider column when upright;
   - Sketchbook uses five columns and All paths four;

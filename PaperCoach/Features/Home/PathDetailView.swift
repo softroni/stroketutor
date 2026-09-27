@@ -16,9 +16,12 @@ import SwiftUI
 /// All paths, and choosing a card there makes that path current and comes back to
 /// this root showing it (`AppModel.open(_:)`).
 ///
-/// On a wide screen (`isWideLayout`) the hero and the count stand in a column on the
-/// leading side and the nodes scroll beside them, so where the path leads stays in
-/// view all the way down it.
+/// On a wide screen (`isWideLayout`) with room for both (`columnsMinimumWidth`), the
+/// hero and the count stand in a column on the leading side and the nodes scroll
+/// beside them, so where the path leads stays in view all the way down it. A wide
+/// screen without that room — an upright iPad beside the sidebar — keeps the one
+/// column, at a readable width: the zig-zag needs its own width, and squeezed beside
+/// the hero it ran into the Goal card and lost its badges at both edges.
 struct PathDetailView: View {
     /// The current path's id; nil before a path has been chosen.
     let pathId: String?
@@ -26,6 +29,23 @@ struct PathDetailView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.isWideLayout) private var isWide
     @State private var lockedLesson: LockedLesson?
+    /// The screen's width, to tell whether the hero and the nodes fit side by side.
+    @State private var width: CGFloat = 0
+
+    /// The hero's column in the two-column layout.
+    static let summaryWidth: CGFloat = 380
+    static let columnSpacing: CGFloat = 32
+    /// What the nodes need beside it: a 120 pt node, its 150 pt label, the ±40 pt
+    /// zig-zag and the badges that sit over the node's rim, with a little air.
+    static let nodesMinimumWidth: CGFloat = 440
+    /// The narrowest screen that takes both columns.
+    static var columnsMinimumWidth: CGFloat {
+        2 * Theme.gutter + summaryWidth + columnSpacing + nodesMinimumWidth
+    }
+
+    private var usesColumns: Bool {
+        isWide && width >= Self.columnsMinimumWidth
+    }
 
     var body: some View {
         Group {
@@ -61,36 +81,38 @@ struct PathDetailView: View {
                              app.push(.paths)
                          })
 
-            if isWide {
-                HStack(alignment: .top, spacing: 32) {
+            if usesColumns {
+                HStack(alignment: .top, spacing: Self.columnSpacing) {
                     ScrollView {
                         summary(for: path, drawn: drawn, isComplete: isComplete)
                             .padding(.top, 4)
                             .padding(.bottom, 20)
                     }
                     .scrollBounceBehavior(.basedOnSize)
-                    .frame(width: 380)
+                    .frame(width: Self.summaryWidth)
 
                     ScrollView {
                         nodes(for: path, size: 120)
                             .padding(.bottom, 20)
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: Self.nodesMinimumWidth, maxWidth: .infinity)
                 }
                 .padding(.horizontal, Theme.gutter)
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
                         summary(for: path, drawn: drawn, isComplete: isComplete)
-                        nodes(for: path, size: 100)
+                        nodes(for: path, size: isWide ? 120 : 100)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Theme.gutter)
+                    .readableColumn(isWide)
                     .padding(.top, 4)
                     .padding(.bottom, 20)
                 }
             }
         }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
         // On appear for a hand-over that arrives with a new path (the root is keyed
         // by it, so it appears afresh), and on change for one that arrives while
         // this path is already the root — the tab root does not appear again.
