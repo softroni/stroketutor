@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-27T01:10:34-05:00",
+  "updated": "2026-09-27T09:56:45-05:00",
   "headline": "1.0 (2) is still waiting for Apple's review (submitted Saturday 11:50 AM). No users, reviews, crashes or ad spend yet; ads and the version tag go on the day it's approved.",
   "app": {
     "live": null,
@@ -188,6 +188,10 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-09-27T09:56:45-05:00",
+      "text": "docs/next-builds.md: what to build next for revenue (price test prerequisite, price test, the grown-up's door, rating prompt)"
+    },
     {
       "at": "2026-09-27T01:10:34-05:00",
       "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, no ads yet"
