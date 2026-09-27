@@ -6,6 +6,7 @@ import type { TracedDrawing } from '../trace/traceSvg'
 import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
 import type { ScreenshotList } from './screenshots'
+import type { TodayResponse } from './today'
 
 import { mockVoiceApi } from './voice/mockVoiceApi'
 
@@ -88,6 +89,11 @@ export interface StudioSettings {
 /** The rendered App Store screenshots (read-only). */
 export function listScreenshots() {
   return call<ScreenshotList>('/api/screenshots')
+}
+
+/** How the app stands and what Claude is doing, or how it stood at the end of a past day (read-only). */
+export function readToday(day: string | null = null) {
+  return call<TodayResponse>(day ? `/api/today?day=${encodeURIComponent(day)}` : '/api/today')
 }
 
 export function readSettings() {

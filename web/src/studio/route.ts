@@ -4,7 +4,7 @@
  *
  * `#/paths/<pathId>` · `#/unfiled` · `#/lessons/<lessonId>` · `#/new/<pathId>` ·
  * `#/new?lesson=<lessonId>` · `#/publish` · `#/voice` · `#/trash` · `#/settings` · `#/import` ·
- * `#/screenshots[/<device>[/<shot>]]`
+ * `#/screenshots[/<device>[/<shot>]]` · `#/today[/<YYYY-MM-DD>]`
  *
  * One screen takes a named parameter rather than a segment: New lesson can be
  * opened to fill a planned lesson, which is a way of arriving at the screen
@@ -24,6 +24,8 @@ export type Route =
   | { name: 'import' }
   /** The App Store screenshots of one device, with `shot` open full size. */
   | { name: 'screenshots'; device: ScreenshotDevice; shot: string | null }
+  /** How the app stands and what Claude is doing, written by Claude every morning; `day` shows a past one. */
+  | { name: 'today'; day: string | null }
 
 export function parseRoute(hash: string): Route {
   const [path, search = ''] = hash.replace(/^#\/?/, '').split('?')
@@ -52,6 +54,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'import' }
     case 'screenshots':
       return { name: 'screenshots', device: parts[1] === 'ipad' ? 'ipad' : 'iphone', shot: parts[2] ?? null }
+    case 'today':
+      return { name: 'today', day: parts[1] && /^\d{4}-\d{2}-\d{2}$/.test(parts[1]) ? parts[1] : null }
     case 'paths':
       return { name: 'paths', pathId: parts[1] ?? null }
   }
@@ -82,6 +86,8 @@ export function routeHref(route: Route): string {
     case 'screenshots':
       if (route.shot) return `#/screenshots/${route.device}/${encodeURIComponent(route.shot)}`
       return route.device === 'iphone' ? '#/screenshots' : `#/screenshots/${route.device}`
+    case 'today':
+      return route.day ? `#/today/${route.day}` : '#/today'
   }
 }
 

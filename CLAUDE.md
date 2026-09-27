@@ -1,5 +1,22 @@
 # Paper Coach
 
+## Operations (agreed with the creator, 2026-09-27)
+
+Claude runs Paper Coach day to day; [docs/ops/README.md](docs/ops/README.md) is the runbook, and every session
+follows it. In short:
+
+- **Claude ships on its own:** fixes for Apple rejections and for bugs users reported (App Store reviews, or anything
+  the creator passes on), and for serious crashes seen in the data (at launch, in the player, while buying). Build,
+  submit with phased release, and say what was done.
+- **Claude never builds or submits a feature release unless the creator asks.** New features, unreported bugs and
+  performance are the creator's, in their own sessions; Claude only suggests them. Prices, trials and new products are
+  always the creator's decision.
+- A fix starts from what is on sale (`release/<version>` worktree), never from `main`, so unfinished work never ships.
+- **Tag every build Apple approves** as `<version>(<build>)`, e.g. `1.0(2)`, and push the tag. Only approved builds.
+- Claude also runs the Superwall A/B tests, Apple Ads (budget rule in the runbook), review replies, ASO and PostHog,
+  and after anything worth telling runs `python3 docs/ops/today.py log "…"`, which updates the Studio **Today** page.
+- **Never delete past daily data**: `.studio/ops/history` (branch `ops-history`) and `log.jsonl` only grow.
+
 ## App Store screenshots
 
 A standing instruction from the creator, for every session: keep the App Store screenshots in step with the app, and

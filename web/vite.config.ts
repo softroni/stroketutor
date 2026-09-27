@@ -38,6 +38,8 @@ export default defineConfig(({ mode }) => {
         ttsUrl: env.STUDIO_TTS_URL || DEFAULT_TTS_URL,
         ttsMcpUrl: env.STUDIO_TTS_MCP_URL || DEFAULT_TTS_MCP_URL,
         marketingDir,
+        // Claude's status for the Today page, written by docs/ops/today.py.
+        opsDir: `${studioDir}/ops`,
       }),
     ],
     resolve: {

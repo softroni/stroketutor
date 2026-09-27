@@ -15,6 +15,7 @@ import { parseRoute, routeHref, type Route } from './route'
 import { ScreenshotsView } from './ScreenshotsView'
 import { SettingsView } from './SettingsView'
 import { loadSources } from './sources'
+import { TodayView } from './TodayView'
 import { TrashView } from './TrashView'
 import { VoiceView } from './VoiceView'
 // Imported here, in this order, so each sheet overrides the ones before it:
@@ -26,6 +27,7 @@ import './workspace.css'
 import './forms.css'
 import './voice.css'
 import './screenshots.css'
+import './today.css'
 
 /**
  * Paper Coach Studio: the private authoring tool built around the existing
@@ -152,6 +154,9 @@ export function Studio() {
       case 'screenshots':
         screen = <ScreenshotsView device={route.device} shotId={route.shot} available={library.writable} />
         break
+      case 'today':
+        screen = <TodayView day={route.day} available={library.writable} />
+        break
     }
   }
 
@@ -188,6 +193,9 @@ export function Studio() {
             </span>
           ) : null}
           <nav className="st-studio__nav" aria-label="Studio">
+            <a href={routeHref({ name: 'today', day: null })} aria-current={current('today')}>
+              Today
+            </a>
             <a href={routeHref({ name: 'paths', pathId: null })} aria-current={current(['paths', 'unfiled', 'lesson', 'trash'])}>
               Paths
             </a>

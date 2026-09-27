@@ -66,6 +66,7 @@ export function CommandPalette({ library, onClose }: { library: Library; onClose
         label: 'App Store screenshots',
         href: routeHref({ name: 'screenshots', device: 'iphone', shot: null }),
       },
+      { id: 'page:today', kind: 'Page', label: 'Today: how the app stands', href: routeHref({ name: 'today', day: null }) },
       { id: 'page:settings', kind: 'Page', label: 'Settings', href: routeHref({ name: 'settings' }) },
     ]
     const paths: Command[] = (catalog?.paths ?? []).map((path) => ({

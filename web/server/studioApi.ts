@@ -8,6 +8,7 @@ import { listVisionModels } from './models'
 import { regenerate } from './regenerate'
 import { listScreenshots, readScreenshot } from './screenshots'
 import { gitIn, releaseLesson } from './release'
+import { readToday } from './today'
 import {
   MAX_REFERENCE_BYTES,
   REFERENCE_RESPONSE_HEADERS,
@@ -80,6 +81,8 @@ export interface StudioApiOptions {
   ttsMcpUrl?: string
   /** docs/app-store/marketing, whose rendered App Store screenshots the Screenshots page shows. */
   marketingDir?: string
+  /** .studio/ops, where Claude writes the status the Today page shows. */
+  opsDir?: string
 }
 
 /** Where Lina's voice is made when nothing says otherwise: the creator's Mac, on their tailnet. */
@@ -141,6 +144,8 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `DELETE /api/voice/app/published`     takes them out again
  * - `GET  /api/screenshots`               the rendered App Store screenshots, their headlines and last commit
  * - `GET  /api/screenshots/:device/:file` one of them (PNG); read-only, like the list
+ * - `GET  /api/today[?day=YYYY-MM-DD]`    how the app stands and what Claude is doing (.studio/ops/status.json),
+ *                                         or a past day from its history, with the list of kept days; read-only
  */
 export function studioApi(options: StudioApiOptions): Plugin {
   let opening: Promise<{ workspace: Workspace; writer: RepoWriter }> | null = null
@@ -238,6 +243,10 @@ async function handle(
         res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-cache' })
         return res.end(image)
       }
+    }
+
+    if (resource === 'today' && parts.length === 1 && method === 'GET' && options.opsDir) {
+      return send(res, 200, await readToday(options.opsDir, url.searchParams.get('day')))
     }
 
     const { workspace, writer } = await studioFor(server)

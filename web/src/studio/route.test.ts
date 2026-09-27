@@ -26,6 +26,9 @@ describe('parseRoute', () => {
     expect(parseRoute('#/screenshots')).toEqual({ name: 'screenshots', device: 'iphone', shot: null })
     expect(parseRoute('#/screenshots/ipad/keep')).toEqual({ name: 'screenshots', device: 'ipad', shot: 'keep' })
     expect(parseRoute('#/screenshots/watch')).toEqual({ name: 'screenshots', device: 'iphone', shot: null })
+    expect(parseRoute('#/today')).toEqual({ name: 'today', day: null })
+    expect(parseRoute('#/today/2026-09-27')).toEqual({ name: 'today', day: '2026-09-27' })
+    expect(parseRoute('#/today/yesterday')).toEqual({ name: 'today', day: null })
   })
 
   it('reads the planned lesson New lesson is opened to fill', () => {
@@ -55,6 +58,8 @@ describe('parseRoute', () => {
       { name: 'screenshots', device: 'iphone', shot: null },
       { name: 'screenshots', device: 'ipad', shot: null },
       { name: 'screenshots', device: 'iphone', shot: 'learn' },
+      { name: 'today', day: null },
+      { name: 'today', day: '2026-09-27' },
     ]
     for (const route of routes) expect(parseRoute(routeHref(route))).toEqual(route)
   })
