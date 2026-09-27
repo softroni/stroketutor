@@ -6,6 +6,7 @@ import { GenerationFailed, generateCandidate, type GenerateDeps } from './genera
 import { generateFromTrace } from './generateFromTrace'
 import { listVisionModels } from './models'
 import { regenerate } from './regenerate'
+import { listScreenshots, readScreenshot } from './screenshots'
 import { gitIn, releaseLesson } from './release'
 import {
   MAX_REFERENCE_BYTES,
@@ -77,6 +78,8 @@ export interface StudioApiOptions {
   ttsUrl?: string
   /** Its MCP endpoint, from STUDIO_TTS_MCP_URL, where references are uploaded and health is read. */
   ttsMcpUrl?: string
+  /** docs/app-store/marketing, whose rendered App Store screenshots the Screenshots page shows. */
+  marketingDir?: string
 }
 
 /** Where Lina's voice is made when nothing says otherwise: the creator's Mac, on their tailnet. */
@@ -136,6 +139,8 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `POST /api/voice/app/narrate`         `{ id, another? }` → records one app line
  * - `POST /api/voice/app/publish`         the AAC files and the manifest into shared/Assets/Voice/app/
  * - `DELETE /api/voice/app/published`     takes them out again
+ * - `GET  /api/screenshots`               the rendered App Store screenshots, their headlines and last commit
+ * - `GET  /api/screenshots/:device/:file` one of them (PNG); read-only, like the list
  */
 export function studioApi(options: StudioApiOptions): Plugin {
   let opening: Promise<{ workspace: Workspace; writer: RepoWriter }> | null = null
@@ -223,6 +228,16 @@ async function handle(
 
     if (resource === 'models' && parts.length === 1 && method === 'GET') {
       return send(res, 200, { models: await listVisionModels() })
+    }
+
+    if (resource === 'screenshots' && method === 'GET' && options.marketingDir) {
+      if (parts.length === 1) return send(res, 200, await listScreenshots(options.marketingDir))
+      if (parts.length === 3) {
+        const image = await readScreenshot(options.marketingDir, name, action)
+        if (!image) return send(res, 404, { error: `There is no screenshot ${name}/${action}.` })
+        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-cache' })
+        return res.end(image)
+      }
     }
 
     const { workspace, writer } = await studioFor(server)

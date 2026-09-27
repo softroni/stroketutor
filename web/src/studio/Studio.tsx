@@ -12,6 +12,7 @@ import { NewLessonView } from './NewLessonView'
 import { PathsView } from './PathsView'
 import { PublishView } from './PublishView'
 import { parseRoute, routeHref, type Route } from './route'
+import { ScreenshotsView } from './ScreenshotsView'
 import { SettingsView } from './SettingsView'
 import { loadSources } from './sources'
 import { TrashView } from './TrashView'
@@ -24,6 +25,7 @@ import './paths.css'
 import './workspace.css'
 import './forms.css'
 import './voice.css'
+import './screenshots.css'
 
 /**
  * Paper Coach Studio: the private authoring tool built around the existing
@@ -147,6 +149,9 @@ export function Studio() {
       case 'import':
         screen = <ImportView samples={library.samples} library={library} onCreated={openCreated} />
         break
+      case 'screenshots':
+        screen = <ScreenshotsView device={route.device} shotId={route.shot} available={library.writable} />
+        break
     }
   }
 
@@ -205,6 +210,9 @@ export function Studio() {
             <a href={routeHref({ name: 'import' })} aria-current={current('import')}>
               Import &amp; test
             </a>
+            <a href={routeHref({ name: 'screenshots', device: 'iphone', shot: null })} aria-current={current('screenshots')}>
+              Screenshots
+            </a>
             <a href={routeHref({ name: 'settings' })} aria-current={current('settings')}>
               Settings
             </a>
@@ -232,12 +240,19 @@ export function Studio() {
 function useHashRoute(): Route {
   const [hash, setHash] = useState(() => window.location.hash)
   useEffect(() => {
-    const onHashChange = () => {
+    const onHashChange = (event: HashChangeEvent) => {
       setHash(window.location.hash)
-      window.scrollTo(0, 0)
+      // Opening, stepping through and closing a screenshot keeps the grid where it was.
+      if (!sameScreenshotPage(event.oldURL, event.newURL)) window.scrollTo(0, 0)
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
   return useMemo(() => parseRoute(hash), [hash])
+}
+
+function sameScreenshotPage(oldURL: string, newURL: string): boolean {
+  const before = parseRoute(new URL(oldURL).hash)
+  const after = parseRoute(new URL(newURL).hash)
+  return before.name === 'screenshots' && after.name === 'screenshots' && before.device === after.device
 }

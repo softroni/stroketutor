@@ -5,6 +5,8 @@ import type { ValidationIssue } from '../schema/validate'
 import type { TracedDrawing } from '../trace/traceSvg'
 import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
+import type { ScreenshotList } from './screenshots'
+
 import { mockVoiceApi } from './voice/mockVoiceApi'
 
 // Every write carries this header; see STUDIO_HEADER in server/studioApi.ts.
@@ -81,6 +83,11 @@ export interface StudioSettings {
   defaultModel: string | null
   /** The text-to-speech server speech is made on, from STUDIO_TTS_URL. */
   ttsUrl: string
+}
+
+/** The rendered App Store screenshots (read-only). */
+export function listScreenshots() {
+  return call<ScreenshotList>('/api/screenshots')
 }
 
 export function readSettings() {

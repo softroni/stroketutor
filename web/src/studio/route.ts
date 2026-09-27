@@ -3,12 +3,15 @@
  * the browser's back button works without a router dependency.
  *
  * `#/paths/<pathId>` · `#/unfiled` · `#/lessons/<lessonId>` · `#/new/<pathId>` ·
- * `#/new?lesson=<lessonId>` · `#/publish` · `#/voice` · `#/trash` · `#/settings` · `#/import`
+ * `#/new?lesson=<lessonId>` · `#/publish` · `#/voice` · `#/trash` · `#/settings` · `#/import` ·
+ * `#/screenshots[/<device>[/<shot>]]`
  *
  * One screen takes a named parameter rather than a segment: New lesson can be
  * opened to fill a planned lesson, which is a way of arriving at the screen
  * rather than another screen, so it reads as a query.
  */
+import type { ScreenshotDevice } from './screenshots'
+
 export type Route =
   | { name: 'paths'; pathId: string | null }
   | { name: 'unfiled' }
@@ -19,6 +22,8 @@ export type Route =
   | { name: 'trash' }
   | { name: 'settings' }
   | { name: 'import' }
+  /** The App Store screenshots of one device, with `shot` open full size. */
+  | { name: 'screenshots'; device: ScreenshotDevice; shot: string | null }
 
 export function parseRoute(hash: string): Route {
   const [path, search = ''] = hash.replace(/^#\/?/, '').split('?')
@@ -45,6 +50,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'settings' }
     case 'import':
       return { name: 'import' }
+    case 'screenshots':
+      return { name: 'screenshots', device: parts[1] === 'ipad' ? 'ipad' : 'iphone', shot: parts[2] ?? null }
     case 'paths':
       return { name: 'paths', pathId: parts[1] ?? null }
   }
@@ -72,6 +79,9 @@ export function routeHref(route: Route): string {
       return '#/settings'
     case 'import':
       return '#/import'
+    case 'screenshots':
+      if (route.shot) return `#/screenshots/${route.device}/${encodeURIComponent(route.shot)}`
+      return route.device === 'iphone' ? '#/screenshots' : `#/screenshots/${route.device}`
   }
 }
 

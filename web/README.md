@@ -63,7 +63,7 @@ rather than an imitation of it.
 ## The Studio
 
 Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<lesson>`, `#/import`,
-and `#/new?lesson=<lesson>` to fill a planned lesson.
+`#/new?lesson=<lesson>` to fill a planned lesson, and `#/screenshots/<iphone|ipad>/<shot>`.
 
 - **Paths** lists every path in the working curriculum and the lessons of the selected one
   in unlock order, each with its finished drawing, a lifecycle badge (Planned, Draft, Needs review,
@@ -117,6 +117,11 @@ and `#/new?lesson=<lesson>` to fill a planned lesson.
 - **Import & test** is the original loader: any tutorial JSON, validated and played. Nothing is saved
   unless **Save as workspace draft…** keeps it, with an id, a path and an objective, and opens it in the
   lesson workspace.
+- **Screenshots** shows the App Store screenshots as they stand in the repository
+  (`docs/app-store/marketing/out`, made by `render.mjs`; see that folder's README): iPhone or iPad, the
+  first three at App Store search size, then all of them in listing order. A shot opens full size, where
+  ←/→ step through them and Esc closes. It re-reads the folder every 15 seconds and when the tab comes back,
+  so a new render, or a pull that brings one, shows up by itself. Read-only (`GET /api/screenshots`).
 - **⌘K**, or **Jump to…** in the header, opens a palette to jump to any lesson, path or page by typing
   a few letters.
 

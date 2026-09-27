@@ -14,6 +14,8 @@ const shared = fileURLToPath(new URL('../shared', import.meta.url))
 const webDir = fileURLToPath(new URL('.', import.meta.url))
 // The Studio's local workspace (drafts, history, trash), gitignored. Only published lessons reach shared/.
 const studioDir = fileURLToPath(new URL('../.studio', import.meta.url))
+// The App Store screenshots render.mjs writes, shown read-only on the Screenshots page.
+const marketingDir = fileURLToPath(new URL('../docs/app-store/marketing', import.meta.url))
 
 export default defineConfig(({ mode }) => {
   // Read with no prefix filter so OPENROUTER_API_KEY can reach the server
@@ -35,6 +37,7 @@ export default defineConfig(({ mode }) => {
         // Lina's voice is made on the creator's own Mac, on their tailnet.
         ttsUrl: env.STUDIO_TTS_URL || DEFAULT_TTS_URL,
         ttsMcpUrl: env.STUDIO_TTS_MCP_URL || DEFAULT_TTS_MCP_URL,
+        marketingDir,
       }),
     ],
     resolve: {

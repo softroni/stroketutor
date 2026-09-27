@@ -23,6 +23,9 @@ describe('parseRoute', () => {
     expect(parseRoute('#/trash')).toEqual({ name: 'trash' })
     expect(parseRoute('#/new')).toEqual({ name: 'new', pathId: null })
     expect(parseRoute('#/new/houses')).toEqual({ name: 'new', pathId: 'houses' })
+    expect(parseRoute('#/screenshots')).toEqual({ name: 'screenshots', device: 'iphone', shot: null })
+    expect(parseRoute('#/screenshots/ipad/keep')).toEqual({ name: 'screenshots', device: 'ipad', shot: 'keep' })
+    expect(parseRoute('#/screenshots/watch')).toEqual({ name: 'screenshots', device: 'iphone', shot: null })
   })
 
   it('reads the planned lesson New lesson is opened to fill', () => {
@@ -49,6 +52,9 @@ describe('parseRoute', () => {
       { name: 'trash' },
       { name: 'settings' },
       { name: 'import' },
+      { name: 'screenshots', device: 'iphone', shot: null },
+      { name: 'screenshots', device: 'ipad', shot: null },
+      { name: 'screenshots', device: 'iphone', shot: 'learn' },
     ]
     for (const route of routes) expect(parseRoute(routeHref(route))).toEqual(route)
   })

@@ -1,0 +1,255 @@
+/* ---------- App Store screenshots ---------- */
+
+.st-shots {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 28px 32px 64px;
+}
+
+.st-shots__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-bottom: 8px;
+}
+
+.st-shots__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.st-shots__meta {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--ink-faint);
+}
+
+.st-shots__meta code {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.st-shots__count {
+  margin-left: 4px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-shots__section {
+  margin-top: 32px;
+}
+
+.st-shots__size {
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
+/* The first three, at App Store search size, on a phone-dark strip. */
+.st-shots__search {
+  display: inline-flex;
+  gap: 10px;
+  max-width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 24px;
+  background: #0b0b0b;
+}
+
+.st-shots__search a {
+  display: block;
+  flex: 0 1 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  outline-offset: 3px;
+}
+
+.st-shots__search img {
+  display: block;
+  height: auto;
+}
+
+.st-shots__search--iphone img {
+  width: min(120px, 26vw);
+}
+
+.st-shots__search--ipad img {
+  width: min(170px, 26vw);
+}
+
+.st-shots__grid {
+  display: grid;
+  gap: 20px 16px;
+  margin-top: 14px;
+}
+
+.st-shots__grid--iphone {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.st-shots__grid--ipad {
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+
+.st-shots__card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.st-shots__card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.st-shots__card:hover img,
+.st-shots__card:focus-visible img {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(31, 27, 20, 0.14);
+}
+
+.st-shots__caption {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--ink-muted);
+}
+
+.st-shots__caption b {
+  margin-right: 4px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Full-size viewer ---------- */
+
+.st-shots-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: #141210;
+  color: #f4f1ea;
+}
+
+.st-shots-viewer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 20px;
+}
+
+.st-shots-viewer__title b {
+  font-variant-numeric: tabular-nums;
+}
+
+.st-shots-viewer__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-shots-viewer__hint {
+  font-size: 13px;
+  color: rgba(244, 241, 234, 0.6);
+}
+
+.st-shots-viewer__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 0;
+  padding: 4px 16px;
+}
+
+.st-shots-viewer__image {
+  max-width: min(calc(100% - 128px), 1100px);
+  max-height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+.st-shots-viewer__step {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.st-shots-viewer__step:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.st-shots-viewer__strip {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px 16px;
+  overflow-x: auto;
+}
+
+.st-shots-viewer__strip a {
+  flex: none;
+  border-radius: 8px;
+  opacity: 0.55;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.st-shots-viewer__strip a[aria-current='true'] {
+  opacity: 1;
+  outline-color: #f4f1ea;
+}
+
+.st-shots-viewer__strip a:hover {
+  opacity: 0.9;
+}
+
+.st-shots-viewer__strip img {
+  display: block;
+  height: 72px;
+  width: auto;
+  border-radius: 8px;
+}
+
+@media (max-width: 720px) {
+  .st-shots {
+    padding: 20px 16px 48px;
+  }
+
+  .st-shots-viewer__hint {
+    display: none;
+  }
+
+  .st-shots-viewer__step {
+    display: none;
+  }
+
+  .st-shots-viewer__image {
+    max-width: 100%;
+  }
+
+  .st-shots-viewer__strip img {
+    height: 56px;
+  }
+}

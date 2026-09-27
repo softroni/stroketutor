@@ -60,6 +60,12 @@ export function CommandPalette({ library, onClose }: { library: Library; onClose
       },
       { id: 'page:unfiled', kind: 'Page', label: 'Not in a path', href: routeHref({ name: 'unfiled' }) },
       { id: 'page:import', kind: 'Page', label: 'Import & test', href: routeHref({ name: 'import' }) },
+      {
+        id: 'page:screenshots',
+        kind: 'Page',
+        label: 'App Store screenshots',
+        href: routeHref({ name: 'screenshots', device: 'iphone', shot: null }),
+      },
       { id: 'page:settings', kind: 'Page', label: 'Settings', href: routeHref({ name: 'settings' }) },
     ]
     const paths: Command[] = (catalog?.paths ?? []).map((path) => ({

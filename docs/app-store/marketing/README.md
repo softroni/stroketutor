@@ -29,6 +29,9 @@ read from `shared/Tutorials/`, so they are exactly what a learner draws; in #1, 
 `gallery.html` shows every screenshot in listing order, and the first three at the size App Store search shows
 them. `render.mjs` rewrites it after each run (`node docs/app-store/marketing/gallery.mjs` does it alone).
 
+- In Paper Coach Studio: **Screenshots** in the top bar (http://m4-1.tail958ea4.ts.net:5173/#/screenshots, or
+  http://localhost:5173/#/screenshots on this Mac), with an iPhone/iPad switch and a full-size viewer (←/→, Esc).
+  It picks up a new render by itself.
 - On this Mac: file:///Users/kevin/dev/stroketutor/docs/app-store/marketing/gallery.html
 - From any device on the tailnet, through the always-on Studio server:
   http://m4-1.tail958ea4.ts.net:5173/@fs/Users/kevin/dev/stroketutor/docs/app-store/marketing/gallery.html
