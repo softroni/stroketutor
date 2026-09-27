@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-27T01:06:49-05:00",
-  "headline": "1.0 (2) has been with Apple since Saturday 11:50 AM and review hasn't started. Everything for launch day is ready: this page, the PostHog dashboard, crash reports for 1.0.1, and ads to switch on at approval.",
+  "updated": "2026-09-27T01:10:34-05:00",
+  "headline": "1.0 (2) is still waiting for Apple's review (submitted Saturday 11:50 AM). No users, reviews, crashes or ad spend yet; ads and the version tag go on the day it's approved.",
   "app": {
     "live": null,
     "inReview": {
@@ -160,13 +160,8 @@
   ],
   "needsYou": [
     {
-      "title": "Revoke the temporary Admin key 4AU7B78386",
-      "detail": "Users and Access › Integrations › Team Keys. It did its one job: switching on App Store analytics reports for Paper Coach.",
-      "since": "2026-09-27"
-    },
-    {
       "title": "Add Crash Data and Performance Data to App Privacy",
-      "detail": "Both under Diagnostics: not linked to the user, not tracking, App Functionality. Needed before 1.0.1 is submitted, and there is no API for it. Or tell me to do it in your Chrome.",
+      "detail": "Both under Diagnostics: not linked to the user, not tracking, App Functionality. Kevin will do it later; Claude reminds him when 1.0.1 is ready to submit, and holds 1.0.1 until it is done.",
       "since": "2026-09-27"
     }
   ],
@@ -193,6 +188,14 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-09-27T01:10:34-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, no ads yet"
+    },
+    {
+      "at": "2026-09-27T01:10:27-05:00",
+      "text": "Temporary Admin key revoked by Kevin; both check-ins run once by hand to approve their tools"
+    },
     {
       "at": "2026-09-27T01:06:49-05:00",
       "text": "Vendor number in: installs, subscriptions and proceeds now come from Apple's daily sales reports"
