@@ -95,7 +95,11 @@ struct PathDetailView: View {
                         nodes(for: path, size: 120)
                             .padding(.bottom, 20)
                     }
-                    .frame(minWidth: Self.nodesMinimumWidth, maxWidth: .infinity)
+                    // No minimum width here: the choice of layout is made from this
+                    // screen's measured width, and a minimum would hold the screen at
+                    // 892 pt after the iPad turns back upright, so it never went back
+                    // to one column.
+                    .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, Theme.gutter)
             } else {
