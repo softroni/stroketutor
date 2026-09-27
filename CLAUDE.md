@@ -17,6 +17,9 @@ follows it. In short:
   and after anything worth telling runs `python3 docs/ops/today.py log "…"`, which updates the Studio **Today** page.
 - **Never delete past daily data**: `.studio/ops/history` (branch `ops-history`) and `log.jsonl` only grow.
 
+**Planning or building features?** Read [docs/next-builds.md](docs/next-builds.md) first: the ranked list of what to
+build next for revenue, with specs, and the numbers behind the order.
+
 ## App Store screenshots
 
 A standing instruction from the creator, for every session: keep the App Store screenshots in step with the app, and

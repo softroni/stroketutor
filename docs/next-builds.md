@@ -1,0 +1,95 @@
+# What to build next, for revenue
+
+Written 2026-09-27, from Kevin and Claude's review of the plan to make Paper Coach profitable. **A session that
+plans or builds features reads this first.** Features are built in Kevin's sessions (docs/ops/README.md); this is the
+ranked list of what earns most, with enough of a spec to start. When an item ships, mark it done with the commit and
+the version. Claude updates *The numbers* as real data arrives.
+
+## The numbers behind it
+
+| | Today | Why it matters |
+|---|---|---|
+| Yearly plan | $19.99, 7-day free trial | about **$17** a year after Apple's cut (Small Business Program) |
+| Weekly plan | $1.99, no trial | the anchor; some buy it, most shouldn't |
+| Cost of an install from Apple Ads | unknown; GeoBlitz paid **$1.61** on its one German day, and drawing in the US is more crowded (Simply Draw has 784k ratings) | assume **$1.50–3** until Paper Coach's own numbers replace it |
+| Ads pay for themselves when | one in about **8** ad installs becomes a yearly subscriber (at $2 an install) | a few percent is common, one in eight is rare |
+
+At $19.99 the ads are unlikely to pay for themselves, and the budget rule (spend only what the ads earn back) would
+stop them after the first $150. The price, and who the offer reaches, matter more than paywall wording. Hence the
+order below.
+
+## 1. Premium recognises any product in its subscription group (small, do first)
+
+**Why:** a price test needs new products. Today `PremiumStore.refreshEntitlements()` counts only the two ids in
+`PremiumStore.ProductID.all`, so a subscriber to a new product (a $39.99 yearly, say) **would be charged and still see
+the crowns**. Nothing may sell a new product until a build with this change is on sale.
+
+**Build:**
+- Grant Premium for any verified, unrevoked transaction whose `subscriptionGroupID` is Premium's group (read the id
+  from a loaded product's `subscription?.subscriptionGroupID`, or store it), not for a fixed list of ids.
+- `PremiumStore.Plan(productId:)` maps any yearly product to `.yearly` and any weekly one to `.weekly` (by the
+  product's subscription period), so `purchase_attempted` keeps reporting the plan.
+- Trial wording keeps reading the product's own introductory offer; nothing assumes $19.99 or 7 days beyond
+  `trialDays`.
+- Tests: a transaction for an unknown product in the group unlocks Premium; one outside the group does not; plan
+  mapping by period.
+
+**Done when:** the build is on sale. Claude then may create price-test products (item 2), once Kevin agrees the prices.
+
+## 2. A price test (Kevin sets the prices; after item 1 is on sale)
+
+**Why:** the biggest lever on whether ads can pay, and on revenue from every learner who does subscribe.
+
+**Plan:**
+- Kevin picks the prices. Suggested: yearly **$29.99** and **$39.99** against $19.99, each with the same 7-day free
+  trial, in the same subscription group (new product ids such as `…premium.yearly.b` and `…premium.yearly.c`).
+- Claude adds them in App Store Connect, submits them with the next version, and runs the test in Superwall (13+
+  learners): one paywall design, three prices, equal shares.
+- **Judge by revenue per paywall open over at least 14 days**, so trials have time to turn paid (Apple's subscription
+  event report, read by `docs/ops/today.py`). Not by trial starts: a lower price always wins on trials.
+- The app's own paywall (children's grown-ups) keeps $19.99 until the test has a winner; then the winner goes there
+  too, as an app change.
+
+## 3. The grown-up's door, where a grown-up is likely to be (medium)
+
+**Why:** children can't buy; their grown-ups do. Children are probably most learners, and their offer sits behind a
+small "For grown-ups" link that no test reaches.
+
+**The rule that stays** (README › Premium › *Children*): a child never sees a price, and **nothing asks a child to go
+and get, or persuade, a grown-up.** Every idea below addresses the adult directly, behind the parental check, and is
+easy for a child to ignore.
+
+**Build:**
+- **Setup.** When onboarding's age answer is a child's, the person answering is often the parent holding the phone.
+  After the child's first finished drawing, where the first run would lead a 13+ learner to the paywall, show a
+  quiet card addressed to the adult ("For the grown-up who set this up") → the parental check → the grown-up's
+  paywall (`GrownUpPaywallView`, already showing the child's drawing and wish list). Skipping it continues exactly as
+  today.
+- **The sketchbook.** Grown-ups look at the drawings. Give the sketchbook a small "For grown-ups" entry, the same
+  door as the drawer's.
+- **Measure it:** `offer_screen_viewed` with a new `entry` value for each door, so the dashboard shows which door
+  leads to purchases.
+
+## 4. Ask 13+ learners for a rating (small)
+
+**Why:** a new app with no ratings loses people in search results and in ads. The Settings row that opens the
+review page is there, but almost nobody goes looking for it.
+
+**Build:**
+- After a learner 13 or over finishes a drawing, from their third finished drawing on and never in their first
+  session, call StoreKit's `requestReview`. At most once per app version; iOS itself limits it further.
+- Never for the child tier.
+- Event: `rating_prompt_requested`, so the prompt's effect on ratings can be read against App Store Connect.
+
+## What Claude does meanwhile (no app change)
+
+- Custom product pages: one for parents (children drawing, the parental check, no ads) and one for adults (calm
+  sketching). Apple Ads' kids keywords point at the first, the rest at the second.
+- Reads Apple's subscription event report daily: trials started, trials turned paid, renewals, refunds.
+- Cuts the onboarding A/B test to two designs as soon as one is clearly behind: there is too little traffic for three.
+- Keywords and promotional text with every release (docs/ops/README.md).
+
+## Suggested order
+
+1.1 carries items 1 and 4 (both small). The price test (2) starts as soon as 1.1 is on sale. Item 3 goes in the
+build after, or in 1.1 if there is time.

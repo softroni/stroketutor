@@ -130,6 +130,8 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 - **Every paywall obeys Apple's billed-amount rule** (Guideline 3.1.2(c)): the amount billed is the
   most prominent price, and the buy button names it. The Superwall handoff's decisions still hold:
   "Continue with free lessons" on every page, no hidden exit, nothing from Drawing Desk's playbook.
+- **Never put a product on a paywall that the build on sale doesn't count as Premium**
+  (`PremiumStore.ProductID.all` until docs/next-builds.md item 1 ships): the buyer would be charged and get nothing.
 - Record every change in the log with its reason.
 
 ## Apple Ads
