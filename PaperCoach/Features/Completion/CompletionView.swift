@@ -8,11 +8,20 @@ import UIKit
 ///
 /// Two variants, as in the mockup: the ordinary end of a lesson, and the end of the
 /// whole path, where the single page becomes a contact sheet of everything drawn.
+///
+/// On a wide screen (`isWideLayout`) on its side the page, or the contact sheet,
+/// stands large on the leading side and the words, the two facts and the ways on
+/// make a column beside it, instead of a small page over a stretch of empty paper.
+/// Upright, the phone's column is kept to a readable width and the page is allowed
+/// to grow taller.
 struct CompletionView: View {
     let lesson: Lesson
 
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.isWideLayout) private var isWide
+    /// The screen's size, to tell a wide screen on its side from one upright.
+    @State private var size: CGSize = .zero
 
     /// Lina reads her closing line once, if it was recorded and narration is on.
     @State private var narration = NarrationPlayer()
@@ -38,19 +47,27 @@ struct CompletionView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // The gold card and the free lesson under it take the room the page
-            // would have grown into, so the page takes a fixed height and the
-            // screen scrolls, as it does at the accessibility sizes.
-            if dynamicTypeSize.isAccessibilitySize || premiumNext != nil {
-                ScrollView { body(isScrolling: true) }
+        Group {
+            if isWide && size.width > size.height && !dynamicTypeSize.isAccessibilitySize {
+                wideBody
             } else {
-                body(isScrolling: false)
-            }
+                VStack(spacing: 0) {
+                    // The gold card and the free lesson under it take the room the
+                    // page would have grown into, so the page takes a fixed height
+                    // and the screen scrolls, as it does at the accessibility sizes.
+                    if dynamicTypeSize.isAccessibilitySize || premiumNext != nil {
+                        ScrollView { body(isScrolling: true) }
+                    } else {
+                        body(isScrolling: false)
+                    }
 
-            actions
+                    actions
+                }
+                .readableColumn(isWide)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
         .background(Theme.page.ignoresSafeArea())
         .onAppear {
             // One .success haptic and no timer (sk-complete: "No auto-dismiss, no
@@ -60,6 +77,53 @@ struct CompletionView: View {
             speakLinaLine()
         }
         .onDisappear { narration.deactivate() }
+    }
+
+    // MARK: - The wide screen
+
+    private var wideBody: some View {
+        HStack(alignment: .center, spacing: 48) {
+            Group {
+                if isPathDone {
+                    contactSheet
+                } else {
+                    FinishedPageView(tutorial: lesson.tutorial, chipText: chipText)
+                        .padding(6)
+                        .accessibilityElement()
+                        .accessibilityLabel(pageAccessibilityLabel)
+                        .accessibilityAddTraits(.isImage)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilitySortPriority(9)
+
+            ScrollView {
+                VStack(spacing: Theme.stackSpacing) {
+                    if isPathDone {
+                        Text("Path finished")
+                            .textRole(.eyebrow)
+                            .foregroundStyle(Theme.gold)
+                            .textCase(.uppercase)
+                            .accessibilitySortPriority(11)
+                    }
+                    headline
+                        .accessibilitySortPriority(10)
+                    LinaLineRow(text: linaText)
+                        .accessibilitySortPriority(8)
+                    tiles
+                        .accessibilitySortPriority(7)
+                    actions
+                        .padding(.horizontal, -Theme.gutter)
+                }
+                .padding(.vertical, 24)
+                .frame(maxHeight: .infinity)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .defaultScrollAnchor(.center)
+            .frame(width: 440)
+        }
+        .padding(.horizontal, 40)
+        .padding(.vertical, 24)
     }
 
     // MARK: - The body
@@ -133,7 +197,7 @@ struct CompletionView: View {
                     .accessibilityAddTraits(.isImage)
                 Spacer(minLength: 0)
             }
-            .frame(minHeight: 200, maxHeight: isScrolling ? 280 : .infinity)
+            .frame(minHeight: 200, maxHeight: isScrolling ? (isWide ? 520 : 280) : .infinity)
             .padding(.top, 4)
         }
     }
@@ -143,8 +207,9 @@ struct CompletionView: View {
     private var contactSheet: some View {
         let lessons = path?.lessons ?? [lesson]
         let columns = max(1, min(5, lessons.count))
-        return LazyVGrid(columns: Array(repeating: GridItem(.fixed(63), spacing: 8), count: columns),
-                         spacing: 8) {
+        let cell: CGFloat = isWide ? 110 : 63
+        return LazyVGrid(columns: Array(repeating: GridItem(.fixed(cell), spacing: isWide ? 14 : 8), count: columns),
+                         spacing: isWide ? 14 : 8) {
             ForEach(lessons) { entry in
                 contactSheetCell(entry)
             }

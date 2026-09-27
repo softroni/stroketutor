@@ -8,6 +8,8 @@ struct ProfileSettingsView: View {
     let profileId: UUID
 
     @Environment(AppModel.self) private var app
+
+    @Environment(\.isWideLayout) private var isWide
     @Environment(\.dismiss) private var dismiss
 
     @State private var name = ""
@@ -63,6 +65,7 @@ struct ProfileSettingsView: View {
                     }
                 }
                 .padding(.horizontal, Theme.gutter)
+                .readableColumn(isWide)
                 .padding(.vertical, 16)
             }
         }

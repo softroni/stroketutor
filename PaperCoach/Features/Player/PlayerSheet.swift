@@ -14,6 +14,14 @@ struct PlayerSheet: View {
     /// off the screen. The mockup's sentences are two lines; a real lesson's can be
     /// eight, and at accessibility type sizes more again.
     var textMaxHeight: CGFloat = 300
+    /// On a big screen held upright (`PlayerLayout.roomyPortrait`): the sentence at
+    /// 30 pt for reading from a metre away, the reference picture large beside the
+    /// words (`reference`), and all of it kept to an 860 pt row in the middle
+    /// rather than strung across the whole width.
+    var isRoomy: Bool = false
+    /// The reference picture at the leading end of the row, on a big screen. The
+    /// words beside it are set flush left.
+    var reference: AnyView?
 
     /// The height the sentence and hint actually want, measured as laid out.
     @State private var naturalTextHeight: CGFloat = 60
@@ -30,17 +38,43 @@ struct PlayerSheet: View {
         naturalTextHeight > slotHeight + 1
     }
 
+    private var alignment: TextAlignment { reference == nil ? .center : .leading }
+
     var body: some View {
+        HStack(alignment: .top, spacing: 24) {
+            if let reference { reference }
+            column
+        }
+        .frame(maxWidth: isRoomy ? 860 : .infinity)
+        .padding(.top, 22)
+        .padding(.horizontal, Theme.gutter)
+        .padding(.bottom, isRoomy ? 20 : 12)
+        .frame(maxWidth: .infinity)
+        .background(alignment: .top) {
+            UnevenRoundedRectangle(topLeadingRadius: 28, topTrailingRadius: 28, style: .continuous)
+                .fill(Theme.card)
+                .shadow(color: .black.opacity(0.10), radius: 15, y: -10)
+                .overlay(alignment: .top) {
+                    UnevenRoundedRectangle(topLeadingRadius: 28, topTrailingRadius: 28, style: .continuous)
+                        .strokeBorder(Theme.line, lineWidth: 2)
+                }
+                // The white runs under the home indicator; the mockup's
+                // `padding-bottom: safe-bottom + 12` is the same thing.
+                .ignoresSafeArea(edges: .bottom)
+        }
+    }
+
+    private var column: some View {
         VStack(spacing: 8) {
             ScrollView {
-                VStack(spacing: 8) {
-                    PlayerInstructionText(instruction, alignment: .center)
+                VStack(alignment: alignment == .center ? .center : .leading, spacing: 8) {
+                    PlayerInstructionText(instruction, alignment: alignment, size: isRoomy ? 30 : 24)
 
-                    Text(hint)
-                        .textRole(.subhead)
+                    hintText
                         .foregroundStyle(Theme.ink55)
-                        .multilineTextAlignment(.center)
+                        .multilineTextAlignment(alignment)
                         .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: alignment == .center ? .center : .leading)
                         .accessibilityLabel(hint)
                 }
                 .frame(maxWidth: .infinity)
@@ -65,21 +99,14 @@ struct PlayerSheet: View {
             actions
                 .padding(.top, 10)
         }
-        .padding(.top, 22)
-        .padding(.horizontal, Theme.gutter)
-        .padding(.bottom, 12)
-        .frame(maxWidth: .infinity)
-        .background(alignment: .top) {
-            UnevenRoundedRectangle(topLeadingRadius: 28, topTrailingRadius: 28, style: .continuous)
-                .fill(Theme.card)
-                .shadow(color: .black.opacity(0.10), radius: 15, y: -10)
-                .overlay(alignment: .top) {
-                    UnevenRoundedRectangle(topLeadingRadius: 28, topTrailingRadius: 28, style: .continuous)
-                        .strokeBorder(Theme.line, lineWidth: 2)
-                }
-                // The white runs under the home indicator; the mockup's
-                // `padding-bottom: safe-bottom + 12` is the same thing.
-                .ignoresSafeArea(edges: .bottom)
+    }
+
+    @ViewBuilder
+    private var hintText: some View {
+        if isRoomy {
+            Text(hint).scaledFont(18, .semibold)
+        } else {
+            Text(hint).textRole(.subhead)
         }
     }
 
@@ -118,11 +145,14 @@ struct PlayerInstructionText: View {
     /// lessons can run to a paragraph; at 24/heavy that swallows the paper. So the
     /// size follows the length: the designed size for a short sentence, a bolder
     /// headline for a medium one, and readable left-aligned body text for a paragraph.
+    /// The big screen's 30 pt, read from a metre away, keeps each step down a
+    /// little larger (24 and 20).
     private var fitted: (size: CGFloat, weight: Font.Weight, tracking: CGFloat, spacing: CGFloat, alignment: TextAlignment) {
         let count = text.count
+        let isLarge = size >= 28
         if count <= 80 { return (size, .heavy, size >= 24 ? -0.4 : -0.3, size >= 24 ? 4 : 3, alignment) }
-        if count <= 160 { return (min(size, 20), .bold, -0.2, 3, alignment) }
-        return (min(size, 17), .semibold, 0, 3, .leading)
+        if count <= 160 { return (isLarge ? 24 : min(size, 20), .bold, -0.2, 3, alignment) }
+        return (isLarge ? 20 : min(size, 17), .semibold, 0, 3, .leading)
     }
 
     var body: some View {
@@ -155,6 +185,10 @@ struct PlayerActionRow: View {
     /// The 48 pt version for the wide page's bar (`PlayerWideBar`): small round
     /// buttons and a primary that takes its label's width rather than the row's.
     var isCompact: Bool = false
+    /// A hardware keyboard drives the row: Space for the primary, ← for the step
+    /// before, R to watch again. An iPad standing in a keyboard case is a common
+    /// way to draw beside it. Off while a sheet is over the player.
+    var keyboardShortcuts: Bool = false
     var onBack: () -> Void = {}
     var onReplay: () -> Void = {}
     let onPrimary: () -> Void
@@ -179,6 +213,7 @@ struct PlayerActionRow: View {
             }
             .buttonStyle(isPending ? .pendingCompact : .primaryCompact)
             .fixedSize(horizontal: true, vertical: false)
+            .playerShortcut(.space, isEnabled: keyboardShortcuts)
             .accessibilityLabel(primaryTitle)
             .accessibilityValue(isPending ? "Lina is still drawing" : "")
             .accessibilitySortPriority(70)
@@ -188,6 +223,7 @@ struct PlayerActionRow: View {
                     .modifier(PrimaryLabelSize(size: primaryFontSize))
             }
             .buttonStyle(isPending ? .pending : .primary)
+            .playerShortcut(.space, isEnabled: keyboardShortcuts)
             .accessibilityLabel(primaryTitle)
             .accessibilityValue(isPending ? "Lina is still drawing" : "")
             .accessibilitySortPriority(70)
@@ -201,6 +237,7 @@ struct PlayerActionRow: View {
         .buttonStyle(isCompact ? .roundIconSmall : .roundIcon)
         .opacity(canGoBack ? 1 : 0.4)
         .disabled(!canGoBack)
+        .playerShortcut(.leftArrow, isEnabled: keyboardShortcuts)
         .accessibilityLabel("Previous step")
         .accessibilitySortPriority(60)
     }
@@ -210,6 +247,7 @@ struct PlayerActionRow: View {
             Image(systemName: "arrow.counterclockwise")
         }
         .buttonStyle(isCompact ? .roundIconSmall : .roundIcon)
+        .playerShortcut("r", isEnabled: keyboardShortcuts)
         .accessibilityLabel(replayLabel)
         .accessibilitySortPriority(55)
     }
@@ -233,6 +271,19 @@ extension View {
             }
         }
         .onPreferenceChange(HeightPreferenceKey.self) { report($0) }
+    }
+}
+
+extension View {
+    /// A key with no modifier, only while `isEnabled`. Off, the view is left
+    /// exactly as it was, so a sheet over the player takes the keys to itself.
+    @ViewBuilder
+    func playerShortcut(_ key: KeyEquivalent, isEnabled: Bool) -> some View {
+        if isEnabled {
+            keyboardShortcut(key, modifiers: [])
+        } else {
+            self
+        }
     }
 }
 

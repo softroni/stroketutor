@@ -11,6 +11,7 @@ import SwiftUI
 /// and the version line under it.
 struct SettingsView: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.isWideLayout) private var isWide
     @State private var isConfirmingReset = false
     @State private var isConfirmingOnboardingReset = false
     @State private var isPhotosAccessRefused = false
@@ -79,6 +80,10 @@ struct SettingsView: View {
                     .accessibilityValue(preferences.narrationEnabled ? "On" : "Off")
                     RowDivider()
                     speedRow
+                    if DeviceName.isPad {
+                        RowDivider()
+                        lessonButtonsRow
+                    }
                 }
 
                 // ------------------------------------------------------ Sketchbook
@@ -187,6 +192,7 @@ struct SettingsView: View {
                     .padding(.bottom, 4)
             }
             .padding(.horizontal, Theme.gutter)
+            .readableColumn(isWide)
             .padding(.top, 6)
             .padding(.bottom, 16)
         }
@@ -583,6 +589,34 @@ private extension SettingsView {
     /// The speed a lesson starts at, set right here rather than on the voice screen:
     /// it is how fast each step draws, and it never changes Lina's voice, so a
     /// learner who came to change it should not have to pass her card to find it.
+    /// iPad only: which side of the drawing the lesson's words, steps and buttons
+    /// stand on when the iPad is on its side (`PlayerStudioPanel`). Per learner, so
+    /// two children sharing an iPad can each have theirs.
+    var lessonButtonsRow: some View {
+        @Bindable var preferences = app.preferences
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 14) {
+                SettingsIconTile(symbol: "hand.point.up.left", tint: .green)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Lesson buttons")
+                        .textRole(.headline)
+                        .foregroundStyle(Theme.ink)
+                    Text("Which side of the drawing they sit on with the iPad on its side. Put them by the hand you tap with.")
+                        .textRole(.footnote)
+                        .foregroundStyle(Theme.ink55)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            SegmentedPicker(options: [true, false],
+                            title: { $0 ? "Left" : "Right" },
+                            selection: $preferences.lessonButtonsOnLeft)
+                .accessibilityLabel("Lesson buttons")
+        }
+        .padding(.vertical, 14)
+    }
+
     var speedRow: some View {
         @Bindable var preferences = app.preferences
         return VStack(alignment: .leading, spacing: 10) {

@@ -31,6 +31,7 @@ import SwiftUI
 struct HomeView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.isWideLayout) private var isWide
     @State private var lockedLesson: LockedLesson?
     @State private var isShowingProfiles = false
     /// The learner picked in the switcher, handed over once the sheet has closed.
@@ -262,7 +263,7 @@ struct HomeView: View {
                         } label: {
                             SketchbookPageThumb(page: page,
                                                 tutorial: lesson?.tutorial,
-                                                width: dynamicTypeSize.isAccessibilitySize ? 120 : 96)
+                                                width: dynamicTypeSize.isAccessibilitySize || isWide ? 140 : 96)
                                 .lessonBadge(lesson?.tutorial)
                         }
                         .buttonStyle(.plain)
@@ -283,7 +284,7 @@ struct HomeView: View {
             SectionTitle(text: "Try something new", showsChevron: false)
                 .accessibilityAddTraits(.isHeader)
 
-            PictureGrid(columns: dynamicTypeSize.isAccessibilitySize ? 1 : 2,
+            PictureGrid(columns: dynamicTypeSize.isAccessibilitySize ? (isWide ? 2 : 1) : (isWide ? 4 : 2),
                         spacing: 14,
                         centersLastRow: false) {
                 ForEach(suggestions) { path in
@@ -301,6 +302,7 @@ struct HomeView: View {
                 Label("See all paths", systemImage: "square.grid.2x2")
             }
             .buttonStyle(.secondary)
+            .frame(maxWidth: isWide ? 380 : .infinity)
             .padding(.top, 6)
         }
     }

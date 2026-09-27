@@ -37,6 +37,7 @@ struct SketchbookView: View {
 
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.isWideLayout) private var isWide
     @AppStorage(SketchbookView.arrangementKey) private var arrangement: Arrangement = .paths
 
     /// The `UserDefaults` key the chosen arrangement is kept under.
@@ -150,7 +151,7 @@ struct SketchbookView: View {
                 .foregroundStyle(Theme.ink)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.horizontal, 4)
-            PictureGrid(columns: 3, spacing: 10, centersLastRow: false) {
+            PictureGrid(columns: isWide ? 5 : 3, spacing: 10, centersLastRow: false) {
                 ForEach(loosePages) { page in
                     PhotoSlot(page: page, lesson: nil, pageCount: 1)
                 }
@@ -170,7 +171,7 @@ struct SketchbookView: View {
                 .padding(.horizontal, 4)
                 .padding(.top, 8)
 
-            PictureGrid(columns: dynamicTypeSize.isAccessibilitySize ? 1 : 2,
+            PictureGrid(columns: dynamicTypeSize.isAccessibilitySize ? (isWide ? 2 : 1) : (isWide ? 4 : 2),
                         spacing: 14,
                         centersLastRow: false) {
                 ForEach(month.pages) { page in
@@ -375,13 +376,17 @@ struct AlbumBand: View {
     /// into a lesson or a photo, since the tour has one way on.
     var isBrowsable = true
 
+    /// Five pages across on a wide screen, where three would each be as big as a
+    /// phone.
+    @Environment(\.isWideLayout) private var isWide
+
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
 
         VStack(alignment: .leading, spacing: 12) {
             header
 
-            PictureGrid(columns: 3, spacing: 10, centersLastRow: false) {
+            PictureGrid(columns: isWide ? 5 : 3, spacing: 10, centersLastRow: false) {
                 ForEach(album.slots) { slot in
                     if let page = slot.page {
                         PhotoSlot(page: page, lesson: slot.lesson, pageCount: slot.pageCount,

@@ -9,6 +9,7 @@ import UIKit
 /// live. Nothing is counted either way.
 struct ReminderSettingsView: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.isWideLayout) private var isWide
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var authorization: PracticeReminderScheduler.Authorization = .notDetermined
     @State private var isRequesting = false
@@ -39,6 +40,7 @@ struct ReminderSettingsView: View {
                 }
             }
             .padding(.horizontal, Theme.gutter)
+            .readableColumn(isWide)
             .padding(.top, 4)
             .padding(.bottom, 16)
         }

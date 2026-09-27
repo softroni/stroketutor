@@ -116,6 +116,7 @@ struct AppRoot: View {
             }
             .fullScreenCover(isPresented: coverIsPresented, onDismiss: coverDidDismiss) {
                 coverContent
+                    .providesWideLayout()
                     .environment(app)
                     .sheet(item: drawer(overCover: true), onDismiss: { app.openOfferAfterDrawer() }) { offer in
                         PremiumLessonSheet(lessonId: offer.lessonId)

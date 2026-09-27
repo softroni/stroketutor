@@ -12,6 +12,11 @@ import SwiftUI
 /// cannot pass on to a view controller whose transition is already in flight — the
 /// arriving screen would be laid out short, and anything pinned to its bottom cut
 /// off, until the push finished.
+///
+/// In a wide window (`WideLayout.sidebarThreshold`, an iPad) the bar becomes a
+/// sidebar on the leading edge (`SideBar`) and no screen reserves room for it. The
+/// stacks stay where they are in the view tree either way, so turning an iPad or
+/// resizing its window keeps every tab's back stack and scroll position.
 struct MainTabs: View {
     @Environment(AppModel.self) private var app
 
@@ -28,11 +33,30 @@ struct MainTabs: View {
     /// its reserved space, and take a third of what is left above the keys from a
     /// search's results; typing is not the moment to change tabs.
     @State private var keyboardShown = false
+    /// The window's width, which decides between the bar and the sidebar.
+    @State private var width: CGFloat = 0
+
+    private var usesSidebar: Bool {
+        width >= WideLayout.sidebarThreshold
+    }
 
     var body: some View {
         @Bindable var app = app
 
-        ZStack(alignment: .bottom) {
+        HStack(spacing: 0) {
+            if usesSidebar {
+                SideBar(selection: $app.selectedTab)
+            }
+            tabs
+        }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+        .background(Theme.page)
+    }
+
+    private var tabs: some View {
+        @Bindable var app = app
+
+        return ZStack(alignment: .bottom) {
             ZStack {
                 tab(.home, path: $app.homeStack) { HomeView() }
                 tab(.path, path: $app.pathStack) {
@@ -47,8 +71,9 @@ struct MainTabs: View {
                 tab(.settings, path: $app.settingsStack) { SettingsView() }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .providesWideLayout()
 
-            if !tabBarHidden {
+            if !tabBarHidden && !usesSidebar {
                 // Down and out of the way, rather than gone between one frame and
                 // the next, so it leaves with the screen that sent it away.
                 TabBar(selection: $app.selectedTab)
@@ -74,10 +99,10 @@ struct MainTabs: View {
             root()
                 // A tab's root always sits above the bar; a pushed screen says so
                 // through its route.
-                .reservesTabBarSpace(!keyboardShown)
+                .reservesTabBarSpace(!keyboardShown && !usesSidebar)
                 .navigationDestination(for: AppRoute.self) { route in
                     AppDestination(route: route)
-                        .reservesTabBarSpace(!route.hidesTabBar && !keyboardShown)
+                        .reservesTabBarSpace(!route.hidesTabBar && !keyboardShown && !usesSidebar)
                 }
         }
         // The screens hide the navigation bar and scroll to the top edge, so without

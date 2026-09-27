@@ -73,6 +73,40 @@ explained in its handbook: every step is narrated by the tutor's recorded voice 
 later, shipped as optional audio beside the lesson), and a tutor character, Lina, who teaches during onboarding and
 is only a voice in the player. No Studio or Xcode code changed.
 
+### iPad track
+
+Asked for on 2026-09-26, after version 1.0 (build 2) was submitted: on an iPad the app was the phone's layout made
+bigger and locked upright. The iPad is treated as the teacher standing beside the paper, about a metre away, and
+usually on its side. Built the same day, for the version after 1.0:
+
+- **Player.** `PlayerLayout` picks the layout from the window's size. Before, it used `verticalSizeClass`, which is
+  regular on an iPad either way up, so an iPad on its side got the upright layout stretched. Upright, the drawing sits
+  on a sheet of paper (`PageSheet`, √2, centred inside a margin) on a grey table, with the reference picture at 176 pt
+  beside 30 pt words. On its side, the *studio*: the same page beside a 380 pt panel (`PlayerStudioPanel`) with the
+  whole reference, the words, every step with the current one marked, and the buttons at the bottom.
+  **Settings › Lesson buttons** (iPad only, per learner) puts the panel on the left.
+- **Keyboard.** Space is "I drew it", ← goes back a step, R replays the step and Esc closes the lesson. The keys are
+  off while a sheet is up.
+- **The picture to draw from.** The reference sheet was titled "The real thing", for a photograph, but lessons draw
+  from coloured pictures. It now carries the lesson's name, and "The picture to draw from" under it. The picture
+  takes the whole sheet: full height on an iPhone, and page size on an iPad (iPadOS 18 and later).
+- **Navigation.** In a window at least 960 pt wide, a sidebar (`SideBar`) replaces the tab bar and lists every path
+  with its count. Screens read `\.isWideLayout` (`WideLayout`, from 700 pt):
+  - Home has a large hero;
+  - Path shows the hero beside its nodes;
+  - Lesson preview puts the picture beside the reference, Lina, the steps as small sheets and the button;
+  - Completion shows the page beside its words when the window is on its side, and one wider column when upright;
+  - Sketchbook uses five columns and All paths four;
+  - Settings, onboarding, capture and the Premium flow keep to a centred column.
+- **Windows.** `UIRequiresFullScreen` is gone. It was deprecated at WWDC25, and apps built with the iOS 27 SDK are
+  resized whatever it says. The iPad lists all four orientations and turns on every screen. The phone is unchanged:
+  upright everywhere except the player.
+- **Tests:** 308 pass (12 new: `PlayerLayoutTests`, plus the lesson-buttons preference). Checked by eye on a 13-inch
+  iPad (on its side and upright), an 11-inch iPad upright and an iPhone 17 Pro Max (upright, and turned with the
+  player open).
+- **Not done:** the App Store iPad screenshots still show 1.0's layout, which matches the build in review. Retake
+  them for the version that ships this. `capture.sh` cannot turn the simulator, so turn it from the Device menu first.
+
 ### Studio track
 
 This is quality-of-life work on the Studio itself, which the creator asked for on 2026-09-11. It runs alongside the

@@ -6,4 +6,9 @@ enum DeviceName {
     @MainActor static var current: String {
         UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone"
     }
+
+    /// True on an iPad, for the few settings that only mean something there.
+    @MainActor static var isPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
 }

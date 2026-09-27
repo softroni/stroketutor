@@ -10,7 +10,10 @@ import SwiftUI
 /// * the lesson drawn large and in color on a white tile.
 ///
 /// A 6 pt green-deep edge sits under the card. At the accessibility text sizes the
-/// drawing moves above the words, so a long title keeps the card's full width.
+/// drawing moves above the words, so a long title keeps the card's full width. On a
+/// wide screen (`isWideLayout`) the drawing grows to 220 pt and the button stays
+/// under the words beside it, rather than a thin tile over a bar the width of an
+/// iPad.
 struct HeroCard: View {
     /// The chip's words: the path's name, or "All done" once everything is drawn.
     let chip: String
@@ -27,12 +30,48 @@ struct HeroCard: View {
     let action: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.isWideLayout) private var isWide
 
     /// The white tile's edge. Big enough that the picture, not the words, is what
     /// the eye lands on first.
     private static let tileSize: CGFloat = 128
 
+    private var tileSize: CGFloat {
+        isWide ? 220 : Self.tileSize
+    }
+
     var body: some View {
+        Group {
+            if isWide && !dynamicTypeSize.isAccessibilitySize {
+                HStack(alignment: .center, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 22) {
+                        words
+                        Button(actionTitle, action: action)
+                            .buttonStyle(.whiteOnGreen)
+                            .frame(maxWidth: 380)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    tile
+                }
+                .padding(.init(top: 24, leading: 28, bottom: 24, trailing: 24))
+            } else {
+                phoneBody
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
+                .fill(Theme.heroGradient)
+        )
+        .background(alignment: .bottom) {
+            RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
+                .fill(Theme.greenDeep)
+                .offset(y: 6)
+        }
+        .padding(.bottom, 6)
+        .accessibilityElement(children: .contain)
+    }
+
+    private var phoneBody: some View {
         VStack(alignment: .leading, spacing: 18) {
             if dynamicTypeSize.isAccessibilitySize {
                 VStack(alignment: .leading, spacing: 14) {
@@ -51,17 +90,6 @@ struct HeroCard: View {
                 .buttonStyle(.whiteOnGreen)
         }
         .padding(.init(top: 18, leading: 18, bottom: 18, trailing: 18))
-        .background(
-            RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
-                .fill(Theme.heroGradient)
-        )
-        .background(alignment: .bottom) {
-            RoundedRectangle(cornerRadius: Theme.cardCornerRadius, style: .continuous)
-                .fill(Theme.greenDeep)
-                .offset(y: 6)
-        }
-        .padding(.bottom, 6)
-        .accessibilityElement(children: .contain)
     }
 
     // MARK: - Parts
@@ -71,7 +99,7 @@ struct HeroCard: View {
             pathChip
 
             Text(title)
-                .textRole(.title1)
+                .textRole(isWide ? .largeTitle : .title1)
                 .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -114,8 +142,8 @@ struct HeroCard: View {
     /// accessibility sizes, where it would otherwise leave half the card empty.
     private var tile: some View {
         DrawingThumbnail(tutorial: drawing, strokeColor: nil, showsFills: true)
-            .frame(width: Self.tileSize - 24, height: Self.tileSize - 24)
-            .padding(12)
+            .frame(width: tileSize - 24, height: tileSize - 24)
+            .padding(isWide ? 16 : 12)
             .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? .infinity : nil)
             .background(
                 RoundedRectangle(cornerRadius: Theme.cardCornerRadius - 4, style: .continuous)

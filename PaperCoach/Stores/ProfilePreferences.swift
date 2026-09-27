@@ -3,7 +3,8 @@ import Observation
 import OSLog
 
 /// The preferences that belong to a learner rather than to the device: which path Home
-/// shows, whether Lina speaks, and how fast a lesson starts. Two siblings on one iPad can want different answers to every one of
+/// shows, whether Lina speaks, how fast a lesson starts, and which side of an iPad
+/// the lesson's buttons stand on. Two siblings on one iPad can want different answers to every one of
 /// these, so each profile keeps its own `preferences.json` — along with whether
 /// that learner has had All paths' one-time welcome.
 ///
@@ -21,6 +22,7 @@ final class ProfilePreferences {
         var defaultSpeed = 1.0
         var hasSeenPathsWelcome = false
         var wishList: [String] = []
+        var lessonButtonsOnLeft = false
 
         init() {}
 
@@ -32,6 +34,7 @@ final class ProfilePreferences {
             defaultSpeed = Self.validSpeed(try container.decodeIfPresent(Double.self, forKey: .defaultSpeed))
             hasSeenPathsWelcome = try container.decodeIfPresent(Bool.self, forKey: .hasSeenPathsWelcome) ?? defaults.hasSeenPathsWelcome
             wishList = try container.decodeIfPresent([String].self, forKey: .wishList) ?? defaults.wishList
+            lessonButtonsOnLeft = try container.decodeIfPresent(Bool.self, forKey: .lessonButtonsOnLeft) ?? defaults.lessonButtonsOnLeft
         }
 
         /// The values a pre-profiles build kept in `UserDefaults`, for the migration.
@@ -68,6 +71,11 @@ final class ProfilePreferences {
     /// oldest first, by lesson id. The grown-up's paywall shows them, so the
     /// grown-up sees what the child is asking for.
     var wishList: [String] { didSet { save() } }
+    /// Which side of an iPad on its side the lesson's panel stands on — the words,
+    /// the steps and the buttons (`PlayerStudioPanel`). Right by default; a learner
+    /// who reaches with the other hand, or keeps the iPad on the other side of the
+    /// paper, moves it to the left in Settings.
+    var lessonButtonsOnLeft: Bool { didSet { save() } }
 
     /// Nil keeps everything in memory — the fallback when a profile has no folder.
     private let fileURL: URL?
@@ -81,6 +89,7 @@ final class ProfilePreferences {
         defaultSpeed = values.defaultSpeed
         hasSeenPathsWelcome = values.hasSeenPathsWelcome
         wishList = values.wishList
+        lessonButtonsOnLeft = values.lessonButtonsOnLeft
     }
 
     /// An in-memory set, for the migration's fallback session.
@@ -96,6 +105,7 @@ final class ProfilePreferences {
         values.defaultSpeed = defaultSpeed
         values.hasSeenPathsWelcome = hasSeenPathsWelcome
         values.wishList = wishList
+        values.lessonButtonsOnLeft = lessonButtonsOnLeft
         return values
     }
 
@@ -110,6 +120,7 @@ final class ProfilePreferences {
         defaultSpeed = values.defaultSpeed
         hasSeenPathsWelcome = values.hasSeenPathsWelcome
         wishList = values.wishList
+        lessonButtonsOnLeft = values.lessonButtonsOnLeft
     }
 
     /// Adds the lesson to the wish list, or takes it off if it is already there.

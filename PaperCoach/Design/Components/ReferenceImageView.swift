@@ -22,7 +22,7 @@ struct ReferenceImageView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: contentMode)
-                    .accessibilityLabel("Reference photo")
+                    .accessibilityLabel("Reference picture")
             } else {
                 ReferencePlaceholder()
             }

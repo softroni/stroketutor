@@ -15,11 +15,16 @@ import SwiftUI
 /// back button. Its title is the way to another path instead: "Landscape ⌄" pushes
 /// All paths, and choosing a card there makes that path current and comes back to
 /// this root showing it (`AppModel.open(_:)`).
+///
+/// On a wide screen (`isWideLayout`) the hero and the count stand in a column on the
+/// leading side and the nodes scroll beside them, so where the path leads stays in
+/// view all the way down it.
 struct PathDetailView: View {
     /// The current path's id; nil before a path has been chosen.
     let pathId: String?
 
     @Environment(AppModel.self) private var app
+    @Environment(\.isWideLayout) private var isWide
     @State private var lockedLesson: LockedLesson?
 
     var body: some View {
@@ -56,28 +61,34 @@ struct PathDetailView: View {
                              app.push(.paths)
                          })
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    destination(for: path, isComplete: isComplete)
-
-                    if isComplete {
-                        completeActions(for: path)
-                    } else {
-                        progressBlock(for: path, drawn: drawn)
+            if isWide {
+                HStack(alignment: .top, spacing: 32) {
+                    ScrollView {
+                        summary(for: path, drawn: drawn, isComplete: isComplete)
+                            .padding(.top, 4)
+                            .padding(.bottom, 20)
                     }
+                    .scrollBounceBehavior(.basedOnSize)
+                    .frame(width: 380)
 
-                    PathNodesView(lessons: path.lessons,
-                                  progress: app.progress,
-                                  dateStyle: .short,
-                                  nodeSize: 100,
-                                  isPremium: { app.needsPremium($0) }) { lesson in
-                        open(lesson, in: path)
+                    ScrollView {
+                        nodes(for: path, size: 120)
+                            .padding(.bottom, 20)
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, Theme.gutter)
-                .padding(.top, 4)
-                .padding(.bottom, 20)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        summary(for: path, drawn: drawn, isComplete: isComplete)
+                        nodes(for: path, size: 100)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Theme.gutter)
+                    .padding(.top, 4)
+                    .padding(.bottom, 20)
+                }
             }
         }
         // On appear for a hand-over that arrives with a new path (the root is keyed
@@ -85,6 +96,29 @@ struct PathDetailView: View {
         // this path is already the root — the tab root does not appear again.
         .onAppear { raiseSheetIfHandedOver(in: path) }
         .onChange(of: app.pendingLockedLessonId) { raiseSheetIfHandedOver(in: path) }
+    }
+
+    /// The hero, then the count or, once every lesson is drawn, the way onward.
+    private func summary(for path: PathModel, drawn: Int, isComplete: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 18) {
+            destination(for: path, isComplete: isComplete)
+
+            if isComplete {
+                completeActions(for: path)
+            } else {
+                progressBlock(for: path, drawn: drawn)
+            }
+        }
+    }
+
+    private func nodes(for path: PathModel, size: CGFloat) -> some View {
+        PathNodesView(lessons: path.lessons,
+                      progress: app.progress,
+                      dateStyle: .short,
+                      nodeSize: size,
+                      isPremium: { app.needsPremium($0) }) { lesson in
+            open(lesson, in: path)
+        }
     }
 
     /// Where the path leads: a hero card in the path's soft tint (gold once every
@@ -107,7 +141,7 @@ struct PathDetailView: View {
                 .padding(.bottom, 16)
                 .padding(.horizontal, 18)
                 .frame(maxWidth: .infinity)
-                .frame(height: 236)
+                .frame(height: isWide ? 300 : 236)
                 .background(panel.fill(Theme.paper))
                 .overlay(alignment: .topLeading) {
                     goalChip(isComplete: isComplete, count: path.lessonCount)

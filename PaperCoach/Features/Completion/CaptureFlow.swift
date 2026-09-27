@@ -15,6 +15,8 @@ struct CaptureFlow: View {
     let fromSketchbook: Bool
 
     @Environment(AppModel.self) private var app
+
+    @Environment(\.isWideLayout) private var isWide
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private enum Stage: Equatable {
@@ -102,6 +104,7 @@ struct CaptureFlow: View {
                 saved(page)
             }
         }
+        .readableColumn(isWide, maxWidth: 680)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.page.ignoresSafeArea())
         .onAppear {

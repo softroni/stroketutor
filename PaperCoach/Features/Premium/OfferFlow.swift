@@ -52,6 +52,8 @@ struct OfferFlow: View {
     let entry: OfferEntry
 
     @Environment(AppModel.self) private var app
+
+    @Environment(\.isWideLayout) private var isWide
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var step: Step?
     @State private var isFinishing = false
@@ -74,6 +76,7 @@ struct OfferFlow: View {
         ZStack {
             Theme.page.ignoresSafeArea()
             current
+                .readableColumn(isWide, maxWidth: 680)
                 .id(step)
                 .transition(.opacity)
         }

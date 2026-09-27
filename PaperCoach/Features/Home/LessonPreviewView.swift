@@ -18,6 +18,12 @@ import SwiftUI
 /// Reduce Motion shows it finished. **Resume** — a run left through the player's
 /// leave sheet — shows how far the drawing got (the rest faint, never animated), the
 /// step bars, what the next step says, and offers to continue or start over.
+///
+/// On a wide screen (`isWideLayout`) the card takes the full height on the leading
+/// side, and a 420 pt column beside it holds the picture the lesson draws from, Lina's
+/// line, every step as a small sheet (the step's lines in the path colour over the
+/// ones before it, the rest faint) and the button, so the whole plan is in view
+/// before the pen moves.
 struct LessonPreviewView: View {
     let lessonId: String
 
@@ -25,6 +31,7 @@ struct LessonPreviewView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isWideLayout) private var isWide
 
     /// Bumped by a tap on the picture, which draws it again from the start.
     @State private var replayToken = 0
@@ -62,6 +69,18 @@ struct LessonPreviewView: View {
         return VStack(spacing: 0) {
             InlineNavBar(title: navTitle(for: lesson)) { dismiss() }
 
+            if isWide {
+                wideContent(for: lesson, resumeStep: resumeStep, tint: tint, showsHowItWorks: showsHowItWorks)
+            } else {
+                phoneContent(for: lesson, resumeStep: resumeStep, tint: tint, showsHowItWorks: showsHowItWorks)
+            }
+        }
+    }
+
+    private func phoneContent(for lesson: Lesson,
+                              resumeStep: Int?,
+                              tint: PathTint,
+                              showsHowItWorks: Bool) -> some View {
             GeometryReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
@@ -100,7 +119,108 @@ struct LessonPreviewView: View {
                         }
                 }
             }
+    }
+
+    // MARK: - The wide screen
+
+    private func wideContent(for lesson: Lesson,
+                             resumeStep: Int?,
+                             tint: PathTint,
+                             showsHowItWorks: Bool) -> some View {
+        HStack(alignment: .top, spacing: 28) {
+            hero(for: lesson, resumeStep: resumeStep, tint: tint, pictureHeight: nil)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.bottom, Theme.stackSpacing)
+
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        if lesson.reference != nil {
+                            referenceBlock(for: lesson)
+                        }
+                        if let resumeStep {
+                            StepSegments(stepCount: lesson.stepCount, currentIndex: resumeStep)
+                                .padding(.horizontal, 4)
+                            nextStepCard(for: lesson, resumeStep: resumeStep, tint: tint)
+                            needRow
+                        } else {
+                            tutorLine(for: lesson)
+                            if showsHowItWorks { howItWorks }
+                        }
+                        stepSheets(for: lesson, tint: tint)
+                    }
+                    .padding(.bottom, 16)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+
+                bottomArea(for: lesson, resumeStep: resumeStep, horizontalPadding: 0)
+            }
+            .frame(width: 420)
         }
+        .padding(.horizontal, Theme.gutter)
+        .padding(.top, 4)
+    }
+
+    /// The picture the lesson draws from, whole, on the soft grey of the reference
+    /// sheet, so the learner meets it before the player shows it again.
+    private func referenceBlock(for lesson: Lesson) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("The picture to draw from")
+                .textRole(.eyebrow)
+                .textCase(.uppercase)
+                .foregroundStyle(Theme.ink55)
+                .accessibilityAddTraits(.isHeader)
+            ReferenceImageView(reference: lesson.reference, contentMode: .fit)
+                .padding(14)
+                .frame(maxWidth: .infinity)
+                .frame(height: 220)
+                .background(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(Theme.surface)
+                )
+        }
+    }
+
+    /// Every step as a small sheet, in order: the lines drawn before it in ink, its
+    /// own lines in the path colour, what comes after faint. The lesson's plan at a
+    /// glance, the way the Studio's step sheets show it to an author.
+    private func stepSheets(for lesson: Lesson, tint: PathTint) -> some View {
+        let titles = lesson.tutorial.steps.map(\.title)
+        return VStack(alignment: .leading, spacing: 10) {
+            Text("\(lesson.stepCount) steps")
+                .textRole(.eyebrow)
+                .textCase(.uppercase)
+                .foregroundStyle(Theme.ink55)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 10)], spacing: 10) {
+                ForEach(lesson.tutorial.steps.indices, id: \.self) { index in
+                    DrawingThumbnail(tutorial: lesson.tutorial,
+                                     strokeColor: Theme.ink,
+                                     fadedFromStep: index,
+                                     nextStepColor: tint.deep)
+                        .padding(10)
+                        .aspectRatio(1, contentMode: .fit)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Theme.paper)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .strokeBorder(Theme.line, lineWidth: 2)
+                        )
+                        .overlay(alignment: .topLeading) {
+                            Text("\(index + 1)")
+                                .scaledFont(12, .heavy)
+                                .foregroundStyle(tint.deep)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Capsule().fill(tint.soft))
+                                .padding(6)
+                        }
+                }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(lesson.stepCount) steps: " + titles.joined(separator: ", "))
     }
 
     /// "In the Air · 1 of 10".
@@ -133,15 +253,17 @@ struct LessonPreviewView: View {
     /// The lesson as one card in its path's color, like the Path screen's hero: the
     /// drawing on a white sheet inset in the tint, a 4 pt deeper edge under it, and
     /// the lesson's name and chips on the tint below the sheet.
+    /// `pictureHeight` nil lets the picture take all the height the card is given.
     private func hero(for lesson: Lesson,
                       resumeStep: Int?,
                       tint: PathTint,
-                      pictureHeight: CGFloat) -> some View {
+                      pictureHeight: CGFloat?) -> some View {
         let shape = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
 
         return VStack(spacing: 12) {
             paper(for: lesson, resumeStep: resumeStep, tint: tint)
                 .frame(height: pictureHeight)
+                .frame(maxHeight: pictureHeight == nil ? .infinity : nil)
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: {
                     paperHeight = $0
                 }
@@ -434,7 +556,9 @@ struct LessonPreviewView: View {
     // MARK: - The bottom
 
     /// The primary never scrolls: on the smallest phone it is still on screen.
-    private func bottomArea(for lesson: Lesson, resumeStep: Int?) -> some View {
+    private func bottomArea(for lesson: Lesson,
+                            resumeStep: Int?,
+                            horizontalPadding: CGFloat = Theme.gutter) -> some View {
         VStack(spacing: Theme.stackSpacing) {
             if let resumeStep {
                 Button("Continue from step \(resumeStep + 1)") {
@@ -453,7 +577,7 @@ struct LessonPreviewView: View {
                     .buttonStyle(.primary)
             }
         }
-        .padding(.horizontal, Theme.gutter)
+        .padding(.horizontal, horizontalPadding)
         .padding(.top, Theme.stackSpacing)
         .padding(.bottom, Theme.stackSpacing)
         .background(alignment: .top) {

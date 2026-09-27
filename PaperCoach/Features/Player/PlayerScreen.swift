@@ -16,8 +16,16 @@ import UIKit
 /// can be tapped at any moment; a returning learner skips all of it.
 ///
 /// Turned on its side the same parts become `pl-landscape`: the paper takes the full
-/// height on the left, the sheet becomes a 312 pt panel on the right. Rotation is
-/// allowed here and nowhere else (`PlayerOrientation`).
+/// height on the left, the sheet becomes a 312 pt panel on the right. On a phone,
+/// rotation is allowed here and nowhere else (`PlayerOrientation`).
+///
+/// A big screen — an iPad, standing beside the paper — has two layouts of its own
+/// (`PlayerLayout`), chosen by the window's size rather than a size class: upright,
+/// the paper shown as a sheet of paper (`PageSheet`) over a sheet with the reference
+/// picture large beside the words; on its side, the studio, the same page beside a
+/// panel with the reference whole, the words large, every step and the buttons
+/// (`PlayerStudioPanel`). Both read from a metre away, and a keyboard drives them:
+/// Space, ←, R and Esc.
 ///
 /// A wide drawing (`PageShape.wide`) has a second landscape layout, the wide page:
 /// the panel gone, a bar along the bottom edge (`PlayerWideBar`) and the ink grown
@@ -42,7 +50,6 @@ struct PlayerScreen: View {
 
     @Environment(AppModel.self) private var app
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var player = PlayerViewModel()
@@ -74,10 +81,11 @@ struct PlayerScreen: View {
     var body: some View {
         GeometryReader { proxy in
             Group {
-                if isLandscape {
-                    landscape
-                } else {
-                    portrait
+                switch layout {
+                case .portrait: portrait
+                case .landscape: landscape
+                case .roomyPortrait: roomyPortrait
+                case .studio: studio
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
@@ -97,10 +105,7 @@ struct PlayerScreen: View {
         .accessibilityHidden(showLeave)
         .sheet(isPresented: $showReference) {
             ReferenceSheet(lesson: lesson) { showReference = false }
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationBackground(Theme.card)
-                .presentationCornerRadius(28)
+                .referenceSheetPresentation()
         }
         .sheet(isPresented: $showLeave) {
             LeaveSheet(stepNumber: player.currentStepIndex + 1,
@@ -169,6 +174,95 @@ struct PlayerScreen: View {
             .overlay(alignment: .topTrailing) { referenceThumb }
             .padding(.horizontal, 16)
             .padding(.top, 12)
+    }
+
+    // MARK: - Big screen, upright
+
+    /// The upright iPad: the header, the drawing on a sheet of paper on the grey of
+    /// the table, and the sheet with the reference picture beside the words. The
+    /// narration chip sits in the table's margin, clear of the page.
+    private var roomyPortrait: some View {
+        VStack(spacing: 0) {
+            header(isCompact: false)
+
+            paper(insets: EdgeInsets(top: 24, leading: 32, bottom: 24, trailing: 32),
+                  page: pageSheet) {
+                roomyChips
+            }
+            .accessibilitySortPriority(80)
+
+            PlayerSheet(instruction: instruction,
+                        hint: hint,
+                        actions: actions,
+                        textMaxHeight: roomyTextCap,
+                        isRoomy: true,
+                        reference: AnyView(
+                            ReferenceThumb(reference: lesson.reference, side: 176) {
+                                showReference = true
+                            }
+                            .accessibilitySortPriority(45)
+                        ))
+                .layoutPriority(1)
+        }
+    }
+
+    /// The page keeps at least 640 pt; the sentence gets what is left, up to 220
+    /// before it scrolls.
+    private var roomyTextCap: CGFloat {
+        max(100, min(220, availableHeight - 56 - 640 - 90 - 60))
+    }
+
+    /// The narration chip, at the top of the table beside the page.
+    private var roomyChips: some View {
+        HStack {
+            narrationChip
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 14)
+    }
+
+    // MARK: - Big screen, on its side
+
+    /// The iPad on its side: the page on the table, and the studio panel on the side
+    /// the learner chose (`ProfilePreferences.lessonButtonsOnLeft`).
+    private var studio: some View {
+        let onLeft = app.preferences.lessonButtonsOnLeft
+        return HStack(spacing: 0) {
+            if onLeft { studioPanel(edge: .leading) }
+
+            paper(insets: EdgeInsets(top: 24, leading: 32, bottom: 24, trailing: 32),
+                  page: pageSheet) {
+                roomyChips
+            }
+            .accessibilitySortPriority(80)
+
+            if !onLeft { studioPanel(edge: .trailing) }
+        }
+    }
+
+    private func studioPanel(edge: HorizontalEdge) -> some View {
+        PlayerStudioPanel(instruction: instruction,
+                          hint: hint,
+                          stepTitles: lesson.tutorial.steps.map(\.title),
+                          currentStepIndex: isOrientation ? nil : player.currentStepIndex,
+                          actions: actions,
+                          edge: edge,
+                          textMaxHeight: max(100, availableHeight * 0.3),
+                          header: { header(isCompact: false) },
+                          reference: {
+                              ReferenceThumb(reference: lesson.reference,
+                                             side: PlayerStudioPanel<EmptyView, EmptyView>.width - 2 * Theme.gutter,
+                                             height: min(240, max(140, availableHeight * 0.26))) {
+                                  showReference = true
+                              }
+                              .accessibilitySortPriority(45)
+                          })
+    }
+
+    /// The learner's page on a big screen, turned the way the drawing asks.
+    private var pageSheet: PageSheet {
+        PageSheet(shape: lesson.tutorial.pageShape)
     }
 
     // MARK: - Landscape
@@ -385,10 +479,11 @@ struct PlayerScreen: View {
     /// canvas, handed the step and the progress the intro's timeline is at.
     @ViewBuilder
     private func paper<Chips: View>(insets: EdgeInsets,
+                                    page: PageSheet? = nil,
                                     @ViewBuilder chips: @escaping () -> Chips) -> some View {
         if isOrientation {
             TimelineView(.animation(paused: introEnded)) { context in
-                introPaper(introFrame(at: context.date), insets: insets, chips: chips)
+                introPaper(introFrame(at: context.date), insets: insets, page: page, chips: chips)
             }
         } else {
             PlayerPaper(tutorial: lesson.tutorial,
@@ -399,6 +494,7 @@ struct PlayerScreen: View {
                         showsPencilTip: true,
                         drawingInsets: insets,
                         accessibilityText: canvasAccessibilityText,
+                        page: page,
                         chips: chips)
         }
     }
@@ -408,6 +504,7 @@ struct PlayerScreen: View {
     /// a look at the drawing, not yet a line to copy.
     private func introPaper<Chips: View>(_ frame: LessonIntro.Frame,
                                          insets: EdgeInsets,
+                                         page: PageSheet?,
                                          @ViewBuilder chips: @escaping () -> Chips) -> some View {
         var phase = PlayerViewModel.Phase.finished
         var strokes: [Double] = []
@@ -428,6 +525,7 @@ struct PlayerScreen: View {
                            showsPencilTip: false,
                            drawingInsets: insets,
                            accessibilityText: canvasAccessibilityText,
+                           page: page,
                            chips: chips)
     }
 
@@ -450,6 +548,7 @@ struct PlayerScreen: View {
                      caption: caption,
                      isCompact: isCompact,
                      showsExits: !isGuided,
+                     closesOnEscape: keyboardShortcutsEnabled,
                      onClose: close) {
             moreMenu
         }
@@ -516,6 +615,7 @@ struct PlayerScreen: View {
                         replayLabel: isOrientation ? "Watch it come together again" : "Watch this step again",
                         primaryFontSize: isLandscape ? 19 : nil,
                         isCompact: isWidePage,
+                        keyboardShortcuts: keyboardShortcutsEnabled,
                         onBack: goBack,
                         onReplay: replay,
                         onPrimary: primaryTapped)
@@ -571,10 +671,20 @@ struct PlayerScreen: View {
 
     private var reduceMotion: Bool { systemReduceMotion }
 
-    /// The side panel needs a 312 pt column beside a useful paper; at accessibility
-    /// type sizes the stack cannot hold, so portrait wins whatever the phone does.
-    private var isLandscape: Bool {
-        verticalSizeClass == .compact && !dynamicTypeSize.isAccessibilitySize
+    /// Which anatomy fits the window. The phone's side panel needs a 312 pt column
+    /// beside a useful paper; at accessibility type sizes the stack cannot hold, so
+    /// portrait wins whatever the phone does (`PlayerLayout.choose`).
+    private var layout: PlayerLayout {
+        PlayerLayout.choose(for: CGSize(width: availableWidth, height: availableHeight),
+                            isAccessibilitySize: dynamicTypeSize.isAccessibilitySize)
+    }
+
+    /// The phone on its side, where the wide page and its tap live.
+    private var isLandscape: Bool { layout == .landscape }
+
+    /// The keyboard drives the lesson only while nothing is over it.
+    private var keyboardShortcutsEnabled: Bool {
+        !showLeave && !showReference && !confirmRestart
     }
 
     private var showsNarrationChip: Bool {

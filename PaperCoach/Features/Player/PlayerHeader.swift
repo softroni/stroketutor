@@ -16,6 +16,8 @@ struct PlayerHeader<Menu: View>: View {
     /// False on the guided first lesson: the close button and the ⋯ menu are left
     /// off, their columns kept empty so the step label stays centred.
     var showsExits: Bool = true
+    /// Esc on a hardware keyboard closes, like the button. Off while a sheet is up.
+    var closesOnEscape: Bool = false
     let onClose: () -> Void
     @ViewBuilder let menu: () -> Menu
 
@@ -30,6 +32,7 @@ struct PlayerHeader<Menu: View>: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .modifier(EscapeShortcut(isEnabled: closesOnEscape))
                 .frame(width: side, alignment: .leading)
                 .accessibilityLabel("Close lesson")
             } else {
@@ -77,5 +80,17 @@ struct PlayerHeader<Menu: View>: View {
     private var label: String {
         guard let stepIndex else { return caption ?? "Before you start" }
         return "Step \(min(stepIndex + 1, max(stepCount, 1))) of \(max(stepCount, 1))"
+    }
+}
+
+private struct EscapeShortcut: ViewModifier {
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.keyboardShortcut(.cancelAction)
+        } else {
+            content
+        }
     }
 }

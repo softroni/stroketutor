@@ -112,6 +112,20 @@ final class ProfileTests: XCTestCase {
         XCTAssertEqual(preferences.currentPathId, "cars")
     }
 
+    func testTheLessonButtonsSideIsKeptPerLearnerAndDefaultsToTheRight() throws {
+        // A file from before the choice existed reads as the right-hand side.
+        let json = #"{"currentPathId":"cars","narrationEnabled":true,"defaultSpeed":1}"#
+        let values = try JSONDecoder().decode(ProfilePreferences.Values.self, from: Data(json.utf8))
+        XCTAssertFalse(values.lessonButtonsOnLeft)
+
+        let preferences = ProfilePreferences(directory: base)
+        preferences.lessonButtonsOnLeft = true
+        XCTAssertTrue(ProfilePreferences(directory: base).lessonButtonsOnLeft,
+                      "The choice is saved in the learner's own preferences file")
+        preferences.resetToDefaults()
+        XCTAssertFalse(ProfilePreferences(directory: base).lessonButtonsOnLeft)
+    }
+
     func testAddingALearnerDoesNotChangeWhoTheNextLaunchOpens() throws {
         let model = makeModel()
         let first = model.activeProfile

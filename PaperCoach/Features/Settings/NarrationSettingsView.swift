@@ -7,6 +7,7 @@ import SwiftUI
 /// Settings screen: it never touches the voice, so it does not belong beside it.
 struct NarrationSettingsView: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.isWideLayout) private var isWide
     @State private var narration = NarrationPlayer()
     @State private var isPlayingSample = false
     @State private var sampleTask: Task<Void, Never>?
@@ -80,6 +81,7 @@ struct NarrationSettingsView: View {
                 }
             }
             .padding(.horizontal, Theme.gutter)
+            .readableColumn(isWide)
             .padding(.top, 4)
             .padding(.bottom, 16)
         }

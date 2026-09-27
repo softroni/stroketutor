@@ -26,6 +26,8 @@ struct OnboardingFlow: View {
     var initialBeat: Beat?
 
     @Environment(AppModel.self) private var app
+
+    @Environment(\.isWideLayout) private var isWide
     @Environment(\.accessibilityReduceMotion) private var systemReducesMotion
 
     @State private var beat: Beat?
@@ -83,7 +85,11 @@ struct OnboardingFlow: View {
         ZStack {
             Theme.page.ignoresSafeArea()
 
+            // On an iPad each beat keeps to a phone-like column in the middle:
+            // they are one sentence, a picture and a button, and stretched across
+            // a big screen the button is a metre wide. The splash stays full bleed.
             current
+                .readableColumn(isWide && beat != .launch, maxWidth: 680)
                 .id(beat)
                 .transition(.opacity)
         }

@@ -31,6 +31,7 @@ struct PathsView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.isWideLayout) private var isWide
 
     /// Lina reads the welcome's line once, if it was recorded and narration is on.
     @State private var narration = NarrationPlayer()
@@ -58,7 +59,7 @@ struct PathsView: View {
                             if let level = section.level {
                                 levelHeader(level)
                             }
-                            PictureGrid(columns: dynamicTypeSize.isAccessibilitySize ? 1 : 2,
+                            PictureGrid(columns: dynamicTypeSize.isAccessibilitySize ? (isWide ? 2 : 1) : (isWide ? 4 : 2),
                                         spacing: 16,
                                         centersLastRow: false) {
                                 ForEach(section.paths) { path in
