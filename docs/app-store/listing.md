@@ -50,6 +50,10 @@ The API refused these, or has no endpoint for them, in the order a first submiss
      returns, sent to PostHog): Analytics, **linked** (on a 13+ learner's person), not tracking. Added to the
      privacy manifest 2026-09-26 with `AppleAdsAttribution`; **App Privacy on App Store Connect still needs this
      row added by hand** (there is no API for it) before the build with it is submitted.
+   - Diagnostics › **Crash Data** and **Performance Data** (MetricKit's crash and hang reports, sent to PostHog
+     under an id made for each report): App Functionality, **not linked**, not tracking. Added to the privacy
+     manifest 2026-09-27 with `CrashReporter` (1.0.1); **App Privacy needs both rows added by hand** before 1.0.1
+     is submitted.
 
    Superwall's own guide asks only for Purchase History
    (https://superwall.com/docs/ios/guides/app-privacy-nutrition-labels); the other three are what its requests

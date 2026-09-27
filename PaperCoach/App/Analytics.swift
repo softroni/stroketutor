@@ -91,6 +91,13 @@ final class Analytics {
                      policy: policy)
     }
 
+    /// Sends an event that belongs to no learner: under an id made for it alone, with
+    /// no person, no age group and no campaign, whoever is drawing. For reports about
+    /// the app rather than the learner (`CrashReport`).
+    func trackAnonymously(_ event: AnalyticsEvent) {
+        sink.capture(event, distinctId: UUID().uuidString, policy: AnalyticsPolicy(tier: .child))
+    }
+
     /// The app is going to the background: send what the sink is holding.
     func flush() {
         sink.flush()

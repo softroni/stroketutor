@@ -37,6 +37,9 @@ final class AppModel {
     /// Which Apple Ads campaign, if any, brought this install. Asked by `AppRoot`
     /// on launch (`resolveAppleAdsAttribution()`), never in the tests.
     let appleAds: AppleAdsAttribution
+    /// MetricKit's crash and hang reports, passed on to `analytics`. Started by
+    /// `AppRoot` on launch (`startCrashReports()`), never in the tests.
+    private var crashReporter: CrashReporter?
 
     /// One learner's three stores, opened together from their folder.
     struct ProfileStores {
@@ -232,6 +235,18 @@ final class AppModel {
         guard let record = await appleAds.resolve() else { return }
         analytics.setAcquisition(record.analyticsProperties)
         analytics.track(.installAttributed(record))
+    }
+
+    /// Passes on the crash and hang reports iOS holds for the app, now and on later
+    /// launches, each under an id of its own. Safe to call again.
+    func startCrashReports() {
+        guard crashReporter == nil else { return }
+        let reporter = CrashReporter { [analytics] events in
+            events.forEach(analytics.trackAnonymously)
+            analytics.flush()
+        }
+        reporter.start()
+        crashReporter = reporter
     }
 
     /// Reads the catalog and the tutorials and joins them. Safe to call again.
