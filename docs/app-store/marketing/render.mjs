@@ -3,9 +3,9 @@
 //   node docs/app-store/marketing/render.mjs [iphone|ipad] [shot id]
 //
 // Writes out/<device>/<nn>-<id>.png (RGB, no alpha: App Store Connect refuses
-// transparency). It serves the repository over http so shots.html can read the
-// lessons and illustrations in shared/, and drives the installed Google Chrome
-// through the Studio's Playwright (web/node_modules).
+// transparency), then gallery.html, which shows them all. It serves the repository
+// over http so shots.html can read the lessons and illustrations in shared/, and
+// drives the installed Google Chrome through the Studio's Playwright (web/node_modules).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -13,6 +13,7 @@ import os from 'node:os';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { writeGallery } from './gallery.mjs';
 import { DEVICES, SHOTS } from './shots.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -88,3 +89,4 @@ try {
   await browser.close();
   server.close();
 }
+console.log(path.relative(root, writeGallery()));
