@@ -7,17 +7,21 @@ They replace the plain simulator captures in `../screenshots/`.
 | # | Headline | Screen (`-STScreen`) |
 |---|---|---|
 | 1 | Learn to draw step by step | `player-awaiting`, with a photo of a hand drawing the same palm tree on paper, the marker at the end of the leaf the phone shows |
-| 2 | Watch a line, then draw it | `preview-default` |
-| 3 | Then add a little color | `player-last` |
-| 4 | 100 lessons on 10 paths | `lessons` |
-| 5 | Start simple, then level up | `path-default` |
-| 6 | A finished picture in minutes | `completion-default` |
-| 7 | Keep every drawing | `sketchbook-filled` |
+| 2 | 100 lessons on 10 paths | `paths` |
+| 3 | Keep every drawing | `sketchbook-filled`, with a photo of hands holding a sketchpad with the sunflower lesson drawn on it |
+| 4 | Finish it in full color | `player-last` |
+| 5 | Watch a line, then draw it | `preview-default` |
+| 6 | Start simple, then level up | `path-default` |
+| 7 | A finished picture in minutes | `completion-default` |
 | 8 | Pick up where you left off | `home-progress` |
 
+The first three are what App Store search shows, side by side at about a third of the phone's width, so they
+say three different things (how it works, what there is to draw, what you keep) with three different drawings.
+Every lesson ends with color steps, which is what #4 claims.
+
 Every headline is something the app does today (listing.md: 100 lessons on 10 paths, three levels, five to ten
-minutes a lesson, the sketchbook). The drawing on the paper in #1 is the palm tree lesson's own pen strokes,
-read from `shared/Tutorials/palm-tree.json`, so it is exactly what a learner draws: steps 1 to 5 and step 6's arch part-way, ending at the marker's tip (`handDrawing` in `shots.js`).
+minutes a lesson, the sketchbook). The drawings in #1 and #3 are the lessons' own pen strokes,
+read from `shared/Tutorials/`, so they are exactly what a learner draws; in #1, steps 1 to 5 and step 6's arch part-way, ending at the marker's tip (`handDrawing` and `sketchpad` in `shots.js`).
 
 ## Files
 
@@ -28,7 +32,7 @@ render.mjs    saves them all: node docs/app-store/marketing/render.mjs [iphone|i
 capture.sh    takes the raw screens from the simulator through the debug harness
 captures/     the raw screens, per device
 frames/       Apple's device frames (not in git, see below)
-assets/       Fredoka (SIL OFL, assets/fonts/OFL.txt) and the hand-drawing photo
+assets/       Fredoka (SIL OFL, assets/fonts/OFL.txt) and the two photos
 out/          the upload files: RGB PNG, no alpha
 ```
 
@@ -62,8 +66,8 @@ After a UI change, build the Debug app for the simulator, install it on the two 
 gives their udids), boot them, then capture and render:
 
 ```bash
-docs/app-store/marketing/capture.sh <iphone udid> iphone player-awaiting preview-default player-last lessons path-default completion-default sketchbook-filled home-progress
-docs/app-store/marketing/capture.sh <ipad udid> ipad player-awaiting preview-default player-last lessons path-default completion-default sketchbook-filled home-progress
+docs/app-store/marketing/capture.sh <iphone udid> iphone player-awaiting paths sketchbook-filled player-last preview-default path-default completion-default home-progress
+docs/app-store/marketing/capture.sh <ipad udid> ipad player-awaiting paths sketchbook-filled player-last preview-default path-default completion-default home-progress
 node docs/app-store/marketing/render.mjs
 ```
 
@@ -72,6 +76,8 @@ and never reach Superwall. On these simulators the iPad app opened full screen, 
 
 ## Credits
 
+- Hands holding a sketchpad: Kai_NITEandDAY on Pixabay, https://pixabay.com/photos/hand-note-airplane-sketchbook-1791337/
+  (Pixabay Content License).
 - Hand drawing with a marker: Mohamed_hassan on Pixabay, https://pixabay.com/photos/writing-hand-write-pen-handwriting-3709125/
-  (Pixabay Content License). No face is shown.
+  (Pixabay Content License). Neither photo shows a face.
 - Fredoka: The Fredoka Project Authors, SIL Open Font License 1.1.

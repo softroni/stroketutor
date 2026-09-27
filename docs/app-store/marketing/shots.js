@@ -49,6 +49,14 @@ const handDrawing = {
   drawing: { tutorial: 'palm-tree', upTo: { step: 6, stroke: 0, t: 0.72 }, anchor: [817, 449], scale: 0.42, rot: 4 },
 };
 
+// Hands holding a blank sketchpad (Pixabay 1791337, 960 x 1280): the part of the
+// photo a print shows, and where on its blank page the finished drawing sits.
+const sketchpad = {
+  photo: 'assets/photos/sketchpad-hands.jpg',
+  crop: [110, 200, 760, 1080],
+  drawing: { tutorial: 'sunflower', cx: 492, cy: 760, size: 600 },
+};
+
 export const SHOTS = [
   {
     id: 'learn',
@@ -70,17 +78,40 @@ export const SHOTS = [
     },
   },
   {
-    id: 'method',
-    title: 'Watch a line,<br><em>then draw it</em>',
-    capture: 'preview-default',
+    id: 'paths',
+    title: '<em>100 lessons</em><br>on 10 paths',
+    capture: 'paths',
     stickers: [
-      { name: 'hot-air-balloon', x: 0.0, y: 0.11, size: 0.30, rot: -10 },
-      { name: 'pencil:green', x: 1.0, y: 0.68, size: 0.58, rot: 62 },
+      { name: 'ice-cream-cone', x: 0.0, y: 0.10, size: 0.26, rot: -12 },
+      { name: 'race-car', x: 1.0, y: 0.82, size: 0.30, rot: 10 },
     ],
+    ipad: {
+      stickers: [
+        { name: 'ice-cream-cone', x: -0.06, y: 0.07, size: 0.26, rot: -12 },
+        { name: 'race-car', x: 1.05, y: 0.80, size: 0.30, rot: 10 },
+      ],
+    },
+  },
+  {
+    id: 'keep',
+    title: 'Keep every<br><em>drawing</em>',
+    capture: 'sketchbook-filled',
+    device: { width: 0.56, x: 0.38, y: 0.205, rot: 5 },
+    card: { ...sketchpad, tag: 'I drew this!', width: 0.5, x: 0.05, y: 0.555, rot: -6 },
+    stickers: [
+      { name: 'strawberry', x: -0.55, y: 0.08, size: 0.30, rot: -12 },
+    ],
+    ipad: {
+      device: { width: 0.5, x: 0.44, y: 0.2, rot: 4 },
+      card: { ...sketchpad, tag: 'I drew this!', width: 0.38, x: 0.07, y: 0.47, rot: -5 },
+      stickers: [
+        { name: 'strawberry', x: -0.62, y: 0.06, size: 0.30, rot: -12 },
+      ],
+    },
   },
   {
     id: 'color',
-    title: 'Then add<br><em>a little color</em>',
+    title: 'Finish it<br><em>in full color</em>',
     capture: 'player-last',
     stickers: [
       { name: 'pencil:clay', x: 0.0, y: 0.58, size: 0.56, rot: -64 },
@@ -89,21 +120,13 @@ export const SHOTS = [
     ],
   },
   {
-    id: 'lessons',
-    title: '<em>100 lessons</em><br>on 10 paths',
-    capture: 'lessons',
+    id: 'method',
+    title: 'Watch a line,<br><em>then draw it</em>',
+    capture: 'preview-default',
     stickers: [
-      { name: 'rocket', x: 0.99, y: 0.10, size: 0.30, rot: 18 },
-      { name: 'donut', x: -0.02, y: 0.50, size: 0.25, rot: -12 },
-      { name: 'sailboat', x: 1.01, y: 0.80, size: 0.30, rot: 8 },
+      { name: 'hot-air-balloon', x: 0.0, y: 0.11, size: 0.30, rot: -10 },
+      { name: 'pencil:green', x: 1.0, y: 0.68, size: 0.58, rot: 62 },
     ],
-    ipad: {
-      stickers: [
-        { name: 'rocket', x: 1.0, y: 0.08, size: 0.30, rot: 18 },
-        { name: 'donut', x: -0.07, y: 0.46, size: 0.25, rot: -12 },
-        { name: 'sailboat', x: 1.05, y: 0.80, size: 0.30, rot: 8 },
-      ],
-    },
   },
   {
     id: 'path',
@@ -121,15 +144,6 @@ export const SHOTS = [
     stickers: [
       { name: 'star', x: 0.02, y: 0.09, size: 0.24, rot: -16 },
       { name: 'gift-box', x: 1.01, y: 0.60, size: 0.26, rot: 10 },
-    ],
-  },
-  {
-    id: 'sketchbook',
-    title: 'Keep every<br><em>drawing</em>',
-    capture: 'sketchbook-filled',
-    stickers: [
-      { name: 'strawberry', x: 0.99, y: 0.09, size: 0.26, rot: 14 },
-      { name: 'pencil:yellow', x: 0.0, y: 0.66, size: 0.58, rot: -60 },
     ],
   },
   {
