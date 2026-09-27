@@ -56,6 +56,7 @@ struct AppRoot: View {
                 if countsAsUse {
                     app.recordAppOpened()
                     Task { await app.resolveAppleAdsAttribution() }
+                    app.startCrashReports()
                 }
                 // Superwall, only for a learner 13 or over (`SuperwallGate`). On a
                 // launch that asks "Who's drawing?" below, it waits for the answer.
