@@ -46,6 +46,7 @@ shots.html    draws one shot: shots.html?device=iphone&shot=learn
 render.mjs    saves them all: node docs/app-store/marketing/render.mjs [iphone|ipad] [shot id]
 gallery.mjs   writes gallery.html, the page that shows them
 capture.sh    takes the raw screens from the simulator through the debug harness
+upload.py     puts out/ on the App Store version being prepared (see Uploading)
 captures/     the raw screens, per device
 frames/       Apple's device frames (not in git, see below)
 assets/       Fredoka (SIL OFL, assets/fonts/OFL.txt) and the two photos
@@ -95,6 +96,22 @@ Each screen gets 8 seconds to settle (the player's reference picture loads last)
 with `SETTLE=9`. The iPad captures are from the sidebar layout (commit `3b377c7`), so they go with a build that has
 it; the iPhone screens did not change. Harness launches send no analytics
 and never reach Superwall. On these simulators the iPad app opened full screen, not in a window.
+
+## Uploading to App Store Connect
+
+```bash
+python3 docs/app-store/marketing/upload.py
+python3 docs/app-store/marketing/upload.py --apply
+```
+
+The first command only compares: for the iOS version App Store Connect still lets you edit (Prepare for Submission,
+or rejected) it reports, per device, whether the en-US screenshots match `out/` file for file. With no version to edit
+it compares the newest one instead and changes nothing. `--apply` empties each set that differs, uploads `out/` in
+listing order and waits until Apple has processed every file; sets that already match are left alone, so it is safe
+to run again (also after a failure part way). It checks the files first (size, no alpha, numbered 01 onwards, at most
+10) and never touches a version in review or on sale. `--version 1.1` picks a version by name. The sets are iPhone
+6.9" (`APP_IPHONE_67`) and iPad 13" (`APP_IPAD_PRO_3GEN_129`); App Store Connect scales the 6.9" set for smaller
+iPhones, so no 6.5" set is needed. The script mentions, and leaves alone, any other size it finds on the version.
 
 ## Credits
 
