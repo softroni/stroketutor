@@ -137,7 +137,8 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 - Through Superwall's proxy: `superwall asa … --app 54792` (GeoBlitz's connection reaches the
   Softroni LLC org, 20605790, pay as you go). Paper Coach is adam id `6816231257`; Apple Ads can't see
   it until it is on sale.
-- **Start:** US only, **$10 a day** across the campaigns, the day 1.0 is approved.
+- **Start:** US only, **$10 a day** across the campaigns, the day 1.0 is approved, as
+  [apple-ads-plan.md](apple-ads-plan.md) lays out.
 - **Budget rule:** total ad spend stays at or below **$150 plus the proceeds from learners the ads
   brought** (after Apple's cut). Until trials have had time to turn paid, count a trial at the
   trial-to-paid rate actually seen, or not at all while there is none.
