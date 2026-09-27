@@ -9,6 +9,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
+import os from 'node:os';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,13 +24,31 @@ const devices = Object.keys(DEVICES).filter((d) => !onlyDevice || d === onlyDevi
 const shots = SHOTS.map((shot, i) => ({ ...shot, number: String(i + 1).padStart(2, '0') }))
   .filter((s) => !onlyShot || s.id === onlyShot);
 
+// Apple's device frames stay out of git (their licence forbids redistribution): frames/
+// in this checkout, or else the copy kept once for every checkout on this Mac, so a
+// worktree renders without setting anything up (README, "Device frames").
+const framesPrefix = '/docs/app-store/marketing/frames/';
+const sharedFrames = path.join(os.homedir(), 'Library/Application Support/Softroni/DeviceFrames');
+const frameFile = (name) => [path.join(here, 'frames', name), path.join(sharedFrames, name)].find((f) => fs.existsSync(f));
+for (const device of devices) {
+  const name = path.basename(DEVICES[device].frame);
+  if (!frameFile(name)) {
+    console.error(`Missing device frame "${name}": put it in docs/app-store/marketing/frames/ or ${sharedFrames} (see README).`);
+    process.exit(1);
+  }
+}
+
 const types = {
   '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ttf': 'font/ttf',
 };
 const server = http.createServer((req, res) => {
-  const file = path.join(root, decodeURIComponent(new URL(req.url, 'http://x').pathname));
-  if (!file.startsWith(root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+  const pathname = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  const file = pathname.startsWith(framesPrefix)
+    ? frameFile(path.basename(pathname))
+    : path.join(root, pathname);
+  if (!file || !(file.startsWith(root) || file.startsWith(sharedFrames))
+      || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
     res.writeHead(404).end();
     return;
   }

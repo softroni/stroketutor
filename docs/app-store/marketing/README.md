@@ -38,16 +38,28 @@ The stickers are the lessons' own illustrations from `shared/Assets/References/`
 ## Device frames
 
 Apple's Design Resources licence allows the frames in screenshots but not redistribution, so `frames/` is ignored
-by git. To set it up, open the Bezel disk images from https://developer.apple.com/design/resources/, accept the
-licence, and copy these two PNGs into `frames/`:
+by git. `render.mjs` looks in `frames/` first and then in `~/Library/Application Support/Softroni/DeviceFrames/`,
+where this Mac keeps one copy for every checkout and worktree, so nothing needs setting up here. On another Mac,
+open the Bezel disk images from https://developer.apple.com/design/resources/, accept the licence, and copy these
+two PNGs into either folder:
 
 - `Bezel-iPhone-18.dmg` › `PNG/iPhone 18 Pro Max/iPhone 18 Pro Max - Black - Portrait.png`
 - `Bezel-iPad-Pro-(M5).dmg` › `PNG/iPad Pro (M5) 13" - Space Black - Portrait.png`
 
+A fresh worktree also needs the Studio's packages for Playwright: `npm install` in `web/`.
+
+## Changing a shot
+
+Headlines, captures, stickers and placement are all in `shots.js`; the look (colours, font, sticker rim, pencils)
+is in `shots.html`. Tune one shot in a browser through the same server `render.mjs` starts, or just re-render it:
+`node docs/app-store/marketing/render.mjs iphone learn`. Upload `out/` to App Store Connect when done (the
+upload used the API: delete the set's screenshots, reserve, PUT, commit, then order them).
+
 ## Capturing again
 
 After a UI change, build the Debug app for the simulator, install it on the two screenshot simulators
-(iOS 26.5: "PC Shots iPhone 17 Pro Max" and "PC Shots iPad Pro 13"), then capture and render:
+(iOS 26.5: "PC Shots iPhone 17 Pro Max" and "PC Shots iPad Pro 13"; `xcrun simctl list devices | grep "PC Shots"`
+gives their udids), boot them, then capture and render:
 
 ```bash
 docs/app-store/marketing/capture.sh <iphone udid> iphone player-awaiting preview-default player-last lessons path-default completion-default sketchbook-filled home-progress
