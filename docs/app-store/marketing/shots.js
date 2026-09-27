@@ -113,9 +113,9 @@ export const SHOTS = [
   {
     id: 'color',
     title: 'Finish it<br><em>in full color</em>',
-    capture: 'player-last@donut',
+    capture: 'player-last@burger',
     stickers: [
-      { name: 'pencil:clay', x: 0.0, y: 0.58, size: 0.56, rot: -64 },
+      { name: 'pencil:clay', x: -0.035, y: 0.58, size: 0.56, rot: -64 },
       { name: 'pencil:green', x: 0.06, y: 0.74, size: 0.56, rot: -40 },
       { name: 'sun', x: 0.99, y: 0.09, size: 0.30, rot: 10 },
     ],
