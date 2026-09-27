@@ -72,7 +72,9 @@ docs/app-store/marketing/capture.sh <ipad udid> ipad player-awaiting paths sketc
 node docs/app-store/marketing/render.mjs
 ```
 
-Home needs longer to settle than the other screens: capture it with `SETTLE=9`. Harness launches send no analytics
+Each screen gets 8 seconds to settle (the player's reference picture loads last); Home needs longer: capture it
+with `SETTLE=9`. The iPad captures are from the sidebar layout (commit `3b377c7`), so they go with a build that has
+it; the iPhone screens did not change. Harness launches send no analytics
 and never reach Superwall. On these simulators the iPad app opened full screen, not in a window.
 
 ## Credits

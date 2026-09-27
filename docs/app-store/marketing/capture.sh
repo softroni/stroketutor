@@ -21,7 +21,7 @@ xcrun simctl status_bar $udid override --time "9:41" --dataNetwork wifi --wifiMo
 for screen in "$@"; do
   xcrun simctl terminate $udid $bundle 2>/dev/null || true
   xcrun simctl launch $udid $bundle -STScreen $screen >/dev/null
-  sleep ${SETTLE:-4}
+  sleep ${SETTLE:-8}
   xcrun simctl io $udid screenshot --type=png $out/$screen.png >/dev/null 2>&1
   if [[ $device == ipad ]]; then
     # iPadOS 26 runs the app as a screen-sized window and draws its resize handle,

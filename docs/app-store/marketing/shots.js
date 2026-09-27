@@ -128,6 +128,12 @@ export const SHOTS = [
       { name: 'hot-air-balloon', x: 0.0, y: 0.11, size: 0.30, rot: -10 },
       { name: 'pencil:green', x: 1.0, y: 0.68, size: 0.58, rot: 62 },
     ],
+    ipad: {
+      stickers: [
+        { name: 'hot-air-balloon', x: -0.04, y: 0.08, size: 0.30, rot: -10 },
+        { name: 'pencil:green', x: 1.06, y: 0.84, size: 0.50, rot: 62 },
+      ],
+    },
   },
   {
     id: 'path',
