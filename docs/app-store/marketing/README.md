@@ -6,7 +6,7 @@ They replace the plain simulator captures in `../screenshots/`.
 
 | # | Headline | Screen (`-STScreen`) |
 |---|---|---|
-| 1 | Learn to draw step by step | `player-awaiting`, with a photo of the palm tree drawn on a real sketchpad |
+| 1 | Learn to draw step by step | `player-awaiting`, with a photo of a hand drawing the same palm tree on paper, the marker at the end of the leaf the phone shows |
 | 2 | Watch a line, then draw it | `preview-default` |
 | 3 | Then add a little color | `player-last` |
 | 4 | 100 lessons on 10 paths | `lessons` |
@@ -16,8 +16,8 @@ They replace the plain simulator captures in `../screenshots/`.
 | 8 | Pick up where you left off | `home-progress` |
 
 Every headline is something the app does today (listing.md: 100 lessons on 10 paths, three levels, five to ten
-minutes a lesson, the sketchbook). The drawing on the sketchpad in #1 is the palm tree lesson's own pen strokes,
-read from `shared/Tutorials/palm-tree.json`, so it is exactly what a learner draws.
+minutes a lesson, the sketchbook). The drawing on the paper in #1 is the palm tree lesson's own pen strokes,
+read from `shared/Tutorials/palm-tree.json`, so it is exactly what a learner draws: steps 1 to 5 and step 6's arch part-way, ending at the marker's tip (`handDrawing` in `shots.js`).
 
 ## Files
 
@@ -28,7 +28,7 @@ render.mjs    saves them all: node docs/app-store/marketing/render.mjs [iphone|i
 capture.sh    takes the raw screens from the simulator through the debug harness
 captures/     the raw screens, per device
 frames/       Apple's device frames (not in git, see below)
-assets/       Fredoka (SIL OFL, assets/fonts/OFL.txt) and the sketchpad photo
+assets/       Fredoka (SIL OFL, assets/fonts/OFL.txt) and the hand-drawing photo
 out/          the upload files: RGB PNG, no alpha
 ```
 
@@ -72,6 +72,6 @@ and never reach Superwall. On these simulators the iPad app opened full screen, 
 
 ## Credits
 
-- Hands holding a sketchpad: Kai_NITEandDAY on Pixabay, https://pixabay.com/photos/hand-note-airplane-sketchbook-1791337/
+- Hand drawing with a marker: Mohamed_hassan on Pixabay, https://pixabay.com/photos/writing-hand-write-pen-handwriting-3709125/
   (Pixabay Content License). No face is shown.
 - Fredoka: The Fredoka Project Authors, SIL Open Font License 1.1.

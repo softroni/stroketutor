@@ -113,6 +113,7 @@
   const box = drawDevice();
   for (const st of shot.stickers ?? []) drawSticker(st, box);
   if (shot.card) await drawCard(shot.card);
+  if (shot.arrow) drawArrow(shot.arrow);
 
   await document.fonts.ready;
   await Promise.all(waits);
@@ -188,12 +189,28 @@
     const photo = image(card.photo, null, { left: px(-cx * scale), top: px(-cy * scale) });
     waits.push(photo.decode().then(() => { photo.style.width = px(photo.naturalWidth * scale); }));
     const d = card.drawing;
-    const size = d.size * scale;
-    const drawing = el('div', 'drawing', {
-      width: px(size), height: px(size),
-      left: px((d.cx - cx) * scale - size / 2), top: px((d.cy - cy) * scale - size / 2),
-    });
-    drawing.innerHTML = await lineArt(d.tutorial);
+    const art = await lineArt(d);
+    const drawing = el('div', 'drawing');
+    drawing.innerHTML = art.svg;
+    if (d.anchor) {
+      // The end of the line being drawn sits on the pen's tip; `scale` is photo
+      // pixels per lesson unit, and the drawing turns with the page about that point.
+      const unit = d.scale * scale;
+      const tipX = (d.anchor[0] - cx) * scale;
+      const tipY = (d.anchor[1] - cy) * scale;
+      Object.assign(drawing.style, {
+        width: px(art.width * unit), height: px(art.height * unit),
+        left: px(tipX - art.end.x * unit), top: px(tipY - art.end.y * unit),
+        transformOrigin: `${art.end.x * unit}px ${art.end.y * unit}px`,
+        transform: `rotate(${d.rot ?? 0}deg)`,
+      });
+    } else {
+      const size = d.size * scale;
+      Object.assign(drawing.style, {
+        width: px(size), height: px(size),
+        left: px((d.cx - cx) * scale - size / 2), top: px((d.cy - cy) * scale - size / 2),
+      });
+    }
     print.append(photo, drawing);
     node.append(print);
 
@@ -210,20 +227,70 @@
     canvas.append(node);
   }
 
-  // A lesson's pen lines (every step that draws, none that colors), as the
-  // learner leaves them on paper.
-  async function lineArt(id) {
-    const tutorial = await (await fetch(`../../../shared/Tutorials/${id}.json`)).json();
+  // A lesson's pen lines (steps that draw, none that color), as the learner leaves
+  // them on paper: all of them, or with `upTo` ({ step, stroke, t }, step counted
+  // from 1 as the player shows it) the steps before it, its strokes before
+  // `stroke`, and that stroke drawn as far as `t` of its length. `end` is where the
+  // pen is, in lesson units.
+  async function lineArt(d) {
+    const tutorial = await (await fetch(`../../../shared/Tutorials/${d.tutorial}.json`)).json();
     const { width, height } = tutorial.canvas;
-    const paths = tutorial.steps
-      .flatMap((step) => step.strokes ?? [])
-      .map((s) => `<path d="${s.d}" stroke-width="${(s.lineWidth ?? 10) * 0.75}"/>`)
-      .join('');
-    return `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-      <filter id="pen"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"/>
-        <feDisplacementMap in="SourceGraphic" scale="3"/></filter>
-      <g fill="none" stroke="#26282b" stroke-linecap="round" stroke-linejoin="round" filter="url(#pen)">${paths}</g>
-    </svg>`;
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.innerHTML = `<filter id="pen"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"/>
+        <feDisplacementMap in="SourceGraphic" scale="3"/></filter>`;
+    const group = document.createElementNS(ns, 'g');
+    Object.entries({ fill: 'none', stroke: '#26282b', 'stroke-linecap': 'round',
+                     'stroke-linejoin': 'round', filter: 'url(#pen)' })
+      .forEach(([k, v]) => group.setAttribute(k, v));
+    svg.append(group);
+    // Measured in the page: a path's length and points need layout.
+    Object.assign(svg.style, { position: 'absolute', visibility: 'hidden', width: '10px', height: '10px' });
+    document.body.append(svg);
+
+    let end = null;
+    tutorial.steps.forEach((step, i) => {
+      (step.strokes ?? []).forEach((stroke, j) => {
+        const upTo = d.upTo;
+        if (upTo && (i + 1 > upTo.step || (i + 1 === upTo.step && j > upTo.stroke))) return;
+        const path = document.createElementNS(ns, 'path');
+        path.setAttribute('d', stroke.d);
+        path.setAttribute('stroke-width', (stroke.lineWidth ?? 10) * 0.75);
+        group.append(path);
+        if (upTo && i + 1 === upTo.step && j === upTo.stroke) {
+          const length = path.getTotalLength();
+          path.setAttribute('stroke-dasharray', `${length * upTo.t} ${length}`);
+          const point = path.getPointAtLength(length * upTo.t);
+          end = { x: point.x, y: point.y };
+        }
+      });
+    });
+    svg.remove();
+    svg.removeAttribute('style');
+    return { svg: svg.outerHTML, width, height, end };
+  }
+
+  // A doodled arrow across the canvas, from one point to another (fractions of the
+  // canvas), bowed to one side by `bend`: white, dashed, with an open head.
+  function drawArrow(a) {
+    const [x1, y1, x2, y2] = [a.from[0] * W, a.from[1] * H, a.to[0] * W, a.to[1] * H];
+    const mx = (x1 + x2) / 2 - (y2 - y1) * (a.bend ?? 0.3);
+    const my = (y1 + y2) / 2 + (x2 - x1) * (a.bend ?? 0.3);
+    const angle = Math.atan2(y2 - my, x2 - mx);
+    const head = W * 0.035;
+    const wing = (side) => `${x2 - head * Math.cos(angle + side * 0.5)},${y2 - head * Math.sin(angle + side * 0.5)}`;
+    const stroke = W * 0.0075;
+    const layer = el('div', 'arrow', { position: 'absolute', inset: '0', zIndex: '3' });
+    layer.innerHTML = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#fff" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"
+         style="filter: drop-shadow(0 ${stroke}px ${stroke * 1.5}px rgba(0,0,0,0.18))">
+        <path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" stroke-dasharray="${stroke * 0.1} ${stroke * 2.4}"/>
+        <path d="M${wing(1)} L${x2},${y2} L${wing(-1)}"/>
+      </g></svg>`;
+    canvas.append(layer);
   }
 
   // A die-cut sticker edge: a white rim a few percent of the sticker's width, then

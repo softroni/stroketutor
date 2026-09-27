@@ -12,7 +12,9 @@
 //           frame, so one list suits the iPhone and the iPad; rot is in degrees.
 // card      a photo print laid over the canvas (placed like `device`), cropped to
 //           `crop` (pixels of the photo), with a lesson's pen lines drawn on the
-//           blank page in it and an optional tag.
+//           blank page in it and an optional tag. The drawing is either centred at
+//           cx, cy at `size`, or drawn up to a stroke whose end sits on `anchor`.
+// arrow     a doodled arrow from `from` to `to` (fractions of the canvas).
 
 export const DEVICES = {
   iphone: {
@@ -36,12 +38,15 @@ export const DEVICES = {
   },
 };
 
-// The hands holding a blank sketchpad (Pixabay 1791337, 960 x 1280): the part of
-// the photo a print shows, and where the page is blank enough to draw on.
-const sketchpad = {
-  photo: 'assets/photos/sketchpad-hands.jpg',
-  crop: [110, 200, 760, 1080],
-  drawing: { tutorial: 'palm-tree', cx: 492, cy: 725, size: 480 },
+// A hand drawing with a black marker on blank paper (Pixabay 3709125, 1280 x 784):
+// the part of the photo a print shows, and the marker's tip, in pixels of the photo.
+// The palm tree is drawn as far as the phone's step 6, the upper-right leaf's arch
+// part-way, so the tip sits at the end of the line the phone is showing; `scale` is
+// photo pixels per lesson unit and `rot` turns the drawing with the page.
+const handDrawing = {
+  photo: 'assets/photos/hand-marker.jpg',
+  crop: [230, 60, 1020, 724],
+  drawing: { tutorial: 'palm-tree', upTo: { step: 6, stroke: 0, t: 0.72 }, anchor: [817, 449], scale: 0.42, rot: 4 },
 };
 
 export const SHOTS = [
@@ -49,18 +54,18 @@ export const SHOTS = [
     id: 'learn',
     title: 'Learn to draw<br><em>step by step</em>',
     capture: 'player-awaiting',
-    device: { width: 0.56, x: 0.02, y: 0.205, rot: -5 },
-    card: { ...sketchpad, tag: 'I drew this!', width: 0.44, x: 0.545, y: 0.585, rot: 6 },
+    device: { width: 0.54, x: 0.05, y: 0.19, rot: -5 },
+    card: { ...handDrawing, tag: 'Your turn!', width: 0.86, x: 0.10, y: 0.678, rot: 3 },
+    arrow: { from: [0.66, 0.35], to: [0.66, 0.672], bend: -0.42 },
     stickers: [
-      { name: 'pencil:yellow', x: 0.36, y: 1.075, size: 0.70, rot: -10 },
-      { name: 'cactus', x: 1.04, y: 0.10, size: 0.36, rot: 12 },
+      { name: 'cactus', x: 1.25, y: 0.10, size: 0.34, rot: 12 },
     ],
     ipad: {
-      device: { width: 0.56, x: 0.04, y: 0.215, rot: -4 },
-      card: { ...sketchpad, tag: 'I drew this!', width: 0.37, x: 0.585, y: 0.52, rot: 6 },
+      device: { width: 0.46, x: 0.07, y: 0.19, rot: -4 },
+      card: { ...handDrawing, tag: 'Your turn!', width: 0.58, x: 0.36, y: 0.655, rot: 3 },
+      arrow: { from: [0.64, 0.33], to: [0.64, 0.648], bend: -0.4 },
       stickers: [
-        { name: 'pencil:yellow', x: 0.40, y: 1.11, size: 0.62, rot: -8 },
-        { name: 'cactus', x: 1.02, y: 0.08, size: 0.30, rot: 12 },
+        { name: 'cactus', x: 1.42, y: 0.10, size: 0.30, rot: 12 },
       ],
     },
   },
