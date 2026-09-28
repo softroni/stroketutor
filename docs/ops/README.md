@@ -39,6 +39,7 @@ and icon, and anything that changes what Premium includes.
 |---|---|---|
 | 08:00 | **Daily check** and summary | scheduled task `paper-coach-daily` |
 | 12:00, 16:00, 20:00, 00:00 | **Heartbeat**: review state, new reviews | scheduled task `paper-coach-heartbeat` |
+| 17:00 | **Lesson video** on Softroni's accounts (once installed; see *Lesson videos on social*) | launch agent `com.softroni.papercoach-social` |
 | whenever something happens | a log line, the page republished | `today.py log "…"` in a session; a scheduled run adds to `addLog` in `notes.json` instead |
 
 The tasks run on this Mac (`m4-1`, which never sleeps) while the Claude app is open; a run that was
@@ -55,6 +56,8 @@ created it, which passes anything urgent to Kevin's phone.
 3. Act by *Who does what*: a rejection, a reported bug or a serious crash comes first.
 4. Reviews: reply to anything unanswered.
 5. A/B tests and Apple Ads: apply their rules; record every change in the log.
+   Social: read the last lines of `.studio/social/posts.jsonl`; a platform that failed goes in the log, and an
+   account Upload-Post says needs reconnecting goes under "Needs you".
 6. Write `.studio/ops/notes.json` (headline, needsYou, working, PostHog numbers, experiment results,
    ads notes, next run), then `today.py publish` and `today.py archive`.
 7. Finish with a summary of at most five lines: what changed, what Claude did, and what needs Kevin.
@@ -156,6 +159,37 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 - PostHog: `install_attributed` and the `asa_*` keys on onboarding, trial and purchase events join
   installs to keywords (filter out `asa_test_payload`).
 
+## Lesson videos on social
+
+One lesson video a day goes to Softroni's own accounts (YouTube Shorts, TikTok, Instagram and Facebook Reels,
+Pinterest, X), through [Upload-Post](https://app.upload-post.com), profile `softroni`. The Studio makes the
+video and posts it (`studio social …`; the studio-cli skill, *Posting lesson videos*, has the details).
+
+- **Order:** lesson 1 of every path, then lesson 2 of every path, and so on (`social queue`), so the 30 free
+  lessons go out first and no two posts in a row are from the same path. A lesson Lina hasn't fully recorded
+  is skipped until she has.
+- **When:** the launch agent `docs/ops/com.softroni.papercoach-social.plist` runs `social next --log` at 17:00
+  Central. It posts at most once in 20 hours, and logs what went where on the Today page.
+- **Never before Paper Coach is on sale:** every video ends on the App Store. `social next` refuses a public
+  post until `facts.json` shows a live version; `--private` is for tests.
+- **Claude:** reads the record in the daily check, re-posts to a platform that failed (`social post <id>
+  --platforms …`), and writes better captions or changes the order in the code when the numbers say so.
+  **Kevin:** the Upload-Post plan and paying for it, connecting or reconnecting accounts (only the account owner
+  can), and the questions below.
+- **Settings** live in `~/.config/upload-post/config` (chmod 600; never printed or committed): the API key, the
+  profile, the Pinterest board and Facebook Page ids, the AI label (`tiktok` by default: Lina's voice is
+  synthetic), and whether YouTube should mark the videos as made for kids (no by default; Kevin's call).
+- **The record** is `.studio/social/posts.jsonl`, one line per post and per status seen. It only grows.
+
+**Setting it up** (once): make the Upload-Post account and connect the Softroni accounts to one profile, put
+the key in the settings file, run `npm run studio -- social check` in `web/` and set the board and Page ids it
+lists, then test with `social post <id> --private`. When the paid plan is on and Paper Coach is on sale:
+
+```bash
+cp docs/ops/com.softroni.papercoach-social.plist ~/Library/LaunchAgents/
+launchctl load -w ~/Library/LaunchAgents/com.softroni.papercoach-social.plist
+```
+
 ## Replying to reviews
 
 - Warm, short and specific to what the person wrote, signed "the Paper Coach team". Thank them for
@@ -173,4 +207,5 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 | Superwall | project 42098, app 56531; campaigns Onboarding offer 109312, In-app Premium 109313 |
 | PostHog | project 629055; dashboard 2140277 |
 | Apple Ads | org 20605790, through `superwall asa --app 54792` |
+| Social videos | Upload-Post profile `softroni`; settings `~/.config/upload-post/config`; record `.studio/social/posts.jsonl`; log `.studio/logs/social.log` |
 | Handoffs | `docs/handoff-2026-09-25-superwall.md`, `docs/handoff-2026-09-26-release.md` |

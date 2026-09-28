@@ -182,6 +182,9 @@ committed for you.
 
 **Trash** (`trash …`): `list`, `restore <id>`, `purge <id>`, `empty`.
 
+**Social** (`social …`): `check`, `queue`, `post <id>`, `next`, `status`. Lesson videos posted to Softroni's
+accounts through Upload-Post; see *Posting lesson videos*.
+
 **SVG** (`svg …`) and **image**
 
 | Command | Notes |
@@ -416,6 +419,42 @@ Instagram Reels, with the same code as the lesson page's **Video** tab (`web/ser
 - Apple's badge is `docs/app-store/marketing/assets/badges/download-on-the-app-store-black.svg`, used
   as supplied (never recoloured, stretched or animated beyond the fade). Without the file the ending
   says "Free on the App Store · link in bio" instead.
+
+## Posting lesson videos
+
+`social …` posts lesson videos to Softroni's accounts (YouTube Shorts, TikTok, Instagram and Facebook
+Reels, Pinterest, X) through Upload-Post, one request for every platform (`web/server/social/`,
+`web/cli/commands/social.ts`). docs/ops/README.md, *Lesson videos on social*, is how they are run.
+
+- **Settings** are in `~/.config/upload-post/config` (`UPLOAD_POST_CONFIG` elsewhere), shell-sourceable
+  like the Pixabay key: `UPLOAD_POST_API_KEY`, `UPLOAD_POST_PROFILE` (default `softroni`), and optionally
+  `UPLOAD_POST_PLATFORMS`, `UPLOAD_POST_PINTEREST_BOARD`, `UPLOAD_POST_FACEBOOK_PAGE`,
+  `UPLOAD_POST_AI_LABEL` (`tiktok` default, `all`, `none`), `UPLOAD_POST_YOUTUBE_MADE_FOR_KIDS`. The
+  environment wins over the file. Never print the key or put it in the repository.
+- `social check` first: the plan, which accounts are connected, and the Pinterest board and Facebook
+  Page ids to set.
+- **Order** (`social queue`): lesson 1 of every path in curriculum order, then lesson 2 of every path,
+  and so on, so the 30 free lessons go out before any Premium one and two posts in a row never come
+  from the same path. Only published lessons with every step recorded; the rest are skipped with a
+  warning.
+- `social post <id>` renders the lesson now (as `lessons video` does) unless `--video` names a file;
+  `social next` posts the next lesson in the queue, at most once in 20 hours unless `--again`. Both
+  wait for every platform to finish (up to 20 minutes) and print each post's link or error; `--log`
+  adds a line to the Today page. A platform not connected to the profile (or needing reconnecting) is
+  left out with a warning: Upload-Post would never answer for it. `social status --refresh` asks again
+  about recent posts, finished or not.
+- **Before Paper Coach is on sale** (`.studio/ops/facts.json` has no live version) a public post is
+  refused, because every video ends on the App Store. `--private` tests on YouTube (private), TikTok
+  ("only me") and Facebook (a draft); Instagram, Pinterest and X have no private post and are left out.
+  `--dry-run` shows every field each platform would get, with no key and no render.
+- On Upload-Post's free plan TikTok is left out with a warning, and the plan allows 10 uploads a month:
+  test sparingly.
+- Each platform gets its own text: TikTok and Instagram the export's caption ("link in bio"), YouTube
+  a "How to draw … #shorts" title and a description with the App Store link, Facebook the same
+  description, Pinterest a title, a note and the App Store link on the pin, X at most 280 characters
+  (Upload-Post strips links from X posts). TikTok posts are marked as promoting Softroni's own app.
+- `.studio/social/posts.jsonl` (outside git) is the record: one line per post and per status seen. It
+  only grows; never edit or delete it.
 
 ## Gotchas
 

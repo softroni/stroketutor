@@ -13,6 +13,7 @@ import type { TracedDrawing } from '../src/trace/traceSvg'
 import { FIXTURE_SHARED } from '../test/fixture'
 
 import type { BrowserBridge } from './bridge'
+import type { SocialDeps } from './context'
 import { run } from './main'
 import type { IO } from './output'
 
@@ -39,7 +40,7 @@ export interface Outcome {
 }
 
 export async function openTestStudio(
-  options: { generation?: Partial<GenerateDeps>; browser?: BrowserBridge; tts?: Partial<TtsDeps> } = {},
+  options: { generation?: Partial<GenerateDeps>; browser?: BrowserBridge; tts?: Partial<TtsDeps>; social?: Partial<SocialDeps> } = {},
 ): Promise<TestStudio> {
   const root = await mkdtemp(path.join(tmpdir(), 'papercoach-cli-'))
   const shared = path.join(root, 'shared')
@@ -71,6 +72,8 @@ export async function openTestStudio(
       generation: options.generation,
       tts: options.tts,
       browser: options.browser,
+      // Never the real settings file: a test that posts names its own.
+      social: { configFile: path.join(root, 'upload-post.config'), pollMs: 0, ...options.social },
       io,
     })
     return { code, stdout, stderr }

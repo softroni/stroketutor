@@ -12,6 +12,7 @@ import { lessonCommands } from './commands/lessons'
 import { publishCommands } from './commands/publish'
 import { statusCommands } from './commands/status'
 import { stepCommands } from './commands/steps'
+import { socialCommands } from './commands/social'
 import { svgCommands } from './commands/svg'
 import { generateCommands } from './commands/generate'
 import { planCommands } from './commands/plan'
@@ -45,6 +46,7 @@ export const COMMANDS: Command[] = [
   ...planCommands,
   ...previewCommands,
   ...videoCommands,
+  ...socialCommands,
   ...voiceCommands,
 ]
 

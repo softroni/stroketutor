@@ -1,3 +1,4 @@
+import { homedir } from 'node:os'
 import path from 'node:path'
 
 import type { ViteDevServer } from 'vite'
@@ -32,7 +33,18 @@ export interface RunOptions {
   tts?: Partial<TtsDeps>
   /** Tests: a fake browser. */
   browser?: BrowserBridge
+  /** Tests: a fake Upload-Post (`fetch`), a settings file of their own, and no waiting between status checks. */
+  social?: Partial<SocialDeps>
   io?: IO
+}
+
+/** What `social` commands reach outside the workspace. */
+export interface SocialDeps {
+  fetch: typeof fetch
+  /** The Upload-Post settings file (`UPLOAD_POST_CONFIG`, else `~/.config/upload-post/config`). */
+  configFile: string
+  /** Milliseconds between status checks while waiting for a post to go out. */
+  pollMs: number
 }
 
 /**
@@ -57,6 +69,7 @@ export interface Context {
   /** Everything `server/voice.ts` needs: the workspace, `shared/` and the speech server. */
   voice(): Promise<VoiceDeps>
   browser(): Promise<BrowserBridge>
+  social: SocialDeps
   close(): Promise<void>
 }
 
@@ -128,6 +141,12 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
       await adoptKeptReferences(deps)
       await adoptPublishedVoice(deps)
       return deps
+    },
+    social: {
+      fetch: globalThis.fetch,
+      configFile: options.env.UPLOAD_POST_CONFIG || path.join(homedir(), '.config', 'upload-post', 'config'),
+      pollMs: 15_000,
+      ...options.social,
     },
     browser() {
       bridge ??= import('./browser').then(({ openBrowser }) => openBrowser(options.vite))

@@ -316,6 +316,8 @@ TikTok and Instagram Reels, from the lesson page's **Video** tab or `studio less
   caption to post beside it as `<id>.txt`. The tab plays the last one and downloads it.
 - The badge is `docs/app-store/marketing/assets/badges/download-on-the-app-store-black.svg`, Apple's
   artwork as supplied; without it the ending says "Free on the App Store · link in bio".
+- `studio social …` posts them to Softroni's accounts through Upload-Post (`server/social/`); docs/ops/README.md,
+  *Lesson videos on social*, is how that is run.
 - `GET|POST /api/video/lessons/:lesson`, `GET /api/video/lessons/:lesson/file[?download]` and
   `GET|DELETE /api/video/jobs/:id` are the tab's endpoints.
 
@@ -367,6 +369,7 @@ npm run studio -- voice app narrate && npm run studio -- voice app publish   # L
 | `trash` | `list`, `restore`, `purge`, `empty` |
 | `svg` | `trace`, `optimize`, `render`, `preview`, `to-steps` |
 | `image` | `to-steps` |
+| `social` | `check`, `queue`, `post`, `next`, `status` (lesson videos to Softroni's accounts through Upload-Post; docs/ops/README.md) |
 | `voice` | `status`, `list`, `add`, `cast`, `say`, `freeze`, `unfreeze`, `narrate [--all]`, `lines list`, `lines set`, `lines clear`, `lines generate`, `lines apply`, `publish [--all]`, `unpublish`, `app list`, `app set`, `app narrate [--remake]`, `app publish`, `app unpublish`, `reference export`, `reference restore`, `script`, `script set` |
 
 - **The same workspace.** `cli/studio.mjs` is plain JavaScript that starts Vite in middleware mode as a

@@ -552,6 +552,53 @@ Options:
       --max-bend <deg>             A line carries on through a junction bending less than this, in degrees (default 55).
       --join-gap <units>           Line ends this close that continue the same way are joined (default 10).
 
+Usage: studio social check
+
+The Upload-Post key and plan, the accounts on the profile, and the Pinterest boards and Facebook Pages to post to.
+
+Usage: studio social queue
+
+The order lessons are posted in (lesson 1 of every path, then lesson 2…, so the free ones go first), what has been posted, and what comes next.
+
+Options:
+      --limit <n>  How many coming lessons to show (default 10).
+
+Usage: studio social post <id>
+
+Render a lesson’s video and post it to Softroni’s accounts through Upload-Post, with a caption, title and link made for each platform.
+
+Options:
+      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, pinterest, x).
+      --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
+      --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
+      --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
+      --dry-run           Show what each platform would be sent, and stop. Needs no key and renders nothing.
+      --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
+      --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
+      --video <file.mp4>  Post this file instead of rendering the lesson now.
+
+Usage: studio social next
+
+Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 20 hours unless --again.
+
+Options:
+      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, pinterest, x).
+      --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
+      --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
+      --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
+      --dry-run           Show what each platform would be sent, and stop. Needs no key and renders nothing.
+      --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
+      --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
+      --again             Post even though a lesson went out in the last 20 hours.
+
+Usage: studio social status
+
+Where the last posts are: asks Upload-Post about any not yet finished, and lists each platform’s link or error.
+
+Options:
+      --limit <n>  How many posts to show (default 5).
+      --refresh    Ask again about every post shown, finished or not.
+
 Usage: studio voice status
 
 The speech server, the voice cast as Lina, and what has been recorded.

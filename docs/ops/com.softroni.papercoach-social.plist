@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  The daily lesson video on Softroni's accounts (docs/ops/README.md, "Lesson videos on social").
+  Every day at 17:00 on m4-1 (Central) it posts the next lesson in `studio social queue` and logs it
+  on the Today page. Install once the paid Upload-Post plan is on and Paper Coach is on sale:
+    cp docs/ops/com.softroni.papercoach-social.plist ~/Library/LaunchAgents/
+    launchctl load -w ~/Library/LaunchAgents/com.softroni.papercoach-social.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.softroni.papercoach-social</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/node</string>
+    <string>cli/studio.mjs</string>
+    <string>social</string>
+    <string>next</string>
+    <string>--log</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/kevin/dev/stroketutor/web</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/kevin/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>17</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/kevin/dev/stroketutor/.studio/logs/social.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/kevin/dev/stroketutor/.studio/logs/social.log</string>
+</dict>
+</plist>
