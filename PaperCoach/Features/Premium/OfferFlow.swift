@@ -6,12 +6,13 @@ import SwiftUI
 /// **After the first run** (`OfferEntry.onboarding`): "More coming" → the paywall.
 /// No screen before the paywall names the free week or asks for anything.
 ///
-/// **From a Premium lesson's drawer ("See Premium"), or Settings**: the paywall alone.
+/// **From a tap on a Premium lesson, or Settings**: the paywall alone. Every tap on
+/// a crown opens it (`AppModel.offerPremiumIfNeeded(for:)`).
 ///
 /// **For a child** (under 13, or never said) the paywall is behind a grown-up: "This
 /// part is for a grown-up" → the parental check → the grown-up's paywall. A child
-/// never sees a price or a buy button. The child's drawer reaches this only through
-/// its "For grown-ups" link.
+/// never sees a price or a buy button. A child's tap on a Premium lesson comes here
+/// too, every time, and always to the grown-up's gate first.
 ///
 /// **Once a free week has really started** (`PremiumStore.trialEndsAt` is set after
 /// the purchase), from either paywall: "Your free week has started"
@@ -36,7 +37,7 @@ import SwiftUI
 /// waiting screen; a free week ends on "trial started".
 ///
 /// **Superwall (2026-09-25).** For a learner 13 or over, wherever the native paywall
-/// would come — "More coming"'s Continue, "See Premium", Settings › Premium — the
+/// would come — "More coming"'s Continue, a Premium lesson, Settings › Premium — the
 /// flow first asks Superwall for its paywall (`RemotePaywalls`, placements
 /// `onboarding_offer`, `premium_lesson`, `settings_premium`). The cover shows the
 /// plain page meanwhile (`.remotePaywall`), never a flash of the native paywall.

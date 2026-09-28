@@ -165,7 +165,6 @@ struct AnalyticsEvent: Equatable {
         static let premiumLesson = "premium_lesson"
         static let step = "step"
         static let totalSteps = "total_steps"
-        static let added = "added"
         static let firstOpen = "first_open"
         static let narrationOn = "narration_on"
         static let reminderOn = "reminder_on"
@@ -199,8 +198,7 @@ struct AnalyticsEvent: Equatable {
     // MARK: Drawing
 
     /// What learners choose to draw, for every age tier: which lessons they open,
-    /// finish, leave, keep in the sketchbook and wish for. Ids only, never a name
-    /// or a photo.
+    /// finish, leave and keep in the sketchbook. Ids only, never a name or a photo.
 
     /// A path was chosen, from Home or All paths.
     static func pathOpened(pathId: String) -> AnalyticsEvent {
@@ -236,12 +234,6 @@ struct AnalyticsEvent: Equatable {
     /// the device; only the lesson is named.
     static func drawingSaved(lessonId: String, pathId: String) -> AnalyticsEvent {
         AnalyticsEvent(name: "drawing_saved", properties: [Key.lessonId: lessonId, Key.pathId: pathId])
-    }
-
-    /// A Premium lesson went on or came off a child's wish list.
-    static func wishListChanged(lessonId: String, added: Bool) -> AnalyticsEvent {
-        AnalyticsEvent(name: "wish_list_changed",
-                       properties: [Key.lessonId: lessonId, Key.added: added ? "true" : "false"])
     }
 
     /// An onboarding beat came on screen. `beat` is its id: `ob-age`, `ob-level`…

@@ -52,8 +52,8 @@ the crowns**. Nothing may sell a new product until a build with this change is o
 
 ## 3. The grown-up's door, where a grown-up is likely to be (medium)
 
-**Why:** children can't buy; their grown-ups do. Children are probably most learners, and their offer sits behind a
-small "For grown-ups" link that no test reaches.
+**Why:** children can't buy; their grown-ups do. Children are probably most learners, and their offer sits behind the
+grown-up gate ("This part is for a grown-up", then the parental check), which no test reaches.
 
 **The rule that stays** (README › Premium › *Children*): a child never sees a price, and **nothing asks a child to go
 and get, or persuade, a grown-up.** Every idea below addresses the adult directly, behind the parental check, and is
@@ -65,8 +65,8 @@ easy for a child to ignore.
   quiet card addressed to the adult ("For the grown-up who set this up") → the parental check → the grown-up's
   paywall (`GrownUpPaywallView`, already showing the child's drawing and wish list). Skipping it continues exactly as
   today.
-- **The sketchbook.** Grown-ups look at the drawings. Give the sketchbook a small "For grown-ups" entry, the same
-  door as the drawer's.
+- **The sketchbook.** Grown-ups look at the drawings. Give the sketchbook a small "For grown-ups" entry to the
+  grown-up gate, the same door a child's tap on a crowned lesson opens.
 - **Measure it:** `offer_screen_viewed` with a new `entry` value for each door, so the dashboard shows which door
   leads to purchases.
 

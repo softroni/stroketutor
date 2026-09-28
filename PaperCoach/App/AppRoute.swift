@@ -62,7 +62,7 @@ enum AppCover: Identifiable, Hashable {
     case firstRunSketchbook
     /// The way to Premium: "More coming", the free week and the paywall after the
     /// first run, or the paywall alone (a grown-up's check first, for a child)
-    /// after a Premium lesson's drawer.
+    /// from a tap on a Premium lesson or from Settings.
     case offer(OfferEntry)
 
     var id: String {
@@ -90,8 +90,9 @@ enum AppCover: Identifiable, Hashable {
 enum OfferEntry: Hashable, Identifiable {
     /// The end of the guided first run: "More coming" first, then the paywall.
     case onboarding
-    /// A Premium lesson's drawer: "See Premium" goes straight to the paywall; a
-    /// child's "For grown-ups" goes to the way to a grown-up.
+    /// A tap on a Premium lesson (a crowned tile or node, or the gold "Next"
+    /// card): straight to the paywall, or for a child to the way to a grown-up
+    /// (`OfferRoute.firstStep`).
     case premiumLesson(lessonId: String)
     /// The Premium row in Settings.
     case settings
@@ -112,20 +113,6 @@ enum OfferEntry: Hashable, Identifiable {
         case .settings: return "settings"
         }
     }
-}
-
-/// A Premium lesson whose drawer is up (`PremiumLessonSheet`).
-struct PremiumOffer: Identifiable, Hashable {
-    let lessonId: String
-    var id: String { lessonId }
-}
-
-/// The short line a young learner sees instead of the drawer, once they have
-/// closed it this session: "Mushroom is a Premium lesson".
-struct PremiumNudge: Identifiable, Equatable {
-    let id = UUID()
-    let lessonId: String
-    let title: String
 }
 
 /// The five tabs of `MainTabs`: Home · Path · Lessons · Sketchbook · Settings.

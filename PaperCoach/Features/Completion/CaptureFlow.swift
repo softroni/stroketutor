@@ -494,8 +494,9 @@ struct CaptureFlow: View {
                         }
                     } else if let next = app.nextLesson(after: lesson) {
                         Button("Next lesson") {
-                            // The drawer comes up over this cover rather than over
-                            // tabs that are still behind it.
+                            // A lesson behind Premium puts the way to Premium on
+                            // this cover, in the photo's place, rather than closing
+                            // it first.
                             if app.offerPremiumIfNeeded(for: next) { return }
                             app.dismissCover()
                             app.showPreview(of: next)

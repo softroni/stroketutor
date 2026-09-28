@@ -366,15 +366,6 @@ enum DebugScreenHarness {
             app.selectedTab = .settings
             app.cover = .offer(.settings)
 
-        case "offer-drawer", "offer-drawer-kid":
-            // The Premium drawer over Home, on the first Premium lesson of the
-            // tree's path: as an 18+ learner sees it (the price, when the App Store
-            // has answered, and "See Premium"), or as a 6-to-9 sees it (the wish
-            // list, a free lesson to draw, "For grown-ups").
-            app.setAgeGroup(app.activeProfile.id, to: name == "offer-drawer" ? .adult : .from6To9)
-            guard let premiumLesson = firstPremiumLesson(preferring: treePath, in: shipped) else { break }
-            app.premiumOffer = PremiumOffer(lessonId: premiumLesson.id)
-
         case "offer-grown-up-paywall":
             // The grown-up's paywall, past the parental check: a 6-to-9 learner who
             // has drawn the tree and starred a Premium lesson, so the child's card
@@ -475,7 +466,8 @@ enum DebugScreenHarness {
     // MARK: - Helpers
 
     /// The first Premium lesson of `path`, or of any other shipped path when it has
-    /// none: the drawer screens need a lesson that wears a crown.
+    /// none: `offer-grown-up-paywall` needs a lesson that wears a crown for the
+    /// child's wish list.
     @MainActor
     private static func firstPremiumLesson(preferring path: PathModel, in shipped: [PathModel]) -> Lesson? {
         for candidate in [path] + shipped.filter({ $0.id != path.id }) {

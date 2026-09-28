@@ -83,22 +83,6 @@ struct AppRoot: View {
                 }
                 await rescheduleReminderIfEnabled()
             }
-            // The Premium drawer over the tabs. When a cover is up, the cover's own
-            // copy below shows it instead, so it is never asked of a view that is
-            // already presenting.
-            .sheet(item: drawer(overCover: false), onDismiss: { app.openOfferAfterDrawer() }) { offer in
-                PremiumLessonSheet(lessonId: offer.lessonId)
-                    .environment(app)
-            }
-            .overlay(alignment: .top) {
-                if let nudge = app.premiumNudge, app.cover == nil {
-                    PremiumNudgeToast(nudge: nudge)
-                        .environment(app)
-                        .padding(.top, 8)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                }
-            }
-            .animation(.easeOut(duration: 0.25), value: app.premiumNudge)
             // A subscription can start, lapse or be refunded while the app is away.
             .onChange(of: scenePhase) { _, phase in
                 if phase == .background {
@@ -119,10 +103,6 @@ struct AppRoot: View {
                 coverContent
                     .providesWideLayout()
                     .environment(app)
-                    .sheet(item: drawer(overCover: true), onDismiss: { app.openOfferAfterDrawer() }) { offer in
-                        PremiumLessonSheet(lessonId: offer.lessonId)
-                            .environment(app)
-                    }
             }
     }
 
@@ -157,13 +137,6 @@ struct AppRoot: View {
 
     private func coverDidDismiss() {
         if app.cover == nil { closingCover = nil }
-    }
-
-    /// The drawer's binding for one of its two hosts: the tabs while no cover is up,
-    /// the cover while one is.
-    private func drawer(overCover: Bool) -> Binding<PremiumOffer?> {
-        Binding(get: { (app.cover != nil) == overCover ? app.premiumOffer : nil },
-                set: { if $0 == nil { app.premiumOffer = nil } })
     }
 
     private var isScreenshotLaunch: Bool {

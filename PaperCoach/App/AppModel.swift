@@ -120,23 +120,9 @@ final class AppModel {
 
     // MARK: - Premium
 
-    /// The Premium lesson drawer (`PremiumLessonSheet`), over the tabs or over the
-    /// cover that asked for it.
-    var premiumOffer: PremiumOffer?
-    /// The way on the drawer's button chose. The drawer has to be gone before a
-    /// cover can come up, so `AppRoot` opens this from the drawer's dismissal.
-    @ObservationIgnored var offerAfterDrawer: OfferEntry?
-    /// The free lesson the child drawer's "Draw Sun" chose, opened the same way
-    /// once the drawer has gone (`openOfferAfterDrawer()`).
-    @ObservationIgnored var lessonAfterDrawer: String?
-    /// A young learner closed the drawer with "Not now" this session: further crown
-    /// taps show `premiumNudge` instead of the drawer. Never saved.
-    var hasClosedKidDrawer = false
-    /// "Mushroom is a Premium lesson", on screen for a moment.
-    var premiumNudge: PremiumNudge?
-    /// The finished lesson whose completion or photo screen the drawer was opened
-    /// over, so leaving the offer without subscribing ends that screen the way its
-    /// own "Not now" would (`leaveCompletion(for:)`).
+    /// The finished lesson whose completion or photo screen a Premium lesson was
+    /// tapped on, so leaving the way to Premium without subscribing ends that screen
+    /// the way its own "Not now" would (`leaveCompletion(for:)`).
     @ObservationIgnored var offerReturnLessonId: String?
 
     private let bundle: Bundle
@@ -423,7 +409,7 @@ final class AppModel {
     /// returns there. From anywhere else — the sketchbook, a cover, a deep link —
     /// it goes to the Path tab, where lessons belong.
     ///
-    /// A Premium lesson without Premium opens the Premium drawer instead
+    /// A Premium lesson without Premium opens the way to Premium instead
     /// (`offerPremiumIfNeeded(for:)`), so no way into a lesson skips that door.
     func showPreview(of lesson: Lesson) {
         if offerPremiumIfNeeded(for: lesson) { return }
@@ -484,7 +470,8 @@ final class AppModel {
     func finishOnboarding(startingWith lesson: Lesson? = nil) {
         settings.hasCompletedOnboarding = true
         if let lesson { presentPlayer(lesson) }
-        // No lesson, or one behind Premium whose drawer was asked for instead.
+        // No lesson: back to the tabs. A lesson behind Premium has already put
+        // the way to Premium on the cover in onboarding's place.
         if case .onboarding = cover { cover = nil }
     }
 
@@ -542,12 +529,7 @@ extension AppModel {
         cover = nil
         pendingLockedLessonId = nil
         pathsWelcomePending = false
-        premiumOffer = nil
-        premiumNudge = nil
-        offerAfterDrawer = nil
-        lessonAfterDrawer = nil
         offerReturnLessonId = nil
-        hasClosedKidDrawer = false
 
         homeStack = []
         pathStack = []

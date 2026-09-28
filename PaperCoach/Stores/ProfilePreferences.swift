@@ -67,9 +67,10 @@ final class ProfilePreferences {
     /// progress" clears lessons, not this, so a learner who starts over is not
     /// welcomed a second time.
     var hasSeenPathsWelcome: Bool { didSet { save() } }
-    /// Premium lessons a young learner saved "for later" from the lesson drawer,
-    /// oldest first, by lesson id. The grown-up's paywall shows them, so the
-    /// grown-up sees what the child is asking for.
+    /// Premium lessons a young learner saved "for later", oldest first, by lesson
+    /// id. The grown-up's paywall shows them, so the grown-up sees what the child is
+    /// asking for. Nothing in the app adds to it now: its button went with the
+    /// Premium lesson drawer (2026-09-27). Wishes saved before then are kept.
     var wishList: [String] { didSet { save() } }
     /// Which side of an iPad on its side the lesson's panel stands on — the words,
     /// the steps and the buttons (`PlayerStudioPanel`). Right by default; a learner

@@ -53,7 +53,7 @@ final class NativePaywallsOnly: RemotePaywalls {
 enum PaywallPlacement: Equatable {
     /// "More coming"'s Continue at the end of the guided first run.
     case onboardingOffer
-    /// "See Premium" in a Premium lesson's drawer.
+    /// A tap on a Premium lesson.
     case premiumLesson(lessonId: String)
     /// Settings › Premium.
     case settingsPremium

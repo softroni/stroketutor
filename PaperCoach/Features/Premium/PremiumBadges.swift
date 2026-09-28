@@ -22,8 +22,9 @@ struct CrownBadge: View {
 
 /// "Next: Mushroom · Premium" — what the completion and saved screens show in
 /// place of "Next lesson" when the next lesson needs Premium. Gold, like the crown,
-/// with the lesson's drawing and a chevron: it opens the Premium drawer, never the
-/// paywall directly, and nothing opens it on its own.
+/// with the lesson's drawing and a chevron. A tap opens the way to Premium as a tap
+/// on any crown does (`AppModel.offerPremiumIfNeeded(for:)`): the paywall, or for a
+/// child the grown-up's gate. Nothing opens it on its own.
 struct PremiumNextCard: View {
     let lesson: Lesson
     let action: () -> Void
@@ -79,11 +80,13 @@ struct PremiumNextCard: View {
     }
 
     /// A child is never told about a free week they cannot start themselves, nor
-    /// told to go and ask a grown-up for it (see `PremiumLessonSheet`): the card
-    /// names what its drawer offers them, the wish list.
+    /// about buying, nor asked to go and get a grown-up for it (UK Digital Markets,
+    /// Competition and Consumers Act 2024, Schedule 20 para 30; EU Unfair Commercial
+    /// Practices Directive, Annex I point 28): for them the card states a plain
+    /// fact, that the lesson is a Premium one.
     private var subtitle: String {
         if app.learnerIsChild {
-            return app.preferences.wishList.contains(lesson.id) ? "Premium · On your wish list" : "Premium · Save it for later"
+            return "Premium lesson"
         }
         // The free week is named only beside its price (`PremiumStore.canNameFreeWeek`),
         // and the price lives on the paywall, not on a card.

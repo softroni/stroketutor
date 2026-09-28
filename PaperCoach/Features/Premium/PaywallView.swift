@@ -29,8 +29,8 @@ import SwiftUI
 /// has been used, the same screen offers Yearly without it, and what Premium gives
 /// takes the timeline's place.
 ///
-/// Reached from a Premium lesson's drawer ("See Premium"), from "More coming" at the
-/// end of the first run, and from Settings. From a lesson, that lesson leads the art.
+/// Reached from a tap on a Premium lesson, from "More coming" at the end of the
+/// first run, and from Settings. From a lesson, that lesson leads the art.
 struct PaywallView: View {
     let entry: OfferEntry
     let onOutcome: (PremiumStore.PurchaseOutcome) -> Void

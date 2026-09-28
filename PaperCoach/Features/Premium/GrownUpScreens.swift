@@ -4,8 +4,8 @@ import UIKit
 // MARK: - Ask a grown-up
 
 /// The gate in front of a child's way to Premium: "This part is for a grown-up."
-/// Reached from the child drawer's "For grown-ups" link, from "More coming" at the
-/// end of a child's first run, and from Settings on a child's profile. Two ways on:
+/// Reached from a child's tap on a Premium lesson, from "More coming" at the end of
+/// a child's first run, and from Settings on a child's profile. Two ways on:
 /// the grown-up takes it from here, or the child goes back to the free lessons. No
 /// price, no trial, nothing to buy on this screen.
 ///

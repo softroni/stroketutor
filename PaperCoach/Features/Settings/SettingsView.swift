@@ -323,8 +323,8 @@ struct SettingsView: View {
 
     #if DEBUG
     /// Development only: locks or unlocks every lesson without the App Store, to
-    /// try the crowns, the drawer and the paywall, and then the app as a
-    /// subscriber sees it. "App Store" goes back to what the account really holds.
+    /// try the crowns and the paywall, and then the app as a subscriber sees it.
+    /// "App Store" goes back to what the account really holds.
     private var debugPremiumRow: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 14) {

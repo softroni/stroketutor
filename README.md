@@ -892,8 +892,9 @@ protected tier needs it.
 **Premium and the guided first run (2026-09-24).** Designed as a clickable wireframe with the creator first, then built.
 - **What is free:** every path is open, and lessons 1–3 of each are free (`PremiumAccess.freeLessonsPerPath`). From
   lesson 4 a lesson wears a gold crown (bottom right on a tile, top right on a node, "Lesson 4 · Premium" on the path)
-  beside the order lock, which still teaches the order. Tapping a crown opens the Premium drawer before anything else.
-  A subscriber sees no crowns.
+  beside the order lock, which still teaches the order. Tapping a crown opens the way to Premium before anything else,
+  every time (since 2026-09-27; before that, a drawer came first): the paywall, or for a child the grown-up's gate. A
+  subscriber sees no crowns.
 - **StoreKit 2** (`PaperCoach/Stores/PremiumStore.swift`): one group, `com.softroni.papercoach.premium.yearly` (with
   a one-week free introductory offer, $19.99/year) and `…premium.weekly` ($1.99/week, no trial), both Family Sharing. `PaperCoach.storekit` at the
   repository root mirrors them at those prices; choose it under Scheme › Run › Options › StoreKit
@@ -905,11 +906,11 @@ protected tier needs it.
   "Look around first"; the first lesson has no close button or ⋯ menu; completion and the saved photo have no "Next
   lesson" or "Done"; both lead to the sketchbook tour (the lesson's path only, no Paths/Dates switch, no tab bar), then
   "More coming" (the path's other lessons sliding past) → the paywall. A relaunch returns to the same stop.
-- **The flow, simplified (2026-09-25).** No intro screen stands before any paywall. A crowned lesson (13+) opens the
-  drawer on every tap — always closable (X, "Not now", swipe) — with "$19.99 per year" and, smaller and green, "First
-  7 days free"; its one button, "See Premium", opens the paywall and starts nothing. After the first run, "More coming"
-  → the paywall. The old "7 days free" screen (a 96 pt trial claim over a body-size price) and the reminder promise
-  before the paywall (a permission asked before anything needed it) are gone. Once a free week has really started,
+- **The flow, simplified (2026-09-25, 2026-09-27).** No intro screen stands before any paywall. A crowned lesson (13+)
+  opens the paywall on every tap (`AppModel.offerPremiumIfNeeded(for:)`, the creator's call on 2026-09-27; the drawer
+  with the price and "See Premium" that stood before it is gone). After the first run, "More coming" → the paywall.
+  The old "7 days free" screen (a 96 pt trial claim over a body-size price) and the reminder promise before the
+  paywall (a permission asked before anything needed it) are gone. Once a free week has really started,
   from either paywall, **"Your free week has started"** (`TrialStartedView`) gives the reminder's and the billing's
   real dates and asks for notification permission there, only if it was never asked: one button, "Continue" (the
   words say "Allow notifications next", as the HIG's pre-permission guidance asks; Privacy, read 2026-09-25) or
@@ -936,14 +937,11 @@ protected tier needs it.
 - **Children** (the child privacy tier: under 13, or "prefer not to say") never see a price, and nothing tells them
   to go and get a grown-up to buy: an advertisement's direct appeal to children to buy, or to persuade their parents
   to buy for them, is banned (UK DMCC Act 2024 Sch. 20 para 30, in force 6 April 2025; EU UCPD Annex I point 28).
-  The drawer says "Mushroom is a Premium lesson" and "Save it to your wish list, and keep drawing the free lessons":
-  "Save it for later" (a wish list per learner; once saved it turns white, "On your wish list", a double tap does not
-  undo it, and the free lesson takes the green), "Draw Pine Tree" (the next free lesson of that path, else of
-  another), "Not now", and a
-  small "For grown-ups" link → "This part is for a grown-up" → the parental check (the app's PIN when one is set,
-  else a sum written in words) → a paywall written for the parent, showing the child's drawing and wish list. After
-  a child closes the drawer once, more crowns only show "Mushroom is a Premium lesson" for the rest of the session;
-  the gold "Next" card says "Premium · Save it for later".
+  Every crown a child taps (since 2026-09-27) opens "This part is for a grown-up" → the parental check (the app's PIN
+  when one is set, else a sum written in words) → a paywall written for the parent, showing the child's drawing and
+  wish list; "Keep drawing free lessons" leaves at every step. The wish list is what children saved from the lesson
+  drawer before 2026-09-27; that drawer (and the "Mushroom is a Premium lesson" note that followed it) is gone, and
+  nothing adds to the list now. The gold "Next" card says only "Premium lesson".
 - **Teens** get the adult flow; an Ask to Buy purchase shows "Waiting for a grown-up to say yes" and unlocks when
   approved (`Transaction.updates`).
 - After lesson 3 of a path, completion and the saved photo show "Next: … · Premium" as a gold card, and a free lesson
@@ -954,10 +952,9 @@ protected tier needs it.
   the exact review notes to paste, are in `docs/app-store/listing.md`. Still to do: availability, review contact,
   App Privacy, a build, and the whole flow on a device against the sandbox.
 - **Harness** (`DebugScreenHarness.swift`): `-STScreen offer-paywall` opens the paywall as an adult (the subscription
-  review screenshot); `offer-more-coming` the first step after the first run; `offer-drawer` and `offer-drawer-kid`
-  the drawer on a Premium lesson as an 18+ and a 6–9 learner; `offer-grown-up-paywall` the grown-up's paywall for a
-  child with a drawing and a wish; `offer-plans` the plans sheet over the paywall; `offer-trial-started` "Your free
-  week has started" with a made-up end seven days out (debug builds only). Prices appear only when StoreKit answers (the `PaperCoach.storekit` configuration).
+  review screenshot); `offer-more-coming` the first step after the first run; `offer-grown-up-paywall` the grown-up's
+  paywall for a child with a drawing and a wish; `offer-plans` the plans sheet over the paywall;
+  `offer-trial-started` "Your free week has started" with a made-up end seven days out (debug builds only). Prices appear only when StoreKit answers (the `PaperCoach.storekit` configuration).
 
 **Superwall, for learners 13 and over (2026-09-25).** Remote paywalls, so their design can be A/B tested without an
 app update. SuperwallKit 4.17 comes in through Swift Package Manager.

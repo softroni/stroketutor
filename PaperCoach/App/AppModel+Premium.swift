@@ -5,92 +5,56 @@ import Foundation
 extension AppModel {
 
     /// Whether the learner who is drawing is treated as a child — under 13, or
-    /// never said. A child never sees a price: the drawer offers the wish list and a
-    /// free lesson, and the paywall is the grown-up's, behind "For grown-ups" and the
-    /// parental check (`ParentalGateView`).
+    /// never said. A child never sees a price: a crowned lesson, "More coming" and
+    /// Settings › Premium all lead to "This part is for a grown-up" and the parental
+    /// check (`ParentalGateView`) before the grown-up's paywall.
     var learnerIsChild: Bool {
         activeProfile.privacyTier == .child
     }
 
     /// True when this lesson is past its path's free lessons and Premium is not
-    /// active: it wears a crown, and a tap opens the Premium drawer.
+    /// active: it wears a crown, and a tap opens the way to Premium.
     func needsPremium(_ lesson: Lesson) -> Bool {
         guard !premium.isPremium, let path = path(id: lesson.pathId) else { return false }
         return PremiumAccess.isPremiumLesson(lesson, in: path)
     }
 
-    /// Opens the Premium drawer for a lesson that needs it, and says so. Returns
+    /// Opens the way to Premium for a lesson that needs it, and says so. Returns
     /// false, doing nothing, for a lesson that is free or already unlocked.
     ///
-    /// A child who closed the drawer with "Not now" this session gets a short
-    /// nudge instead of the same drawer again on every crown they tap.
+    /// Every tap on a crown opens it, straight away and every time, with nothing in
+    /// between: the creator's decision of 2026-09-27, which took the place of the
+    /// Premium lesson drawer and of the child's "is a Premium lesson" note. Where
+    /// the cover starts is `OfferRoute`'s: for a learner 13 or over, the paywall
+    /// (Superwall's `premium_lesson` placement first, the native paywall in its
+    /// place); for a child, "This part is for a grown-up" and the parental check
+    /// first (`GrownUpHandoffView`), so a child never sees a price or a buy button,
+    /// and nothing appeals to them to get a grown-up to buy (UK Digital Markets,
+    /// Competition and Consumers Act 2024, Schedule 20 para 30; EU Unfair
+    /// Commercial Practices Directive, Annex I point 28).
+    ///
+    /// The paywall keeps an obvious way out, "Continue with free lessons" (Human
+    /// Interface Guidelines › Modality,
+    /// https://developer.apple.com/design/human-interface-guidelines/modality), and
+    /// the billed amount as its most prominent price (Apple, "Auto-renewable
+    /// subscriptions", https://developer.apple.com/app-store/subscriptions/); see
+    /// `PaywallView`.
+    ///
+    /// Tapped on a finished lesson's completion or photo screen (the gold card),
+    /// the cover remembers that lesson, so leaving without subscribing ends that
+    /// screen the way its own "Not now" would (`finishOffer(_:subscribed:)`).
     @discardableResult
     func offerPremiumIfNeeded(for lesson: Lesson) -> Bool {
         guard needsPremium(lesson) else { return false }
-        // The nudge shows over the tabs only; over a cover (the gold card after a
-        // lesson) the drawer itself comes up, so the tap is never lost.
-        if learnerIsChild && hasClosedKidDrawer && cover == nil {
-            premiumNudge = PremiumNudge(lessonId: lesson.id, title: lesson.title)
-        } else {
-            premiumOffer = PremiumOffer(lessonId: lesson.id)
-        }
         analytics.track(.premiumLessonTapped(lessonId: lesson.id))
-        return true
-    }
-
-    /// The drawer's way on. The drawer closes first; `AppRoot` opens the offer when
-    /// it has gone (`openOfferAfterDrawer()`).
-    func continueFromDrawer(to entry: OfferEntry) {
         switch cover {
         case let .completion(lessonId), let .capture(lessonId, false):
             offerReturnLessonId = lessonId
         default:
             offerReturnLessonId = nil
         }
-        offerAfterDrawer = entry
-        premiumOffer = nil
-    }
-
-    /// "Not now" or the close button on the drawer.
-    func closePremiumDrawer() {
-        premiumOffer = nil
-    }
-
-    /// The child drawer's "Draw Sun": a free lesson instead. The drawer closes
-    /// first; `AppRoot` opens the lesson when it has gone (`openOfferAfterDrawer()`).
-    func drawFreeLesson(fromDrawer lesson: Lesson) {
-        offerAfterDrawer = nil
-        lessonAfterDrawer = lesson.id
-        premiumOffer = nil
-    }
-
-    /// Called as the drawer finishes going away, however it was closed: brings up
-    /// the offer it chose, or the free lesson, if any. A child who closed it without
-    /// going on to "For grown-ups" is not shown it again this session
-    /// (`offerPremiumIfNeeded(for:)`).
-    func openOfferAfterDrawer() {
-        if let lessonId = lessonAfterDrawer {
-            lessonAfterDrawer = nil
-            if learnerIsChild { hasClosedKidDrawer = true }
-            guard let lesson = lesson(id: lessonId) else { return }
-            // Over a finished lesson's screen, the free lesson leaves it, as that
-            // screen's own "Or keep going free" row does.
-            if cover != nil { dismissCover() }
-            showPreview(of: lesson)
-            return
-        }
-        guard let entry = offerAfterDrawer else {
-            if learnerIsChild { hasClosedKidDrawer = true }
-            return
-        }
-        offerAfterDrawer = nil
-        cover = .offer(entry)
-    }
-
-    /// The nudge's own tap: the child asked again, so the drawer comes back.
-    func openDrawer(for nudge: PremiumNudge) {
-        premiumNudge = nil
-        premiumOffer = PremiumOffer(lessonId: nudge.lessonId)
+        cover = .offer(.premiumLesson(lessonId: lesson.id))
+        return true
     }
 
     /// The Premium row in Settings, and anything else that opens the paywall
@@ -111,13 +75,6 @@ extension AppModel {
         PremiumAccess.freeLessonSuggestion(excludingPath: lesson.pathId,
                                            paths: paths,
                                            progress: progress)
-    }
-
-    /// The child drawer's "Draw Pine Tree": the next free lesson of the tapped
-    /// lesson's own path while it has one, else one from another path
-    /// (`PremiumAccess.freeLessonInstead(of:paths:progress:)`).
-    func freeLessonInstead(of lesson: Lesson) -> Lesson? {
-        PremiumAccess.freeLessonInstead(of: lesson, paths: paths, progress: progress)
     }
 
     /// The lessons on the child's wish list that still need Premium, oldest first.
@@ -143,7 +100,10 @@ extension AppModel {
         case let .premiumLesson(lessonId):
             let returnLesson = offerReturnLessonId.flatMap { self.lesson(id: $0) }
             offerReturnLessonId = nil
-            if subscribed, let lesson = self.lesson(id: lessonId) {
+            // The lesson opens only once Premium really shows as active. A lesson
+            // still behind it would ask for this same cover again at once, over a
+            // flow that has already finished and so could never be left.
+            if subscribed, let lesson = self.lesson(id: lessonId), !needsPremium(lesson) {
                 dismissCover()
                 showPreview(of: lesson)
             } else if let returnLesson {
