@@ -124,6 +124,9 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
   so a new render, or a pull that brings one, shows up by itself. Read-only (`GET /api/screenshots`).
 - **⌘K**, or **Jump to…** in the header, opens a palette to jump to any lesson, path or page by typing
   a few letters.
+- **Export video…** (a lesson's header, or the **Video** tab of its drawer) makes a vertical draw-along
+  video of the lesson for Shorts, TikTok and Reels on the Studio's Mac, shows it, and downloads it;
+  see [Lesson videos](#lesson-videos).
 
 At start-up `studio/library.ts` validates every tutorial and the catalog once. A tutorial whose
 `id` does not match its file name is refused, because lessons are found and saved by id.
@@ -288,6 +291,34 @@ same words and voice, or since that publish — keeps its own take; each publish
 and publishing from an adopted take passes the AAC through rather than encoding it twice. Narration
 that was never published stays on the machine that made it.
 
+### Lesson videos
+
+A lesson becomes a vertical draw-along video (1080 × 1920, 30 fps, H.264 and AAC) for YouTube Shorts,
+TikTok and Instagram Reels, from the lesson page's **Video** tab or `studio lessons video <id>`. Both run
+`server/video/`: `plan.ts` times it (pure and tested), `page.ts` is the page a frame is a screenshot of,
+`render.ts` makes it, and `jobs.ts` runs the tab's exports one at a time.
+
+- **What it shows.** The finished picture, then the whole lesson drawn fast while Lina says an opening
+  line ("Let’s draw a rocket. Grab a pencil and draw along with me.", editable); every step at the
+  lesson's own pace with its recording, her words as captions beside her portrait (`LinaFace`, redrawn
+  as SVG); then "Now draw it yourself" while she says her closing line, and the app icon, Paper Coach,
+  Apple's App Store badge and the call to action ("Free · link in bio", editable) in her place.
+- **What it uses.** The lesson as it stands in the workspace and the recordings the Voice section has,
+  so a draft can be filmed. Every step and the closing line must be recorded; the opening line is a
+  `say` take in the cast voice, cached like any other, and matched to the loudness of the step
+  recordings. The mix is normalised to -14 LUFS.
+- **How it is made.** `renderAt(t)` sets the page for any moment and returns a signature of what is on
+  screen. Frames are drawn at 2160 × 3840 in headless Chromium (Google Chrome, Playwright's Chromium, or
+  `STUDIO_CHROMIUM`), split across up to four Chromiums (`STUDIO_VIDEO_WORKERS`), each feeding its own
+  ffmpeg; a frame whose signature matches the one before reuses its picture. The parts are joined
+  without re-encoding, scaled with Lanczos, encoded with x264 for flat artwork and tagged BT.709.
+- **Where it goes.** `.studio/videos/<id>.mp4` (gitignored; videos never go in the repository), with a
+  caption to post beside it as `<id>.txt`. The tab plays the last one and downloads it.
+- The badge is `docs/app-store/marketing/assets/badges/download-on-the-app-store-black.svg`, Apple's
+  artwork as supplied; without it the ending says "Free on the App Store · link in bio".
+- `GET|POST /api/video/lessons/:lesson`, `GET /api/video/lessons/:lesson/file[?download]` and
+  `GET|DELETE /api/video/jobs/:id` are the tab's endpoints.
+
 ## The command line
 
 Everything the Studio does can be done from a terminal, on the same workspace, with the same store,
@@ -328,7 +359,7 @@ npm run studio -- voice app narrate && npm run studio -- voice app publish   # L
 | `levels` | `list`, `create`, `rename`, `describe`, `move`, `delete` |
 | `curriculum` | `apply` (a whole plan file of levels, paths and planned lessons) |
 | `paths` | `list`, `show`, `create`, `rename`, `describe`, `level`, `move`, `reorder`, `add`, `delete` |
-| `lessons` | `list`, `show`, `export`, `import`, `set`, `plan`, `move`, `duplicate`, `delete`, `unpublish`, `approve`, `validate`, `quality`, `reference set`, `reference export`, `generate`, `regenerate`, `summary`, `apply`, `render` |
+| `lessons` | `list`, `show`, `export`, `import`, `set`, `plan`, `move`, `duplicate`, `delete`, `unpublish`, `approve`, `validate`, `quality`, `reference set`, `reference export`, `generate`, `regenerate`, `summary`, `apply`, `render`, `video` |
 | `steps` | `list`, `set`, `split`, `merge`, `move`, `group` |
 | `strokes` | `list`, `move`, `reorder`, `reverse`, `delete`, `set` (retime, line width) |
 | `history` | `list`, `show`, `use` |

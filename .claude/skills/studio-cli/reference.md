@@ -294,6 +294,16 @@ Options:
       --sheet        A contact sheet: one panel per step, then the finished drawing.
       --columns <n>  Panels across the sheet (default 3).
 
+Usage: studio lessons video <id>
+
+A vertical draw-along video of a lesson (1080 × 1920) for Shorts, TikTok and Reels: Lina’s opening line over the drawing coming together, every step with her recording, and Paper Coach with the App Store badge at the end.
+
+Options:
+      --out <file.mp4>  Where to write the video (default .studio/videos/<id>.mp4). A caption to post with it goes beside it as .txt.
+      --intro <words>   Lina’s opening line (default “Let’s draw a <lesson>. Grab a pencil and draw along with me.”). Spoken through the Studio in her cast voice, and reused once made.
+      --cta <words>     The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge).
+      --stills <dir>    Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, the ending), to check the look in seconds.
+
 Usage: studio steps list <id>
 
 The steps of a lesson, numbered as the other commands name them.

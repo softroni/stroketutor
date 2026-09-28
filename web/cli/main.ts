@@ -17,6 +17,7 @@ import { generateCommands } from './commands/generate'
 import { planCommands } from './commands/plan'
 import { previewCommands } from './commands/preview'
 import { trashCommands } from './commands/trash'
+import { videoCommands } from './commands/video'
 import { voiceCommands } from './commands/voice'
 import { createContext, type RunOptions } from './context'
 import { CliError, Reporter, terminalIO } from './output'
@@ -43,6 +44,7 @@ export const COMMANDS: Command[] = [
   ...generateCommands,
   ...planCommands,
   ...previewCommands,
+  ...videoCommands,
   ...voiceCommands,
 ]
 

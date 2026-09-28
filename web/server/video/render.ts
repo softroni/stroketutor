@@ -1,0 +1,483 @@
+import { execFile, spawn } from 'node:child_process'
+import { once } from 'node:events'
+import { existsSync } from 'node:fs'
+import { mkdir, mkdtemp, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { availableParallelism, tmpdir } from 'node:os'
+import path from 'node:path'
+import { promisify } from 'node:util'
+
+import type { Browser, Page } from 'playwright'
+
+import type { PathsFile } from '../../src/catalog/types'
+import type { Tutorial } from '../../src/schema/types'
+import { INTRO_ID, OUTRO_ID } from '../../src/voice/bookends'
+import type { VideoDefaults, VideoProgress, VideoResult, VideoStage } from '../../src/video/types'
+import type { StepNarration } from '../../src/voice/types'
+import { WriteRefused } from '../repoWriter'
+import { lessonNarration, readTakeAudio, say, type VoiceDeps } from '../voice'
+
+import { FRAME, videoPage } from './page'
+import {
+  DEFAULT_CTA,
+  DEFAULT_CTA_WITH_BADGE,
+  defaultIntro,
+  planVideo,
+  postCaption,
+  stillMoments,
+  type Clip,
+  type VideoInput,
+  type VideoPlan,
+} from './plan'
+
+/**
+ * A lesson as a vertical draw-along video (1080 × 1920, 30 fps, H.264 and
+ * AAC), for YouTube Shorts, TikTok and Instagram Reels. One function behind
+ * both `studio lessons video` and the lesson page's Video tab.
+ *
+ * It uses the lesson as it stands in the workspace and Lina's recordings as
+ * the Voice section has them, so a draft can be filmed as well as a published
+ * lesson. Her opening line is spoken through the Studio like any other take,
+ * so the same words cost nothing the second time.
+ *
+ * Frames are screenshots of `page.ts` in headless Chromium, drawn at twice the
+ * size and scaled down with Lanczos, so lines and text come out smooth. Lina's
+ * recordings are placed at their moments, the opening line is matched to the
+ * loudness of her step recordings, and the mix is normalised to -14 LUFS, where
+ * the platforms play everything.
+ */
+
+export interface VideoDeps {
+  voice: VoiceDeps
+  /** The repository root: the font, the app icon and the App Store badge are read from it. */
+  repoDir: string
+  /** Where a video goes unless the request names a file: `.studio/videos`. */
+  videosDir: string
+}
+
+export interface VideoRequest {
+  lessonId: string
+  /** Lina's opening line; the default says "Let's draw …". */
+  intro?: string | null
+  /** The line under Paper Coach at the end. */
+  cta?: string | null
+  /** The video file; `<videosDir>/<lesson>.mp4` when absent. The post caption goes beside it as `.txt`. */
+  out?: string | null
+  /** Instead of the video, write a few PNG frames here: the opening, a line, a colour, the ending. */
+  stillsDir?: string | null
+}
+
+export type { VideoDefaults, VideoProgress, VideoResult, VideoStage }
+
+export const FPS = 30
+/** Frames are drawn at this multiple of 1080 × 1920 and scaled down. */
+const SCALE = 2
+const BADGE = 'docs/app-store/marketing/assets/badges/download-on-the-app-store-black.svg'
+const FONT = 'docs/app-store/marketing/assets/fonts/Fredoka.ttf'
+const ICON = 'PaperCoach/Assets.xcassets/AppIcon.appiconset/AppIcon.png'
+
+export function videoFile(lessonId: string, deps: Pick<VideoDeps, 'videosDir'>): string {
+  return path.join(deps.videosDir, `${lessonId}.mp4`)
+}
+
+export async function videoDefaults(lessonId: string, deps: VideoDeps): Promise<VideoDefaults> {
+  const tutorial = await readTutorial(lessonId, deps)
+  const narration = await lessonNarration(lessonId, deps.voice)
+  const badge = existsSync(path.join(deps.repoDir, BADGE))
+  const file = videoFile(lessonId, deps)
+  const info = await stat(file).catch(() => null)
+  return {
+    lessonId,
+    title: tutorial.title,
+    intro: defaultIntro(tutorial.title),
+    cta: badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA,
+    badge,
+    missing: missingSteps(narration.steps),
+    stale: staleSteps(narration.steps),
+    caption: postCaption(tutorial, await placeOf(lessonId, deps)),
+    video: info ? { file, bytes: info.size, modifiedAt: info.mtime.toISOString() } : null,
+  }
+}
+
+export async function exportVideo(
+  request: VideoRequest,
+  deps: VideoDeps,
+  { onProgress = () => undefined, signal }: { onProgress?: (progress: VideoProgress) => void; signal?: AbortSignal } = {},
+): Promise<VideoResult> {
+  const { lessonId } = request
+  const started = Date.now()
+  const elapsed = () => Math.round((Date.now() - started) / 100) / 10
+  const report = (stage: VideoStage, message: string, done = 0, total = 0) => onProgress({ stage, done, total, message })
+  const stopIfAsked = () => {
+    if (signal?.aborted) throw new WriteRefused(409, 'The video was stopped.')
+  }
+
+  report('preparing', 'Reading the lesson and Lina’s recordings')
+  const tutorial = await readTutorial(lessonId, deps)
+  const narration = await lessonNarration(lessonId, deps.voice)
+  const missing = missingSteps(narration.steps)
+  if (missing.length > 0) {
+    throw new WriteRefused(
+      409,
+      `Lina hasn’t recorded ${missing.length === 1 ? 'this step' : 'these steps'} of “${tutorial.title}” yet: ${missing.join(', ')}. ` +
+        `Record them in the lesson’s Voice section, or with \`studio voice narrate ${lessonId}\`, then make the video.`,
+    )
+  }
+  const ffmpegCheck = await run('ffmpeg', ['-version']).catch((error: unknown) => error)
+  if (ffmpegCheck instanceof Error) throw new WriteRefused(500, `Making a video needs ffmpeg (brew install ffmpeg). ${ffmpegCheck.message}`)
+
+  const work = await mkdtemp(path.join(tmpdir(), 'papercoach-video-'))
+  try {
+    // Every recording in a file ffmpeg can read, with its exact length.
+    report('voice', 'Recording Lina’s opening line')
+    const introText = request.intro?.trim() || defaultIntro(tutorial.title)
+    const voiceId = narration.castVoiceId ?? narration.steps.find((step) => step.take)?.take?.voiceId
+    if (!voiceId) throw new WriteRefused(409, 'No voice is cast as Lina, so her opening line can’t be spoken. Cast one on the Voice page.')
+    let introTakeId: string
+    try {
+      introTakeId = (await say(voiceId, introText, {}, deps.voice)).id
+    } catch (error) {
+      throw new WriteRefused(
+        502,
+        `Lina’s opening line couldn’t be recorded: ${error instanceof Error ? error.message : String(error)} Her speech server runs on the creator’s Mac; once a line has been made, it is reused without it.`,
+      )
+    }
+    stopIfAsked()
+
+    const files = new Map<string, string>()
+    const clips: Record<string, Clip> = {}
+    const writeTake = async (key: string, takeId: string, text: string) => {
+      const audio = readTakeAudio(takeId, deps.voice)
+      if (!audio) throw new WriteRefused(500, `The recording for “${key}” is missing from the workspace.`)
+      const file = path.join(work, `${key}${audio.contentType.includes('wav') ? '.wav' : '.m4a'}`)
+      await writeFile(file, audio.bytes)
+      files.set(key, file)
+      return { text, durationS: await durationOf(file) }
+    }
+    const intro = await writeTake('intro', introTakeId, introText)
+    for (const step of narration.steps) {
+      if (step.stepId === INTRO_ID || !step.take) continue
+      clips[step.stepId] = await writeTake(step.stepId, step.take.id, step.take.text)
+    }
+
+    const badgePath = path.join(deps.repoDir, BADGE)
+    const badge = existsSync(badgePath) ? await readFile(badgePath, 'utf8') : null
+    const place = await placeOf(lessonId, deps)
+    const input: VideoInput = { tutorial, clips, intro, place, cta: request.cta?.trim() || (badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA) }
+    const plan = planVideo(input)
+    const html = videoPage(tutorial, plan, {
+      font: (await readAsset(deps.repoDir, FONT)).toString('base64'),
+      icon: (await readAsset(deps.repoDir, ICON)).toString('base64'),
+      badge,
+    })
+    const pagePath = path.join(work, 'page.html')
+    await writeFile(pagePath, html)
+    const caption = postCaption(tutorial, place)
+    const frames = Math.ceil(plan.total * FPS)
+    const stale = staleSteps(narration.steps)
+
+    if (request.stillsDir) {
+      const browser = await launchChromium()
+      try {
+        const page = await openFramePage(browser, pagePath)
+        await mkdir(request.stillsDir, { recursive: true })
+        const stills: string[] = []
+        for (const moment of stillMoments(plan, tutorial)) {
+          await renderAt(page, moment.at)
+          const file = path.join(request.stillsDir, `${lessonId}-${moment.name}.png`)
+          await page.screenshot({ path: file })
+          stills.push(file)
+        }
+        report('done', 'Stills written')
+        return { lessonId, file: null, captionFile: null, caption, stills, durationS: plan.total, frames, stillFrames: 0, renderSeconds: elapsed(), bytes: 0, staleSteps: stale }
+      } finally {
+        await browser.close()
+      }
+    }
+
+    const silent = path.join(work, 'video.mp4')
+    const { stillFrames } = await drawFrames(pagePath, frames, silent, work, {
+      onFrames: (done) => report('frames', 'Drawing the frames', done, frames),
+      stopIfAsked,
+    })
+    stopIfAsked()
+
+    report('audio', 'Mixing Lina’s voice')
+    const mixed = path.join(work, 'audio.m4a')
+    await mixAudio(plan, files, mixed)
+
+    // Written beside the old video and renamed over it, so a failed export never leaves half a file.
+    const out = path.resolve(request.out ?? videoFile(lessonId, deps))
+    await mkdir(path.dirname(out), { recursive: true })
+    const partial = `${out}.partial.mp4`
+    await run('ffmpeg', [
+      '-y', '-loglevel', 'error', '-i', silent, '-i', mixed, '-c:v', 'copy', '-c:a', 'copy',
+      // x264 records only the colour matrix; this adds BT.709 primaries and transfer, so no platform shifts the greens.
+      '-bsf:v', 'h264_metadata=colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1:video_full_range_flag=0',
+      '-shortest', '-movflags', '+faststart', partial,
+    ])
+    await rename(partial, out)
+    const captionFile = out.replace(/\.mp4$/i, '') + '.txt'
+    await writeFile(captionFile, `${caption}\n`)
+    const { size } = await stat(out)
+    report('done', 'Done')
+    return { lessonId, file: out, captionFile, caption, stills: [], durationS: plan.total, frames, stillFrames, renderSeconds: elapsed(), bytes: size, staleSteps: stale }
+  } finally {
+    await rm(work, { recursive: true, force: true })
+  }
+}
+
+// ---------- Pieces ----------
+
+async function readTutorial(lessonId: string, deps: VideoDeps): Promise<Tutorial> {
+  const stored = await deps.voice.workspace.readTutorial(lessonId)
+  if (!stored) throw new WriteRefused(404, `There is no lesson "${lessonId}".`)
+  return JSON.parse(stored.text) as Tutorial
+}
+
+/** Which path the lesson is in and where, from the working curriculum. */
+async function placeOf(lessonId: string, deps: VideoDeps): Promise<VideoInput['place']> {
+  try {
+    const { paths } = await deps.voice.workspace.readCatalog()
+    const file = JSON.parse(paths.text) as PathsFile
+    const found = file.paths.find((entry) => entry.lessonIds.includes(lessonId))
+    return found ? { pathTitle: found.title, number: found.lessonIds.indexOf(lessonId) + 1, count: found.lessonIds.length } : null
+  } catch {
+    return null
+  }
+}
+
+/** The steps a video can't be made without: every real step, and the closing line. The opening is the video's own. */
+function missingSteps(steps: StepNarration[]): string[] {
+  return steps.filter((step) => step.stepId !== INTRO_ID && !step.take).map((step) => (step.stepId === OUTRO_ID ? 'the closing line' : step.title))
+}
+
+function staleSteps(steps: StepNarration[]): string[] {
+  return steps.filter((step) => step.stepId !== INTRO_ID && step.take && step.stale === 'text-changed').map((step) => step.title)
+}
+
+async function readAsset(repoDir: string, relative: string): Promise<Buffer> {
+  try {
+    return await readFile(path.join(repoDir, relative))
+  } catch {
+    throw new WriteRefused(500, `The video needs ${relative} from the repository, and it isn’t there.`)
+  }
+}
+
+/**
+ * Chromium for the frames: STUDIO_CHROMIUM if set, else Playwright's own
+ * download, else the Google Chrome installed on the Mac.
+ */
+async function launchChromium(): Promise<Browser> {
+  let playwright: typeof import('playwright')
+  try {
+    playwright = await import('playwright')
+  } catch {
+    throw new WriteRefused(500, 'Making a video needs Playwright: run `npm install` in web/.')
+  }
+  const override = process.env.STUDIO_CHROMIUM
+  const bundled = playwright.chromium.executablePath()
+  try {
+    if (override) return await playwright.chromium.launch({ headless: true, executablePath: override })
+    if (existsSync(bundled)) return await playwright.chromium.launch({ headless: true, executablePath: bundled })
+    return await playwright.chromium.launch({ headless: true, channel: 'chrome' })
+  } catch (error) {
+    throw new WriteRefused(
+      500,
+      `Chromium could not be started for the frames. Install Google Chrome, run \`npx playwright install chromium\`, or set STUDIO_CHROMIUM. ${error instanceof Error ? error.message.split('\n')[0] : ''}`,
+    )
+  }
+}
+
+async function openFramePage(browser: Browser, pagePath: string): Promise<Page> {
+  const page = await browser.newPage({ viewport: FRAME, deviceScaleFactor: SCALE })
+  await page.goto(`file://${pagePath}`)
+  await page.evaluate(() => document.fonts.ready)
+  return page
+}
+
+/** Sets the page for `t` seconds in; the answer is a signature of what is on screen. */
+function renderAt(page: Page, t: number): Promise<string> {
+  return page.evaluate((at) => (window as unknown as { renderAt(t: number): string }).renderAt(at), t)
+}
+
+/** How many Chromiums draw frames at once: STUDIO_VIDEO_WORKERS, or half the cores up to four. */
+function workerCount(frames: number): number {
+  const asked = Number(process.env.STUDIO_VIDEO_WORKERS)
+  const wanted = Number.isInteger(asked) && asked > 0 ? asked : Math.min(4, Math.max(1, Math.floor(availableParallelism() / 2)))
+  // A part shorter than a few seconds costs more to start than it saves.
+  return Math.max(1, Math.min(wanted, Math.floor(frames / 90)))
+}
+
+/**
+ * Every frame of the video, into `out` (H.264, no sound). The frames are cut
+ * into as many runs as there are workers; each run has its own Chromium and its
+ * own encoder, and the parts are joined without re-encoding. A frame whose
+ * signature matches the one before it (a pause, Lina still talking after the
+ * line is drawn) reuses that frame's picture instead of taking a new one.
+ */
+async function drawFrames(
+  pagePath: string,
+  frames: number,
+  out: string,
+  work: string,
+  { onFrames, stopIfAsked }: { onFrames: (done: number) => void; stopIfAsked: () => void },
+): Promise<{ stillFrames: number }> {
+  const workers = workerCount(frames)
+  const size = Math.ceil(frames / workers)
+  const runs = Array.from({ length: workers }, (_, index) => ({ from: index * size, to: Math.min(frames, (index + 1) * size) })).filter(
+    (range) => range.to > range.from,
+  )
+  const done = runs.map(() => 0)
+  let stillFrames = 0
+  let failure: unknown = null
+  let lastReport = 0
+  const tell = () => {
+    const now = Date.now()
+    if (now - lastReport < 250) return
+    lastReport = now
+    onFrames(done.reduce((sum, count) => sum + count, 0))
+  }
+
+  const parts = runs.map((_, index) => path.join(work, `part-${index}.mp4`))
+  const outcomes = await Promise.allSettled(
+    runs.map(async ({ from, to }, index) => {
+      const browser = await launchChromium()
+      const encoder = startEncoder(parts[index])
+      try {
+        const page = await openFramePage(browser, pagePath)
+        let lastSignature: string | null = null
+        let lastPicture: Buffer | null = null
+        for (let frame = from; frame < to; frame += 1) {
+          stopIfAsked()
+          if (failure) throw failure
+          const signature = await renderAt(page, frame / FPS)
+          if (signature !== lastSignature || !lastPicture) {
+            lastPicture = await page.screenshot({ type: 'jpeg', quality: 95 })
+            lastSignature = signature
+          } else {
+            stillFrames += 1
+          }
+          await encoder.write(lastPicture)
+          done[index] = frame - from + 1
+          tell()
+        }
+        await encoder.finish()
+      } catch (error) {
+        failure ??= error
+        encoder.kill()
+        throw error
+      } finally {
+        await browser.close()
+      }
+    }),
+  )
+  const failed = outcomes.find((outcome): outcome is PromiseRejectedResult => outcome.status === 'rejected')
+  if (failed) throw failure ?? failed.reason
+  onFrames(frames)
+
+  if (parts.length === 1) {
+    await rename(parts[0], out)
+  } else {
+    const list = path.join(work, 'parts.txt')
+    await writeFile(list, parts.map((part) => `file '${part.replace(/'/g, `'\\''`)}'`).join('\n'))
+    await run('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', out])
+  }
+  return { stillFrames }
+}
+
+/**
+ * One encoder, fed JPEG frames on its input: Lanczos down to 1080 × 1920 in
+ * BT.709, then x264 tuned for flat artwork, at a quality high enough that the
+ * platforms' own re-encode starts from a clean copy.
+ */
+function startEncoder(file: string) {
+  const child = spawn(
+    'ffmpeg',
+    [
+      '-y', '-loglevel', 'error',
+      '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
+      '-vf', `scale=${FRAME.width}:${FRAME.height}:flags=lanczos+accurate_rnd+full_chroma_int:out_color_matrix=bt709:out_range=tv,format=yuv420p`,
+      '-c:v', 'libx264', '-preset', 'slow', '-tune', 'animation', '-crf', '15', '-profile:v', 'high',
+      '-r', String(FPS), file,
+    ],
+    { stdio: ['pipe', 'ignore', 'pipe'] },
+  )
+  let log = ''
+  child.stderr.on('data', (chunk: Buffer) => (log += chunk.toString()))
+  const closed = new Promise<void>((resolve, reject) => {
+    child.on('error', reject)
+    child.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`ffmpeg stopped (${code}). ${log.trim()}`))))
+  })
+  closed.catch(() => undefined)
+  return {
+    async write(picture: Buffer) {
+      if (!child.stdin.write(picture)) await once(child.stdin, 'drain')
+    },
+    async finish() {
+      child.stdin.end()
+      await closed
+    },
+    kill() {
+      child.kill('SIGKILL')
+    },
+  }
+}
+
+/**
+ * Lina's recordings, each at its moment. Her opening line is made fresh and
+ * can come out louder or softer than the published steps, so it is brought to
+ * their loudness first; then the whole mix goes to -14 LUFS with a -1.5 dB
+ * true-peak ceiling.
+ */
+async function mixAudio(plan: VideoPlan, files: Map<string, string>, out: string) {
+  const cues = plan.cues.filter((cue) => files.has(cue.key))
+  const steps = cues.filter((cue) => cue.key !== 'intro').slice(0, 4)
+  const target = steps.length > 0 ? average(await Promise.all(steps.map((cue) => loudnessOf(files.get(cue.key)!)))) : Number.NaN
+  const gains = new Map<string, number>()
+  if (Number.isFinite(target) && files.has('intro')) {
+    const intro = await loudnessOf(files.get('intro')!)
+    if (Number.isFinite(intro)) gains.set('intro', Math.max(-12, Math.min(12, target - intro)))
+  }
+  const total = plan.total.toFixed(3)
+  const inputs = cues.flatMap((cue) => ['-i', files.get(cue.key)!])
+  const chains = cues.map(
+    (cue, index) => `[${index}:a]aresample=48000,volume=${(gains.get(cue.key) ?? 0).toFixed(2)}dB,adelay=${Math.round(cue.at * 1000)}:all=1[a${index}]`,
+  )
+  const filter =
+    cues.length > 0
+      ? `${chains.join(';')};${cues.map((_, index) => `[a${index}]`).join('')}amix=inputs=${cues.length}:normalize=0:duration=longest,` +
+        `apad=whole_dur=${total},atrim=0:${total},loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[out]`
+      : `anullsrc=r=48000:cl=stereo,atrim=0:${total}[out]`
+  await run('ffmpeg', ['-y', '-loglevel', 'error', ...inputs, '-filter_complex', filter, '-map', '[out]', '-ac', '2', '-c:a', 'aac', '-b:a', '192k', out])
+}
+
+const execFileAsync = promisify(execFile)
+
+async function run(command: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
+  try {
+    return await execFileAsync(command, args, { maxBuffer: 64 * 1024 * 1024 })
+  } catch (error) {
+    const failure = error as NodeJS.ErrnoException & { stderr?: string }
+    if (failure.code === 'ENOENT') throw new Error(`${command} is not installed.`)
+    throw new Error(`${command} failed: ${(failure.stderr ?? failure.message).trim()}`)
+  }
+}
+
+async function durationOf(file: string): Promise<number> {
+  const { stdout } = await run('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file])
+  const seconds = Number(stdout.trim())
+  if (!Number.isFinite(seconds)) throw new WriteRefused(500, `Could not read how long ${path.basename(file)} is.`)
+  return seconds
+}
+
+/** Integrated loudness in LUFS, from the summary ffmpeg's EBU R128 filter prints last. */
+async function loudnessOf(file: string): Promise<number> {
+  const { stderr } = await run('ffmpeg', ['-hide_banner', '-nostats', '-i', file, '-af', 'ebur128', '-f', 'null', '-'])
+  const values = [...stderr.matchAll(/^\s+I:\s+(-?[\d.]+) LUFS/gm)]
+  return values.length > 0 ? Number(values[values.length - 1][1]) : Number.NaN
+}
+
+const average = (values: number[]) => {
+  const finite = values.filter(Number.isFinite)
+  return finite.length > 0 ? finite.reduce((sum, value) => sum + value, 0) / finite.length : Number.NaN
+}

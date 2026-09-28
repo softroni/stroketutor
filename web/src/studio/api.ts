@@ -3,6 +3,7 @@ import type { HistoryEntry, HistoryRecord } from '../history/types'
 import type { Tutorial } from '../schema/types'
 import type { ValidationIssue } from '../schema/validate'
 import type { TracedDrawing } from '../trace/traceSvg'
+import type { VideoJob, VideoLessonState } from '../video/types'
 import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
 import type { ScreenshotList } from './screenshots'
@@ -453,4 +454,30 @@ export function publishAppLines() {
 /** Takes Lina's own lines back out of `shared/`. */
 export function unpublishAppLines() {
   return voiceMock ? voiceMock.unpublishAppLines() : call<{ files: string[] }>('/api/voice/app/published', remove())
+}
+
+// ---------- Lesson videos (server/video/) ----------
+
+/** A lesson's video settings, what Lina hasn't recorded, and its last video and job. */
+export function readLessonVideo(lessonId: string) {
+  return call<VideoLessonState>(`/api/video/lessons/${encodeURIComponent(lessonId)}`)
+}
+
+/** Starts making the lesson's video on the Studio server; the answer is the job to watch. */
+export function exportLessonVideo(lessonId: string, words: { intro: string; cta: string }) {
+  return call<VideoJob>(`/api/video/lessons/${encodeURIComponent(lessonId)}`, json('POST', words))
+}
+
+export function readVideoJob(jobId: string) {
+  return call<VideoJob>(`/api/video/jobs/${encodeURIComponent(jobId)}`)
+}
+
+export function stopVideoJob(jobId: string) {
+  return call<VideoJob>(`/api/video/jobs/${encodeURIComponent(jobId)}`, remove())
+}
+
+/** The lesson's last video, to play; `download` saves it as `<lesson>.mp4`. `version` defeats the cache after a new export. */
+export function lessonVideoUrl(lessonId: string, { download = false, version = '' } = {}): string {
+  const query = [download ? 'download' : '', version ? `v=${encodeURIComponent(version)}` : ''].filter(Boolean).join('&')
+  return `/api/video/lessons/${encodeURIComponent(lessonId)}/file${query ? `?${query}` : ''}`
 }

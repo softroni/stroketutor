@@ -1,4 +1,7 @@
+import { createReadStream } from 'node:fs'
+import { stat } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
+import path from 'node:path'
 
 import type { Connect, Plugin, ViteDevServer } from 'vite'
 
@@ -45,6 +48,8 @@ import {
   writeSpokenLines,
   type VoiceDeps,
 } from './voice'
+import { createVideoJobs, type VideoJobs } from './video/jobs'
+import { videoDefaults, videoFile, type VideoDeps } from './video/render'
 import { openWorkspace, type Workspace } from './workspaceStore'
 
 /**
@@ -83,6 +88,8 @@ export interface StudioApiOptions {
   marketingDir?: string
   /** .studio/ops, where Claude writes the status the Today page shows. */
   opsDir?: string
+  /** .studio/videos, where the Video tab's lesson videos are made. */
+  videosDir?: string
 }
 
 /** Where Lina's voice is made when nothing says otherwise: the creator's Mac, on their tailnet. */
@@ -146,9 +153,15 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `GET  /api/screenshots/:device/:file` one of them (PNG); read-only, like the list
  * - `GET  /api/today[?day=YYYY-MM-DD]`    how the app stands and what Claude is doing (.studio/ops/status.json),
  *                                         or a past day from its history, with the list of kept days; read-only
+ * - `GET  /api/video/lessons/:lesson`     its video's default words, what Lina hasn't recorded, the last video and job
+ * - `POST /api/video/lessons/:lesson`     `{ intro?, cta? }` → starts making its video (a job; one at a time)
+ * - `GET  /api/video/lessons/:lesson/file[?download]`  the last video (byte ranges; `download` saves it as a file)
+ * - `GET|DELETE /api/video/jobs/:id`      how a video is coming along / stop it
  */
 export function studioApi(options: StudioApiOptions): Plugin {
   let opening: Promise<{ workspace: Workspace; writer: RepoWriter }> | null = null
+  // Lesson videos being made from the Video tab, one at a time.
+  const videos = createVideoJobs()
   const studioFor = (server: ViteDevServer) => {
     opening ??= (async () => {
       const checks = await validators(server)
@@ -176,7 +189,7 @@ export function studioApi(options: StudioApiOptions): Plugin {
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/api', (req, res) => {
-        handle(server, options, studioFor, req, res).catch((error: unknown) => {
+        handle(server, options, studioFor, videos, req, res).catch((error: unknown) => {
           server.config.logger.error(
             `[studio api] ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`,
           )
@@ -207,6 +220,7 @@ async function handle(
   server: ViteDevServer,
   options: StudioApiOptions,
   studioFor: (server: ViteDevServer) => Promise<{ workspace: Workspace; writer: RepoWriter }>,
+  videos: VideoJobs,
   req: Connect.IncomingMessage,
   res: ServerResponse,
 ) {
@@ -421,6 +435,21 @@ async function handle(
       if (handled) return
     }
 
+    if (resource === 'video') {
+      const voice: VoiceDeps = {
+        workspace,
+        writer,
+        tts: { url: options.ttsUrl ?? DEFAULT_TTS_URL, mcpUrl: options.ttsMcpUrl ?? DEFAULT_TTS_MCP_URL },
+        generation,
+      }
+      await adoptKeptReferences(voice)
+      await adoptPublishedVoice(voice)
+      const repoDir = path.resolve(options.sharedDir, '..')
+      const deps: VideoDeps = { voice, repoDir, videosDir: options.videosDir ?? path.join(repoDir, '.studio', 'videos') }
+      const handled = await handleVideo(segments.slice(1), method, url, req, res, deps, videos)
+      if (handled) return
+    }
+
     return send(res, 404, { error: `There is no Studio endpoint ${method} /api${url.pathname}.` })
   } catch (error) {
     if (error instanceof WriteRefused) {
@@ -575,6 +604,82 @@ async function handleVoice(
   }
 
   return false
+}
+
+/**
+ * Everything under `/api/video`: a lesson's video settings and its last video,
+ * starting and stopping a render, and the file itself. `parts` is the path
+ * after `video`.
+ */
+async function handleVideo(
+  parts: string[],
+  method: string,
+  url: URL,
+  req: Connect.IncomingMessage,
+  res: ServerResponse,
+  deps: VideoDeps,
+  videos: VideoJobs,
+): Promise<boolean> {
+  const [group, id, action] = parts
+
+  if (group === 'lessons' && parts.length === 2 && method === 'GET') {
+    send(res, 200, { ...(await videoDefaults(id, deps)), job: videos.latest(id) })
+    return true
+  }
+  if (group === 'lessons' && parts.length === 2 && method === 'POST') {
+    const body = await readJSON(req, MAX_JSON_BYTES)
+    if (!(await deps.voice.workspace.readTutorial(id))) throw new WriteRefused(404, `There is no lesson "${id}".`)
+    const words = (value: unknown, what: string) => {
+      if (value === undefined || value === null) return null
+      if (typeof value !== 'string' || value.length > 300) throw new WriteRefused(422, `${what} must be text of at most 300 characters.`)
+      return value
+    }
+    const job = videos.start({ lessonId: id, intro: words(body.intro, 'The opening line'), cta: words(body.cta, 'The call to action') }, async () => deps)
+    send(res, 202, job)
+    return true
+  }
+  if (group === 'lessons' && parts.length === 3 && action === 'file' && method === 'GET') {
+    await sendVideo(req, res, videoFile(id, deps), url.searchParams.has('download') ? `${id}.mp4` : null)
+    return true
+  }
+  if (group === 'jobs' && parts.length === 2) {
+    const job = method === 'GET' ? videos.get(id) : method === 'DELETE' ? videos.stop(id) : undefined
+    if (job === undefined) return false
+    if (job === null) send(res, 404, { error: 'That video job is not known here; the Studio server may have restarted.' })
+    else send(res, 200, job)
+    return true
+  }
+  return false
+}
+
+/**
+ * The video, with byte ranges, which Safari needs before it will play a video
+ * at all and every browser needs to seek. `download` names the saved file.
+ */
+async function sendVideo(req: Connect.IncomingMessage, res: ServerResponse, file: string, download: string | null) {
+  const info = await stat(file).catch(() => null)
+  if (!info) return send(res, 404, { error: 'No video has been made of this lesson yet.' })
+  const headers: Record<string, string | number> = {
+    'Content-Type': 'video/mp4',
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': 'no-cache',
+    'Last-Modified': info.mtime.toUTCString(),
+    ...(download ? { 'Content-Disposition': `attachment; filename="${download}"` } : {}),
+  }
+  const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '')
+  if (range && (range[1] || range[2])) {
+    const start = range[1] ? Number(range[1]) : Math.max(0, info.size - Number(range[2]))
+    const end = range[1] && range[2] ? Math.min(Number(range[2]), info.size - 1) : info.size - 1
+    if (start > end || start >= info.size) {
+      res.writeHead(416, { 'Content-Range': `bytes */${info.size}` })
+      return res.end()
+    }
+    res.writeHead(206, { ...headers, 'Content-Range': `bytes ${start}-${end}/${info.size}`, 'Content-Length': end - start + 1 })
+    createReadStream(file, { start, end }).pipe(res)
+    return
+  }
+  res.writeHead(200, { ...headers, 'Content-Length': info.size })
+  createReadStream(file).pipe(res)
 }
 
 function preconditionOf(value: unknown): Precondition {

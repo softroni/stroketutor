@@ -719,3 +719,82 @@
 .st-step-card__play:focus-visible {
   opacity: 1;
 }
+
+/* The Video tab: a lesson as a vertical draw-along video (VideoPanel.tsx). */
+.st-video {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 760px;
+}
+
+.st-video__intro h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.st-video__words {
+  min-height: 64px;
+}
+
+.st-video__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.st-video__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-video__progress progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--accent);
+}
+
+.st-video__result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.st-video__player {
+  flex: none;
+  width: 240px;
+  max-width: 100%;
+  aspect-ratio: 9 / 16;
+  margin-top: 16px;
+  border-radius: 16px;
+  background: #127544;
+}
+
+.st-video__details {
+  display: flex;
+  flex: 1 1 280px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.st-video__details .st-field {
+  align-self: stretch;
+}
+
+.st-video__caption {
+  font-size: 14px;
+}
+
+.st-video__details a.st-button {
+  text-decoration: none;
+}

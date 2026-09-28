@@ -49,9 +49,12 @@ capture.sh    takes the raw screens from the simulator through the debug harness
 upload.py     puts out/ on the App Store version being prepared (see Uploading)
 captures/     the raw screens, per device
 frames/       Apple's device frames (not in git, see below)
-assets/       Fredoka (SIL OFL, assets/fonts/OFL.txt) and the two photos
+assets/       Fredoka (SIL OFL, assets/fonts/OFL.txt), the two photos, and Apple's App Store badge
 out/          the upload files: RGB PNG, no alpha
 ```
+
+The lesson videos for Shorts, TikTok and Reels are made by the Studio, not here (`web/README.md`, "Lesson
+videos"); they read Fredoka and the badge from `assets/`.
 
 The stickers are the lessons' own illustrations from `shared/Assets/References/`, plus pencils drawn in
 `shots.html`. `render.mjs` drives the installed Google Chrome through the Studio's Playwright (`web/node_modules`).
@@ -120,3 +123,7 @@ iPhones, so no 6.5" set is needed. The script mentions, and leaves alone, any ot
 - Hand drawing with a marker: Mohamed_hassan on Pixabay, https://pixabay.com/photos/writing-hand-write-pen-handwriting-3709125/
   (Pixabay Content License). Neither photo shows a face.
 - Fredoka: The Fredoka Project Authors, SIL Open Font License 1.1.
+- "Download on the App Store" badge (`assets/badges/`): Apple's artwork (US-UK, black, 2017), from the
+  badge package on Apple's marketing resources. Apple's App Store marketing guidelines apply: use it as
+  supplied, never recoloured, stretched, cropped or animated, with clear space around it, and only to
+  point to Paper Coach on the App Store.

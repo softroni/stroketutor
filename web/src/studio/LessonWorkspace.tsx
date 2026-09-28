@@ -42,6 +42,7 @@ import { AnalysisPanel } from './NewLessonView'
 import { qualityWarnings } from './quality'
 import { ReferencePanel } from './ReferencePanel'
 import { RegeneratePanel } from './RegeneratePanel'
+import { VideoPanel } from './VideoPanel'
 import { routeHref } from './route'
 import { ShortcutSheet } from './ShortcutSheet'
 import { LifecycleBadge } from './StatusPill'
@@ -107,7 +108,7 @@ export function LessonWorkspace({ library, catalog, lessonId, onSaved }: LessonW
 }
 
 type Mode = 'edit' | 'preview'
-type DrawerTab = 'regenerate' | 'history' | 'generation' | 'debug'
+type DrawerTab = 'regenerate' | 'video' | 'history' | 'generation' | 'debug'
 type Dialog = 'approve' | 'publish' | 'shortcuts'
 
 type SaveState =
@@ -179,6 +180,8 @@ function LessonEditor({
   const [drawer, setDrawer] = useState<DrawerTab | null>(null)
   /** Regenerate stays mounted once opened, so a run in progress survives closing the drawer. */
   const [regenerateOpened, setRegenerateOpened] = useState(false)
+  /** Video, likewise, so a video being made keeps reporting its progress. */
+  const [videoOpened, setVideoOpened] = useState(false)
   const [dialog, setDialog] = useState<Dialog | null>(null)
   const [issuesOpen, setIssuesOpen] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'saved' })
@@ -481,6 +484,7 @@ function LessonEditor({
 
   const openDrawer = (tab: DrawerTab) => {
     if (tab === 'regenerate') setRegenerateOpened(true)
+    if (tab === 'video') setVideoOpened(true)
     setDrawer(tab)
   }
 
@@ -638,6 +642,7 @@ function LessonEditor({
 
   const drawerTabs: { id: DrawerTab; label: string; shown: boolean }[] = [
     { id: 'regenerate', label: 'Regenerate', shown: library.writable },
+    { id: 'video', label: 'Video', shown: library.writable },
     { id: 'history', label: 'History', shown: library.writable },
     { id: 'generation', label: 'Generation', shown: Boolean(lesson?.generation) },
     { id: 'debug', label: 'Debug', shown: true },
@@ -701,6 +706,14 @@ function LessonEditor({
           <>
             <button type="button" className="st-button st-button--compact" onClick={() => openDrawer('regenerate')}>
               Regenerate…
+            </button>
+            <button
+              type="button"
+              className="st-button st-button--compact"
+              title="A vertical draw-along video of this lesson for Shorts, TikTok and Reels"
+              onClick={() => openDrawer('video')}
+            >
+              Export video…
             </button>
             <button
               type="button"
@@ -1026,6 +1039,11 @@ function LessonEditor({
                 onRecorded={() => setHistoryKey((key) => key + 1)}
                 onClose={() => setDrawer(null)}
               />
+            </div>
+          ) : null}
+          {library.writable && videoOpened ? (
+            <div hidden={drawer !== 'video'}>
+              <VideoPanel lessonId={entry.id} unsaved={dirty} />
             </div>
           ) : null}
           {drawer === 'history' && library.writable ? (

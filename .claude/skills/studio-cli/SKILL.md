@@ -147,6 +147,7 @@ The table gives each command's shape and what matters; `reference.md` has every 
 | `summary <id>` | The lesson as ids: per step, each line (label, box, start, end, length) and colour (label, colour, box, area) |
 | `apply <id> --layer steps\|order\|instructions --plan <file> [--no-checkpoint]` | A plan by hand; see Plans below |
 | `render <id> [--sheet] [--columns 3] [--no-labels] [--size px] [--svg] [--out file]` | The finished drawing, or a contact sheet (one panel per step, this step's lines labelled). Default `<id>.png` / `<id>.sheet.png` in the cwd |
+| `video <id> [--intro words] [--cta words] [--out file.mp4] [--stills dir]` | A vertical draw-along video for Shorts, TikTok and Reels (see *Lesson videos*). Default `.studio/videos/<id>.mp4`, outside git, with the post caption beside it as `.txt` |
 
 **Steps** (`steps …`; all edits take `--no-checkpoint`)
 
@@ -376,12 +377,45 @@ npm run studio -- lessons approve palm
 npm run studio -- publish pending
 npm run studio -- publish lessons palm          # prints the git add line
 
+# A video of a lesson for Shorts, TikTok and Reels
+npm run studio -- lessons video rocket --stills /tmp/rocket-stills      # five frames in seconds: look first
+npm run studio -- lessons video rocket                                    # → ../.studio/videos/rocket.mp4 + rocket.txt
+
 # Undo an experiment
 npm run studio -- lessons delete palm --yes && npm run studio -- trash empty --yes
 
 # Work on a scratch workspace so nothing real changes
 STUDIO_WORKSPACE=/tmp/ws.sqlite npm run studio -- status
 ```
+
+## Lesson videos
+
+`lessons video <id>` films a lesson as a 1080 × 1920 draw-along for YouTube Shorts, TikTok and
+Instagram Reels, with the same code as the lesson page's **Video** tab (`web/server/video/`):
+
+1. **Opening.** The finished picture, then the whole lesson drawn fast while Lina says her opening line
+   (default: "Let’s draw a rocket. Grab a pencil and draw along with me."; `--intro` changes it).
+2. **Every step** at the lesson's own pace, with Lina's recording for it, her words as captions beside
+   her portrait, and the step's title and "Step n of N" at the top.
+3. **Ending.** "Now draw it yourself / One line at a time, at your own pace" at the top; the app
+   icon, "Paper Coach", Apple's "Download on the App Store" badge and the call to action (`--cta`,
+   default "Free · link in bio") take Lina's place at the bottom while she says her closing line.
+
+- It uses the lesson **as it stands in the workspace** and the **recordings the Voice section has**,
+  so a draft can be filmed. Every step and the closing line must be recorded (`voice narrate <id>`);
+  it refuses and names the missing steps otherwise. The opening line is spoken through `voice say` in
+  the cast voice (needs her speech server the first time; cached after) and matched to the loudness
+  of the step recordings. The mix is normalised to -14 LUFS.
+- **Look before you render.** `--stills <dir>` writes five PNGs (the opening, the fast drawing, a line
+  being drawn, a colour going in, the ending) in about ten seconds. Read them, then make the video.
+- A render takes about a minute or two: every frame is drawn at 2160 × 3840 in headless Chromium and
+  scaled down, split across up to four Chromiums (`STUDIO_VIDEO_WORKERS` overrides), and frames where
+  nothing moved reuse the picture before them. Needs ffmpeg and Google Chrome (or Playwright's
+  Chromium, or `STUDIO_CHROMIUM`).
+- Videos go to `.studio/videos/` (gitignored). **Never commit a video**; `--out` elsewhere is fine.
+- Apple's badge is `docs/app-store/marketing/assets/badges/download-on-the-app-store-black.svg`, used
+  as supplied (never recoloured, stretched or animated beyond the fade). Without the file the ending
+  says "Free on the App Store · link in bio" instead.
 
 ## Gotchas
 

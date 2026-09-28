@@ -40,6 +40,8 @@ export default defineConfig(({ mode }) => {
         marketingDir,
         // Claude's status for the Today page, written by docs/ops/today.py.
         opsDir: `${studioDir}/ops`,
+        // Lesson videos from the Video tab; outside git, like the rest of .studio.
+        videosDir: `${studioDir}/videos`,
       }),
     ],
     resolve: {
