@@ -39,7 +39,7 @@ and icon, and anything that changes what Premium includes.
 |---|---|---|
 | 08:00 | **Daily check** and summary | scheduled task `paper-coach-daily` |
 | 12:00, 16:00, 20:00, 00:00 | **Heartbeat**: review state, new reviews | scheduled task `paper-coach-heartbeat` |
-| whenever something happens | a log line, the page republished | `today.py log "…"` |
+| whenever something happens | a log line, the page republished | `today.py log "…"` in a session; a scheduled run adds to `addLog` in `notes.json` instead |
 
 The tasks run on this Mac (`m4-1`, which never sleeps) while the Claude app is open; a run that was
 due while it was closed happens on the next launch. When one finishes it notifies the session that
@@ -75,6 +75,11 @@ main checkout, whichever worktree ran the script:
 | `state.json` | `check` | what the last check saw, to tell what changed |
 | `status.json` | `publish` | what the page shows (`web/src/studio/today.ts` has the shape) |
 | `history/` | `publish`, `archive` | a worktree of the branch **`ops-history`**: each day's status as it stood at its end, and `log.jsonl`. **Never delete anything here.** `archive` pushes it to GitHub; the page shows any day at `#/today/YYYY-MM-DD` |
+
+**Scheduled runs and approvals.** An unattended run stops whenever a command doesn't match an approval exactly,
+so the scheduled tasks read files with the Read tool, run only `today.py check`, `collect`, `publish` and `archive`
+(exactly as written), and log by adding lines to `addLog` in `notes.json`, which `publish` moves into
+`log.jsonl`. Anything else (a fix, an ads change) may wait for Kevin's approval; the run says so in its summary.
 
 `notes.json` numbers replace a collected number of the same label. Keep the headline to two
 sentences, and "Needs you" to what only Kevin can do.

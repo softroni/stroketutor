@@ -12,8 +12,10 @@ Everything lives in .studio/ops/ of the main checkout (gitignored, on this Mac),
 worktree runs the script:
 
     facts.json   what `collect` found (overwritten each run)
-    notes.json   what Claude says: headline, needs-you, working-on, PostHog numbers, next run
-    log.jsonl    one line per thing that happened, appended by `log`
+    notes.json   what Claude says: headline, needs-you, working-on, PostHog numbers, next run, and
+                 `addLog`: lines for the log, which `publish` moves into log.jsonl (so a scheduled run
+                 logs with a file edit, not with a command whose text changes every time)
+    log.jsonl    one line per thing that happened, appended by `log` or from `addLog`
     state.json   what `check` saw last, so it can say what changed
     status.json  what the Today page reads, made by `publish`
     history/     a worktree of the branch `ops-history`: status.json as it stood at the end of each
@@ -421,6 +423,11 @@ def build(entry: dict | None, since: str | None) -> dict | None:
 def publish() -> dict:
     facts = read_json("facts.json", {})
     notes = read_json("notes.json", {})
+    pending = notes.pop("addLog", None)
+    if pending:
+        for line in [pending] if isinstance(pending, str) else pending:
+            append_log(str(line))
+        write_json("notes.json", notes)
     state = read_json("state.json", {})
     versions = facts.get("versions") or {}
     submission = facts.get("submission") or {}
