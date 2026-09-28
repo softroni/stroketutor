@@ -11,3 +11,5 @@
 {"at": "2026-09-27T01:10:34-05:00", "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, no ads yet"}
 {"at": "2026-09-27T09:56:45-05:00", "text": "docs/next-builds.md: what to build next for revenue (price test prerequisite, price test, the grown-up's door, rating prompt)"}
 {"at": "2026-09-27T14:53:34-05:00", "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"}
+{"at": "2026-09-28T08:50:51-05:00", "text": "Scheduled runs now log through notes.json's addLog, so they need only fixed commands"}
+{"at": "2026-09-28T15:25:15-05:00", "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"}

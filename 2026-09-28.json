@@ -1,0 +1,331 @@
+{
+  "updated": "2026-09-28T15:25:15-05:00",
+  "headline": "1.0 (2) is still waiting for Apple's review, two days after it was submitted (Saturday 11:50 AM). No users, reviews, crashes or ad spend yet; ads and the version tag go on the day it's approved.",
+  "app": {
+    "live": null,
+    "inReview": {
+      "version": "1.0",
+      "build": "2",
+      "state": "Waiting for review",
+      "tone": "waiting",
+      "since": "2026-09-26T16:50:54.782Z"
+    }
+  },
+  "numbers": [
+    {
+      "label": "Installs",
+      "value": "0",
+      "period": "on 2026-09-27",
+      "detail": "14 days: 0",
+      "series": [
+        {
+          "day": "2026-09-14",
+          "value": 0
+        },
+        {
+          "day": "2026-09-15",
+          "value": 0
+        },
+        {
+          "day": "2026-09-16",
+          "value": 0
+        },
+        {
+          "day": "2026-09-17",
+          "value": 0
+        },
+        {
+          "day": "2026-09-18",
+          "value": 0
+        },
+        {
+          "day": "2026-09-19",
+          "value": 0
+        },
+        {
+          "day": "2026-09-20",
+          "value": 0
+        },
+        {
+          "day": "2026-09-21",
+          "value": 0
+        },
+        {
+          "day": "2026-09-22",
+          "value": 0
+        },
+        {
+          "day": "2026-09-23",
+          "value": 0
+        },
+        {
+          "day": "2026-09-24",
+          "value": 0
+        },
+        {
+          "day": "2026-09-25",
+          "value": 0
+        },
+        {
+          "day": "2026-09-26",
+          "value": 0
+        },
+        {
+          "day": "2026-09-27",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "label": "Proceeds",
+      "value": "$0.00",
+      "period": "on 2026-09-27",
+      "detail": "14 days: $0.00",
+      "series": [
+        {
+          "day": "2026-09-14",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-15",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-16",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-17",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-18",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-19",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-20",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-21",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-22",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-23",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-24",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-25",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-26",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-27",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "label": "First opens",
+      "value": "0",
+      "period": "since 27 Sep",
+      "detail": "real users, release builds"
+    },
+    {
+      "label": "Drawings finished",
+      "value": "0",
+      "period": "since 27 Sep"
+    },
+    {
+      "label": "Purchases",
+      "value": "0",
+      "period": "since 27 Sep",
+      "detail": "both paywalls"
+    }
+  ],
+  "needsYou": [
+    {
+      "title": "Add Crash Data and Performance Data to App Privacy",
+      "detail": "Both under Diagnostics: not linked to the user, not tracking, App Functionality. Kevin will do it later; Claude reminds him when 1.0.1 is ready to submit, and holds 1.0.1 until it is done.",
+      "since": "2026-09-27"
+    }
+  ],
+  "working": [
+    {
+      "title": "Apple's review of 1.0 (2)",
+      "state": "waiting",
+      "detail": "Submitted Saturday 11:50 AM; checked again Monday afternoon, still waiting. When it is approved: tag 1.0(2) in git, switch on Apple Ads, watch the first real funnel."
+    },
+    {
+      "title": "Apple Ads campaigns for launch day",
+      "state": "next",
+      "detail": "US, $10 a day in four campaigns (brand, drawing searches, competitors, discovery), docs/ops/apple-ads-plan.md. Apple Ads can't see the app until it is live, so the first check after approval creates them."
+    },
+    {
+      "title": "1.0.1: crash and hang reports",
+      "state": "waiting",
+      "detail": "Ready on release/1.0.1 (306 tests pass). It ships with the first fix, once App Privacy has the Crash Data row."
+    },
+    {
+      "title": "Keyword baseline",
+      "state": "next",
+      "detail": "Where Paper Coach ranks for its keywords on launch day, so later changes can be measured."
+    }
+  ],
+  "log": [
+    {
+      "at": "2026-09-28T15:25:15-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"
+    },
+    {
+      "at": "2026-09-28T08:50:51-05:00",
+      "text": "Scheduled runs now log through notes.json's addLog, so they need only fixed commands"
+    },
+    {
+      "at": "2026-09-27T14:53:34-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"
+    },
+    {
+      "at": "2026-09-27T09:56:45-05:00",
+      "text": "docs/next-builds.md: what to build next for revenue (price test prerequisite, price test, the grown-up's door, rating prompt)"
+    },
+    {
+      "at": "2026-09-27T01:10:34-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, no ads yet"
+    },
+    {
+      "at": "2026-09-27T01:10:27-05:00",
+      "text": "Temporary Admin key revoked by Kevin; both check-ins run once by hand to approve their tools"
+    },
+    {
+      "at": "2026-09-27T01:06:49-05:00",
+      "text": "Vendor number in: installs, subscriptions and proceeds now come from Apple's daily sales reports"
+    },
+    {
+      "at": "2026-09-27T01:04:57-05:00",
+      "text": "Scheduled: daily check at 8:03 AM, heartbeat at 12 PM, 4 PM, 8 PM and midnight"
+    },
+    {
+      "at": "2026-09-27T01:04:57-05:00",
+      "text": "Apple Ads launch plan written: four US campaigns, $10 a day, made the day 1.0 goes on sale"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Studio Today page added"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Checked the live Superwall paywalls: all four say Paper Coach, none say Couch"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "PostHog dashboard 'Paper Coach: how it's going': 16 charts, release builds only"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Crash and hang reports (MetricKit to PostHog) on release/1.0.1 and main; 318 tests pass on main"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Sales and Reports key in; App Store analytics reports switched on for Paper Coach"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Took over Paper Coach's operations: rules agreed with Kevin (fixes and rejections ship on their own; features stay with Kevin)"
+    }
+  ],
+  "experiments": [
+    {
+      "name": "Onboarding offer",
+      "placement": "onboarding_offer",
+      "status": "running, no traffic yet",
+      "note": "3 designs for learners 13+. Down to 2 once traffic shows.",
+      "variants": [
+        {
+          "name": "Paywall 1",
+          "variantId": "643125",
+          "share": 34
+        },
+        {
+          "name": "Flow 1",
+          "variantId": "643126",
+          "share": 33
+        },
+        {
+          "name": "Flow 2",
+          "variantId": "643129",
+          "share": 33
+        }
+      ]
+    },
+    {
+      "name": "In-app Premium",
+      "placement": "premium_lesson, settings_premium",
+      "status": "running, no traffic yet",
+      "note": "Crowned lessons and Settings › Premium, 13+.",
+      "variants": [
+        {
+          "name": "Paywall 1",
+          "variantId": "643130",
+          "share": 50
+        },
+        {
+          "name": "Paywall 2",
+          "variantId": "643131",
+          "share": 50
+        }
+      ]
+    }
+  ],
+  "ads": {
+    "state": "ready",
+    "note": "Starts the day 1.0 is approved: $10 a day, US. The first $150 is the seed; after that the ads spend only what they earn back.",
+    "dailyCap": 10,
+    "spentToDate": 0,
+    "earnedToDate": 0,
+    "spendCeiling": 150,
+    "campaigns": []
+  },
+  "reviews": {
+    "average": null,
+    "count": 0,
+    "latest": []
+  },
+  "links": [
+    {
+      "label": "PostHog dashboard",
+      "url": "https://us.posthog.com/project/629055/dashboard/2140277"
+    },
+    {
+      "label": "App Store Connect",
+      "url": "https://appstoreconnect.apple.com/apps/6816231257/distribution"
+    },
+    {
+      "label": "Superwall",
+      "url": "https://superwall.com/applications/56531"
+    },
+    {
+      "label": "Apple Ads",
+      "url": "https://app-ads.apple.com/cm/app/20605790/report/campaigns"
+    }
+  ],
+  "next": {
+    "at": "2026-09-29T08:00:00-05:00",
+    "what": "Daily check and summary"
+  }
+}
