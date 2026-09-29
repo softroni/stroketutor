@@ -1019,32 +1019,32 @@
         {
           "id": "shop-front",
           "title": "Shop Front",
-          "objective": "A bookshop front: striped awning, a framed window of books, a paneled door and a potted bush"
+          "objective": "A bookshop front: striped awning, a window of books, a paneled door, a potted bush and a tree"
         },
         {
           "id": "balcony",
           "title": "Balcony",
-          "objective": "Tall doors behind a seven-bar railing, a flower box and its shadow on the wall"
+          "objective": "Tall doors under a stone hood behind a seven-bar railing, a flower box and its shadow"
         },
         {
           "id": "phone-box",
           "title": "Phone Box",
-          "objective": "Tall box in two-point view with a domed top and four panes on each side"
+          "objective": "Phone box in two-point view: domed top, blank sign bands, six panes a side, a tree behind"
         },
         {
           "id": "street-corner",
           "title": "Street Corner",
-          "objective": "Corner building in two-point perspective, eye level at the doors"
+          "objective": "Corner building in two-point perspective, eye level at the doors, cornice and sills sloping away"
         },
         {
           "id": "fountain",
           "title": "Fountain",
-          "objective": "Round fountain with two stacked basins drawn as ellipses and four water arcs"
+          "objective": "Round fountain: two basins drawn as ellipses, panels curving round the basin, four water arcs"
         },
         {
           "id": "canal-bridge",
           "title": "Canal Bridge",
-          "objective": "Stone bridge with three arches over a canal, the arches mirrored in the water"
+          "objective": "Stone bridge with three arches between brick quays, all mirrored in the still water"
         },
         {
           "id": "tram",
@@ -1064,7 +1064,7 @@
         {
           "id": "rooftops",
           "title": "Rooftops",
-          "objective": "Four overlapping roofs at different angles, with chimney pots and a water tank"
+          "objective": "Four overlapping roofs at different angles, with a dormer, chimney pots and a water tank"
         },
         {
           "id": "hill-street",
