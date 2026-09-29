@@ -1010,6 +1010,75 @@
       ]
     },
     {
+      "id": "urban-sketching",
+      "title": "Urban Sketching",
+      "level": "advanced",
+      "color": "butter",
+      "description": "The city as you see it: shop fronts, balconies and bridges, textures you suggest instead of copying, streets that climb, ending with a tram climbing past a corner café.",
+      "lessons": [
+        {
+          "id": "shop-front",
+          "title": "Shop Front",
+          "objective": "Flat shop front with a striped awning, a big window, a door and a blank sign"
+        },
+        {
+          "id": "balcony",
+          "title": "Balcony",
+          "objective": "Tall doors behind a seven-bar railing, a flower box and its shadow on the wall"
+        },
+        {
+          "id": "phone-box",
+          "title": "Phone Box",
+          "objective": "Tall box in two-point view with a domed top and four panes on each side"
+        },
+        {
+          "id": "street-corner",
+          "title": "Street Corner",
+          "objective": "Corner building in two-point perspective, eye level at the doors"
+        },
+        {
+          "id": "fountain",
+          "title": "Fountain",
+          "objective": "Round fountain with two stacked basins drawn as ellipses and four water arcs"
+        },
+        {
+          "id": "canal-bridge",
+          "title": "Canal Bridge",
+          "objective": "Stone bridge with three arches over a canal, the arches mirrored in the water"
+        },
+        {
+          "id": "tram",
+          "title": "Tram",
+          "objective": "Old tram in three-quarter view on rails curving around a corner"
+        },
+        {
+          "id": "brick-window",
+          "title": "Brick Window",
+          "objective": "Arched window in a brick wall, bricks drawn only in three small patches"
+        },
+        {
+          "id": "fire-hydrant",
+          "title": "Fire Hydrant",
+          "objective": "Hydrant with a shadow side and a cast shadow across a few cobblestones"
+        },
+        {
+          "id": "rooftops",
+          "title": "Rooftops",
+          "objective": "Four overlapping roofs at different angles, with chimney pots and a water tank"
+        },
+        {
+          "id": "hill-street",
+          "title": "Hill Street",
+          "objective": "Street climbing a hill: houses step up, the road's edges meet above the horizon"
+        },
+        {
+          "id": "tram-hill",
+          "title": "Tram Hill",
+          "objective": "Café corner at the foot of a steep street, a tram climbing it, rooftops behind, edges fading out"
+        }
+      ]
+    },
+    {
       "id": "coast",
       "title": "Coast",
       "level": "advanced",
