@@ -13,9 +13,10 @@ Advanced level's; only the **lesson prompt** changes.
   look, the line weight, how an attached picture is matched, perspective, drawn light and shadow, texture,
   reflections, the palette and the composition, so the lesson prompts add to it and never say it again.
 - Attach the **published apple** (`fruits/apple-openai.png`) to every request; the system prompt says how to match
-  it, so there is no reference line. `shop-front` is kept (`urban/shop-front-openai.png`); once `tram` is
-  kept too, attach both to `tram-hill`: they fix what the tram and the café front look like in the finale. No other
-  lesson needs a second picture.
+  it, so there is no reference line. `shop-front` is published (its picture is `urban/shop-front-openai.png`):
+  attach it to `phone-box` too, whose tree is the shop front's tree, and to `tram-hill`, with `tram` once that is
+  kept, so the finale's café and tram look like the ones drawn before. Make `tram-hill` last. No other lesson needs a
+  second picture.
 - Square, 1024 × 1024 or larger, PNG, opaque white background.
 - Generate 3–4 candidates per lesson and keep the one with the fewest, cleanest lines, not the prettiest. Reject
   any candidate that gets a count wrong: the counts are the teaching points.
@@ -189,7 +190,8 @@ Here the railing does stand in front of the doors: that is part of what this les
   floating, with a clear strip of door color at least three line-widths wide around them and
   between them. They stop well above the railing. Color: blue #5b8fc7.
 - Knobs: exactly two small circles side by side in the middle of the doors, below the panes and
-  above the top rail, floating with a clear gap of door color between them and all around them.
+  above the top rail, floating with a clear gap of door color at least three line-widths wide
+  between them and all around them.
   Color: yellow #f7cf46.
 - Railing: exactly seven bars and one top rail, all charcoal lines with no color. The bars are
   seven single straight upright lines standing on the ledge's top edge, touching it, evenly spaced
@@ -219,6 +221,8 @@ with one mound and three flowers, one shadow.
 ### 3 · `phone-box`
 
 Objective: Phone box in two-point view: domed top, blank sign bands, six panes a side, a tree behind.
+
+Attach `shop-front` as well as the apple: the tree behind the box is the one behind the shop.
 
 ```text
 SUBJECT: one old-fashioned telephone box standing on its own: a tall box with a domed top, a
@@ -264,7 +268,8 @@ they go away from the near corner, the bottom edges slope a little up, and the e
   is made of exactly four big round bumps (one on top, two down the right, one at the bottom), and
   whose outline stops on the box's right far edge, which runs in front of it. Its top is a clear
   strip below the dome, and its bottom a clear strip above the base. No trunk. Color: pale green
-  #b9dc8a.
+  #b9dc8a. It is drawn like the tree behind the attached shop front; nothing else of the shop
+  front belongs in this picture.
 Nothing else: no letters, no crown on the dome, no hinges, no telephone or anything seen through
 the glass, no shine lines, no step, no ground, no shadow, no horizon, no dots. Twenty shapes and
 lines in total. Count: two sides, two sign bands, one dome, six panes on each side, one handle,
@@ -385,7 +390,8 @@ SUBJECT: one stone bridge with three round arches crossing a canal between two b
 seen straight from the side, the mirror image of it all in the still water under it, and three
 ripples on the water.
 VIEW: a flat side view. The reflection lies straight below the bridge and the quays, upside down,
-as in a mirror lying flat on the water. The whole scene is about 75% of the image width.
+as in a mirror lying flat on the water. The whole scene, quays included, is about 70% of the image
+width.
 - Waterline: one straight level line across the scene, a little below the middle of the image,
   running a little past each quay wall and ending open. A charcoal line with no color. The water
   itself is white paper.
@@ -452,7 +458,8 @@ The vanishing points lie outside the picture: no horizon and no dots.
   #f6e7b8.
 - Bumper: one low flat shape with four straight sides hanging under the front's bottom edge (one
   shared line), as wide as the front and about four line-widths tall. Color: gray #c9ced6.
-- Side windows: exactly four in a row, floating in the upper half of the side, evenly spaced, each
+- Side windows: exactly four in a row, floating in the upper half of the side, evenly spaced, with
+  a clear strip of yellow at least three line-widths wide between them and all around them, each
   a four-sided shape with upright sides and top and bottom edges that follow the side's edges,
   a little smaller toward the far end. Color: blue #5b8fc7.
 - Side band: one long band running the whole length of the side, below the windows with a clear
@@ -673,7 +680,7 @@ with eaves, three doors, six windows, two rails, one dot, one horizon.
 
 Objective: Café corner at the foot of a steep street, a tram climbing it, rooftops behind, edges fading out.
 
-Attach `tram` and `shop-front` as well as the apple.
+Attach `shop-front` and the kept `tram` as well as the apple; make this one last.
 
 ```text
 SUBJECT: a small street scene like a sketch from a hilly old town: a café on the corner at the
@@ -701,9 +708,9 @@ the edges are the plainest and palest: the highest house and the rooftops have n
 - Rails: exactly two single lines running up the middle of the climbing street, parallel to its
   edges, about half the street's width apart, starting open near the foot of the slope and
   stopping open near the top. The tram's body's bottom edge runs midway between them, at least
-  three line-widths from each. The lower rail runs across the lower part of each wheel and stops
-  on its outline; the upper rail passes behind the tram's body and is hidden there. Charcoal lines
-  with no color.
+  three line-widths from each. The lower rail passes behind the lower part of each wheel: it stops
+  on the wheel's outline on one side and carries on from the other. The upper rail passes behind
+  the tram's body and is hidden there. Charcoal lines with no color.
 - Café, at the lower left, standing on the level ground line (one shared line), about one third of
   the image width, a small cousin of the attached shop front:
   - Wall: one closed shape with four straight sides, about as tall as wide. Color: watermelon
