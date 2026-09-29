@@ -150,13 +150,48 @@ would order it.
 
 ## Planning a path
 
-`paths create --title "…"` makes the path; `paths describe` holds the plan until the drawings
-exist, since a lesson cannot be in the catalog before its tutorial. For each lesson, tell the
-creator what source to ask for: the subject, the view (front, three-quarter, side), how much
-detail, and that it should be an SVG with plain fills, no gradients, no strokes narrower than a
-pen. Each lesson adds one idea to the last (a box, then a box with a roof, then a roof with a
-chimney); `lessons quality` compares complexity with the previous lesson in the path. Place each
-lesson with `--path` and `--position` as it is built, or later with `lessons move`.
+A new path is suggested in chat first and added to the Studio only when the creator says so. The
+creator usually shapes it over a few rounds (how many lessons, which are free, which comes last).
+
+1. **Start from the live Studio, not `plan.json`.** `paths list` and `lessons list --path <id>` show
+   the levels, order and lessons as they are; `plan.json` lags behind. Read every objective at the
+   same level, and the scenes and perspective lessons at the others, so no lesson repeats one
+   (Buildings' `city-street` is the one-point street, Light & Shadow's `night-street` the lamp post).
+2. **Suggest a table:** id, title, objective, and what the lesson teaches. Objectives in the plan's
+   voice: shapes only, repeated details counted ("a seven-bar railing", "three small patches"), under
+   about 90 characters, US spelling. One new idea per lesson, each building on the ones before it
+   (a box, then a box with a roof, then a roof with a chimney). Add a few spares and the decisions
+   that are the creator's (where the path goes, how the pictures should look).
+3. **Order it for the paywall** (the creator's rule, 2026-09-29):
+   - Lessons 1–3 are free (`FREE_LESSONS_PER_PATH`), so they are the three best pictures that are
+     not too complex: a finished picture the drawer feels good about.
+   - Lessons 4–7 are the most attractive paid pictures. A free lesson's video ends on stickers of
+     the next four lessons (`stickerLessons`, `MAX_STICKERS` in `web/server/video/plan.ts`), and
+     lesson 1 of every path is posted first and appears as a sticker on other paths' videos.
+   - Drills (a texture study, a plain warm-up object) go after them, as breathers.
+   - The last lesson is the most impressive picture of the path, the one drawers look forward to.
+     It works best built from the path's earlier subjects (Coast's lighthouses lead to
+     `storm-at-the-point`; Urban Sketching's tram, hill street and café lead to `tram-hill`).
+   - Then check that every lesson still builds on the ones before it inside that order.
+4. **The rules every level keeps:** no living things (no people, animals, birds or faces; plants are
+   fine), no brand logos and no words on signs (blank, or a picture such as a cup), repeated details
+   capped at a number. Nothing in the code expects ten lessons a path; Urban Sketching has twelve.
+5. **Add it** when agreed, from `web/`:
+   - the ids must be free: `lessons list --json` and `trash list`;
+   - `paths create <id> --title … --level … --description …`, then `paths color <id> <color>`:
+     without `--color` it picks one itself, which can be the neighbor's. A path inserted in the
+     middle shifts the "(by its place)" color of every path after it; say so if any of them is
+     published;
+   - `paths move <id> --to <n>`, then `lessons plan <id> --title … --objective … --path <id>` for
+     each lesson, in order;
+   - insert the same path at the same place in `docs/curriculum/plan.json` with a script (append
+     only, same formatting). Don't `curriculum apply` the whole file without asking: it may not
+     match the Studio. Run `npx vitest run cli/levels.test.ts cli/generate.test.ts
+     cli/preview.test.ts src/studio/pathOps.test.ts`, commit and push. `publish pending` stays
+     empty: planned lessons never reach `shared/`.
+6. **Then the pictures:** `docs/curriculum/<path>-prompts.md`, one image prompt per lesson, as in
+   `coast-prompts.md`; each kept PNG goes through step 0 above. `lessons quality` compares each
+   lesson's complexity with the previous one in its path.
 
 ## When to use OpenRouter instead
 
