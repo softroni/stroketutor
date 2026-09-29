@@ -171,11 +171,11 @@ creator usually shapes it over a few rounds (how many lessons, which are free, w
    - Drills (a texture study, a plain warm-up object) go after them, as breathers.
    - The last lesson is the most impressive picture of the path, the one drawers look forward to.
      It works best built from the path's earlier subjects (Coast's lighthouses lead to
-     `storm-at-the-point`; Urban Sketching's tram, hill street and café lead to `tram-hill`).
+     `storm-at-the-point`; Urban's tram, hill street and café lead to `tram-hill`).
    - Then check that every lesson still builds on the ones before it inside that order.
 4. **The rules every level keeps:** no living things (no people, animals, birds or faces; plants are
    fine), no brand logos and no words on signs (blank, or a picture such as a cup), repeated details
-   capped at a number. Nothing in the code expects ten lessons a path; Urban Sketching has twelve.
+   capped at a number. Nothing in the code expects ten lessons a path; Urban has twelve.
 5. **Add it** when agreed, from `web/`:
    - the ids must be free: `lessons list --json` and `trash list`;
    - `paths create <id> --title … --level … --description …`, then `paths color <id> <color>`:

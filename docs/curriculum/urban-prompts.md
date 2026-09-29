@@ -1,6 +1,6 @@
-# Urban Sketching — image-generation prompts
+# Urban — image-generation prompts
 
-Source art for the twelve `urban-sketching` lessons (Advanced level, learners aged 16 and up), written for a raster
+Source art for the twelve `urban` lessons (Advanced level, learners aged 16 and up), written for a raster
 image model (OpenAI image, Gemini / Nano Banana). Same pipeline as the fruits:
 PNG → `svg from-image --palette ../docs/curriculum/palette.json` → `author-lesson`. The **system prompt** is the
 Advanced level's; only the **lesson prompt** changes.
@@ -13,13 +13,13 @@ Advanced level's; only the **lesson prompt** changes.
   look, the line weight, how an attached picture is matched, perspective, drawn light and shadow, texture,
   reflections, the palette and the composition, so the lesson prompts add to it and never say it again.
 - Attach the **published apple** (`fruits/apple-openai.png`) to every request; the system prompt says how to match
-  it, so there is no reference line. `shop-front` is kept (`urban-sketching/shop-front-openai.png`); once `tram` is
+  it, so there is no reference line. `shop-front` is kept (`urban/shop-front-openai.png`); once `tram` is
   kept too, attach both to `tram-hill`: they fix what the tram and the café front look like in the finale. No other
   lesson needs a second picture.
 - Square, 1024 × 1024 or larger, PNG, opaque white background.
 - Generate 3–4 candidates per lesson and keep the one with the fewest, cleanest lines, not the prettiest. Reject
   any candidate that gets a count wrong: the counts are the teaching points.
-- Save the kept PNGs as `docs/curriculum/urban-sketching/<lesson-id>-<model>.png`, and record model, date and the
+- Save the kept PNGs as `docs/curriculum/urban/<lesson-id>-<model>.png`, and record model, date and the
   system prompt's version (`style-v4-advanced`) in the lesson's `--source`.
 
 What the lesson prompts on this path take care of, beyond the system prompt:
@@ -763,7 +763,7 @@ pots.
 
 ## What to send back
 
-The PNGs you like, one per lesson, named `<lesson-id>-<model>.png`, for `docs/curriculum/urban-sketching/`. The
+The PNGs you like, one per lesson, named `<lesson-id>-<model>.png`, for `docs/curriculum/urban/`. The
 usual failures to watch for on this path: vanishing point dots or guide lines where none are asked for, window bars
 and panes, bricks or tiles spread over whole walls and roofs, letters on the sign or the tram, wheels on the tram
 lesson, a shadow cutting across a stone, a colored street or a frame round the finale, and people or pigeons. And,

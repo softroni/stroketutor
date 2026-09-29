@@ -17,7 +17,7 @@
  * A change here changes the pictures: give it a new version, so a lesson's
  * `--source` still says which prompt made its picture.
  *
- * `style-v4-advanced` (2026-09-29) says what the first Urban Sketching picture got
+ * `style-v4-advanced` (2026-09-29) says what the first Urban picture got
  * wrong: glass shine drawn as pale tubes, a second cornice over a dark band, rims
  * and bands nobody asked for, lines crowded into dark strips, a landscape image.
  */
