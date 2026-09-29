@@ -2,7 +2,19 @@ import { describe, expect, it } from 'vitest'
 
 import type { Tutorial } from '../../src/schema/types'
 
-import { captionsFor, defaultIntro, lineChunks, planVideo, postCaption, stillMoments, subjectOf } from './plan'
+import {
+  captionsFor,
+  defaultIntro,
+  defaultSignoff,
+  lineChunks,
+  planVideo,
+  postCaption,
+  stickerLessons,
+  stillMoments,
+  subjectOf,
+  type Segment,
+  type VideoInput,
+} from './plan'
 
 const tutorial: Tutorial = {
   schemaVersion: 2,
@@ -15,17 +27,35 @@ const tutorial: Tutorial = {
   ],
 }
 
-const plan = () =>
+// "Draw more with Paper Coach." as Whisper heard it: she stops at 2.1 s of a 2.5 s take.
+const signoff = {
+  text: 'Draw more with Paper Coach.',
+  durationS: 2.5,
+  words: [
+    { text: 'Draw', start: 0.1, end: 0.4 },
+    { text: 'more', start: 0.4, end: 0.7 },
+    { text: 'with', start: 0.7, end: 0.9 },
+    { text: 'Paper', start: 0.9, end: 1.5 },
+    { text: 'Coach.', start: 1.5, end: 2.1 },
+  ],
+}
+
+const plan = (changes: Partial<VideoInput> = {}) =>
   planVideo({
     tutorial,
     intro: { text: 'Let’s draw fish. Grab a pencil.', durationS: 4 },
+    signoff,
     clips: {
       body: { text: 'Start with a long oval.', durationS: 3 },
-      'lesson-outro': { text: 'Done!', durationS: 2 },
+      'lesson-outro': { text: 'That’s a fish, all yours.', durationS: 2 },
     },
     place: { pathTitle: 'Food & Treats', number: 2, count: 10 },
     cta: 'Free <b>now</b>',
+    stickers: 3,
+    ...changes,
   })
+
+const endingOf = (segments: Segment[]) => segments[segments.length - 1] as Extract<Segment, { kind: 'outro' }>
 
 describe('planVideo', () => {
   it('times each part from the recordings and the lesson’s own pace', () => {
@@ -40,11 +70,36 @@ describe('planVideo', () => {
     expect(segments[1].end).toBeCloseTo(9.1)
     // A step with no recording lasts as long as its colour takes.
     expect(segments[2].end).toBeCloseTo(11.6)
-    // The ending holds 2.6 s after Lina's closing line.
+    // The ending: her closing line from 0.3 s in, a breath, then her last words, and 1.6 s after she stops.
     expect(segments[3]).toMatchObject({ kind: 'outro' })
-    expect(total).toBeCloseTo(16.5)
-    expect(cues.map((cue) => cue.key)).toEqual(['intro', 'body', 'lesson-outro'])
+    expect(cues.map((cue) => cue.key)).toEqual(['intro', 'body', 'lesson-outro', 'signoff'])
     expect(cues[1].at).toBeCloseTo(5.2)
+    expect(cues[2].at).toBeCloseTo(11.9)
+    expect(cues[3].at).toBeCloseTo(11.9 + 2 + 0.45)
+    expect(total).toBeCloseTo(14.35 + 2.1 + 1.6)
+  })
+
+  it('puts Paper Coach in Lina’s place as she starts her last words, and captions her closing line until then', () => {
+    const { segments, captions } = plan()
+    const ending = endingOf(segments)
+    expect(ending.swapAt).toBeCloseTo(14.35 - 0.15)
+    const closing = captions.filter((caption) => caption.from >= ending.start)
+    expect(closing.map((caption) => caption.text).join(' ')).toBe('That’s a fish, all yours.')
+    expect(closing[0].from).toBeCloseTo(ending.start)
+    for (const caption of closing) expect(caption.to).toBeLessThanOrEqual(ending.swapAt)
+  })
+
+  it('without last words, puts Paper Coach in her place once she has finished, for long enough to read', () => {
+    const { segments, cues, total } = plan({ signoff: null })
+    expect(cues.map((cue) => cue.key)).toEqual(['intro', 'body', 'lesson-outro'])
+    expect(endingOf(segments).swapAt).toBeCloseTo(13.9 + 0.5)
+    expect(total).toBeCloseTo(14.4 + 2.6)
+  })
+
+  it('lands the stickers one after another as the ending begins, at most four', () => {
+    expect(endingOf(plan().segments).stickersAt).toEqual([12.2, 12.52, 12.84].map((at) => expect.closeTo(at, 5)))
+    expect(endingOf(plan({ stickers: 9 }).segments).stickersAt).toHaveLength(4)
+    expect(endingOf(plan({ stickers: 0 }).segments).stickersAt).toEqual([])
   })
 
   it('draws the whole lesson in the opening, never slower than its own pace', () => {
@@ -61,11 +116,41 @@ describe('planVideo', () => {
     expect(text.cta).toBe('Free &lt;b&gt;now&lt;/b&gt;')
   })
 
-  it('picks stills inside the video', () => {
+  it('picks stills inside the video, the closing one after the stickers land and before Paper Coach comes in', () => {
     const p = plan()
     const moments = stillMoments(p, tutorial)
-    expect(moments.map((moment) => moment.name)).toEqual(['opening', 'opening-drawing', 'line', 'colour', 'ending'])
+    expect(moments.map((moment) => moment.name)).toEqual(['opening', 'opening-drawing', 'line', 'colour', 'closing', 'ending'])
     for (const moment of moments) expect(moment.at).toBeLessThan(p.total)
+    const closing = moments.find((moment) => moment.name === 'closing')!.at
+    const ending = endingOf(p.segments)
+    expect(closing).toBeGreaterThan(ending.stickersAt[2] + 0.42)
+    expect(closing).toBeLessThan(ending.swapAt)
+  })
+})
+
+describe('defaultSignoff', () => {
+  it('names the app and where it is, and says only the download is free when Premium unlocks the lesson', () => {
+    expect(defaultSignoff(true)).toBe('Draw more with Paper Coach. It’s free on the App Store.')
+    expect(defaultSignoff(false)).toBe('Draw more with Paper Coach. It’s free to download on the App Store.')
+  })
+})
+
+describe('stickerLessons', () => {
+  const paths = [{ lessonIds: ['a', 'b', 'c', 'd', 'e', 'f'] }, { lessonIds: ['x', 'y'] }, { lessonIds: ['g', 'h'] }]
+  const all = () => true
+
+  it('takes the lessons after it in its path, wrapping round to the start', () => {
+    expect(stickerLessons(paths, 'c', all)).toEqual(['d', 'e', 'f', 'a'])
+    expect(stickerLessons(paths, 'f', all)).toEqual(['a', 'b', 'c', 'd'])
+  })
+
+  it('fills up with the first lessons of the other paths, never itself', () => {
+    expect(stickerLessons(paths, 'x', all)).toEqual(['y', 'a', 'g'])
+    expect(stickerLessons(paths, 'zebra', all)).toEqual(['a', 'x', 'g'])
+  })
+
+  it('leaves out lessons with no illustration to stick', () => {
+    expect(stickerLessons(paths, 'c', (id) => id !== 'd' && id !== 'f')).toEqual(['e', 'a', 'b', 'x'])
   })
 })
 

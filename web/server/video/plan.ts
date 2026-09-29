@@ -16,9 +16,11 @@ import { estimateWords, type TimedWord } from './words'
  * 2. **Every step** at the lesson's own pace: Lina starts its recording, the
  *    lines follow a moment later, and the step lasts as long as the longer of
  *    the two, plus a short beat.
- * 3. **The ending.** "Now draw it yourself" over the finished picture while
- *    Lina says her closing line, and Paper Coach with the call to action takes
- *    her place at the bottom.
+ * 3. **The ending.** "Now draw it yourself" over the finished picture, and
+ *    stickers of the lessons after it in its path land around the card while
+ *    Lina says her closing line, word by word as in the steps. Then her last
+ *    words ("Draw more with Paper Coach. It's free on the App Store.") as
+ *    Paper Coach with the call to action takes her place at the bottom.
  */
 
 /** One of Lina's recordings: the words she says, how long they take, and when she says each one. */
@@ -35,16 +37,20 @@ export interface VideoInput {
   clips: Record<string, Clip>
   /** The opening line. */
   intro: Clip
+  /** Lina's last words, after her closing line, saying where to find Paper Coach; none when null. */
+  signoff: Clip | null
   /** Where the lesson sits in the curriculum, for the opening's label; null outside every path. */
   place: { pathTitle: string; number: number; count: number } | null
   /** The line under Paper Coach at the end. */
   cta: string
+  /** How many stickers of other lessons land around the finished picture at the end. */
+  stickers: number
 }
 
 export type Segment =
   | { kind: 'intro'; start: number; end: number }
   | { kind: 'step'; index: number; start: number; end: number; drawAt: number }
-  | { kind: 'outro'; start: number; end: number; swapAt: number }
+  | { kind: 'outro'; start: number; end: number; swapAt: number; stickersAt: number[] }
 
 /**
  * A few of Lina's words on one line, on screen from `from` until `to`. Each
@@ -57,7 +63,7 @@ export interface Caption {
   words: { text: string; from: number; to: number }[]
 }
 
-/** A recording starting at `at` seconds: `intro`, a step id, or `lesson-outro`. */
+/** A recording starting at `at` seconds: `intro`, a step id, `lesson-outro` or `signoff`. */
 export interface Cue {
   key: string
   at: number
@@ -78,6 +84,11 @@ export const DEFAULT_CTA = 'Free on the App Store · link in bio'
 /** The line under Paper Coach when the App Store badge is beside it, which already says where. */
 export const DEFAULT_CTA_WITH_BADGE = 'Free · link in bio'
 
+/** The cue of Lina's last words, beside `intro` and the step ids. */
+export const SIGNOFF_ID = 'signoff'
+/** At most this many stickers land around the finished picture (`STICKER_SLOTS` in page.ts has a place for each). */
+export const MAX_STICKERS = 4
+
 /** Lina's opening line starts this long into the video. */
 const INTRO_VOICE_AT = 0.35
 /** Held after it, with the finished picture, before step 1. */
@@ -88,11 +99,20 @@ const LEAD = 0.25
 const DRAW_DELAY = 0.35
 /** Held after the longer of the recording and the lines. */
 const BEAT = 0.9
-/** The ending's recording starts this long in, and Paper Coach fades in over Lina from `SWAP_AT`. */
+/** Her closing line starts this long into the ending. */
 const OUTRO_VOICE_AT = 0.3
-const SWAP_AT = 0.15
-/** The call to action stays this long after Lina's last word. */
-const OUTRO_HOLD = 2.6
+/** A breath between her closing line and her last words. */
+const SIGNOFF_GAP = 0.45
+/** Paper Coach starts to fade in over Lina this long before she says where to find it. */
+const SWAP_LEAD = 0.15
+/** With no last words, Paper Coach takes her place this long after her closing line. */
+const SWAP_AFTER = 0.5
+/** The call to action stays at least this long, and the video ends this long after Lina's last word. */
+const CTA_MIN = 2.6
+const OUTRO_HOLD = 1.6
+/** The first sticker lands this long into the ending, and each next one this long after the one before. */
+const STICKERS_AT = 0.6
+const STICKER_EVERY = 0.32
 const HOOK = { hold: 0.8, drawFrom: 1.1, tail: 0.8 }
 
 export function planVideo(input: VideoInput): VideoPlan {
@@ -120,10 +140,21 @@ export function planVideo(input: VideoInput): VideoPlan {
     t = end
   })
 
+  // The ending: her closing line in her own row, word by word; then, as she says where to find it, Paper Coach in her place.
   const outro = clips[OUTRO_ID]
-  if (outro) cues.push({ key: OUTRO_ID, at: t + OUTRO_VOICE_AT })
-  const end = t + OUTRO_VOICE_AT + (outro?.durationS ?? 1) + OUTRO_HOLD
-  segments.push({ kind: 'outro', start: t, end, swapAt: t + SWAP_AT })
+  const closingAt = t + OUTRO_VOICE_AT
+  const closingEnd = closingAt + (outro ? spokenLength(outro) : 1)
+  const signoffAt = closingEnd + SIGNOFF_GAP
+  const swapAt = input.signoff ? signoffAt - SWAP_LEAD : closingEnd + SWAP_AFTER
+  if (outro) {
+    cues.push({ key: OUTRO_ID, at: closingAt })
+    captions.push(...captionsFor(outro, closingAt, t, swapAt))
+  }
+  if (input.signoff) cues.push({ key: SIGNOFF_ID, at: signoffAt })
+  const lastWord = input.signoff ? signoffAt + spokenLength(input.signoff) : closingEnd
+  const end = Math.max(swapAt + CTA_MIN, lastWord + OUTRO_HOLD)
+  const stickersAt = Array.from({ length: Math.min(MAX_STICKERS, input.stickers) }, (_, index) => t + STICKERS_AT + index * STICKER_EVERY)
+  segments.push({ kind: 'outro', start: t, end, swapAt, stickersAt })
 
   // As fast as it takes to finish with a moment to spare before step 1, and never slower than the lesson itself.
   const window = Math.max(1, introEnd - HOOK.tail - HOOK.drawFrom)
@@ -151,6 +182,12 @@ export function stepSeconds(step: Tutorial['steps'][number]): number {
   const strokes = step.strokes.reduce((sum, stroke) => sum + stroke.duration, 0)
   const fills = (step.fills ?? []).reduce((sum, fill) => sum + fill.duration, 0)
   return strokes + fills
+}
+
+/** When Lina stops talking in a recording: the end of her last word, before the silence a take trails off with. */
+function spokenLength(clip: Clip): number {
+  const last = clip.words?.[clip.words.length - 1]
+  return last ? Math.min(clip.durationS, last.end) : clip.durationS
 }
 
 /** A caption stays this long after Lina's last word of a recording, then the line clears while the drawing goes on. */
@@ -277,6 +314,30 @@ export function defaultIntro(title: string): string {
   return `Let’s draw ${article ? `${article} ` : ''}${subject}. Grab a pencil and draw along with me.`
 }
 
+/**
+ * Lina's default last words: the app's name, said aloud once, and where it is.
+ * A teacher's invitation rather than an advert, since children watch too: it
+ * never says "now" or "ask". A lesson Premium unlocks is shown in a free app,
+ * not a free lesson, so its video says so.
+ */
+export function defaultSignoff(free: boolean): string {
+  return `Draw more with Paper Coach. It’s free ${free ? '' : 'to download '}on the App Store.`
+}
+
+/**
+ * The lessons whose stickers land around the finished picture: the ones after
+ * it in its path, wrapping round to the path's start, then the first lessons
+ * of the other paths; only those `hasSticker` says have an illustration, and at
+ * most `MAX_STICKERS`. Outside every path, the first lessons of the paths.
+ */
+export function stickerLessons(paths: { lessonIds: string[] }[], lessonId: string, hasSticker: (id: string) => boolean): string[] {
+  const own = paths.find((entry) => entry.lessonIds.includes(lessonId))
+  const at = own ? own.lessonIds.indexOf(lessonId) : 0
+  const after = own ? [...own.lessonIds.slice(at + 1), ...own.lessonIds.slice(0, at)] : []
+  const firsts = paths.filter((entry) => entry !== own).map((entry) => entry.lessonIds[0])
+  return [...new Set([...after, ...firsts])].filter((id) => id && id !== lessonId && hasSticker(id)).slice(0, MAX_STICKERS)
+}
+
 /** A caption to post with the video: what it is, what the app does, and a few tags. */
 export function postCaption(tutorial: Tutorial, place: VideoInput['place']): string {
   const { article, subject } = subjectOf(tutorial.title)
@@ -294,18 +355,21 @@ export function postCaption(tutorial: Tutorial, place: VideoInput['place']): str
     .join('\n')
 }
 
-/** Moments worth looking at to check a render: the opening, a line being drawn, a colour going in, the ending. */
+/** Moments worth looking at to check a render: the opening, a line being drawn, a colour going in, Lina's closing line, the ending. */
 export function stillMoments(plan: VideoPlan, tutorial: Tutorial): { name: string; at: number }[] {
   const steps = plan.segments.filter((segment): segment is Extract<Segment, { kind: 'step' }> => segment.kind === 'step')
   const lineStep = steps.find((segment) => tutorial.steps[segment.index].strokes.length > 0)
   const colourStep = [...steps].reverse().find((segment) => (tutorial.steps[segment.index].fills ?? []).length > 0)
   const middle = (segment: Extract<Segment, { kind: 'step' }>) => segment.drawAt + stepSeconds(tutorial.steps[segment.index]) / 2
-  const outro = plan.segments[plan.segments.length - 1]
+  const outro = plan.segments[plan.segments.length - 1] as Extract<Segment, { kind: 'outro' }>
+  // Once the stickers have landed, and before Paper Coach takes Lina's place.
+  const landed = (outro.stickersAt[outro.stickersAt.length - 1] ?? outro.start + 0.5) + 0.7
   return [
     { name: 'opening', at: 0.2 },
     { name: 'opening-drawing', at: plan.hook.drawFrom + (plan.segments[0].end - plan.hook.drawFrom) / 2 },
     ...(lineStep ? [{ name: 'line', at: middle(lineStep) }] : []),
     ...(colourStep ? [{ name: 'colour', at: middle(colourStep) }] : []),
+    { name: 'closing', at: Math.min(landed, outro.swapAt - 0.05) },
     { name: 'ending', at: plan.total - 0.5 },
   ].map((moment) => ({ ...moment, at: Math.min(Math.max(0, moment.at), outro.end - 0.05) }))
 }

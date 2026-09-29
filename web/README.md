@@ -308,15 +308,24 @@ TikTok and Instagram Reels, from the lesson page's **Video** tab or `studio less
   the top and darker at the foot; the Paper Coach greens for a lesson in no path): the finished picture, then the whole lesson drawn fast while Lina says an opening
   line ("Let’s draw a rocket. Grab a pencil and draw along with me.", editable); every step at the
   lesson's own pace with its recording, her words beside her portrait (`LinaFace`, redrawn as SVG) two or
-  three at a time on one large line, the word she is saying in yellow; then "Now draw it yourself" while she says her closing line, and the app icon, Paper Coach,
-  Apple's App Store badge and the call to action ("Free · link in bio", editable) in her place.
+  three at a time on one large line, the word she is saying in yellow; then "Now draw it yourself" while she says her closing line, captioned the same way, and
+  stickers of the lessons after it in its path (`stickerLessons`; their illustrations from
+  `shared/Assets/References/`, die-cut as on the App Store screenshots) land round the card and float.
+  Last, her last words ("Draw more with Paper Coach. It’s free on the App Store.", "free to download"
+  for a lesson Premium unlocks, editable or none) as the app icon, Paper Coach, Apple's App Store badge
+  and the call to action ("Free · link in bio", editable) take her place. No confetti: the app's own
+  completion has none, so the ending shows only what the app and its screenshots show.
 - **What it uses.** The lesson as it stands in the workspace and the recordings the Voice section has,
-  so a draft can be filmed. Every step and the closing line must be recorded; the opening line is a
-  `say` take in the cast voice, cached like any other, and matched to the loudness of the step
-  recordings. The mix is normalised to -14 LUFS.
+  so a draft can be filmed. Every step and the closing line must be recorded; the opening line and the
+  last words are `say` takes in the cast voice, cached like any other, and matched to the loudness of
+  the step recordings. The mix is normalised to -14 LUFS.
 - **Where it sits.** Inside `SAFE` in `page.ts` (x 180–900, y 170–1450 of the frame), measured on a real
   Short on an iPhone: a phone taller than 9:16 crops about 55 px off each side, the buttons run down the
-  right from about y 1100, and the channel and title lines start near y 1550.
+  right from about y 1100, and the channel and title lines start near y 1550. The stickers reach out
+  over the card's sides into the margins, but never into the crop, the words or the buttons
+  (`STICKER_BOUNDS`, checked by `page.test.ts`), and never over the drawing: the page hit-tests the
+  finished picture under each sticker's place and takes the first of `stickerCandidates` (higher,
+  lower, then smaller towards the margin) that is clear, or leaves the sticker out.
 - **When she says each word.** `words.ts` has Whisper (`brew install openai-whisper`, `base.en`) listen
   to every recording once, lines its words up with the script's, and caches them by take in
   `.studio/videos/words/`; `plan.ts` cuts the words into lines (`lineChunks`). Without Whisper the timing

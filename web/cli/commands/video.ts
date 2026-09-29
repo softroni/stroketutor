@@ -48,18 +48,20 @@ export async function renderVideo(ctx: Context, request: VideoRequest): Promise<
 export const videoCommands: Command[] = [
   command(
     'lessons video',
-    'A vertical draw-along video of a lesson (1080 × 1920) for Shorts, TikTok and Reels: Lina’s opening line over the drawing coming together, every step with her recording, and Paper Coach with the App Store badge at the end.',
+    'A vertical draw-along video of a lesson (1080 × 1920) for Shorts, TikTok and Reels: Lina’s opening line over the drawing coming together, every step with her recording, her closing line as stickers of the path’s next lessons land, and Paper Coach with the App Store badge as she says her last words.',
     ['<id>'],
     {
       out: { type: 'string', description: 'Where to write the video (default .studio/videos/<id>.mp4). A caption to post with it goes beside it as .txt.', placeholder: 'file.mp4' },
       intro: { type: 'string', description: 'Lina’s opening line (default “Let’s draw a <lesson>. Grab a pencil and draw along with me.”). Spoken through the Studio in her cast voice, and reused once made.', placeholder: 'words' },
+      signoff: { type: 'string', description: 'Lina’s last words, after her closing line, as Paper Coach takes her place (default “Draw more with Paper Coach. It’s free on the App Store.”, “free to download” for a Premium lesson). Spoken like the opening line; "" for none.', placeholder: 'words' },
       cta: { type: 'string', description: 'The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge).', placeholder: 'words' },
-      stills: { type: 'string', description: 'Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, the ending), to check the look in seconds.', placeholder: 'dir' },
+      stills: { type: 'string', description: 'Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, Lina’s closing line, the ending), to check the look in seconds.', placeholder: 'dir' },
     },
     async (ctx, args) => {
       const result = await renderVideo(ctx, {
         lessonId: args.positionals[0],
         intro: stringValue(args.values, 'intro') ?? null,
+        signoff: stringValue(args.values, 'signoff') ?? null,
         cta: stringValue(args.values, 'cta') ?? null,
         out: stringValue(args.values, 'out') ?? null,
         stillsDir: stringValue(args.values, 'stills') ?? null,

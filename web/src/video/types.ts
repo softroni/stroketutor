@@ -41,6 +41,8 @@ export interface VideoDefaults {
   title: string
   /** Lina's default opening line. */
   intro: string
+  /** Her default last words, said as Paper Coach takes her place: its name, and that it is free on the App Store. */
+  signoff: string
   /** The default line under Paper Coach at the end. */
   cta: string
   /** True when the App Store badge is in the repository and goes beside the call to action. */

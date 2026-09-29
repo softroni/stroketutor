@@ -15,6 +15,64 @@ export interface PageAssets {
   icon: string
   /** Apple's "Download on the App Store" badge as SVG text, when the repository has it. */
   badge: string | null
+  /** Other lessons' illustrations as SVG text, stuck round the finished picture at the end, one per `STICKER_SLOTS` place. */
+  stickers: string[]
+}
+
+/** A sticker's place: its centre, the length of its illustration's longer side, and its turn, in the frame's pixels and degrees. */
+export interface StickerSlot {
+  x: number
+  y: number
+  size: number
+  turn: number
+}
+
+/**
+ * Where the stickers land, in the order they do: two down each side of the
+ * card, over its edges, as the App Store screenshots' stickers sit over the
+ * phone, so they frame the drawing. All inside `STICKER_BOUNDS`.
+ */
+export const STICKER_SLOTS: StickerSlot[] = [
+  { x: 152, y: 700, size: 180, turn: -10 },
+  { x: 928, y: 668, size: 166, turn: 9 },
+  { x: 160, y: 1128, size: 170, turn: 7 },
+  { x: 932, y: 912, size: 160, turn: -8 },
+]
+
+/**
+ * How far the stickers may reach: clear of the 55 px a taller phone crops off
+ * each side, the ending's title above the card, the bottom row, and the
+ * platforms' buttons down the right from about y 1100.
+ */
+export const STICKER_BOUNDS = { crop: 55, top: 520, bottom: SAFE.bottom - 132, buttons: { left: SAFE.right, top: 1100 } }
+
+/** Whether a sticker there stays inside `STICKER_BOUNDS`, turned and floating: up and down it reaches half its diagonal, and a little. */
+export function withinBounds(slot: StickerSlot): boolean {
+  const reach = (slot.size / 2) * Math.SQRT2 + 8
+  const { crop, top, bottom, buttons } = STICKER_BOUNDS
+  const clearOfButtons = slot.x + reach <= buttons.left || slot.y + reach < buttons.top
+  return slot.x - slot.size / 2 >= crop && slot.x + slot.size / 2 <= FRAME.width - crop && slot.y - reach > top && slot.y + reach < bottom && clearOfButtons
+}
+
+/**
+ * Where a sticker may go, best first, for when its slot would cover part of
+ * the drawing (a bus or a still life reaches the card's sides): the slot, then
+ * a little higher or lower, then smaller with its outer edge where it was, so
+ * it reaches less far over the card. Every one inside `STICKER_BOUNDS`. The
+ * page takes the first that covers nothing drawn and no other sticker, and
+ * leaves the sticker out when none does.
+ */
+export function stickerCandidates(slot: StickerSlot): StickerSlot[] {
+  const candidates: StickerSlot[] = []
+  for (const scale of [1, 0.85, 0.72]) {
+    const size = Math.round(slot.size * scale)
+    const x = slot.x + ((slot.size - size) / 2) * (slot.x < FRAME.width / 2 ? -1 : 1)
+    for (const dy of [0, -30, 30, -60, 60, -90, 90, -120, 120]) {
+      const candidate = { x, y: slot.y + dy, size, turn: slot.turn }
+      if (withinBounds(candidate)) candidates.push(candidate)
+    }
+  }
+  return candidates
 }
 
 /**
@@ -48,7 +106,8 @@ function mix(colour: string, towards: string, amount: number): string {
  * The look follows the App Store screenshots: Fredoka and the drawing on a
  * white card, over the color of the lesson's path (`backdrop`, the path's deep
  * shade in the app), so a video wears its path's color as the app does; the
- * Paper Coach greens outside every path. Everything sits inside the part of
+ * Paper Coach greens outside every path. At the end, other lessons land round
+ * the card as the screenshots' stickers do. Everything sits inside the part of
  * the frame the platforms leave alone (`SAFE`), measured on a real YouTube
  * Short on an iPhone: a phone taller than 9:16 crops about 55 px off each side,
  * the buttons run down the right from about y 1100, and the channel and title
@@ -56,7 +115,9 @@ function mix(colour: string, towards: string, amount: number): string {
  */
 export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAssets, backdrop?: string): string {
   const stops = backdrop ? backdropStops(backdrop) : GREENS
-  const data = { tutorial, plan, ink: normaliseColour(tutorial.style?.strokeColor) ?? '#141414' }
+  const stickers = assets.stickers.slice(0, STICKER_SLOTS.length)
+  const slots = STICKER_SLOTS.slice(0, stickers.length)
+  const data = { tutorial, plan, ink: normaliseColour(tutorial.style?.strokeColor) ?? '#141414', stickers, spots: slots.map(stickerCandidates) }
   const icon = `data:image/png;base64,${assets.icon}`
   const badge = assets.badge ? `data:image/svg+xml;base64,${Buffer.from(assets.badge).toString('base64')}` : null
   return `<!doctype html>
@@ -104,6 +165,11 @@ export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAsset
     background: #fff; border-radius: 40px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.30);
   }
   .card svg { position: absolute; inset: 30px; width: calc(100% - 60px); height: calc(100% - 60px); }
+  /* Other lessons as die-cut stickers, as on the App Store screenshots: a white rim, then a soft shadow under the whole. */
+  .sticker {
+    position: absolute; opacity: 0;
+    filter: drop-shadow(5px 0 0 #fff) drop-shadow(-5px 0 0 #fff) drop-shadow(0 5px 0 #fff) drop-shadow(0 -5px 0 #fff) drop-shadow(0 10px 14px rgba(0, 0, 0, 0.28));
+  }
   /* The bottom row: Lina and her words, and at the end Paper Coach and the call to action, in the same place. */
   .row {
     position: absolute; top: ${SAFE.bottom - 132}px; left: ${SAFE.left}px; width: ${SAFE.right - SAFE.left}px; height: 132px;
@@ -139,6 +205,7 @@ export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAsset
       <circle id="tip" r="0"></circle>
     </svg>
   </div>
+  ${slots.map((slot) => `<div class="sticker" style="left: ${slot.x}px; top: ${slot.y}px; width: ${slot.size}px; height: ${slot.size}px"></div>`).join('\n  ')}
   <div class="row" id="lina"><div class="face">${LINA_FACE}</div><div class="caption" id="caption"></div></div>
   <div class="row cta" id="cta">
     <img src="${icon}" alt="">
@@ -274,6 +341,79 @@ function captionHtml(caption, t) {
 }
 
 const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+// Past 1 and back, as a sticker pressed on overshoots a touch before it settles.
+const overshoot = (x) => { const c = 1.70158, y = clamp(x) - 1; return 1 + (c + 1) * y * y * y + c * y * y; };
+
+// The stickers of the ending. Each illustration goes in its own shadow root, so no style inside one reaches the page,
+// and is cropped to its drawing, so an illustration's longer side is its sticker's size however much margin it came with.
+// Then each takes the first of its places (stickerCandidates in page.ts) that covers nothing of the finished picture,
+// which the ghost still shows whole at this point, and no other sticker; with none, it is left out.
+const cardBox = document.querySelector('.card').getBoundingClientRect();
+const finished = $('ghost');
+function inkUnder(area) {
+  const x0 = Math.max(area.left, cardBox.left), x1 = Math.min(area.right, cardBox.right);
+  const y0 = Math.max(area.top, cardBox.top), y1 = Math.min(area.bottom, cardBox.bottom);
+  for (let y = y0; y <= y1; y += 5) {
+    for (let x = x0; x <= x1; x += 5) {
+      if (document.elementsFromPoint(x, y).some((node) => node !== finished && finished.contains(node))) return true;
+    }
+  }
+  return false;
+}
+const overlaps = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+// What a sticker covers as it turns and floats: its illustration's box turned by up to about 14°, with its rim and a margin.
+function footprint(spot, aspect) {
+  const w = spot.size * aspect.w, h = spot.size * aspect.h, cos = Math.cos(0.25), sin = Math.sin(0.25);
+  const hw = (w * cos + h * sin) / 2 + 12, hh = (w * sin + h * cos) / 2 + 12;
+  return { left: spot.x - hw, right: spot.x + hw, top: spot.y - hh, bottom: spot.y + hh };
+}
+const taken = [];
+const stickers = [];
+document.querySelectorAll('.sticker').forEach((node, i) => {
+  const root = node.attachShadow({ mode: 'open' });
+  root.innerHTML = D.stickers[i];
+  const art = root.querySelector('svg');
+  let aspect = { w: 1, h: 1 };
+  if (art) {
+    const box = art.getBBox();
+    art.removeAttribute('width');
+    art.removeAttribute('height');
+    art.style.cssText = 'display: block; width: 100%; height: 100%; overflow: visible';
+    if (box.width > 0 && box.height > 0) {
+      art.setAttribute('viewBox', [box.x, box.y, box.width, box.height].join(' '));
+      const long = Math.max(box.width, box.height);
+      aspect = { w: box.width / long, h: box.height / long };
+    }
+    art.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  }
+  const spot = D.spots[i].find((candidate) => {
+    const area = footprint(candidate, aspect);
+    return !taken.some((other) => overlaps(area, other)) && !inkUnder(area);
+  });
+  if (!spot) return node.remove();
+  taken.push(footprint(spot, aspect));
+  Object.assign(node.style, { left: spot.x + 'px', top: spot.y + 'px', width: spot.size + 'px', height: spot.size + 'px' });
+  stickers.push({ node, spot, period: 2.9 + ((stickers.length * 0.37) % 0.8) });
+});
+// Each lands with a small overshoot, turning into place, then floats a little at its own pace.
+function placeStickers(landing, t) {
+  return stickers.map((s, i) => {
+    const since = landing[i] === undefined ? -1 : t - landing[i];
+    if (since < 0) {
+      s.node.style.opacity = 0;
+      return '';
+    }
+    const p = clamp(since / 0.42);
+    const float = clamp((since - 0.3) / 0.8);
+    const phase = (since / s.period) * 2 * Math.PI;
+    const scale = 0.45 + 0.55 * overshoot(p);
+    const turn = s.spot.turn - 18 * (1 - ease(p)) + Math.sin(phase * 0.8 + 1) * 1.6 * float;
+    const rise = Math.sin(phase) * 7 * float;
+    s.node.style.opacity = clamp(since / 0.1);
+    s.node.style.transform = 'translate(-50%, -50%) translateY(' + rise.toFixed(2) + 'px) rotate(' + turn.toFixed(2) + 'deg) scale(' + scale.toFixed(4) + ')';
+    return s.node.style.transform + '|' + s.node.style.opacity;
+  });
+}
 
 window.renderAt = (t) => {
   const P = D.plan;
@@ -318,6 +458,7 @@ window.renderAt = (t) => {
   $('lina').style.opacity = 1 - swap;
   $('brand').style.opacity = 1 - swap;
   $('cta').style.opacity = swap;
+  const stuck = placeStickers(seg.kind === 'outro' ? seg.stickersAt : [], t);
 
   let active = null;
   els.forEach((e, i) => {
@@ -357,6 +498,7 @@ window.renderAt = (t) => {
     Math.round(bar * 1e5),
     Math.round(swap * 1e4),
     textState,
+    stuck,
   ]);
 };
 `

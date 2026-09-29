@@ -9,21 +9,25 @@ import { promisify } from 'node:util'
 import type { Browser, Page } from 'playwright'
 
 import { colorOfPath, PATH_SWATCHES } from '../../src/catalog/pathColors'
-import type { PathsFile } from '../../src/catalog/types'
+import type { LessonsFile, PathsFile } from '../../src/catalog/types'
 import type { Tutorial } from '../../src/schema/types'
 import { INTRO_ID, OUTRO_ID } from '../../src/voice/bookends'
 import type { VideoDefaults, VideoProgress, VideoResult, VideoStage } from '../../src/video/types'
 import type { StepNarration } from '../../src/voice/types'
 import { WriteRefused } from '../repoWriter'
+import { FREE_LESSONS_PER_PATH } from '../social/posts'
 import { lessonNarration, readTakeAudio, say, type VoiceDeps } from '../voice'
 
 import { FRAME, videoPage } from './page'
 import {
   DEFAULT_CTA,
   DEFAULT_CTA_WITH_BADGE,
+  SIGNOFF_ID,
   defaultIntro,
+  defaultSignoff,
   planVideo,
   postCaption,
+  stickerLessons,
   stillMoments,
   type Clip,
   type VideoInput,
@@ -38,15 +42,16 @@ import { alignWords, hearRecordings } from './words'
  *
  * It uses the lesson as it stands in the workspace and Lina's recordings as
  * the Voice section has them, so a draft can be filmed as well as a published
- * lesson. Her opening line is spoken through the Studio like any other take,
- * so the same words cost nothing the second time.
+ * lesson. Her opening line and her last words are spoken through the Studio
+ * like any other take, so the same words cost nothing the second time; the
+ * last words are the same for every free lesson, so they are made only once.
  *
  * Frames are screenshots of `page.ts` in headless Chromium, drawn at twice the
  * size and scaled down with Lanczos, so lines and text come out smooth. Whisper
  * says when Lina says each word, for the captions (`words.ts`). Her
- * recordings are placed at their moments, the opening line is matched to the
- * loudness of her step recordings, and the mix is normalised to -14 LUFS, where
- * the platforms play everything.
+ * recordings are placed at their moments, the two lines made here are matched
+ * to the loudness of her step recordings, and the mix is normalised to -14
+ * LUFS, where the platforms play everything.
  */
 
 export interface VideoDeps {
@@ -61,6 +66,8 @@ export interface VideoRequest {
   lessonId: string
   /** Lina's opening line; the default says "Let's draw …". */
   intro?: string | null
+  /** Lina's last words, as Paper Coach takes her place; the default says where to find it, and an empty string leaves them out. */
+  signoff?: string | null
   /** The line under Paper Coach at the end. */
   cta?: string | null
   /** The video file; `<videosDir>/<lesson>.mp4` when absent. The post caption goes beside it as `.txt`. */
@@ -77,6 +84,8 @@ const SCALE = 2
 const BADGE = 'docs/app-store/marketing/assets/badges/download-on-the-app-store-black.svg'
 const FONT = 'docs/app-store/marketing/assets/fonts/Fredoka.ttf'
 const ICON = 'PaperCoach/Assets.xcassets/AppIcon.appiconset/AppIcon.png'
+/** The lessons' illustrations, the App Store screenshots' stickers. */
+const REFERENCES = 'shared/Assets/References'
 
 export function videoFile(lessonId: string, deps: Pick<VideoDeps, 'videosDir'>): string {
   return path.join(deps.videosDir, `${lessonId}.mp4`)
@@ -88,15 +97,17 @@ export async function videoDefaults(lessonId: string, deps: VideoDeps): Promise<
   const badge = existsSync(path.join(deps.repoDir, BADGE))
   const file = videoFile(lessonId, deps)
   const info = await stat(file).catch(() => null)
+  const { place, free } = await placeOf(lessonId, deps)
   return {
     lessonId,
     title: tutorial.title,
     intro: defaultIntro(tutorial.title),
+    signoff: defaultSignoff(free),
     cta: badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA,
     badge,
     missing: missingSteps(narration.steps),
     stale: staleSteps(narration.steps),
-    caption: postCaption(tutorial, (await placeOf(lessonId, deps)).place),
+    caption: postCaption(tutorial, place),
     video: info ? { file, bytes: info.size, modifiedAt: info.mtime.toISOString() } : null,
   }
 }
@@ -131,19 +142,24 @@ export async function exportVideo(
   const work = await mkdtemp(path.join(tmpdir(), 'papercoach-video-'))
   try {
     // Every recording in a file ffmpeg can read, with its exact length.
-    report('voice', 'Recording Lina’s opening line')
+    report('voice', 'Recording Lina’s opening line and last words')
+    const { place, backdrop, free, stickers } = await placeOf(lessonId, deps)
     const introText = request.intro?.trim() || defaultIntro(tutorial.title)
+    const signoffText = request.signoff == null ? defaultSignoff(free) : request.signoff.trim()
     const voiceId = narration.castVoiceId ?? narration.steps.find((step) => step.take)?.take?.voiceId
     if (!voiceId) throw new WriteRefused(409, 'No voice is cast as Lina, so her opening line can’t be spoken. Cast one on the Voice page.')
-    let introTakeId: string
-    try {
-      introTakeId = (await say(voiceId, introText, {}, deps.voice)).id
-    } catch (error) {
-      throw new WriteRefused(
-        502,
-        `Lina’s opening line couldn’t be recorded: ${error instanceof Error ? error.message : String(error)} Her speech server runs on the creator’s Mac; once a line has been made, it is reused without it.`,
-      )
+    const speak = async (text: string, what: string) => {
+      try {
+        return (await say(voiceId, text, {}, deps.voice)).id
+      } catch (error) {
+        throw new WriteRefused(
+          502,
+          `${what} couldn’t be recorded: ${error instanceof Error ? error.message : String(error)} Her speech server runs on the creator’s Mac; once a line has been made, it is reused without it.`,
+        )
+      }
     }
+    const introTakeId = await speak(introText, 'Lina’s opening line')
+    const signoffTakeId = signoffText ? await speak(signoffText, 'Lina’s last words') : null
     stopIfAsked()
 
     const files = new Map<string, string>()
@@ -159,6 +175,7 @@ export async function exportVideo(
       return { text, durationS: await durationOf(file) }
     }
     let intro: Clip = await writeTake('intro', introTakeId, introText)
+    let signoff: Clip | null = signoffTakeId ? await writeTake(SIGNOFF_ID, signoffTakeId, signoffText) : null
     for (const step of narration.steps) {
       if (step.stepId === INTRO_ID || !step.take) continue
       clips[step.stepId] = await writeTake(step.stepId, step.take.id, step.take.text)
@@ -178,19 +195,21 @@ export async function exportVideo(
       return aligned ? { ...clip, words: aligned } : clip
     }
     intro = timed('intro', intro)
+    if (signoff) signoff = timed(SIGNOFF_ID, signoff)
     for (const key of Object.keys(clips)) clips[key] = timed(key, clips[key])
     const timingNote = estimated === 0 ? null : (problem ?? `The captions’ word timing is estimated for ${estimated} of Lina’s recordings, which Whisper heard differently.`)
     stopIfAsked()
 
     const badgePath = path.join(deps.repoDir, BADGE)
     const badge = existsSync(badgePath) ? await readFile(badgePath, 'utf8') : null
-    const { place, backdrop } = await placeOf(lessonId, deps)
-    const input: VideoInput = { tutorial, clips, intro, place, cta: request.cta?.trim() || (badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA) }
+    const cta = request.cta?.trim() || (badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA)
+    const input: VideoInput = { tutorial, clips, intro, signoff, place, cta, stickers: stickers.length }
     const plan = planVideo(input)
     const html = videoPage(tutorial, plan, {
       font: (await readAsset(deps.repoDir, FONT)).toString('base64'),
       icon: (await readAsset(deps.repoDir, ICON)).toString('base64'),
       badge,
+      stickers: await Promise.all(stickers.map((file) => readFile(file, 'utf8'))),
     }, backdrop)
     const pagePath = path.join(work, 'page.html')
     await writeFile(pagePath, html)
@@ -257,22 +276,46 @@ async function readTutorial(lessonId: string, deps: VideoDeps): Promise<Tutorial
   return JSON.parse(stored.text) as Tutorial
 }
 
+interface Place {
+  place: VideoInput['place']
+  /** The deep shade of the path's color; none outside every path. */
+  backdrop?: string
+  /** Whether the app gives the lesson away: one of the first lessons of its path. */
+  free: boolean
+  /** The illustrations of the lessons whose stickers land round it at the end, as files. */
+  stickers: string[]
+}
+
 /**
- * Which path the lesson is in and where, from the working curriculum, and the
- * backdrop that path's color gives the video; none outside every path.
+ * Which path the lesson is in and where, from the working curriculum, the
+ * backdrop that path's color gives the video, whether the lesson is free, and
+ * its stickers: the lessons `stickerLessons` picks among the published ones
+ * whose illustration is an SVG, which is what a die-cut sticker needs.
  */
-async function placeOf(lessonId: string, deps: VideoDeps): Promise<{ place: VideoInput['place']; backdrop?: string }> {
+async function placeOf(lessonId: string, deps: VideoDeps): Promise<Place> {
   try {
-    const { paths } = await deps.voice.workspace.readCatalog()
-    const file = JSON.parse(paths.text) as PathsFile
-    const found = file.paths.find((entry) => entry.lessonIds.includes(lessonId))
-    if (!found) return { place: null }
+    const catalog = await deps.voice.workspace.readCatalog()
+    const { paths } = JSON.parse(catalog.paths.text) as PathsFile
+    const { lessons } = JSON.parse(catalog.lessons.text) as LessonsFile
+    const art = new Map(
+      lessons.flatMap((lesson) => {
+        const file = lesson.reference?.file
+        const published = existsSync(path.join(deps.repoDir, 'shared', 'Tutorials', `${lesson.id}.json`))
+        return file?.endsWith('.svg') && published ? [[lesson.id, path.join(deps.repoDir, REFERENCES, file)] as const] : []
+      }),
+    )
+    const stickers = stickerLessons(paths, lessonId, (id) => existsSync(art.get(id) ?? '')).map((id) => art.get(id)!)
+    const found = paths.find((entry) => entry.lessonIds.includes(lessonId))
+    if (!found) return { place: null, free: false, stickers }
+    const index = found.lessonIds.indexOf(lessonId)
     return {
-      place: { pathTitle: found.title, number: found.lessonIds.indexOf(lessonId) + 1, count: found.lessonIds.length },
-      backdrop: PATH_SWATCHES[colorOfPath(file.paths, found.id)].deep,
+      place: { pathTitle: found.title, number: index + 1, count: found.lessonIds.length },
+      backdrop: PATH_SWATCHES[colorOfPath(paths, found.id)].deep,
+      free: index < FREE_LESSONS_PER_PATH,
+      stickers,
     }
   } catch {
-    return { place: null }
+    return { place: null, free: false, stickers: [] }
   }
 }
 
@@ -454,19 +497,20 @@ function startEncoder(file: string) {
 }
 
 /**
- * Lina's recordings, each at its moment. Her opening line is made fresh and
- * can come out louder or softer than the published steps, so it is brought to
- * their loudness first; then the whole mix goes to -14 LUFS with a -1.5 dB
- * true-peak ceiling.
+ * Lina's recordings, each at its moment. Her opening line and last words are
+ * made fresh and can come out louder or softer than the published steps, so
+ * they are brought to the steps' loudness first; then the whole mix goes to
+ * -14 LUFS with a -1.5 dB true-peak ceiling.
  */
 async function mixAudio(plan: VideoPlan, files: Map<string, string>, out: string) {
+  const fresh = ['intro', SIGNOFF_ID]
   const cues = plan.cues.filter((cue) => files.has(cue.key))
-  const steps = cues.filter((cue) => cue.key !== 'intro').slice(0, 4)
+  const steps = cues.filter((cue) => !fresh.includes(cue.key)).slice(0, 4)
   const target = steps.length > 0 ? average(await Promise.all(steps.map((cue) => loudnessOf(files.get(cue.key)!)))) : Number.NaN
   const gains = new Map<string, number>()
-  if (Number.isFinite(target) && files.has('intro')) {
-    const intro = await loudnessOf(files.get('intro')!)
-    if (Number.isFinite(intro)) gains.set('intro', Math.max(-12, Math.min(12, target - intro)))
+  for (const key of fresh.filter((name) => Number.isFinite(target) && files.has(name))) {
+    const loudness = await loudnessOf(files.get(key)!)
+    if (Number.isFinite(loudness)) gains.set(key, Math.max(-12, Math.min(12, target - loudness)))
   }
   const total = plan.total.toFixed(3)
   const inputs = cues.flatMap((cue) => ['-i', files.get(cue.key)!])

@@ -634,7 +634,15 @@ async function handleVideo(
       if (typeof value !== 'string' || value.length > 300) throw new WriteRefused(422, `${what} must be text of at most 300 characters.`)
       return value
     }
-    const job = videos.start({ lessonId: id, intro: words(body.intro, 'The opening line'), cta: words(body.cta, 'The call to action') }, async () => deps)
+    const job = videos.start(
+      {
+        lessonId: id,
+        intro: words(body.intro, 'The opening line'),
+        signoff: words(body.signoff, 'Lina’s last words'),
+        cta: words(body.cta, 'The call to action'),
+      },
+      async () => deps,
+    )
     send(res, 202, job)
     return true
   }

@@ -148,7 +148,7 @@ The table gives each command's shape and what matters; `reference.md` has every 
 | `summary <id>` | The lesson as ids: per step, each line (label, box, start, end, length) and colour (label, colour, box, area) |
 | `apply <id> --layer steps\|order\|instructions --plan <file> [--no-checkpoint]` | A plan by hand; see Plans below |
 | `render <id> [--sheet] [--columns 3] [--no-labels] [--size px] [--svg] [--out file]` | The finished drawing, or a contact sheet (one panel per step, this step's lines labelled). Default `<id>.png` / `<id>.sheet.png` in the cwd |
-| `video <id> [--intro words] [--cta words] [--out file.mp4] [--stills dir]` | A vertical draw-along video for Shorts, TikTok and Reels (see *Lesson videos*). Default `.studio/videos/<id>.mp4`, outside git, with the post caption beside it as `.txt` |
+| `video <id> [--intro words] [--signoff words] [--cta words] [--out file.mp4] [--stills dir]` | A vertical draw-along video for Shorts, TikTok and Reels (see *Lesson videos*). Default `.studio/videos/<id>.mp4`, outside git, with the post caption beside it as `.txt` |
 
 **Steps** (`steps …`; all edits take `--no-checkpoint`)
 
@@ -402,23 +402,35 @@ Instagram Reels, with the same code as the lesson page's **Video** tab (`web/ser
 2. **Every step** at the lesson's own pace, with Lina's recording for it, her words beside her portrait
    two or three at a time on one large line, the word she is saying in yellow, and the step's title and
    "Step n of N" at the top.
-3. **Ending.** "Now draw it yourself / One line at a time, at your own pace" at the top; the app
-   icon, "Paper Coach", Apple's "Download on the App Store" badge and the call to action (`--cta`,
-   default "Free · link in bio") take Lina's place at the bottom while she says her closing line.
+3. **Ending.** "Now draw it yourself / One line at a time, at your own pace" at the top, and up to
+   four stickers of the lessons after it in its path (their illustrations, die-cut as on the App Store
+   screenshots) land round the card and float while Lina says the lesson's closing line, captioned
+   like the steps. Then her last words (`--signoff`, default "Draw more with Paper Coach. It’s free on
+   the App Store.", "free to download" for a Premium lesson, `--signoff ""` for none), as the app icon,
+   "Paper Coach", Apple's "Download on the App Store" badge and the call to action (`--cta`, default
+   "Free · link in bio") take her place at the bottom. It ends 1.6 s after she stops.
 
 - It uses the lesson **as it stands in the workspace** and the **recordings the Voice section has**,
   so a draft can be filmed. Every step and the closing line must be recorded (`voice narrate <id>`);
-  it refuses and names the missing steps otherwise. The opening line is spoken through `voice say` in
-  the cast voice (needs her speech server the first time; cached after) and matched to the loudness
-  of the step recordings. The mix is normalised to -14 LUFS.
+  it refuses and names the missing steps otherwise. The opening line and the last words are spoken
+  through `voice say` in the cast voice (needs her speech server the first time; cached after, so the
+  last words are made once for every free lesson) and matched to the loudness of the step recordings.
+  The mix is normalised to -14 LUFS.
+- **No confetti.** The app's completion is calm by design ("no confetti, no dancing", docs/ios-design);
+  the stickers are the celebration, and they are real lessons. Keep what moves at the end to things
+  the app or its App Store screenshots really show.
 - **Word timing.** Whisper (`brew install openai-whisper`, model `base.en`) listens once to each
   recording for when each word is said; that is cached by take in `.studio/videos/words/`. Without it
   the timing is estimated from the words' lengths and the command warns.
 - **Safe area.** Everything sits inside `SAFE` in `page.ts` (x 180–900, y 170–1450), measured on a
   real Short on an iPhone, so the platforms' buttons, channel line and title never cover the drawing,
-  the words or the call to action. Keep new elements inside it.
-- **Look before you render.** `--stills <dir>` writes five PNGs (the opening, the fast drawing, a line
-  being drawn, a colour going in, the ending) in about ten seconds. Read them, then make the video.
+  the words or the call to action. Keep new elements inside it. The stickers are decoration and reach
+  out over the card's sides; `STICKER_BOUNDS` keeps them off the words and the buttons (`page.test.ts`
+  checks every place), and a sticker that would cover part of the drawing (a bus, a still life) moves
+  up or down or shrinks outwards (`stickerCandidates`), or is left out.
+- **Look before you render.** `--stills <dir>` writes six PNGs (the opening, the fast drawing, a line
+  being drawn, a colour going in, the closing line with the stickers, the ending) in about half a
+  minute. Read them, then make the video.
 - A render takes about a minute or two: every frame is drawn at 2160 × 3840 in headless Chromium and
   scaled down, split across up to four Chromiums (`STUDIO_VIDEO_WORKERS` overrides), and frames where
   nothing moved reuse the picture before them. Needs ffmpeg and Google Chrome (or Playwright's

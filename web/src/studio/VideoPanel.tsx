@@ -23,6 +23,7 @@ export function VideoPanel({ lessonId, unsaved }: VideoPanelProps) {
   const [state, setState] = useState<VideoLessonState | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [intro, setIntro] = useState('')
+  const [signoff, setSignoff] = useState('')
   const [cta, setCta] = useState('')
   const [job, setJob] = useState<VideoJob | null>(null)
   const [startError, setStartError] = useState<string | null>(null)
@@ -37,6 +38,7 @@ export function VideoPanel({ lessonId, unsaved }: VideoPanelProps) {
         setJob((current) => current ?? next.job)
         if (fillWords) {
           setIntro(next.intro)
+          setSignoff(next.signoff)
           setCta(next.cta)
         }
       } catch (error) {
@@ -72,13 +74,13 @@ export function VideoPanel({ lessonId, unsaved }: VideoPanelProps) {
 
   const busy = running(job)
   const blocked = state.missing.length > 0
-  const edited = intro !== state.intro || cta !== state.cta
+  const edited = intro !== state.intro || signoff !== state.signoff || cta !== state.cta
   const video = state.video
 
   const start = async () => {
     setStartError(null)
     try {
-      setJob(await exportLessonVideo(lessonId, { intro, cta }))
+      setJob(await exportLessonVideo(lessonId, { intro, signoff, cta }))
     } catch (error) {
       setStartError(error instanceof ApiError ? error.message : String(error))
     }
@@ -108,8 +110,9 @@ export function VideoPanel({ lessonId, unsaved }: VideoPanelProps) {
       <div className="st-video__intro">
         <h3>Video for Shorts, TikTok and Reels</h3>
         <p className="st-field__hint">
-          A 1080 × 1920 draw-along: Lina’s opening line over the drawing coming together, every step with her recording, then
-          Paper Coach{state.badge ? ' and the App Store badge' : ''}. It is made on the Studio’s Mac and kept in{' '}
+          A 1080 × 1920 draw-along: Lina’s opening line over the drawing coming together, every step with her recording, her
+          closing line as the path’s next lessons land round the picture as stickers, then Paper Coach
+          {state.badge ? ' and the App Store badge' : ''} as she says her last words. It is made on the Studio’s Mac and kept in{' '}
           <code>.studio/videos</code>, outside git.
         </p>
       </div>
@@ -143,6 +146,19 @@ export function VideoPanel({ lessonId, unsaved }: VideoPanelProps) {
       </label>
 
       <label className="st-field">
+        <span className="st-field__label">Lina’s last words</span>
+        <input
+          id="video-signoff"
+          className="st-field__input"
+          value={signoff}
+          maxLength={300}
+          disabled={busy}
+          onChange={(event) => setSignoff(event.target.value)}
+        />
+        <span className="st-field__hint">After her closing line, as Paper Coach takes her place. Spoken like the opening line; leave it empty for none.</span>
+      </label>
+
+      <label className="st-field">
         <span className="st-field__label">Under Paper Coach at the end</span>
         <input
           id="video-cta"
@@ -170,6 +186,7 @@ export function VideoPanel({ lessonId, unsaved }: VideoPanelProps) {
             className="st-link-button"
             onClick={() => {
               setIntro(state.intro)
+              setSignoff(state.signoff)
               setCta(state.cta)
             }}
           >

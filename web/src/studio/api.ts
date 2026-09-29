@@ -464,7 +464,8 @@ export function readLessonVideo(lessonId: string) {
 }
 
 /** Starts making the lesson's video on the Studio server; the answer is the job to watch. */
-export function exportLessonVideo(lessonId: string, words: { intro: string; cta: string }) {
+/** `signoff` empty leaves Lina's last words out. */
+export function exportLessonVideo(lessonId: string, words: { intro: string; signoff: string; cta: string }) {
   return call<VideoJob>(`/api/video/lessons/${encodeURIComponent(lessonId)}`, json('POST', words))
 }
 
