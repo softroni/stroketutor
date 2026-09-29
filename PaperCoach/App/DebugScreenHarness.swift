@@ -44,6 +44,7 @@ enum DebugScreenHarness {
         pendingCaptureReviewImage = nil
         pendingCaptureSavedPage = nil
         pendingCaptureOpensCornerEditor = false
+        pendingCaptureLook = .original
         raiseDeleteConfirmation = false
         raiseProfileSwitcher = false
         raisePINCreate = false
@@ -258,6 +259,15 @@ enum DebugScreenHarness {
             pendingCaptureReviewImage = pagePhoto(showsPage: false)
             app.cover = .capture(lessonId: treeLesson.id)
 
+        // The same sheet photographed in a dim room, as taken, in Bright and in
+        // Scan: the light choice under the review.
+        case "capture-review-dim", "capture-review-bright", "capture-review-scan":
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            pendingCaptureReviewImage = pagePhoto(isDim: true)
+            pendingCaptureLook = name == "capture-review-bright" ? .bright
+                : name == "capture-review-scan" ? .scan : .original
+            app.cover = .capture(lessonId: treeLesson.id)
+
         // The corner editor over the same sheet, raised once auto-crop has
         // answered so its handles start on the detected corners.
         case "capture-corners":
@@ -415,6 +425,9 @@ enum DebugScreenHarness {
     /// Set by `capture-corners`; `AppRoot` passes it to `CaptureFlow`, which raises
     /// its corner editor once auto-crop has answered.
     static var pendingCaptureOpensCornerEditor = false
+    /// Set by `capture-review-bright` and `-scan`; `AppRoot` passes it to
+    /// `CaptureFlow`.
+    static var pendingCaptureLook: PageLook = .original
     /// Set by `capture-saved`; `AppRoot` passes it to `CaptureFlow`.
     static var pendingCaptureSavedPage: SketchbookPage?
     /// Set by `entry-delete`; `SketchbookEntryView` reads and clears this once, in
@@ -695,9 +708,12 @@ enum DebugScreenHarness {
     /// with pencil lines, keystoned on a dark wood desk. It comes out the way the
     /// camera delivers a portrait photo, a landscape sensor buffer tagged `.right`,
     /// so the harness exercises the orientation fix as well as detection.
-    /// `showsPage: false` is the bare desk, for the "nothing detected" state.
+    /// `showsPage: false` is the bare desk, for the "nothing detected" state;
+    /// `isDim` the whole shot grey-blue and falling into shadow toward the bottom
+    /// right, as a room lit by one lamp gives it.
     static func pagePhoto(size: CGSize = CGSize(width: 1200, height: 1600),
-                          showsPage: Bool = true) -> UIImage {
+                          showsPage: Bool = true,
+                          isDim: Bool = false) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = true
@@ -765,6 +781,17 @@ enum DebugScreenHarness {
             }
             pencil(sun)
             cg.restoreGState()
+
+            guard isDim else { return }
+            cg.setBlendMode(.multiply)
+            UIColor(red: 0.68, green: 0.72, blue: 0.80, alpha: 1).setFill()
+            cg.fill(CGRect(origin: .zero, size: size))
+            let shade = [UIColor.white.cgColor, UIColor(white: 0.72, alpha: 1).cgColor]
+            if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                        colors: shade as CFArray, locations: [0, 1]) {
+                cg.drawLinearGradient(gradient, start: .zero,
+                                      end: CGPoint(x: size.width, y: size.height), options: [])
+            }
         }
         return sensorOriented(upright)
     }

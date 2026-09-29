@@ -209,7 +209,8 @@ struct AppRoot: View {
                            fromSketchbook: fromSketchbook,
                            debugReviewImage: DebugScreenHarness.pendingCaptureReviewImage,
                            debugSavedPage: DebugScreenHarness.pendingCaptureSavedPage,
-                           debugOpensCornerEditor: DebugScreenHarness.pendingCaptureOpensCornerEditor)
+                           debugOpensCornerEditor: DebugScreenHarness.pendingCaptureOpensCornerEditor,
+                           debugLook: DebugScreenHarness.pendingCaptureLook)
                 #else
                 CaptureFlow(lesson: lesson, fromSketchbook: fromSketchbook)
                 #endif

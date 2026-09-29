@@ -26,8 +26,8 @@ struct CaptureFlow: View {
     }
 
     /// One photograph on the review stage: the shot as taken, the corners of the
-    /// paper once auto-crop or the learner has set them, and the picture "Your
-    /// page" shows, which is what Keep saves. Retake throws all of it away.
+    /// paper once auto-crop or the learner has set them, the page straightened
+    /// from them, and that page in each look. Retake throws all of it away.
     private struct ReviewPhoto: Equatable {
         /// Tells one photo from the next, so a slow auto-crop never lands on a
         /// photo taken after it started.
@@ -38,11 +38,23 @@ struct CaptureFlow: View {
         /// The corners the shown page was straightened from; nil while it is the
         /// photo as taken.
         var corners: PageCorners?
-        var displayed: UIImage
+        /// The page as straightened, in no look: what the looks are made from.
+        var displayed: UIImage {
+            didSet { looks = [:] }
+        }
+        /// `displayed` in Bright and Scan, screen-sized; empty until they are
+        /// made, and again whenever `displayed` changes.
+        var looks: [PageLook: UIImage] = [:]
 
         init(original: UIImage) {
             self.original = original
             self.displayed = original
+        }
+
+        /// What "Your page" shows: the page in `look`, or as it is until that
+        /// look is ready.
+        func shown(in look: PageLook) -> UIImage {
+            looks[look] ?? displayed
         }
     }
 
@@ -55,6 +67,9 @@ struct CaptureFlow: View {
 
     private var sketchbook: SketchbookStore { owner?.sketchbook ?? app.sketchbook }
     @State private var isEditingCorners = false
+    /// The look Keep saves the page in. Original to start, and kept through a
+    /// retake: a dim room is still dim for the next photo.
+    @State private var look: PageLook = .original
     /// Screenshot harness only: raise the corner editor once auto-crop answers.
     @State private var opensCornerEditorAfterAutoCrop = false
 
@@ -70,17 +85,20 @@ struct CaptureFlow: View {
     /// picker, which `xcrun simctl` cannot drive. At most one of the two debug
     /// images should be passed; passing neither behaves exactly like the plain
     /// initialiser above. `debugOpensCornerEditor` raises the corner editor over
-    /// the review once auto-crop has answered.
+    /// the review once auto-crop has answered; `debugLook` is the look review
+    /// starts on.
     init(lesson: Lesson,
          fromSketchbook: Bool = false,
          debugReviewImage: UIImage?,
          debugSavedPage: SketchbookPage?,
-         debugOpensCornerEditor: Bool = false) {
+         debugOpensCornerEditor: Bool = false,
+         debugLook: PageLook = .original) {
         self.lesson = lesson
         self.fromSketchbook = fromSketchbook
         if let debugReviewImage {
             _stage = State(initialValue: .review(ReviewPhoto(original: debugReviewImage)))
             _opensCornerEditorAfterAutoCrop = State(initialValue: debugOpensCornerEditor)
+            _look = State(initialValue: debugLook)
         } else if let debugSavedPage {
             _stage = State(initialValue: .saved(debugSavedPage))
         }
@@ -338,6 +356,19 @@ struct CaptureFlow: View {
                     }
                     .padding(.top, 4)
 
+                    // The light, for a page photographed somewhere dim: the choice
+                    // changes "Your page" as it is made.
+                    SegmentedPicker(options: PageLook.allCases, title: \.title, selection: $look)
+                        .padding(.top, 4)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityLabel("Light")
+
+                    Text(look.note)
+                        .textRole(.subhead)
+                        .foregroundStyle(Theme.ink55)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+
                     // The one edit: four corners, which crop and straighten together.
                     // "Fix corners" once there are corners to fix, found or placed;
                     // "Crop" while the page is still the photo as taken.
@@ -346,16 +377,8 @@ struct CaptureFlow: View {
                             .scaledFont(17, .heavy)
                     }
                     .buttonStyle(.soft)
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                     .accessibilityHint("Move the corners onto the edges of your paper")
-
-                    // The mockup's footnote: straightening moves pixels, it never
-                    // recolors them.
-                    Text("No filters and no touch-ups.")
-                        .textRole(.subhead)
-                        .foregroundStyle(Theme.ink55)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
 
                     if didFailToSave {
                         Text("That page could not be saved. Try Keep again.")
@@ -376,9 +399,9 @@ struct CaptureFlow: View {
                 }
                 .buttonStyle(.secondary)
 
-                // Whatever "Your page" shows right now: Keep never waits on
-                // auto-crop.
-                Button { keep(photo.displayed) } label: {
+                // Whatever "Your page" shows right now, in its look: Keep never
+                // waits on auto-crop.
+                Button { keep(photo) } label: {
                     Label("Keep", systemImage: "checkmark")
                 }
                 .buttonStyle(.primary)
@@ -390,6 +413,8 @@ struct CaptureFlow: View {
         // Once per photo. The shot shows as taken until this answers, and stays
         // that way if it finds nothing.
         .task(id: photo.id) { await autoCrop(photo) }
+        // Once per page: the photo as taken, then again once it is straightened.
+        .task(id: ObjectIdentifier(photo.displayed)) { await makeLooks(for: photo) }
         .fullScreenCover(isPresented: $isEditingCorners) {
             CornerEditor(image: photo.original,
                          corners: photo.corners,
@@ -405,11 +430,12 @@ struct CaptureFlow: View {
     @ViewBuilder
     private func reviewPair(_ photo: ReviewPhoto) -> some View {
         VStack(spacing: 8) {
-            SketchbookShot(image: photo.displayed)
+            SketchbookShot(image: photo.shown(in: look))
                 .accessibilityElement()
                 .accessibilityLabel(photo.corners == nil
                                     ? "The photo you just took"
                                     : "The photo you just took, cropped to your paper")
+                .accessibilityValue(look == .original ? "" : look.title)
                 .accessibilityAddTraits(.isImage)
             Text("Your page")
                 .textRole(.footnote)
@@ -565,6 +591,20 @@ struct CaptureFlow: View {
         AccessibilityNotification.Announcement("Page detected").post()
     }
 
+    /// The page in Bright and Scan, for the page review is showing when they are
+    /// ready.
+    private func makeLooks(for photo: ReviewPhoto) async {
+        let page = photo.displayed
+        let looks = await PageLook.previews(of: page)
+        guard !Task.isCancelled,
+              case var .review(current) = stage,
+              current.id == photo.id,
+              current.displayed === page
+        else { return }
+        current.looks = looks
+        stage = .review(current)
+    }
+
     /// The corner editor's answer, for the photo it was opened on.
     private func applyCorners(_ corners: PageCorners, page: UIImage, to photoId: UUID) {
         guard case var .review(current) = stage, current.id == photoId else { return }
@@ -599,19 +639,22 @@ struct CaptureFlow: View {
         }
     }
 
-    /// Writes the page, then the confirmation. The date is the lesson's own
-    /// completion date, so the sketchbook and the completion chip agree.
+    /// Writes the page in its look, then the confirmation. The date is the lesson's
+    /// own completion date, so the sketchbook and the completion chip agree.
     ///
-    /// The JPEG is written off the main thread into the sketchbook this flow opened
-    /// with (`owner`), so the page belongs to the learner who took it however the save
-    /// and a profile switch interleave.
-    private func keep(_ image: UIImage) {
+    /// The look is made again at the photo's full size, falling back to the
+    /// screen-sized one review showed. The JPEG is written off the main thread
+    /// into the sketchbook this flow opened with (`owner`), so the page belongs to
+    /// the learner who took it however the save and a profile switch interleave.
+    private func keep(_ photo: ReviewPhoto) {
         guard !isSaving else { return }
         let stores = owner ?? app.activeStores
         let completedAt = stores.progress.progress(for: lesson.id)?.completedAt ?? Date()
         let alsoSaveToPhotos = app.settings.alsoSaveToPhotos
+        let look = look
         isSaving = true
         Task {
+            let image = await look.rendered(photo.displayed) ?? photo.shown(in: look)
             let page = await stores.sketchbook.addPage(image: image,
                                                        lessonId: lesson.id,
                                                        pathId: lesson.pathId,

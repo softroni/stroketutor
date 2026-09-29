@@ -192,9 +192,10 @@ struct PageCorners: Equatable, Sendable {
 }
 
 /// Finds the paper in a photograph and straightens it. Two jobs, both off the main
-/// thread, and neither ever changes a color: no enhancement, no filters (`sk-capture`
-/// notes: "Only two edits exist … No filters."). A failure here only means the
-/// learner keeps the photo as it was taken; Keep never waits on it.
+/// thread, and neither ever changes a color: straightening moves pixels and never
+/// recolors them. (The learner's choice of light is `PageLook`, applied after.) A
+/// failure here only means the learner keeps the photo as it was taken; Keep never
+/// waits on it.
 enum PageCropper {
 
     /// `sk-capture` notes: "Auto-crop (VNDetectDocumentSegmentationRequest, 300 ms
@@ -349,6 +350,12 @@ enum PageCropper {
         filter.crop = true
 
         guard let output = filter.outputImage else { return nil }
+        return render(output, inColorSpaceOf: image)
+    }
+
+    /// `output` rendered upright and tagged with `image`'s own color space: the
+    /// values Core Image computed are written as they are, never converted.
+    static func render(_ output: CIImage, inColorSpaceOf image: UIImage) -> UIImage? {
         let rect = output.extent.integral
         guard !rect.isInfinite, rect.width >= 1, rect.height >= 1 else { return nil }
 
@@ -382,7 +389,7 @@ enum PageCropper {
     }
 
     /// No working color space: pixel values pass through untouched.
-    private static let context = CIContext(options: [.workingColorSpace: NSNull(),
+    static let context = CIContext(options: [.workingColorSpace: NSNull(),
                                                      .cacheIntermediates: false])
 }
 
