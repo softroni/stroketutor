@@ -5,7 +5,8 @@ import UIKit
 /// with the lesson it was drawn from in color in the corner, then the lesson's name,
 /// one short line ("Plants · Sep 22"), the gold "Drawn" chip, a note, the green way to
 /// draw it again, and the quiet actions. Delete always asks. Tapping the photograph
-/// shows it full screen (`SketchbookPhotoViewer`).
+/// shows it full screen (`SketchbookPhotoViewer`); Edit on its corner makes it again
+/// from the photo as taken (`SketchbookPageEditor`).
 ///
 /// Plan §32: "Associate the image with lesson, path, and completion date." The only
 /// forward action is to draw it again; the rest is quiet.
@@ -20,6 +21,7 @@ struct SketchbookEntryView: View {
     @State private var isConfirmingDelete = false
     /// The photograph at full size, while it is shown full screen.
     @State private var fullScreenPhoto: FullScreenPhoto?
+    @State private var isEditingPhoto = false
     /// A JPEG in the temporary directory, written so the share sheet hands over a
     /// real file rather than a re-rendered bitmap.
     @State private var shareURL: URL?
@@ -55,13 +57,19 @@ struct SketchbookEntryView: View {
         .background(Theme.page.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         #if DEBUG
-        // Screenshot-harness only: `DebugScreenHarness`'s `entry-delete` case sets
-        // this flag because the confirmation alert is behind this view's own
-        // private `@State`, which a launch argument cannot reach directly.
+        // Screenshot-harness only: `DebugScreenHarness`'s `entry-delete` and
+        // `entry-edit` cases set these flags because the confirmation alert and the
+        // editor are behind this view's own private `@State`, which a launch
+        // argument cannot reach directly.
         .onAppear {
-            guard DebugScreenHarness.raiseDeleteConfirmation else { return }
-            DebugScreenHarness.raiseDeleteConfirmation = false
-            isConfirmingDelete = true
+            if DebugScreenHarness.raiseDeleteConfirmation {
+                DebugScreenHarness.raiseDeleteConfirmation = false
+                isConfirmingDelete = true
+            }
+            if DebugScreenHarness.raisePageEditor {
+                DebugScreenHarness.raisePageEditor = false
+                isEditingPhoto = true
+            }
         }
         #endif
     }
@@ -101,6 +109,9 @@ struct SketchbookEntryView: View {
             guard !didLoadNote else { return }
             note = page.note ?? ""
             didLoadNote = true
+        }
+        // Again after an edit, which gives the page a new picture.
+        .task(id: page.imageFile) {
             shareURL = makeShareFile(for: page)
         }
         .onChange(of: isEditingNote) { _, editing in
@@ -110,6 +121,12 @@ struct SketchbookEntryView: View {
         .fullScreenCover(item: $fullScreenPhoto) { photo in
             SketchbookPhotoViewer(image: photo.image, accessibilityLabel: photo.label)
                 .presentationBackground(.clear)
+        }
+        .fullScreenCover(isPresented: $isEditingPhoto) {
+            SketchbookPageEditor(page: page,
+                                 sketchbook: app.sketchbook,
+                                 title: shareTitle(page),
+                                 onClose: { isEditingPhoto = false })
         }
         .alert("Delete this page?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {
@@ -156,12 +173,37 @@ struct SketchbookEntryView: View {
                     .accessibilityAddTraits(.isImage)
             }
         }
+            .overlay(alignment: .topTrailing) {
+                if image != nil { editButton }
+            }
             .padding(12)
             .background(shape.fill(tint?.soft ?? Theme.surface))
             .background(alignment: .bottom) {
                 shape.fill(tint?.edge ?? Theme.line).offset(y: 5)
             }
             .padding(.bottom, 5)
+    }
+
+    /// Edit, on the photograph's corner where the eye already is: the light and
+    /// the corners chosen again (`SketchbookPageEditor`).
+    private var editButton: some View {
+        Button {
+            isEditingPhoto = true
+        } label: {
+            Label("Edit", systemImage: "slider.horizontal.3")
+                .scaledFont(15, .bold)
+                .foregroundStyle(Theme.ink)
+                .padding(.horizontal, 14)
+                .frame(minHeight: 36)
+                .background(Capsule().fill(Theme.card))
+                .shadow(color: .black.opacity(0.16), radius: 3, y: 1)
+                .frame(minHeight: Theme.minimumTapTarget)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 4)
+        .padding(.trailing, 10)
+        .accessibilityHint("Change the light or the corners of this photo")
     }
 
     /// Title, one short line, and the gold "Drawn" chip. Above the accessibility

@@ -554,7 +554,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
         <li>Auto-crop (<code>VNDetectDocumentSegmentationRequest</code>, 300 ms budget, confidence &gt; 0.8) finds the paper's four corners and "Your page" shows it straightened with <code>CIPerspectiveCorrection</code>; until then, and when nothing is found, it shows the photo as taken. It never blocks saving: Keep saves whatever "Your page" shows.</li>
         <li>One edit: <b>four-corner perspective correction</b>, which crops and straightens in one gesture (a phone photo of paper is keystoned, not rotated, so a ± 15° straighten could not square it). The corner editor opens full screen on the photo as taken: four round handles (24 pt dot, 48 pt hit target) on the detected corners, or inset 8 % when none were found; the quad outlined in green, the rest dimmed; a loupe above the dragged handle. Handles stay on the photo and stop where the quad would stop being convex. Cancel · Reset (to the detected corners) · Done (corrects off the main thread).</li>
         <li><b>The light</b> (added 2026-09-28, at the creator's request: photos taken indoors came out grey). A dim or tinted room turns white paper grey or blue and dulls the crayon. <b>Original</b> is the photo as taken and the default. <b>Bright</b> reads the paper's color where it is lit best and lifts the whole photo so that paper is nearly white and neutral, keeping the lines dark. <b>Scan</b> does the same cell by cell, so a shadow across the sheet is lifted too, then clips the paper to white and makes the colors bolder. Only light is corrected: nothing is drawn, smoothed or sharpened, so the record is still the page. The choice changes "Your page" at once, works on the straightened page, and is kept through Retake; Keep saves the page in it at full size (<code>PageLook</code>).</li>
-        <li>Storage: <code>Application Support/Sketchbook/&lt;uuid&gt;.jpg</code> (long edge 2048, q 0.8, GPS stripped) plus a 400 px thumb; SwiftData record stores the file <i>name</i>. Not the Photos library by default; "Also save to Photos" is a Settings opt-in. Included in device backup.</li>
+        <li>Storage: <code>Application Support/Sketchbook/&lt;uuid&gt;.jpg</code> (long edge 2048, q 0.8, GPS stripped) plus a 400 px thumb; a page straightened or in a look also keeps the photo as taken (<code>&lt;uuid&gt;-original.jpg</code>, same size) with its corners and look, for <code>sk-edit</code>; SwiftData record stores the file <i>name</i>. Not the Photos library by default; "Also save to Photos" is a Settings opt-in. Included in device backup.</li>
       </ul>
       <h4>What changed in v3</h4>
       <ul>
@@ -753,7 +753,10 @@ progressStore.complete(lesson)                // before presenting; synchronous,
             <button class="nav-btn end" type="button" aria-label="Share" data-goto="sk-entry"><svg><use href="#i-share"/></svg></button>
           </div>
           <div class="screen-body screen-body--scroll stack" style="padding-bottom:46px">
-            <div class="sk-shot photo photo--warm" role="img" aria-label="Your Palm Tree, 28 August"><div class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-palm"/></svg></div></div>
+            <div style="position:relative">
+              <div class="sk-shot photo photo--warm" role="img" aria-label="Your Palm Tree, 28 August"><div class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-palm"/></svg></div></div>
+              <button type="button" style="position:absolute;top:10px;right:10px;min-height:36px;padding:0 14px;border:0;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.16);font:700 15px var(--font);color:var(--ink)">Edit</button>
+            </div>
             <div class="row row--between row--top">
               <div class="stack-4 grow">
                 <h1 class="t-title2">Palm Tree</h1>
@@ -821,16 +824,17 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       <h4>Layout</h4>
       <ul>
         <li>Nav bar: back to the sketchbook, title "Sketchbook", share at the trailing edge (44 pt targets). Pushed from the tab; the tab bar hides for the detail.</li>
-        <li>Scrolling body: the <code>.sk-shot</code> full width (353 × 470 pt), then title 24/800, "Trees · Lesson 1 of 8 · 16 steps" 15/600, the full localised date 13/600, and the <code>chip--gold</code> "Drawn" on the right.</li>
+        <li>Scrolling body: the <code>.sk-shot</code> full width (353 × 470 pt) with a white "Edit" pill (36 pt, 44 pt target) on its top-right corner, then title 24/800, "Trees · Lesson 1 of 8 · 16 steps" 15/600, the full localised date 13/600, and the <code>chip--gold</code> "Drawn" on the right.</li>
         <li>Note field: a 60 pt <code>--surface</code> row, 17/500, pen icon, placeholder at 40 % ink. Multi-line, grows with content; saves on end editing.</li>
         <li>"Draw it again" is the 60 pt secondary (not green: the learner already finished this). Share and Delete are 48 pt text buttons in one row, Delete in <code>--danger</code>.</li>
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
         <li><b>default</b> — tap or pinch the photo → full-screen zoomable viewer, swipe down to dismiss. "Draw it again" → <code>hp-preview</code> for this lesson.</li>
+        <li><b>Edit</b> (added 2026-09-28, at the creator's request) → <code>sk-edit</code>, full screen: the page large, the light (Original · Bright · Scan, as on capture review) and "Fix corners", then Cancel · Save. It works from the photo as taken, so the light and the corners can be changed any number of times without the page wearing out. Save writes the new picture under a new file name and removes the old one; the note, date and lesson stay. The Photos copy, if one was saved, is not touched (the app can only add to Photos).</li>
         <li><b>Share</b> (row or nav) → system share sheet with the 2048 px JPEG: a private export to Messages, Mail, Files or AirDrop. No in-app sharing, no link, no post.</li>
         <li><b>delete</b> — always confirmed with a destructive alert whose body says what survives: the photo and note go, the <code>LessonProgress</code> row stays; deleting never re-locks a lesson. Then <code>modelContext.delete(entry)</code>, remove both files, pop to <code>sk-book</code>. Cheap softening if wanted: a 10 s Undo toast before <code>removeItem</code>.</li>
-        <li>Data: one <code>SketchbookEntry</code> (id, lessonId, pathId, completedAt, imageFile, note). "Lesson 1 of 8" from <code>paths[pathId].lessonIds.firstIndex</code>; drop "of 8" if the lesson left the path.</li>
+        <li>Data: one <code>SketchbookEntry</code> (id, lessonId, pathId, completedAt, imageFile, originalFile, corners, look, note). A page kept before editing existed has no original: its first edit keeps its picture as the original, byte for byte. "Lesson 1 of 8" from <code>paths[pathId].lessonIds.firstIndex</code>; drop "of 8" if the lesson left the path.</li>
       </ul>
       <h4>What changed in v3</h4>
       <ul>
@@ -842,6 +846,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
 <pre>SketchbookEntryView(entry:)
  └ ScrollView { PhotoCard(url:); MetaBlock; NoteField($entry.note)
                BigSecondaryButton("Draw it again"); HStack { ShareLink; Button(role: .destructive) } }
+   .fullScreenCover { SketchbookPageEditor(page:) }   // sk-edit: LightPicker, CornerEditor, Cancel · Save
    .toolbar { ShareLink(item: url) }
    .alert("Delete this page?", isPresented: $confirmingDelete, role: .destructive) { … }</pre>
       <h4>Accessibility</h4>

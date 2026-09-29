@@ -10,7 +10,7 @@ import simd
 /// Only the light is corrected. Nothing is drawn, smoothed or sharpened, so the
 /// page is still the learner's page (plan §32: "the record is the page, not a
 /// product shot"). Original stays the default.
-enum PageLook: String, CaseIterable, Identifiable, Sendable {
+enum PageLook: String, CaseIterable, Codable, Identifiable, Sendable {
     /// The photo as taken.
     case original
     /// The paper a soft white and the colors true: the light's tint and dimness

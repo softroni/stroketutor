@@ -9,8 +9,9 @@ import UIKit
 ///
 /// A phone photo of a sheet on a desk is keystoned, not rotated, so four corners fix
 /// the crop and the straightening in one gesture (`sk-capture` notes). Everything
-/// here is pure geometry, so it is tested without Vision or a screen.
-struct PageCorners: Equatable, Sendable {
+/// here is pure geometry, so it is tested without Vision or a screen. A kept page
+/// stores its corners, so it can be straightened again when it is edited.
+struct PageCorners: Equatable, Hashable, Codable, Sendable {
     var topLeft: CGPoint
     var topRight: CGPoint
     var bottomRight: CGPoint
@@ -53,6 +54,13 @@ struct PageCorners: Equatable, Sendable {
 
     /// Clockwise on screen, starting at the top left.
     var points: [CGPoint] { [topLeft, topRight, bottomRight, bottomLeft] }
+
+    func hash(into hasher: inout Hasher) {
+        for point in points {
+            hasher.combine(point.x)
+            hasher.combine(point.y)
+        }
+    }
 
     /// A rectangle `fraction` in from every edge of the photo: where the editor's
     /// handles start when nothing was detected, close enough to a page held up to

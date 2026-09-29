@@ -116,6 +116,111 @@ final class SketchbookStoreTests: XCTestCase {
         XCTAssertEqual(SketchbookStore(baseDirectory: directory).count, 1)
     }
 
+    // MARK: - Editing
+
+    /// A sketchbook written before pages could be edited still reads: each page is
+    /// its own photo as taken, in no look.
+    func testPagesKeptBeforeEditingStillRead() throws {
+        let folder = directory.appendingPathComponent("Sketchbook", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let id = UUID()
+        let json = """
+        [{"id":"\(id.uuidString)","lessonId":"palm-tree-4","pathId":"trees",\
+        "completedAt":"2026-09-20T10:00:00Z","imageFile":"\(id.uuidString).jpg","note":"Windy"}]
+        """
+        try Data(json.utf8).write(to: folder.appendingPathComponent("pages.json"))
+
+        let page = try XCTUnwrap(SketchbookStore(baseDirectory: directory).page(id: id))
+        XCTAssertEqual(page.note, "Windy")
+        XCTAssertNil(page.originalFile)
+        XCTAssertNil(page.corners)
+        XCTAssertEqual(page.look, .original)
+    }
+
+    /// A page straightened or in a look keeps the photo as taken beside it, and
+    /// how it was made from it.
+    func testAPageKeepsItsOriginalCornersAndLook() async throws {
+        let store = SketchbookStore(baseDirectory: directory)
+        let corners = PageCorners.inset(by: 0.1)
+        let added = await store.addPage(image: Self.image(), original: Self.image(size: CGSize(width: 60, height: 80)),
+                                        corners: corners, look: .bright, lessonId: "l", pathId: "p")
+        let page = try XCTUnwrap(added)
+
+        let restored = try XCTUnwrap(SketchbookStore(baseDirectory: directory).page(id: page.id))
+        XCTAssertEqual(restored.corners, corners)
+        XCTAssertEqual(restored.look, .bright)
+        let originalFile = try XCTUnwrap(restored.originalFile)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: file(originalFile).path))
+        XCTAssertEqual(store.original(for: restored)?.size, CGSize(width: 60, height: 80))
+    }
+
+    /// Kept as taken, the page is its own original: no second copy.
+    func testAPageKeptAsTakenStoresNoSecondCopy() async throws {
+        let store = SketchbookStore(baseDirectory: directory)
+        let added = await store.addPage(image: Self.image(), original: Self.image(), lessonId: "l", pathId: "p")
+        let page = try XCTUnwrap(added)
+        XCTAssertNil(page.originalFile)
+        XCTAssertNotNil(store.original(for: page))
+    }
+
+    /// Editing gives the page a new picture under a new name and removes the old
+    /// one. A page with no original first keeps its old picture as the original,
+    /// byte for byte, and later edits start from that, not from each other.
+    func testEditingReplacesThePictureAndKeepsTheOriginal() async throws {
+        let store = SketchbookStore(baseDirectory: directory)
+        let page = try XCTUnwrap(store.add(image: Self.image(), lessonId: "l", pathId: "p"))
+        let before = try Data(contentsOf: file(page.imageFile))
+
+        let corners = PageCorners.inset(by: 0.05)
+        let edited = await store.edit(pageId: page.id, image: Self.image(size: CGSize(width: 30, height: 40)),
+                                      corners: corners, look: .scan)
+        XCTAssertTrue(edited)
+
+        let first = try XCTUnwrap(store.page(id: page.id))
+        XCTAssertNotEqual(first.imageFile, page.imageFile)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: file(page.imageFile).path), "The old picture is gone.")
+        XCTAssertEqual(store.image(for: first)?.size, CGSize(width: 30, height: 40))
+        let originalFile = try XCTUnwrap(first.originalFile)
+        XCTAssertEqual(try Data(contentsOf: file(originalFile)), before)
+        XCTAssertEqual(first.corners, corners)
+        XCTAssertEqual(first.look, .scan)
+
+        let again = await store.edit(pageId: page.id, image: Self.image(), corners: nil, look: .bright)
+        XCTAssertTrue(again)
+        let second = try XCTUnwrap(SketchbookStore(baseDirectory: directory).page(id: page.id))
+        XCTAssertEqual(second.originalFile, originalFile)
+        XCTAssertEqual(try Data(contentsOf: file(originalFile)), before, "The original is never rewritten.")
+        XCTAssertNil(second.corners)
+        XCTAssertEqual(second.look, .bright)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: file(first.imageFile).path))
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: folder.path).count, 3,
+                       "The index, the picture and the original: nothing left behind.")
+    }
+
+    func testEditingAPageThatIsGoneChangesNothing() async {
+        let store = SketchbookStore(baseDirectory: directory)
+        let edited = await store.edit(pageId: UUID(), image: Self.image(), corners: nil, look: .scan)
+        XCTAssertFalse(edited)
+        XCTAssertTrue(store.isEmpty)
+    }
+
+    func testDeletingAnEditedPageRemovesItsOriginalToo() async throws {
+        let store = SketchbookStore(baseDirectory: directory)
+        let page = try XCTUnwrap(store.add(image: Self.image(), lessonId: "l", pathId: "p"))
+        _ = await store.edit(pageId: page.id, image: Self.image(), corners: nil, look: .bright)
+        let edited = try XCTUnwrap(store.page(id: page.id))
+
+        store.delete(page)
+        XCTAssertTrue(store.isEmpty)
+        for name in [edited.imageFile, edited.originalFile].compactMap({ $0 }) {
+            XCTAssertFalse(FileManager.default.fileExists(atPath: file(name).path), name)
+        }
+    }
+
+    private var folder: URL { directory.appendingPathComponent("Sketchbook", isDirectory: true) }
+
+    private func file(_ name: String) -> URL { folder.appendingPathComponent(name) }
+
     // MARK: - Fixtures
 
     static func image(size: CGSize = CGSize(width: 40, height: 60)) -> UIImage {

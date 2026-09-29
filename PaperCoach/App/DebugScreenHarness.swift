@@ -46,6 +46,7 @@ enum DebugScreenHarness {
         pendingCaptureOpensCornerEditor = false
         pendingCaptureLook = .original
         raiseDeleteConfirmation = false
+        raisePageEditor = false
         raiseProfileSwitcher = false
         raisePINCreate = false
         pendingLessonsJump = nil
@@ -316,6 +317,22 @@ enum DebugScreenHarness {
                 app.push(.sketchbookEntry(pageId: page.id))
             }
 
+        // A page kept from a dim photo, straightened, with its editor open: the
+        // light chosen again from the sketchbook.
+        case "entry-edit":
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            let photo = pagePhoto(isDim: true)
+            _ = app.sketchbook.add(image: PageCropper.perspectiveCorrected(photo, to: pagePhotoCorners) ?? photo,
+                                   original: photo,
+                                   corners: pagePhotoCorners,
+                                   lessonId: treeLesson.id,
+                                   pathId: treePath.id)
+            app.selectedTab = .sketchbook
+            if let page = app.sketchbook.pages.first {
+                raisePageEditor = true
+                app.push(.sketchbookEntry(pageId: page.id))
+            }
+
         case "settings":
             app.selectedTab = .settings
 
@@ -433,6 +450,9 @@ enum DebugScreenHarness {
     /// Set by `entry-delete`; `SketchbookEntryView` reads and clears this once, in
     /// its own `onAppear`, since its delete alert is behind private `@State`.
     static var raiseDeleteConfirmation = false
+    /// Set by `entry-edit`; `SketchbookEntryView` reads and clears it in
+    /// `onAppear`, and opens its page editor.
+    static var raisePageEditor = false
     /// Set by `profiles-switcher`; `HomeView` reads and clears it in `onAppear`.
     static var raiseProfileSwitcher = false
     /// Set by `pin`; `SettingsView` reads and clears it in `onAppear`.
