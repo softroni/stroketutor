@@ -21,6 +21,7 @@ import {
   slugify,
   updateLevel,
   updatePath,
+  type CurriculumPlan,
 } from './pathOps'
 
 const catalog = (): Catalog => ({
@@ -389,7 +390,11 @@ describe('applyCurriculumPlan', () => {
   })
 
   it('applies the real curriculum plan to the fixture catalog, and again with no change', () => {
-    const plan = JSON.parse(readFileSync(new URL('../../../docs/curriculum/plan.json', import.meta.url), 'utf8'))
+    const plan: CurriculumPlan = JSON.parse(
+      readFileSync(new URL('../../../docs/curriculum/plan.json', import.meta.url), 'utf8'),
+    )
+    // Each lesson the plan gives a title gets a place held; a bare id names one already drawn.
+    const titled = plan.paths.flatMap((path) => path.lessons).filter((lesson) => lesson.title !== undefined)
     const start: Catalog = {
       levels: [],
       paths: [
@@ -404,7 +409,7 @@ describe('applyCurriculumPlan', () => {
     const tutorials = new Set(['palm-tree-4', 'classic-red-car'])
     const once = applyCurriculumPlan(start, plan, tutorials)
     expect(once.catalog.levels.map((level) => level.id)).toEqual(['starter', 'core', 'advanced'])
-    expect(once.catalog.lessons.filter((lesson) => lesson.status === 'planned')).toHaveLength(130)
+    expect(once.catalog.lessons.filter((lesson) => lesson.status === 'planned')).toHaveLength(titled.length)
     // The two drawn lessons keep their entries and move to the paths the plan gives them.
     expect(once.catalog.paths.find((path) => path.id === 'plants')?.lessonIds).toContain('palm-tree-4')
     expect(once.catalog.paths.find((path) => path.id === 'wheels')?.lessonIds).toContain('classic-red-car')

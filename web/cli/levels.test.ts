@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import type { Catalog } from '../src/catalog/types'
 import type { Tutorial } from '../src/schema/types'
+import type { CurriculumPlan } from '../src/studio/pathOps'
 
 import { openTestStudio, type TestStudio } from './testing'
 
@@ -24,6 +25,12 @@ afterEach(async () => {
 
 /** The newest catalog entry, which is where a planned lesson lands. */
 const lastLesson = (current: Catalog) => current.lessons[current.lessons.length - 1]
+
+/** How many places the plan holds: one for each lesson it gives a title, as a bare id names one already drawn. */
+async function plannedInPlan(): Promise<number> {
+  const plan = JSON.parse(await readFile(PLAN, 'utf8')) as CurriculumPlan
+  return plan.paths.flatMap((p) => p.lessons).filter((lesson) => lesson.title !== undefined).length
+}
 
 async function catalog(): Promise<Catalog> {
   const { paths, lessons } = await t.workspace.readCatalog()
@@ -181,8 +188,11 @@ describe('planned lessons', () => {
 
 describe('curriculum apply', () => {
   it('lays the real plan over the curriculum, and changes nothing the second time', async () => {
+    const planned = await plannedInPlan()
+    // Before the plan, every lesson status counts is a drawn one.
+    const drawn = (await t.json<{ lessons: number }>('status')).lessons
     const dry = await t.studio(`curriculum apply ${PLAN} --dry-run`)
-    expect(dry.stdout).toContain('130 lessons planned')
+    expect(dry.stdout).toContain(`${planned} lessons planned`)
     expect(dry.stdout).toContain('Nothing was changed')
     expect((await catalog()).levels).toEqual([])
 
@@ -191,15 +201,15 @@ describe('curriculum apply', () => {
     expect(applied.stdout).toContain('3 levels created: starter, core, advanced')
     const after = await catalog()
     expect(after.levels.map((level) => level.id)).toEqual(['starter', 'core', 'advanced'])
-    expect(after.lessons.filter((lesson) => lesson.status === 'planned')).toHaveLength(130)
+    expect(after.lessons.filter((lesson) => lesson.status === 'planned')).toHaveLength(planned)
     // The fixture's two drawn lessons move to the paths the plan gives them.
     expect(after.paths.find((p) => p.id === 'plants')?.lessonIds).toContain('palm-tree-4')
     expect(after.paths.find((p) => p.id === 'wheels')?.lessonIds).toContain('classic-red-car')
 
     const status = await t.studio('status')
-    expect(status.stdout).toContain('134 lessons: 130 planned,')
+    expect(status.stdout).toContain(`${drawn + planned} lessons: ${planned} planned,`)
     expect(status.stdout).toContain('3 levels group the paths')
-    // 130 places held are not 130 things waiting to be published.
+    // All those places held are not things waiting to be published.
     expect(status.stdout).toContain('To publish (1 ready):')
 
     const again = await t.studio(`curriculum apply ${PLAN}`)
