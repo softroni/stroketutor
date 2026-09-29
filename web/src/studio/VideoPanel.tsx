@@ -181,6 +181,7 @@ export function VideoPanel({ lessonId, unsaved }: VideoPanelProps) {
       {busy && job ? <VideoProgressBar job={job} /> : null}
       {startError ? <p className="st-notice st-notice--error">{startError}</p> : null}
       {job?.state === 'failed' ? <p className="st-notice st-notice--error">{job.error}</p> : null}
+      {job?.state === 'done' && job.result?.timingNote ? <p className="st-notice">{job.result.timingNote}</p> : null}
 
       {video && !busy ? (
         <div className="st-video__result">

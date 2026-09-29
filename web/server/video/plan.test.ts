@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Tutorial } from '../../src/schema/types'
 
-import { captionsFor, defaultIntro, planVideo, postCaption, stillMoments, subjectOf } from './plan'
+import { captionsFor, defaultIntro, lineChunks, planVideo, postCaption, stillMoments, subjectOf } from './plan'
 
 const tutorial: Tutorial = {
   schemaVersion: 2,
@@ -70,15 +70,95 @@ describe('planVideo', () => {
 })
 
 describe('captionsFor', () => {
-  it('shows a sentence or two at a time, with no gap from the start of the part to its end', () => {
-    const captions = captionsFor({ text: 'Now the rind. Draw a curve across the slice, a little above the bottom. That makes a stripe.', durationS: 6 }, 1, 0.5, 9)
-    expect(captions.map((caption) => caption.text)).toEqual([
-      'Now the rind. Draw a curve across the slice, a little above the bottom.',
-      'That makes a stripe.',
+  // "Let’s draw a pine tree. Grab a pencil and draw along with me." as Whisper heard Lina say it.
+  const words = [
+    ['Let’s', 0, 0.66], ['draw', 0.66, 0.8], ['a', 0.8, 0.96], ['pine', 0.96, 1.18], ['tree.', 1.18, 1.52],
+    ['Grab', 2.1, 2.26], ['a', 2.26, 2.36], ['pencil', 2.36, 2.66], ['and', 2.66, 3.08], ['draw', 3.08, 3.26],
+    ['along', 3.26, 3.56], ['with', 3.56, 3.78], ['me.', 3.78, 3.96],
+  ].map(([text, start, end]) => ({ text: text as string, start: start as number, end: end as number }))
+  const clip = { text: 'Let’s draw a pine tree. Grab a pencil and draw along with me.', durationS: 4.16, words }
+
+  it('shows a few words at a time on one line, never leaving “a” at the end of one', () => {
+    expect(captionsFor(clip, 0.35, 0, 5).map((caption) => caption.text)).toEqual([
+      'Let’s draw',
+      'a pine tree.',
+      'Grab a pencil',
+      'and draw',
+      'along with me.',
     ])
-    expect(captions[0].from).toBe(0.5)
+  })
+
+  it('shows each line from its first word until the next, and the last a moment after she stops', () => {
+    const captions = captionsFor(clip, 0.35, 0, 5)
+    expect(captions[0].from).toBe(0)
+    expect(captions[1].from).toBeCloseTo(0.35 + 0.8)
     expect(captions[0].to).toBe(captions[1].from)
-    expect(captions[1].to).toBe(9)
+    // Through the breath after "tree." until "Grab".
+    expect(captions[1].to).toBeCloseTo(0.35 + 2.1)
+    expect(captions[4].to).toBe(5)
+    expect(captionsFor(clip, 0.35, 0, 8)[4].to).toBeCloseTo(0.35 + 3.96 + 1.2)
+  })
+
+  it('lights each word from when she starts it until the next one starts', () => {
+    const [first] = captionsFor(clip, 0.35, 0, 5)
+    expect(first.words.map((word) => word.text)).toEqual(['Let’s', 'draw'])
+    expect(first.words[0].from).toBeCloseTo(0.35)
+    expect(first.words[0].to).toBeCloseTo(0.35 + 0.66)
+    expect(first.words[1].to).toBe(first.to)
+    const last = captionsFor(clip, 0.35, 0, 5)[4]
+    expect(last.words[2].to).toBeCloseTo(0.35 + 3.96 + 0.25)
+  })
+
+  it('estimates the timing from the words’ lengths when nobody has listened', () => {
+    const captions = captionsFor({ text: clip.text, durationS: 4 }, 1, 0.5, 9)
+    expect(captions[0].from).toBe(0.5)
+    expect(captions[0].words[0].from).toBe(1)
+    expect(captions.map((caption) => caption.text)).toContain('a pine tree.')
+    for (let i = 1; i < captions.length; i += 1) expect(captions[i].from).toBeGreaterThan(captions[i - 1].from)
+    expect(captions[captions.length - 1].to).toBeLessThanOrEqual(9)
+  })
+})
+
+describe('lineChunks', () => {
+  const lines = (text: string) =>
+    lineChunks(text.split(' ').map((word, index) => ({ text: word, start: index * 0.3, end: index * 0.3 + 0.25 }))).map((chunk) =>
+      chunk.map((word) => word.text).join(' '),
+    )
+
+  it('cuts lines at commas and sentences, near twelve characters, with nothing left hanging', () => {
+    expect(lines('Two pines on the left hill, trunk and spiky top, then a small one with no trunk.')).toEqual([
+      'Two pines on',
+      'the left hill,',
+      'trunk and',
+      'spiky top,',
+      'then a small one',
+      'with no trunk.',
+    ])
+    expect(lines('Now the rind. Draw a curve across the slice, a little above the bottom.')).toEqual([
+      'Now the rind.',
+      'Draw a curve',
+      'across the slice,',
+      'a little above',
+      'the bottom.',
+    ])
+    for (const line of lines('A pineapple wears a spiky crown of leaves, and its skin is covered in diamonds.')) {
+      expect(line.length).toBeLessThanOrEqual(18)
+      expect(line).not.toMatch(/ (a|an|the|its)$/)
+    }
+  })
+
+  it('starts a new line at a pause', () => {
+    const words = [
+      { text: 'Start', start: 0, end: 0.3 },
+      { text: 'here', start: 0.3, end: 0.6 },
+      { text: 'then', start: 1.2, end: 1.4 },
+      { text: 'curve', start: 1.4, end: 1.7 },
+    ]
+    expect(lineChunks(words).map((chunk) => chunk.length)).toEqual([2, 2])
+  })
+
+  it('keeps a long word alone on its line', () => {
+    expect(lines('Extraordinarily')).toEqual(['Extraordinarily'])
   })
 })
 

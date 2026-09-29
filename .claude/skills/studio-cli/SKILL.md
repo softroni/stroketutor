@@ -398,8 +398,9 @@ Instagram Reels, with the same code as the lesson page's **Video** tab (`web/ser
 
 1. **Opening.** The finished picture, then the whole lesson drawn fast while Lina says her opening line
    (default: "Let’s draw a rocket. Grab a pencil and draw along with me."; `--intro` changes it).
-2. **Every step** at the lesson's own pace, with Lina's recording for it, her words as captions beside
-   her portrait, and the step's title and "Step n of N" at the top.
+2. **Every step** at the lesson's own pace, with Lina's recording for it, her words beside her portrait
+   two or three at a time on one large line, the word she is saying in yellow, and the step's title and
+   "Step n of N" at the top.
 3. **Ending.** "Now draw it yourself / One line at a time, at your own pace" at the top; the app
    icon, "Paper Coach", Apple's "Download on the App Store" badge and the call to action (`--cta`,
    default "Free · link in bio") take Lina's place at the bottom while she says her closing line.
@@ -409,6 +410,12 @@ Instagram Reels, with the same code as the lesson page's **Video** tab (`web/ser
   it refuses and names the missing steps otherwise. The opening line is spoken through `voice say` in
   the cast voice (needs her speech server the first time; cached after) and matched to the loudness
   of the step recordings. The mix is normalised to -14 LUFS.
+- **Word timing.** Whisper (`brew install openai-whisper`, model `base.en`) listens once to each
+  recording for when each word is said; that is cached by take in `.studio/videos/words/`. Without it
+  the timing is estimated from the words' lengths and the command warns.
+- **Safe area.** Everything sits inside `SAFE` in `page.ts` (x 180–900, y 170–1450), measured on a
+  real Short on an iPhone, so the platforms' buttons, channel line and title never cover the drawing,
+  the words or the call to action. Keep new elements inside it.
 - **Look before you render.** `--stills <dir>` writes five PNGs (the opening, the fast drawing, a line
   being drawn, a colour going in, the ending) in about ten seconds. Read them, then make the video.
 - A render takes about a minute or two: every frame is drawn at 2160 × 3840 in headless Chromium and

@@ -28,6 +28,7 @@ import {
   type VideoInput,
   type VideoPlan,
 } from './plan'
+import { alignWords, hearRecordings } from './words'
 
 /**
  * A lesson as a vertical draw-along video (1080 × 1920, 30 fps, H.264 and
@@ -40,7 +41,8 @@ import {
  * so the same words cost nothing the second time.
  *
  * Frames are screenshots of `page.ts` in headless Chromium, drawn at twice the
- * size and scaled down with Lanczos, so lines and text come out smooth. Lina's
+ * size and scaled down with Lanczos, so lines and text come out smooth. Whisper
+ * says when Lina says each word, for the captions (`words.ts`). Her
  * recordings are placed at their moments, the opening line is matched to the
  * loudness of her step recordings, and the mix is normalised to -14 LUFS, where
  * the platforms play everything.
@@ -144,6 +146,7 @@ export async function exportVideo(
     stopIfAsked()
 
     const files = new Map<string, string>()
+    const takeIds = new Map<string, string>()
     const clips: Record<string, Clip> = {}
     const writeTake = async (key: string, takeId: string, text: string) => {
       const audio = readTakeAudio(takeId, deps.voice)
@@ -151,13 +154,32 @@ export async function exportVideo(
       const file = path.join(work, `${key}${audio.contentType.includes('wav') ? '.wav' : '.m4a'}`)
       await writeFile(file, audio.bytes)
       files.set(key, file)
+      takeIds.set(key, takeId)
       return { text, durationS: await durationOf(file) }
     }
-    const intro = await writeTake('intro', introTakeId, introText)
+    let intro: Clip = await writeTake('intro', introTakeId, introText)
     for (const step of narration.steps) {
       if (step.stepId === INTRO_ID || !step.take) continue
       clips[step.stepId] = await writeTake(step.stepId, step.take.id, step.take.text)
     }
+
+    // When she says each word, for the captions: heard once per recording, then remembered.
+    report('voice', 'Listening for when Lina says each word')
+    const { heard, problem } = await hearRecordings(
+      [...takeIds].map(([key, takeId]) => ({ takeId, file: files.get(key)! })),
+      { cacheDir: path.join(deps.videosDir, 'words'), work },
+    )
+    let estimated = 0
+    const timed = (key: string, clip: Clip): Clip => {
+      const words = heard.get(takeIds.get(key)!)
+      const aligned = words ? alignWords(clip.text, words, clip.durationS) : null
+      if (!aligned) estimated += 1
+      return aligned ? { ...clip, words: aligned } : clip
+    }
+    intro = timed('intro', intro)
+    for (const key of Object.keys(clips)) clips[key] = timed(key, clips[key])
+    const timingNote = estimated === 0 ? null : (problem ?? `The captions’ word timing is estimated for ${estimated} of Lina’s recordings, which Whisper heard differently.`)
+    stopIfAsked()
 
     const badgePath = path.join(deps.repoDir, BADGE)
     const badge = existsSync(badgePath) ? await readFile(badgePath, 'utf8') : null
@@ -188,7 +210,7 @@ export async function exportVideo(
           stills.push(file)
         }
         report('done', 'Stills written')
-        return { lessonId, file: null, captionFile: null, caption, stills, durationS: plan.total, frames, stillFrames: 0, renderSeconds: elapsed(), bytes: 0, staleSteps: stale }
+        return { lessonId, file: null, captionFile: null, caption, stills, durationS: plan.total, frames, stillFrames: 0, renderSeconds: elapsed(), bytes: 0, staleSteps: stale, timingNote }
       } finally {
         await browser.close()
       }
@@ -220,7 +242,7 @@ export async function exportVideo(
     await writeFile(captionFile, `${caption}\n`)
     const { size } = await stat(out)
     report('done', 'Done')
-    return { lessonId, file: out, captionFile, caption, stills: [], durationS: plan.total, frames, stillFrames, renderSeconds: elapsed(), bytes: size, staleSteps: stale }
+    return { lessonId, file: out, captionFile, caption, stills: [], durationS: plan.total, frames, stillFrames, renderSeconds: elapsed(), bytes: size, staleSteps: stale, timingNote }
   } finally {
     await rm(work, { recursive: true, force: true })
   }

@@ -31,6 +31,8 @@ export interface VideoResult {
   bytes: number
   /** Recordings used although their words no longer match the step's (the Voice section says "out of date"). */
   staleSteps: string[]
+  /** Why the captions light up words at estimated times rather than when Lina says them (no Whisper, say); null when every word was heard. */
+  timingNote: string | null
 }
 
 /** A lesson's video before anything is made: its default words, what is missing, and the last video. */

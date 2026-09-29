@@ -18,6 +18,7 @@ const result = (lessonId: string): VideoResult => ({
   renderSeconds: 50,
   bytes: 1,
   staleSteps: [],
+  timingNote: null,
 })
 
 /** A render that finishes only when the test says so, and stops when asked. */

@@ -5,6 +5,9 @@ import type { VideoPlan } from './plan'
 /** The video's frame, in CSS pixels; `render.ts` draws it at twice this and scales down. */
 export const FRAME = { width: 1080, height: 1920 }
 
+/** Where nothing the platforms draw on top reaches: the brand at the top to Lina's line at the bottom, clear of the buttons on the right. */
+export const SAFE = { top: 170, bottom: 1450, left: 180, right: 900 }
+
 export interface PageAssets {
   /** Fredoka, the App Store screenshots' face, as base64 TTF. */
   font: string
@@ -22,9 +25,11 @@ export interface PageAssets {
  * repeatable, and two frames with the same signature are the same picture.
  *
  * The look follows the App Store screenshots: the Paper Coach greens, Fredoka,
- * and the drawing on a white card. Everything sits between y 146 and 1622, clear
- * of the bar the platforms put at the top and of their captions and buttons at
- * the bottom.
+ * and the drawing on a white card. Everything sits inside the part of the frame
+ * the platforms leave alone (`SAFE`), measured on a real YouTube Short on an
+ * iPhone: a phone taller than 9:16 crops about 55 px off each side, the buttons
+ * run down the right from about y 1100, and the channel and title lines start
+ * near y 1550.
  */
 export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAssets): string {
   const data = { tutorial, plan, ink: normaliseColour(tutorial.style?.strokeColor) ?? '#141414' }
@@ -49,46 +54,51 @@ export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAsset
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   }
   .brand {
-    position: absolute; top: 146px; left: 0; right: 0;
+    position: absolute; top: ${SAFE.top}px; left: 0; right: 0;
     display: flex; align-items: center; justify-content: center; gap: 20px;
     font-size: 54px; font-weight: 600; letter-spacing: -0.01em; text-shadow: 0 0.05em 0.25em rgba(0, 0, 0, 0.14);
   }
   .brand img { width: 84px; height: 84px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22); }
   .chip {
-    position: absolute; top: 272px; left: 50%; transform: translateX(-50%);
+    position: absolute; top: 292px; left: 50%; transform: translateX(-50%);
     padding: 8px 28px 11px; border-radius: 40px; background: rgba(0, 0, 0, 0.16);
     font-size: 36px; font-weight: 500; letter-spacing: 0.01em; white-space: nowrap;
   }
   .title {
-    position: absolute; top: 346px; left: 60px; right: 60px; height: 156px;
+    position: absolute; top: 364px; left: 110px; right: 110px; height: 156px;
     display: flex; align-items: center; justify-content: center; text-align: center;
     font-size: 74px; font-weight: 600; line-height: 1.04; letter-spacing: -0.012em;
     text-shadow: 0 0.05em 0.25em rgba(0, 0, 0, 0.14);
   }
-  .title > span, .caption > span { text-wrap: balance; }
+  .title > span { text-wrap: balance; }
   .title em { font-style: normal; color: var(--highlight); }
   .title small { display: block; margin-top: 14px; font-size: 42px; font-weight: 500; letter-spacing: 0; opacity: 0.95; }
-  .progress { position: absolute; top: 526px; left: 100px; width: 880px; height: 12px; border-radius: 6px; background: rgba(0, 0, 0, 0.16); overflow: hidden; }
+  .progress { position: absolute; top: 540px; left: ${SAFE.left}px; width: ${SAFE.right - SAFE.left}px; height: 12px; border-radius: 6px; background: rgba(0, 0, 0, 0.16); overflow: hidden; }
   .progress > div { height: 100%; width: 0; background: var(--highlight); border-radius: 6px; }
   .card {
-    position: absolute; top: 562px; left: 100px; width: 880px; height: 880px;
-    background: #fff; border-radius: 44px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.30);
+    position: absolute; top: 576px; left: ${SAFE.left}px; width: ${SAFE.right - SAFE.left}px; height: ${SAFE.right - SAFE.left}px;
+    background: #fff; border-radius: 40px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.30);
   }
-  .card svg { position: absolute; inset: 34px; width: calc(100% - 68px); height: calc(100% - 68px); }
+  .card svg { position: absolute; inset: 30px; width: calc(100% - 60px); height: calc(100% - 60px); }
   /* The bottom row: Lina and her words, and at the end Paper Coach and the call to action, in the same place. */
   .row {
-    position: absolute; top: 1470px; left: 100px; right: 120px; height: 152px;
-    display: flex; align-items: center; gap: 28px;
+    position: absolute; top: ${SAFE.bottom - 132}px; left: ${SAFE.left}px; width: ${SAFE.right - SAFE.left}px; height: 132px;
+    display: flex; align-items: center; gap: 24px;
   }
-  .face { flex: none; width: 116px; height: 116px; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22); overflow: hidden; }
+  .face { flex: none; width: 112px; height: 112px; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22); overflow: hidden; }
   .face svg { display: block; width: 100%; height: 100%; }
-  .caption { font-size: 42px; font-weight: 500; line-height: 1.2; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25); }
+  /* A few words on one line, large enough to read without sound, the one Lina is saying in yellow. */
+  .caption {
+    flex: 1; min-width: 0; font-size: ${CAPTION_SIZE}px; font-weight: 600; line-height: 1.1; letter-spacing: -0.005em; white-space: nowrap;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.28);
+  }
+  .caption .now { color: var(--highlight); }
   .cta { opacity: 0; }
-  .cta > img { flex: none; width: 116px; height: 116px; border-radius: 27px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22); }
-  .cta b { display: block; font-size: 58px; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; text-shadow: 0 0.05em 0.25em rgba(0, 0, 0, 0.14); }
-  .cta .line { display: flex; align-items: center; gap: 22px; margin-top: 8px; font-size: 38px; font-weight: 500; color: var(--highlight); }
+  .cta > img { flex: none; width: 112px; height: 112px; border-radius: 26px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22); }
+  .cta b { display: block; font-size: 54px; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; text-shadow: 0 0.05em 0.25em rgba(0, 0, 0, 0.14); }
+  .cta .line { display: flex; align-items: center; gap: 18px; margin-top: 8px; font-size: 34px; font-weight: 500; color: var(--highlight); white-space: nowrap; }
   /* Apple's badge, as supplied: never recoloured, stretched or moved, only faded in with the rest. */
-  .cta .badge { display: block; height: 72px; width: auto; }
+  .cta .badge { display: block; height: 64px; width: auto; }
 </style></head>
 <body>
   <div class="grain"></div>
@@ -112,9 +122,13 @@ export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAsset
   </div>
 <script>
 const D = ${JSON.stringify(data).replace(/</g, '\\u003c')};
+const CAPTION_SIZE = ${CAPTION_SIZE};
 ${FRAME_SCRIPT}
 </script></body></html>`
 }
+
+/** Lina's words, in CSS pixels; a line wider than the room beside her portrait is set smaller to fit. */
+const CAPTION_SIZE = 72
 
 function normaliseColour(colour: string | undefined): string | null {
   return colour ? `#${colour.replace(/^#/, '')}` : null
@@ -197,10 +211,10 @@ function runSequence(indices, elapsed, progress) {
   }
 }
 
-// Text fades and rises in over 0.2 s whenever it changes. What each text shows, and how far in, goes into the frame's signature.
+// Text fades and rises in over 0.2 s (or fade) whenever it changes. What each text shows, and how far in, goes into the frame's signature.
 const shown = {};
 const textState = {};
-function setText(id, value, since, asHtml) {
+function setText(id, value, since, asHtml, fade = 0.2) {
   const node = $(id);
   if (shown[id] !== value) {
     node.textContent = '';
@@ -210,11 +224,29 @@ function setText(id, value, since, asHtml) {
       node.appendChild(span);
     }
     shown[id] = value;
+    if (id === 'caption') fitCaption();
   }
-  const a = value ? clamp(since / 0.2) : 0;
+  const a = value ? clamp(since / fade) : 0;
   node.style.opacity = a;
   node.style.translate = '0 ' + (1 - a) * 10 + 'px';
   textState[id] = (value || '') + '|' + a.toFixed(3);
+}
+
+// A caption line wider than the room beside Lina is set smaller until it fits; the lit word never changes its width.
+function fitCaption() {
+  const node = $('caption');
+  node.style.fontSize = CAPTION_SIZE + 'px';
+  const span = node.firstChild;
+  if (!span) return;
+  const width = span.getBoundingClientRect().width;
+  if (width > node.clientWidth) node.style.fontSize = (CAPTION_SIZE * node.clientWidth) / width + 'px';
+}
+
+const escapeHtml = (text) => text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+// The caption's words, the one Lina is saying at t marked.
+function captionHtml(caption, t) {
+  return caption.words.map((w) => '<span' + (t >= w.from && t < w.to ? ' class="now"' : '') + '>' + escapeHtml(w.text) + '</span>').join(' ');
 }
 
 const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
@@ -258,7 +290,7 @@ window.renderAt = (t) => {
   }
 
   const caption = P.captions.find((c) => t >= c.from && t < c.to);
-  setText('caption', caption ? caption.text : '', caption ? (caption.from === 0 ? 1 : t - caption.from) : 0, false);
+  setText('caption', caption ? captionHtml(caption, t) : '', caption ? (caption.from === 0 ? 1 : t - caption.from) : 0, true, 0.12);
   $('lina').style.opacity = 1 - swap;
   $('brand').style.opacity = 1 - swap;
   $('cta').style.opacity = swap;

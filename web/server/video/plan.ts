@@ -1,6 +1,8 @@
 import type { Tutorial } from '../../src/schema/types'
 import { OUTRO_ID } from '../../src/voice/bookends'
 
+import { estimateWords, type TimedWord } from './words'
+
 /**
  * The plan of a lesson video: when each part starts, what is on screen, and
  * when each of Lina's recordings plays. Pure, so the timing is tested without
@@ -19,10 +21,12 @@ import { OUTRO_ID } from '../../src/voice/bookends'
  *    her place at the bottom.
  */
 
-/** One of Lina's recordings: the words she says and how long they take. */
+/** One of Lina's recordings: the words she says, how long they take, and when she says each one. */
 export interface Clip {
   text: string
   durationS: number
+  /** Each word's time in the recording (`words.ts`); estimated from the words' lengths when absent. */
+  words?: TimedWord[]
 }
 
 export interface VideoInput {
@@ -42,11 +46,15 @@ export type Segment =
   | { kind: 'step'; index: number; start: number; end: number; drawAt: number }
   | { kind: 'outro'; start: number; end: number; swapAt: number }
 
-/** Lina's words on screen from `from` until `to`. Plain text. */
+/**
+ * A few of Lina's words on one line, on screen from `from` until `to`. Each
+ * word lights up from its own `from` until its `to`, as she says it. Plain text.
+ */
 export interface Caption {
   text: string
   from: number
   to: number
+  words: { text: string; from: number; to: number }[]
 }
 
 /** A recording starting at `at` seconds: `intro`, a step id, or `lesson-outro`. */
@@ -145,34 +153,90 @@ export function stepSeconds(step: Tutorial['steps'][number]): number {
   return strokes + fills
 }
 
+/** A caption stays this long after Lina's last word of a recording, then the line clears while the drawing goes on. */
+const LINGER = 1.2
+/** A word stays lit this long after she finishes it, unless the next one starts first. */
+const WORD_TAIL = 0.25
+
 /**
- * A recording's words a sentence or two at a time, each shown for its share of
- * the recording by length. The first shows from the start of its part, the last
- * until its end, so the words never blink off between sentences.
+ * A recording's words a few at a time on one line (`lineChunks`), each chunk
+ * from its first word until the next chunk. The first shows from the start of
+ * its part, so the words are there as Lina begins; the last stays a moment
+ * after she stops, never past the part's end.
  */
 export function captionsFor(clip: Clip, at: number, from: number, to: number): Caption[] {
-  const sentences = (clip.text.match(/[^.!?]+[.!?]+["'’”)\]]*|[^.!?]+$/g) ?? [clip.text]).map((s) => s.trim()).filter(Boolean)
-  const merged: string[] = []
-  for (const sentence of sentences) {
-    const last = merged[merged.length - 1]
-    if (last !== undefined && (last.length < 28 || sentence.length < 20) && last.length + sentence.length + 1 <= 84) {
-      merged[merged.length - 1] = `${last} ${sentence}`
-    } else {
-      merged.push(sentence)
+  const words = (clip.words ?? estimateWords(clip.text, clip.durationS)).map((word) => ({ ...word, start: at + word.start, end: at + word.end }))
+  const chunks = lineChunks(words)
+  return chunks.map((chunk, index) => {
+    const next = chunks[index + 1]
+    const captionFrom = index === 0 ? Math.min(from, chunk[0].start) : chunk[0].start
+    const captionTo = next ? next[0].start : Math.max(captionFrom, Math.min(to, chunk[chunk.length - 1].end + LINGER))
+    return {
+      text: chunk.map((word) => word.text).join(' '),
+      from: captionFrom,
+      to: captionTo,
+      words: chunk.map((word, i) => {
+        const following = chunk[i + 1]
+        const lit = following ? Math.max(word.end, following.start) : word.end + WORD_TAIL
+        return { text: word.text, from: word.start, to: Math.min(captionTo, Math.max(word.start, lit)) }
+      }),
     }
-  }
-  const chars = merged.reduce((sum, text) => sum + text.length, 0) || 1
-  let start = at
-  const timed = merged.map((text) => {
-    const caption = { text, from: start, to: 0 }
-    start += (clip.durationS * text.length) / chars
-    return caption
   })
-  timed.forEach((caption, index) => {
-    if (index === 0) caption.from = from
-    caption.to = index + 1 < timed.length ? timed[index + 1].from : to
+}
+
+/** The most a line holds: it fits beside Lina's portrait at full size (72 px Fredoka is about 32 px a character). Four short words only when three would split badly. */
+const MAX_WORDS = 4
+const MAX_CHARS = 18
+/** The length a line reads best at. */
+const IDEAL_CHARS = 12
+/** A pause this long in Lina's voice always starts a new line. */
+const BREAK_PAUSE = 0.3
+/** Words a line never ends on, since they belong to the word after them. */
+const NEVER_LAST = new Set(['a', 'an', 'the', 'your', 'my', 'its', 'our', 'their', 'his', 'her'])
+/** Words a line would rather not end on. */
+const WEAK_LAST = new Set(['and', 'or', 'but', 'of', 'to', 'in', 'on', 'at', 'by', 'for', 'with', 'from', 'into', 'onto', 'over', 'under', 'then', 'so', 'as', 'if', 'than', 'is', 'are'])
+
+/**
+ * Words cut into lines of two or three, never across a comma, a sentence's end
+ * or a pause, and within that the cut that reads most naturally: lines near
+ * twelve characters, no "a" or "the" left hanging at the end of one, and no
+ * word alone on a line when it could have company.
+ */
+export function lineChunks<W extends { text: string; start: number; end: number }>(words: W[]): W[][] {
+  // Phrases first: the hard breaks.
+  const phrases: W[][] = []
+  words.forEach((word, index) => {
+    const before = words[index - 1]
+    const breaks = !before || /[.!?,;:—–]["'’”)\]]*$/.test(before.text) || word.start - before.end >= BREAK_PAUSE
+    if (breaks) phrases.push([word])
+    else phrases[phrases.length - 1].push(word)
   })
-  return timed
+  return phrases.flatMap((phrase) => {
+    // best[i]: the cheapest way to cut the phrase's first i words, and where its last line starts.
+    const best: { cost: number; from: number }[] = [{ cost: 0, from: 0 }]
+    for (let end = 1; end <= phrase.length; end += 1) {
+      best[end] = { cost: Number.POSITIVE_INFINITY, from: 0 }
+      for (let start = Math.max(0, end - MAX_WORDS); start < end; start += 1) {
+        const cost = best[start].cost + lineCost(phrase.slice(start, end), phrase.length, end === phrase.length)
+        if (cost < best[end].cost) best[end] = { cost, from: start }
+      }
+    }
+    const lines: W[][] = []
+    for (let end = phrase.length; end > 0; end = best[end].from) lines.unshift(phrase.slice(best[end].from, end))
+    return lines
+  })
+}
+
+function lineCost(line: { text: string }[], phraseLength: number, endsPhrase: boolean): number {
+  const chars = line.reduce((sum, word) => sum + word.text.length, 0) + line.length - 1
+  if (line.length > 1 && chars > MAX_CHARS) return Number.POSITIVE_INFINITY
+  const last = line[line.length - 1].text.toLowerCase().replace(/[’']/g, "'")
+  let cost = ((chars - IDEAL_CHARS) / 5) ** 2
+  if (!endsPhrase && NEVER_LAST.has(last)) cost += 10
+  if (!endsPhrase && WEAK_LAST.has(last)) cost += 2
+  if (line.length === 1 && phraseLength > 1) cost += 2
+  if (line.length === 4) cost += 1.5
+  return cost + 0.1
 }
 
 // ---------- Words ----------

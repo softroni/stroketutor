@@ -37,6 +37,7 @@ export async function renderVideo(ctx: Context, request: VideoRequest): Promise<
   for (const title of result.staleSteps) {
     ctx.out.warn(`“${title}” was recorded before its words last changed; the video uses the recording as it is.`)
   }
+  if (result.timingNote) ctx.out.warn(result.timingNote)
   return result
 }
 
