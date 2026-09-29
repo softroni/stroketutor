@@ -31,7 +31,13 @@
   padding: 8px 10px;
 }
 
+.st-paths__link > .st-path-dot {
+  align-self: center;
+  margin-right: -4px;
+}
+
 .st-paths__name {
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -427,4 +433,52 @@
   .st-paths-toolbar .st-segmented {
     margin-left: 0;
   }
+}
+
+/* ---------- Colors ---------- */
+
+/* A path's color, as the app paints it and its videos wear it. */
+.st-path-dot {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: 0.05em;
+}
+
+.st-path-colors {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.st-path-colors__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.st-path-colors__swatch {
+  position: relative;
+  cursor: pointer;
+}
+
+/* The deep shade inside a ring of the soft one, as a card in the app pairs them. */
+.st-path-colors__swatch > span[aria-hidden] {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 4px solid;
+  border-radius: 50%;
+}
+
+.st-path-colors__swatch input:checked + span {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ink);
+}
+
+.st-path-colors__swatch input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }

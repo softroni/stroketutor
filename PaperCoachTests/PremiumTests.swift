@@ -371,7 +371,7 @@ final class PremiumTests: XCTestCase {
                    complexity: 1,
                    reference: nil)
         }
-        return PathModel(id: id, title: id.capitalized, description: nil, level: nil, lessons: lessons)
+        return PathModel(id: id, title: id.capitalized, description: nil, level: nil, color: nil, lessons: lessons)
     }
 }
 

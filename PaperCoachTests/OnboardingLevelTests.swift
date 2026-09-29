@@ -175,6 +175,7 @@ final class OnboardingLevelTests: XCTestCase {
                          title: id.capitalized,
                          description: nil,
                          level: level,
+                         color: nil,
                          lessons: lessons == 0 ? [] : fixture.lessons)
     }
 }

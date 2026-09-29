@@ -97,6 +97,7 @@ enum CatalogLoader {
                                      title: path.title,
                                      description: path.description,
                                      level: level,
+                                     color: path.color,
                                      lessonIds: kept))
         }
 

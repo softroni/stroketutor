@@ -235,6 +235,6 @@ final class ProgressStoreTests: XCTestCase {
                    complexity: 1,
                    reference: nil)
         }
-        return PathModel(id: "fixtures", title: "Fixtures", description: nil, level: nil, lessons: lessons)
+        return PathModel(id: "fixtures", title: "Fixtures", description: nil, level: nil, color: nil, lessons: lessons)
     }
 }

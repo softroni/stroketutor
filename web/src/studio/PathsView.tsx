@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 
 import { estimateLearnerSeconds, formatMinutes } from '../catalog/metrics'
+import { colorOfPath, PATH_COLORS, PATH_SWATCHES, unusedPathColor, type PathColor } from '../catalog/pathColors'
 import { readyCount } from '../catalog/publishing'
 import type { Catalog, LearningPath, Lesson, Level } from '../catalog/types'
 import { totalStrokes } from '../schema/types'
@@ -12,6 +13,7 @@ import { IssueList } from './IssueList'
 import { LessonActions } from './LessonActions'
 import type { Library, TutorialEntry } from './library'
 import { Menu, type MenuEntry } from './Menu'
+import { PathColorDot } from './PathColorDot'
 import { SessionPromptDialog } from './SessionPromptDialog'
 import { sessionPrompt } from './sessionPrompt'
 import {
@@ -299,6 +301,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
           aria-current={!searching && path.id === selected?.id ? 'page' : undefined}
           onClick={() => setQuery('')}
         >
+          <PathColorDot color={colorOfPath(catalog.paths, path.id)} />
           <span className="st-paths__name">{path.title}</span>
           <span
             className={`st-paths__count ${published === 0 ? 'is-none' : ''}`}
@@ -403,6 +406,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
           <PathForm
             withId
             levels={catalog.levels}
+            paths={catalog.paths}
             submitLabel="Create path"
             busy={busy}
             onCancel={() => setCreating(false)}
@@ -558,6 +562,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
             path={selected}
             index={catalog.paths.indexOf(selected)}
             pathCount={catalog.paths.length}
+            paths={catalog.paths}
             levels={catalog.levels}
             rows={selectedRows}
             published={inApp(selected)}
@@ -595,6 +600,7 @@ function PathDetail({
   path,
   index,
   pathCount,
+  paths,
   levels,
   rows,
   published,
@@ -612,6 +618,8 @@ function PathDetail({
   path: LearningPath
   index: number
   pathCount: number
+  /** Every path, in order: what the colors are worked out from. */
+  paths: LearningPath[]
   levels: Level[]
   rows: Row[]
   published: number
@@ -649,9 +657,11 @@ function PathDetail({
     }
   }
 
+  const color = colorOfPath(paths, path.id)
+
   const pathEntries: MenuEntry[] = [
     { label: 'Rename', disabled: !editable, onSelect: () => setRenaming(true) },
-    { label: 'Edit description…', disabled: !editable, onSelect: () => setEditing(true) },
+    { label: 'Edit details…', disabled: !editable, onSelect: () => setEditing(true) },
     {
       label: 'Move path up',
       disabled: !editable || index === 0,
@@ -729,8 +739,15 @@ function PathDetail({
         </div>
         {editing ? (
           <PathForm
-            initial={{ title: path.title, description: path.description ?? '', level: path.level ?? null }}
+            initial={{
+              title: path.title,
+              description: path.description ?? '',
+              level: path.level ?? null,
+              color,
+            }}
             levels={levels}
+            paths={paths}
+            pathId={path.id}
             submitLabel="Save"
             busy={busy}
             onCancel={() => setEditing(false)}
@@ -749,7 +766,8 @@ function PathDetail({
             <>
               {' '}· level <code>{path.level}</code>
             </>
-          ) : null}
+          ) : null}{' '}
+          · <PathColorDot color={color} /> {PATH_SWATCHES[color].label}
         </p>
       </header>
 
@@ -1116,10 +1134,12 @@ function RenameField({
   )
 }
 
-/** Title, optional description, the level it sits under, and — for a new path only — the id. */
+/** Title, optional description, the level it sits under, its color, and — for a new path only — the id. */
 function PathForm({
   initial,
   levels,
+  paths,
+  pathId,
   withId = false,
   submitLabel,
   busy,
@@ -1128,6 +1148,10 @@ function PathForm({
 }: {
   initial?: PathFields
   levels: Level[]
+  /** Every path, to say which colors are already worn. */
+  paths: LearningPath[]
+  /** The path being edited; left out for a new one. */
+  pathId?: string
   withId?: boolean
   submitLabel: string
   busy: boolean
@@ -1137,13 +1161,18 @@ function PathForm({
   const [title, setTitle] = useState(initial?.title ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
   const [level, setLevel] = useState(initial?.level ?? '')
+  const [color, setColor] = useState<PathColor>(initial?.color ?? unusedPathColor(paths))
   const [id, setId] = useState('')
   const [idEdited, setIdEdited] = useState(false)
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    onSubmit({ title, description, level: level || null }, id)
+    onSubmit({ title, description, level: level || null, color }, id)
   }
+
+  /** The other paths already wearing a color, for its tooltip. */
+  const wornBy = (candidate: PathColor) =>
+    paths.filter((path) => path.id !== pathId && colorOfPath(paths, path.id) === candidate).map((path) => path.title)
 
   return (
     <form className="st-path-form" onSubmit={submit}>
@@ -1196,6 +1225,40 @@ function PathForm({
           </select>
         </label>
       ) : null}
+      <fieldset className="st-field st-path-colors">
+        <legend className="st-field__label">Color</legend>
+        <div className="st-path-colors__swatches">
+          {PATH_COLORS.map((candidate) => {
+            const others = wornBy(candidate)
+            const swatch = PATH_SWATCHES[candidate]
+            return (
+              <label
+                key={candidate}
+                className="st-path-colors__swatch"
+                title={others.length > 0 ? `${swatch.label}, also ${others.join(', ')}` : swatch.label}
+              >
+                <input
+                  type="radio"
+                  name="path-color"
+                  className="st-visually-hidden"
+                  value={candidate}
+                  checked={color === candidate}
+                  onChange={() => setColor(candidate)}
+                />
+                <span style={{ background: swatch.deep, borderColor: swatch.soft }} aria-hidden="true" />
+                <span className="st-visually-hidden">
+                  {swatch.label}
+                  {others.length > 0 ? `, also ${others.join(', ')}` : ''}
+                </span>
+              </label>
+            )
+          })}
+        </div>
+        <span className="st-field__hint">
+          {PATH_SWATCHES[color].label}: the path’s cards and screens in the app, and the backdrop of its lesson videos.
+          {wornBy(color).length > 0 ? ` ${wornBy(color).join(', ')} wears it too.` : ''}
+        </span>
+      </fieldset>
       <div className="st-path-form__actions">
         <button
           type="submit"

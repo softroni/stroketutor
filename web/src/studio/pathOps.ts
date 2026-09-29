@@ -1,3 +1,4 @@
+import { isPathColor, PATH_COLORS, unusedPathColor, type PathColor } from '../catalog/pathColors'
 import type { Catalog, LearningPath, Lesson, Level } from '../catalog/types'
 
 import { moveItem } from './moveItem'
@@ -8,8 +9,8 @@ import { moveItem } from './moveItem'
  * result through the repository writer, which validates it again.
  *
  * Path ids never change once created: lessons and, later, the iOS app refer to
- * a path by id, so only its title and description are editable. The same holds
- * for a level's id.
+ * a path by id, so only its title, description, level and color are editable.
+ * The same holds for a level's id.
  */
 
 /** A change that cannot be made, with a sentence the creator can act on. */
@@ -27,6 +28,8 @@ export interface PathFields {
   description: string
   /** The level this path sits under; `null` for none. */
   level?: string | null
+  /** Its color in the app and its videos; `null` for none, so it takes one by its place. */
+  color?: PathColor | null
 }
 
 export interface LevelFields {
@@ -53,15 +56,18 @@ export function createPath(catalog: Catalog, id: string, fields: PathFields): Ca
     throw new CatalogEditError(`There is already a path with the id "${id}".`)
   }
   const level = checkLevel(catalog, fields.level ?? null)
-  return { ...catalog, paths: [...catalog.paths, record(id, title, fields.description, level, [])] }
+  // A new path wears a color no other path does, unless one is asked for.
+  const color = fields.color === undefined ? unusedPathColor(catalog.paths) : fields.color
+  return { ...catalog, paths: [...catalog.paths, record(id, title, fields.description, level, color, [])] }
 }
 
 export function updatePath(catalog: Catalog, id: string, fields: PathFields): Catalog {
   const path = pathById(catalog, id)
   const title = requireTitle(fields.title, 'path')
-  // `level` left out means "leave it as it is"; `null` takes the path out of its level.
+  // `level` or `color` left out means "leave it as it is"; `null` takes the path out of its level, or its color off.
   const level = fields.level === undefined ? (path.level ?? null) : checkLevel(catalog, fields.level)
-  return replacePath(catalog, id, record(path.id, title, fields.description, level, path.lessonIds))
+  const color = fields.color === undefined ? (path.color ?? null) : fields.color
+  return replacePath(catalog, id, record(path.id, title, fields.description, level, color, path.lessonIds))
 }
 
 /** Only an empty path can go, so deleting one can never orphan a lesson by accident. */
@@ -205,6 +211,7 @@ export interface CurriculumPlan {
     title: string
     level?: string
     description?: string
+    color?: PathColor
     lessons: PlannedLesson[]
   }[]
 }
@@ -311,7 +318,9 @@ export function applyCurriculumPlan(
     // dropped; they wait at the end for the creator to place them.
     for (const id of existing?.lessonIds ?? []) if (!claimed.has(id)) lessonIds.push(id)
 
-    const next = pathRecord(planned, existing, lessonIds)
+    // A new path the plan gives no color wears one no other path does.
+    const color = planned.color ?? existing?.color ?? (existing ? null : unusedPathColor([...catalog.paths, ...paths]))
+    const next = pathRecord(planned, existing, color, lessonIds)
     if (!existing) summary.pathsCreated.push(planned.id)
     else if (!sameWords(existing, next)) summary.pathsUpdated.push(planned.id)
     paths.push(next)
@@ -330,11 +339,12 @@ export function applyCurriculumPlan(
 function pathRecord(
   planned: CurriculumPlan['paths'][number],
   existing: LearningPath | undefined,
+  color: PathColor | null,
   lessonIds: string[],
 ): LearningPath {
   const description = planned.description ?? existing?.description ?? ''
   const level = planned.level ?? existing?.level ?? null
-  return record(planned.id, planned.title.trim(), description, level, lessonIds)
+  return record(planned.id, planned.title.trim(), description, level, color, lessonIds)
 }
 
 /** Two paths that say the same thing about themselves, whatever lessons they hold. */
@@ -343,6 +353,7 @@ function sameWords(a: LearningPath, b: LearningPath): boolean {
     a.title === b.title &&
     (a.description ?? '') === (b.description ?? '') &&
     (a.level ?? null) === (b.level ?? null) &&
+    (a.color ?? null) === (b.color ?? null) &&
     a.lessonIds.length === b.lessonIds.length &&
     a.lessonIds.every((id, index) => id === b.lessonIds[index])
   )
@@ -386,6 +397,10 @@ function checkPlan(plan: unknown, catalog: Catalog): CurriculumPlan {
         )
       }
     }
+    const color = value.color
+    if (color !== undefined && !isPathColor(color)) {
+      throw new CatalogEditError(`${where}.color: "${String(color)}" is not a path color. Use one of ${PATH_COLORS.join(', ')}.`)
+    }
     if (!Array.isArray(value.lessons)) throw new CatalogEditError(`${where}: "lessons" must be an array.`)
     const lessons = (value.lessons as Record<string, unknown>[]).map((lesson, lessonIndex) => {
       const at = `${where}.lessons[${lessonIndex}]`
@@ -409,6 +424,7 @@ function checkPlan(plan: unknown, catalog: Catalog): CurriculumPlan {
       title: planTitle(value, where),
       ...(typeof level === 'string' ? { level } : {}),
       ...(description !== undefined ? { description } : {}),
+      ...(color !== undefined ? { color } : {}),
       lessons,
     }
   })
@@ -471,13 +487,14 @@ function replacePath(catalog: Catalog, id: string, next: LearningPath): Catalog 
 
 /**
  * Built field by field in the order `paths.json` uses, with an empty
- * description or no level left out rather than saved as "".
+ * description, no level or no color left out rather than saved as "".
  */
 function record(
   id: string,
   title: string,
   description: string,
   level: string | null,
+  color: PathColor | null,
   lessonIds: string[],
 ): LearningPath {
   const trimmed = description.trim()
@@ -486,6 +503,7 @@ function record(
     title,
     ...(trimmed ? { description: trimmed } : {}),
     ...(level ? { level } : {}),
+    ...(color ? { color } : {}),
     lessonIds,
   }
 }

@@ -117,10 +117,11 @@ The table gives each command's shape and what matters; `reference.md` has every 
 
 | Command | Notes |
 |---|---|
-| `list`, `show <id>` | `list` has a level column; `show` names the level |
-| `create [id] --title … [--description …] [--level id]` | Id fixed once created; derived from the title when omitted |
+| `list`, `show <id>` | `list` has level and color columns; `show` names both |
+| `create [id] --title … [--description …] [--level id] [--color name]` | Id fixed once created; derived from the title when omitted. Without `--color` it takes one no other path wears |
 | `rename <id> <title>`, `describe <id> <description>` | Empty description removes it |
 | `level <id> <levelId>` or `--none` | Which level groups the path |
+| `color <id> <color>` | `sky`, `peach`, `pink`, `butter`, `leaf`, `lavender`, `aqua`, `indigo`, `orchid` or `sand`: its cards in the app and the backdrop of its videos. Publish the curriculum for the app to have it |
 | `move <id> --to <n>` or `--up` / `--down` | Position of the path in the curriculum |
 | `reorder <id> <lessonId> --to <n>` or `--earlier` / `--later` | Position of a lesson within its path |
 | `add <id> <lessonId...>` | Appends catalogued lessons, taking each out of its old path |
@@ -234,7 +235,7 @@ is:
   "levels": [{ "id": "starter", "title": "Starter", "description": "Flat shapes and clean lines." }],
   "paths": [
     {
-      "id": "sky-weather", "title": "Sky & Weather", "level": "starter", "description": "…",
+      "id": "sky-weather", "title": "Sky & Weather", "level": "starter", "color": "sky", "description": "…",
       "lessons": [
         { "id": "sun", "title": "Sun", "objective": "Circle with eight straight rays" },
         { "id": "palm-tree-4" }

@@ -71,6 +71,19 @@ describe('pendingChanges', () => {
     })
     expect(readyCount(pendingChanges({ ...input, working: reordered }))).toBe(1)
   })
+
+  it('notices a new color on a published path, and carries it into the projection', () => {
+    const colored: Catalog = { ...working, paths: [{ ...working.paths[0], color: 'leaf' }, working.paths[1]] }
+    const change = pendingChanges({ ...input, working: colored }).find((candidate) => candidate.kind === 'curriculum')
+    expect(change).toEqual({
+      kind: 'curriculum',
+      before: [{ id: 'houses', title: 'Houses', lessonIds: ['a', 'c'] }],
+      after: [{ id: 'houses', title: 'Houses', color: 'leaf', lessonIds: ['a', 'c'] }],
+      levelsBefore: [],
+      levelsAfter: [],
+    })
+    expect(projectCatalog(colored, shared, new Set(['a', 'c'])).paths[0].color).toBe('leaf')
+  })
 })
 
 describe('levels and planned lessons', () => {

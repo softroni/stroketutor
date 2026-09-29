@@ -18,20 +18,44 @@ export interface PageAssets {
 }
 
 /**
+ * The backdrop's three stops, lightest to deepest, when the lesson is in no
+ * path: the Paper Coach greens of the App Store screenshots.
+ */
+const GREENS = { light: '#26B571', mid: '#1FA463', deep: '#127544' }
+
+/**
+ * The backdrop's stops for a path's color (its deep shade in the app): the
+ * color itself in the middle, a touch lighter at the top, darker at the foot,
+ * as the greens are.
+ */
+export function backdropStops(colour: string): typeof GREENS {
+  return { light: mix(colour, '#FFFFFF', 0.1), mid: normaliseColour(colour)!.toUpperCase(), deep: mix(colour, '#000000', 0.32) }
+}
+
+function mix(colour: string, towards: string, amount: number): string {
+  const channels = (hex: string) => [1, 3, 5].map((at) => parseInt(normaliseColour(hex)!.slice(at, at + 2), 16))
+  const [from, to] = [channels(colour), channels(towards)]
+  return `#${from.map((value, index) => Math.round(value + (to[index] - value) * amount).toString(16).padStart(2, '0')).join('').toUpperCase()}`
+}
+
+/**
  * The page every frame is a screenshot of. It carries the lesson, the plan and
  * the assets inline, draws nothing on its own, and exposes `renderAt(t)`, which
  * sets every element for the moment `t` seconds in and returns a signature of
  * what is on screen. So a frame depends only on `t`, a render is exact and
  * repeatable, and two frames with the same signature are the same picture.
  *
- * The look follows the App Store screenshots: the Paper Coach greens, Fredoka,
- * and the drawing on a white card. Everything sits inside the part of the frame
- * the platforms leave alone (`SAFE`), measured on a real YouTube Short on an
- * iPhone: a phone taller than 9:16 crops about 55 px off each side, the buttons
- * run down the right from about y 1100, and the channel and title lines start
- * near y 1550.
+ * The look follows the App Store screenshots: Fredoka and the drawing on a
+ * white card, over the color of the lesson's path (`backdrop`, the path's deep
+ * shade in the app), so a video wears its path's color as the app does; the
+ * Paper Coach greens outside every path. Everything sits inside the part of
+ * the frame the platforms leave alone (`SAFE`), measured on a real YouTube
+ * Short on an iPhone: a phone taller than 9:16 crops about 55 px off each side,
+ * the buttons run down the right from about y 1100, and the channel and title
+ * lines start near y 1550.
  */
-export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAssets): string {
+export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAssets, backdrop?: string): string {
+  const stops = backdrop ? backdropStops(backdrop) : GREENS
   const data = { tutorial, plan, ink: normaliseColour(tutorial.style?.strokeColor) ?? '#141414' }
   const icon = `data:image/png;base64,${assets.icon}`
   const badge = assets.badge ? `data:image/svg+xml;base64,${Buffer.from(assets.badge).toString('base64')}` : null
@@ -39,16 +63,16 @@ export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAsset
 <html><head><meta charset="utf-8">
 <style>
   @font-face { font-family: 'Fredoka'; src: url(data:font/ttf;base64,${assets.font}) format('truetype'); font-weight: 300 700; font-stretch: 75% 125%; }
-  :root { --green-light: #26B571; --green: #1FA463; --green-deep: #127544; --highlight: #FFE08A; }
+  :root { --backdrop-light: ${stops.light}; --backdrop: ${stops.mid}; --backdrop-deep: ${stops.deep}; --highlight: #FFE08A; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: ${FRAME.width}px; height: ${FRAME.height}px; overflow: hidden; }
   body {
     font-family: 'Fredoka', sans-serif; color: #fff;
     background:
       radial-gradient(ellipse 75% 45% at 50% 45%, rgba(255, 255, 255, 0.16), transparent 70%),
-      linear-gradient(168deg, var(--green-light) 0%, var(--green) 40%, var(--green-deep) 100%);
+      linear-gradient(168deg, var(--backdrop-light) 0%, var(--backdrop) 40%, var(--backdrop-deep) 100%);
   }
-  /* A fine, still grain over the green, so the platforms' re-encoding doesn't band the gradient. */
+  /* A fine, still grain over the backdrop, so the platforms' re-encoding doesn't band the gradient. */
   .grain {
     position: absolute; inset: 0; opacity: 0.08; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");

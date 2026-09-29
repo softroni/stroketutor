@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { colorOfPath } from '../catalog/pathColors'
 import type { EditedPart, PathOrder, PendingChange } from '../catalog/publishing'
 import { findLesson, type Level } from '../catalog/types'
 
@@ -8,6 +9,7 @@ import { ApprovalChecklist } from './ApprovalDialog'
 import { ConfirmDialog } from './ConfirmDialog'
 import { FinishedDrawing } from './FinishedDrawing'
 import type { Library } from './library'
+import { PathColorDot } from './PathColorDot'
 import { routeHref } from './route'
 import { LifecycleBadge } from './StatusPill'
 
@@ -137,7 +139,7 @@ export function PublishView({ library, onPublished, onAdopt }: PublishViewProps)
         <section className="st-panel">
           <h2 className="st-label">Curriculum</h2>
           <p className="st-section-note">
-            The published levels and paths, their titles and their order, as the app will see them. Only published
+            The published levels and paths, their titles, colors and order, as the app will see them. Only published
             lessons appear; a path with none is left out, and so is a level left with no path. Planned lessons are
             places held in the workspace and never reach <code>shared/</code>. Curriculum changes are published
             together with anything else.
@@ -239,7 +241,9 @@ function PathList({
           <ol className="st-publish-paths">
             {group.paths.map((path) => (
               <li key={path.id}>
-                <strong>{path.title}</strong>
+                <strong>
+                  <PathColorDot color={colorOfPath(paths, path.id)} /> {path.title}
+                </strong>
                 <ol>
                   {path.lessonIds.map((id) => (
                     <li key={id}>{titleOf(id)}</li>

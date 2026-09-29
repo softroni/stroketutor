@@ -17,6 +17,7 @@ final class LessonSearchTests: XCTestCase {
                   title: title,
                   description: nil,
                   level: nil,
+                  color: nil,
                   lessons: lessons.map { lessonTitle in
                       Lesson(id: "\(id)/\(lessonTitle)", title: lessonTitle, pathId: id, tutorial: Self.tutorial,
                              objective: "", complexity: nil, reference: nil)

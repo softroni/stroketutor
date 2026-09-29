@@ -60,8 +60,8 @@ describe('createPath', () => {
   it('adds an empty path at the end, in paths.json field order', () => {
     const result = createPath(catalog(), 'streets', { title: ' Streets ', description: ' Corners. ' })
     expect(ids(result)).toEqual(['houses', 'trees', 'streets'])
-    expect(result.paths[2]).toEqual({ id: 'streets', title: 'Streets', description: 'Corners.', lessonIds: [] })
-    expect(Object.keys(result.paths[2])).toEqual(['id', 'title', 'description', 'lessonIds'])
+    expect(result.paths[2]).toEqual({ id: 'streets', title: 'Streets', description: 'Corners.', color: 'pink', lessonIds: [] })
+    expect(Object.keys(result.paths[2])).toEqual(['id', 'title', 'description', 'color', 'lessonIds'])
     expectValid(result)
   })
 
@@ -69,8 +69,21 @@ describe('createPath', () => {
     expect(createPath(catalog(), 'streets', { title: 'Streets', description: '  ' }).paths[2]).toEqual({
       id: 'streets',
       title: 'Streets',
+      color: 'pink',
       lessonIds: [],
     })
+  })
+
+  it('gives a new path a color no other path wears, counting the ones they take by their place', () => {
+    // Houses and Trees name none, so they wear sky and peach by their place; Boats wears pink.
+    const boats = { id: 'boats', title: 'Boats', color: 'pink' as const, lessonIds: [] }
+    const result = createPath({ ...catalog(), paths: [...catalog().paths, boats] }, 'streets', { title: 'Streets', description: '' })
+    expect(result.paths[3].color).toBe('butter')
+  })
+
+  it('takes the color it is given, or none', () => {
+    expect(createPath(catalog(), 'streets', { title: 'Streets', description: '', color: 'aqua' }).paths[2].color).toBe('aqua')
+    expect(createPath(catalog(), 'streets', { title: 'Streets', description: '', color: null }).paths[2]).not.toHaveProperty('color')
   })
 
   it('refuses a taken or malformed id and a blank title', () => {
@@ -85,6 +98,15 @@ describe('updatePath', () => {
     const result = updatePath(catalog(), 'houses', { title: 'Houses & Cottages', description: '' })
     expect(result.paths[0]).toEqual({ id: 'houses', title: 'Houses & Cottages', lessonIds: ['a', 'b'] })
     expectValid(result)
+  })
+
+  it('changes the color, keeps it when none is given, and takes it off with null', () => {
+    const leaf = updatePath(catalog(), 'houses', { title: 'Houses', description: '', color: 'leaf' })
+    expect(leaf.paths[0]).toEqual({ id: 'houses', title: 'Houses', color: 'leaf', lessonIds: ['a', 'b'] })
+    expect(Object.keys(leaf.paths[0])).toEqual(['id', 'title', 'color', 'lessonIds'])
+    expectValid(leaf)
+    expect(updatePath(leaf, 'houses', { title: 'Homes', description: '' }).paths[0].color).toBe('leaf')
+    expect(updatePath(leaf, 'houses', { title: 'Homes', description: '', color: null }).paths[0]).not.toHaveProperty('color')
   })
 
   it('refuses a blank title and an unknown path', () => {
@@ -249,6 +271,8 @@ describe('applyCurriculumPlan', () => {
       title: 'Sky',
       description: 'Sun first.',
       level: 'starter',
+      // New, and given no color: the first no other path wears (Houses and Trees take sky and peach by their place).
+      color: 'pink',
       lessonIds: ['sun', 'cloud'],
     })
     // The plan reorders the lessons it names and renames the path it found,
@@ -269,6 +293,16 @@ describe('applyCurriculumPlan', () => {
     expect(summary.pathsUpdated).toEqual(['houses'])
     expect(summary.lessonsPlanned).toEqual(['sun', 'cloud'])
     expectValid(result)
+  })
+
+  it('sets the color a plan gives a path, and refuses one that is not in the palette', () => {
+    const colored = { paths: [{ id: 'houses', title: 'Houses', color: 'sand', lessons: [{ id: 'a' }] }] }
+    const { catalog: result, summary } = applyCurriculumPlan(catalog(), colored, new Set(['a', 'b', 'c', 'd']))
+    expect(result.paths[0].color).toBe('sand')
+    expect(summary.pathsUpdated).toEqual(['houses'])
+    expectValid(result)
+    const wrong = { paths: [{ id: 'houses', title: 'Houses', color: 'teal', lessons: [] }] }
+    expect(() => applyCurriculumPlan(catalog(), wrong)).toThrow(/paths\[0\]\.color: "teal" is not a path color/)
   })
 
   it('changes nothing the second time', () => {

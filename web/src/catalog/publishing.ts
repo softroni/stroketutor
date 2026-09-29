@@ -1,3 +1,4 @@
+import type { PathColor } from './pathColors'
 import type { Catalog, LearningPath, Lesson, Level } from './types'
 
 /**
@@ -26,6 +27,8 @@ export interface PathOrder {
   title: string
   /** The level the path sits under, or undefined when it sits under none. */
   level?: string
+  /** The color it names, or undefined when it takes one by its place. */
+  color?: PathColor
   lessonIds: string[]
 }
 
@@ -34,7 +37,7 @@ export type PendingChange =
   | { kind: 'new'; lessonId: string; ready: boolean }
   /** Published, with changes in the workspace. */
   | { kind: 'edited'; lessonId: string; ready: boolean; parts: EditedPart[] }
-  /** The published levels, paths, their titles, their grouping or their order differ from the working curriculum. */
+  /** The published levels, paths, their titles, colors, grouping or order differ from the working curriculum. */
   | {
       kind: 'curriculum'
       before: PathOrder[]
@@ -145,6 +148,7 @@ function pathOrder(path: LearningPath): PathOrder {
     id: path.id,
     title: path.title,
     ...(path.level ? { level: path.level } : {}),
+    ...(path.color ? { color: path.color } : {}),
     lessonIds: [...path.lessonIds],
   }
 }

@@ -63,6 +63,7 @@ Options:
       --title <title>              The title learners see.
       --description <description>  What the path teaches, in a sentence or two.
       --level <id>                 The level to group the path under.
+      --color <name>               Its color in the app and its videos (default: one no other path wears): sky, peach, pink, butter, leaf, lavender, aqua, indigo, orchid, sand.
 
 Usage: studio paths level <id> [levelId]
 
@@ -78,6 +79,10 @@ A new title for a path.
 Usage: studio paths describe <id> <description>
 
 A new description for a path; an empty text removes it.
+
+Usage: studio paths color <id> <color>
+
+The path's color: its cards and screens in the app, and the backdrop of its lesson videos. One of sky, peach, pink, butter, leaf, lavender, aqua, indigo, orchid, sand.
 
 Usage: studio paths move <id>
 

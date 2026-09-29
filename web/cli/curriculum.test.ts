@@ -78,10 +78,25 @@ describe('paths', () => {
 
     const { paths } = await catalog()
     expect(paths.map((p) => p.id)).toEqual(['trees', 'animals', 'houses', 'cars', 'sea-life'])
-    expect(paths[1]).toEqual({ id: 'animals', title: 'Beasts', lessonIds: [] })
+    // Trees, Houses and Cars wear sky, peach and pink by their place, so the new path took the next free color.
+    expect(paths[1]).toEqual({ id: 'animals', title: 'Beasts', color: 'butter', lessonIds: [] })
 
     const listed = await t.studio('paths list')
     expect(listed.stdout).toContain('Beasts')
+  })
+
+  it('sets a path color, and refuses one outside the palette', async () => {
+    const set = await t.studio('paths color trees leaf')
+    expect(set.code).toBe(0)
+    expect(set.stdout).toContain('"trees" is now leaf.')
+    expect((await catalog()).paths[0].color).toBe('leaf')
+    expect((await t.studio('paths show trees')).stdout).toContain('Color: leaf')
+
+    const wrong = await t.studio('paths color trees teal')
+    expect(wrong.code).toBe(1)
+    expect(wrong.stderr).toContain('"teal" is not a path color')
+    const created = await t.studio('paths create reef --title Reef --color aqua')
+    expect(created.stdout).toContain('in aqua')
   })
 
   it('refuses a duplicate or malformed path id with exit code 1', async () => {

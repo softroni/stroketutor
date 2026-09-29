@@ -95,6 +95,14 @@ describe('validateCatalog', () => {
     expect(locations(result)).toEqual(['lessons.json lessons[0].staus'])
   })
 
+  it('accepts a path color from the palette and rejects any other', () => {
+    const colored = (color: string) => pathsFile({ ...path('p', ['a']), color })
+    expect(locations(validateCatalog(colored('leaf'), lessonsFile(lesson('a')), context))).toEqual([])
+    const result = validateCatalog(colored('green'), lessonsFile(lesson('a')), context)
+    expect(locations(result)).toEqual(['paths.json paths[0].color'])
+    expect(result.ok ? '' : result.issues[0].message).toContain('"leaf"')
+  })
+
   it('rejects an unknown status', () => {
     const result = validateCatalog(
       pathsFile(),

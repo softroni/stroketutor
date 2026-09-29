@@ -49,6 +49,10 @@
           "description": "The id of the level this path belongs to. Must exist in levels. A path without one is listed after the levels.",
           "$ref": "#/definitions/id"
         },
+        "color": {
+          "description": "The path's color: its cards and screens in the app, and the backdrop of its lesson videos. One of the app's ten (PathTint.swift; pathColors.ts in the Studio). A path without one, or with one an older app does not know, takes a color by its place in the list.",
+          "enum": ["sky", "peach", "pink", "butter", "leaf", "lavender", "aqua", "indigo", "orchid", "sand"]
+        },
         "lessonIds": {
           "description": "Lessons in unlock order. Each must exist in lessons.json and belong to no other path.",
           "type": "array",

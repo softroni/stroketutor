@@ -7,6 +7,8 @@
  * `validate.ts` is the only place allowed to mint a `Catalog`.
  */
 
+import type { PathColor } from './pathColors'
+
 /** The only `catalogVersion` the Studio understands. */
 export const SUPPORTED_CATALOG_VERSION = 1
 
@@ -78,6 +80,8 @@ export interface LearningPath {
   description?: string
   /** The id of the level this path belongs to. A path without one is listed last. */
   level?: string
+  /** Its color in the app and its lesson videos (`pathColors.ts`). Without one it takes a color by its place. */
+  color?: PathColor
   /** Lessons in unlock order. */
   lessonIds: string[]
 }

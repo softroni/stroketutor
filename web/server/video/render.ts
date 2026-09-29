@@ -8,6 +8,7 @@ import { promisify } from 'node:util'
 
 import type { Browser, Page } from 'playwright'
 
+import { colorOfPath, PATH_SWATCHES } from '../../src/catalog/pathColors'
 import type { PathsFile } from '../../src/catalog/types'
 import type { Tutorial } from '../../src/schema/types'
 import { INTRO_ID, OUTRO_ID } from '../../src/voice/bookends'
@@ -95,7 +96,7 @@ export async function videoDefaults(lessonId: string, deps: VideoDeps): Promise<
     badge,
     missing: missingSteps(narration.steps),
     stale: staleSteps(narration.steps),
-    caption: postCaption(tutorial, await placeOf(lessonId, deps)),
+    caption: postCaption(tutorial, (await placeOf(lessonId, deps)).place),
     video: info ? { file, bytes: info.size, modifiedAt: info.mtime.toISOString() } : null,
   }
 }
@@ -183,14 +184,14 @@ export async function exportVideo(
 
     const badgePath = path.join(deps.repoDir, BADGE)
     const badge = existsSync(badgePath) ? await readFile(badgePath, 'utf8') : null
-    const place = await placeOf(lessonId, deps)
+    const { place, backdrop } = await placeOf(lessonId, deps)
     const input: VideoInput = { tutorial, clips, intro, place, cta: request.cta?.trim() || (badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA) }
     const plan = planVideo(input)
     const html = videoPage(tutorial, plan, {
       font: (await readAsset(deps.repoDir, FONT)).toString('base64'),
       icon: (await readAsset(deps.repoDir, ICON)).toString('base64'),
       badge,
-    })
+    }, backdrop)
     const pagePath = path.join(work, 'page.html')
     await writeFile(pagePath, html)
     const caption = postCaption(tutorial, place)
@@ -233,7 +234,7 @@ export async function exportVideo(
     const partial = `${out}.partial.mp4`
     await run('ffmpeg', [
       '-y', '-loglevel', 'error', '-i', silent, '-i', mixed, '-c:v', 'copy', '-c:a', 'copy',
-      // x264 records only the colour matrix; this adds BT.709 primaries and transfer, so no platform shifts the greens.
+      // x264 records only the colour matrix; this adds BT.709 primaries and transfer, so no platform shifts the path's colour.
       '-bsf:v', 'h264_metadata=colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1:video_full_range_flag=0',
       '-shortest', '-movflags', '+faststart', partial,
     ])
@@ -256,15 +257,22 @@ async function readTutorial(lessonId: string, deps: VideoDeps): Promise<Tutorial
   return JSON.parse(stored.text) as Tutorial
 }
 
-/** Which path the lesson is in and where, from the working curriculum. */
-async function placeOf(lessonId: string, deps: VideoDeps): Promise<VideoInput['place']> {
+/**
+ * Which path the lesson is in and where, from the working curriculum, and the
+ * backdrop that path's color gives the video; none outside every path.
+ */
+async function placeOf(lessonId: string, deps: VideoDeps): Promise<{ place: VideoInput['place']; backdrop?: string }> {
   try {
     const { paths } = await deps.voice.workspace.readCatalog()
     const file = JSON.parse(paths.text) as PathsFile
     const found = file.paths.find((entry) => entry.lessonIds.includes(lessonId))
-    return found ? { pathTitle: found.title, number: found.lessonIds.indexOf(lessonId) + 1, count: found.lessonIds.length } : null
+    if (!found) return { place: null }
+    return {
+      place: { pathTitle: found.title, number: found.lessonIds.indexOf(lessonId) + 1, count: found.lessonIds.length },
+      backdrop: PATH_SWATCHES[colorOfPath(file.paths, found.id)].deep,
+    }
   } catch {
-    return null
+    return { place: null }
   }
 }
 

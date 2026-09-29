@@ -95,6 +95,10 @@ struct CatalogPath: Codable, Identifiable, Hashable {
     /// loader clears a level no `levels` entry names, so this is either nil or a
     /// level the catalog carries.
     let level: String?
+    /// The name of the path's color in `PathTint`'s palette ("leaf", "sky"), or nil
+    /// when the catalog names none. Kept as the text the file carries, so a name a
+    /// newer catalog adds costs the path its color, never the whole file.
+    let color: String?
     /// Lessons in unlock order. Each must exist in `lessons.json`.
     let lessonIds: [String]
 }

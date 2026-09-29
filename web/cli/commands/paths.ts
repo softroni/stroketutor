@@ -1,5 +1,6 @@
 import { estimateLearnerSeconds, formatMinutes } from '../../src/catalog/metrics'
-import { findLesson, findLevel } from '../../src/catalog/types'
+import { colorOfPath, isPathColor, PATH_COLORS, type PathColor } from '../../src/catalog/pathColors'
+import { findLesson, findLevel, type LearningPath } from '../../src/catalog/types'
 import {
   assignLesson,
   createLevel,
@@ -26,8 +27,8 @@ export const curriculumCommands: Command[] = [
       catalog.paths.length === 0
         ? ['No paths yet. `studio paths create --title "…"` makes one.']
         : table(
-            catalog.paths.map((path, index) => [String(index + 1), path.id, path.title, path.level ?? '', plural(path.lessonIds.length, 'lesson'), path.description ?? '']),
-            ['#', 'id', 'title', 'level', 'lessons', 'description'],
+            catalog.paths.map((path, index) => [String(index + 1), path.id, path.title, path.level ?? '', colorLabel(catalog.paths, path.id), plural(path.lessonIds.length, 'lesson'), path.description ?? '']),
+            ['#', 'id', 'title', 'level', 'color', 'lessons', 'description'],
           ),
     )
   }),
@@ -55,6 +56,7 @@ export const curriculumCommands: Command[] = [
       `${path.title} (${path.id})`,
       ...(path.description ? [path.description] : []),
       `Level: ${level ? `${level.title} (${level.id})` : 'none'}`,
+      `Color: ${colorLabel(catalog.paths, path.id)}`,
       '',
       ...(lessons.length === 0
         ? ['No lessons in this path.']
@@ -73,6 +75,7 @@ export const curriculumCommands: Command[] = [
       title: { type: 'string', description: 'The title learners see.' },
       description: { type: 'string', description: 'What the path teaches, in a sentence or two.' },
       level: { type: 'string', description: 'The level to group the path under.', placeholder: 'id' },
+      color: { type: 'string', description: `Its color in the app and its videos (default: one no other path wears): ${PATH_COLORS.join(', ')}.`, placeholder: 'name' },
     },
     async (ctx, args) => {
       const title = stringValue(args.values, 'title')
@@ -81,8 +84,10 @@ export const curriculumCommands: Command[] = [
       if (!id) throw new CliError('The title makes no id; pass one: studio paths create <id> --title "…".')
       const description = stringValue(args.values, 'description') ?? ''
       const level = stringValue(args.values, 'level') ?? null
-      const catalog = await editCatalog(ctx, (current) => createPath(current, id, { title, description, level }))
-      ctx.out.result({ path: requirePath(catalog, id) }, () => `Created the path "${title}" (${id}), number ${catalog.paths.length}${level ? ` in the level "${level}"` : ''}.`)
+      const named = stringValue(args.values, 'color')
+      const color = named === undefined ? undefined : requireColor(named)
+      const catalog = await editCatalog(ctx, (current) => createPath(current, id, { title, description, level, color }))
+      ctx.out.result({ path: requirePath(catalog, id) }, () => `Created the path "${title}" (${id}), number ${catalog.paths.length}${level ? ` in the level "${level}"` : ''}, in ${colorLabel(catalog.paths, id)}.`)
     },
   ),
 
@@ -120,6 +125,26 @@ export const curriculumCommands: Command[] = [
     const catalog = await editCatalog(ctx, (current) => updatePath(current, id, { title: requirePath(current, id).title, description }))
     ctx.out.result({ path: requirePath(catalog, id) }, () => (description.trim() ? `Described "${id}".` : `Removed the description of "${id}".`))
   }),
+
+  command(
+    'paths color',
+    `The path's color: its cards and screens in the app, and the backdrop of its lesson videos. One of ${PATH_COLORS.join(', ')}.`,
+    ['<id>', '<color>'],
+    {},
+    async (ctx, args) => {
+      const [id, named] = args.positionals
+      const color = requireColor(named)
+      const catalog = await editCatalog(ctx, (current) => {
+        const path = requirePath(current, id)
+        return updatePath(current, id, { title: path.title, description: path.description ?? '', color })
+      })
+      const others = catalog.paths.filter((path) => path.id !== id && colorOfPath(catalog.paths, path.id) === color).map((path) => path.id)
+      ctx.out.result({ path: requirePath(catalog, id) }, () => [
+        `"${id}" is now ${color}.`,
+        ...(others.length > 0 ? [`${others.join(', ')} ${others.length === 1 ? 'wears' : 'wear'} it too.`] : []),
+      ])
+    },
+  ),
 
   command(
     'paths move',
@@ -299,4 +324,15 @@ function target(values: Record<string, unknown>, from: number, count: number, wh
   const index = parseIndex(to, `${what}'s place`)
   if (index > count) throw new CliError(`${what}'s place must be between 1 and ${count}.`)
   return index - 1
+}
+
+function requireColor(name: string): PathColor {
+  if (!isPathColor(name)) throw new CliError(`"${name}" is not a path color. Use one of ${PATH_COLORS.join(', ')}.`)
+  return name
+}
+
+/** The color a path wears, and whether it is its own or the one its place gives it. */
+function colorLabel(paths: readonly LearningPath[], id: string): string {
+  const color = colorOfPath(paths, id)
+  return paths.find((path) => path.id === id)?.color ? color : `${color} (by its place)`
 }

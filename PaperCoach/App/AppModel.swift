@@ -267,6 +267,7 @@ final class AppModel {
                              title: path.title,
                              description: path.description,
                              level: path.level,
+                             color: path.color,
                              lessons: lessons)
         }
 
@@ -679,6 +680,7 @@ extension AppModel {
                                  title: existing.title,
                                  description: existing.description,
                                  level: existing.level,
+                                 color: existing.color,
                                  lessons: existing.lessons + [lesson])
     }
 }

@@ -80,6 +80,9 @@ struct PathModel: Identifiable, Hashable {
     /// no levels or the path names none. Copied from `CatalogPath.level`, so it is
     /// always a level the catalog carries.
     let level: String?
+    /// The name of the path's color, copied from `CatalogPath.color`; `AppModel.tint(for:)`
+    /// turns it into a `PathTint`.
+    let color: String?
     let lessons: [Lesson]
 
     var lessonCount: Int { lessons.count }

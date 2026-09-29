@@ -74,8 +74,14 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
     **+ New level** makes one, and a level's **⋯** menu renames it, describes it, moves it, or
     deletes it once no path sits under it;
   - **+ New path** takes a title, an id (fixed once created; lessons and the app refer to paths
-    by it), an optional description and the level it sits under;
-  - paths reorder with their ↑/↓ buttons; a path's title and description are edited in place;
+    by it), an optional description, the level it sits under and its color;
+  - paths reorder with their ↑/↓ buttons; a path's title, description, level and color are edited in
+    place;
+  - a path's **color** is one of the app's ten (`src/catalog/pathColors.ts`, the same palette as
+    `PathTint.swift`): its cards and screens in the app and the backdrop of its lesson videos, so a
+    video wears the color its path has in the app. A new path takes one no other path wears; a path
+    that names none takes one by its place, as the app does. A color change is a curriculum change to
+    publish, and reaches learners with the next app release, which bundles the catalog;
   - **Delete path…** moves a path to the Trash, keeping its lessons under “Not in a path” or
     moving them to the Trash too;
   - lessons reorder by drag or ↑/↓, move to another path or out of every path with **Move to…**,
@@ -298,7 +304,8 @@ TikTok and Instagram Reels, from the lesson page's **Video** tab or `studio less
 `server/video/`: `plan.ts` times it (pure and tested), `page.ts` is the page a frame is a screenshot of,
 `render.ts` makes it, and `jobs.ts` runs the tab's exports one at a time.
 
-- **What it shows.** The finished picture, then the whole lesson drawn fast while Lina says an opening
+- **What it shows.** Over the color of the lesson's path (its deep shade in the app, a touch lighter at
+  the top and darker at the foot; the Paper Coach greens for a lesson in no path): the finished picture, then the whole lesson drawn fast while Lina says an opening
   line ("Let’s draw a rocket. Grab a pencil and draw along with me.", editable); every step at the
   lesson's own pace with its recording, her words beside her portrait (`LinaFace`, redrawn as SVG) two or
   three at a time on one large line, the word she is saying in yellow; then "Now draw it yourself" while she says her closing line, and the app icon, Paper Coach,
@@ -367,7 +374,7 @@ npm run studio -- voice app narrate && npm run studio -- voice app publish   # L
 | the Studio | `status`, `settings`, `models`, `adopt-shared` |
 | `levels` | `list`, `create`, `rename`, `describe`, `move`, `delete` |
 | `curriculum` | `apply` (a whole plan file of levels, paths and planned lessons) |
-| `paths` | `list`, `show`, `create`, `rename`, `describe`, `level`, `move`, `reorder`, `add`, `delete` |
+| `paths` | `list`, `show`, `create`, `rename`, `describe`, `level`, `color`, `move`, `reorder`, `add`, `delete` |
 | `lessons` | `list`, `show`, `export`, `import`, `set`, `plan`, `move`, `duplicate`, `delete`, `unpublish`, `approve`, `validate`, `quality`, `reference set`, `reference export`, `generate`, `regenerate`, `summary`, `apply`, `render`, `video` |
 | `steps` | `list`, `set`, `split`, `merge`, `move`, `group` |
 | `strokes` | `list`, `move`, `reorder`, `reverse`, `delete`, `set` (retime, line width) |

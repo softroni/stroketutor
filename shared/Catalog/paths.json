@@ -23,6 +23,7 @@
       "title": "Plants",
       "description": "Trees, flowers and potted plants, from stacked triangles to a twisted bonsai, ending on a windowsill garden.",
       "level": "starter",
+      "color": "leaf",
       "lessonIds": [
         "pine-tree",
         "tulip",
@@ -41,6 +42,7 @@
       "title": "Fruits",
       "description": "Round, curved and clustered shapes, ending with four fruits overlapping in a bowl.",
       "level": "starter",
+      "color": "peach",
       "lessonIds": [
         "watermelon-slice",
         "apple",
@@ -59,6 +61,7 @@
       "title": "Sky & Weather",
       "description": "From a sun made of a circle and rays to a storm over the mountains: simple shapes first, then overlap, then a whole scene.",
       "level": "starter",
+      "color": "sky",
       "lessonIds": [
         "sun",
         "cloud",
@@ -77,6 +80,7 @@
       "title": "Food & Treats",
       "description": "Treats first, then stacked and layered food, ending with a full snack tray.",
       "level": "advanced",
+      "color": "pink",
       "lessonIds": [
         "donut",
         "popsicle",
@@ -95,6 +99,7 @@
       "title": "Forms",
       "description": "The skills path: boxes, cylinders, cones and spheres, then everyday objects built from them, with one light direction.",
       "level": "starter",
+      "color": "lavender",
       "lessonIds": [
         "cube",
         "cylinder",
@@ -113,6 +118,7 @@
       "title": "Wheels",
       "description": "Everything that rolls, from a box-shaped bus to an ambulance with its cross and roof light.",
       "level": "core",
+      "color": "butter",
       "lessonIds": [
         "school-bus",
         "car",
@@ -131,6 +137,7 @@
       "title": "On the Water",
       "description": "Boats and ships, from one sail on a hull to a harbour scene.",
       "level": "core",
+      "color": "aqua",
       "lessonIds": [
         "sailboat",
         "canoe",
@@ -149,6 +156,7 @@
       "title": "In the Air",
       "description": "Things that fly, from a paper airplane to a busy sky that uses size for depth.",
       "level": "core",
+      "color": "orchid",
       "lessonIds": [
         "hot-air-balloon",
         "paper-airplane",
@@ -167,6 +175,7 @@
       "title": "Space",
       "description": "Moons, planets and spacecraft, ending with the solar system drawn on orbit ellipses.",
       "level": "core",
+      "color": "indigo",
       "lessonIds": [
         "rocket",
         "crescent-moon",
@@ -185,6 +194,7 @@
       "title": "Landscape",
       "description": "Depth without buildings: overlap, size, paler distance, reflections and a road to the horizon, ending with a full mountain valley.",
       "level": "advanced",
+      "color": "sand",
       "lessonIds": [
         "rolling-hills",
         "winding-river",
