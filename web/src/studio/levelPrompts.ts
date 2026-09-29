@@ -16,6 +16,10 @@
  * path until these (2026-09-29), and stays the record of the pictures made with it.
  * A change here changes the pictures: give it a new version, so a lesson's
  * `--source` still says which prompt made its picture.
+ *
+ * `style-v4-advanced` (2026-09-29) says what the first Urban Sketching picture got
+ * wrong: glass shine drawn as pale tubes, a second cornice over a dark band, rims
+ * and bands nobody asked for, lines crowded into dark strips, a landscape image.
  */
 export interface LevelPrompt {
   /** Recorded with every picture it makes, as `style-v2` was. */
@@ -176,7 +180,8 @@ REFERENCE
   when the description gives one.
 
 LINE
-- One outline color everywhere: very dark charcoal (#26292e). Never pure black, never colored lines.
+- One line color everywhere: very dark charcoal (#26292e), for outlines, detail lines, hatching and
+  the shine on glass. Never pure black, never white, pale or colored lines.
 - One line weight everywhere: a bold, even felt-tip line about 1% of the image width (10 to 12
   pixels on a 1024-pixel image). That includes the lines inside a shape, hatch and texture lines,
   the outlines of shadows and highlights, and lines far away. No hairlines, no thin or gray lines,
@@ -186,6 +191,8 @@ LINE
 - Every shape is fully closed. Where two lines meet, they touch exactly: no gaps, no overshoot.
 - Use as few lines as possible. If a detail is not named in the subject description, leave it out.
   When a number of details is given (five seeds, eight segments), draw exactly that number.
+- A part named as one shape is one closed outline: no rim, band, bevel, inner border, second
+  outline or stacked copy of it unless the description names one.
 
 DRAWABLE
 An adult learner can hold a long curve, draw many parts and keep a rhythm of repeated lines, so a
@@ -195,6 +202,8 @@ stroke of the pen.
   wavy edges only where the description asks for them, with a count.
 - Parts touch only where one is attached to or built on another, and then along one shared edge,
   drawn once. Otherwise leave a clear gap of white between them, at least three line-widths wide.
+- Lines that do not meet stay at least three line-widths apart, with color or white between them,
+  inside the subject too: two lines drawn closer merge into one dark band.
 - Detail and texture lines are single bold lines, never thin colored tubes or ribbons. They float
   inside their shape and touch nothing, unless the description says a line divides the shape: then
   it runs from outline to outline.
@@ -214,7 +223,7 @@ LIGHT
 - Light is drawn, not rendered. It comes from the side the description names, the upper left when
   it names none. A shadow side or a cast shadow is a flat shape with its own bold outline and one
   flat palette color, or a set of bold hatch lines. A highlight or a patch of light is an outlined
-  shape in a lighter color, usually cream.
+  shape in a lighter color, usually cream, and a shine on glass is a few bold charcoal lines.
 - No gradients, no soft edges, no glow, no blur, and no light or shadow the description does not
   name.
 
@@ -236,13 +245,15 @@ COLOR
 - Nothing is filled with the outline color: a dark area (an opening, a hole, a lens) is purple.
 
 COMPOSITION
-- Square image. Pure white (#ffffff) background: no ground line, no horizon, no sky or water, no
+- Square image, 1024 × 1024, even when the subject is wider than tall: never landscape or
+  portrait. Pure white (#ffffff) background: no ground line, no horizon, no sky or water, no
   shadow under the subject, no frame, no border, no vignette, no paper texture, unless the
   description names it.
 - One subject, centered and upright, or a small scene when the description says so. Either way it
-  fills about 70% of the image, with clear white margin on all four sides, and stands on the white
-  paper as an island of drawing, with no frame around it. Sky and water stay plain white paper
-  unless the description colors them. Nothing is cropped by the edge.
+  fills about 70% of the image across its longer side, with white margin of at least a tenth of
+  the image on all four sides, and stands on the white paper as an island of drawing, with no
+  frame around it. Sky and water stay plain white paper unless the description colors them.
+  Nothing is cropped by the edge.
 
 NEVER
 - No faces, eyes, mouths, arms or legs on anything. No people, animals or insects. Objects are
@@ -258,7 +269,7 @@ export const LEVEL_PROMPTS: Record<string, LevelPrompt> = {
   starter: { version: 'style-v3-starter', audience: 'children under 10', learner: 'a child under ten', prompt: STARTER },
   core: { version: 'style-v3-core', audience: 'learners aged 10 to 15', learner: 'a learner of ten to fifteen', prompt: CORE },
   advanced: {
-    version: 'style-v3-advanced',
+    version: 'style-v4-advanced',
     audience: 'learners aged 16 and up',
     learner: 'a learner of sixteen or older',
     prompt: ADVANCED,
