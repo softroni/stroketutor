@@ -190,6 +190,34 @@ cp docs/ops/com.softroni.papercoach-social.plist ~/Library/LaunchAgents/
 launchctl load -w ~/Library/LaunchAgents/com.softroni.papercoach-social.plist
 ```
 
+## Drawing time
+
+From the first release after 1.0, `lesson_completed` carries `drawing_seconds` (how long the learner really
+took, `DrawingClock`: from step one to the last "I drew it", at most ten minutes counted between two taps) and
+`estimated_seconds` (the "About N min" the preview showed, `Lesson.estimatedSeconds(of:)`). Once there are
+about 200 measured completions, compare them in PostHog:
+
+```sql
+SELECT
+    properties.lesson_id AS lesson,
+    count() AS n,
+    median(toFloat(properties.drawing_seconds)) AS drawn,
+    any(toFloat(properties.estimated_seconds)) AS estimated,
+    round(drawn / estimated, 2) AS ratio
+FROM events
+WHERE event = 'lesson_completed'
+    AND properties.drawing_seconds IS NOT NULL
+    AND timestamp >= now() - INTERVAL 30 DAY
+GROUP BY lesson
+HAVING n >= 5
+ORDER BY ratio
+```
+
+If the typical ratio is outside 0.8 to 1.25, put new values for the formula's two constants (the animation × 3,
+and 8 seconds a step) under "Needs you": what the app promises is Kevin's call, like any feature. The baseline
+before the clock existed, 22 finished lessons on 1.0 from 2026-09-26 to 28 timed from `lesson_started` to
+`lesson_completed` (intro included): median ratio 0.89.
+
 ## Replying to reviews
 
 - Warm, short and specific to what the person wrote, signed "the Paper Coach team". Thank them for

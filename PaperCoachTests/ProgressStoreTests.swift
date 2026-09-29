@@ -129,6 +129,65 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertTrue(store.isCompleted(lesson.id))
     }
 
+    // MARK: - Drawing time
+
+    /// Leaving part-way keeps the time spent; leaving during the intro (no seconds)
+    /// keeps what was there; finishing moves the time to the finished drawing.
+    func testTheDrawingTimeIsKeptWhileLeftAndMovedToTheFinishedDrawing() throws {
+        let path = try Self.makePath(lessonCount: 1)
+        let store = ProgressStore(baseDirectory: directory)
+        let lesson = path.lessons[0]
+
+        store.markOpened(lesson.id, pathId: path.id, step: 3, drawingSeconds: 150)
+        store.markOpened(lesson.id, pathId: path.id)
+        XCTAssertEqual(store.progress(for: lesson.id)?.drawingSeconds, 150)
+
+        store.markCompleted(lesson.id, pathId: path.id, drawingSeconds: 210)
+        let record = try XCTUnwrap(store.progress(for: lesson.id))
+        XCTAssertNil(record.drawingSeconds)
+        XCTAssertEqual(record.lastDrawingSeconds, 210)
+        XCTAssertEqual(ProgressStore(baseDirectory: directory).progress(for: lesson.id)?.lastDrawingSeconds, 210)
+    }
+
+    /// Each finished drawing has its own time: one that was not measured does not
+    /// show an earlier drawing's.
+    func testAnUnmeasuredFinishForgetsTheEarlierTime() throws {
+        let path = try Self.makePath(lessonCount: 1)
+        let store = ProgressStore(baseDirectory: directory)
+        let lesson = path.lessons[0]
+
+        store.markCompleted(lesson.id, pathId: path.id, drawingSeconds: 210)
+        store.markCompleted(lesson.id, pathId: path.id)
+
+        XCTAssertNil(store.progress(for: lesson.id)?.lastDrawingSeconds)
+    }
+
+    /// "Start over" on the preview begins a new drawing, so its time starts again.
+    func testStartingOverForgetsTheTimeSpent() throws {
+        let path = try Self.makePath(lessonCount: 1)
+        let store = ProgressStore(baseDirectory: directory)
+        let lesson = path.lessons[0]
+
+        store.markOpened(lesson.id, pathId: path.id, step: 2, drawingSeconds: 90)
+        store.clearResume(lesson.id)
+
+        XCTAssertNil(store.progress(for: lesson.id)?.drawingSeconds)
+    }
+
+    /// A `progress.json` written before drawing times were kept still loads.
+    func testProgressWrittenBeforeDrawingTimesStillLoads() throws {
+        let json = """
+        [{"lessonId":"lesson-1","pathId":"fixtures","completedAt":"2026-09-01T10:00:00Z","timesCompleted":1}]
+        """
+        try Data(json.utf8).write(to: directory.appendingPathComponent("progress.json"))
+
+        let store = ProgressStore(baseDirectory: directory)
+        let record = try XCTUnwrap(store.progress(for: "lesson-1"))
+        XCTAssertTrue(record.isCompleted)
+        XCTAssertNil(record.drawingSeconds)
+        XCTAssertNil(record.lastDrawingSeconds)
+    }
+
     // MARK: - Persistence
 
     func testProgressSurvivesAReload() throws {

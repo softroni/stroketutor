@@ -2,7 +2,8 @@ import SwiftUI
 import UIKit
 
 /// `sk-complete` — the moment after the last step. The drawing is shown whole on a
-/// white page, one line from Lina, two honest facts, and the invitation to keep it.
+/// white page, one line from Lina, two honest facts (the steps, and the time it
+/// really took), and the invitation to keep it.
 /// Nothing is graded (plan §32: "At completion, do not grade the drawing… the final
 /// action is to help the learner keep evidence of progress").
 ///
@@ -275,8 +276,15 @@ struct CompletionView: View {
             StatTile(value: spanText, label: "First to last")
         } else {
             StatTile(value: "\(lesson.stepCount)", label: "Steps")
-            StatTile(value: "\(lesson.estimatedMinutes) min", label: "Drawing time")
+            StatTile(value: drawingTimeText, label: "Drawing time")
         }
+    }
+
+    /// How long this drawing really took (`DrawingClock`), or the lesson's estimate
+    /// when it was not measured.
+    private var drawingTimeText: String {
+        let measured = app.progress.progress(for: lesson.id)?.lastDrawingSeconds
+        return DrawingClock.text(for: measured ?? Double(lesson.estimatedMinutes * 60))
     }
 
     // MARK: - The three ways on

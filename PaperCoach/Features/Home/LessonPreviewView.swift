@@ -409,12 +409,7 @@ struct LessonPreviewView: View {
 
     /// The same estimate as `Lesson.estimatedMinutes`, over the steps that are left.
     private func minutesRemaining(of lesson: Lesson, from stepIndex: Int) -> Int {
-        let remaining = lesson.tutorial.steps.dropFirst(stepIndex)
-        let drawing = remaining.reduce(0.0) { total, step in
-            total + step.strokes.reduce(0.0) { $0 + $1.duration }
-        }
-        let seconds = drawing * 3 + 8 * Double(remaining.count)
-        return max(1, Int(ceil(seconds / 60)))
+        Lesson.minutes(Lesson.estimatedSeconds(of: lesson.tutorial.steps.dropFirst(stepIndex)))
     }
 
     // MARK: - Lina and how a lesson works

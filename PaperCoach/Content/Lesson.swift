@@ -22,15 +22,32 @@ struct Lesson: Identifiable, Hashable {
     /// square canvas.
     var drawingBounds: CGRect { tutorial.drawingBounds }
 
-    /// How long the lesson takes, in minutes, rounded up: the animation is roughly a
-    /// third of the work, and copying a step onto paper costs about eight seconds.
+    /// How long the lesson takes, in minutes, rounded up (`estimatedSeconds(of:)`).
     /// Shown as "About 4 min"; never as a countdown, and never as a target.
     var estimatedMinutes: Int {
-        let drawing = tutorial.steps.reduce(0.0) { total, step in
+        Self.minutes(Self.estimatedSeconds(of: tutorial.steps))
+    }
+
+    /// The estimate in seconds, sent with `lesson_completed` beside the time the
+    /// drawing really took, so the two constants below can be checked against
+    /// learners (`docs/ops/README.md`, "Drawing time").
+    var estimatedSeconds: Double {
+        Self.estimatedSeconds(of: tutorial.steps)
+    }
+
+    /// The animation is roughly a third of the work, and copying a step onto paper
+    /// costs about eight seconds more. The preview's "3 min left" uses the same
+    /// sum over the steps that are left.
+    static func estimatedSeconds(of steps: some Collection<PreparedStep>) -> Double {
+        let drawing = steps.reduce(0.0) { total, step in
             total + step.strokes.reduce(0.0) { $0 + $1.duration }
         }
-        let seconds = drawing * 3 + 8 * Double(stepCount)
-        return max(1, Int(ceil(seconds / 60)))
+        return drawing * 3 + 8 * Double(steps.count)
+    }
+
+    /// Whole minutes, rounded up, and never less than one.
+    static func minutes(_ seconds: Double) -> Int {
+        max(1, Int(ceil(seconds / 60)))
     }
 
     /// "About 4 min".

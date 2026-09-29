@@ -165,6 +165,8 @@ struct AnalyticsEvent: Equatable {
         static let premiumLesson = "premium_lesson"
         static let step = "step"
         static let totalSteps = "total_steps"
+        static let drawingSeconds = "drawing_seconds"
+        static let estimatedSeconds = "estimated_seconds"
         static let firstOpen = "first_open"
         static let narrationOn = "narration_on"
         static let reminderOn = "reminder_on"
@@ -215,9 +217,22 @@ struct AnalyticsEvent: Equatable {
                                     Key.premiumLesson: premiumLesson ? "true" : "false"])
     }
 
-    /// The last step was drawn.
-    static func lessonCompleted(lessonId: String, pathId: String) -> AnalyticsEvent {
-        AnalyticsEvent(name: "lesson_completed", properties: [Key.lessonId: lessonId, Key.pathId: pathId])
+    /// The last step was drawn. `drawing_seconds` is how long it took, in whole
+    /// seconds (`DrawingClock`), when it was measured, and `estimated_seconds` what
+    /// the preview promised (`Lesson.estimatedSeconds`): the two side by side check
+    /// the "About 4 min" against real learners.
+    static func lessonCompleted(lessonId: String,
+                                pathId: String,
+                                drawingSeconds: Double? = nil,
+                                estimatedSeconds: Double? = nil) -> AnalyticsEvent {
+        var properties = [Key.lessonId: lessonId, Key.pathId: pathId]
+        if let drawingSeconds {
+            properties[Key.drawingSeconds] = String(Int(drawingSeconds.rounded()))
+        }
+        if let estimatedSeconds {
+            properties[Key.estimatedSeconds] = String(Int(estimatedSeconds.rounded()))
+        }
+        return AnalyticsEvent(name: "lesson_completed", properties: properties)
     }
 
     /// The learner left the player before the end. `step` is the one on screen,

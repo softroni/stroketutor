@@ -14,6 +14,12 @@ struct LessonProgress: Codable, Identifiable, Hashable {
     /// Where the learner left off, so the preview can offer "Continue from step 4".
     var lastStepIndex: Int?
     var lastOpenedAt: Date?
+    /// The time spent so far on the drawing in progress (`DrawingClock`), so a
+    /// lesson left part-way and continued later counts both visits.
+    var drawingSeconds: Double?
+    /// How long the last finished drawing took, for `sk-complete`'s "Drawing time".
+    /// Nil when it was not measured.
+    var lastDrawingSeconds: Double?
 
     var id: String { lessonId }
     var isCompleted: Bool { completedAt != nil }
@@ -23,13 +29,17 @@ struct LessonProgress: Codable, Identifiable, Hashable {
          completedAt: Date? = nil,
          timesCompleted: Int = 0,
          lastStepIndex: Int? = nil,
-         lastOpenedAt: Date? = nil) {
+         lastOpenedAt: Date? = nil,
+         drawingSeconds: Double? = nil,
+         lastDrawingSeconds: Double? = nil) {
         self.lessonId = lessonId
         self.pathId = pathId
         self.completedAt = completedAt
         self.timesCompleted = timesCompleted
         self.lastStepIndex = lastStepIndex
         self.lastOpenedAt = lastOpenedAt
+        self.drawingSeconds = drawingSeconds
+        self.lastDrawingSeconds = lastDrawingSeconds
     }
 }
 
@@ -106,30 +116,37 @@ final class ProgressStore {
 
     // MARK: - Writing
 
-    /// Records that a lesson was opened, and where the learner is in it. Called on
-    /// each step boundary and when the player is left.
-    func markOpened(_ lessonId: String, pathId: String, step: Int? = nil) {
+    /// Records that a lesson was opened, where the learner is in it and how long
+    /// they have been drawing. Called on each step boundary and when the player is
+    /// left.
+    func markOpened(_ lessonId: String, pathId: String, step: Int? = nil, drawingSeconds: Double? = nil) {
         update(lessonId, pathId: pathId) { record in
             record.lastOpenedAt = Date()
             if let step { record.lastStepIndex = step }
+            if let drawingSeconds { record.drawingSeconds = drawingSeconds }
         }
     }
 
-    /// Records a finished lesson: the date the first time, the count every time, and
-    /// no resume point, because there is nothing left to resume.
-    func markCompleted(_ lessonId: String, pathId: String, at date: Date = Date()) {
+    /// Records a finished lesson: the date the first time, the count every time,
+    /// how long this drawing took, and no resume point, because there is nothing
+    /// left to resume.
+    func markCompleted(_ lessonId: String, pathId: String, at date: Date = Date(), drawingSeconds: Double? = nil) {
         update(lessonId, pathId: pathId) { record in
             if record.completedAt == nil { record.completedAt = date }
             record.timesCompleted += 1
             record.lastStepIndex = nil
             record.lastOpenedAt = date
+            record.drawingSeconds = nil
+            record.lastDrawingSeconds = drawingSeconds
         }
     }
 
-    /// Forgets where the learner was, without forgetting that they finished it.
+    /// Forgets where the learner was, and the time spent on that drawing, without
+    /// forgetting that they finished it.
     func clearResume(_ lessonId: String) {
         guard let index = records.firstIndex(where: { $0.lessonId == lessonId }) else { return }
         records[index].lastStepIndex = nil
+        records[index].drawingSeconds = nil
         save()
     }
 

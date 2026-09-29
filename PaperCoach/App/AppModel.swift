@@ -446,10 +446,14 @@ final class AppModel {
         if case .player = cover { cover = nil }
     }
 
-    /// The lesson is finished: record it, then show `sk-complete`.
-    func presentCompletion(_ lesson: Lesson) {
-        progress.markCompleted(lesson.id, pathId: lesson.pathId)
-        analytics.track(.lessonCompleted(lessonId: lesson.id, pathId: lesson.pathId))
+    /// The lesson is finished: record it, and how long it took to draw
+    /// (`DrawingClock`), then show `sk-complete`.
+    func presentCompletion(_ lesson: Lesson, drawingSeconds: Double? = nil) {
+        progress.markCompleted(lesson.id, pathId: lesson.pathId, drawingSeconds: drawingSeconds)
+        analytics.track(.lessonCompleted(lessonId: lesson.id,
+                                         pathId: lesson.pathId,
+                                         drawingSeconds: drawingSeconds,
+                                         estimatedSeconds: lesson.estimatedSeconds))
         cover = .completion(lessonId: lesson.id)
     }
 

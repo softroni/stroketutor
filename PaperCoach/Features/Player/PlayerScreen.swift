@@ -64,6 +64,10 @@ struct PlayerScreen: View {
     @State private var introTask: Task<Void, Never>?
     @State private var hasLoaded = false
     @State private var leaveOpenedAt: Date?
+    /// How long this drawing has taken, from step one, for `sk-complete`.
+    @State private var clock = DrawingClock()
+    /// Lets the screen sleep again once the learner has not tapped for a while.
+    @State private var screenAwakeTask: Task<Void, Never>?
 
     /// The height the paper is never squeezed below (`pl-player` accessibility note:
     /// "the sheet grows and the paper yields down to 300 pt, then the column
@@ -697,6 +701,7 @@ struct PlayerScreen: View {
 
     private func appear() {
         PlayerOrientation.allowRotation()
+        keepScreenAwake()
         // A profile switch calls this first, so the step is saved to this learner.
         app.sessionSaver = saveSession
         guard !hasLoaded else { return }
@@ -709,7 +714,10 @@ struct PlayerScreen: View {
         }
         #endif
         // Resuming skips the orientation beat and lands on the saved step, with the
-        // earlier ones already faded.
+        // earlier ones already faded, and counts the time already spent on it.
+        if resumeFrom != nil {
+            clock = DrawingClock(seconds: app.progress.progress(for: lesson.id)?.drawingSeconds ?? 0)
+        }
         player.load(lesson.tutorial,
                     startingAt: resumeFrom ?? 0,
                     startImmediately: resumeFrom != nil)
@@ -737,6 +745,26 @@ struct PlayerScreen: View {
         player.stop()
         narration.deactivate()
         PlayerOrientation.lockToPortrait()
+        letScreenSleep()
+    }
+
+    /// The screen stays on while the learner draws: a phone propped up beside the
+    /// paper should not lock halfway through copying a step. Each step started
+    /// renews it; after `DrawingClock.longestStretch` without one the learner has
+    /// most likely put the lesson down, and the phone may sleep as usual.
+    private func keepScreenAwake() {
+        UIApplication.shared.isIdleTimerDisabled = true
+        screenAwakeTask?.cancel()
+        screenAwakeTask = Task {
+            try? await Task.sleep(for: .seconds(DrawingClock.longestStretch))
+            if !Task.isCancelled { UIApplication.shared.isIdleTimerDisabled = false }
+        }
+    }
+
+    private func letScreenSleep() {
+        screenAwakeTask?.cancel()
+        screenAwakeTask = nil
+        UIApplication.shared.isIdleTimerDisabled = false
     }
 
     // MARK: - The intro
@@ -786,7 +814,10 @@ struct PlayerScreen: View {
     private func phaseChanged(to phase: PlayerViewModel.Phase) {
         switch phase {
         case let .drawing(index):
-            app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: index)
+            clock.tap()
+            keepScreenAwake()
+            app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: index,
+                                    drawingSeconds: clock.seconds)
             speak(stepAt: index)
         case let .awaitingUser(index):
             app.progress.markOpened(lesson.id, pathId: lesson.pathId, step: index)
@@ -820,13 +851,14 @@ struct PlayerScreen: View {
         narration.stop()
         if player.isOnLastStep {
             player.stop()
+            clock.stop()
             successHaptic()
             // Completion is portrait, like every screen but this one, and fades in
             // over the player: turn back now rather than once the player is gone.
             PlayerOrientation.lockToPortrait()
-            // `AppModel.presentCompletion` records the finished lesson (and clears
-            // the resume point) before it shows `sk-complete`.
-            app.presentCompletion(lesson)
+            // `AppModel.presentCompletion` records the finished lesson and its time
+            // (and clears the resume point) before it shows `sk-complete`.
+            app.presentCompletion(lesson, drawingSeconds: clock.seconds)
         } else {
             haptic(.light)
             player.advanceToNextStep()
@@ -913,8 +945,10 @@ struct PlayerScreen: View {
     /// Leaving during the intro stores no step: step one was never reached, so the
     /// preview should still say "Start drawing", not "Continue from step 1".
     private func saveSession() {
+        clock.stop()
         app.progress.markOpened(lesson.id, pathId: lesson.pathId,
-                                step: isOrientation ? nil : player.currentStepIndex)
+                                step: isOrientation ? nil : player.currentStepIndex,
+                                drawingSeconds: isOrientation ? nil : clock.seconds)
         player.stop()
         narration.deactivate()
     }
