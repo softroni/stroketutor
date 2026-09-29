@@ -1,7 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 
-/** The prompt for a path's authoring session, to read over and copy. */
-export function SessionPromptDialog({ title, prompt, onClose }: { title: string; prompt: string; onClose: () => void }) {
+/**
+ * A prompt to read over and copy: a path's session prompt for Claude Code, or a
+ * level's system prompt for the image model.
+ */
+export function PromptDialog({
+  heading,
+  hint,
+  prompt,
+  onClose,
+}: {
+  heading: string
+  hint: string
+  prompt: string
+  onClose: () => void
+}) {
   const ref = useRef<HTMLDialogElement>(null)
   const text = useRef<HTMLTextAreaElement>(null)
   const [copied, setCopied] = useState(false)
@@ -27,27 +40,23 @@ export function SessionPromptDialog({ title, prompt, onClose }: { title: string;
     <dialog
       ref={ref}
       className="st-dialog st-dialog--wide"
-      aria-labelledby="st-session-prompt-heading"
+      aria-labelledby="st-prompt-heading"
       onCancel={(event) => {
         event.preventDefault()
         onClose()
       }}
     >
       <div className="st-dialog__form">
-        <h2 id="st-session-prompt-heading" className="st-dialog__title">
-          Session prompt for {title}
+        <h2 id="st-prompt-heading" className="st-dialog__title">
+          {heading}
         </h2>
-        <p className="st-field__hint">
-          Paste this into a new Claude Code session. It first writes the picture prompts for you to run in ChatGPT and
-          waits; attach the pictures to the same session and it builds the lessons. Anything you change here is copied
-          too.
-        </p>
+        <p className="st-field__hint">{hint} Anything you change here is copied too.</p>
         <textarea
           ref={text}
-          className="st-field__input st-session-prompt"
+          className="st-field__input st-prompt-text"
           defaultValue={prompt}
           spellCheck={false}
-          aria-label="Session prompt"
+          aria-label={heading}
           onChange={() => setCopied(false)}
         />
         <div className="st-dialog__actions">

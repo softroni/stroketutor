@@ -1,3 +1,5 @@
+import { levelPrompt } from './levelPrompts'
+
 /** One lesson of the path, as the prompt lists it. */
 export interface PromptLesson {
   id: string
@@ -10,6 +12,8 @@ export interface PromptLesson {
 export interface PromptPath {
   id: string
   title: string
+  /** The path's level, whose system prompt makes its pictures; null when it has none. */
+  level: { id: string; title: string } | null
   lessons: PromptLesson[]
 }
 
@@ -22,12 +26,33 @@ export interface PromptPath {
  * taught (2026-09-19): ask for pictures that trace well, check every picture
  * by tracing it before building on it, plan the path's words in one document
  * before any agent writes, keep the agents few, and look at every contact sheet.
+ *
+ * The pictures' style is not in here: it is the level's system prompt
+ * (levelPrompts.ts), which the creator gives the image model once for every
+ * lesson of the level. The session writes only what each lesson adds to it.
  */
 export function sessionPrompt(path: PromptPath): string {
   const todo = path.lessons.filter((lesson) => lesson.planned)
   const done = path.lessons.filter((lesson) => !lesson.planned)
   const line = (lesson: PromptLesson) =>
     `  ${path.lessons.indexOf(lesson) + 1}. ${lesson.id}: ${lesson.title}${lesson.objective ? ` (${lesson.objective})` : ''}`
+  const style = levelPrompt(path.level?.id)
+  const levels = 'Starter: under 10, Core: 10 to 15, Advanced: 16 and up'
+  const system =
+    path.level && style
+      ? [
+          `This path is in the ${path.level.title} level, for ${style.audience}. My image model makes its`,
+          `pictures with the ${path.level.title} level's system prompt, \`${style.version}\` in web/src/studio/levelPrompts.ts,`,
+          "which I copy from the level's menu in the Studio. Read it first: every lesson prompt adds to it and never",
+          'repeats or contradicts it.',
+        ]
+      : [
+          `This path is in no level that has a system prompt (${levels}),`,
+          'so nothing says who its pictures are for. Ask me which level it belongs to and wait for my answer before',
+          "writing anything; then read that level's system prompt in web/src/studio/levelPrompts.ts.",
+        ]
+  const learner = style?.learner ?? "the level's learner"
+  const learners = style?.audience ?? "the level's learners"
 
   return [
     `Make the lessons of the "${path.title}" path (path id \`${path.id}\`), in two parts. Do part 1, then stop and wait for me.`,
@@ -40,9 +65,11 @@ export function sessionPrompt(path: PromptPath): string {
     'reads or hears (color, center, gray).',
     '',
     'PART 1: the picture prompts',
-    `Write docs/curriculum/${path.id}-prompts.md, modeled on docs/curriculum/fruits-prompts.md: the same style prompt,`,
-    'word for word (style-v2), and one lesson prompt per lesson above with the exact parts and counts its objective',
-    'names. Write each lesson prompt so the picture will trace into lines a child can draw:',
+    ...system,
+    `Write docs/curriculum/${path.id}-prompts.md, modeled on docs/curriculum/fruits-prompts.md, but name the level's`,
+    'system prompt and its version instead of copying a style prompt, and leave out the reference line: the system',
+    'prompt covers both. Then one lesson prompt per lesson above with the exact parts and counts its objective names.',
+    `Write each lesson prompt so the picture will trace into lines ${learner} can draw:`,
     '- every part has its own dark outline; nothing is shown by color alone;',
     '- parts stand apart with a clear white gap, touching only where one is attached to another; nothing overlaps',
     '  unless the objective is about overlap, and then only a few simple shapes do;',
@@ -50,9 +77,9 @@ export function sessionPrompt(path: PromptPath): string {
     '- no highlights, shading, texture or shadow unless the objective asks for one;',
     '- the subject fills about 70% of the image, a little less when it is one big round shape;',
     '- colors come from docs/curriculum/palette.json, named in plain words with their hex values.',
-    'Then give me, in the chat, one block per lesson that I can copy as it is into ChatGPT: the style prompt, a blank',
-    'line and that lesson\'s prompt, headed by the lesson id, with the reference line for attaching a published',
-    'picture of the course. Tell me anything you were unsure of in a lesson\'s objective. Then stop. Build nothing yet.',
+    'Then give me, in the chat, one block per lesson that I can send as it is to my image model, which already has the',
+    'system prompt: that lesson\'s prompt alone, headed by the lesson id and by any kept pictures to attach besides the',
+    'published apple. Tell me anything you were unsure of in a lesson\'s objective. Then stop. Build nothing yet.',
     '',
     'PART 2: the lessons, when I come back with the pictures',
     'I will attach the pictures to a message in this session, one per lesson, and say which image model made them.',
@@ -66,9 +93,10 @@ export function sessionPrompt(path: PromptPath): string {
     '   circles that touch get their outlines from `svg trace --ink-max-channel 0`, merged into the ink trace; thin',
     '   lines may need `svg from-image --min-area 10 --max-colours 12`. If a picture is the problem, say so and wait',
     '   for a new one instead of working around it; carry on with the others meanwhile.',
-    `3. Write docs/curriculum/${path.id}-words.md, modeled on docs/curriculum/fruits-words.md: the rules, the phrases`,
-    '   published lessons have already used, and a full script per lesson. Steps open with what is being drawn; no',
-    '   sentence repeats across lessons except a plain color step; every intro, hand-over and outro is different.',
+    `3. Write docs/curriculum/${path.id}-words.md, modeled on docs/curriculum/fruits-words.md, for ${learners}: the`,
+    '   rules, the phrases published lessons have already used, and a full script per lesson. Steps open with what is',
+    '   being drawn; no sentence repeats across lessons except a plain color step; every intro, hand-over and outro is',
+    '   different.',
     '   Do not wait for me to review it: carry straight on. I will read the words once every lesson is done.',
     '4. Build with Opus agents, at most 4 at a time, one lesson each, every one following the words document:',
     '   build, look at the contact sheet, zoom into every junction for stray tails, `lessons quality`, then',

@@ -14,7 +14,8 @@ import { LessonActions } from './LessonActions'
 import type { Library, TutorialEntry } from './library'
 import { Menu, type MenuEntry } from './Menu'
 import { PathColorDot } from './PathColorDot'
-import { SessionPromptDialog } from './SessionPromptDialog'
+import { levelPrompt } from './levelPrompts'
+import { PromptDialog } from './PromptDialog'
 import { sessionPrompt } from './sessionPrompt'
 import {
   assignLesson,
@@ -138,6 +139,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
   const [creating, setCreating] = useState(false)
   const [creatingLevel, setCreatingLevel] = useState(false)
   const [editingLevel, setEditingLevel] = useState<string | null>(null)
+  const [promptLevel, setPromptLevel] = useState<Level | null>(null)
   const [prefs, setPrefs] = useState(readPrefs)
   const [query, setQuery] = useState('')
   const [pathDrop, setPathDrop] = useState<number | null>(null)
@@ -331,6 +333,8 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
       disabled: !editable || index === catalog.levels.length - 1,
       onSelect: () => void run((current) => moveLevel(current, index, index + 1)),
     },
+    'separator',
+    { label: 'System prompt…', disabled: !levelPrompt(level.id), onSelect: () => setPromptLevel(level) },
     'separator',
     {
       label: 'Delete level…',
@@ -592,7 +596,23 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
           />
         ))}
       </div>
+
+      {promptLevel ? <LevelPromptDialog level={promptLevel} onClose={() => setPromptLevel(null)} /> : null}
     </div>
+  )
+}
+
+/** The level's system prompt for the image model that makes its pictures. */
+function LevelPromptDialog({ level, onClose }: { level: Level; onClose: () => void }) {
+  const prompt = levelPrompt(level.id)
+  if (!prompt) return null
+  return (
+    <PromptDialog
+      heading={`System prompt for ${level.title}`}
+      hint={`Give this to your image model as its system prompt (instructions) for every lesson in ${level.title}, pictures for ${prompt.audience} (${prompt.version}). Then send each lesson's prompt on its own, with the published apple (docs/curriculum/fruits/apple-openai.png) attached for the look of the course.`}
+      prompt={prompt.prompt}
+      onClose={onClose}
+    />
   )
 }
 
@@ -834,11 +854,13 @@ function PathDetail({
       ) : null}
 
       {prompting ? (
-        <SessionPromptDialog
-          title={path.title}
+        <PromptDialog
+          heading={`Session prompt for ${path.title}`}
+          hint="Paste this into a new Claude Code session. It first writes the picture prompts for you to run with your image model and waits; attach the pictures to the same session and it builds the lessons."
           prompt={sessionPrompt({
             id: path.id,
             title: path.title,
+            level: levels.find((level) => level.id === path.level) ?? null,
             lessons: rows.map((row) => ({
               id: row.id,
               title: titleOf(row),

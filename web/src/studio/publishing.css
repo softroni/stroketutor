@@ -78,7 +78,7 @@
   width: min(760px, calc(100vw - 32px));
 }
 
-.st-session-prompt {
+.st-prompt-text {
   min-height: 360px;
   resize: vertical;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

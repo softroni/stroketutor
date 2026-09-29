@@ -6,6 +6,7 @@ describe('sessionPrompt', () => {
   const prompt = sessionPrompt({
     id: 'wheels',
     title: 'Wheels',
+    level: { id: 'core', title: 'Core' },
     lessons: [
       { id: 'classic-red-car', title: 'Classic Red Car', planned: false },
       { id: 'car', title: 'Car', objective: 'Side view with two wheels', planned: true },
@@ -37,9 +38,27 @@ describe('sessionPrompt', () => {
     expect(done).toContain('1. classic-red-car: Classic Red Car')
   })
 
+  it("points at the level's system prompt instead of copying a style prompt", () => {
+    const [first] = prompt.split('PART 2')
+    expect(first).toContain('in the Core level, for learners aged 10 to 15.')
+    expect(first).toContain('`style-v3-core` in web/src/studio/levelPrompts.ts')
+    expect(first).toContain('lines a learner of ten to fifteen can draw')
+    expect(first).not.toContain('style-v2')
+    expect(first).not.toContain('a child')
+    expect(prompt).toContain('fruits-words.md, for learners aged 10 to 15')
+  })
+
+  it('asks for the level first when the path has none with a system prompt', () => {
+    for (const level of [null, { id: 'bonus', title: 'Bonus' }]) {
+      const text = sessionPrompt({ id: 'a', title: 'A', level, lessons: [] })
+      expect(text).toContain('Ask me which level it belongs to')
+      expect(text).not.toContain('style-v3')
+    }
+  })
+
   it('says so when nothing is left to build', () => {
-    expect(sessionPrompt({ id: 'a', title: 'A', lessons: [{ id: 'x', title: 'X', planned: false }] })).toContain(
-      'Every lesson of this path already has a drawing.',
-    )
+    expect(
+      sessionPrompt({ id: 'a', title: 'A', level: null, lessons: [{ id: 'x', title: 'X', planned: false }] }),
+    ).toContain('Every lesson of this path already has a drawing.')
   })
 })
