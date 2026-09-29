@@ -1,0 +1,118 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "shop-front",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-29T23:12:20.149Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Sketchers see a street as a stack of boxes. This bookshop is a wall, a sign, a window and a door, plus a few extras. Watch it open, then open a shop of your own.",
+      "textHash": "ffe158fd69cb75d8db9e154b674e407da6c5de100bda14588670c9fa9623cc21",
+      "durationMs": 11440
+    },
+    "wall": {
+      "file": "wall.m4a",
+      "text": "The shop starts as one big box. Draw its four sides.",
+      "textHash": "87b67c7bef10507f6d7c189ff23d620b6080af61521c3a49bd2a9aa9c133803b",
+      "durationMs": 4000
+    },
+    "top": {
+      "file": "top.m4a",
+      "text": "A long flat lid sits on top, a little wider than the box.",
+      "textHash": "72f4c71b1caee26922e6ac3e8f0057bdb81d7fb28350ab40fe9f301899d6d028",
+      "durationMs": 4000
+    },
+    "sign": {
+      "file": "sign.m4a",
+      "text": "Near the top, a long sign with a smaller box inside it. Both stay blank.",
+      "textHash": "bc8f4d7c8593f9d6040e6bcb4bfbd3a37fa172b482f18c8d02cb4fb6412253d9",
+      "durationMs": 5680
+    },
+    "awning": {
+      "file": "awning.m4a",
+      "text": "The awning hangs under the sign. Level on top, sides leaning out, seven bumps below.",
+      "textHash": "bb2ba982f4f6a288c5bb36995493077f003d8002aa9ecb96437ee0d07114e130",
+      "durationMs": 6080
+    },
+    "stripes": {
+      "file": "stripes.m4a",
+      "text": "Six lines split it into seven stripes. Each one ends where two bumps meet.",
+      "textHash": "dcb4284bdf0ff514217b4a9a8c0f34dd752aa7fb53d926fb22ce4d6c5c67c997",
+      "durationMs": 5280
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "The shop window is a box inside a box. Two short slanted lines make the glass shine.",
+      "textHash": "8b885c620fd852ee71b6edfc2d7f865886c746cc472127797844844a9bac11f3",
+      "durationMs": 5680
+    },
+    "books": {
+      "file": "books.m4a",
+      "text": "Five books stand on the bottom of the glass. The tallest is in the middle.",
+      "textHash": "0cb7f41965293145f56ee82490d1e5084e1840492c0546b3e2dfc5476cc9159c",
+      "durationMs": 4560
+    },
+    "panels": {
+      "file": "panels.m4a",
+      "text": "Under the window, two long panels side by side.",
+      "textHash": "195b4abdbf79f165bfdcfa00193e6aa9293162032f52e23fb9c0e5a5492d2678",
+      "durationMs": 3600
+    },
+    "door": {
+      "file": "door.m4a",
+      "text": "Next, the door, standing on the ground. Glass on top, a panel below, a round knob.",
+      "textHash": "53d287ed3ecb4afd5a6a3aea46be81b952771d90394eeee3fef2c0681fd3e8d9",
+      "durationMs": 6800
+    },
+    "pot-bush": {
+      "file": "pot-bush.m4a",
+      "text": "A pot stands outside on the left, narrow at the bottom. A bumpy bush sits on it.",
+      "textHash": "8f14debae4f54c149987e68bbe92454d03f2c4992bdd3b8a9df120a3085290cd",
+      "durationMs": 5600
+    },
+    "tree": {
+      "file": "tree.m4a",
+      "text": "Last, a tree behind the shop. Its bumps start on the wall and end on the wall.",
+      "textHash": "ed2a153052a706ff42d1d02bafebefa4d79576c9524972bdf291f6991e93ea28",
+      "durationMs": 5120
+    },
+    "dark-green": {
+      "file": "dark-green.m4a",
+      "text": "Color the wall dark green.",
+      "textHash": "14c1bda2628799128cd4f2a35a581bd9d315d899271317b112c68394ce7a01d6",
+      "durationMs": 2160
+    },
+    "greens": {
+      "file": "greens.m4a",
+      "text": "Green for the lid, the panels, the bush and one book. The tree is pale green.",
+      "textHash": "181f368f544a445fb9d3ee196224e9d23645219dab978bf27ae7dd608b86b480",
+      "durationMs": 6000
+    },
+    "red-cream": {
+      "file": "red-cream.m4a",
+      "text": "Red and cream for the stripes, and a book of each. The inside of the sign is cream.",
+      "textHash": "2859c1b1fffb53e7ada1aab58611fb0070de01c7b5e9efada06047da15b591a3",
+      "durationMs": 6000
+    },
+    "yellow-blue": {
+      "file": "yellow-blue.m4a",
+      "text": "Yellow for the two frames and the knob. Both panes of glass are blue.",
+      "textHash": "a1a7bef7da2155da76e64f406b2f2bc49baeb95d3609a7c778c2326d02f28cc0",
+      "durationMs": 5280
+    },
+    "brown-orange": {
+      "file": "brown-orange.m4a",
+      "text": "The door is brown. Orange for its panel, the pot and a book. The tall book is purple.",
+      "textHash": "fd85813efd7a27fbca22f3cd58ae13f3793b660cde0a3ffe62546e56011cefef",
+      "durationMs": 6720
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your shop is open for business. What would you put in the window?",
+      "textHash": "afa59981385a2ddf9a465df59381726a9b738f36872a1295740d953db488e0e8",
+      "durationMs": 3920
+    }
+  }
+}
