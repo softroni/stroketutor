@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-28T23:53:03-05:00",
-  "headline": "1.0 (2) is still waiting for Apple's review, two days after it was submitted (Saturday 11:50 AM). No users, reviews, crashes or ad spend yet; ads and the version tag go on the day it's approved.",
+  "updated": "2026-09-29T13:15:35-05:00",
+  "headline": "1.0 (2) is still waiting for Apple's review, three days after it was submitted (Saturday 11:50 AM). No users, reviews, crashes or ad spend yet; ads and the version tag go on the day it's approved.",
   "app": {
     "live": null,
     "inReview": {
@@ -15,13 +15,9 @@
     {
       "label": "Installs",
       "value": "0",
-      "period": "on 2026-09-27",
+      "period": "on 2026-09-28",
       "detail": "14 days: 0",
       "series": [
-        {
-          "day": "2026-09-14",
-          "value": 0
-        },
         {
           "day": "2026-09-15",
           "value": 0
@@ -72,6 +68,10 @@
         },
         {
           "day": "2026-09-27",
+          "value": 0
+        },
+        {
+          "day": "2026-09-28",
           "value": 0
         }
       ]
@@ -79,13 +79,9 @@
     {
       "label": "Proceeds",
       "value": "$0.00",
-      "period": "on 2026-09-27",
+      "period": "on 2026-09-28",
       "detail": "14 days: $0.00",
       "series": [
-        {
-          "day": "2026-09-14",
-          "value": 0.0
-        },
         {
           "day": "2026-09-15",
           "value": 0.0
@@ -136,6 +132,10 @@
         },
         {
           "day": "2026-09-27",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-28",
           "value": 0.0
         }
       ]
@@ -169,7 +169,12 @@
     {
       "title": "Apple's review of 1.0 (2)",
       "state": "waiting",
-      "detail": "Submitted Saturday 11:50 AM; checked again Monday afternoon, still waiting. When it is approved: tag 1.0(2) in git, switch on Apple Ads, watch the first real funnel."
+      "detail": "Submitted Saturday 11:50 AM; checked again Tuesday 8 AM, still waiting. When it is approved: tag 1.0(2) in git, switch on Apple Ads, watch the first real funnel."
+    },
+    {
+      "title": "Lesson videos on social",
+      "state": "waiting",
+      "detail": "Private test on Monday: YouTube Shorts posted, Facebook Reels posted on the second try. Public posting starts once 1.0 is on sale."
     },
     {
       "title": "Apple Ads campaigns for launch day",
@@ -188,6 +193,10 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-09-29T13:15:35-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; no reviews, sales, crashes or PostHog traffic yet. Ads wait for approval."
+    },
     {
       "at": "2026-09-28T23:53:03-05:00",
       "text": "Lesson videos: Lina now ends on 'Draw more with Paper Coach. It's free on the App Store.' ('free to download' for Premium lessons), her closing line is captioned, and stickers of the path's next lessons land round the drawing instead of an 8 s still frame (d2c81d4)"
@@ -349,7 +358,7 @@
     }
   ],
   "next": {
-    "at": "2026-09-29T08:00:00-05:00",
+    "at": "2026-09-30T08:00:00-05:00",
     "what": "Daily check and summary"
   }
 }
