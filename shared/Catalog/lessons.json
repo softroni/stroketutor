@@ -1062,6 +1062,16 @@
       }
     },
     {
+      "id": "brick-window",
+      "status": "approved",
+      "objective": "Arched window under a brick arch, with two climbing vines and bricks in three small patches",
+      "reference": {
+        "file": "brick-window.svg",
+        "source": "OpenAI image model, prompt style-v5-advanced (docs/curriculum/urban-prompts.md), the creator's own design, generated 2026-09-30, margin added",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
+    },
+    {
       "id": "fire-hydrant",
       "status": "approved",
       "objective": "Fire hydrant with a ribbed dome and two bands, water pouring from one nozzle into a puddle",

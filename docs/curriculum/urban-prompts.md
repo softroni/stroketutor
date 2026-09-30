@@ -600,7 +600,14 @@ and four windows; one roof with a lantern; two wheels; two rails; one pole base,
 
 ### 8 · `brick-window`
 
-Objective: Arched window in a brick wall, bricks drawn only in three small patches.
+Objective: Arched window under a brick arch, with two climbing vines and bricks in three small patches.
+
+Kept picture (2026-09-30): the creator's own design, and it is the lesson (`urban/brick-window-openai.png`, a white
+margin added): no wall, the window standing on white paper; a band of seven coral wedges over the arch instead of
+a keystone; four panes split by a cream cross; a cream post under each end of the band; six bricks (two, three and
+one) where the prompt asked for nine in threes; two climbing vines in two greens; no shine lines. The two upper bricks
+on the right are one line-width apart, so their outlines came from the color-edge trace. The prompt below is the
+one it started from.
 
 ```text
 SUBJECT: a patch of brick wall, seen straight on, with one tall arched window in the middle: a

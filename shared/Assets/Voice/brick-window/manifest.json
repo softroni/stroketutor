@@ -1,0 +1,118 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "brick-window",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-30T05:31:35.995Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Nobody draws every brick in a wall. A few here and there, and the eye fills in the rest. Watch this old window take shape, then let the light into yours.",
+      "textHash": "ca573851ac77fab6a10c181d515b56438f7cb6d1898ee637ad246069be938fb4",
+      "durationMs": 9760
+    },
+    "ledge": {
+      "file": "ledge.m4a",
+      "text": "Start at the bottom with the ledge: one long, flat box with soft corners.",
+      "textHash": "a5105800aa3a35c219749cbe6a3c79e4ff1623ca60f05f847a931527f1b39703",
+      "durationMs": 4800
+    },
+    "frame": {
+      "file": "frame.m4a",
+      "text": "The frame stands on the ledge. Each side goes up and curves in to meet at the top.",
+      "textHash": "1bd1c4c7d253e360eaa91d54eec77c6771e0db6e189427f7044d1a1ad793a3bb",
+      "durationMs": 5200
+    },
+    "arch": {
+      "file": "arch.m4a",
+      "text": "A curved band of brick sits on the frame. From each foot, step out, then curve up to the top.",
+      "textHash": "6cd75f717e408f0a2074edc8dfc97b8bb3b599fd04e78e75d30b5bc4f604892c",
+      "durationMs": 5840
+    },
+    "wedges": {
+      "file": "wedges.m4a",
+      "text": "Six short lines cut the band into seven wedges. They fan out like wheel spokes.",
+      "textHash": "60f8c9afbc1cd76c2cc6f341f2df4c0594196ec272d678d3d77b166090619465",
+      "durationMs": 5440
+    },
+    "posts": {
+      "file": "posts.m4a",
+      "text": "Under each end of the band, a straight post drops down to the ledge.",
+      "textHash": "c9a9a5956c93047c7721536ee92b0703ec16e96124050062ab60f45b9b8250a0",
+      "durationMs": 4560
+    },
+    "glass": {
+      "file": "glass.m4a",
+      "text": "Next, the glass: two rounded panes on top, two tall ones below. The gaps make a cross.",
+      "textHash": "0f177fdc77c93c27762db9039b2bc74c14a1b8b0c0a63870456bff841c915678",
+      "durationMs": 7040
+    },
+    "right-bricks": {
+      "file": "right-bricks.m4a",
+      "text": "Now a few bricks. Three on the right, stepping in and out like a real wall.",
+      "textHash": "6d79818b4249ab2c981aea171821051fea0300eb7696442157ea981c666fdb9a",
+      "durationMs": 5440
+    },
+    "left-bricks": {
+      "file": "left-bricks.m4a",
+      "text": "Two more at the top left, and one on its own near the bottom.",
+      "textHash": "fe8e181b6b44b5fa951ffd7dfdfff0647a284be4bdd342aca6be0aeb73577bcc",
+      "durationMs": 4480
+    },
+    "left-stem": {
+      "file": "left-stem.m4a",
+      "text": "A vine climbs the left side. Draw its long wavy stem from the bottom up.",
+      "textHash": "9ee668b37224348beba822c2c0258e8974e506986866c56d2a2c3c693988684e",
+      "durationMs": 5680
+    },
+    "top-leaves": {
+      "file": "top-leaves.m4a",
+      "text": "A leaf caps the stem. Three more sprout just below it, two left and one right.",
+      "textHash": "bfff8dc230eb0942ddc4518be234cc762e80c2b6133071e5f5ef7ee81798069f",
+      "durationMs": 6000
+    },
+    "lower-leaves": {
+      "file": "lower-leaves.m4a",
+      "text": "Four leaves down the lower half, swapping sides as they go.",
+      "textHash": "a67bc7aabd59e96dbd78c9e18a0c2e61fc30df738e5748d0da64206a82b72505",
+      "durationMs": 4320
+    },
+    "right-vine": {
+      "file": "right-vine.m4a",
+      "text": "Then a shorter vine on the right: its stem first, then four leaves.",
+      "textHash": "cb16b31da98cc5d5d32f2353315a1ef900a5b82e86e484488b768138dcad5713",
+      "durationMs": 4880
+    },
+    "blue": {
+      "file": "blue.m4a",
+      "text": "Color the glass blue.",
+      "textHash": "6a32a19752046a53b45a9d43f46d33680b16b3b2358853c7c26ed2603bcafa23",
+      "durationMs": 1520
+    },
+    "cream": {
+      "file": "cream.m4a",
+      "text": "Cream for the frame and the two posts.",
+      "textHash": "722c2b8103c196e4d94afb4c86602c5b98437312b8f8a1f9b4f1863867a25d61",
+      "durationMs": 2640
+    },
+    "pink-gray": {
+      "file": "pink-gray.m4a",
+      "text": "Pink for the wedges of the arch and the six bricks. The ledge is gray.",
+      "textHash": "dfae697fec35c7e9db8d9f704779d7134ad5824dc9788e94b9cd5fa61cf049e4",
+      "durationMs": 4640
+    },
+    "greens": {
+      "file": "greens.m4a",
+      "text": "Green and pale green for the leaves, mixed along both vines.",
+      "textHash": "f8df911c128c40a4ff16fbed1c40e55c50c0af2b5fccab18f64e88d670b547d5",
+      "durationMs": 4000
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your window is done, and the vines are already climbing past it. What's the view from inside?",
+      "textHash": "bef2eba139afabb6b0ebb0bf432e18e270f9b405ddaa5c89398b3593ea5ba844",
+      "durationMs": 5600
+    }
+  }
+}

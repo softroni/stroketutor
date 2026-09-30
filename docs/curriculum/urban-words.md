@@ -230,6 +230,36 @@ The waterline comes first because the bridge stands on it and its reflection han
 - colors: "Blue for the water, inside the mirrored arches too, and both windows." / "Cream for the bands along the top, the stones and the reflection. Gray for the mirrored rings." / "Yellow for the bridge and the left house." / "Red for the brick walls and the left roof. Pink for their reflections." / "Orange for the right house, brown for its roof and trunk. Dark green and green for the trees."
 - outro: "Your bridge is standing, and so is its twin in the water. Which one would you walk across?"
 
+### brick-window
+
+The creator's picture (2026-09-30), not the prompt's: no wall at all, the window stands on white
+paper. A gray ledge; a cream arched frame holding four blue panes (the cream between them makes a
+cross: two rounded panes in the arch, two tall ones below); a band of seven pink wedges over the arch
+(no keystone); a cream post under each end of the band, down to the ledge; six pink bricks in three
+patches (three stepping in and out on the right, two at the top left, one alone at the bottom left,
+where the prompt asked for nine in threes); and two climbing vines, eight leaves on the left one and
+four on the right, in green and pale green. No shine lines. The picture's coral bricks snap to the
+palette's watermelon pink. The top two bricks on the right are drawn one line-width apart, so their
+outlines come from the color-edge trace. Drawn from the ledge up: the frame stands on it, the band of
+wedges sits on the frame, the posts hang from the band's ends; each vine's stem grows from the bottom,
+and every leaf starts and ends on its stem.
+
+- intro: "Nobody draws every brick in a wall. A few here and there, and the eye fills in the rest. Watch this old window take shape, then let the light into yours."
+- ledge: "Start at the bottom with the ledge: one long, flat box with soft corners."
+- frame: "The frame stands on the ledge. Each side goes up and curves in to meet at the top."
+- arch: "A curved band of brick sits on the frame. From each foot, step out, then curve up to the top."
+- wedges: "Six short lines cut the band into seven wedges. They fan out like wheel spokes."
+- posts: "Under each end of the band, a straight post drops down to the ledge."
+- glass: "Next, the glass: two rounded panes on top, two tall ones below. The gaps make a cross."
+- right-bricks: "Now a few bricks. Three on the right, stepping in and out like a real wall."
+- left-bricks: "Two more at the top left, and one on its own near the bottom."
+- left-stem: "A vine climbs the left side. Draw its long wavy stem from the bottom up."
+- top-leaves: "A leaf caps the stem. Three more sprout just below it, two left and one right."
+- lower-leaves: "Four leaves down the lower half, swapping sides as they go."
+- right-vine: "Then a shorter vine on the right: its stem first, then four leaves."
+- colors: "Color the glass blue." / "Cream for the frame and the two posts." / "Pink for the wedges of the arch and the six bricks. The ledge is gray." / "Green and pale green for the leaves, mixed along both vines."
+- outro: "Your window is done, and the vines are already climbing past it. What's the view from inside?"
+
 ### fire-hydrant
 
 The creator's own hydrant (2026-09-30), made from the flat-hydrant prompt with changes of their own:
