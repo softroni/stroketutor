@@ -229,3 +229,27 @@ The waterline comes first because the bridge stands on it and its reflection han
 - ripples: "Three pairs of short level lines make ripples."
 - colors: "Blue for the water, inside the mirrored arches too, and both windows." / "Cream for the bands along the top, the stones and the reflection. Gray for the mirrored rings." / "Yellow for the bridge and the left house." / "Red for the brick walls and the left roof. Pink for their reflections." / "Orange for the right house, brown for its roof and the trunk." / "Dark green for the tall tree, green for the round one."
 - outro: "Your bridge is standing, and so is its twin in the water. Which one would you walk across?"
+
+### fire-hydrant
+
+The creator's own hydrant (2026-09-30), made from the flat-hydrant prompt with changes of their own:
+a red dome with two ribs under a red ring and a cream nut, a cream collar, a red barrel split by a
+cream belt, with one upright line down its right part (a darker red in the picture, one red in the
+palette), a capped nozzle on each side (red neck, gray cap, gray knob), the left one open and
+pouring a thick blue curve of water into a puddle with two ripples, a gray flared foot, and three
+gray paving stones on the white ground. No front cap, no pavement slabs, no light. Drawn from the
+collar: the dome and its top sit on it, the barrel hangs from it.
+
+- intro: "A fire hydrant is a stack of simple shapes: bands, a dome and a tall barrel. This one is open on a hot day. Watch the stack go up, then stack your own."
+- collar: "Start with the collar near the top: a flat band with rounded ends."
+- dome: "On the collar, a round dome with a ring and a nut on top. Two ribs curve down it."
+- barrel: "The barrel hangs from the collar. On the left, its side bends round a short neck."
+- belt: "Where the sides stop, a second band wraps round the barrel."
+- lower: "Below the belt, the barrel ends in a gentle curve. A wide foot flares out under it."
+- side-line: "A long line right of the middle makes the barrel look round."
+- right-nozzle: "On the right, a nozzle: a short neck, a cap, and a smaller knob at the end."
+- left-nozzle: "The left nozzle has the same cap and knob, turned toward you."
+- water: "Water pours from the knob in a thick curve into a puddle. Two ripples float on it."
+- stones: "Last, three paving stones on the ground, each a slab with rounded corners."
+- colors: "Color the hydrant red: the dome, the ring, the barrel and both necks." / "Blue for the water and the puddle." / "Gray for the caps and knobs, the foot and the three stones." / "Cream for the nut, the collar and the belt."
+- outro: "Your hydrant is gushing away. Would you splash in that puddle?"

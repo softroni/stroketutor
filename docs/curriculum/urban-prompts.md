@@ -640,7 +640,12 @@ with three panes, two shine lines, one keystone, one sill, nine bricks in three 
 
 ### 9 · `fire-hydrant`
 
-Objective: Fire hydrant with a ribbed dome, capped nozzles and a front cap, on three paving slabs.
+Objective: Fire hydrant with a ribbed dome and two bands, water pouring from one nozzle into a puddle.
+
+Kept picture (2026-09-30): the creator made their own from this prompt, and it is the lesson
+(`urban/fire-hydrant-openai.png`): two ribs on a red dome, a cream belt round the barrel, one upright line down its
+right part, red necks, the left nozzle open and pouring a blue curve of water into a puddle with two ripples, three
+gray paving stones instead of the pavement, no front cap. The prompt below is the flat design it started from.
 
 Third design, 2026-09-30. The shadow-and-water hydrant came back as asked but the creator did not like it; they
 preferred a ChatGPT hydrant drawn flat, with no light: a pink dome with ribs under a red ring and a cream nut, a

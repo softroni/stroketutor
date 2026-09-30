@@ -1,0 +1,106 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "fire-hydrant",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-30T05:11:06.479Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A fire hydrant is a stack of simple shapes: bands, a dome and a tall barrel. This one is open on a hot day. Watch the stack go up, then stack your own.",
+      "textHash": "c05c25b2975d981539b6b8f94fa037e9574ebeb8f529082780381c6c6545295f",
+      "durationMs": 11280
+    },
+    "collar": {
+      "file": "collar.m4a",
+      "text": "Start with the collar near the top: a flat band with rounded ends.",
+      "textHash": "3866888c3062a2d31eaa2412cce985a01c73866f89bcdc78da0e732c907cc34b",
+      "durationMs": 4480
+    },
+    "dome": {
+      "file": "dome.m4a",
+      "text": "On the collar, a round dome with a ring and a nut on top. Two ribs curve down it.",
+      "textHash": "32cad64bc3cab608a427c818d88f16ebd8b94206506abeca8fde2da5646f9820",
+      "durationMs": 5760
+    },
+    "barrel": {
+      "file": "barrel.m4a",
+      "text": "The barrel hangs from the collar. On the left, its side bends round a short neck.",
+      "textHash": "55726344ceacd7dbfbd50fa8894c46000c888e35c83da54d2fcfa08a749f9f1d",
+      "durationMs": 5360
+    },
+    "belt": {
+      "file": "belt.m4a",
+      "text": "Where the sides stop, a second band wraps round the barrel.",
+      "textHash": "41102696b1d0fdc0fb42fc2225044f8127d9dc2bfd7266e63eac707ffb2127ed",
+      "durationMs": 4000
+    },
+    "lower": {
+      "file": "lower.m4a",
+      "text": "Below the belt, the barrel ends in a gentle curve. A wide foot flares out under it.",
+      "textHash": "142559ea4678e1cf4f29fd4cbd4ce506fc1b00db5c8303987372eb6bc17c04a9",
+      "durationMs": 5840
+    },
+    "side-line": {
+      "file": "side-line.m4a",
+      "text": "A long line right of the middle makes the barrel look round.",
+      "textHash": "373424bb8c7fefa827e23687bd15fe533d4a9e5d479645a75a9f2e3f19046715",
+      "durationMs": 3680
+    },
+    "right-nozzle": {
+      "file": "right-nozzle.m4a",
+      "text": "On the right, a nozzle: a short neck, a cap, and a smaller knob at the end.",
+      "textHash": "bd7f5a8f1a5afd821a3e044204601e21c6a199600e3abd1fbe74b0e75143e337",
+      "durationMs": 5920
+    },
+    "left-nozzle": {
+      "file": "left-nozzle.m4a",
+      "text": "The left nozzle has the same cap and knob, turned toward you.",
+      "textHash": "c2bd109e2091044744cdfc682c4a647c5eaa1890d4652c6faeed1424e6699fd9",
+      "durationMs": 4160
+    },
+    "water": {
+      "file": "water.m4a",
+      "text": "Water pours from the knob in a thick curve into a puddle. Two ripples float on it.",
+      "textHash": "4d31a55c6cd3ab37bb246c66b9c3738ac505670b24609e30516ea70c83b2450b",
+      "durationMs": 5440
+    },
+    "stones": {
+      "file": "stones.m4a",
+      "text": "Last, three paving stones on the ground, each a slab with rounded corners.",
+      "textHash": "94a3eb163ec64e26ec980c9dcaee070b10d2c9e6724eca684e5780f3d2c98f1e",
+      "durationMs": 4960
+    },
+    "red": {
+      "file": "red.m4a",
+      "text": "Color the hydrant red: the dome, the ring, the barrel and both necks.",
+      "textHash": "d0d25b6a7916b70a37d056e12d9bbe6b9190533b499d60bfdd50a8c3f1f1df6b",
+      "durationMs": 5120
+    },
+    "blue": {
+      "file": "blue.m4a",
+      "text": "Blue for the water and the puddle.",
+      "textHash": "935310299861094271079a688f57ed28736e0c29bb5ed616065e41923054c5b2",
+      "durationMs": 2240
+    },
+    "gray": {
+      "file": "gray.m4a",
+      "text": "Gray for the caps and knobs, the foot and the three stones.",
+      "textHash": "78555319c503400eac555d7564921974faf227ffd59601134cc2a0cd3028b821",
+      "durationMs": 4080
+    },
+    "cream": {
+      "file": "cream.m4a",
+      "text": "Cream for the nut, the collar and the belt.",
+      "textHash": "b6f9baace389b2d619efbf0ee7e5a07864670f0e544d3487e1d48280cd653c23",
+      "durationMs": 3120
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your hydrant is gushing away. Would you splash in that puddle?",
+      "textHash": "8e4ebd82a90680f4b9b9d03fe9fc437dfe9bc2f195e62cba7d4771f52c6adc85",
+      "durationMs": 4240
+    }
+  }
+}

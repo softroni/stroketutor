@@ -1060,6 +1060,16 @@
         "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), the creator's own design, generated 2026-09-29, margin added",
         "license": "AI-generated for Paper Coach; owned by Softroni"
       }
+    },
+    {
+      "id": "fire-hydrant",
+      "status": "approved",
+      "objective": "Fire hydrant with a ribbed dome and two bands, water pouring from one nozzle into a puddle",
+      "reference": {
+        "file": "fire-hydrant.svg",
+        "source": "OpenAI image model, prompt style-v5-advanced (docs/curriculum/urban-prompts.md) with the creator's own changes, generated 2026-09-30, margin added",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
     }
   ]
 }
