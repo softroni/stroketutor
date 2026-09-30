@@ -159,3 +159,28 @@ are tiny red dots with no outline, colored in the last step.
 - flower-boxes: "The last two windows get a flower box instead, each with a bumpy bush on top."
 - colors: "Color the left wall yellow and the right wall orange." / "Cream for the top band, the ledges and two stripes." / "Every window is blue, the café window and the door's pane too." / "Brown for the door, the flower boxes and one side of the chimney." / "Red for the chimney's front, three stripes and the tiny flowers. Green for both bushes."
 - outro: "Your corner café is open. What's the first thing you'd order?"
+
+### fountain
+
+The creator's own fountain, livelier than the prompt: three stacked basins, the lower one wide with a
+cream rim ring, a cream side with three orange panels and a gray stone step of blocks under it; a
+gray column flaring at its foot; a middle and a top basin, each a flat oval of blue water on a cream
+bowl with curved ribs, joined by a short cream stem; a knob and a cream ball on top; blue water arcs
+(outlined shapes, not lines) from the ball into the top basin, from the top basin into the middle
+one, and four long ones into the lower basin; two ripples on the lower water. The two potted trees of the picture were taken out at the
+creator's request: the fountain alone is enough to draw.
+
+- intro: "Every town square needs a fountain. Ours has three basins stacked like cake plates, with water spilling from each. Watch it fill up, then pour your own."
+- rim: "Start with the big basin: a wide flat oval, and a second one just inside it."
+- basin-side: "Its side hangs below the front, with straight ends and a long curve."
+- panels: "Three orange panels line the side. The end ones look narrower as they turn away."
+- step: "Under it all, a gray stone step, split into blocks."
+- column: "A thick column rises from the water, flaring out at its foot."
+- middle-basin: "Up on the column, a smaller basin: a flat oval with a ribbed bowl under it."
+- top-basin: "A short stem, then the top basin, the same shape but smaller."
+- ball: "On top, a little knob and a round ball."
+- water-top: "Water spills from the ball in two small arcs, and from the top basin in two more."
+- water-big: "Four long arcs fall from the middle basin into the big one."
+- ripples: "Two ripples curve across the water below."
+- colors: "Cream for the stone: the rim, the bowls, the stem and the ball." / "Blue for all the water, the arcs too." / "Orange for the three panels." / "Gray for the step and the column."
+- outro: "Your fountain is splashing away. Would you toss a coin in?"
