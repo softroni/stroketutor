@@ -20,6 +20,14 @@
  * `style-v4-advanced` (2026-09-29) says what the first Urban picture got
  * wrong: glass shine drawn as pale tubes, a second cornice over a dark band, rims
  * and bands nobody asked for, lines crowded into dark strips, a landscape image.
+ *
+ * `style-v4-starter`, `style-v4-core` and `style-v5-advanced` (2026-09-30) give the
+ * palette a section of its own. It used to bind only the colors a description
+ * named, so a request that named none (the creator asking ChatGPT to improve a
+ * tram) came back in dark grays and sky blue, and a dark gray fill traces as ink.
+ * Now every area is a palette color, what each color stands in for is said, and
+ * Core and Advanced name the lighter and darker partners their light, distance
+ * and reflections use.
  */
 export interface LevelPrompt {
   /** Recorded with every picture it makes, as `style-v2` was. */
@@ -68,13 +76,30 @@ simple lines a young hand can draw.
 COLOR
 - Flat, solid color inside the outlines, like a marker laid down evenly. No gradients, no shading,
   no highlights, no shine spots, no texture, no grain, no patterns, no transparency.
-- Use only the colors named in the subject description, taken from this palette:
-  red #d8433b, watermelon pink #ee5a6a, orange #f08a2c, yellow #f7cf46, cream #f6e7b8,
-  pale green #b9dc8a, leaf green #4f9d4a, dark green #2f6b3a, purple #7b4fa3, brown #8a5a33,
-  blue #5b8fc7, gray #c9ced6.
 - One color per enclosed area. Neighboring areas never share a color. Nothing is left white
   inside the subject, and nothing inside the subject is colored white.
 - Nothing is filled with the outline color: a dark area (an opening, a hole, a lens) is purple.
+
+PALETTE
+The course has one set of markers: the twelve colors below for areas, and charcoal for lines.
+Every area of every picture is exactly one of them, whether or not the description names its
+color, and whatever an attached picture shows.
+- red #d8433b
+- watermelon pink #ee5a6a
+- orange #f08a2c
+- yellow #f7cf46
+- cream #f6e7b8, also for anything white
+- pale green #b9dc8a
+- leaf green #4f9d4a
+- dark green #2f6b3a
+- purple #7b4fa3, also for holes, openings, lenses and anything black
+- brown #8a5a33
+- blue #5b8fc7, also for glass
+- gray #c9ced6, also for metal, silver, stone and anything dark gray
+Where the description names a color, use it. Where it names none, use the palette color nearest
+the thing's real color. Any other color becomes its nearest palette color: sky blue and navy
+become blue; beige, sand and gold become yellow or cream; maroon becomes red, terracotta orange,
+olive leaf green. Never a tint, shade or mix of these colors, and never charcoal as a fill.
 
 COMPOSITION
 - Square image. Pure white (#ffffff) background, completely empty: no ground line, no horizon, no
@@ -146,13 +171,36 @@ COLOR
 - Flat, solid color inside the outlines, like a marker laid down evenly. No gradients, no shading,
   no highlights, no shine spots, no texture, no grain, no patterns, no transparency, apart from
   the light and shadow shapes the description asks for.
-- Use only the colors named in the subject description, taken from this palette:
-  red #d8433b, watermelon pink #ee5a6a, orange #f08a2c, yellow #f7cf46, cream #f6e7b8,
-  pale green #b9dc8a, leaf green #4f9d4a, dark green #2f6b3a, purple #7b4fa3, brown #8a5a33,
-  blue #5b8fc7, gray #c9ced6.
 - One color per enclosed area. Neighboring areas never share a color. Nothing is left white
   inside the subject, and nothing inside the subject is colored white.
 - Nothing is filled with the outline color: a dark area (an opening, a hole, a lens) is purple.
+
+PALETTE
+The course has one set of markers: the twelve colors below for areas, and charcoal for lines.
+Every area of every picture is exactly one of them, whether or not the description names its
+color, and whatever an attached picture shows.
+- red #d8433b
+- watermelon pink #ee5a6a
+- orange #f08a2c
+- yellow #f7cf46
+- cream #f6e7b8, also for anything white
+- pale green #b9dc8a
+- leaf green #4f9d4a
+- dark green #2f6b3a
+- purple #7b4fa3, also for holes, openings, lenses and anything black
+- brown #8a5a33
+- blue #5b8fc7, also for glass
+- gray #c9ced6, also for metal, silver, stone and anything dark gray
+Where the description names a color, use it. Where it names none, use the palette color nearest
+the thing's real color. Any other color becomes its nearest palette color: sky blue and navy
+become blue; beige, sand and gold become yellow or cream; maroon becomes red, terracotta orange,
+olive leaf green. Never a tint, shade or mix of these colors, and never charcoal as a fill.
+Lighter and darker partners, for the lit and shadow faces of a form, each from dark to light:
+- brown, red, watermelon pink
+- brown, orange, yellow, cream
+- dark green, leaf green, pale green
+- purple, blue, gray
+Cream and gray, the palest, partner each other.
 
 COMPOSITION
 - Square image. Pure white (#ffffff) background: no ground line, no horizon, no sky or water, no
@@ -236,13 +284,36 @@ COLOR
 - Flat, solid color inside the outlines, like a marker laid down evenly. No gradients, no shading,
   no highlights, no shine spots, no texture, no grain, no patterns, no transparency, apart from
   the light, shadow and texture the description asks for.
-- Use only the colors named in the subject description, taken from this palette:
-  red #d8433b, watermelon pink #ee5a6a, orange #f08a2c, yellow #f7cf46, cream #f6e7b8,
-  pale green #b9dc8a, leaf green #4f9d4a, dark green #2f6b3a, purple #7b4fa3, brown #8a5a33,
-  blue #5b8fc7, gray #c9ced6.
 - One color per enclosed area. Neighboring areas never share a color. Nothing is left white
   inside the subject, and nothing inside the subject is colored white.
 - Nothing is filled with the outline color: a dark area (an opening, a hole, a lens) is purple.
+
+PALETTE
+The course has one set of markers: the twelve colors below for areas, and charcoal for lines.
+Every area of every picture is exactly one of them, whether or not the description names its
+color, and whatever an attached picture shows.
+- red #d8433b
+- watermelon pink #ee5a6a
+- orange #f08a2c
+- yellow #f7cf46
+- cream #f6e7b8, also for anything white
+- pale green #b9dc8a
+- leaf green #4f9d4a
+- dark green #2f6b3a
+- purple #7b4fa3, also for holes, openings, lenses and anything black
+- brown #8a5a33
+- blue #5b8fc7, also for glass
+- gray #c9ced6, also for metal, silver, stone and anything dark gray
+Where the description names a color, use it. Where it names none, use the palette color nearest
+the thing's real color. Any other color becomes its nearest palette color: sky blue and navy
+become blue; beige, sand and gold become yellow or cream; maroon becomes red, terracotta orange,
+olive leaf green. Never a tint, shade or mix of these colors, and never charcoal as a fill.
+Lighter and darker partners, for light, shadow, distance and reflections, each from dark to light:
+- brown, red, watermelon pink
+- brown, orange, yellow, cream
+- dark green, leaf green, pale green
+- purple, blue, gray
+Cream and gray, the palest, partner each other.
 
 COMPOSITION
 - Square image, 1024 × 1024, even when the subject is wider than tall: never landscape or
@@ -266,10 +337,10 @@ NEVER
 
 /** By level id, as the catalog names its levels. */
 export const LEVEL_PROMPTS: Record<string, LevelPrompt> = {
-  starter: { version: 'style-v3-starter', audience: 'children under 10', learner: 'a child under ten', prompt: STARTER },
-  core: { version: 'style-v3-core', audience: 'learners aged 10 to 15', learner: 'a learner of ten to fifteen', prompt: CORE },
+  starter: { version: 'style-v4-starter', audience: 'children under 10', learner: 'a child under ten', prompt: STARTER },
+  core: { version: 'style-v4-core', audience: 'learners aged 10 to 15', learner: 'a learner of ten to fifteen', prompt: CORE },
   advanced: {
-    version: 'style-v4-advanced',
+    version: 'style-v5-advanced',
     audience: 'learners aged 16 and up',
     learner: 'a learner of sixteen or older',
     prompt: ADVANCED,

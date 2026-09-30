@@ -28,6 +28,17 @@ describe('levelPrompts', () => {
     }
   })
 
+  it('holds every area to the palette, named or not, with partners only where light is drawn', () => {
+    for (const [, { prompt }] of prompts) {
+      expect(prompt).toMatch(/^PALETTE$/m)
+      expect(prompt).toContain('whether or not the description names its\ncolor')
+      expect(prompt).toContain('never charcoal as a fill')
+    }
+    expect(LEVEL_PROMPTS.starter.prompt).not.toContain('Lighter and darker partners')
+    expect(LEVEL_PROMPTS.core.prompt).toContain('Lighter and darker partners')
+    expect(LEVEL_PROMPTS.advanced.prompt).toContain('distance and reflections, each from dark to light')
+  })
+
   it('opens up overlap, form and light only above Starter, and perspective and letters only at Advanced', () => {
     expect(LEVEL_PROMPTS.starter.prompt).not.toMatch(/^(FORM|LIGHT|VIEW AND DEPTH|TEXTURE)$/m)
     expect(LEVEL_PROMPTS.core.prompt).toMatch(/^FORM$/m)
@@ -45,7 +56,7 @@ describe('levelPrompts', () => {
   })
 
   it('finds a level by id, and none for a level it does not know', () => {
-    expect(levelPrompt('core')?.version).toBe('style-v3-core')
+    expect(levelPrompt('core')?.version).toBe('style-v4-core')
     expect(levelPrompt('bonus')).toBeNull()
     expect(levelPrompt('constructor')).toBeNull()
     expect(levelPrompt(null)).toBeNull()

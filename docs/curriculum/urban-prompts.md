@@ -7,7 +7,7 @@ Advanced level's; only the **lesson prompt** changes.
 
 ## How to run them
 
-- **System prompt: `style-v4-advanced`**, the Advanced level's, copied from the level's menu in the Studio
+- **System prompt: `style-v5-advanced`**, the Advanced level's, copied from the level's menu in the Studio
   (System prompt…). It lives in `web/src/studio/levelPrompts.ts`. Give it to the image model as its system /
   instructions prompt, once, and send each lesson prompt below as the message. It already carries the course's
   look, the line weight, how an attached picture is matched, perspective, drawn light and shadow, texture,
@@ -21,7 +21,7 @@ Advanced level's; only the **lesson prompt** changes.
 - Generate 3–4 candidates per lesson and keep the one with the fewest, cleanest lines, not the prettiest. Reject
   any candidate that gets a count wrong: the counts are the teaching points.
 - Save the kept PNGs as `docs/curriculum/urban/<lesson-id>-<model>.png`, and record model, date and the
-  system prompt's version (`style-v4-advanced`) in the lesson's `--source`.
+  system prompt's version (`style-v5-advanced` from 2026-09-30) in the lesson's `--source`.
 
 What the lesson prompts on this path take care of, beyond the system prompt:
 
@@ -62,11 +62,13 @@ What the lesson prompts on this path take care of, beyond the system prompt:
   two lines that end open, and the plainest, palest parts at the edges.
 - **No living things** (no people, pigeons or cats), no words on signs, the tram or the phone box, no cars.
 
-## System prompt (`style-v4-advanced`)
+## System prompt (`style-v5-advanced`)
 
 Not copied here: take it from the Advanced level's menu in the Studio, or from `ADVANCED` in
 [levelPrompts.ts](../../web/src/studio/levelPrompts.ts). A change to it gets a new version, so a lesson's `--source`
-still says which prompt made its picture.
+still says which prompt made its picture. `style-v5-advanced` (2026-09-30) adds a PALETTE section: every area is a
+palette color even when a request names none, with the lighter and darker partners used for light, distance and
+reflections. The pictures kept before it (shop front to canal bridge) were made with `style-v4-advanced`.
 
 ## Lesson prompts
 

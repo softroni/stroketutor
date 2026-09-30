@@ -41,7 +41,7 @@ describe('sessionPrompt', () => {
   it("points at the level's system prompt instead of copying a style prompt", () => {
     const [first] = prompt.split('PART 2')
     expect(first).toContain('in the Core level, for learners aged 10 to 15.')
-    expect(first).toContain('`style-v3-core` in web/src/studio/levelPrompts.ts')
+    expect(first).toContain('`style-v4-core` in web/src/studio/levelPrompts.ts')
     expect(first).toContain('lines a learner of ten to fifteen can draw')
     expect(first).not.toContain('style-v2')
     expect(first).not.toContain('a child')
@@ -52,7 +52,7 @@ describe('sessionPrompt', () => {
     for (const level of [null, { id: 'bonus', title: 'Bonus' }]) {
       const text = sessionPrompt({ id: 'a', title: 'A', level, lessons: [] })
       expect(text).toContain('Ask me which level it belongs to')
-      expect(text).not.toContain('style-v3')
+      expect(text).not.toMatch(/style-v\d/)
     }
   })
 

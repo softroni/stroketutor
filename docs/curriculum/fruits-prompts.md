@@ -22,8 +22,9 @@ curriculum; only the **lesson prompt** changes.
 ## Style prompt (`style-v2`) — identical for all 13 paths
 
 > **Since 2026-09-29 each level has its own style prompt**, given to the image model as its system
-> prompt for every lesson of the level: `style-v3-starter` (children under 10), `style-v3-core`
-> (10 to 15) and `style-v4-advanced` (16 and up). Copy them from the level's menu in the Studio
+> prompt for every lesson of the level: `style-v4-starter` (children under 10), `style-v4-core`
+> (10 to 15) and `style-v5-advanced` (16 and up), each with its own PALETTE section since
+> 2026-09-30. Copy them from the level's menu in the Studio
 > (System prompt…); they live in `web/src/studio/levelPrompts.ts`. New pictures use those.
 > `style-v2` below stays as the record of the pictures already made with it.
 
