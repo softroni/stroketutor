@@ -109,6 +109,63 @@ Premium Yearly, $29.99 per year: the recommended plan, shown first on every payw
 Premium Weekly, $3.99 per week, no introductory offer. On the app's own paywall and in Superwall designs 1 and 3 it is under "View more plans"; designs 2 and 4 show both plans as cards. To reach a paywall: on a fresh install choose 18+ during onboarding and follow the first run to the offer; afterwards use Settings > Premium, or tap a crowned lesson and then "See Premium". Learners 13 and over may get one of four Superwall paywall designs (listed in the app's review notes); every one reads prices from StoreKit, names the billed price on its buy button, and shows "Continue with free lessons", Restore, Terms of Use and the Privacy Policy. For a learner under 13 the paywall sits behind "For grown-ups" and a parental check (a sum written in words).
 ```
 
+## 1.1 (drafted 2026-09-30; goes on the record when 1.1 is cut, then this section replaces the ones above)
+
+**What's new**
+
+```
+• A new path, Urban: ten lessons, from a shop front and a phone box to a canal bridge and a corner café.
+• Photographed your drawing in dim light? Choose Original, Bright or Scan.
+• Change a kept page's light and corners any time in your sketchbook.
+• See how long each drawing really took, and the screen stays awake while you draw.
+• Every path has its own color.
+• Premium Lifetime: one payment, no renewal. And "Redeem a code" in Settings.
+• Layouts that make better use of the iPad.
+```
+
+**Promotional text** (161/170): Draw real pictures on real paper. Lina shows one line at a time, then waits while you draw it. New: Urban. Every path starts free; Premium opens all 110 lessons.
+
+**Keywords** (100/100): lessons,sketching,tutorial,urban,pencil,drawings,how,beginner,sketch,art,simple,guide,pen,adult,kids
+("mindful" out; "urban" pairs with "sketching", and "kids" with "drawings" and "lessons".)
+
+**Description**: the one below under *Listing copy*, with these changes, and still no price:
+
+```
+• 110 lessons on 11 paths: Plants, Fruits, Sky & Weather, Forms, Wheels, On the Water, In the Air, Space, Landscape, Food & Treats, and Urban
+• A sketchbook: photograph your finished drawing, even in dim light (Original, Bright or Scan), keep it beside the lesson on your phone only, and fix its light and corners later
+
+FREE AND PREMIUM
+Every path is open, and the first three lessons of each path are free. Paper Coach Premium unlocks every lesson on every path:
+• Yearly, with a 7-day free trial for new subscribers
+• Weekly
+• Lifetime: one payment, no renewal
+Every plan can be shared with your family through Family Sharing.
+
+Payment is charged to your Apple Account when you confirm the purchase, or when the free trial ends. Yearly and Weekly renew automatically unless canceled at least 24 hours before the end of the current period; you can manage or cancel them in your Apple Account settings at any time. Any unused part of a free trial is forfeited when you buy a subscription. Lifetime is a one-time purchase.
+```
+
+**App Review notes** (the 1.0 notes above, with these changes):
+- First paragraph, after the PostHog sentence: "From 1.1 the app also sends crash and hang reports from Apple's MetricKit to PostHog, each under a random id of
+  its own, linked to no learner (App Privacy: Crash Data and Performance Data, not linked, App Functionality)."
+- WHAT THE APP DOES: "There are 11 paths of 10 lessons."
+- PRODUCTS: add "- com.softroni.papercoach.premium.lifetime: non-consumable, $99.99, one payment, Family Sharing. The third row
+  under "View more plans" on the app's own paywall. To see it: choose an age under 13 during onboarding, tap a crowned
+  lesson, "This part is for a grown-up", answer the check, then "View more plans" on the grown-up's paywall.
+  Settings > Premium > "Redeem a code" opens Apple's offer-code sheet (behind the same check for a child)."
+  (If Lifetime is added to the Superwall designs before submitting, say which.)
+- New paragraph, RATINGS: "After a learner 13 or over finishes a third drawing, and never in the first session, the app may
+  ask for a rating through StoreKit's requestReview, at most once per version. Never for a learner under 13."
+
+**Subscription review notes** (both): replace "or tap a crowned lesson and then "See Premium"" with "or tap a crowned
+lesson"; replace "behind "For grown-ups" and a parental check" with "behind "This part is for a grown-up" and a parental
+check".
+
+**Lifetime review note** (`6817900719`), with a screenshot of the plans sheet showing it:
+
+```
+Premium Lifetime, $99.99, one payment with no renewal, Family Sharing. It unlocks the same Premium as the subscriptions: every lesson on every path. It is the third row under "View more plans" on the app's own paywall; to reach it, choose an age under 13 during onboarding, tap a crowned lesson, "This part is for a grown-up", answer the parental check (a sum written in words), then "View more plans". It can also be redeemed with an offer code through Settings > Premium > "Redeem a code". Its price comes from StoreKit and is the largest price in its row, named on the buy button.
+```
+
 ## Listing copy (already on the record)
 
 **Name** (26/30): Paper Coach: Learn to Draw
