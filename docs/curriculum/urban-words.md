@@ -110,3 +110,22 @@ flowers and four leaves. No shadow: it was taken out of the picture.
 - leaves: "Four leaves grow off the stem, two on each side."
 - colors: "Color the wall yellow, and the two knobs as well." / "Green for the doors, the bush and the four leaves." / "Cream for the slab and the hood. The glass is blue." / "Orange for the brackets and the box. All five flowers are red."
 - outro: "Your balcony is ready. Who would you wave to from up there?"
+
+### phone-box
+
+A red phone box seen from its corner: a red left side and a brown right side (the shade side), a
+cream and a yellow sign band along their tops, a red domed roof with a small yellow knob, six blue
+panes on each side, a door handle low on the left side, a gray base turning the corner, and a pale
+green tree behind the right side.
+
+- intro: "A red phone box is the easiest landmark in town. We see it from its corner, so both sides lean away from us. Watch them lean, then stand one on your own street."
+- corner: "Begin with the near corner: one tall upright line."
+- sides: "Two sides go back from it. Their tops slope down and their bottoms slope up."
+- bands: "A band along the top of each side, sloping the same way."
+- roof: "The roof is one round curve from far corner to far corner, with a small knob on top."
+- left-panes: "Six panes on the left side, three rows of two, tilted like the side."
+- right-panes: "Six more on the right. The far ones are a little narrower."
+- base: "Along the bottom, a low band turns the corner. A short line on the left is the handle."
+- tree: "A round, bumpy tree peeks out from behind the right side."
+- colors: "Color the left side red, and the roof too." / "The right side is brown, because it's in the shade." / "Cream and yellow for the two bands. The knob is yellow." / "All twelve panes are blue." / "Gray for the base, and pale green for the tree."
+- outro: "Your phone box is ready for a call. Who would you ring first?"
