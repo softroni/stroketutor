@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-30T15:38:52-05:00",
+  "updated": "2026-09-30T16:13:41-05:00",
   "headline": "Apple approved 1.0 (2), and Paper Coach is on the App Store. The build is tagged 1.0(2), and Apple Ads is set up in the US at $10 a day; it starts serving once Apple finishes categorizing the new app.",
   "app": {
     "live": {
@@ -166,8 +166,8 @@
   ],
   "needsYou": [
     {
-      "title": "Set Premium Lifetime's availability to all countries",
-      "detail": "App Store Connect › In-App Purchases › Premium Lifetime › Availability. Until then it is offered nowhere, can't be submitted, and its review screenshot can't be taken.",
+      "title": "Say \"submit\" for 1.1",
+      "detail": "Everything is ready in App Store Connect: build 1.1 (4), text, 16 screenshots, phased release, and Premium Lifetime goes to review with it.",
       "since": "2026-09-30"
     },
     {
@@ -185,7 +185,7 @@
     {
       "title": "1.1 release",
       "state": "waiting",
-      "detail": "Cut once the Café and next-builds items 1 (Premium fix) and 4 (rating prompt) are on main. Plan: docs/releases/1.1.md."
+      "detail": "Ready to submit: build 4 attached, all tests pass. Waiting for Kevin."
     },
     {
       "title": "Apple Ads, first days",
@@ -209,6 +209,10 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-09-30T16:13:41-05:00",
+      "text": "1.1 (4) ready to submit: 393 iOS and 758 web tests pass, walkthrough done, build uploaded (VALID) and attached, text and 16 screenshots in App Store Connect (shot 4 now the finished fire hydrant), Lifetime Ready to Submit. Waiting for Kevin's Submit"
+    },
     {
       "at": "2026-09-30T15:38:52-05:00",
       "text": "1.1 in App Store Connect (Prepare for Submission): text, keywords, review notes, phased release, 16 screenshots uploaded; Lifetime availability saved (175). Waiting on the plans-sheet subtitle fix, then build and QA"
