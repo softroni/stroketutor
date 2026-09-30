@@ -28,7 +28,8 @@ struct AppRoot: View {
     /// down, and this keeps the flow that is leaving on screen until it is gone.
     @State private var closingCover: AppCover?
     /// Set when the app goes to the background, so the next return counts as an
-    /// open, and the launch itself (counted in `.task`) is not counted twice.
+    /// open and a new session, and the launch itself (counted in `.task`) is not
+    /// counted twice.
     @State private var returnsFromBackground = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -90,9 +91,10 @@ struct AppRoot: View {
                     returnsFromBackground = true
                 }
                 guard phase == .active, app.hasLoadedContent else { return }
-                if returnsFromBackground, countsAsUse {
+                if returnsFromBackground {
                     returnsFromBackground = false
-                    app.recordAppOpened()
+                    app.startNewSession()
+                    if countsAsUse { app.recordAppOpened() }
                 }
                 Task { await app.premium.refreshEntitlements() }
             }

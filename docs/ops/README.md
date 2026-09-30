@@ -219,6 +219,24 @@ and 8 seconds a step) under "Needs you": what the app promises is Kevin's call, 
 before the clock existed, 22 finished lessons on 1.0 from 2026-09-26 to 28 timed from `lesson_started` to
 `lesson_completed` (intro included): median ratio 0.89.
 
+## Rating prompt
+
+From 1.1, learners 13 and over are asked for an App Store rating a moment after a finished drawing, from their
+third on, never in their first session, at most once per version per device (`RatingPromptPolicy`, README ›
+M10). Each ask sends `rating_prompt_requested` (`lesson_id`, `path_id`, `finished_drawings`, and the app's
+version). iOS decides whether a prompt actually showed and never says, so read asks against ratings:
+
+- **Asks:** `rating_prompt_requested` per day and per `$app_version` in PostHog (release builds only).
+- **Ratings:** `https://itunes.apple.com/lookup?id=6816231257&country=us` gives `userRatingCount` and
+  `averageUserRating` for a storefront (0 on 2026-09-30, 1.0 on sale); written reviews come through the API's
+  `customerReviews`. Log the count daily from the day 1.1 goes on sale.
+- If ratings barely move after a few hundred asks, or the average falls, say so under "Needs you": when to ask is
+  a feature, so a change is Kevin's call.
+
+To see it on a simulator (a development build always shows the prompt): an 18+ learner, three finished drawings,
+then send the app to the background and back (a new session), and finish another. Once it has asked, that
+version never asks again on the device; deleting the app resets it.
+
 ## Replying to reviews
 
 - Warm, short and specific to what the person wrote, signed "the Paper Coach team". Thank them for

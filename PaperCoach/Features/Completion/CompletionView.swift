@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 import UIKit
 
@@ -15,12 +16,16 @@ import UIKit
 /// make a column beside it, instead of a small page over a stretch of empty paper.
 /// Upright, the phone's column is kept to a readable width and the page is allowed
 /// to grow taller.
+///
+/// A learner 13 or over may be asked for an App Store rating here, a moment after
+/// the page lands (`askForRatingIfDue()`, `RatingPromptPolicy`).
 struct CompletionView: View {
     let lesson: Lesson
 
     @Environment(AppModel.self) private var app
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.isWideLayout) private var isWide
+    @Environment(\.requestReview) private var requestReview
     /// The screen's size, to tell a wide screen on its side from one upright.
     @State private var size: CGSize = .zero
 
@@ -78,6 +83,27 @@ struct CompletionView: View {
             speakLinaLine()
         }
         .onDisappear { narration.deactivate() }
+        .task { await askForRatingIfDue() }
+    }
+
+    // MARK: - The rating prompt
+
+    /// Long enough for the page, the haptic and the start of Lina's line to land
+    /// before any rating prompt covers them.
+    private static let ratingPromptDelay: Duration = .seconds(2)
+
+    /// Asks StoreKit for its rating prompt when `RatingPromptPolicy` says this
+    /// finished drawing is the moment. Leaving the screen before the delay is up
+    /// cancels it, and a later drawing asks instead: a learner already on their
+    /// way to the sketchbook is not stopped.
+    private func askForRatingIfDue() async {
+        do {
+            try await Task.sleep(for: Self.ratingPromptDelay)
+        } catch {
+            return
+        }
+        guard app.claimRatingPrompt(after: lesson) else { return }
+        requestReview()
     }
 
     // MARK: - The wide screen

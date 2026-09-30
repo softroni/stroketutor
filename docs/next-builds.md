@@ -80,6 +80,13 @@ easy for a child to ignore.
 
 ## 4. Ask 13+ learners for a rating (small)
 
+**Built 2026-09-30, not shipped:** on `main`, for 1.1. What was built: `RatingPromptPolicy`
+(`PaperCoach/App/RatingPrompt.swift`) decides, and `CompletionView` asks two seconds after the page lands (leaving
+the screen first cancels it). A lesson drawn again counts as another finished drawing; a session is a launch or a
+return from the background, and the first is the one the learner was added in; "once per version" is per device,
+since a rating belongs to the Apple account. Tests in `RatingPromptTests`. How to read its effect:
+docs/ops/README.md › *Rating prompt*.
+
 **Why:** a new app with no ratings loses people in search results and in ads. The Settings row that opens the
 review page is there, but almost nobody goes looking for it.
 

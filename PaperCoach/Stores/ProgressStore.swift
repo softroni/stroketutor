@@ -109,6 +109,12 @@ final class ProgressStore {
         records.filter(\.isCompleted).count
     }
 
+    /// Every drawing finished, a lesson drawn again counting again. The rating
+    /// prompt waits for the third (`RatingPromptPolicy`).
+    var finishedDrawingCount: Int {
+        records.reduce(0) { $0 + $1.timesCompleted }
+    }
+
     /// The step to resume from, if the learner left a lesson part-way.
     func resumeStep(for lessonId: String) -> Int? {
         progress(for: lessonId)?.lastStepIndex

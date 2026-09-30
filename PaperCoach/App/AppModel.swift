@@ -125,22 +125,42 @@ final class AppModel {
     /// the way its own "Not now" would (`leaveCompletion(for:)`).
     @ObservationIgnored var offerReturnLessonId: String?
 
+    // MARK: - Sessions and the rating prompt
+
+    /// The learners added in the session running now: this launch, or the stretch
+    /// in the foreground since the app last came back from the background. Their
+    /// first session is not over, so the rating prompt leaves them alone
+    /// (`RatingPromptPolicy`).
+    @ObservationIgnored private(set) var learnersNewThisSession: Set<UUID> = []
+    /// False in a launch that must never ask for a rating: a screenshot launch or
+    /// the unit tests (`RatingPromptPolicy.isAllowed`).
+    let asksForRatings: Bool
+
     private let bundle: Bundle
 
     /// `paywalls` is for the tests; the app gets Superwall's (`SuperwallPaywalls.make`),
     /// which does nothing until `AppRoot` calls `startRemotePaywalls(waitingForPicker:)`.
+    /// `asksForRatings` too: left out, it is decided by the launch.
     init(bundle: Bundle = .main,
          settings: Settings? = nil,
          storeDirectory: URL? = nil,
          analyticsSink: AnalyticsSink? = nil,
          paywalls: RemotePaywalls? = nil,
-         appleAds: AppleAdsAttribution? = nil) {
+         appleAds: AppleAdsAttribution? = nil,
+         asksForRatings: Bool? = nil) {
         let settings = settings ?? Settings()
         let base = storeDirectory ?? AppStorageLocation.applicationSupport()
         let profileStore = ProfileStore(baseDirectory: base)
         self.bundle = bundle
         self.settings = settings
         self.profileStore = profileStore
+        #if DEBUG
+        self.asksForRatings = asksForRatings ?? RatingPromptPolicy.isAllowed(
+            screenshotLaunch: DebugScreenHarness.isActive,
+            runningTests: ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil)
+        #else
+        self.asksForRatings = asksForRatings ?? true
+        #endif
         pin = AppPIN(defaults: settings.defaults)
         library = TutorialLibrary()
         let analytics = Analytics(sink: analyticsSink ?? PostHogSink.make(bundle: bundle))
@@ -162,6 +182,8 @@ final class AppModel {
 
         let profile: Profile
         let stores: ProfileStores
+        // A learner made on this launch, whose first session it is.
+        var isNewLearner = false
         if case .failed = outcome {
             profile = Profile(name: LegacyProfileMigration.migratedProfileName, avatar: .fox)
             stores = ProfileStores(profileId: profile.id,
@@ -176,6 +198,7 @@ final class AppModel {
             // A fresh install: one learner, unnamed until onboarding asks.
             profile = first
             stores = Self.openStores(for: first, in: profileStore)
+            isNewLearner = true
         } else {
             // Nothing can be written at all. Run in memory rather than not at all.
             profile = Profile(name: "", avatar: .fox)
@@ -186,10 +209,12 @@ final class AppModel {
                                    sketchbook: SketchbookStore(baseDirectory: scratch),
                                    preferences: ProfilePreferences(directory: nil))
             temporaryProfile = profile
+            isNewLearner = true
         }
         activeProfile = profile
         active = stores
         openedStores[profile.id] = stores
+        if isNewLearner { learnersNewThisSession.insert(profile.id) }
         analytics.identify(profile)
     }
 
@@ -213,6 +238,17 @@ final class AppModel {
                                    narrationOn: preferences.narrationEnabled,
                                    reminderOn: settings.reminderEnabled,
                                    saveToPhotosOn: settings.alsoSaveToPhotos))
+    }
+
+    /// The app came back from the background: a new session, so every learner
+    /// added in the last one is past their first.
+    func startNewSession() {
+        learnersNewThisSession = []
+    }
+
+    /// This build's version, as the App Store shows it: "1.1".
+    var appVersion: String {
+        bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
     }
 
     /// Asks Apple which campaign brought the install, on the launches before it has
@@ -578,6 +614,7 @@ extension AppModel {
         } catch {
             return nil
         }
+        learnersNewThisSession.insert(profile.id)
         guard let ageGroup else { return profile }
         setAgeGroup(profile.id, to: ageGroup)
         return profileStore.profile(id: profile.id) ?? profile

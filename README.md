@@ -1004,6 +1004,18 @@ app update. SuperwallKit 4.17 comes in through Swift Package Manager.
   request, and events reached Superwall only after tracking turned on (`config_attributes`, `paywallPreload_*`); a
   screenshot launch made no Superwall request at all.
 
+**The rating prompt, for learners 13 and over (2026-09-30, for 1.1).** docs/next-builds.md item 4. Two seconds
+after a finished drawing's completion screen appears, `CompletionView` calls StoreKit's `requestReview` when
+`RatingPromptPolicy` agrees: the learner is 13 or over, has finished at least three drawings (repeats count), is past
+the session they were added in (a session is a launch or a return from the background), and the app has not asked in
+this version on this device. iOS then decides whether anything shows (at most three times a year, never in
+TestFlight). Leaving the screen before the two seconds are up cancels it.
+- **Never** for the child tier (under 13, "prefer not to say" or never asked), during the guided first run, in a
+  screenshot launch or in the unit tests.
+- `rating_prompt_requested` (`lesson_id`, `path_id`, `finished_drawings`) counts the asks, to be read against the
+  ratings in App Store Connect (docs/ops/README.md › *Rating prompt*). Settings' "Rate Paper Coach" stays: a link
+  the learner chooses, which iOS never rations.
+
 ---
 
 ## Baseline (M0)

@@ -171,6 +171,7 @@ struct AnalyticsEvent: Equatable {
         static let narrationOn = "narration_on"
         static let reminderOn = "reminder_on"
         static let saveToPhotosOn = "save_to_photos_on"
+        static let finishedDrawings = "finished_drawings"
     }
 
     // MARK: App and acquisition
@@ -287,6 +288,20 @@ struct AnalyticsEvent: Equatable {
     static func offerFinished(entry: String, subscribed: Bool) -> AnalyticsEvent {
         AnalyticsEvent(name: "offer_finished",
                        properties: [Key.entry: entry, Key.subscribed: subscribed ? "true" : "false"])
+    }
+
+    // MARK: Ratings
+
+    /// StoreKit was asked for its rating prompt, a moment after `lesson_id` was
+    /// finished (`RatingPromptPolicy`: 13 and over, at most once per version).
+    /// iOS decides whether anything showed, and never says, so this counts asks,
+    /// to be read against the ratings in App Store Connect. `finished_drawings`
+    /// is the learner's count, this one included.
+    static func ratingPromptRequested(lessonId: String, pathId: String, finishedDrawings: Int) -> AnalyticsEvent {
+        AnalyticsEvent(name: "rating_prompt_requested",
+                       properties: [Key.lessonId: lessonId,
+                                    Key.pathId: pathId,
+                                    Key.finishedDrawings: String(finishedDrawings)])
     }
 
     // MARK: Superwall
