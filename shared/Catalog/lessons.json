@@ -1040,6 +1040,16 @@
         "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-29, margin added; AI-generated for Paper Coach; owned by Softroni",
         "license": "AI-generated for Paper Coach; owned by Softroni"
       }
+    },
+    {
+      "id": "fountain",
+      "status": "approved",
+      "objective": "Three-tier town fountain drawn in ellipses, with ribbed bowls and arcs of water",
+      "reference": {
+        "file": "fountain.svg",
+        "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-30 by the creator; two potted trees removed and margin added by hand; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
     }
   ]
 }

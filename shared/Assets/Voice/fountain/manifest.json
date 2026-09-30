@@ -1,0 +1,142 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "fountain",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-30T04:29:17.865Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Every town square needs a fountain. Ours has three basins stacked like cake plates, with water spilling from each. Watch it fill up, then pour your own.",
+      "textHash": "def9ac98ce34efbf49ef303f9724586558fc447eea83d2fbd5da3d4cd97143db",
+      "durationMs": 10080
+    },
+    "rim": {
+      "file": "rim.m4a",
+      "text": "Start with the big basin: a wide flat oval, open at the back. A second curve runs just inside it.",
+      "textHash": "6b3d2cba571c964e1da7268250b2fbdf5a78bfd2e17b8d170f79fba65e21b037",
+      "durationMs": 6800
+    },
+    "basin-side": {
+      "file": "basin-side.m4a",
+      "text": "Its side hangs below the front, with straight ends and a long curve.",
+      "textHash": "98171e7c0f9ec5412ad3f4502b16903b4e45e3305853945cc5750fad73039cc1",
+      "durationMs": 4640
+    },
+    "panels": {
+      "file": "panels.m4a",
+      "text": "Three orange panels line the side. The end ones look narrower as they turn away.",
+      "textHash": "e073ad27eef2d195b18d54a3321cf72507e47a32490862eb92555a90bfb3bb4f",
+      "durationMs": 5760
+    },
+    "step": {
+      "file": "step.m4a",
+      "text": "Under it all, a gray stone step, its flat top showing at each end.",
+      "textHash": "c9fd56466407075cf4e6a81d2a7c7a95102e372f649d9a3fbccd0b4306e758dc",
+      "durationMs": 5440
+    },
+    "blocks": {
+      "file": "blocks.m4a",
+      "text": "Four short upright lines split the step into blocks.",
+      "textHash": "a4b570b29c7abd5ba30b64227aa112e736607e798decbea8ef92ac12feac53fc",
+      "durationMs": 3600
+    },
+    "column": {
+      "file": "column.m4a",
+      "text": "A thick column rises from the water, flaring out at its foot. Behind it, the back of both ovals.",
+      "textHash": "cf521556f655174b9d8e8b6a07a966259e3f802f8d1690ef13f18689444f9799",
+      "durationMs": 6160
+    },
+    "middle-basin": {
+      "file": "middle-basin.m4a",
+      "text": "Up on the column, a smaller basin. A flat oval, open at the back, sits over a round bowl.",
+      "textHash": "5ba7364c0a85115f28e9f21caa0d8eb1556248057327dc1021ef05b873ec06c6",
+      "durationMs": 6960
+    },
+    "middle-ribs": {
+      "file": "middle-ribs.m4a",
+      "text": "Next, four ribs curve down the bowl.",
+      "textHash": "06e60a87eff1bc3b9a85baf579558350ecc692eb0bbcd7198583e4c829d6083c",
+      "durationMs": 2640
+    },
+    "top-basin": {
+      "file": "top-basin.m4a",
+      "text": "A short stem, then the top basin, the same shape but smaller.",
+      "textHash": "a16cb2ac9ba2951e504024c4fcea2fb294ca67aaba1d00d790366c430898fe70",
+      "durationMs": 4160
+    },
+    "top-ribs": {
+      "file": "top-ribs.m4a",
+      "text": "Then a line under the rim, and four ribs like the ones below.",
+      "textHash": "972a5529dec7af922a07f37d656ee49aeaedb6e79872815df46842c56b3345e2",
+      "durationMs": 4480
+    },
+    "ball": {
+      "file": "ball.m4a",
+      "text": "On top, a little knob and a round ball.",
+      "textHash": "4bc872d45ddb483e7340b8e3ef49992ac38bd24df7cd1e867274cda96d2b7881",
+      "durationMs": 2960
+    },
+    "water-top": {
+      "file": "water-top.m4a",
+      "text": "Water spills from the ball in two small arcs. The back of the basin runs from each to the knob.",
+      "textHash": "ff87c44c76815e1d352111d582562fb1ac0ed1da09d64b7c4deb4a129e93f592",
+      "durationMs": 5520
+    },
+    "water-mid": {
+      "file": "water-mid.m4a",
+      "text": "Two more arcs pour from under the top basin. Again, the oval's back runs from each to the stem.",
+      "textHash": "6a516cb945918a3c9f1b087b386b76c563407c354bb66320f156ee4a8f7062f2",
+      "durationMs": 7040
+    },
+    "water-big": {
+      "file": "water-big.m4a",
+      "text": "Four long arcs fall from the middle basin into the big one. First, the two from under the bowl.",
+      "textHash": "9d0102f63ca32d1d090213d8ad04d347c77dee2525272b624c15a6636400c122",
+      "durationMs": 6400
+    },
+    "water-outer": {
+      "file": "water-outer.m4a",
+      "text": "The outer two start behind the small arcs. Then fill in the rim between each pair.",
+      "textHash": "78c7f037278ff4fb6b7bf2c0ed7732e529eac0b62959bc99d5659fa0f3a6f27f",
+      "durationMs": 5840
+    },
+    "ripples": {
+      "file": "ripples.m4a",
+      "text": "Two ripples curve across the water below.",
+      "textHash": "cc96052c7b1f8357a4274dbd04d9bd5ea71a1315ce0aaa81c3169941ef852f34",
+      "durationMs": 2640
+    },
+    "cream": {
+      "file": "cream.m4a",
+      "text": "Cream for the stone: the rim, the bowls, the stem and the ball.",
+      "textHash": "82ca1fa02d0847184ed2d33e6fc74266a3f9e6ea6066f02c440a238c16572773",
+      "durationMs": 4880
+    },
+    "blue": {
+      "file": "blue.m4a",
+      "text": "Blue for all the water, the arcs too.",
+      "textHash": "8a3c78b309d0e49a872d342ef46c45f9871e1d3d3610213914a5435358468618",
+      "durationMs": 2880
+    },
+    "orange": {
+      "file": "orange.m4a",
+      "text": "Orange for the three panels.",
+      "textHash": "85f3daed11c17b2bceb5d9bd665e4734eb59b566c198e9ff5460b2989b92ca91",
+      "durationMs": 2560
+    },
+    "gray": {
+      "file": "gray.m4a",
+      "text": "Gray for the step and the column.",
+      "textHash": "4e6e4660be291cedb4261ec426a163f497baac96af338cd40a386ec9a9478780",
+      "durationMs": 2480
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your fountain is splashing away. Would you toss a coin in?",
+      "textHash": "aa045e2a139016641c6f60a33c1b0e436c38059bb23074ef8d813e8381ff3139",
+      "durationMs": 3440
+    }
+  }
+}
