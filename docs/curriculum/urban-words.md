@@ -173,17 +173,29 @@ bowl with curved ribs, joined by a short cream stem; a knob and a cream ball on 
 one, and four long ones into the lower basin; two ripples on the lower water. The two potted trees of the picture were taken out at the
 creator's request: the fountain alone is enough to draw.
 
+As built (2026-09-30): the column, the stems and the arcs stand in front of the back of each oval, so
+every oval is first drawn open at the back, and each piece of its back comes after the thing in
+front of it, from that thing to the next: behind the column in the column step, from each arc to the
+knob or the stem in the arc steps, and between the long arcs last. Steps over six lines were split:
+the step and its blocks, the ribs of each basin, the ball's arcs and the top basin's arcs, the inner
+and the outer long arcs.
+
 - intro: "Every town square needs a fountain. Ours has three basins stacked like cake plates, with water spilling from each. Watch it fill up, then pour your own."
-- rim: "Start with the big basin: a wide flat oval, and a second one just inside it."
+- rim: "Start with the big basin: a wide flat oval, open at the back. A second curve runs just inside it."
 - basin-side: "Its side hangs below the front, with straight ends and a long curve."
 - panels: "Three orange panels line the side. The end ones look narrower as they turn away."
-- step: "Under it all, a gray stone step, split into blocks."
-- column: "A thick column rises from the water, flaring out at its foot."
-- middle-basin: "Up on the column, a smaller basin: a flat oval with a ribbed bowl under it."
+- step: "Under it all, a gray stone step, its flat top showing at each end."
+- blocks: "Four short upright lines split the step into blocks."
+- column: "A thick column rises from the water, flaring out at its foot. Behind it, the back of both ovals."
+- middle-basin: "Up on the column, a smaller basin. A flat oval, open at the back, sits over a round bowl."
+- middle-ribs: "Next, four ribs curve down the bowl."
 - top-basin: "A short stem, then the top basin, the same shape but smaller."
+- top-ribs: "Then a line under the rim, and four ribs like the ones below."
 - ball: "On top, a little knob and a round ball."
-- water-top: "Water spills from the ball in two small arcs, and from the top basin in two more."
-- water-big: "Four long arcs fall from the middle basin into the big one."
+- water-top: "Water spills from the ball in two small arcs. The back of the basin runs from each to the knob."
+- water-mid: "Two more arcs pour from under the top basin. Again, the oval's back runs from each to the stem."
+- water-big: "Four long arcs fall from the middle basin into the big one. First, the two from under the bowl."
+- water-outer: "The outer two start behind the small arcs. Then fill in the rim between each pair."
 - ripples: "Two ripples curve across the water below."
 - colors: "Cream for the stone: the rim, the bowls, the stem and the ball." / "Blue for all the water, the arcs too." / "Orange for the three panels." / "Gray for the step and the column."
 - outro: "Your fountain is splashing away. Would you toss a coin in?"
