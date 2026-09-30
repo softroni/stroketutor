@@ -1,0 +1,3 @@
+# Lessons `studio social next` posts before the rest of the queue, in this order: one lesson id a line.
+# The weekly review (social-plan.md, "A day") moves subjects that do well up here. A lesson already
+# posted, or not in the version on sale, is passed over. Delete lines once posted, or leave them.

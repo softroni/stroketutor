@@ -10,6 +10,16 @@ import { postCaption, subjectOf, type VideoInput } from '../video/plan'
 
 export const APP_STORE_URL = 'https://apps.apple.com/app/id6816231257'
 
+/**
+ * The App Store link a platform's post carries: with Softroni's provider token
+ * it is a campaign link (`ct=pinterest`…), so App Store Connect → Analytics →
+ * Sources counts downloads per platform; without one, the plain link.
+ */
+export function appStoreLink(campaign: string, providerToken: string | null): string {
+  if (!providerToken) return APP_STORE_URL
+  return `https://apps.apple.com/app/apple-store/id6816231257?pt=${encodeURIComponent(providerToken)}&ct=${encodeURIComponent(campaign)}&mt=8`
+}
+
 export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook', 'pinterest', 'x'] as const
 export type Platform = (typeof PLATFORMS)[number]
 
@@ -39,6 +49,8 @@ export interface SocialSettings {
   /** Which platforms get the AI-generated label: TikTok only by default (Lina's voice is synthetic). */
   aiLabel: 'none' | 'tiktok' | 'all'
   youtubeMadeForKids: boolean
+  /** Softroni's App Store provider token, for campaign links; null leaves links plain. */
+  providerToken: string | null
 }
 
 export const SETTINGS_KEYS = {
@@ -49,6 +61,7 @@ export const SETTINGS_KEYS = {
   facebookPage: 'UPLOAD_POST_FACEBOOK_PAGE',
   aiLabel: 'UPLOAD_POST_AI_LABEL',
   youtubeMadeForKids: 'UPLOAD_POST_YOUTUBE_MADE_FOR_KIDS',
+  providerToken: 'APP_STORE_PROVIDER_TOKEN',
 } as const
 
 /** A shell-sourceable `KEY=value` file, as `~/.config/pixabay/config` is: comments, `export` and quotes allowed. */
@@ -90,6 +103,7 @@ export function socialSettings(values: Record<string, string | undefined>): Soci
     facebookPage: get(SETTINGS_KEYS.facebookPage),
     aiLabel,
     youtubeMadeForKids: /^(1|yes|true)$/i.test(get(SETTINGS_KEYS.youtubeMadeForKids) ?? ''),
+    providerToken: get(SETTINGS_KEYS.providerToken),
   }
 }
 
@@ -106,31 +120,35 @@ export interface SocialTexts {
   facebookDescription: string
   pinterestTitle: string
   pinterestDescription: string
+  /** Where a pin leads: the App Store. */
+  pinterestLink: string
   /** At most 280 characters. Upload-Post strips links from X posts, so there is none. */
   x: string
 }
 
-export function socialTexts(tutorial: Tutorial, place: VideoInput['place']): SocialTexts {
+export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], providerToken: string | null = null): SocialTexts {
   const { article, subject } = subjectOf(tutorial.title)
   const what = `${article ? `${article} ` : ''}${subject}`
   const steps = tutorial.steps.filter((step) => step.strokes.length > 0).length
   const opening = `Let’s draw ${what}: ${steps} easy ${steps === 1 ? 'step' : 'steps'}, then color it in.`
   const placeLine = place ? `Lesson ${place.number} of the ${place.pathTitle} path in Paper Coach.` : null
   const tags = [...TAGS, `#${tutorial.id.replace(/-/g, '')}`, '#papercoach'].join(' ')
-  const withLink = [opening, placeLine, '', APP_LINE, `Free on the App Store: ${APP_STORE_URL}`, '', tags]
-    .filter((line) => line !== null)
-    .join('\n')
+  const withLink = (campaign: string) =>
+    [opening, placeLine, '', APP_LINE, `Free on the App Store: ${appStoreLink(campaign, providerToken)}`, '', tags]
+      .filter((line) => line !== null)
+      .join('\n')
   return {
     caption: postCaption(tutorial, place),
     youtubeTitle: fit(`How to draw ${what} step by step #shorts`, 100, `How to draw ${what} #shorts`),
-    youtubeDescription: withLink,
-    facebookDescription: withLink,
+    youtubeDescription: withLink('youtube'),
+    facebookDescription: withLink('facebook'),
     pinterestTitle: fit(`How to draw ${what}: easy step-by-step drawing`, 100, `How to draw ${what}`),
     pinterestDescription: fit(
       [opening, APP_LINE, 'Free on the App Store.', '', tags].join('\n'),
       500,
       [opening, 'Free on the App Store.'].join('\n'),
     ),
+    pinterestLink: appStoreLink('pinterest', providerToken),
     x: fit(
       [`${opening} ✏️`, '', `${APP_LINE} Free on the App Store.`, '', '#howtodraw #drawingtutorial'].join('\n'),
       280,
@@ -204,7 +222,7 @@ export function uploadFields(request: PostRequest): [string, string][] {
     fields.push(
       ['pinterest_title', texts.pinterestTitle],
       ['pinterest_description', texts.pinterestDescription],
-      ['pinterest_link', APP_STORE_URL],
+      ['pinterest_link', texts.pinterestLink],
       ['pinterest_alt_text', request.altText],
     )
     if (settings.pinterestBoard) fields.push(['pinterest_board_id', settings.pinterestBoard])
@@ -245,6 +263,25 @@ export function postingOrder(paths: QueuePath[]): QueueEntry[] {
     }
   }
   return order
+}
+
+/**
+ * `docs/ops/social-up-next.txt`: one lesson id a line (`#` comments), posted
+ * before the rest of the queue, in that order. How the weekly review moves
+ * subjects that do well up.
+ */
+export function parseUpNext(text: string): string[] {
+  return text
+    .split('\n')
+    .map((line) => line.replace(/#.*$/, '').trim())
+    .filter(Boolean)
+}
+
+/** The posting order with the up-next lessons first; an id not in the order (not on sale) is left out. */
+export function withUpNext(order: QueueEntry[], upNext: string[]): QueueEntry[] {
+  const first = upNext.flatMap((lessonId) => order.filter((entry) => entry.lessonId === lessonId))
+  const firstIds = new Set(first.map((entry) => entry.lessonId))
+  return [...first, ...order.filter((entry) => !firstIds.has(entry.lessonId))]
 }
 
 // ---------- The record of what was posted ----------

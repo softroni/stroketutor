@@ -449,7 +449,8 @@ Reels, Pinterest, X) through Upload-Post, one request for every platform (`web/s
 - **Settings** are in `~/.config/upload-post/config` (`UPLOAD_POST_CONFIG` elsewhere), shell-sourceable
   like the Pixabay key: `UPLOAD_POST_API_KEY`, `UPLOAD_POST_PROFILE` (default `softroni`), and optionally
   `UPLOAD_POST_PLATFORMS`, `UPLOAD_POST_PINTEREST_BOARD`, `UPLOAD_POST_FACEBOOK_PAGE`,
-  `UPLOAD_POST_AI_LABEL` (`tiktok` default, `all`, `none`), `UPLOAD_POST_YOUTUBE_MADE_FOR_KIDS`. The
+  `UPLOAD_POST_AI_LABEL` (`tiktok` default, `all`, `none`), `UPLOAD_POST_YOUTUBE_MADE_FOR_KIDS`, and
+  `APP_STORE_PROVIDER_TOKEN` (with it, every App Store link is a campaign link, `ct=<platform>`). The
   environment wins over the file. Never print the key or put it in the repository.
 - `social check` first: the plan, which accounts are connected, and the Pinterest board and Facebook
   Page ids to set.
@@ -457,7 +458,8 @@ Reels, Pinterest, X) through Upload-Post, one request for every platform (`web/s
   and so on, so the 30 free lessons go out before any Premium one and two posts in a row never come
   from the same path. Only lessons in the version on sale (the catalog at the tag of the live build in
   `.studio/ops/facts.json`, e.g. `1.0(2)`; the working catalog when that is unknown) with every step
-  recorded; unrecorded ones are skipped with a warning.
+  recorded; unrecorded ones are skipped with a warning. Lessons listed in `docs/ops/social-up-next.txt`
+  (one id a line) go before the rest, in that order.
 - `social post <id>` renders the lesson now (as `lessons video` does) unless `--video` names a file;
   `social next` posts the next lesson in the queue, at most once in 20 hours unless `--again`. Both
   wait for every platform to finish (up to 20 minutes) and print each post's link or error; `--log`

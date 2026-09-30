@@ -77,8 +77,8 @@ Waiting on Kevin:
 
 To build (Claude):
 
-- [ ] Up-next list: `docs/ops/social-up-next.txt` posted before the queue.
-- [ ] Campaign links: `ct=<platform>` on every App Store link once `APP_STORE_PROVIDER_TOKEN` is set.
+- [x] Up-next list: `docs/ops/social-up-next.txt` posted before the queue.
+- [x] Campaign links: `ct=<platform>` on every App Store link once `APP_STORE_PROVIDER_TOKEN` is set.
 - [ ] Step pin: a tall image of every step, rendered by the Studio (`social pin <id>` to look at it).
 - [ ] Pinterest boards per path, made on first use; the step pin scheduled four hours after the video.
 - [ ] Speed draw: a short video of the whole picture drawn fast, then the ending.

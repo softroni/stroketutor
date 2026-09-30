@@ -12,6 +12,7 @@ import {
   SETTINGS_KEYS,
   normaliseResults,
   parseConfig,
+  parseUpNext,
   postStates,
   postedLessons,
   postingOrder,
@@ -19,6 +20,7 @@ import {
   socialSettings,
   socialTexts,
   uploadFields,
+  withUpNext,
   type Platform,
   type PlatformResult,
   type PostState,
@@ -141,8 +143,9 @@ async function curriculum(ctx: Context): Promise<Curriculum> {
   const onSale = await pathsOnSale(ctx)
   const paths = onSale ?? library.catalog?.paths ?? []
   const inApp = onSale ? new Set(onSale.flatMap((entry) => entry.lessonIds)) : null
+  const upNext = parseUpNext(await readFile(path.join(repoDirOf(ctx), 'docs', 'ops', 'social-up-next.txt'), 'utf8').catch(() => ''))
   return {
-    order: postingOrder(paths),
+    order: withUpNext(postingOrder(paths), upNext),
     titles: new Map(paths.map((entry) => [entry.id, { title: entry.title, count: entry.lessonIds.length }])),
     tutorials: new Map(
       [...library.tutorials.values()].map((entry) => [
@@ -226,7 +229,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   const at = stringValue(values, 'at') ?? null
   if (at && (Number.isNaN(Date.parse(at)) || Date.parse(at) <= Date.now())) throw new CliError(`--at ${at} isn’t a time in the future.`)
 
-  const texts = socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles))
+  const texts = socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken)
   const requestId = randomUUID()
   const request = {
     profile: settings.profile,

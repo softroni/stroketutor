@@ -4,14 +4,17 @@ import type { Tutorial } from '../../src/schema/types'
 
 import {
   APP_STORE_URL,
+  appStoreLink,
   normaliseResults,
   parseConfig,
+  parseUpNext,
   postedLessons,
   postingOrder,
   settledStatus,
   socialSettings,
   socialTexts,
   uploadFields,
+  withUpNext,
   type PostRequest,
   type SocialRecord,
 } from './posts'
@@ -65,6 +68,7 @@ describe('the settings file', () => {
       facebookPage: null,
       aiLabel: 'tiktok',
       youtubeMadeForKids: false,
+      providerToken: null,
     })
   })
 
@@ -134,6 +138,34 @@ describe('uploadFields', () => {
     expect(fields.tiktok_is_ai_generated).toBeUndefined()
     expect(fields.facebook_page_id).toEqual(['42'])
     expect(fields.selfDeclaredMadeForKids).toEqual(['true'])
+  })
+})
+
+describe('campaign links', () => {
+  it('tags each platform’s App Store link once there is a provider token, and leaves it plain before', () => {
+    expect(appStoreLink('pinterest', null)).toBe(APP_STORE_URL)
+    expect(appStoreLink('pinterest', '123456')).toBe('https://apps.apple.com/app/apple-store/id6816231257?pt=123456&ct=pinterest&mt=8')
+    const tagged = socialTexts(tutorial, null, '123456')
+    expect(tagged.pinterestLink).toContain('ct=pinterest')
+    expect(tagged.youtubeDescription).toContain('ct=youtube')
+    expect(tagged.facebookDescription).toContain('ct=facebook')
+    expect(fieldsOf(uploadFields(request({ texts: tagged }))).pinterest_link).toEqual([tagged.pinterestLink])
+  })
+})
+
+describe('the up-next list', () => {
+  const order = postingOrder([
+    { id: 'plants', title: 'Plants', lessonIds: ['p1', 'p2'] },
+    { id: 'space', title: 'Space', lessonIds: ['s1', 's2'] },
+  ])
+
+  it('reads one id a line, without comments or blanks', () => {
+    expect(parseUpNext('# first the rockets\ns2  # it did well\n\np2\n')).toEqual(['s2', 'p2'])
+  })
+
+  it('puts its lessons first, in its order, and passes over one not on sale', () => {
+    expect(withUpNext(order, ['s2', 'nowhere', 'p2']).map((entry) => entry.lessonId)).toEqual(['s2', 'p2', 'p1', 's1'])
+    expect(withUpNext(order, [])).toEqual(order)
   })
 })
 
