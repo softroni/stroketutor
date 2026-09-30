@@ -308,6 +308,7 @@ Options:
       --intro <words>    Lina’s opening line (default “Let’s draw a <lesson>. Grab a pencil and draw along with me.”). Spoken through the Studio in her cast voice, and reused once made.
       --signoff <words>  Lina’s last words, after her closing line, as Paper Coach takes her place (default “Draw more with Paper Coach. It’s free on the App Store.”, “free to download” for a Premium lesson). Spoken like the opening line; "" for none.
       --cta <words>      The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge).
+      --speed            The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4.
       --stills <dir>     Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, Lina’s closing line, the ending), to check the look in seconds.
 
 Usage: studio steps list <id>
@@ -558,6 +559,13 @@ Options:
       --max-bend <deg>             A line carries on through a junction bending less than this, in degrees (default 55).
       --join-gap <units>           Line ends this close that continue the same way are joined (default 10).
 
+Usage: studio social pin <id>
+
+The step pin of a lesson: every step on one tall image (1000 × 1500) in the path’s color, as Pinterest gets it after the video. Writes it to look at; posts nothing.
+
+Options:
+      --out <file.png>  Where to write the PNG (default .studio/videos/<id>-pin.png).
+
 Usage: studio social check
 
 The Upload-Post key and plan, the accounts on the profile, and the Pinterest boards and Facebook Pages to post to.
@@ -581,6 +589,8 @@ Options:
       --dry-run           Show what each platform would be sent, and stop. Needs no key and renders nothing.
       --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
       --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
+      --no-pin            Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only).
+      --speed             Post the speed draw (about 20 s, as `lessons video --speed` makes it) instead of the whole lesson. No step pin goes with it.
       --video <file.mp4>  Post this file instead of rendering the lesson now.
 
 Usage: studio social next
@@ -595,7 +605,26 @@ Options:
       --dry-run           Show what each platform would be sent, and stop. Needs no key and renders nothing.
       --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
       --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
+      --no-pin            Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only).
       --again             Post even though a lesson went out in the last 20 hours.
+
+Usage: studio social announce
+
+Release news to every platform: the speed draw of a lesson from the release, with words saying what’s new. Only once the version with it is on sale.
+
+Options:
+      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, pinterest, x).
+      --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
+      --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
+      --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
+      --dry-run           Show what each platform would be sent, and stop. Needs no key and renders nothing.
+      --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
+      --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
+      --lesson <id>       The lesson whose speed draw carries the news: the best of what’s new. It must be in the version on sale.
+      --news <words>      What’s new, in a sentence or two, as people would say it (“10 new lessons: draw your town, from a bus stop to a skyline.”).
+      --headline <words>  A short title for YouTube and Pinterest (“New: draw your town”).
+      --intro <words>     Lina’s opening line over the speed draw (default “Watch a … come together, one line at a time.”).
+      --video <file.mp4>  Post this file instead of rendering the speed draw now.
 
 Usage: studio social status
 

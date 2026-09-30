@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest'
 import type { Tutorial } from '../../src/schema/types'
 
 import {
+  SPEED_DRAW,
   captionsFor,
   defaultIntro,
+  defaultSpeedIntro,
   defaultSignoff,
   lineChunks,
   planVideo,
@@ -56,6 +58,28 @@ const plan = (changes: Partial<VideoInput> = {}) =>
   })
 
 const endingOf = (segments: Segment[]) => segments[segments.length - 1] as Extract<Segment, { kind: 'outro' }>
+
+describe('the speed draw', () => {
+  it('goes from the opening straight to the ending, with no steps and none of their recordings', () => {
+    const { segments, cues } = plan({ speed: true })
+    expect(segments.map((segment) => segment.kind)).toEqual(['intro', 'outro'])
+    expect(cues.map((cue) => cue.key)).not.toContain('body')
+  })
+
+  it('holds the opening until the whole picture has drawn, at no faster than the lesson’s own pace', () => {
+    // Three seconds of drawing: the opening waits for all of it, however short Lina's line.
+    const short = plan({ speed: true, intro: { text: 'Watch.', durationS: 0.5 } })
+    expect(short.hook.speed).toBeCloseTo(1)
+    expect(short.hook.drawFrom + 3 / short.hook.speed).toBeLessThanOrEqual(short.segments[0].end + 1e-9)
+    // A long lesson is drawn in SPEED_DRAW seconds.
+    const long = plan({ speed: true, tutorial: { ...tutorial, steps: tutorial.steps.map((step) => ({ ...step, strokes: step.strokes.map((stroke) => ({ ...stroke, duration: 30 })) })) } })
+    expect(long.hook.drawFrom + 31 / long.hook.speed).toBeCloseTo(long.hook.drawFrom + SPEED_DRAW)
+  })
+
+  it('says it shows the drawing rather than drawing along', () => {
+    expect(defaultSpeedIntro('Rocket')).toBe('Watch a rocket come together, one line at a time.')
+  })
+})
 
 describe('planVideo', () => {
   it('times each part from the recordings and the lesson’s own pace', () => {

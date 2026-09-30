@@ -11,10 +11,10 @@ Every lesson in the version on sale gives, from the Studio, with no one filming 
 
 - **The draw-along** (`lessons video`, about a minute): the finished picture, every step with Lina's voice, and
   Paper Coach with the App Store badge at the end.
-- **The speed draw** (about 15 s): the whole picture drawn fast, then the ending. Short videos get watched to the
+- **The speed draw** (about 20 s, `lessons video --speed`): the whole picture drawn in 8 s, then the ending. Short videos get watched to the
   end and replayed, which the platforms reward.
-- **The step pin**: every step on one tall image (the classic "how to draw" picture Pinterest is full of), with
-  the lesson's name and Paper Coach.
+- **The step pin** (`social pin <id>`): every step on one 1000 × 1500 image in the path's color (the classic "how
+  to draw" picture Pinterest is full of), with the lesson's name and Paper Coach.
 
 ## Per platform
 
@@ -79,11 +79,11 @@ To build (Claude):
 
 - [x] Up-next list: `docs/ops/social-up-next.txt` posted before the queue.
 - [x] Campaign links: `ct=<platform>` on every App Store link once `APP_STORE_PROVIDER_TOKEN` is set.
-- [ ] Step pin: a tall image of every step, rendered by the Studio (`social pin <id>` to look at it).
-- [ ] Pinterest boards per path, made on first use; the step pin scheduled four hours after the video.
-- [ ] Speed draw: a short video of the whole picture drawn fast, then the ending.
-- [ ] `social announce`: release news to every platform with a caption written for the release.
-- [ ] Runbook and skill updated for all of the above.
+- [x] Step pin: a tall image of every step, rendered by the Studio (`social pin <id>` to look at it).
+- [x] Pinterest boards per path, made on first use; the step pin scheduled four hours after the video.
+- [x] Speed draw: a short video of the whole picture drawn fast, then the ending.
+- [x] `social announce`: release news to every platform with a caption written for the release.
+- [x] Runbook and skill updated for all of the above.
 
 Then (Claude, once the plan and TikTok are on):
 
@@ -94,3 +94,5 @@ Then (Claude, once the plan and TikTok are on):
 
 - 2026-09-28: pipeline built; private YouTube Short and Facebook draft worked.
 - 2026-09-30: 1.0 on sale; the queue now reads the version on sale (`1.0(2)`, 100 lessons). Plan agreed.
+- 2026-09-30: built the up-next list, campaign links, step pins with a board per path, the speed draw and
+  `social announce`. Nothing posted publicly yet: waiting on the paid plan and TikTok.

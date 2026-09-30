@@ -183,8 +183,8 @@ committed for you.
 
 **Trash** (`trash …`): `list`, `restore <id>`, `purge <id>`, `empty`.
 
-**Social** (`social …`): `check`, `queue`, `post <id>`, `next`, `status`. Lesson videos posted to Softroni's
-accounts through Upload-Post; see *Posting lesson videos*.
+**Social** (`social …`): `check`, `queue`, `post <id>`, `next`, `announce`, `pin <id>`, `status`. Lesson videos,
+step pins and release news posted to Softroni's accounts through Upload-Post; see *Posting lesson videos*.
 
 **SVG** (`svg …`) and **image**
 
@@ -476,8 +476,21 @@ Reels, Pinterest, X) through Upload-Post, one request for every platform (`web/s
   a "How to draw … #shorts" title and a description with the App Store link, Facebook the same
   description, Pinterest a title, a note and the App Store link on the pin, X at most 280 characters
   (Upload-Post strips links from X posts). TikTok posts are marked as promoting Softroni's own app.
-- `.studio/social/posts.jsonl` (outside git) is the record: one line per post and per status seen. It
-  only grows; never edit or delete it.
+- **Step pins** (`social pin <id>` writes one to look at): every step of a lesson on one 1000 × 1500 image in
+  the path's color, earlier lines faded, the finished drawing last (`web/server/social/pin.ts`). A lesson's
+  whole video brings its step pin to Pinterest 4 hours later, on the paid plan only (`--no-pin` leaves it
+  out). Pins, and the video's Pinterest post, go on the path's board, "Easy Drawings: <path>", made the
+  first time it is needed; `UPLOAD_POST_PINTEREST_BOARD` is only for a lesson in no path.
+- **Speed draws** (`lessons video <id> --speed`, `social post <id> --speed`): about 20 s, the whole picture
+  drawn in 8 s while Lina says "Watch a … come together", then the ending. Written to `<id>-speed.mp4`.
+- **Release news** (`social announce --lesson <id> --news "…" --headline "…"`): a lesson's speed draw with
+  words saying what's new, to every platform. Only when the version with the news is on sale, and at
+  most two or three a month (docs/ops/social-plan.md, *Release news*).
+- What counts as posted: only a lesson's whole video. A speed draw, a step pin or news leaves the lesson
+  in the queue, and doesn't hold back the next day's lesson.
+- `.studio/social/posts.jsonl` (outside git) is the record: one line per post and per status seen, with
+  `media` (`video`, `speed`, `pin`) and `purpose` (`lesson`, `announce`). It only grows; never edit or
+  delete it.
 
 ## Gotchas
 

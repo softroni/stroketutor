@@ -45,6 +45,8 @@ export interface VideoInput {
   cta: string
   /** How many stickers of other lessons land around the finished picture at the end. */
   stickers: number
+  /** The speed draw: the opening draws the whole picture in about `SPEED_DRAW` seconds, then straight to the ending. */
+  speed?: boolean
 }
 
 export type Segment =
@@ -114,6 +116,8 @@ const OUTRO_HOLD = 1.6
 const STICKERS_AT = 0.6
 const STICKER_EVERY = 0.32
 const HOOK = { hold: 0.8, drawFrom: 1.1, tail: 0.8 }
+/** How long the whole picture takes to draw in a speed draw (less when the lesson itself is quicker). */
+export const SPEED_DRAW = 8
 
 export function planVideo(input: VideoInput): VideoPlan {
   const { tutorial, clips, intro } = input
@@ -121,13 +125,18 @@ export function planVideo(input: VideoInput): VideoPlan {
   const captions: Caption[] = []
   const cues: Cue[] = []
 
-  const introEnd = INTRO_VOICE_AT + intro.durationS + INTRO_TAIL
+  const all = tutorial.steps.reduce((sum, step) => sum + stepSeconds(step), 0)
+  // A speed draw holds the opening until the picture has had SPEED_DRAW seconds to draw itself.
+  const spoken = INTRO_VOICE_AT + intro.durationS + INTRO_TAIL
+  const introEnd = input.speed ? Math.max(spoken, HOOK.drawFrom + Math.min(SPEED_DRAW, all) + HOOK.tail) : spoken
   segments.push({ kind: 'intro', start: 0, end: introEnd })
   cues.push({ key: 'intro', at: INTRO_VOICE_AT })
   captions.push(...captionsFor(intro, INTRO_VOICE_AT, 0, introEnd))
 
   let t = introEnd
-  tutorial.steps.forEach((step, index) => {
+  // A speed draw has no steps: the opening drew everything, and the ending shows it finished.
+  const steps = input.speed ? [] : tutorial.steps
+  steps.forEach((step, index) => {
     const clip = clips[step.id]
     const voiceAt = t + LEAD
     const drawAt = voiceAt + DRAW_DELAY
@@ -158,7 +167,6 @@ export function planVideo(input: VideoInput): VideoPlan {
 
   // As fast as it takes to finish with a moment to spare before step 1, and never slower than the lesson itself.
   const window = Math.max(1, introEnd - HOOK.tail - HOOK.drawFrom)
-  const all = tutorial.steps.reduce((sum, step) => sum + stepSeconds(step), 0)
   const hook = { hold: HOOK.hold, drawFrom: HOOK.drawFrom, speed: Math.max(1, all / window) }
 
   const { article, subject } = subjectOf(tutorial.title)
@@ -312,6 +320,12 @@ function startsWithVowelSound(phrase: string): boolean {
 export function defaultIntro(title: string): string {
   const { article, subject } = subjectOf(title)
   return `Let’s draw ${article ? `${article} ` : ''}${subject}. Grab a pencil and draw along with me.`
+}
+
+/** The opening line of a speed draw, which shows the drawing rather than drawing along. */
+export function defaultSpeedIntro(title: string): string {
+  const { article, subject } = subjectOf(title)
+  return `Watch ${article ? `${article} ` : ''}${subject} come together, one line at a time.`
 }
 
 /**

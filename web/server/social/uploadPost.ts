@@ -51,11 +51,14 @@ export interface UploadPostClient {
   pinterestBoards(profile: string): Promise<{ id: string; name: string }[]>
   facebookPages(profile: string): Promise<{ id: string; name: string }[]>
   upload(fields: [string, string][], videoFile: string, requestId: string): Promise<UploadAccepted>
+  /** An image post (a Pinterest pin, say): the same fields, the pictures as `photos[]`. */
+  uploadPhotos(fields: [string, string][], imageFiles: string[], requestId: string): Promise<UploadAccepted>
+  createPinterestBoard(profile: string, name: string, description: string): Promise<{ id: string; name: string }>
   status(id: { requestId?: string; jobId?: string }): Promise<UploadStatus>
 }
 
 export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch, base = UPLOAD_POST_API): UploadPostClient {
-  const call = async (method: 'GET' | 'POST', route: string, init: { body?: FormData; headers?: Record<string, string> } = {}) => {
+  const call = async (method: 'GET' | 'POST', route: string, init: { body?: FormData | string; headers?: Record<string, string> } = {}) => {
     const response = await fetchImpl(`${base}${route}`, {
       method,
       headers: { Authorization: `Apikey ${apiKey}`, ...init.headers },
@@ -76,6 +79,16 @@ export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch
     return (body ?? {}) as Record<string, unknown>
   }
   const text = (value: unknown) => (typeof value === 'string' && value ? value : null)
+  const accepted = (body: Record<string, unknown>, requestId: string): UploadAccepted => {
+    const usage = body.usage as { count?: unknown; limit?: unknown } | undefined
+    return {
+      requestId: text(body.request_id) ?? requestId,
+      jobId: text(body.job_id),
+      results: body.results ?? null,
+      usage: usage && typeof usage.count === 'number' && typeof usage.limit === 'number' ? { count: usage.count, limit: usage.limit } : null,
+      warnings: Array.isArray(body.warnings) ? body.warnings.filter((warning): warning is string => typeof warning === 'string') : [],
+    }
+  }
 
   return {
     async me() {
@@ -112,15 +125,24 @@ export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch
       for (const [name, value] of fields) form.append(name, value)
       form.append('video', await openAsBlob(videoFile, { type: 'video/mp4' }), path.basename(videoFile))
       // The same key on a retry returns the job already made instead of posting twice.
-      const body = await call('POST', '/api/upload', { body: form, headers: { 'Idempotency-Key': requestId } })
-      const usage = body.usage as { count?: unknown; limit?: unknown } | undefined
-      return {
-        requestId: text(body.request_id) ?? requestId,
-        jobId: text(body.job_id),
-        results: body.results ?? null,
-        usage: usage && typeof usage.count === 'number' && typeof usage.limit === 'number' ? { count: usage.count, limit: usage.limit } : null,
-        warnings: Array.isArray(body.warnings) ? body.warnings.filter((warning): warning is string => typeof warning === 'string') : [],
-      }
+      return accepted(await call('POST', '/api/upload', { body: form, headers: { 'Idempotency-Key': requestId } }), requestId)
+    },
+
+    async uploadPhotos(fields, imageFiles, requestId) {
+      const form = new FormData()
+      for (const [name, value] of fields) form.append(name, value)
+      for (const file of imageFiles) form.append('photos[]', await openAsBlob(file, { type: 'image/png' }), path.basename(file))
+      return accepted(await call('POST', '/api/upload_photos', { body: form, headers: { 'Idempotency-Key': requestId } }), requestId)
+    },
+
+    async createPinterestBoard(profile, name, description) {
+      const body = await call('POST', '/api/uploadposts/pinterest/boards', {
+        body: JSON.stringify({ user: profile, name, description, privacy: 'PUBLIC' }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const board = (body.board ?? body) as { id?: unknown; name?: unknown }
+      if (board.id === undefined) throw new UploadPostError(500, `Upload-Post made the board “${name}” but didn’t say its id.`, body)
+      return { id: String(board.id), name: String(board.name ?? name) }
     },
 
     async status({ requestId, jobId }) {

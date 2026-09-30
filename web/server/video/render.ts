@@ -24,6 +24,7 @@ import {
   DEFAULT_CTA_WITH_BADGE,
   SIGNOFF_ID,
   defaultIntro,
+  defaultSpeedIntro,
   defaultSignoff,
   planVideo,
   postCaption,
@@ -74,6 +75,8 @@ export interface VideoRequest {
   out?: string | null
   /** Instead of the video, write a few PNG frames here: the opening, a line, a colour, the ending. */
   stillsDir?: string | null
+  /** The speed draw (about 20 s): the whole picture drawn fast, then the ending. Goes to `<lesson>-speed.mp4` by default. */
+  speed?: boolean
 }
 
 export type { VideoDefaults, VideoProgress, VideoResult, VideoStage }
@@ -82,8 +85,8 @@ export const FPS = 30
 /** Frames are drawn at this multiple of 1080 × 1920 and scaled down. */
 const SCALE = 2
 const BADGE = 'docs/app-store/marketing/assets/badges/download-on-the-app-store-black.svg'
-const FONT = 'docs/app-store/marketing/assets/fonts/Fredoka.ttf'
-const ICON = 'PaperCoach/Assets.xcassets/AppIcon.appiconset/AppIcon.png'
+export const FONT = 'docs/app-store/marketing/assets/fonts/Fredoka.ttf'
+export const ICON = 'PaperCoach/Assets.xcassets/AppIcon.appiconset/AppIcon.png'
 /** The lessons' illustrations, the App Store screenshots' stickers. */
 const REFERENCES = 'shared/Assets/References'
 
@@ -144,7 +147,7 @@ export async function exportVideo(
     // Every recording in a file ffmpeg can read, with its exact length.
     report('voice', 'Recording Lina’s opening line and last words')
     const { place, backdrop, free, stickers } = await placeOf(lessonId, deps)
-    const introText = request.intro?.trim() || defaultIntro(tutorial.title)
+    const introText = request.intro?.trim() || (request.speed ? defaultSpeedIntro(tutorial.title) : defaultIntro(tutorial.title))
     const signoffText = request.signoff == null ? defaultSignoff(free) : request.signoff.trim()
     const voiceId = narration.castVoiceId ?? narration.steps.find((step) => step.take)?.take?.voiceId
     if (!voiceId) throw new WriteRefused(409, 'No voice is cast as Lina, so her opening line can’t be spoken. Cast one on the Voice page.')
@@ -203,7 +206,7 @@ export async function exportVideo(
     const badgePath = path.join(deps.repoDir, BADGE)
     const badge = existsSync(badgePath) ? await readFile(badgePath, 'utf8') : null
     const cta = request.cta?.trim() || (badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA)
-    const input: VideoInput = { tutorial, clips, intro, signoff, place, cta, stickers: stickers.length }
+    const input: VideoInput = { tutorial, clips, intro, signoff, place, cta, stickers: stickers.length, speed: request.speed === true }
     const plan = planVideo(input)
     const html = videoPage(tutorial, plan, {
       font: (await readAsset(deps.repoDir, FONT)).toString('base64'),
@@ -248,7 +251,7 @@ export async function exportVideo(
     await mixAudio(plan, files, mixed)
 
     // Written beside the old video and renamed over it, so a failed export never leaves half a file.
-    const out = path.resolve(request.out ?? videoFile(lessonId, deps))
+    const out = path.resolve(request.out ?? (request.speed ? path.join(deps.videosDir, `${lessonId}-speed.mp4`) : videoFile(lessonId, deps)))
     await mkdir(path.dirname(out), { recursive: true })
     const partial = `${out}.partial.mp4`
     await run('ffmpeg', [
@@ -328,7 +331,7 @@ function staleSteps(steps: StepNarration[]): string[] {
   return steps.filter((step) => step.stepId !== INTRO_ID && step.take && step.stale === 'text-changed').map((step) => step.title)
 }
 
-async function readAsset(repoDir: string, relative: string): Promise<Buffer> {
+export async function readAsset(repoDir: string, relative: string): Promise<Buffer> {
   try {
     return await readFile(path.join(repoDir, relative))
   } catch {
@@ -340,7 +343,7 @@ async function readAsset(repoDir: string, relative: string): Promise<Buffer> {
  * Chromium for the frames: STUDIO_CHROMIUM if set, else Playwright's own
  * download, else the Google Chrome installed on the Mac.
  */
-async function launchChromium(): Promise<Browser> {
+export async function launchChromium(): Promise<Browser> {
   let playwright: typeof import('playwright')
   try {
     playwright = await import('playwright')

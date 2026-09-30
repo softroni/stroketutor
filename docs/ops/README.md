@@ -186,7 +186,10 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
   (its tag's catalog), so a lesson that is only on main waits for its release. A lesson Lina hasn't fully
   recorded is skipped until she has.
 - **When:** the launch agent `docs/ops/com.softroni.papercoach-social.plist` runs `social next --log` at 17:00
-  Central. It posts at most once in 20 hours, and logs what went where on the Today page.
+  Central. It posts at most once in 20 hours, and logs what went where on the Today page. On the paid plan the
+  lesson's step pin follows on Pinterest at 21:00, on the path's board ("Easy Drawings: Plants"…).
+- **Release news:** when a version with something people would want goes on sale, `social announce` posts a
+  new lesson's speed draw with what's new, the day it is live (social-plan.md, *Release news*).
 - **Never before Paper Coach is on sale:** every video ends on the App Store. `social next` refuses a public
   post until `facts.json` shows a live version; `--private` is for tests.
 - **Claude:** reads the record in the daily check, re-posts to a platform that failed (`social post <id>

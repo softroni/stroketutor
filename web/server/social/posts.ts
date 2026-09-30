@@ -157,6 +157,91 @@ export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], prov
   }
 }
 
+// ---------- The step pin ----------
+
+export interface PinTexts {
+  title: string
+  description: string
+  link: string
+  altText: string
+}
+
+/** A step pin's words: a title people search for, the steps by name, and the App Store link on the pin. */
+export function pinTexts(tutorial: Tutorial, providerToken: string | null = null): PinTexts {
+  const { article, subject } = subjectOf(tutorial.title)
+  const what = `${article ? `${article} ` : ''}${subject}`
+  const count = tutorial.steps.length
+  const stepList = tutorial.steps.map((step, index) => `${index + 1}. ${step.title}`).join('\n')
+  const tags = [...TAGS, `#${tutorial.id.replace(/-/g, '')}drawing`, '#papercoach'].join(' ')
+  const head = `How to draw ${what} in ${count} easy steps, one line at a time.`
+  const tail = `${APP_LINE} Free on the App Store.`
+  return {
+    title: fit(`${capitalised(subject)} drawing: ${count} easy steps for beginners`, 100, `How to draw ${what}`),
+    description: fit([head, '', stepList, '', tail, '', tags].join('\n'), 500, [head, '', tail, '', tags].join('\n')),
+    link: appStoreLink('pinterest-steps', providerToken),
+    altText: fit(`${count} numbered pictures showing how to draw ${what} step by step, from the first line to the finished drawing in color.`, 500, `How to draw ${what}, step by step.`),
+  }
+}
+
+/** A step pin's fields for Upload-Post's image upload: Pinterest only. */
+export function pinFields(input: { profile: string; texts: PinTexts; board: string; externalId: string; requestId: string; scheduledAt?: string | null }): [string, string][] {
+  const fields: [string, string][] = [
+    ['user', input.profile],
+    ['platform[]', 'pinterest'],
+    ['title', input.texts.title],
+    ['pinterest_title', input.texts.title],
+    ['pinterest_description', input.texts.description],
+    ['pinterest_link', input.texts.link],
+    ['pinterest_alt_text', input.texts.altText],
+    ['pinterest_board_id', input.board],
+    ['external_id', input.externalId],
+    ['request_id', input.requestId],
+  ]
+  fields.push(input.scheduledAt ? ['scheduled_date', input.scheduledAt] : ['async_upload', 'true'])
+  return fields
+}
+
+/** The Pinterest board for a path's lessons, named for what people search. */
+export function boardName(pathTitle: string): string {
+  return `Easy Drawings: ${pathTitle}`
+}
+
+export function boardDescription(pathTitle: string, pathDescription: string | undefined): string {
+  return fit(
+    [`Easy step-by-step drawings: ${pathTitle.toLowerCase()}.`, pathDescription ?? '', 'Lessons from Paper Coach, which shows one line at a time and waits while you draw it on real paper.']
+      .filter(Boolean)
+      .join(' '),
+    500,
+    `Easy step-by-step drawings: ${pathTitle.toLowerCase()}, from Paper Coach.`,
+  )
+}
+
+// ---------- Release news ----------
+
+/**
+ * An announcement's words for every platform, in the same shape as a
+ * lesson's, so it is posted the same way: `news` is what's new, in a sentence
+ * or two ("10 new lessons: draw your town…"), `headline` a short title.
+ */
+export function announcementTexts(news: string, headline: string, providerToken: string | null = null): SocialTexts {
+  const tags = ['#papercoach', '#howtodraw', '#drawing', '#learntodraw'].join(' ')
+  const withLink = (campaign: string) => [news, '', APP_LINE, `Free on the App Store: ${appStoreLink(campaign, providerToken)}`, '', tags].join('\n')
+  return {
+    caption: [news, '', `${APP_LINE} Free on the App Store, link in bio.`, '', tags].join('\n'),
+    youtubeTitle: fit(`${headline} #shorts`, 100, headline),
+    youtubeDescription: withLink('youtube-news'),
+    facebookDescription: withLink('facebook-news'),
+    pinterestTitle: fit(headline, 100, headline),
+    pinterestDescription: fit([news, '', `${APP_LINE} Free on the App Store.`, '', tags].join('\n'), 500, news),
+    pinterestLink: appStoreLink('pinterest-news', providerToken),
+    x: fit([news, '', 'Paper Coach, free on the App Store.'].join('\n'), 280, news),
+  }
+}
+
+function capitalised(text: string): string {
+  return text ? `${text[0].toUpperCase()}${text.slice(1)}` : text
+}
+
 /** The text when it fits, else the shorter one, cut if even that is too long. */
 function fit(text: string, max: number, shorter: string): string {
   if ([...text].length <= max) return text
@@ -236,6 +321,7 @@ export function uploadFields(request: PostRequest): [string, string][] {
 export interface QueuePath {
   id: string
   title: string
+  description?: string
   lessonIds: string[]
 }
 
@@ -306,6 +392,10 @@ export type SocialRecord =
       requestId: string
       jobId?: string | null
       scheduledAt?: string | null
+      /** What went out: the lesson's whole video (the default, and every record before the others), its speed draw, or its step pin. */
+      media?: 'video' | 'speed' | 'pin'
+      /** A lesson in the queue (the default), or release news, which never counts the lesson as posted. */
+      purpose?: 'lesson' | 'announce'
       /** `sent`: Upload-Post took it. `refused`: it said no, and nothing was posted. */
       outcome: 'sent' | 'refused'
       message?: string | null
@@ -351,11 +441,15 @@ export function postStates(records: SocialRecord[]): PostState[] {
     .reverse()
 }
 
-/** Lessons already posted for everyone to see: a test post, or one that failed everywhere, doesn't count. */
+/**
+ * Lessons whose whole video went out for everyone to see. A test post, one
+ * that failed everywhere, news, a speed draw or a step pin doesn't count: the
+ * queue still owes the lesson its video.
+ */
 export function postedLessons(records: SocialRecord[]): Set<string> {
   const posted = new Set<string>()
   for (const { post, status } of postStates(records)) {
-    if (post.private) continue
+    if (post.private || post.purpose === 'announce' || (post.media ?? 'video') !== 'video') continue
     if (status && FINAL_STATUSES.has(status.status) && !Object.values(status.results).some((result) => result.success)) continue
     posted.add(post.lessonId)
   }

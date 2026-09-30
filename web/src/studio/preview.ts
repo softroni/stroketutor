@@ -198,7 +198,7 @@ function labelSteps(tutorial: Tutorial) {
 }
 
 /** One panel's drawing: the lesson as the player shows it at step `upTo` (every step when `upTo` is past the end). */
-function panelSvg(tutorial: Tutorial, upTo: number, labels: boolean, at: { x: number; y: number; width: number; height: number }): string {
+export function panelSvg(tutorial: Tutorial, upTo: number, labels: boolean, at: { x: number; y: number; width: number; height: number }): string {
   const style = resolveStyle(tutorial.style)
   const { width, height } = tutorial.canvas
   const size = labelSize(tutorial.canvas)

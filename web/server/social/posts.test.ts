@@ -4,7 +4,12 @@ import type { Tutorial } from '../../src/schema/types'
 
 import {
   APP_STORE_URL,
+  announcementTexts,
   appStoreLink,
+  boardDescription,
+  boardName,
+  pinFields,
+  pinTexts,
   normaliseResults,
   parseConfig,
   parseUpNext,
@@ -138,6 +143,51 @@ describe('uploadFields', () => {
     expect(fields.tiktok_is_ai_generated).toBeUndefined()
     expect(fields.facebook_page_id).toEqual(['42'])
     expect(fields.selfDeclaredMadeForKids).toEqual(['true'])
+  })
+})
+
+describe('the step pin', () => {
+  it('names the drawing people search for, lists the steps, and leads to the App Store', () => {
+    const pin = pinTexts(tutorial, '123456')
+    expect(pin.title).toBe('Hot air balloon drawing: 3 easy steps for beginners')
+    expect(pin.description).toContain('How to draw a hot air balloon in 3 easy steps, one line at a time.')
+    expect(pin.description).toContain('1. The envelope\n2. The basket\n3. Color it')
+    expect(pin.link).toContain('ct=pinterest-steps')
+    expect([...pin.description].length).toBeLessThanOrEqual(500)
+  })
+
+  it('drops the step list rather than go past Pinterest’s 500 characters', () => {
+    const long = { ...tutorial, steps: Array.from({ length: 40 }, (_, index) => ({ ...tutorial.steps[0], id: `s${index}`, title: `A rather long step title number ${index}` })) }
+    const pin = pinTexts(long)
+    expect([...pin.description].length).toBeLessThanOrEqual(500)
+    expect(pin.description).not.toContain('1. A rather long')
+  })
+
+  it('goes to Pinterest alone, scheduled, on the board given', () => {
+    const fields = fieldsOf(pinFields({ profile: 'softroni', texts: pinTexts(tutorial), board: 'b1', externalId: 'e', requestId: 'r', scheduledAt: '2026-10-01T02:00:00Z' }))
+    expect(fields['platform[]']).toEqual(['pinterest'])
+    expect(fields.pinterest_board_id).toEqual(['b1'])
+    expect(fields.scheduled_date).toEqual(['2026-10-01T02:00:00Z'])
+    expect(fields.async_upload).toBeUndefined()
+  })
+
+  it('names a path’s board for what people search', () => {
+    expect(boardName('Food & Treats')).toBe('Easy Drawings: Food & Treats')
+    expect(boardDescription('Plants', 'Trees and flowers.')).toBe(
+      'Easy step-by-step drawings: plants. Trees and flowers. Lessons from Paper Coach, which shows one line at a time and waits while you draw it on real paper.',
+    )
+  })
+})
+
+describe('release news', () => {
+  it('says what’s new on every platform, with its own campaign links and no link on X', () => {
+    const news = announcementTexts('10 new lessons: draw your town, from a bus stop to a skyline.', 'New: draw your town', '123456')
+    expect(news.youtubeTitle).toBe('New: draw your town #shorts')
+    expect(news.caption.startsWith('10 new lessons')).toBe(true)
+    expect(news.caption).toContain('link in bio')
+    expect(news.youtubeDescription).toContain('ct=youtube-news')
+    expect(news.pinterestLink).toContain('ct=pinterest-news')
+    expect(news.x).not.toContain('http')
   })
 })
 

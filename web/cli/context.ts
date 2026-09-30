@@ -7,6 +7,7 @@ import type { GenerateDeps } from '../server/generate'
 import { createRepoWriter, type RepoWriter } from '../server/repoWriter'
 import { DEFAULT_TTS_MCP_URL, DEFAULT_TTS_URL } from '../server/studioApi'
 import type { TtsDeps } from '../server/tts'
+import { renderPin } from '../server/social/pin'
 import { adoptKeptReferences, adoptPublishedVoice, type VoiceDeps } from '../server/voice'
 import { openWorkspace, type Workspace } from '../server/workspaceStore'
 import { validateCatalog } from '../src/catalog/validate'
@@ -45,6 +46,8 @@ export interface SocialDeps {
   configFile: string
   /** Milliseconds between status checks while waiting for a post to go out. */
   pollMs: number
+  /** Screenshots a step pin's page to a PNG (Chrome); tests write a stand-in. */
+  renderPin: (html: string, out: string) => Promise<string>
 }
 
 /**
@@ -146,6 +149,7 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
       fetch: globalThis.fetch,
       configFile: options.env.UPLOAD_POST_CONFIG || path.join(homedir(), '.config', 'upload-post', 'config'),
       pollMs: 15_000,
+      renderPin,
       ...options.social,
     },
     browser() {

@@ -7,6 +7,12 @@ import { promisify } from 'node:util'
 
 import {
   FINAL_STATUSES,
+  announcementTexts,
+  boardDescription,
+  boardName,
+  pinFields,
+  pinTexts,
+  type PinTexts,
   PLATFORMS,
   PRIVATE_PLATFORMS,
   SETTINGS_KEYS,
@@ -30,7 +36,9 @@ import {
   type SocialSettings,
 } from '../../server/social/posts'
 import { UploadPostError, uploadPostClient, type UploadPostClient } from '../../server/social/uploadPost'
-import { videoDefaults } from '../../server/video/render'
+import { pinPage } from '../../server/social/pin'
+import { FONT, ICON, readAsset, videoDefaults } from '../../server/video/render'
+import { colorOfPath, PATH_SWATCHES } from '../../src/catalog/pathColors'
 import type { Tutorial } from '../../src/schema/types'
 
 import { parseNumber, stringValue, type Parsed } from '../args'
@@ -116,6 +124,8 @@ function placeIn(paths: QueueEntry[] | null, lessonId: string, pathTitles: Map<s
 }
 
 interface Curriculum {
+  /** The paths as on sale (or the working ones), for their colors. */
+  paths: QueuePath[]
   order: QueueEntry[]
   titles: Map<string, { title: string; count: number }>
   tutorials: Map<string, { tutorial: Tutorial; published: boolean }>
@@ -145,6 +155,7 @@ async function curriculum(ctx: Context): Promise<Curriculum> {
   const inApp = onSale ? new Set(onSale.flatMap((entry) => entry.lessonIds)) : null
   const upNext = parseUpNext(await readFile(path.join(repoDirOf(ctx), 'docs', 'ops', 'social-up-next.txt'), 'utf8').catch(() => ''))
   return {
+    paths,
     order: withUpNext(postingOrder(paths), upNext),
     titles: new Map(paths.map((entry) => [entry.id, { title: entry.title, count: entry.lessonIds.length }])),
     tutorials: new Map(
@@ -154,6 +165,21 @@ async function curriculum(ctx: Context): Promise<Curriculum> {
       ]),
     ),
   }
+}
+
+/** The step pin of a lesson as a PNG: `.studio/videos/<id>-pin.png` unless `out` says otherwise. */
+async function makePin(ctx: Context, lessons: Curriculum, lessonId: string, out?: string | null): Promise<string> {
+  const lesson = lessons.tutorials.get(lessonId)
+  if (!lesson) throw new CliError(`There is no lesson "${lessonId}".`)
+  const pathId = lessons.order.find((entry) => entry.lessonId === lessonId)?.pathId
+  const repoDir = repoDirOf(ctx)
+  const html = pinPage({
+    tutorial: lesson.tutorial,
+    backdrop: pathId ? PATH_SWATCHES[colorOfPath(lessons.paths as never, pathId)].deep : null,
+    font: (await readAsset(repoDir, FONT)).toString('base64'),
+    icon: (await readAsset(repoDir, ICON)).toString('base64'),
+  })
+  return ctx.social.renderPin(html, path.resolve(out ?? path.join(repoDir, '.studio', 'videos', `${lessonId}-pin.png`)))
 }
 
 /** Steps Lina hasn't recorded; a video can't be made until there are none. */
@@ -171,14 +197,32 @@ const SHARED_OPTIONS = {
   log: { type: 'boolean', description: 'Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.' },
 } as const
 
-const POST_OPTIONS = {
+/** Hours between a lesson's video and its step pin on Pinterest: the evening's second pin. */
+const PIN_DELAY_HOURS = 4
+
+const LESSON_OPTIONS = {
   ...SHARED_OPTIONS,
+  'no-pin': { type: 'boolean', description: `Leave out the step pin, which otherwise goes to Pinterest ${PIN_DELAY_HOURS} hours after the video (paid plan only).` },
+} as const
+
+const POST_OPTIONS = {
+  ...LESSON_OPTIONS,
+  speed: { type: 'boolean', description: 'Post the speed draw (about 20 s, as `lessons video --speed` makes it) instead of the whole lesson. No step pin goes with it.' },
   video: { type: 'string', description: 'Post this file instead of rendering the lesson now.', placeholder: 'file.mp4' },
 } as const
+
+/** Release news: what's new, a short title, and Lina's opening line over the speed draw that carries it. */
+interface Announcement {
+  news: string
+  headline: string
+  intro: string | null
+}
 
 interface PostOutcome {
   lessonId: string
   title: string
+  purpose: 'lesson' | 'announce'
+  speed: boolean
   platforms: Platform[]
   private: boolean
   dryRun: boolean
@@ -189,14 +233,18 @@ interface PostOutcome {
   results: Record<string, PlatformResult>
   fields: Record<string, string[]> | null
   video: string | null
+  /** The step pin that follows a lesson's video: what it says, and when it is scheduled once sent. */
+  pin: { texts: PinTexts; scheduledAt: string | null; jobId: string | null } | null
   usage: { count: number; limit: number } | null
   warnings: string[]
 }
 
-async function postLesson(ctx: Context, lessonId: string, values: Parsed['values'], known?: Curriculum): Promise<PostOutcome> {
+async function postLesson(ctx: Context, lessonId: string, values: Parsed['values'], known?: Curriculum, news?: Announcement): Promise<PostOutcome> {
   const settings = await loadSettings(ctx)
   const isPrivate = values.private === true
   const dryRun = values['dry-run'] === true
+  const speed = news !== undefined || values.speed === true
+  const purpose: PostOutcome['purpose'] = news ? 'announce' : 'lesson'
   const warnings: string[] = []
   const warn = (text: string) => {
     warnings.push(text)
@@ -229,7 +277,11 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   const at = stringValue(values, 'at') ?? null
   if (at && (Number.isNaN(Date.parse(at)) || Date.parse(at) <= Date.now())) throw new CliError(`--at ${at} isn’t a time in the future.`)
 
-  const texts = socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken)
+  const texts = news
+    ? announcementTexts(news.news, news.headline, settings.providerToken)
+    : socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken)
+  // A lesson's full video brings its step pin to Pinterest a few hours later; news and speed draws don't.
+  const wantsPin = purpose === 'lesson' && !speed && !isPrivate && values['no-pin'] !== true && platforms.includes('pinterest')
   const requestId = randomUUID()
   const request = {
     profile: settings.profile,
@@ -237,7 +289,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     texts,
     settings,
     private: isPrivate,
-    externalId: `paper-coach/${lessonId}`,
+    externalId: `paper-coach/${lessonId}${news ? '/news' : speed ? '/speed' : ''}`,
     requestId,
     scheduledAt: at,
     altText: `A step-by-step drawing lesson: ${lesson.tutorial.title}, drawn one line at a time.`,
@@ -245,6 +297,8 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   const outcome: PostOutcome = {
     lessonId,
     title: lesson.tutorial.title,
+    purpose,
+    speed,
     platforms,
     private: isPrivate,
     dryRun,
@@ -255,6 +309,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     results: {},
     fields: null,
     video: null,
+    pin: wantsPin ? { texts: pinTexts(lesson.tutorial, settings.providerToken), scheduledAt: null, jobId: null } : null,
     usage: null,
     warnings,
   }
@@ -281,14 +336,14 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     platforms = platforms.filter((platform) => platform !== 'tiktok')
     warn(`Upload-Post’s ${plan ?? 'free'} plan can’t post to TikTok, so this post leaves it out.`)
   }
-  if (platforms.includes('pinterest') && !settings.pinterestBoard) {
-    const boards = await client.pinterestBoards(settings.profile).catch(() => [])
-    if (boards.length === 1) {
-      request.settings = { ...settings, pinterestBoard: boards[0].id }
-      ctx.out.note(`Pinning to the only board, “${boards[0].name}”.`)
+  let board: string | null = null
+  if (platforms.includes('pinterest')) {
+    board = await boardFor(ctx, client, settings, lessons, lessonId)
+    if (board) {
+      request.settings = { ...settings, pinterestBoard: board }
     } else {
       platforms = platforms.filter((platform) => platform !== 'pinterest')
-      warn(`Pinterest needs a board: set ${SETTINGS_KEYS.pinterestBoard} to one of ${boards.map((board) => `${board.id} (${board.name})`).join(', ') || 'your boards (make one first)'}. Left out this time.`)
+      warn(`Pinterest needs a board: the path’s couldn’t be made, and ${SETTINGS_KEYS.pinterestBoard} isn’t set. Left out this time.`)
     }
   }
   if (platforms.length === 0) throw new CliError('Nothing left to post to.')
@@ -301,14 +356,14 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   } else {
     const missing = await unrecorded(ctx, lessonId)
     if (missing.length > 0) throw new CliError(`Lina hasn’t recorded ${plural(missing.length, 'step')} of “${lesson.tutorial.title}” (${missing.join(', ')}): \`voice narrate ${lessonId}\` first.`)
-    ctx.out.note(`Rendering “${lesson.tutorial.title}”…`)
-    const rendered = await renderVideo(ctx, { lessonId })
+    ctx.out.note(`Rendering the ${speed ? 'speed draw' : 'video'} of “${lesson.tutorial.title}”…`)
+    const rendered = await renderVideo(ctx, { lessonId, speed, intro: news?.intro ?? null })
     video = rendered.file!
   }
   outcome.video = video
 
   ctx.out.note(`Sending ${shown(video)} to Upload-Post for ${platforms.join(', ')}…`)
-  const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms, private: isPrivate, requestId, scheduledAt: at }
+  const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms, private: isPrivate, requestId, scheduledAt: at, media: speed ? ('speed' as const) : ('video' as const), purpose }
   let accepted
   try {
     accepted = await client.upload(uploadFields(request), video, requestId)
@@ -326,6 +381,18 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   for (const warning of accepted.warnings) warn(warning)
   Object.assign(outcome, { requestId, jobId: accepted.jobId, usage: accepted.usage })
 
+  // The step pin is scheduled now, so a long wait for the video never loses it.
+  if (outcome.pin && board && platforms.includes('pinterest')) {
+    if (isFreePlan(plan)) {
+      ctx.out.note('The step pin waits for the paid plan: the free plan’s uploads go to the videos.')
+      outcome.pin = null
+    } else {
+      outcome.pin = await schedulePin(ctx, client, settings, lessons, lessonId, board, at)
+    }
+  } else {
+    outcome.pin = null
+  }
+
   if (accepted.results) {
     const results = normaliseResults(accepted.results)
     const status = settledStatus('completed', results, platforms)
@@ -336,6 +403,55 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
 
   const seen = await waitFor(ctx, client, requestId, platforms)
   return { ...outcome, status: seen.status, results: seen.results }
+}
+
+/** The Pinterest board for the lesson's path ("Easy Drawings: Plants"), made the first time; the settings' board outside every path. */
+async function boardFor(ctx: Context, client: UploadPostClient, settings: SocialSettings, lessons: Curriculum, lessonId: string): Promise<string | null> {
+  const pathId = lessons.order.find((entry) => entry.lessonId === lessonId)?.pathId
+  const found = pathId ? lessons.paths.find((entry) => entry.id === pathId) : undefined
+  if (!found) return settings.pinterestBoard
+  const name = boardName(found.title)
+  const boards = await client.pinterestBoards(settings.profile).catch(() => null)
+  const existing = boards?.find((candidate) => candidate.name.trim().toLowerCase() === name.toLowerCase())
+  if (existing) return existing.id
+  if (boards === null) return settings.pinterestBoard
+  try {
+    const made = await client.createPinterestBoard(settings.profile, name, boardDescription(found.title, found.description))
+    ctx.out.note(`Made the Pinterest board “${name}”.`)
+    return made.id
+  } catch (error) {
+    ctx.out.warn(`Couldn’t make the Pinterest board “${name}” (${error instanceof Error ? error.message : String(error)}).`)
+    return settings.pinterestBoard
+  }
+}
+
+/** Renders the lesson's step pin and schedules it on its board, PIN_DELAY_HOURS after the video. A failure is a warning: the video is out. */
+async function schedulePin(
+  ctx: Context,
+  client: UploadPostClient,
+  settings: SocialSettings,
+  lessons: Curriculum,
+  lessonId: string,
+  board: string,
+  videoAt: string | null,
+): Promise<PostOutcome['pin']> {
+  const tutorial = lessons.tutorials.get(lessonId)!.tutorial
+  const texts = pinTexts(tutorial, settings.providerToken)
+  const scheduledAt = new Date((videoAt ? Date.parse(videoAt) : Date.now()) + PIN_DELAY_HOURS * 3600_000).toISOString()
+  const requestId = randomUUID()
+  const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms: ['pinterest'] as Platform[], private: false, requestId, scheduledAt, media: 'pin' as const, purpose: 'lesson' as const }
+  try {
+    const file = await makePin(ctx, lessons, lessonId)
+    const accepted = await client.uploadPhotos(pinFields({ profile: settings.profile, texts, board, externalId: `paper-coach/${lessonId}/pin`, requestId, scheduledAt }), [file], requestId)
+    await addRecord(ctx, { ...base, at: new Date().toISOString(), jobId: accepted.jobId, outcome: 'sent' })
+    ctx.out.note(`The step pin goes to Pinterest at ${scheduledAt}.`)
+    return { texts, scheduledAt, jobId: accepted.jobId }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    await addRecord(ctx, { ...base, at: new Date().toISOString(), outcome: 'refused', message })
+    ctx.out.warn(`The step pin couldn’t be scheduled: ${message}`)
+    return null
+  }
 }
 
 /** Polls until every platform has finished, for up to 20 minutes (TikTok takes a few to show the post). */
@@ -364,30 +480,45 @@ function resultLines(results: Record<string, PlatformResult>, platforms: string[
   )
 }
 
+/** What went out, in a few words: "the “Rocket” video", "the “Rocket” speed draw", "the news with the “Rocket” speed draw". */
+function whatWent(outcome: PostOutcome): string {
+  if (outcome.purpose === 'announce') return `the news with the “${outcome.title}” speed draw`
+  return `the “${outcome.title}” ${outcome.speed ? 'speed draw' : 'video'}`
+}
+
+const indented = (value: string) => (value.includes('\n') ? `\n    ${value.split('\n').join('\n    ')}` : value)
+
 function describePost(outcome: PostOutcome): string[] {
   if (outcome.dryRun) {
-    const lines = [`Would post “${outcome.title}” to ${outcome.platforms.join(', ')}${outcome.private ? ' (private)' : ''}. The fields, as sent:`]
+    const lines = [`Would post ${whatWent(outcome)} to ${outcome.platforms.join(', ')}${outcome.private ? ' (private)' : ''}. The fields, as sent:`]
     for (const [name, values] of Object.entries(outcome.fields ?? {})) {
-      for (const value of values) lines.push(`  ${name}: ${value.includes('\n') ? `\n    ${value.split('\n').join('\n    ')}` : value}`)
+      for (const value of values) lines.push(`  ${name}: ${indented(value)}`)
+    }
+    if (outcome.pin) {
+      lines.push(`Then the step pin on Pinterest, ${PIN_DELAY_HOURS} hours later (\`social pin ${outcome.lessonId}\` shows it):`)
+      for (const [name, value] of Object.entries(outcome.pin.texts)) lines.push(`  ${name}: ${indented(value)}`)
     }
     return lines
   }
   const head = outcome.scheduledAt
-    ? `Scheduled “${outcome.title}” for ${outcome.scheduledAt} on ${outcome.platforms.join(', ')} (job ${outcome.jobId}).`
-    : `Posted “${outcome.title}”${outcome.private ? ' privately' : ''}: ${outcome.status}.`
+    ? `Scheduled ${whatWent(outcome)} for ${outcome.scheduledAt} on ${outcome.platforms.join(', ')} (job ${outcome.jobId}).`
+    : `Posted ${whatWent(outcome)}${outcome.private ? ' privately' : ''}: ${outcome.status}.`
+  const pin = outcome.pin?.scheduledAt ? [`The step pin goes to Pinterest at ${outcome.pin.scheduledAt}.`] : []
   const usage = outcome.usage ? [`Upload-Post uploads this month: ${outcome.usage.count} of ${outcome.usage.limit}.`] : []
-  return [head, ...(outcome.scheduledAt ? [] : resultLines(outcome.results, outcome.platforms)), ...usage]
+  return [head, ...(outcome.scheduledAt ? [] : resultLines(outcome.results, outcome.platforms)), ...pin, ...usage]
 }
 
 /** One sentence for the Today page's log. */
 function logLine(outcome: PostOutcome): string {
   const done = Object.entries(outcome.results).filter(([, result]) => result.success).map(([platform]) => platform)
   const failed = Object.entries(outcome.results).filter(([, result]) => !result.success).map(([platform, result]) => `${platform} (${result.error ?? 'failed'})`)
-  if (outcome.scheduledAt) return `Social: scheduled the “${outcome.title}” video for ${outcome.scheduledAt} on ${outcome.platforms.join(', ')}.`
+  const pin = outcome.pin?.scheduledAt ? '; step pin to follow on Pinterest' : ''
+  if (outcome.scheduledAt) return `Social: scheduled ${whatWent(outcome)} for ${outcome.scheduledAt} on ${outcome.platforms.join(', ')}${pin}.`
   return (
-    `Social: posted the “${outcome.title}” video${done.length ? ` to ${done.join(', ')}` : ''}` +
+    `Social: posted ${whatWent(outcome)}${done.length ? ` to ${done.join(', ')}` : ''}` +
     (failed.length ? `; failed on ${failed.join(', ')}` : '') +
     (outcome.status !== 'completed' && !failed.length ? ` (${outcome.status})` : '') +
+    pin +
     '.'
   )
 }
@@ -411,6 +542,17 @@ async function nextLesson(ctx: Context, lessons: Curriculum, posted: Set<string>
 }
 
 export const socialCommands: Command[] = [
+  command(
+    'social pin',
+    'The step pin of a lesson: every step on one tall image (1000 × 1500) in the path’s color, as Pinterest gets it after the video. Writes it to look at; posts nothing.',
+    ['<id>'],
+    { out: { type: 'string', description: 'Where to write the PNG (default .studio/videos/<id>-pin.png).', placeholder: 'file.png' } },
+    async (ctx, args) => {
+      const file = await makePin(ctx, await curriculum(ctx), args.positionals[0], stringValue(args.values, 'out'))
+      ctx.out.result({ file }, () => `Wrote ${shown(file)}.`)
+    },
+  ),
+
   command(
     'social check',
     'The Upload-Post key and plan, the accounts on the profile, and the Pinterest boards and Facebook Pages to post to.',
@@ -496,12 +638,15 @@ export const socialCommands: Command[] = [
     'social next',
     'Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 20 hours unless --again.',
     [],
-    { ...SHARED_OPTIONS, again: { type: 'boolean', description: 'Post even though a lesson went out in the last 20 hours.' } },
+    { ...LESSON_OPTIONS, again: { type: 'boolean', description: 'Post even though a lesson went out in the last 20 hours.' } },
     async (ctx, args) => {
       const records = await readRecords(ctx)
       const isPrivate = args.values.private === true
       if (!isPrivate && args.values.again !== true && args.values['dry-run'] !== true) {
-        const last = postStates(records).find((state) => !state.post.private)
+        // Only a lesson's own video counts: its step pin, a speed draw or news don't hold back the next lesson.
+        const last = postStates(records).find(
+          ({ post }) => !post.private && (post.purpose ?? 'lesson') === 'lesson' && (post.media ?? 'video') === 'video',
+        )
         if (last && Date.now() - Date.parse(last.post.at) < 20 * 3600_000) {
           throw new CliError(`“${last.post.lessonId}” was posted at ${last.post.at}; the next one waits a day. Pass --again to post anyway.`)
         }
@@ -511,6 +656,29 @@ export const socialCommands: Command[] = [
       for (const skip of skipped) ctx.out.warn(`Skipped “${skip.lessonId}”: Lina hasn’t recorded ${plural(skip.missing.length, 'step')} (voice narrate ${skip.lessonId}).`)
       if (!entry) throw new CliError('Every narrated lesson in the version on sale has been posted.')
       const outcome = await postLesson(ctx, entry.lessonId, args.values, lessons)
+      if (args.values.log === true && !outcome.dryRun) await logToToday(ctx, logLine(outcome))
+      ctx.out.result(outcome, describePost)
+    },
+  ),
+
+  command(
+    'social announce',
+    'Release news to every platform: the speed draw of a lesson from the release, with words saying what’s new. Only once the version with it is on sale.',
+    [],
+    {
+      ...SHARED_OPTIONS,
+      lesson: { type: 'string', description: 'The lesson whose speed draw carries the news: the best of what’s new. It must be in the version on sale.', placeholder: 'id' },
+      news: { type: 'string', description: 'What’s new, in a sentence or two, as people would say it (“10 new lessons: draw your town, from a bus stop to a skyline.”).', placeholder: 'words' },
+      headline: { type: 'string', description: 'A short title for YouTube and Pinterest (“New: draw your town”).', placeholder: 'words' },
+      intro: { type: 'string', description: 'Lina’s opening line over the speed draw (default “Watch a … come together, one line at a time.”).', placeholder: 'words' },
+      video: { type: 'string', description: 'Post this file instead of rendering the speed draw now.', placeholder: 'file.mp4' },
+    },
+    async (ctx, args) => {
+      const lessonId = stringValue(args.values, 'lesson')
+      const newsText = stringValue(args.values, 'news')?.trim()
+      const headline = stringValue(args.values, 'headline')?.trim()
+      if (!lessonId || !newsText || !headline) throw new CliError('Release news needs --lesson, --news and --headline.')
+      const outcome = await postLesson(ctx, lessonId, args.values, undefined, { news: newsText, headline, intro: stringValue(args.values, 'intro') ?? null })
       if (args.values.log === true && !outcome.dryRun) await logToToday(ctx, logLine(outcome))
       ctx.out.result(outcome, describePost)
     },

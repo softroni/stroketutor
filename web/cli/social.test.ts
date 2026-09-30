@@ -12,7 +12,9 @@ let t: TestStudio
 let tts: FakeTts
 let plan: string
 /** Every request the fake Upload-Post was sent: method, path and, for an upload, its fields. */
-let calls: { method: string; route: string; fields?: Record<string, string[]>; video?: string }[]
+let calls: { method: string; route: string; fields?: Record<string, string[]>; video?: string; photos?: string[]; json?: Record<string, unknown> }[]
+/** The Pinterest boards the fake account has; a board made through the API joins them. */
+let boards: { id: string; name: string }[]
 let statusAnswers: Record<string, unknown>[]
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -20,15 +22,23 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 const fakeUploadPost = (async (url: string, init: RequestInit) => {
   const { pathname, search } = new URL(url)
   const route = `${pathname}${search}`
-  if (init.method === 'POST' && pathname === '/api/upload') {
+  if (init.method === 'POST' && (pathname === '/api/upload' || pathname === '/api/upload_photos')) {
     const fields: Record<string, string[]> = {}
-    let video: string | undefined
+    const files: string[] = []
     for (const [name, value] of init.body as FormData) {
       if (typeof value === 'string') (fields[name] ??= []).push(value)
-      else video = (value as File).name
+      else files.push((value as File).name)
     }
-    calls.push({ method: 'POST', route, fields, video })
+    calls.push({ method: 'POST', route, fields, ...(pathname === '/api/upload' ? { video: files[0] } : { photos: files }) })
+    if (fields.scheduled_date) return json({ success: true, job_id: `job-${calls.length}`, scheduled_date: fields.scheduled_date[0] }, 202)
     return json({ success: true, message: 'Upload initiated successfully in background.', request_id: fields.request_id[0], total_platforms: fields['platform[]'].length })
+  }
+  if (init.method === 'POST' && pathname === '/api/uploadposts/pinterest/boards') {
+    const body = JSON.parse(String(init.body)) as { name: string }
+    calls.push({ method: 'POST', route, json: body })
+    const board = { id: 'made-board', name: body.name }
+    boards.push(board)
+    return json({ success: true, board }, 201)
   }
   calls.push({ method: init.method ?? 'GET', route })
   if (pathname === '/api/uploadposts/me') return json({ success: true, email: 'hello@softroni.com', plan })
@@ -41,7 +51,7 @@ const fakeUploadPost = (async (url: string, init: RequestInit) => {
       },
     })
   }
-  if (pathname === '/api/uploadposts/pinterest/boards') return json({ success: true, boards: [{ id: '77', name: 'Drawing lessons' }] })
+  if (pathname === '/api/uploadposts/pinterest/boards') return json({ success: true, boards })
   if (pathname === '/api/uploadposts/facebook/pages') return json({ success: true, pages: [{ id: '42', name: 'Softroni' }] })
   if (pathname === '/api/uploadposts/status') return json(statusAnswers.shift() ?? { status: 'completed', results: [] })
   return json({ success: false, message: 'Not found' }, 404)
@@ -50,9 +60,14 @@ const fakeUploadPost = (async (url: string, init: RequestInit) => {
 beforeEach(async () => {
   plan = 'Basic'
   calls = []
+  boards = [{ id: '77', name: 'Drawing lessons' }]
   statusAnswers = []
   tts = await startFakeTts()
-  t = await openTestStudio({ social: { fetch: fakeUploadPost }, tts: { url: tts.url, mcpUrl: tts.mcpUrl, convert: fakeConverter().convert } })
+  t = await openTestStudio({
+    // Rendering a pin needs Chrome; this writes a stand-in where the pin would go.
+    social: { fetch: fakeUploadPost, renderPin: async (_html, out) => (await mkdir(path.dirname(out), { recursive: true }), await writeFile(out, 'png'), out) },
+    tts: { url: tts.url, mcpUrl: tts.mcpUrl, convert: fakeConverter().convert },
+  })
   await writeFile(path.join(t.root, 'upload-post.config'), 'UPLOAD_POST_API_KEY=test-key\nUPLOAD_POST_PROFILE=softroni\n')
   await writeFile(path.join(t.root, 'clip.mp4'), 'not really a video')
 })
@@ -107,7 +122,7 @@ describe('social post', () => {
     expect(lines[1]).toMatchObject({ kind: 'status', status: 'completed', results: { youtube: { success: true, url: 'https://youtube.com/shorts/abc' } } })
   })
 
-  it('leaves TikTok out on the free plan, and finds the only Pinterest board', async () => {
+  it('leaves TikTok and the step pin out on the free plan, and makes the path’s Pinterest board', async () => {
     plan = 'Free'
     await onSale(true)
     const outcome = await t.studio(['social', 'post', 'simple-house', '--video', path.join(t.root, 'clip.mp4'), '--no-wait'])
@@ -115,10 +130,40 @@ describe('social post', () => {
     expect(outcome.stderr).toContain('can’t post to TikTok')
     // The fake profile has X added but not connected: Upload-Post would never answer for it.
     expect(outcome.stderr).toContain('Left out x')
+    expect(outcome.stdout).toContain('Made the Pinterest board “Easy Drawings: Houses”')
+    expect(outcome.stdout).toContain('The step pin waits for the paid plan')
     const upload = calls.find((call) => call.route === '/api/upload')!
     expect(upload.fields!['platform[]']).toEqual(['youtube', 'instagram', 'facebook', 'pinterest'])
-    expect(upload.fields!.pinterest_board_id).toEqual(['77'])
+    expect(upload.fields!.pinterest_board_id).toEqual(['made-board'])
     expect(upload.fields!.privacyStatus).toEqual(['public'])
+    expect(calls.some((call) => call.route === '/api/upload_photos')).toBe(false)
+  })
+
+  it('schedules the lesson’s step pin on its path’s board, four hours after the video', async () => {
+    await onSale(true)
+    boards.push({ id: '99', name: 'Easy Drawings: Houses' })
+    // The pin's page carries Fredoka and the app icon from the repository; stand-ins do here.
+    for (const asset of ['docs/app-store/marketing/assets/fonts/Fredoka.ttf', 'PaperCoach/Assets.xcassets/AppIcon.appiconset/AppIcon.png']) {
+      await mkdir(path.dirname(path.join(t.root, asset)), { recursive: true })
+      await writeFile(path.join(t.root, asset), 'stand-in')
+    }
+    const outcome = await t.studio(['social', 'post', 'simple-house', '--video', path.join(t.root, 'clip.mp4'), '--no-wait', '--platforms', 'youtube,pinterest'])
+    expect(outcome.code).toBe(0)
+    // The board already there is used, not made again.
+    expect(calls.some((call) => call.route === '/api/uploadposts/pinterest/boards' && call.method === 'POST')).toBe(false)
+    const video = calls.find((call) => call.route === '/api/upload')!
+    expect(video.fields!.pinterest_board_id).toEqual(['99'])
+    const pin = calls.find((call) => call.route === '/api/upload_photos')!
+    expect(pin.photos).toEqual(['simple-house-pin.png'])
+    expect(pin.fields!['platform[]']).toEqual(['pinterest'])
+    expect(pin.fields!.pinterest_board_id).toEqual(['99'])
+    expect(pin.fields!.pinterest_title[0]).toMatch(/drawing: \d+ easy steps for beginners$/)
+    const inHours = (Date.parse(pin.fields!.scheduled_date[0]) - Date.now()) / 3600_000
+    expect(inHours).toBeGreaterThan(3.9)
+    expect(inHours).toBeLessThan(4.1)
+    expect(outcome.stdout).toContain('The step pin goes to Pinterest at')
+    const lines = await records()
+    expect(lines.filter((line) => line.kind === 'post').map((line) => line.media)).toEqual(['video', 'pin'])
   })
 
   it('stops waiting once every platform has answered, even while Upload-Post still says in_progress', async () => {
@@ -216,7 +261,8 @@ describe('social next', () => {
     expect(outcome.code).toBe(0)
     // The order is lesson 1 of every path: trees (palm-tree-4), houses (simple-house), cars.
     expect(outcome.stderr).toContain('Skipped “palm-tree-4”')
-    expect(outcome.stdout).toContain('Would post “Simple House”')
+    expect(outcome.stdout).toContain('Would post the “Simple House” video')
+    expect(outcome.stdout).toContain('Then the step pin on Pinterest, 4 hours later')
   })
 
   it('waits a day between posts unless told to post again', async () => {
@@ -227,6 +273,46 @@ describe('social next', () => {
     expect(outcome.code).toBe(1)
     expect(outcome.stderr).toContain('the next one waits a day')
     expect(calls).toEqual([])
+  })
+})
+
+describe('social announce', () => {
+  it('posts the news with a lesson’s speed draw, without counting the lesson as posted', async () => {
+    await onSale(true)
+    const outcome = await t.studio([
+      'social', 'announce', '--lesson', 'simple-house', '--news', 'New in Paper Coach: 10 houses to draw.', '--headline', 'New: draw a street of houses',
+      '--video', path.join(t.root, 'clip.mp4'), '--no-wait', '--platforms', 'youtube,tiktok,pinterest',
+    ])
+    expect(outcome.code).toBe(0)
+    expect(outcome.stdout).toContain('Posted the news with the “Simple House” speed draw')
+    const upload = calls.find((call) => call.route === '/api/upload')!
+    expect(upload.fields!.youtube_title).toEqual(['New: draw a street of houses #shorts'])
+    expect(upload.fields!.tiktok_title[0]).toMatch(/^New in Paper Coach: 10 houses to draw\./)
+    expect(upload.fields!.pinterest_title).toEqual(['New: draw a street of houses'])
+    expect(upload.fields!.external_id).toEqual(['paper-coach/simple-house/news'])
+    // News brings no step pin, and the lesson's own video is still owed.
+    expect(calls.some((call) => call.route === '/api/upload_photos')).toBe(false)
+    expect((await records())[0]).toMatchObject({ kind: 'post', purpose: 'announce', media: 'speed' })
+    expect((await t.json<{ posted: string[] }>('social queue')).posted).toEqual([])
+  })
+
+  it('needs the lesson, the news and a headline', async () => {
+    const outcome = await t.studio(['social', 'announce', '--lesson', 'simple-house', '--news', 'Something new.'])
+    expect(outcome.code).toBe(1)
+    expect(outcome.stderr).toContain('--lesson, --news and --headline')
+  })
+})
+
+describe('the daily rhythm', () => {
+  it('lets news or a step pin go out without holding back the next lesson', async () => {
+    await mkdir(path.join(t.root, '.studio', 'social'), { recursive: true })
+    const recent = (media: string, purpose: string) =>
+      JSON.stringify({ kind: 'post', at: new Date(Date.now() - 3600_000).toISOString(), lessonId: 'palm-tree-4', profile: 'softroni', platforms: ['pinterest'], private: false, requestId: `r-${media}`, outcome: 'sent', media, purpose })
+    await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), `${recent('pin', 'lesson')}\n${recent('speed', 'announce')}\n`)
+    const outcome = await t.studio('social next')
+    // Nothing is narrated in the fixture, so it stops there, not at the once-a-day rule.
+    expect(outcome.stderr).not.toContain('waits a day')
+    expect(outcome.stderr).toContain('Every narrated lesson in the version on sale has been posted')
   })
 })
 

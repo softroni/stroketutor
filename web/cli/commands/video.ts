@@ -55,6 +55,7 @@ export const videoCommands: Command[] = [
       intro: { type: 'string', description: 'Lina’s opening line (default “Let’s draw a <lesson>. Grab a pencil and draw along with me.”). Spoken through the Studio in her cast voice, and reused once made.', placeholder: 'words' },
       signoff: { type: 'string', description: 'Lina’s last words, after her closing line, as Paper Coach takes her place (default “Draw more with Paper Coach. It’s free on the App Store.”, “free to download” for a Premium lesson). Spoken like the opening line; "" for none.', placeholder: 'words' },
       cta: { type: 'string', description: 'The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge).', placeholder: 'words' },
+      speed: { type: 'boolean', description: 'The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4.' },
       stills: { type: 'string', description: 'Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, Lina’s closing line, the ending), to check the look in seconds.', placeholder: 'dir' },
     },
     async (ctx, args) => {
@@ -65,6 +66,7 @@ export const videoCommands: Command[] = [
         cta: stringValue(args.values, 'cta') ?? null,
         out: stringValue(args.values, 'out') ?? null,
         stillsDir: stringValue(args.values, 'stills') ?? null,
+        speed: args.values.speed === true,
       })
       ctx.out.result(result, (data: VideoResult) =>
         data.file
