@@ -407,55 +407,79 @@ each with a mound and two flowers, six sills, two pieces of horizon.
 
 ### 5 · `fountain`
 
-Objective: Round fountain: two basins drawn as ellipses, panels curving round the basin, four water arcs.
+Objective: Town fountain in ellipses: two basins, arcs from a ball on top, a potted tree each side.
+
+Reworked 2026-09-30 to be more interesting (the creator's ask): a warm cream stone fountain instead of a gray one,
+terracotta panels, a green bronze ball on top that throws two small arcs into the upper basin, and a potted ball
+tree on each side, so the square picture is filled and the fountain stands in a town square. Still one lesson about
+ellipses: every round part is a flat ellipse or the front half of one.
 
 ```text
-SUBJECT: one round town fountain on a low round plinth: a wide lower basin with three panels on
-its side, a column rising from its water, a smaller upper basin on the column, and water falling
-from the upper basin into the lower one in four arcs, with two ripples in the lower water.
+SUBJECT: a round town fountain in a square: a wide lower basin on a low round step, a column rising
+from its water to an upper basin, a short stem rising from the upper basin's water to a round ball
+on top, water springing from the ball in two small arcs into the upper basin and falling from the
+upper basin in four arcs into the lower one, two ripples on the lower water, and on each side of
+the fountain a potted ball-shaped tree. The fountain and the two trees together fill about 70% of
+the image's width, with clear white margin on all four sides.
 VIEW: seen from the front and a little from above, with no perspective: each basin's round top is
 a flat ellipse about one third as tall as it is wide, and the bottom of each round shape is the
-front half of a flat ellipse. Hidden back edges are not drawn. The fountain is one big round
-shape, so it fills a little less of the image than usual: about 60 to 65% of its width.
-- Lower basin rim: one flat ellipse, low in the image, as wide as the fountain. Inside it is the
-  water. Its outline is the basin's edge: no separate rim band. Color of the water: blue #5b8fc7.
-- Lower basin side: one band hanging under the front half of the rim ellipse (its top edge is
-  that front half, drawn once): two short upright sides at the ellipse's two ends and a bottom
-  edge curving parallel to the rim's front. It is about one fifth as tall as it is wide.
-  Color: gray #c9ced6.
+front half of a flat ellipse. Hidden back edges are not drawn.
+Here the column stands in front of the lower water's back edge and the stem in front of the upper
+water's back edge: each back edge stops on their sides.
+No shadows, drop shadows, soft shading, stone texture or shine anywhere.
+- Lower water: one flat ellipse, low in the image, as wide as the fountain. Its outline is the
+  basin's edge: no separate rim band. Color: blue #5b8fc7.
+- Lower basin side: one band hanging under the front half of the lower water's ellipse (its top
+  edge is that front half, drawn once): two short upright sides at the ellipse's two ends and a
+  bottom edge curving parallel to it. About one fifth as tall as it is wide. Color: cream #f6e7b8.
 - Panels: exactly three flat shapes floating on the basin's side, side by side, with a clear strip
-  of gray at least three line-widths wide all around each and between them. Their top and bottom
+  of cream at least three line-widths wide all around each and between them. Their top and bottom
   edges curve parallel to the band's edges and their sides are upright. The middle one faces the
   viewer and is the widest; the two outer ones are narrower, because they turn away round the
-  curve. Color: cream #f6e7b8.
-- Plinth: one low band hanging under the basin's side (its top edge is the side's bottom edge,
-  drawn once): two short upright sides a little outside the side's ends, joined to them by two
-  short level pieces, and a bottom edge curving parallel to the one above it. About half as tall
-  as the basin's side. Color: cream #f6e7b8.
-- Column: one narrow upright shape with straight sides, standing in the middle of the lower
-  basin's water and rising to the upper basin. Its bottom edge is a short gentle curve inside the
-  water, touching nothing else; its top edge is shared with the bottom of the upper basin. The
-  column stands in front of the lower water's back edge, which stops on the column's sides.
-  Color: cream #f6e7b8.
-- Upper basin rim: one smaller flat ellipse, about 40% as wide as the lower one, high above it.
-  Inside it is the water, with no separate rim band. Color of the water: blue #5b8fc7.
-- Upper basin bowl: one shape hanging under the front half of the upper rim ellipse (shared
+  curve. Color: orange #f08a2c.
+- Step: one low band hanging under the basin's side (its top edge is the side's bottom edge, drawn
+  once): two short upright sides a little outside the side's ends, joined to them by two short
+  level pieces, and a bottom edge curving parallel to the one above it. About half as tall as the
+  basin's side. Color: gray #c9ced6.
+- Column: one narrow upright shape with straight sides, standing in the middle of the lower water
+  and rising to the upper basin. Its bottom edge is a short gentle curve inside the water, touching
+  nothing else; its top edge is shared with the bottom of the upper basin. Color: gray #c9ced6.
+- Upper water: one smaller flat ellipse, about 45% as wide as the lower one, well above it. Its
+  outline is the basin's edge: no separate rim band. Color: blue #5b8fc7.
+- Upper basin bowl: one shape hanging under the front half of the upper water's ellipse (shared
   edge, drawn once), curving in like a shallow bowl down to the top of the column (shared edge).
-  Color: gray #c9ced6.
-- Water arcs: exactly four single curved lines, two on the left and two on the right, the right
+  Color: cream #f6e7b8.
+- Stem: one short narrow upright shape standing in the middle of the upper water, its bottom edge a
+  short gentle curve inside the water, rising about as high as the upper water is wide. Color: gray
+  #c9ced6.
+- Ball: one circle sitting on the stem's top edge (one shared line), about twice as wide as the
+  stem. Color: leaf green #4f9d4a.
+- Small arcs: exactly two single curved lines, one on each side of the ball, a mirror pair. Each
+  starts on the ball's side, rises a little, curves outward and down, and ends exactly on the back
+  edge of the upper water's ellipse, touching it and nothing else. Charcoal lines with no color:
+  not blue, not filled, not tubes.
+- Big arcs: exactly four single curved lines, two on the left and two on the right, the right
   pair a mirror image of the left pair. On each side, the upper arc starts at the end of the upper
-  rim ellipse and the lower arc starts a little lower on the bowl's side. Each curves outward, a
-  little up and then down, like water poured over an edge, and ends exactly on the back edge of
-  the lower rim ellipse, touching it and nothing else. The upper arc lands farther out, so the two
-  arcs on a side never touch or cross, and stay at least three line-widths apart. They are
-  charcoal lines with no color: not blue, not filled, not tubes.
+  water's ellipse and the lower arc starts a little lower on the bowl's side. Each curves outward,
+  a little up and then down, like water poured over an edge, and ends exactly on the back edge of
+  the lower water's ellipse, touching it and nothing else. The upper arc lands farther out, so the
+  two arcs on a side never touch or cross, and stay at least three line-widths apart. Charcoal
+  lines with no color: not blue, not filled, not tubes.
 - Ripples: exactly two short curved lines floating in the front part of the lower water, one on
-  each side of the column, each curving like the rim's front edge, clear of the column, the rim
-  and the arcs, touching nothing. Charcoal lines with no color.
-Nothing else: no statue or figure, no spout or knob on top, no drops, splashes or spray, no other
-ripples, no stone texture, no steps beyond the plinth, no ground, no plants. Fifteen shapes and
-lines in total. Count: two basins, each a water ellipse and a gray side or bowl, three panels,
-one plinth, one column, four arcs, two ripples.
+  each side of the column, each curving like the water's front edge, clear of the column, the
+  edge and the arcs by at least three line-widths, touching nothing. Charcoal lines with no color.
+- Trees: exactly two, one on each side of the fountain, a mirror pair, each at least three
+  line-widths clear of the fountain and its arcs, the pots' bottoms level with the step's lowest
+  point. Each is a pot (one shape wider at the top than at the bottom, with no rim line, color
+  orange #f08a2c), a trunk (one short narrow upright shape standing on the pot's top edge, one
+  shared line, color brown #8a5a33) and a crown (one round circle sitting on the trunk's top edge,
+  one shared line, its top about level with the upper water, color leaf green #4f9d4a).
+Nothing else: no statue, figure, fish or face, no spout other than the ball, no drops, splashes,
+spray or mist, no other ripples, no stone texture or bricks, no steps beyond the one, no ground,
+paving or cobbles, no benches, lamps or people, no leaves, bumps or lines on the tree crowns.
+Twenty-five shapes and lines in total. Count: one step, one lower basin (water and side) with
+three panels, one column, one upper basin (water and bowl), one stem with one ball, two small arcs,
+four big arcs, two ripples, two trees each with a pot, a trunk and a crown.
 ```
 
 ### 6 · `canal-bridge`
