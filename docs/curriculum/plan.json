@@ -1059,7 +1059,7 @@
         {
           "id": "fire-hydrant",
           "title": "Fire Hydrant",
-          "objective": "Hydrant with a shadow side and a cast shadow across a few cobblestones"
+          "objective": "Open hydrant spraying into a puddle, with a shadow side and a cast shadow on cobbles"
         },
         {
           "id": "rooftops",

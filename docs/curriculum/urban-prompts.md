@@ -640,52 +640,76 @@ with three panes, two shine lines, one keystone, one sill, nine bricks in three 
 
 ### 9 · `fire-hydrant`
 
-Objective: Hydrant with a shadow side and a cast shadow across a few cobblestones.
+Objective: Open hydrant spraying into a puddle, with a shadow side and a cast shadow on cobbles.
+
+Second design, 2026-09-30, in the creator's style (stacked tiers, colored water): the hydrant is opened on a summer
+day. Its tiers are stacked higher (a cap nut, a dome, a collar, the barrel split by a belt, a flange), each with
+its lit and shadow color, and a blue arc of water pours from the left nozzle into a puddle with two ripples, in the
+light, while the cast shadow lies across three of the six cobbles on the right. The lesson's point is unchanged:
+one shadow line through every tier, and stones that change color in the shadow.
 
 ```text
-SUBJECT: one fire hydrant standing on a street, lit from the upper left: a dome, a collar, a
-barrel and a base flange stacked one on another, with a nozzle on each side, its shadow side
-running down all of them, and its cast shadow lying across a few cobblestones.
-VIEW: the hydrant is seen straight on. The ground is seen from a little above, so the cast shadow
-and the cobblestones are flat shapes lying on it.
+SUBJECT: one old fire hydrant opened on a summer day, standing on a cobbled street, lit from the
+upper left: a dome, a collar, a barrel with a belt and a base flange stacked one on another, a
+nozzle on each side, its shadow side running down every tier, water arcing from its left nozzle into
+a puddle, and its cast shadow lying across a few cobblestones on the right. The whole scene fills
+about 80% of the image's width, with clear white margin on all four sides; nothing is cut off by the
+image's edge.
+VIEW: the hydrant is seen straight on. The ground is seen from a little above, so the puddle, the
+cast shadow and the cobblestones are flat shapes lying on it. The ground itself stays white paper.
 LIGHT: from the upper left. The hydrant's right side is its shadow side, and its cast shadow falls
 on the ground to the right. These are the only shadows.
-- Hydrant: four parts stacked from top to bottom, each sitting on the one below (one shared line
-  each), all centered on one upright middle line. Together about twice as tall as the barrel is
-  wide, standing a little left of the middle of the image.
+- Hydrant: six parts stacked from top to bottom, each sitting on the one below (one shared line
+  each), all centered on one upright middle line. Together about two and a half times as tall as the
+  barrel is wide, standing a little left of the middle of the image.
   - Dome: the top half of a circle, as wide as the barrel.
   - Collar: one flat band with four straight sides, a little wider than the barrel at both ends,
     about four line-widths tall.
-  - Barrel: one tall shape with straight upright sides, the main part of the hydrant.
-  - Flange: one flat band with four straight sides at the bottom, wider than the collar, about
-    four line-widths tall, with a flat level bottom.
-- Shadow side: one single line divides the whole hydrant from top to bottom: it starts on the
-  dome a little right of its top, curves down, and runs straight and upright through the collar,
-  the barrel and the flange to the flange's bottom edge, about one third of the barrel's width in
-  from its right side, touching the outline at both ends. Left of it is the lit side, right of it
-  the shadow side. Colors, lit then shadow: dome and barrel red #d8433b and brown #8a5a33; collar
-  and flange yellow #f7cf46 and orange #f08a2c.
+  - Upper barrel: one shape with straight upright sides, a little taller than wide.
+  - Belt: one flat band with four straight sides, as wide as the barrel, about three line-widths
+    tall.
+  - Lower barrel: one shape with straight upright sides, about half as tall as the upper barrel.
+  - Flange: one flat band with four straight sides at the bottom, wider than the collar, about four
+    line-widths tall, with a flat level bottom.
+- Shadow side: one single line divides the whole hydrant from top to bottom: it starts on the dome a
+  little right of its top, curves down, and runs straight and upright through the collar, both parts
+  of the barrel, the belt and the flange to the flange's bottom edge, about one third of the
+  barrel's width in from its right side, touching the outline at both ends. Left of it is the lit
+  side, right of it the shadow side. Colors, lit then shadow: dome, upper barrel and lower barrel
+  red #d8433b and brown #8a5a33; collar, belt and flange yellow #f7cf46 and orange #f08a2c.
 - Cap nut: one small shape sitting a little left of the dome's top: three straight sides and a
-  bottom edge following the dome's curve (one shared line). The dividing line starts at least
-  three line-widths to the right of it. Color: yellow #f7cf46.
-- Nozzles: exactly two, one on each side of the barrel, halfway up: each a short stubby shape
-  with four straight sides sticking straight out, attached to the barrel's side (one shared edge),
-  about as long as it is tall. The left one is yellow #f7cf46; the right one, in the shadow, is
-  orange #f08a2c.
-- Cast shadow: one long flat shape lying on the ground and stretching to the right, about two and
-  a half times as long as the barrel is wide and about as tall as the barrel is wide. Its near end
-  is the flange's right end (one shared line); its bottom edge carries on from the flange's bottom
+  bottom edge following the dome's curve (one shared line). The dividing line starts at least three
+  line-widths to the right of it. Color: yellow #f7cf46.
+- Nozzles: exactly two, one on each side of the upper barrel, a little above its middle, with a
+  clear strip of red or brown at least three line-widths wide between them and the belt: each a
+  short stubby shape with four straight sides sticking straight out, attached to the barrel's side
+  (one shared edge), about as long as it is tall. The left one, in the light, is yellow #f7cf46 and
+  open. The right one, in the shadow, is orange #f08a2c, and on its outer end sits one cap (one
+  shared line), a short shape with four straight sides a little taller than the nozzle, brown
+  #8a5a33.
+- Water: one smooth band of water leaving the left nozzle's outer end (that end is its start, one
+  shared line), about as wide as the nozzle is tall, arcing out to the left and down like a bent
+  tube, and landing on the puddle: its lower end is a stretch of the puddle's top edge (one shared
+  line). Water and puddle are both blue, on purpose. Color: blue #5b8fc7.
+- Puddle: one flat rounded shape lying on the ground to the left of the flange, wider than tall,
+  with a clear gap of white at least three line-widths wide from the flange. Color: blue #5b8fc7.
+  Inside it, exactly two short curved ripple lines, floating, touching nothing: charcoal lines with
+  no color.
+- Cast shadow: one long flat shape lying on the ground and stretching to the right, about two and a
+  half times as long as the barrel is wide and about as tall as the barrel is wide. Its near end is
+  the flange's right end (one shared line); its bottom edge carries on from the flange's bottom
   edge, level; its top edge rises from the flange's top right corner, then runs nearly level; its
   far end is rounded, like the dome lying on its side. Color: gray #c9ced6.
 - Cobblestones: exactly six, each a small flat rounded shape, wider than tall, about one third as
-  wide as the barrel. Exactly three lie in a row inside the cast shadow, each wholly inside it
-  with a clear band of gray at least three line-widths wide all around it: color brown #8a5a33,
-  stones in the shadow. The other three lie in a row on the white ground just below the shadow,
-  at least three line-widths clear of it and of each other: color cream #f6e7b8, stones in the
-  light. No stone is cut by the shadow's edge.
-Nothing else: no front nozzle, no chains, no bolts, no highlight, no ground line, curb or
-sidewalk, no other stones, no puddles. Fifteen shapes and lines in total. Count: four stacked
-parts, one shadow side through all of them, one cap nut, two nozzles, one cast shadow, six
+  wide as the barrel. Exactly three lie in a row inside the cast shadow, each wholly inside it with
+  a clear band of gray at least three line-widths wide all around it: color brown #8a5a33, stones in
+  the shadow. The other three lie in a row on the white ground just below the shadow and the flange,
+  at least three line-widths clear of the shadow, the puddle and each other: color cream #f6e7b8,
+  stones in the light. No stone is cut by the shadow's edge.
+Nothing else: no front nozzle, no chains, no bolts, no spray drops, mist or splashes, no highlight,
+no ground line, curb or sidewalk, no other stones, no second puddle. Twenty-eight shapes and lines
+in total. Count: six stacked parts, each in a lit and a shadow color, split by one shadow line; one
+cap nut; two nozzles and one cap; one water arc; one puddle with two ripples; one cast shadow; six
 cobblestones, three of them in the shadow.
 ```
 
