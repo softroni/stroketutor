@@ -226,9 +226,9 @@ Here the railing does stand in front of the doors: that is part of what this les
 - Flowers: exactly three plain circles floating in the mound, each with a clear band of green at
   least three line-widths wide around it. No petals, no centers. Color: red #d8433b.
 - Shadow: the flower box's shadow on the wall: one flat four-sided shape with its own bold
-  charcoal outline, hanging from the box's bottom edge (one shared line). Its two sides run down and to the right, parallel, and one level
-  bottom edge closes it. It is about as tall as the box and ends with a clear strip of wall color
-  above the top rail. Color: gray #c9ced6.
+  charcoal outline, hanging from the box's bottom edge (one shared line). Its two sides run down
+  and to the right, parallel, and one level bottom edge closes it. It is about as tall as the box
+  and ends with a clear strip of wall color above the top rail. Color: gray #c9ced6.
 - Climbing plant: up the wall's left side, between the wall's left edge and the doors, keeping a
   clear gap of wall color at least three line-widths wide from the wall's edges, the hood, the
   doors, the railing and the slab. One smooth charcoal stem line with no color climbs from near
