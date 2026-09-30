@@ -12,6 +12,15 @@ extension AppModel {
         activeProfile.privacyTier == .child
     }
 
+    /// What comes before a way to Premium that Settings opens on its own ("Redeem a
+    /// code"): nothing for a learner 13 or over; for a child, the grown-ups' check
+    /// the way to the paywall asks (`ParentalGateView`), the app's PIN when one is
+    /// set, else the question in words.
+    var grownUpCheckBeforePremium: GrownUpCheck {
+        guard learnerIsChild else { return .notNeeded }
+        return pin.isSet ? .pin : .question
+    }
+
     /// True when this lesson is past its path's free lessons and Premium is not
     /// active: it wears a crown, and a tap opens the way to Premium.
     func needsPremium(_ lesson: Lesson) -> Bool {
@@ -115,4 +124,13 @@ extension AppModel {
             dismissCover()
         }
     }
+}
+
+/// The grown-ups' check before a way to Premium (`AppModel.grownUpCheckBeforePremium`).
+enum GrownUpCheck: Equatable {
+    case notNeeded
+    /// The app's PIN (`PINGateRequest`).
+    case pin
+    /// A sum written in words (`ParentalQuestion`).
+    case question
 }

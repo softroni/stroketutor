@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 
 /// `st-settings` — the third tab: narration and speed, the sketchbook's one option
@@ -21,6 +22,8 @@ struct SettingsView: View {
     @State private var isChoosingPINAction = false
     @State private var isRestoring = false
     @State private var restoreMessage: String?
+    /// The App Store's sheet for an offer code ("Redeem a code").
+    @State private var isRedeemingCode = false
     /// The grown-up question (`ParentalQuestion`), asked before a PIN is made — the
     /// PIN also opens the way to Premium (`ParentalGateView`), so a child must not
     /// be able to set one — and before a child's profile leaves the app for a web
@@ -279,10 +282,15 @@ struct SettingsView: View {
 
     // MARK: - Premium
 
-    /// Whether Premium is on for this Apple account, the way to it, and Restore.
-    /// A child's tap goes through the grown-up's check first, like any other way
-    /// to the paywall (`OfferFlow`). Once Premium is active the row only says so:
-    /// it does not lead out to the App Store's subscriptions page.
+    /// Whether Premium is on for this Apple account, the way to it, Restore, and
+    /// "Redeem a code". A child's tap goes through the grown-up's check first, like
+    /// any other way to the paywall (`OfferFlow`). Once Premium is active the row
+    /// only says so: it does not lead out to the App Store's subscriptions page.
+    ///
+    /// "Redeem a code" opens the App Store's own sheet
+    /// (`offerCodeRedemption(isPresented:)`): a subscription's code, or from iOS 18.4
+    /// a one-time purchase's, which is how friends and family get Lifetime. It stays
+    /// for a subscriber too, who may be given Lifetime.
     private var premiumSection: some View {
         VStack(alignment: .leading, spacing: Theme.stackSpacing) {
             SettingsSectionHeader("Premium")
@@ -306,11 +314,20 @@ struct SettingsView: View {
                         restorePurchases()
                     }
                 }
+                RowDivider()
+                SettingsRow(title: "Redeem a code",
+                            systemImage: "giftcard.fill",
+                            tint: .neutral,
+                            action: redeemCode)
                 #if DEBUG
                 RowDivider()
                 debugPremiumRow
                 #endif
             }
+        }
+        // Whatever the code brought, redeemed or not: the entitlement says.
+        .offerCodeRedemption(isPresented: $isRedeemingCode) { _ in
+            Task { await app.premium.refreshEntitlements() }
         }
         .alert("Restore purchases",
                isPresented: Binding(get: { restoreMessage != nil },
@@ -357,6 +374,19 @@ struct SettingsView: View {
         .padding(.horizontal, 18)
     }
     #endif
+
+    /// The App Store's code sheet, after the grown-ups' check for a child.
+    private func redeemCode() {
+        let openSheet = {
+            app.analytics.track(.offerCodeSheetOpened)
+            isRedeemingCode = true
+        }
+        switch app.grownUpCheckBeforePremium {
+        case .notNeeded: openSheet()
+        case .pin: gate = PINGateRequest(reason: "Needed to redeem a code.", onApproved: openSheet)
+        case .question: askGrownUp(then: openSheet)
+        }
+    }
 
     private func askGrownUp(then action: @escaping () -> Void) {
         grownUpAnswer = ""

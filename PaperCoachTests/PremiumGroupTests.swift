@@ -92,15 +92,15 @@ final class PremiumGroupTests: XCTestCase {
         XCTAssertNil(PremiumStore.Plan(period: .everyTwoWeeks))
     }
 
-    /// The two plans as StoreKit loads them, where it can: with the scheme's
-    /// `PaperCoach.storekit`, as `xcodebuild test` runs it. Elsewhere there may be no
-    /// App Store to ask.
-    /// App Store Connect's own group id is checked against `subscriptionGroupID` by
-    /// hand: `GET /v1/apps/6816231257/subscriptionGroups` said 22413930 on 2026-09-30.
+    /// The two subscriptions as the App Store sandbox gives them, which is what
+    /// `xcodebuild test` asks (the scheme's `PaperCoach.storekit` is only for Run), so
+    /// this checks `subscriptionGroupID` against App Store Connect itself. Offline,
+    /// there is nothing to ask.
     @MainActor
     func testTheLoadedPlansAreReportedByHowOftenTheyRenew() async throws {
-        let products = (try? await Product.products(for: PremiumStore.ProductID.all)) ?? []
-        guard products.count == PremiumStore.ProductID.all.count else {
+        let subscriptions = [PremiumStore.ProductID.yearly, PremiumStore.ProductID.weekly]
+        let products = (try? await Product.products(for: subscriptions)) ?? []
+        guard products.count == subscriptions.count else {
             throw XCTSkip("StoreKit returned \(products.count) of the two plans here.")
         }
         let plans = Dictionary(uniqueKeysWithValues: products.map { ($0.id, PremiumStore.Plan($0)) })

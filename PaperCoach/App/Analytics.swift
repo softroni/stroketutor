@@ -279,9 +279,20 @@ struct AnalyticsEvent: Equatable {
     }
 
     /// What came of a tap on a buy button: `purchased`, `pending`, `cancelled`,
-    /// `failed`.
+    /// `failed`. `plan` is `yearly`, `weekly` or `lifetime` (`restore` for Restore on
+    /// Superwall's paywall), or the product id of a product that is none of them.
     static func purchaseAttempted(plan: String, outcome: String) -> AnalyticsEvent {
         AnalyticsEvent(name: "purchase_attempted", properties: [Key.plan: plan, Key.outcome: outcome])
+    }
+
+    /// "Redeem a code" in Settings opened the App Store's code sheet (after the
+    /// grown-ups' check, for a child).
+    static let offerCodeSheetOpened = AnalyticsEvent(name: "offer_code_sheet_opened")
+
+    /// A code brought Premium: redeemed in the app or from a link, on this Apple
+    /// account or someone else's in the family. `plan` as on `purchase_attempted`.
+    static func premiumFromCode(plan: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "premium_from_code", properties: [Key.plan: plan])
     }
 
     /// The way to Premium closed, with or without a subscription.

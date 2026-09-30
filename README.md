@@ -946,6 +946,16 @@ protected tier needs it.
   approved (`Transaction.updates`).
 - After lesson 3 of a path, completion and the saved photo show "Next: … · Premium" as a gold card, and a free lesson
   from another path under it. Settings has a Premium row (the paywall, or Manage Subscriptions) and Restore.
+- **Lifetime (from 1.1):** `com.softroni.papercoach.premium.lifetime`, a non-consumable ($99.99, Family Sharing),
+  counts as Premium bought, family-shared or redeemed from a code. It is the third row of "View more plans" on
+  both paywalls, never chosen for the learner and never on the paywall itself ("Buy for $99.99", "one payment, no
+  renewal"); `purchase_attempted` says `plan: lifetime`. Superwall's designs don't sell it.
+- **"Redeem a code" (from 1.1):** Settings › Premium opens Apple's offer-code sheet (`offerCodeRedemption`), behind
+  the grown-ups' check for a child (the PIN when set, else the question: `AppModel.grownUpCheckBeforePremium`).
+  Events `offer_code_sheet_opened`, and `premium_from_code` with the plan when a code brings Premium (in the app or
+  from a link, once per code, not per renewal).
+- **Where prices come from:** `xcodebuild test` and harness launches through `simctl` ask the App Store sandbox, so
+  they show only what App Store Connect serves; `PaperCoach.storekit` applies only to Run from Xcode.
 - **App Store Connect (2026-09-25):** the record exists ("Paper Coach: Learn to Draw", Apple ID 6816231257,
   `com.softroni.papercoach`), both products and the free week are set up with Family Sharing and the prices above,
   and the listing copy, screenshots and subscription review screenshots are on it. What the API could not do, and

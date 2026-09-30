@@ -139,8 +139,9 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
   most prominent price, and the buy button names it. The Superwall handoff's decisions still hold:
   "Continue with free lessons" on every page, no hidden exit, nothing from Drawing Desk's playbook.
 - **Never put a product on a paywall that the build on sale doesn't count as Premium**: the buyer would be charged
-  and get nothing. 1.0 (2) counts only `PremiumStore.ProductID.all`; from 1.1 (docs/next-builds.md item 1), any
-  product in Premium's subscription group `22413930` counts, and nothing outside it ever does.
+  and get nothing. 1.0 (2) counts only the yearly and weekly ids; from 1.1 (docs/next-builds.md items 1 and 5),
+  any product in Premium's subscription group `22413930` counts, and Lifetime
+  (`com.softroni.papercoach.premium.lifetime`), and nothing else ever does.
 - Record every change in the log with its reason.
 
 ## Apple Ads

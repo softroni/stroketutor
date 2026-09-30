@@ -165,6 +165,7 @@ final class AppModel {
         library = TutorialLibrary()
         let analytics = Analytics(sink: analyticsSink ?? PostHogSink.make(bundle: bundle))
         let premium = PremiumStore(defaults: settings.defaults)
+        premium.onPremiumFromCode = { plan in analytics.track(.premiumFromCode(plan: plan)) }
         self.analytics = analytics
         self.premium = premium
         self.paywalls = paywalls ?? SuperwallPaywalls.make(premium: premium, analytics: analytics)

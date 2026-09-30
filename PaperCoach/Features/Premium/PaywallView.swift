@@ -328,22 +328,34 @@ struct FamilySharingChip: View {
     }
 }
 
-/// "View more plans": Yearly (with the free week, when there is one) and Weekly,
-/// Yearly chosen. The button says what the chosen plan does.
+/// "View more plans": Yearly (with the free week, when there is one), Weekly, and
+/// Lifetime, one payment for good, Yearly chosen. Lifetime is never chosen for the
+/// learner and never on the paywall itself: Yearly stays the plan the paywall sells.
+/// The button says what the chosen plan does.
 ///
 /// This sheet can buy on its own, so it keeps the paywall's rule (Apple,
 /// "Auto-renewable subscriptions", https://developer.apple.com/app-store/subscriptions/,
 /// read 2026-09-25: "the amount that will be billed must be the most prominent
-/// pricing element in the layout"): each row's billed price, "$19.99/year", is set
-/// at 24 pt, larger than the 20 pt "Start my free week" on the button, and both
-/// scale with the same text style, so the price stays ahead at every text size.
-/// The weekly equivalent and "Save 80%" sit smaller beside it.
+/// pricing element in the layout"): each row's billed price, "$19.99/year" or
+/// "$99.99", is set at 24 pt, larger than the 20 pt "Start my free week" or "Buy for
+/// $99.99" on the button, and both scale with the same text style, so the price
+/// stays ahead at every text size. The weekly equivalent and "Save 80%" sit smaller
+/// beside it. Every price is StoreKit's.
 struct PaywallPlansSheet: View {
     let onBuy: (PremiumStore.Plan) -> Void
 
     @Environment(AppModel.self) private var app
     @Environment(\.dismiss) private var dismiss
-    @State private var plan: PremiumStore.Plan = .yearly
+    @State private var plan = Self.initialPlan
+
+    /// The plan chosen when the sheet opens.
+    static let initialPlan: PremiumStore.Plan = .yearly
+
+    /// The rows, in order: Yearly, Weekly, Lifetime, each once StoreKit has given
+    /// its product (`offered`).
+    static func plans(offered: (PremiumStore.Plan) -> Bool) -> [PremiumStore.Plan] {
+        PremiumStore.Plan.allCases.filter(offered)
+    }
 
     var body: some View {
         // Scrolls, so the buy button and the legal links stay reachable at the
@@ -359,7 +371,7 @@ struct PaywallPlansSheet: View {
                             .textRole(.title2)
                             .foregroundStyle(Theme.ink)
                             .accessibilityAddTraits(.isHeader)
-                        Text("Paper Coach Premium · auto-renewing")
+                        Text(plan == .lifetime ? "Paper Coach Premium · one payment" : "Paper Coach Premium · auto-renewing")
                             .textRole(.footnote)
                             .foregroundStyle(Theme.ink55)
                     }
@@ -377,19 +389,8 @@ struct PaywallPlansSheet: View {
                     .accessibilityLabel("Close plans")
                 }
 
-                if app.premium.yearly != nil {
-                    planRow(.yearly,
-                            title: "Yearly",
-                            detail: yearlyDetail,
-                            price: app.premium.yearlyPrice.map { "\($0)/year" } ?? "",
-                            tag: app.premium.yearlySavingsPercent.map { "Save \($0)%" } ?? "Best value")
-                }
-                if app.premium.weekly != nil {
-                    planRow(.weekly,
-                            title: "Weekly",
-                            detail: "Billed every week",
-                            price: app.premium.weeklyPrice.map { "\($0)/week" } ?? "",
-                            tag: nil)
+                ForEach(Self.plans { app.premium.product(for: $0) != nil }) { option in
+                    row(for: option)
                 }
 
                 Text(terms)
@@ -430,18 +431,45 @@ struct PaywallPlansSheet: View {
         return "\(billing) · about \(perWeek) a week"
     }
 
+    @ViewBuilder
+    private func row(for option: PremiumStore.Plan) -> some View {
+        switch option {
+        case .yearly:
+            planRow(.yearly,
+                    title: "Yearly",
+                    detail: yearlyDetail,
+                    price: app.premium.yearlyPrice.map { "\($0)/year" } ?? "",
+                    tag: app.premium.yearlySavingsPercent.map { "Save \($0)%" } ?? "Best value")
+        case .weekly:
+            planRow(.weekly,
+                    title: "Weekly",
+                    detail: "Billed every week",
+                    price: app.premium.weeklyPrice.map { "\($0)/week" } ?? "",
+                    tag: nil)
+        case .lifetime:
+            planRow(.lifetime,
+                    title: "Lifetime",
+                    detail: "One payment, no renewal",
+                    price: app.premium.lifetimePrice ?? "",
+                    tag: nil)
+        }
+    }
+
     private var buttonTitle: String {
         switch plan {
         case .yearly: return isTrial ? "Start my free week" : "Subscribe yearly"
         case .weekly: return "Subscribe weekly"
+        case .lifetime: return app.premium.lifetimePrice.map { "Buy for \($0)" } ?? "Buy Lifetime"
         }
     }
 
-    /// The amount the chosen plan bills, on the button itself.
+    /// The amount the chosen plan bills, on the button itself; Lifetime's is in the
+    /// title ("Buy for $99.99"), so this line says it is paid once.
     private var buttonPrice: String? {
         switch plan {
         case .yearly: return app.premium.yearlyPrice.map { isTrial ? "then \($0)/year" : "\($0)/year" }
         case .weekly: return app.premium.weeklyPrice.map { "\($0)/week" }
+        case .lifetime: return "one payment, no renewal"
         }
     }
 
@@ -454,6 +482,8 @@ struct PaywallPlansSheet: View {
                 : "\(price)/year. Cancel anytime."
         case .weekly:
             return "\(app.premium.weeklyPrice ?? "")/week, starting today. Cancel anytime."
+        case .lifetime:
+            return "\(app.premium.lifetimePrice ?? "") once, today. Nothing renews and nothing to cancel."
         }
     }
 

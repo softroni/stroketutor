@@ -4,11 +4,13 @@ import OSLog
 import StoreKit
 import UserNotifications
 
-/// Paper Coach Premium, through StoreKit 2: the two subscriptions, whether the
-/// learner's Apple account holds one, and buying or restoring it.
+/// Paper Coach Premium, through StoreKit 2: the two subscriptions and Lifetime,
+/// whether the learner's Apple account holds one, and buying or restoring it.
 ///
 /// One subscription group with two plans. **Yearly** carries the introductory
-/// offer, a free week; **Weekly** has none. Both are Family Sharing, so one
+/// offer, a free week; **Weekly** has none. **Lifetime** is a one-time purchase
+/// (a non-consumable) outside the group: one payment, Premium for good, and what
+/// friends and family get from a free code. All three are Family Sharing, so one
 /// grown-up's purchase unlocks every learner on every device in the family. The
 /// ids below must match App Store Connect exactly; `PaperCoach.storekit` at the
 /// repository root mirrors them for testing in Xcode (Scheme › Run › Options ›
@@ -25,11 +27,13 @@ import UserNotifications
 @MainActor
 final class PremiumStore {
 
-    /// The two plans the app's own paywalls sell.
+    /// The three plans the app's own paywalls sell.
     enum ProductID {
         static let yearly = "com.softroni.papercoach.premium.yearly"
         static let weekly = "com.softroni.papercoach.premium.weekly"
-        static let all: Set<String> = [yearly, weekly]
+        /// Non-consumable, in no subscription group: it counts by its id.
+        static let lifetime = "com.softroni.papercoach.premium.lifetime"
+        static let all: Set<String> = [yearly, weekly, lifetime]
     }
 
     /// Premium's subscription group in App Store Connect, "Paper Coach Premium"
@@ -44,14 +48,20 @@ final class PremiumStore {
     /// trial ends: day 5 of 7.
     nonisolated static let reminderDaysBeforeTrialEnds = 2
 
+    /// In the order the plans sheet lists them (`PaywallPlansSheet`).
     enum Plan: String, CaseIterable, Identifiable {
-        case yearly, weekly
+        case yearly, weekly, lifetime
         var id: String { rawValue }
 
         /// The plan a product belongs to, for a purchase that started from a
-        /// product rather than a plan (a Superwall paywall's). Read from how often
-        /// it renews, not its id: a price test's yearly product is Yearly too.
+        /// product rather than a plan (a Superwall paywall's). A subscription's is
+        /// read from how often it renews, not its id: a price test's yearly product
+        /// is Yearly too.
         init?(_ product: Product) {
+            if product.id == ProductID.lifetime {
+                self = .lifetime
+                return
+            }
             guard let period = product.subscription?.subscriptionPeriod else { return nil }
             self.init(period: period)
         }
@@ -102,13 +112,14 @@ final class PremiumStore {
         case .unlocked: return true
         }
         #endif
-        return hasSubscription
+        return holdsPremium
     }
 
-    /// What StoreKit last said about the Apple account, whatever the override.
-    private(set) var hasSubscription: Bool {
+    /// What StoreKit last said about the Apple account, whatever the override: an
+    /// active subscription, or Lifetime.
+    private(set) var holdsPremium: Bool {
         didSet {
-            defaults.set(hasSubscription, forKey: Self.cacheKey)
+            defaults.set(holdsPremium, forKey: Self.cacheKey)
             onPremiumChange?()
         }
     }
@@ -120,6 +131,12 @@ final class PremiumStore {
     /// returns — the SDK checks the status the moment its purchase controller answers.
     @ObservationIgnored var onPremiumChange: (() -> Void)?
 
+    /// Called once for each code that brings Premium: redeemed in the app ("Redeem a
+    /// code" in Settings) or from a link in the App Store, including by someone in the
+    /// family. With the plan it brought (`Plan.rawValue`), or the product id for a
+    /// product that is none of the three. `AppModel` sends it as `premium_from_code`.
+    @ObservationIgnored var onPremiumFromCode: ((String) -> Void)?
+
     /// Development only: "Premium" in Settings can lock or unlock every lesson
     /// without buying anything, to try both sides of the paywall. Always
     /// `.appStore` in a release build, which never reads or writes it.
@@ -130,6 +147,7 @@ final class PremiumStore {
     private(set) var debugOverride: DebugOverride = .appStore
     private(set) var yearly: Product?
     private(set) var weekly: Product?
+    private(set) var lifetime: Product?
     private(set) var loadState: LoadState = .idle
     /// Whether this Apple account can still have the free week. Assumed true until
     /// StoreKit says otherwise, but never named on screen before it has: the products,
@@ -155,7 +173,7 @@ final class PremiumStore {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        hasSubscription = defaults.bool(forKey: Self.cacheKey)
+        holdsPremium = defaults.bool(forKey: Self.cacheKey)
         #if DEBUG
         debugOverride = defaults.string(forKey: Self.debugOverrideKey)
             .flatMap(DebugOverride.init(rawValue:)) ?? .appStore
@@ -183,6 +201,7 @@ final class PremiumStore {
                 switch update {
                 case let .verified(transaction):
                     await transaction.finish()
+                    await self?.reportIfFromCode(transaction)
                 case let .unverified(transaction, error):
                     // It unlocks nothing, but left unfinished it would be delivered
                     // again on every launch.
@@ -204,10 +223,11 @@ final class PremiumStore {
         switch plan {
         case .yearly: return yearly
         case .weekly: return weekly
+        case .lifetime: return lifetime
         }
     }
 
-    /// Loads both plans. A failure leaves the paywall showing a retry, never a
+    /// Loads the three plans. A failure leaves the paywall showing a retry, never a
     /// price it made up.
     func loadProducts() async {
         guard loadState != .loading else { return }
@@ -225,6 +245,7 @@ final class PremiumStore {
             for product in products { knownProducts[product.id] = product }
             yearly = loadedYearly
             weekly = products.first { $0.id == ProductID.weekly }
+            lifetime = products.first { $0.id == ProductID.lifetime }
             // Yearly is the plan every paywall leads with; without it there is
             // nothing to show but the retry.
             loadState = yearly == nil ? .failed : .loaded
@@ -269,6 +290,9 @@ final class PremiumStore {
     /// "$1.99".
     var weeklyPrice: String? { weekly?.displayPrice }
 
+    /// "$99.99", paid once.
+    var lifetimePrice: String? { lifetime?.displayPrice }
+
     /// "$29.99/year": what the free week in use turns into, from the product it was
     /// started on, since a price test's product may cost more or less than Yearly.
     /// Yearly's outside a trial (the debug harness's made-up week). Nil when that
@@ -286,7 +310,7 @@ final class PremiumStore {
         switch Plan(period: period) {
         case .yearly: return "\(displayPrice)/year"
         case .weekly: return "\(displayPrice)/week"
-        case nil: return nil
+        case .lifetime, nil: return nil
         }
     }
 
@@ -311,7 +335,7 @@ final class PremiumStore {
             holdings.append(Holding(transaction))
         }
         let entitlement = Entitlement(holdings)
-        hasSubscription = entitlement.isActive
+        holdsPremium = entitlement.isActive
         // The product before the date: "trial started" shows once the date is set,
         // and names this product's price.
         trialProduct = await product(id: entitlement.trialProductID)
@@ -328,15 +352,29 @@ final class PremiumStore {
         let revocationDate: Date?
         /// Bought with the introductory offer: a free week.
         let isFreeTrial: Bool
+        /// When a subscription's period ends; nil for Lifetime.
         let expirationDate: Date?
+        /// Shared by someone in the family rather than bought on this Apple account.
+        /// It counts the same: every product is Family Sharing.
+        var isFamilyShared = false
+        /// Redeemed with an offer code rather than bought.
+        var isFromCode = false
+        /// A subscription renewing, rather than a purchase or a redemption.
+        var isRenewal = false
 
         /// Any product in Premium's subscription group unlocks it, whatever its id or
-        /// price, unless it was refunded or revoked. The two plans also count by id,
-        /// as they always have, so nothing a subscriber holds today rests on the
-        /// group id alone.
+        /// price, and so does Lifetime, unless refunded or revoked. The three plans
+        /// count by id (Lifetime is in no group), so nothing a subscriber holds today
+        /// rests on the group id alone.
         var unlocksPremium: Bool {
             guard revocationDate == nil else { return false }
             return subscriptionGroupID == PremiumStore.subscriptionGroupID || ProductID.all.contains(productID)
+        }
+
+        /// A code that has just brought Premium: reported once, not again with each
+        /// renewal a code's free months may carry.
+        var bringsPremiumFromCode: Bool {
+            isFromCode && !isRenewal && unlocksPremium
         }
     }
 
@@ -354,6 +392,14 @@ final class PremiumStore {
             trialEndsAt = trial?.expirationDate
             trialProductID = trial?.productID
         }
+    }
+
+    /// Tells `onPremiumFromCode` of a code that has just brought Premium, with the
+    /// plan it brought.
+    private func reportIfFromCode(_ transaction: Transaction) async {
+        guard Holding(transaction).bringsPremiumFromCode else { return }
+        let plan = await product(id: transaction.productID).flatMap(Plan.init)
+        onPremiumFromCode?(plan?.rawValue ?? transaction.productID)
     }
 
     /// A product by id: one StoreKit has already handed over, or asked for.
@@ -417,18 +463,27 @@ final class PremiumStore {
             Self.log.warning("Restore did not finish: \(error.localizedDescription, privacy: .public)")
         }
         await refreshEntitlements()
-        if hasSubscription { return .restored }
+        if holdsPremium { return .restored }
         return synced ? .nothingToRestore : .failed
     }
 }
 
 extension PremiumStore.Holding {
     init(_ transaction: Transaction) {
+        let isFromCode: Bool
+        if #available(iOS 17.2, *) {
+            isFromCode = transaction.offer?.type == .code
+        } else {
+            isFromCode = transaction.offerType == .code
+        }
         self.init(productID: transaction.productID,
                   subscriptionGroupID: transaction.subscriptionGroupID,
                   revocationDate: transaction.revocationDate,
                   isFreeTrial: transaction.offerType == .introductory,
-                  expirationDate: transaction.expirationDate)
+                  expirationDate: transaction.expirationDate,
+                  isFamilyShared: transaction.ownershipType == .familyShared,
+                  isFromCode: isFromCode,
+                  isRenewal: transaction.reason == .renewal)
     }
 }
 
