@@ -9,7 +9,7 @@ They replace the plain simulator captures in `../screenshots/`.
 | 1 | Learn to draw step by step | `player-awaiting`, with a photo of a hand drawing the same palm tree on paper, the marker at the end of the leaf the phone shows |
 | 2 | Draw what you love | `paths` |
 | 3 | Keep every drawing | `sketchbook-filled`, with a photo of hands holding a sketchpad with the sunflower lesson drawn and colored on it |
-| 4 | Finish it in full color | `player-last@burger` |
+| 4 | Finish it in full color | `player-orientation@fire-hydrant`: the lesson's intro once it has built the whole drawing, lines over color |
 | 5 | Watch a line, then draw it | `preview-default@rocket` |
 | 6 | Start simple, then level up | `path-default` |
 | 7 | A finished picture in minutes | `completion-default@sailboat` |
@@ -86,13 +86,17 @@ After a UI change, build the Debug app for the simulator, install it on the two 
 gives their udids), boot them, then capture and render:
 
 ```bash
-docs/app-store/marketing/capture.sh <iphone udid> iphone player-awaiting paths sketchbook-filled player-last@burger preview-default@rocket path-default completion-default@sailboat home-progress
-docs/app-store/marketing/capture.sh <ipad udid> ipad player-awaiting paths sketchbook-filled player-last@burger preview-default@rocket path-default completion-default@sailboat home-progress
+docs/app-store/marketing/capture.sh <iphone udid> iphone player-awaiting paths sketchbook-filled preview-default@rocket path-default completion-default@sailboat home-progress
+docs/app-store/marketing/capture.sh <ipad udid> ipad player-awaiting paths sketchbook-filled preview-default@rocket path-default completion-default@sailboat home-progress
+SETTLE=25 docs/app-store/marketing/capture.sh <iphone udid> iphone player-orientation@fire-hydrant
+SETTLE=25 docs/app-store/marketing/capture.sh <ipad udid> ipad player-orientation@fire-hydrant
 node docs/app-store/marketing/render.mjs
 ```
 
-A lesson screen draws the palm tree unless another lesson follows an `@` (`player-last@burger` launches with
-`-STLesson burger`). Only shot 1 uses the palm tree, since its photo shows the same drawing; the others each show a
+A lesson screen draws the palm tree unless another lesson follows an `@` (`player-orientation@fire-hydrant`
+launches with `-STLesson fire-hydrant`). Shot 4 is the lesson's intro, which builds the drawing and then rests on
+it whole, lines at full strength over the color, so it needs `SETTLE=25`; the player's last step would show the
+earlier lines faded. Only shot 1 uses the palm tree, since its photo shows the same drawing; the others each show a
 different free lesson from another path, so the listing shows the range of drawings, not one picture four times.
 
 Each screen gets 8 seconds to settle (the player's reference picture loads last); Home needs longer: capture it

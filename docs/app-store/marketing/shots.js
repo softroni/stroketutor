@@ -113,12 +113,21 @@ export const SHOTS = [
   {
     id: 'color',
     title: 'Finish it<br><em>in full color</em>',
-    capture: 'player-last@burger',
+    capture: 'player-orientation@fire-hydrant',
     stickers: [
       { name: 'pencil:clay', x: -0.035, y: 0.58, size: 0.56, rot: -64 },
       { name: 'pencil:green', x: 0.06, y: 0.74, size: 0.56, rot: -40 },
       { name: 'sun', x: 0.99, y: 0.09, size: 0.30, rot: 10 },
     ],
+    // On the iPhone the sheet's words start further left, so the green pencil stands
+    // steeper and lower-left, clear of "A fire hydrant…".
+    iphone: {
+      stickers: [
+        { name: 'pencil:clay', x: -0.035, y: 0.58, size: 0.56, rot: -64 },
+        { name: 'pencil:green', x: -0.02, y: 0.70, size: 0.56, rot: -56 },
+        { name: 'sun', x: 0.99, y: 0.09, size: 0.30, rot: 10 },
+      ],
+    },
   },
   {
     id: 'method',
