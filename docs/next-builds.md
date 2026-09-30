@@ -89,6 +89,38 @@ review page is there, but almost nobody goes looking for it.
 - Never for the child tier.
 - Event: `rating_prompt_requested`, so the prompt's effect on ratings can be read against App Store Connect.
 
+## 5. Premium Lifetime, and redeeming a code in the app (medium, in 1.1)
+
+**Why:** Kevin wants friends and family to have Premium for good. Subscription offer codes stop at a year free, but
+since iOS 18.4 (back-deployed to 16.3) offer codes also work for one-time purchases, so a **Lifetime** product plus
+free one-time codes does it. Lifetime is also a plan anyone can buy. Decided with Kevin 2026-09-30.
+
+**The product** (Kevin creates it in App Store Connect; it is submitted with 1.1):
+- Non-consumable `com.softroni.papercoach.premium.lifetime`, **$99.99** (US base, Apple's equivalents elsewhere),
+  Family Sharing on, display name "Paper Coach Premium Lifetime", description "Every lesson on every path, for good."
+
+**Build:**
+- `PremiumStore` loads Lifetime with the two plans, and a verified, unrevoked Lifetime transaction (a non-consumable
+  in `Transaction.currentEntitlements`, bought or from a code, own or family-shared) grants Premium, alongside any
+  product of the subscription group (item 1). `Plan.lifetime`; `purchase_attempted` reports `plan: lifetime`.
+  Restore finds it. Nothing about the trial or its reminder applies to it.
+- **The plans sheet** ("View more plans", on `PaywallView` and `GrownUpPaywallView`) gets a third row, below Yearly
+  and Weekly: "Lifetime", the billed amount as its largest price ("$99.99", "one payment, no renewal"), and a buy
+  button that names it ("Buy for $99.99"). Never preselected, never on the main page: Yearly stays the plan the
+  paywall sells. Every price from StoreKit; nothing typed in.
+- **Settings › Premium › "Redeem a code"**: StoreKit's `offerCodeRedemption(isPresented:)`, then refresh the
+  entitlements. For the child tier it sits behind the parental check, like every other way to Premium. Event
+  `offer_code_sheet_opened`; a Premium that arrives by code is recognisable by `transaction.offer?.type == .code`
+  (event `premium_from_code`, with the plan).
+- `PaperCoach.storekit` gets the non-consumable at $99.99, so Xcode runs and the harness show it.
+- Tests: Lifetime grants Premium (own and family-shared); a revoked one doesn't; plan mapping; the plans sheet lists
+  three plans with Yearly selected; the redeem row is behind the check for a child.
+- Superwall's four designs are left as they are (Claude may add Lifetime to them later); App Review finds Lifetime on
+  the app's own plans sheet, which the review notes will name.
+
+**Then (Claude, after 1.1 is approved):** Kevin creates a free one-time offer code for Lifetime ("Friends & Family"),
+downloads the codes, and Claude turns them into one redeem link per person.
+
 ## What Claude does meanwhile (no app change)
 
 - Custom product pages: one for parents (children drawing, the parental check, no ads) and one for adults (calm
@@ -99,6 +131,6 @@ review page is there, but almost nobody goes looking for it.
 
 ## Order (decided 2026-09-30)
 
-**1.1 carries items 1 and 4**, with Urban's Café and everything on `main` since 1.0 (2); it is cut once all three
-are merged. The plan and its checklist: [docs/releases/1.1.md](releases/1.1.md). The price test (2) starts as soon as
+**1.1 carries items 1, 4 and 5**, with Urban's Café and everything on `main` since 1.0 (2); it is cut once all of
+them are merged (item 1 is: `508ec63`). The plan and its checklist: [docs/releases/1.1.md](releases/1.1.md). The price test (2) starts as soon as
 1.1 is on sale. Item 3 goes in the build after.
