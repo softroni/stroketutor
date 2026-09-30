@@ -22,6 +22,12 @@ below.
 
 ## 1. Premium recognises any product in its subscription group (small, do first)
 
+**Built 2026-09-30, not shipped:** on `main` in `508ec63`, for 1.1. Until 1.1 is on sale, 1.0 (2) still counts only
+the two ids, so item 2 still waits. What was built: Premium's group id is stored (`PremiumStore.subscriptionGroupID`,
+22413930, checked against App Store Connect), and the two plans' ids still count too; `Plan(_ product:)` reads the
+renewal period; "Your free week has started" now names the price of the product the week began on (it named
+Yearly's). Tests in `PremiumGroupTests`, on plain values: `SKTestSession` fails under `xcodebuild` here.
+
 **Why:** a price test needs new products. Today `PremiumStore.refreshEntitlements()` counts only the two ids in
 `PremiumStore.ProductID.all`, so a subscriber to a new product (a $39.99 yearly, say) **would be charged and still see
 the crowns**. Nothing may sell a new product until a build with this change is on sale.
