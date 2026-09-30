@@ -1,0 +1,148 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "canal-bridge",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-30T04:31:26.864Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Canal towns are full of old stone bridges. The still water turns every arch into a ring. Watch it take shape, then cross over to your own page.",
+      "textHash": "59f0ff35d1cd609867f00dd93c105afb75a706046093a01e75a2494f77a37209",
+      "durationMs": 9440
+    },
+    "waterline": {
+      "file": "waterline.m4a",
+      "text": "Start with the waterline: one long level line straight across.",
+      "textHash": "980500c213261add5411738bba09fa77a267fd2c1fe7713e2d9058718ece4e94",
+      "durationMs": 4240
+    },
+    "bridge": {
+      "file": "bridge.m4a",
+      "text": "The bridge's two ends stand on it, joined by a humped top. A second hump runs just below.",
+      "textHash": "0d2d79f72a70344e92109bc25bf31d9660e9ccdc1ce2a258749c7214fd855765",
+      "durationMs": 6000
+    },
+    "middle-arch": {
+      "file": "middle-arch.m4a",
+      "text": "In the middle, a tall round arch with a second one inside. Two short lines at the top make the wedge.",
+      "textHash": "e6391744948fe84f0891f53e395a4a9d7fe51d8e9dcc4f608ba8ea725ca8e344",
+      "durationMs": 7200
+    },
+    "middle-stones": {
+      "file": "middle-stones.m4a",
+      "text": "Three more lines down each side split the ring into stones. Each points at the middle.",
+      "textHash": "1f17fee93861eced97ac07f5ad74c9dad2451dc54c18e77c9c374531d54eed84",
+      "durationMs": 5440
+    },
+    "side-arches": {
+      "file": "side-arches.m4a",
+      "text": "Then a smaller arch on each side, doubled the same way.",
+      "textHash": "b177349b381705058d75217dcbefef7e0b9f06b0c30ce457cb9a1c980fbecb41",
+      "durationMs": 3760
+    },
+    "left-stones": {
+      "file": "left-stones.m4a",
+      "text": "The left ring gets five lines: one at the top, then two down each side.",
+      "textHash": "e4b4d13089715907610b60241feffdafb9ed00c6cc6b606cb05c748931a23ea0",
+      "durationMs": 5200
+    },
+    "right-stones": {
+      "file": "right-stones.m4a",
+      "text": "Five more on the right ring, placed the same way.",
+      "textHash": "c997ffd6fc0b6ca73386b62d530ea7f837d173d17037bc974a59457a11626ea4",
+      "durationMs": 3280
+    },
+    "quays": {
+      "file": "quays.m4a",
+      "text": "A brick wall along each bank: a flat top, a band just under it, and a straight outer end.",
+      "textHash": "be036fc8e7dced0988d0ffa0cce1d872a28e94fd141e5e68fdfc655ad67375bc",
+      "durationMs": 6480
+    },
+    "left-house": {
+      "file": "left-house.m4a",
+      "text": "A small house stands on the left bank: two sides, a sloping roof and one window.",
+      "textHash": "4a0ae8aa925fdf3a6f543a337f47fe7e8888ad143d52631e3494c338127d3b83",
+      "durationMs": 5840
+    },
+    "right-house": {
+      "file": "right-house.m4a",
+      "text": "The right house matches it, its roof sloping the other way.",
+      "textHash": "5247cadbcc56f4ec67b40281a3bff2be6635b178f5ce374dcd2e6a5c3b1b14ce",
+      "durationMs": 3680
+    },
+    "trees": {
+      "file": "trees.m4a",
+      "text": "A tall pointed tree on the left bank. On the right, a round one on a short trunk.",
+      "textHash": "3dc2a4d9b10c50d4eaa589402cf288ef8d3fe51d07f51ac921c3ff4bc26c0528",
+      "durationMs": 5520
+    },
+    "water": {
+      "file": "water.m4a",
+      "text": "Now the canal: down from the waterline's left end, across the bottom and back up.",
+      "textHash": "0471aaf250ad26c99dbe2e83b141c4205266975f4e5745b6d10d7174d9368531",
+      "durationMs": 5520
+    },
+    "mirror-arches": {
+      "file": "mirror-arches.m4a",
+      "text": "In the water each arch shows again, upside down. Its rings close into circles.",
+      "textHash": "5578d12e723ca38e02c9881a79b118777560c6aa1f9e2ad66861022922ce4df2",
+      "durationMs": 5760
+    },
+    "reflection": {
+      "file": "reflection.m4a",
+      "text": "Carry the bridge's ends down into the water. Then its mirror: level, a dip, level again.",
+      "textHash": "55c5eccf2f13828da2884e959a03c9983d723563de8ffbce67ba851fde24c2e9",
+      "durationMs": 5680
+    },
+    "ripples": {
+      "file": "ripples.m4a",
+      "text": "Three pairs of short level lines make ripples.",
+      "textHash": "16bc8413add9752d0b453ec05d21300ebe8f4420422504769308db9dfde190d1",
+      "durationMs": 3040
+    },
+    "blue": {
+      "file": "blue.m4a",
+      "text": "Blue for the water, inside the mirrored arches too, and both windows.",
+      "textHash": "f55b1f742e2fbbfdf874f95bcd2ab9137ff20978ad5c45c1c91e4ecb8e2ee87f",
+      "durationMs": 5040
+    },
+    "cream-gray": {
+      "file": "cream-gray.m4a",
+      "text": "Cream for the bands along the top, the stones and the reflection. Gray for the mirrored rings.",
+      "textHash": "50a26c1bcb148e810734a853cef1d4ab706c53053ae07796efb85f248e640313",
+      "durationMs": 6240
+    },
+    "yellow": {
+      "file": "yellow.m4a",
+      "text": "Yellow for the bridge and the left house.",
+      "textHash": "a554ae6d8bcf269c0051363a7a242befab925d1cdb0832a55cfab2d63fbdb929",
+      "durationMs": 2560
+    },
+    "red-pink": {
+      "file": "red-pink.m4a",
+      "text": "Red for the brick walls and the left roof. Pink for their reflections.",
+      "textHash": "9904296bb7ec213eb7b245507e8bbed23d3c0b9d940ef00833343771fa0c43a8",
+      "durationMs": 4560
+    },
+    "orange-brown": {
+      "file": "orange-brown.m4a",
+      "text": "Orange for the right house, brown for its roof and the trunk.",
+      "textHash": "fd5c3523faab1628ad104d6ec3ed8ab1c1626e3cc2b4deb33af18450388355cc",
+      "durationMs": 4240
+    },
+    "greens": {
+      "file": "greens.m4a",
+      "text": "Dark green for the tall tree, green for the round one.",
+      "textHash": "005022d95c42ef2aec76ac8248237e2784b3dbbb8f9f09e2a91f145089ba3cf1",
+      "durationMs": 4000
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your bridge is standing, and so is its twin in the water. Which one would you walk across?",
+      "textHash": "4819520fed6316635f5af1abfe7e98366e5f41a55786fb47d22c9a19d9f81fe3",
+      "durationMs": 5120
+    }
+  }
+}

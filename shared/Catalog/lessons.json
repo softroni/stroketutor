@@ -1050,6 +1050,16 @@
         "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-30 by the creator; two potted trees removed and margin added by hand; AI-generated for Paper Coach; owned by Softroni",
         "license": "AI-generated for Paper Coach; owned by Softroni"
       }
+    },
+    {
+      "id": "canal-bridge",
+      "status": "approved",
+      "objective": "Humpbacked bridge of three stone arches between brick quays, mirrored in the canal",
+      "reference": {
+        "file": "canal-bridge.svg",
+        "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), the creator's own design, generated 2026-09-29, margin added",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
     }
   ]
 }
