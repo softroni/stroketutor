@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
@@ -179,6 +180,31 @@ describe('social post', () => {
     const outcome = await t.studio('social check')
     expect(outcome.code).toBe(1)
     expect(outcome.stderr).toContain('UPLOAD_POST_API_KEY')
+  })
+})
+
+describe('the version on sale', () => {
+  it('posts only lessons in the catalog of the tagged build on sale, in its order', async () => {
+    // Tag a build whose catalog has no Cars path, then put the working catalog back as it was.
+    const pathsFile = path.join(t.shared, 'Catalog', 'paths.json')
+    const working = await readFile(pathsFile, 'utf8')
+    const catalog = JSON.parse(working) as { paths: { id: string }[] }
+    await writeFile(pathsFile, JSON.stringify({ ...catalog, paths: catalog.paths.filter((entry) => entry.id !== 'cars') }))
+    const git = (...args: string[]) => execFileSync('git', ['-C', t.root, '-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { stdio: 'pipe' })
+    git('init', '-q')
+    git('add', 'shared/Catalog')
+    git('commit', '-qm', 'build')
+    git('tag', '1.0(2)')
+    await writeFile(pathsFile, working)
+    await mkdir(path.join(t.root, '.studio', 'ops'), { recursive: true })
+    await writeFile(path.join(t.root, '.studio', 'ops', 'facts.json'), JSON.stringify({ versions: { live: { version: '1.0', build: '2' }, pending: null } }))
+
+    const queue = await t.json<{ total: number; coming: { lessonId: string }[] }>('social queue')
+    expect(queue.total).toBe(2)
+    expect(queue.coming.map((entry) => entry.lessonId)).toEqual(['palm-tree-4', 'simple-house'])
+    const refused = await t.studio(['social', 'post', 'classic-red-car', '--video', path.join(t.root, 'clip.mp4')])
+    expect(refused.code).toBe(1)
+    expect(refused.stderr).toContain('isn’t in the version on sale')
   })
 })
 

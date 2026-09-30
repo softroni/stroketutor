@@ -177,8 +177,9 @@ Pinterest, X), through [Upload-Post](https://app.upload-post.com), profile `soft
 video and posts it (`studio social …`; the studio-cli skill, *Posting lesson videos*, has the details).
 
 - **Order:** lesson 1 of every path, then lesson 2 of every path, and so on (`social queue`), so the 30 free
-  lessons go out first and no two posts in a row are from the same path. A lesson Lina hasn't fully recorded
-  is skipped until she has.
+  lessons go out first and no two posts in a row are from the same path. Only lessons in the version on sale
+  (its tag's catalog), so a lesson that is only on main waits for its release. A lesson Lina hasn't fully
+  recorded is skipped until she has.
 - **When:** the launch agent `docs/ops/com.softroni.papercoach-social.plist` runs `social next --log` at 17:00
   Central. It posts at most once in 20 hours, and logs what went where on the Today page.
 - **Never before Paper Coach is on sale:** every video ends on the App Store. `social next` refuses a public

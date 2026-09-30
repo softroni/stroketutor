@@ -23,6 +23,7 @@ import {
   type PlatformResult,
   type PostState,
   type QueueEntry,
+  type QueuePath,
   type SocialRecord,
   type SocialSettings,
 } from '../../server/social/posts'
@@ -118,14 +119,36 @@ interface Curriculum {
   tutorials: Map<string, { tutorial: Tutorial; published: boolean }>
 }
 
+/**
+ * The paths of the version on sale, from the tag of its build (`1.0(2)`), so a
+ * video never sends people to a lesson that is only on main. Null when that is
+ * unknown here: no `facts.json`, nothing live, or no such tag.
+ */
+async function pathsOnSale(ctx: Context): Promise<QueuePath[] | null> {
+  const text = await readFile(path.join(repoDirOf(ctx), '.studio', 'ops', 'facts.json'), 'utf8').catch(() => null)
+  const live = text ? (JSON.parse(text) as { versions?: { live?: { version?: string; build?: string } | null } }).versions?.live : null
+  if (!live?.version || !live.build) return null
+  try {
+    const { stdout } = await promisify(execFile)('git', ['-C', repoDirOf(ctx), 'show', `${live.version}(${live.build}):shared/Catalog/paths.json`], { maxBuffer: 16 << 20 })
+    return (JSON.parse(stdout) as { paths: QueuePath[] }).paths
+  } catch {
+    return null
+  }
+}
+
 async function curriculum(ctx: Context): Promise<Curriculum> {
   const library = await ctx.library()
-  const paths = library.catalog?.paths ?? []
+  const onSale = await pathsOnSale(ctx)
+  const paths = onSale ?? library.catalog?.paths ?? []
+  const inApp = onSale ? new Set(onSale.flatMap((entry) => entry.lessonIds)) : null
   return {
     order: postingOrder(paths),
     titles: new Map(paths.map((entry) => [entry.id, { title: entry.title, count: entry.lessonIds.length }])),
     tutorials: new Map(
-      [...library.tutorials.values()].map((entry) => [entry.id, { tutorial: entry.tutorial, published: entry.state === 'published' || entry.state === 'published-edited' }]),
+      [...library.tutorials.values()].map((entry) => [
+        entry.id,
+        { tutorial: entry.tutorial, published: (entry.state === 'published' || entry.state === 'published-edited') && (inApp?.has(entry.id) ?? true) },
+      ]),
     ),
   }
 }
@@ -188,7 +211,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   const lessons = known ?? (await curriculum(ctx))
   const lesson = lessons.tutorials.get(lessonId)
   if (!lesson) throw new CliError(`There is no lesson "${lessonId}".`)
-  if (!lesson.published && !isPrivate) throw new CliError(`“${lesson.tutorial.title}” isn’t published, so it isn’t in the app. Publish it first, or post with --private to test.`)
+  if (!lesson.published && !isPrivate) throw new CliError(`“${lesson.tutorial.title}” isn’t in the version on sale. Post it once a version with it is, or with --private to test.`)
 
   if (!isPrivate && !dryRun && values['before-launch'] !== true) {
     const sale = await onSale(ctx)
@@ -372,7 +395,7 @@ async function logToToday(ctx: Context, text: string): Promise<void> {
   await promisify(execFile)('python3', [script, 'log', text]).catch((error: unknown) => ctx.out.warn(`today.py log failed: ${String(error)}`))
 }
 
-/** The next lesson to post: first in the posting order, published, never posted, and fully recorded. */
+/** The next lesson to post: first in the posting order, in the version on sale, never posted, and fully recorded. */
 async function nextLesson(ctx: Context, lessons: Curriculum, posted: Set<string>): Promise<{ entry: QueueEntry | null; skipped: { lessonId: string; missing: string[] }[] }> {
   const skipped: { lessonId: string; missing: string[] }[] = []
   for (const entry of lessons.order) {
@@ -483,7 +506,7 @@ export const socialCommands: Command[] = [
       const lessons = await curriculum(ctx)
       const { entry, skipped } = await nextLesson(ctx, lessons, postedLessons(records))
       for (const skip of skipped) ctx.out.warn(`Skipped “${skip.lessonId}”: Lina hasn’t recorded ${plural(skip.missing.length, 'step')} (voice narrate ${skip.lessonId}).`)
-      if (!entry) throw new CliError('Every published, narrated lesson has been posted.')
+      if (!entry) throw new CliError('Every narrated lesson in the version on sale has been posted.')
       const outcome = await postLesson(ctx, entry.lessonId, args.values, lessons)
       if (args.values.log === true && !outcome.dryRun) await logToToday(ctx, logLine(outcome))
       ctx.out.result(outcome, describePost)

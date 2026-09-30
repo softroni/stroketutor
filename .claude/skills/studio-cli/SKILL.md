@@ -455,8 +455,9 @@ Reels, Pinterest, X) through Upload-Post, one request for every platform (`web/s
   Page ids to set.
 - **Order** (`social queue`): lesson 1 of every path in curriculum order, then lesson 2 of every path,
   and so on, so the 30 free lessons go out before any Premium one and two posts in a row never come
-  from the same path. Only published lessons with every step recorded; the rest are skipped with a
-  warning.
+  from the same path. Only lessons in the version on sale (the catalog at the tag of the live build in
+  `.studio/ops/facts.json`, e.g. `1.0(2)`; the working catalog when that is unknown) with every step
+  recorded; unrecorded ones are skipped with a warning.
 - `social post <id>` renders the lesson now (as `lessons video` does) unless `--video` names a file;
   `social next` posts the next lesson in the queue, at most once in 20 hours unless `--again`. Both
   wait for every platform to finish (up to 20 minutes) and print each post's link or error; `--log`
