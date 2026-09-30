@@ -16,7 +16,8 @@ thing behind. The learners are grown-ups who never learned to draw, so she is wa
 little less playful than on the children's paths, never cute and never technical.
 
 **Where a picture differs from its prompt, the words follow the picture.** The creator changed
-`shop-front`: a pale green tree was added behind the shop's left side.
+`shop-front`: a pale green tree was added behind the shop's left side. `balcony`: the flower box's
+shadow was taken out, and the railing has six bars, the doors' sides standing in for two more.
 
 ## Rules
 
@@ -84,3 +85,28 @@ knob; outside on the left a potted bush, and a pale green tree behind the shop's
 - tree: "Last, a tree behind the shop. Its bumps start on the wall and end on the wall."
 - colors: "Color the wall dark green." / "Green for the lid, the panels, the bush and one book. The tree is pale green." / "Red and cream for the stripes, and a book of each. The inside of the sign is cream." / "Yellow for the two frames and the knob. Both panes of glass are blue." / "The door is brown. Orange for its panel, the pot and a book. The tall book is purple."
 - outro: "Your shop is open for business. What would you put in the window?"
+
+### balcony
+
+A yellow wall with a pair of green doors under a pointed hood: a band with a low triangle on it,
+a pane with two shine lines in each door and two round knobs. The doors stand on a cream slab held
+up by two orange brackets; a railing of one level rail and six bars stands in front of them (the
+doors' sides run down behind it and look like two more bars). On the right a flower box with a
+bumpy bush and three red flowers; up the left a climbing plant with a winding stem, two red
+flowers and four leaves. No shadow: it was taken out of the picture.
+
+- intro: "Look up in any old town and you'll spot balconies. This one has green doors, a pointed hood and a rail to lean on. Watch it come out, then step onto your own."
+- wall: "The wall comes first: one big box, a little taller than wide."
+- slab: "Low down, a long stone slab runs almost from side to side."
+- brackets: "Two brackets hold it up. Straight on the outside, curved on the inside."
+- doors: "The doors stand on the slab. A tall box, then one line down the middle."
+- hood: "Over the doors, a flat band with a low pointed roof on top."
+- glass: "A tall pane in each door, each with two short slanted lines."
+- knobs: "Two round knobs just below the glass, one each side of the middle."
+- rail: "Now the rail, one level line across the doors. A bar drops from each end."
+- bars: "Four more bars in front of the doors, spaced out evenly."
+- flower-box: "On the right, a box a little wider at the top. A bush with three round flowers sits in it."
+- vine-stem: "Up the left side, a winding stem with a round flower halfway and one at the top."
+- leaves: "Four leaves grow off the stem, two on each side."
+- colors: "Color the wall yellow, and the two knobs as well." / "Green for the doors, the bush and the four leaves." / "Cream for the slab and the hood. The glass is blue." / "Orange for the brackets and the box. All five flowers are red."
+- outro: "Your balcony is ready. Who would you wave to from up there?"
