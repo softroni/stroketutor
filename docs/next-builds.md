@@ -9,14 +9,16 @@ the version. Claude updates *The numbers* as real data arrives.
 
 | | Today | Why it matters |
 |---|---|---|
-| Yearly plan | $19.99, 7-day free trial | about **$17** a year after Apple's cut (Small Business Program) |
-| Weekly plan | $1.99, no trial | the anchor; some buy it, most shouldn't |
+| Yearly plan | **$29.99** from 2026-10-02 ($19.99 before), 7-day free trial | about **$25.50** a year after Apple's cut (Small Business Program) |
+| Weekly plan | **$3.99** from 2026-10-02 ($1.99 before), no trial | the anchor; some buy it, most shouldn't |
 | Cost of an install from Apple Ads | unknown; GeoBlitz paid **$1.61** on its one German day, and drawing in the US is more crowded (Simply Draw has 784k ratings) | assume **$1.50–3** until Paper Coach's own numbers replace it |
-| Ads pay for themselves when | one in about **8** ad installs becomes a yearly subscriber (at $2 an install) | a few percent is common, one in eight is rare |
+| Ads pay for themselves when | one in about **13** ad installs becomes a yearly subscriber (at $2 an install; one in 8 at $19.99) | hard, but within reach of a good funnel |
 
-At $19.99 the ads are unlikely to pay for themselves, and the budget rule (spend only what the ads earn back) would
-stop them after the first $150. The price, and who the offer reaches, matter more than paywall wording. Hence the
-order below.
+At $19.99 the ads were unlikely to pay for themselves, and the budget rule (spend only what the ads earn back) would
+have stopped them after the first $150. So from 2026-10-02 the prices are $29.99 a year and $3.99 a week (Kevin's
+call, 2026-09-30, from what the category charges: Drawing Desk $39.99–49.99 a year, ArtWorkout $29.99–69.99, Simply
+Draw about $60–120). The price, and who the offer reaches, still matter more than paywall wording. Hence the order
+below.
 
 ## 1. Premium recognises any product in its subscription group (small, do first)
 
@@ -41,13 +43,13 @@ the crowns**. Nothing may sell a new product until a build with this change is o
 **Why:** the biggest lever on whether ads can pay, and on revenue from every learner who does subscribe.
 
 **Plan:**
-- Kevin picks the prices. Suggested: yearly **$29.99** and **$39.99** against $19.99, each with the same 7-day free
-  trial, in the same subscription group (new product ids such as `…premium.yearly.b` and `…premium.yearly.c`).
+- Kevin picks the prices. Suggested: yearly **$39.99** (and perhaps $49.99) against today's $29.99, each with the
+  same 7-day free trial, in the same subscription group (new product ids such as `…premium.yearly.b`).
 - Claude adds them in App Store Connect, submits them with the next version, and runs the test in Superwall (13+
-  learners): one paywall design, three prices, equal shares.
+  learners): one paywall design, two or three prices, equal shares.
 - **Judge by revenue per paywall open over at least 14 days**, so trials have time to turn paid (Apple's subscription
   event report, read by `docs/ops/today.py`). Not by trial starts: a lower price always wins on trials.
-- The app's own paywall (children's grown-ups) keeps $19.99 until the test has a winner; then the winner goes there
+- The app's own paywall (children's grown-ups) keeps $29.99 until the test has a winner; then the winner goes there
   too, as an app change.
 
 ## 3. The grown-up's door, where a grown-up is likely to be (medium)

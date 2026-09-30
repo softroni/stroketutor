@@ -896,7 +896,7 @@ protected tier needs it.
   every time (since 2026-09-27; before that, a drawer came first): the paywall, or for a child the grown-up's gate. A
   subscriber sees no crowns.
 - **StoreKit 2** (`PaperCoach/Stores/PremiumStore.swift`): one group, `com.softroni.papercoach.premium.yearly` (with
-  a one-week free introductory offer, $19.99/year) and `…premium.weekly` ($1.99/week, no trial), both Family Sharing. `PaperCoach.storekit` at the
+  a one-week free introductory offer, $29.99/year from 2026-10-02, $19.99 before) and `…premium.weekly` ($3.99/week from 2026-10-02, $1.99 before; no trial), both Family Sharing. `PaperCoach.storekit` at the
   repository root mirrors them at those prices; choose it under Scheme › Run › Options › StoreKit
   Configuration. Premium belongs to the Apple account, so every learner on the device shares it.
 - **Testing without buying** (debug builds only): Settings › Premium › "Premium for testing" switches between

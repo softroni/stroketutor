@@ -17,8 +17,8 @@ The record and its copy, as set on 2026-09-25 through the App Store Connect API 
 | Privacy policy | https://softroni.com/privacy-policy |
 | Support / marketing | https://softroni.com/support · https://softroni.com |
 | Subscription group | Paper Coach Premium (`22413930`), shown in the app as "Paper Coach" |
-| Yearly | `com.softroni.papercoach.premium.yearly` (`6816231377`), $19.99, 1-week free trial, Family Sharing, level 1 |
-| Weekly | `com.softroni.papercoach.premium.weekly` (`6816231413`), $1.99, no offer, Family Sharing, level 2 |
+| Yearly | `com.softroni.papercoach.premium.yearly` (`6816231377`), $29.99 from 2026-10-02 ($19.99 before; existing subscribers keep it), 1-week free trial, Family Sharing, level 1 |
+| Weekly | `com.softroni.papercoach.premium.weekly` (`6816231413`), $3.99 from 2026-10-02 ($1.99 before; existing subscribers keep it), no offer, Family Sharing, level 2 |
 
 ## Done through the API (2026-09-25)
 
@@ -86,8 +86,8 @@ REACHING THE PAYWALL
 On a fresh install the guided first run leads through the first lesson, the sketchbook and "More coming" to the paywall. Afterwards: Settings > Premium, or tap any crowned lesson. The one way past the paywall without buying is the link "Continue with free lessons", right under the purchase button. When a purchase starts the free trial, one screen confirms the dates (the reminder two days before the trial ends, and the day billing starts) and, only if notification permission was never asked, its single "Continue" button shows the system prompt. In the sandbox, where the 7-day trial lasts a few minutes, the reminder's day has already passed, so that screen names only when billing starts and asks for no permission.
 
 PRODUCTS (subscription group "Paper Coach Premium", both Family Sharing)
-- com.softroni.papercoach.premium.yearly: auto-renewing, $19.99 per year; eligible new subscribers get the displayed 7-day free trial. This is the recommended plan, shown first.
-- com.softroni.papercoach.premium.weekly: auto-renewing, $1.99 per week; no introductory offer; under "View more plans".
+- com.softroni.papercoach.premium.yearly: auto-renewing, $29.99 per year; eligible new subscribers get the displayed 7-day free trial. This is the recommended plan, shown first.
+- com.softroni.papercoach.premium.weekly: auto-renewing, $3.99 per week; no introductory offer; under "View more plans".
 All displayed prices come from StoreKit. The paywall shows the billed amount as the largest pricing element, names the price on the purchase button, states the trial length and the price charged after it, and carries Restore Purchases, Terms of Use (Apple's standard EULA) and the Privacy Policy. Restore is also in Settings.
 
 SUPERWALL PAYWALLS (learners 13 and over)
@@ -100,13 +100,13 @@ While we compare designs, Superwall may show one of four paywalls instead of the
 **Yearly** (`6816231377`):
 
 ```
-Premium Yearly, $19.99 per year: the recommended plan, shown first on every paywall. Eligible new subscribers get a 7-day free trial, and the screen after the purchase confirms the day billing starts. To reach a paywall: on a fresh install choose 18+ during onboarding and follow the first run to the offer; afterwards use Settings > Premium, or tap a crowned lesson and then "See Premium". Learners 13 and over may get one of four Superwall paywall designs (listed in the app's review notes); every one reads prices from StoreKit, names the billed price on its buy button, and shows "Continue with free lessons", Restore, Terms of Use and the Privacy Policy. For a learner under 13 the paywall sits behind "For grown-ups" and a parental check (a sum written in words).
+Premium Yearly, $29.99 per year: the recommended plan, shown first on every paywall. Eligible new subscribers get a 7-day free trial, and the screen after the purchase confirms the day billing starts. To reach a paywall: on a fresh install choose 18+ during onboarding and follow the first run to the offer; afterwards use Settings > Premium, or tap a crowned lesson and then "See Premium". Learners 13 and over may get one of four Superwall paywall designs (listed in the app's review notes); every one reads prices from StoreKit, names the billed price on its buy button, and shows "Continue with free lessons", Restore, Terms of Use and the Privacy Policy. For a learner under 13 the paywall sits behind "For grown-ups" and a parental check (a sum written in words).
 ```
 
 **Weekly** (`6816231413`):
 
 ```
-Premium Weekly, $1.99 per week, no introductory offer. On the app's own paywall and in Superwall designs 1 and 3 it is under "View more plans"; designs 2 and 4 show both plans as cards. To reach a paywall: on a fresh install choose 18+ during onboarding and follow the first run to the offer; afterwards use Settings > Premium, or tap a crowned lesson and then "See Premium". Learners 13 and over may get one of four Superwall paywall designs (listed in the app's review notes); every one reads prices from StoreKit, names the billed price on its buy button, and shows "Continue with free lessons", Restore, Terms of Use and the Privacy Policy. For a learner under 13 the paywall sits behind "For grown-ups" and a parental check (a sum written in words).
+Premium Weekly, $3.99 per week, no introductory offer. On the app's own paywall and in Superwall designs 1 and 3 it is under "View more plans"; designs 2 and 4 show both plans as cards. To reach a paywall: on a fresh install choose 18+ during onboarding and follow the first run to the offer; afterwards use Settings > Premium, or tap a crowned lesson and then "See Premium". Learners 13 and over may get one of four Superwall paywall designs (listed in the app's review notes); every one reads prices from StoreKit, names the billed price on its buy button, and shows "Continue with free lessons", Restore, Terms of Use and the Privacy Policy. For a learner under 13 the paywall sits behind "For grown-ups" and a parental check (a sum written in words).
 ```
 
 ## Listing copy (already on the record)
@@ -138,8 +138,9 @@ No tablet, no stylus, no talent required. Paper Coach is for anyone who says "I 
 
 FREE AND PREMIUM
 Every path is open, and the first three lessons of each path are free. Paper Coach Premium unlocks every lesson on every path:
-• Yearly: $19.99 per year, with a 7-day free trial for new subscribers
-• Weekly: $1.99 per week
+• Yearly, with a 7-day free trial for new subscribers
+• Weekly
+(No prices here from 1.1 on: 1.0's description named $19.99 and $1.99, which went stale on 2026-10-02. The App Store and the paywall always show the real price.)
 Both plans can be shared with your family through Family Sharing.
 
 Payment is charged to your Apple Account when you confirm the purchase, or when the free trial ends. The subscription renews automatically unless it is canceled at least 24 hours before the end of the current period. You can manage or cancel it in your Apple Account settings at any time. Any unused part of a free trial is forfeited when you buy a subscription.
