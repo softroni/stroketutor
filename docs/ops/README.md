@@ -60,8 +60,8 @@ created it, which passes anything urgent to Kevin's phone.
 5. A/B tests and Apple Ads: apply their rules; record every change in the log.
    Social: read the last lines of `.studio/social/posts.jsonl`; a platform that failed goes in the log, and an
    account Upload-Post says needs reconnecting goes under "Needs you".
-6. Write `.studio/ops/notes.json` (headline, needsYou, working, PostHog numbers, experiment results,
-   ads notes, next run), then `today.py publish` and `today.py archive`.
+6. Write `.studio/ops/notes.json` (headline, needsYou, working, PostHog numbers and the onboarding funnel,
+   experiment results, ads notes, next run, dates coming up), then `today.py publish` and `today.py archive`.
 7. Finish with a summary of at most five lines: what changed, what Claude did, and what needs Kevin.
 
 **The heartbeat** runs `today.py check` and stops there if nothing changed. A rejection, an approval
@@ -75,7 +75,7 @@ main checkout, whichever worktree ran the script:
 | File | Written by | What |
 |---|---|---|
 | `facts.json` | `collect` | App Store Connect versions and review, reviews, rating, sales, Apple Ads, Superwall tests |
-| `notes.json` | Claude, by hand | headline, `needsYou`, `working`, `numbers` (PostHog), experiment and ads notes, `next` |
+| `notes.json` | Claude, by hand | headline, `needsYou`, `working`, `numbers` (PostHog), `funnel`, experiment and ads notes, `next`, `upcoming` |
 | `log.jsonl` | `log` | one line per thing done, never edited or deleted |
 | `state.json` | `check` | what the last check saw, to tell what changed |
 | `status.json` | `publish` | what the page shows (`web/src/studio/today.ts` has the shape) |
@@ -97,6 +97,30 @@ characters. The page shows the newest five, cut to two lines, and the rest on "S
 
 `notes.json` numbers replace a collected number of the same label. Keep the headline to two
 sentences, and "Needs you" to what only Kevin can do.
+
+**What the page shows, top to bottom:** the day and Claude's headline; the **release track** (every version from
+Prepared to On sale, the one with Apple at its station with how long it has waited, and the phased release's day
+of seven); Needs you, each item with how long it has waited (`since`, a day); Coming up; the numbers, each with
+where it comes from and, given 14 days, a sparkline and the last seven days against the seven before; the
+funnel; what Claude is on, as a board by `state`; the log by day; Apple Ads against the spend ceiling; reviews;
+and the paywall tests, with how close each is to the 300 opens a decision needs and which design leads. A strip
+of the last two weeks opens any day kept, with how much was logged that day.
+
+- **The App Store's state is read fresh at every `publish`** (so at every `log` too): a submission or an
+  approval shows at once, not at the next `collect`. Without App Store Connect, the last collect's stands.
+- **Optional `notes.json` parts** the page draws when they are there:
+  - `"source"` on a number: `"PostHog"`, so the tile says where it comes from (collected ones already do).
+  - `"funnel": {"period": "last 7 days", "steps": [{"label": "First open", "value": 412}, …]}`: learners at
+    each step from a first open to a purchase, from the dashboard's onboarding funnel, first step first.
+  - `"upcoming": [{"at": "2026-10-02", "what": "Prices rise to $29.99 a year and $3.99 a week"}]`: dates worth
+    seeing coming (a day, or a date and time): a price change, a reminder, a phased release reaching everyone.
+    `next` joins them; anything past drops off by itself.
+- **A log line may say what it is about:** `today.py log --kind release "…"`, or `{"text": "…", "kind":
+  "release"}` in `addLog`. Kinds: `release`, `review`, `ads`, `tests`, `social`, `build`, `money`, `learners`,
+  `check`. Without one the page reads it from the opening words, so lead with the subject ("Apple approved…",
+  "Apple Ads: …").
+- To look at the page with other data (a sample, or a past day from `ops-history`) without touching
+  `.studio/ops`, start the Studio with `STUDIO_OPS_DIR=/that/folder npm run dev`.
 
 ## Shipping a fix
 

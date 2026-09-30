@@ -5,6 +5,7 @@
     python3 docs/ops/today.py collect    # everything: App Store Connect, sales, Apple Ads, Superwall
     python3 docs/ops/today.py publish    # facts.json + notes.json + the log -> status.json (the Today page)
     python3 docs/ops/today.py log "Resubmitted 1.0.1 (4) after the 2.1 rejection"
+    python3 docs/ops/today.py log --kind release "Apple approved 1.1 (4); tagged and merged"
     python3 docs/ops/today.py show       # the status as it stands, for a session to read
     python3 docs/ops/today.py archive    # commit and push the day's history (branch ops-history)
 
@@ -12,9 +13,10 @@ Everything lives in .studio/ops/ of the main checkout (gitignored, on this Mac),
 worktree runs the script:
 
     facts.json   what `collect` found (overwritten each run)
-    notes.json   what Claude says: headline, needs-you, working-on, PostHog numbers, next run, and
-                 `addLog`: lines for the log, which `publish` moves into log.jsonl (so a scheduled run
-                 logs with a file edit, not with a command whose text changes every time)
+    notes.json   what Claude says: headline, needs-you, working-on, PostHog numbers and funnel, next
+                 run, dates coming up, and `addLog`: lines for the log, which `publish` moves into
+                 log.jsonl (so a scheduled run logs with a file edit, not with a command whose text
+                 changes every time)
     log.jsonl    one line per thing that happened, appended by `log` or from `addLog`
     state.json   what `check` saw last, so it can say what changed
     status.json  what the Today page reads, made by `publish`
@@ -52,11 +54,15 @@ LOCAL_TZ = dt.timezone(dt.timedelta(hours=-5), "CDT")  # the creator's clock (Ce
 # App Store Connect states, as a person would say them, and how they should feel.
 STATES = {
     "PREPARE_FOR_SUBMISSION": ("Being prepared", "neutral"),
+    "READY_FOR_REVIEW": ("Ready to submit", "neutral"),
+    "WAITING_FOR_EXPORT_COMPLIANCE": ("Waiting for export compliance", "attention"),
     "WAITING_FOR_REVIEW": ("Waiting for review", "waiting"),
     "IN_REVIEW": ("In review", "waiting"),
+    "ACCEPTED": ("Approved", "good"),
     "PENDING_DEVELOPER_RELEASE": ("Approved, waiting to be released", "good"),
     "PENDING_APPLE_RELEASE": ("Approved, Apple releasing", "good"),
     "PROCESSING_FOR_APP_STORE": ("Approved, processing", "good"),
+    "PROCESSING_FOR_DISTRIBUTION": ("Approved, processing", "good"),
     "READY_FOR_SALE": ("On sale", "good"),
     "READY_FOR_DISTRIBUTION": ("On sale", "good"),
     "REJECTED": ("Rejected", "bad"),
@@ -66,8 +72,11 @@ STATES = {
     "DEVELOPER_REMOVED_FROM_SALE": ("Removed from sale", "attention"),
     "REMOVED_FROM_SALE": ("Removed from sale", "bad"),
     "REPLACED_WITH_NEW_VERSION": ("Replaced", "neutral"),
+    "REPLACED_WITH_NEW_BUILD": ("Build replaced", "neutral"),
 }
 LIVE_STATES = {"READY_FOR_SALE", "READY_FOR_DISTRIBUTION", "DEVELOPER_REMOVED_FROM_SALE", "REMOVED_FROM_SALE"}
+# What a log line can say it is about (`log --kind`); without one the page reads it from the words.
+LOG_KINDS = {"release", "review", "ads", "tests", "social", "build", "money", "learners", "check"}
 
 
 # ---------------------------------------------------------------- where things are
@@ -145,20 +154,34 @@ def asc_get(path: str, role: str = "manager", accept: str = "application/json"):
 
 
 def app_versions() -> dict:
-    """The version on sale and the one with Apple, with their builds."""
-    data = asc_get(f"/v1/apps/{APP_ID}/appStoreVersions?limit=10&include=build&fields[builds]=version")
-    builds = {item["id"]: item["attributes"]["version"] for item in data.get("included", []) if item["type"] == "builds"}
+    """The version on sale and the one with Apple, with their builds and phased releases."""
+    data = asc_get(
+        f"/v1/apps/{APP_ID}/appStoreVersions?limit=10&include=build,appStoreVersionPhasedRelease&fields[builds]=version"
+    )
+    included = data.get("included", [])
+    builds = {item["id"]: item["attributes"]["version"] for item in included if item["type"] == "builds"}
+    phased = {
+        item["id"]: {
+            "state": item["attributes"].get("phasedReleaseState"),
+            "day": item["attributes"].get("currentDayNumber") or 0,
+        }
+        for item in included
+        if item["type"] == "appStoreVersionPhasedReleases"
+    }
     live, pending = None, None
     for version in data["data"]:
         attributes = version["attributes"]
         state = attributes.get("appVersionState") or attributes.get("appStoreState")
-        build_ref = (version.get("relationships", {}).get("build", {}) or {}).get("data")
+        relationships = version.get("relationships", {})
+        build_ref = (relationships.get("build", {}) or {}).get("data")
+        phased_ref = (relationships.get("appStoreVersionPhasedRelease", {}) or {}).get("data")
         entry = {
             "id": version["id"],
             "version": attributes["versionString"],
             "build": builds.get(build_ref["id"], "?") if build_ref else "?",
             "code": state,
             "created": attributes.get("createdDate"),
+            "phased": phased.get(phased_ref["id"]) if phased_ref else None,
         }
         if state in LIVE_STATES:
             live = live or entry
@@ -398,12 +421,17 @@ def check() -> list[dict]:
     return changes
 
 
-def append_log(text: str) -> None:
+def append_log(text: str, kind: str | None = None) -> None:
     if len(text) > 140:
         print(f"today.py: that log line is {len(text)} characters; keep them under 120 (docs/ops/README.md)", file=sys.stderr)
+    entry = {"at": now().isoformat(), "text": text}
+    if kind in LOG_KINDS:
+        entry["kind"] = kind
+    elif kind:
+        print(f"today.py: {kind!r} is not a log kind ({', '.join(sorted(LOG_KINDS))}); logged without one", file=sys.stderr)
     OPS.mkdir(parents=True, exist_ok=True)
     with open(OPS / "log.jsonl", "a") as log:
-        log.write(json.dumps({"at": now().isoformat(), "text": text}, ensure_ascii=False) + "\n")
+        log.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
 def read_log(limit: int = 40) -> list[dict]:
@@ -419,7 +447,32 @@ def build(entry: dict | None, since: str | None) -> dict | None:
     if not entry:
         return None
     label, tone = STATES.get(entry["code"], (entry["code"].replace("_", " ").capitalize(), "neutral"))
-    return {"version": entry["version"], "build": entry["build"], "state": label, "tone": tone, "since": since}
+    return {
+        "version": entry["version"],
+        "build": entry["build"],
+        "state": label,
+        "tone": tone,
+        "since": since,
+        "code": entry["code"],
+        "phased": entry.get("phased"),
+    }
+
+
+def seen_since(state: dict, slot: str, entry: dict | None) -> str | None:
+    """When `check` first saw this version in this state; None if what it saw was another version or state."""
+    seen = state.get(slot) or {}
+    if not entry or seen.get("key") != f"{entry['version']} ({entry['build']})" or seen.get("code") != entry["code"]:
+        return None
+    return seen.get("since")
+
+
+def short_day(day: str) -> str:
+    """2026-09-29 as "Sep 29"; anything else as it came (a report's date format is the report's)."""
+    try:
+        date = dt.date.fromisoformat(str(day)[:10])
+    except ValueError:
+        return str(day)
+    return f"{date:%b} {date.day}"
 
 
 def publish() -> dict:
@@ -427,18 +480,27 @@ def publish() -> dict:
     notes = read_json("notes.json", {})
     pending = notes.pop("addLog", None)
     if pending:
-        for line in [pending] if isinstance(pending, str) else pending:
-            append_log(str(line))
+        for line in [pending] if isinstance(pending, (str, dict)) else pending:
+            if isinstance(line, dict):
+                append_log(str(line.get("text", "")), line.get("kind"))
+            else:
+                append_log(str(line))
         write_json("notes.json", notes)
     state = read_json("state.json", {})
     versions = facts.get("versions") or {}
     submission = facts.get("submission") or {}
+    # The App Store's state as it is now, so the page never lags a submission or an approval made
+    # since the last collect. Two quick calls; without them, the last collect's answer stands.
+    try:
+        versions, submission = app_versions(), latest_submission() or {}
+    except Exception as error:
+        print(f"today.py: App Store Connect not reached ({error}); versions as of the last collect", file=sys.stderr)
 
     pending = versions.get("pending")
-    pending_since = (state.get("pending") or {}).get("since")
+    pending_since = seen_since(state, "pending", pending)
     if pending and pending["code"] == "WAITING_FOR_REVIEW" and submission.get("submitted"):
         pending_since = submission["submitted"]
-    live_since = (state.get("live") or {}).get("since")
+    live_since = seen_since(state, "live", versions.get("live"))
 
     numbers = []
     sales = facts.get("sales") or {}
@@ -449,18 +511,20 @@ def publish() -> dict:
             {
                 "label": "Installs",
                 "value": str(last["downloads"]),
-                "period": f"on {last['day']}",
+                "period": short_day(last["day"]),
                 "detail": f"14 days: {sum(day['downloads'] for day in days)}",
                 "series": [{"day": day["day"], "value": day["downloads"]} for day in days],
+                "source": "App Store",
             }
         )
         numbers.append(
             {
                 "label": "Proceeds",
                 "value": f"${last['proceeds_usd']:.2f}",
-                "period": f"on {last['day']}",
+                "period": short_day(last["day"]),
                 "detail": f"14 days: ${sum(day['proceeds_usd'] for day in days):.2f}",
                 "series": [{"day": day["day"], "value": day["proceeds_usd"]} for day in days],
+                "source": "App Store",
             }
         )
     ads = facts.get("ads") or {}
@@ -469,9 +533,10 @@ def publish() -> dict:
             {
                 "label": "Ad spend",
                 "value": f"${ads['days'][-1]['spend']:.2f}",
-                "period": f"on {ads['days'][-1]['day']}",
+                "period": short_day(ads["days"][-1]["day"]),
                 "detail": f"14 days: ${sum(day['spend'] for day in ads['days']):.2f}",
                 "series": [{"day": day["day"], "value": round(day["spend"], 2)} for day in ads["days"]],
+                "source": "Apple Ads",
             }
         )
     # Claude's numbers (PostHog, reasoned ones) come after, and replace a collected one of the same label.
@@ -538,6 +603,7 @@ def publish() -> dict:
         "headline": notes.get("headline") or "No headline yet.",
         "app": {"live": build(versions.get("live"), live_since), "inReview": build(pending, pending_since)},
         "numbers": numbers,
+        "funnel": notes.get("funnel"),
         "needsYou": notes.get("needsYou", []),
         "working": notes.get("working", [])
         + [{"title": "A source failed in the last collect", "detail": error, "state": "doing"} for error in errors],
@@ -553,6 +619,7 @@ def publish() -> dict:
             {"label": "Apple Ads", "url": "https://app-ads.apple.com/cm/app/20605790/report/campaigns"},
         ],
         "next": notes.get("next"),
+        "upcoming": notes.get("upcoming", []),
     }
     write_json("status.json", status)
     (OPS / "history").mkdir(exist_ok=True)
@@ -589,6 +656,11 @@ def show() -> None:
         print(f"\n{title}:")
         for item in items:
             print(f"  - [{item.get('state', '')}] {item['title']}" + (f": {item['detail']}" if item.get("detail") else ""))
+    upcoming = ([status["next"]] if status.get("next") else []) + status.get("upcoming", [])
+    if upcoming:
+        print("\nComing up:")
+        for event in upcoming:
+            print(f"  {event['at']}  {event['what']}")
     print("\nLog:")
     for entry in status["log"][:10]:
         print(f"  {entry['at']}  {entry['text']}")
@@ -607,10 +679,13 @@ def main(argv: list[str]) -> int:
         status = publish()
         print(f"published {OPS / 'status.json'} ({status['updated']})")
     elif command == "log":
-        if len(argv) < 3:
-            print('usage: today.py log "what happened"', file=sys.stderr)
+        words, kind = argv[2:], None
+        if words[:1] == ["--kind"]:
+            kind, words = (words[1] if len(words) > 1 else None), words[2:]
+        if not words:
+            print('usage: today.py log [--kind release|review|ads|tests|social|build|money|learners|check] "what happened"', file=sys.stderr)
             return 2
-        append_log(" ".join(argv[2:]))
+        append_log(" ".join(words), kind)
         if (OPS / "status.json").exists():
             publish()
         print("logged")

@@ -38,8 +38,9 @@ export default defineConfig(({ mode }) => {
         ttsUrl: env.STUDIO_TTS_URL || DEFAULT_TTS_URL,
         ttsMcpUrl: env.STUDIO_TTS_MCP_URL || DEFAULT_TTS_MCP_URL,
         marketingDir,
-        // Claude's status for the Today page, written by docs/ops/today.py.
-        opsDir: `${studioDir}/ops`,
+        // Claude's status for the Today page, written by docs/ops/today.py. STUDIO_OPS_DIR shows
+        // another copy instead (a sample, or the ops-history branch), leaving .studio/ops alone.
+        opsDir: env.STUDIO_OPS_DIR || `${studioDir}/ops`,
         // Lesson videos from the Video tab; outside git, like the rest of .studio.
         videosDir: `${studioDir}/videos`,
       }),

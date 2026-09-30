@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
-import { DAY, normalizeStatus, type TodayResponse } from '../src/studio/today'
+import { DAY, normalizeStatus, type DayValue, type TodayResponse } from '../src/studio/today'
 
 /**
  * The Today page's data, from `opsDir` (`.studio/ops`), where Claude writes with
@@ -11,9 +11,9 @@ import { DAY, normalizeStatus, type TodayResponse } from '../src/studio/today'
  * written. Read-only: nothing here writes.
  */
 export async function readToday(opsDir: string, day: string | null = null): Promise<TodayResponse> {
-  const days = await listDays(opsDir)
+  const [days, activity] = await Promise.all([listDays(opsDir), logActivity(opsDir)])
   if (day !== null && !DAY.test(day)) {
-    return { status: null, problem: `${day} is not a day (YYYY-MM-DD).`, day: null, days }
+    return { status: null, problem: `${day} is not a day (YYYY-MM-DD).`, day: null, days, activity }
   }
   const file = day ? path.join(opsDir, 'history', `${day}.json`) : path.join(opsDir, 'status.json')
   let text: string
@@ -23,18 +23,18 @@ export async function readToday(opsDir: string, day: string | null = null): Prom
     const problem = day
       ? `Nothing was kept for ${day}.`
       : 'Claude has not written a status yet (.studio/ops/status.json).'
-    return { status: null, problem, day, days }
+    return { status: null, problem, day, days, activity }
   }
   let raw: unknown
   try {
     raw = JSON.parse(text)
   } catch {
-    return { status: null, problem: 'The status file is not valid JSON. Claude rewrites it on the next run.', day, days }
+    return { status: null, problem: 'The status file is not valid JSON. Claude rewrites it on the next run.', day, days, activity }
   }
   const status = normalizeStatus(raw)
   return status
-    ? { status, problem: null, day, days }
-    : { status: null, problem: 'The status file has no date or headline. Claude rewrites it on the next run.', day, days }
+    ? { status, problem: null, day, days, activity }
+    : { status: null, problem: 'The status file has no date or headline. Claude rewrites it on the next run.', day, days, activity }
 }
 
 /** The days in the history, newest first. */
@@ -45,4 +45,25 @@ async function listDays(opsDir: string): Promise<string[]> {
     .map((name) => name.slice(0, -5))
     .sort()
     .reverse()
+}
+
+/**
+ * How many entries log.jsonl has on each day, oldest first, by the date each
+ * was written on (the creator's clock, like the history's days). A line that
+ * is not an entry is skipped rather than failing the page.
+ */
+async function logActivity(opsDir: string): Promise<DayValue[]> {
+  const text = await fs.readFile(path.join(opsDir, 'log.jsonl'), 'utf8').catch(() => '')
+  const counts = new Map<string, number>()
+  for (const line of text.split('\n')) {
+    if (!line.trim()) continue
+    try {
+      const at: unknown = (JSON.parse(line) as { at?: unknown }).at
+      const day = typeof at === 'string' ? at.slice(0, 10) : ''
+      if (DAY.test(day)) counts.set(day, (counts.get(day) ?? 0) + 1)
+    } catch {
+      // not an entry
+    }
+  }
+  return [...counts.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, value]) => ({ day, value }))
 }
