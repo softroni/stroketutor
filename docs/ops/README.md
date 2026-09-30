@@ -174,6 +174,9 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 
 ## Lesson videos on social
 
+**The plan (what goes where, how often, release news) and its build checklist: [social-plan.md](social-plan.md).**
+Any session working on social starts there.
+
 One lesson video a day goes to Softroni's own accounts (YouTube Shorts, TikTok, Instagram and Facebook Reels,
 Pinterest, X), through [Upload-Post](https://app.upload-post.com), profile `softroni`. The Studio makes the
 video and posts it (`studio social …`; the studio-cli skill, *Posting lesson videos*, has the details).
