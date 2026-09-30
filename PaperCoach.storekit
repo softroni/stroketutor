@@ -16,7 +16,7 @@
   },
   "subscriptionGroups" : [
     {
-      "id" : "21500001",
+      "id" : "22413930",
       "localizations" : [
 
       ],
@@ -49,7 +49,7 @@
           "productID" : "com.softroni.papercoach.premium.yearly",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Premium Yearly",
-          "subscriptionGroupID" : "21500001",
+          "subscriptionGroupID" : "22413930",
           "type" : "RecurringSubscription"
         },
         {
@@ -73,7 +73,7 @@
           "productID" : "com.softroni.papercoach.premium.weekly",
           "recurringSubscriptionPeriod" : "P1W",
           "referenceName" : "Premium Weekly",
-          "subscriptionGroupID" : "21500001",
+          "subscriptionGroupID" : "22413930",
           "type" : "RecurringSubscription"
         }
       ]

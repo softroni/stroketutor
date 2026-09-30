@@ -274,7 +274,7 @@ struct LessonMarquee: View {
 struct TrialStartedView: View {
     let entry: OfferEntry
     let isForGrownUp: Bool
-    /// When the free week ends and the yearly price is billed.
+    /// When the free week ends and its price is billed.
     let trialEndsAt: Date
     let onFinish: () -> Void
 
@@ -347,9 +347,10 @@ struct TrialStartedView: View {
         return isForGrownUp ? "Back to drawing" : "Start drawing"
     }
 
-    /// "$19.99/year", or the plan's name should the price be missing.
+    /// "$19.99/year", the price of the product the week was started on, or the
+    /// plan's name should the price be missing.
     private var billed: String {
-        app.premium.yearlyPrice.map { "\($0)/year" } ?? "Paper Coach Premium"
+        app.premium.priceAfterTrial ?? "Paper Coach Premium"
     }
 
     /// The reminder's day and the price's, as far as each is true.

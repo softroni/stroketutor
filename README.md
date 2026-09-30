@@ -981,6 +981,10 @@ app update. SuperwallKit 4.17 comes in through Swift Package Manager.
   `PremiumStore.onPremiumChange` (the `premium` entitlement). A free week still reaches "Your free week has
   started", and Ask to Buy the waiting screen. The trial reminder is the app's own: the dashboard's paywall
   Notifications must stay empty, and a paywall that carries one logs a fault when it opens.
+- **Any product in Premium's subscription group unlocks Premium** (group `22413930`, from 1.1; 1.0 (2) knows only
+  the two plans' ids), so a price test's products can be sold on Superwall's paywalls. `purchase_attempted` reports
+  such a product as `yearly` or `weekly` by how often it renews, and "Your free week has started" names the price of
+  the product the week was started on (`PremiumStore.Holding`, `Entitlement`, `priceAfterTrial`).
 - **Analytics:** an allow-list of Superwall's events is copied into `Analytics` for 13+ learners only
   (`superwall_trigger_fire`, `superwall_paywall_open|close|decline`, `superwall_transaction_*`,
   `superwall_free_trial_start`), with the placement, paywall, experiment and variant, and never a price.

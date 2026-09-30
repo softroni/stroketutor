@@ -237,7 +237,7 @@ final class PremiumTests: XCTestCase {
 
     func testAPurchaseThatHasNotUnlockedTheLessonNeverReopensTheSameCover() throws {
         // A purchase the entitlement does not show yet (a product outside
-        // `PremiumStore.ProductID.all`, say): opening the lesson would ask for this
+        // Premium's subscription group, say): opening the lesson would ask for this
         // same cover again, over a flow that has already finished.
         let model = makeModel()
         let lesson = try premiumLesson(in: model)

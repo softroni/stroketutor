@@ -218,12 +218,6 @@ final class RemotePaywallsTests: XCTestCase {
         XCTAssertEqual(RemoteRestoreAnswer(.failed), .failed)
     }
 
-    func testAProductIdNamesItsPlan() {
-        XCTAssertEqual(PremiumStore.Plan(productId: PremiumStore.ProductID.yearly), .yearly)
-        XCTAssertEqual(PremiumStore.Plan(productId: PremiumStore.ProductID.weekly), .weekly)
-        XCTAssertNil(PremiumStore.Plan(productId: "com.example.other"))
-    }
-
     // MARK: - Superwall's events in Analytics
 
     func testTheForwardedEventNamesNeverChange() {

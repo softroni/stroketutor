@@ -422,7 +422,7 @@ final class SuperwallPurchaseController: PurchaseController {
 
         let outcome = await premium.purchase(storeKitProduct, options: options)
         onPurchaseOutcome?(outcome)
-        analytics.track(.purchaseAttempted(plan: PremiumStore.Plan(productId: storeKitProduct.id)?.rawValue ?? storeKitProduct.id,
+        analytics.track(.purchaseAttempted(plan: PremiumStore.Plan(storeKitProduct)?.rawValue ?? storeKitProduct.id,
                                            outcome: "\(outcome)"))
 
         switch RemotePurchaseAnswer(outcome) {
