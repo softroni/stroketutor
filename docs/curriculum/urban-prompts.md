@@ -191,8 +191,7 @@ Here the railing does stand in front of the doors: that is part of what this les
   between them. They stop well above the railing. Color: blue #5b8fc7.
 - Knobs: exactly two small circles side by side in the middle of the doors, below the panes and
   above the top rail, floating with a clear gap of door color at least three line-widths wide
-  between them and all around them.
-  Color: yellow #f7cf46.
+  between them and all around them. Color: yellow #f7cf46.
 - Railing: exactly seven bars and one top rail, all charcoal lines with no color. The bars are
   seven single straight upright lines standing on the ledge's top edge, touching it, evenly spaced
   from the ledge's left end to its right end, the first and the last at the two ends. The top rail
