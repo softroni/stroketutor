@@ -83,7 +83,7 @@ const TASKS: Record<EditLayer, string> = {
 - Steps that only colour stay after every step that draws lines.`,
   steps: `Your layer: the steps.
 - Regroup the lines and colours into steps that teach well, and write each step's words. Use every line id and every colour id exactly once; never use an id that is not listed.
-- Each step is one meaningful action a beginner can hold in mind: one to six lines that belong together, such as both windows or the two edges of a trunk. Aim for 4 to 12 steps.
+- Each step is one meaningful action a beginner can hold in mind: one to six lines that belong together, such as both windows or the two edges of a trunk. Aim for 4 to 20 steps, colour steps included, and never more than about 20.
 - The learner is 8 to 16. Prefer what is intuitive, easy and natural to follow over what is economical, even if that means more steps. Finish one part of the subject completely before starting the next: the whole stem, then the leaf, then the leaf's centre line; never half of one thing, then another, then back.
 - A very long curved line is hard for a young hand. When the lines you are given already split a big outline into parts, give each part its own step ("Draw the left side", "Draw the right side") rather than putting them together.
 - Big structure first, then the main features, then details. Within a step, list the lines in the order to draw them.

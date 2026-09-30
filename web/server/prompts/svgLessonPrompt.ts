@@ -66,7 +66,7 @@ Answer in three parts.
 
 2. outlineSteps: every line, in drawing order.
 - Use every line id exactly once. Never use an id that is not listed.
-- 4 to 12 steps. Each step is one meaningful action a beginner can hold in mind: one to six lines that belong together, such as the two edges of a trunk.
+- 4 to 20 steps, colour steps included, and never more than about 20. Each step is one meaningful action a beginner can hold in mind: one to six lines that belong together, such as the two edges of a trunk.
 - The learner is 8 to 16. Prefer what is intuitive, easy and natural to follow over what is economical, even if that means more steps. Finish one part of the subject completely before starting the next: the whole stem, then the leaf, then the leaf's centre line; never half of one thing, then another, then back.
 - A very long curved line is hard for a young hand. When the lines you are given already split a big outline into parts, give each part its own step ("Draw the left side", "Draw the right side") rather than putting them together.
 - Big structure first, then the main features, then details. Within a step, list the lines in the order to draw them.

@@ -53,10 +53,13 @@ would order it.
   on the ink of the picture it came from.
 - **One to six lines per step, and they belong together:** the two edges of a trunk, both windows,
   a spine and its first leaflets. Within a step, list the lines in the order to draw them.
-- **4 to 12 steps.** Fewer and each step asks too much; more and the lesson drags. Lean towards
-  more, shorter steps on Starter paths. When a subject
-  has more natural groups than that (seven fronds), merge the two most alike and least important
-  into one step, keeping the six-line ceiling, before merging anything structural.
+- **4 to about 20 steps, colour steps included** (the creator's ceiling, 2026-09-30). Fewer and
+  each step asks too much; more and the lesson drags. Starter lessons sit near the bottom of that
+  range; a rich Advanced picture may reach 20, never much more. `lessons quality` warns with
+  `many-steps` past 20. When a subject has more natural groups than that (seven fronds), first
+  put two or three colours that belong together into one colour step, then merge the two most
+  alike and least important outline steps, keeping the six-line ceiling, before merging anything
+  structural. If it still does not fit, the picture is too busy: ask the creator for a simpler one.
 - **Colour after every outline.** One colour per step, or two or three areas together when a hand
   would not stop between them (two greens on the same fronds); large areas first, both across steps
   and within a step. Name the colour in plain words (dark green, sand) and say what it covers; when

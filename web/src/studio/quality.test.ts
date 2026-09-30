@@ -7,7 +7,7 @@ import type { Step, Tutorial } from '../schema/types'
 import { parseTutorialJSON } from '../schema/validate'
 
 import { NEW_STEP_INSTRUCTION, NEW_STEP_TITLE } from './editor/ops'
-import { MAX_STROKES_PER_STEP, qualityWarnings, strokeLength } from './quality'
+import { MAX_STEPS, MAX_STROKES_PER_STEP, qualityWarnings, strokeLength } from './quality'
 
 const tutorialsDir = fileURLToPath(new URL('../../../shared/Tutorials/', import.meta.url))
 
@@ -80,6 +80,13 @@ describe('qualityWarnings', () => {
   it('flags a lesson estimated past five minutes', () => {
     const slow = tutorial([step('a', [line(100, 400, 60), line(200, 400, 60)])])
     expect(codes(slow)).toContain('long-lesson')
+  })
+
+  it('flags a lesson of more than about twenty steps, and not one of twenty', () => {
+    const steps = (count: number) =>
+      tutorial(Array.from({ length: count }, (_, s) => step(`s${s}`, [line(100 + s * 10, 100, 0.2)])))
+    expect(codes(steps(MAX_STEPS))).not.toContain('many-steps')
+    expect(codes(steps(MAX_STEPS + 1))).toContain('many-steps')
   })
 
   it('flags a dense stroke count', () => {

@@ -6,6 +6,7 @@ import { NEW_STEP_INSTRUCTION, NEW_STEP_TITLE } from './editor/ops'
 
 export type QualityCode =
   | 'long-lesson'
+  | 'many-steps'
   | 'many-strokes'
   | 'tiny-strokes'
   | 'crowded-step'
@@ -23,6 +24,11 @@ export interface QualityWarning {
 
 /** The core promise: a finished drawing in about five minutes (§7). */
 export const LESSON_TARGET_SECONDS = 5 * 60
+/**
+ * The creator's ceiling (2026-09-30): about twenty steps, colour steps included.
+ * Past it the lesson drags, however short each step is.
+ */
+export const MAX_STEPS = 20
 /** Beyond this, a lesson is usually traced detail rather than drawing. */
 export const MAX_STROKES = 40
 /** More than this in one step is a lot to hold in mind at once. */
@@ -68,6 +74,14 @@ export function qualityWarnings(tutorial: Tutorial, previous?: Tutorial): Qualit
       code: 'long-lesson',
       path: LESSON,
       message: `Estimated at ${formatMinutes(seconds)} for a learner. Lessons aim for five minutes or less.`,
+    })
+  }
+
+  if (tutorial.steps.length > MAX_STEPS) {
+    warnings.push({
+      code: 'many-steps',
+      path: LESSON,
+      message: `${tutorial.steps.length} steps. Lessons keep to about ${MAX_STEPS}, colour steps included: merge the least important.`,
     })
   }
 
