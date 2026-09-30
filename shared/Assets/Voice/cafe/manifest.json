@@ -1,0 +1,142 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cafe",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-30T19:15:22.803Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Here is the whole town in one house: a tiled roof, a striped awning, a table out front. It's the café on the corner. Watch it go up, floor by floor, then pull up a chair.",
+      "textHash": "a967b2d8c4237de4b4e8689ea51121f6528ea86907e973b7dc777b415d93bf42",
+      "durationMs": 10960
+    },
+    "peak": {
+      "file": "peak.m4a",
+      "text": "Begin at the very top with a ball. A band slopes down to the left, and four short lines cut it into tiles.",
+      "textHash": "a9580904f02f65826830ee12e6b6d1c16d0186399c6d3c0c665bb412300f88f2",
+      "durationMs": 7440
+    },
+    "roof": {
+      "file": "roof.m4a",
+      "text": "The roof slopes down from the ball and runs to a round tip. Add its top, two wall lines and a long band.",
+      "textHash": "ae22e5d625732d51aa9528df84b99a33d7d28fe6424b3d435ca7a0e8f08b6988",
+      "durationMs": 7360
+    },
+    "side-wall": {
+      "file": "side-wall.m4a",
+      "text": "Below the band, the corner runs down, along the ground and up to the roof's tip. Two windows, each on a ledge.",
+      "textHash": "71a27ea79b669afd075c2b93af5efdbaab2dcaf5a211d8ab645490da14f34cd7",
+      "durationMs": 7440
+    },
+    "chimney": {
+      "file": "chimney.m4a",
+      "text": "Next, the chimney: a short side up from the roof, a flat cap, and a second side below. Two pots stand on top.",
+      "textHash": "3647408ebc34f5c52a778aca7926c267fa73c1f6e40d597d03d8110567a13a43",
+      "durationMs": 8560
+    },
+    "roof-lines": {
+      "file": "roof-lines.m4a",
+      "text": "Close the roof from the chimney to the tip. Three wavy lines slope down it, and one runs along the bottom.",
+      "textHash": "03dbc9cbc472023df9e2ef4a3b0b8b2cff2ab3449862df21130b9e19904fbe71",
+      "durationMs": 6080
+    },
+    "tiles-top": {
+      "file": "tiles-top.m4a",
+      "text": "Four bumps make the top row of tiles. Each one bridges two wavy lines.",
+      "textHash": "ee1df57f0eca04baf56443fee8e8ff63fbf7aefa05dbe07428c39f99127e78c2",
+      "durationMs": 5200
+    },
+    "tiles-middle": {
+      "file": "tiles-middle.m4a",
+      "text": "Then four more bumps, one row lower.",
+      "textHash": "de1da464f95df3e0ba1306652963bde21c723a4a351d0b423804d8d40e5311d2",
+      "durationMs": 3040
+    },
+    "flower-box": {
+      "file": "flower-box.m4a",
+      "text": "On the front wall, a long flower box. Two bumpy bushes grow in it, with a short line between them.",
+      "textHash": "a11260ffab32085906d417bb23547c34f8e3a90c7839ec15d4951dd6adf65443",
+      "durationMs": 6400
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "Behind the bushes, an arched window: a big arch, a smaller one inside, and a cross of two bars.",
+      "textHash": "2cdf1ffb59132ccf8448cd44e13cf5b2da02842af99c207a6189d88b3c2ee839",
+      "durationMs": 8000
+    },
+    "awning": {
+      "file": "awning.m4a",
+      "text": "The awning hangs from the long band: two sides, a fold line and a wavy hem of seven bumps.",
+      "textHash": "2395709e6a1963ac9b969e0d235cb6460c2e867889533546df543e7d0e2a632b",
+      "durationMs": 6720
+    },
+    "stripes": {
+      "file": "stripes.m4a",
+      "text": "Six slanting lines divide the awning into seven stripes, right down to the hem.",
+      "textHash": "674aa83967af1c7b0798d38715dc3e3707b86ccea40f00839459a89c40e2d19f",
+      "durationMs": 5280
+    },
+    "shop-window": {
+      "file": "shop-window.m4a",
+      "text": "Under the awning, the shop's left side and a post. Then the big window, with a cross of two bars.",
+      "textHash": "9747b737259e57663c04049b1b8f1ea2ab5ac00dadb3d610bce598b1c6eacb08",
+      "durationMs": 6000
+    },
+    "door": {
+      "file": "door.m4a",
+      "text": "Right of the window, the door: its frame, a tall pane of glass and a square panel. A line along the ground.",
+      "textHash": "95185d9213ec1f068c3b08d08911b0c8b0f2229b986fe979a038e28ab92ebddb",
+      "durationMs": 7840
+    },
+    "table": {
+      "file": "table.m4a",
+      "text": "Out front, a small round table: a flat oval top on one leg that spreads into a foot.",
+      "textHash": "a14df1619dc259d65729138c2f647cca9dbc7748a74b7fb9f17224fbb8658379",
+      "durationMs": 6000
+    },
+    "chairs": {
+      "file": "chairs.m4a",
+      "text": "A chair on each side: a rounded back and an oval seat. A line joins the two backs, under the window.",
+      "textHash": "c0275b1f4867d1a148378e4ad224a23e7104910fcf29c0fe4b4be09b93e920a9",
+      "durationMs": 7040
+    },
+    "left-legs": {
+      "file": "left-legs.m4a",
+      "text": "The left chair stands on three thin legs. Two short dashes between them show the shop's foot.",
+      "textHash": "8701b78fb47087b3cac0fa329a146c490cf2763efee8509beafdf6cdf5e689c4",
+      "durationMs": 6240
+    },
+    "right-legs": {
+      "file": "right-legs.m4a",
+      "text": "Three legs for the right chair too, and two more dashes of ground.",
+      "textHash": "78a2679eb66ff5fa990f7cfb37b2f8eabffb73387d5c28be9a7a3011cfb2ef6f",
+      "durationMs": 4480
+    },
+    "cream": {
+      "file": "cream.m4a",
+      "text": "Cream for the walls, the chimney, the frames and ledges, three stripes and the tabletop.",
+      "textHash": "74fbfb16448ed1c6d5738f704c81976d8714620633c06069c8b8944eeeefbbd4",
+      "durationMs": 6080
+    },
+    "red-blue": {
+      "file": "red-blue.m4a",
+      "text": "Red for the roof, the pots and four stripes. Blue for every pane of glass.",
+      "textHash": "a4ec580829dfda7dc7f1711c8e742b092f35bd5e5cd728ccf3673716e0b288bb",
+      "durationMs": 5280
+    },
+    "greens": {
+      "file": "greens.m4a",
+      "text": "Dark green for the shop front, green for the bushes. Orange for the chairs, the table leg and the flower box.",
+      "textHash": "5c7a4bc5aab1cddc8732695c3aba7b42fd9cb85819ea479a6fbb461733c87e01",
+      "durationMs": 7360
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your café is open, from the chimney pots down to the chair legs. Go on, take the seat by the window.",
+      "textHash": "3577535b0d136d7f1bd8568aab9317c4d2ee0fa3b26d576cc3c8b70ac336dfbf",
+      "durationMs": 6160
+    }
+  }
+}
