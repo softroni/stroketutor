@@ -1,0 +1,100 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "phone-box",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-30T03:26:39.390Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "A red phone box is the easiest landmark in town. We see it from its corner, so both sides lean away from us. Watch them lean, then stand one on your own street.",
+      "textHash": "fbd9316581257c6554deb7c3d8acb901d66caf52c2609a28c8efbfd828b6d2b2",
+      "durationMs": 10560
+    },
+    "corner": {
+      "file": "corner.m4a",
+      "text": "Begin with the near corner: one tall upright line.",
+      "textHash": "2a54f76920724f47408feda789f4f2f7ddfe5183ace006e283432f51a7a4f71e",
+      "durationMs": 3920
+    },
+    "sides": {
+      "file": "sides.m4a",
+      "text": "Two sides go back from it. Their tops slope down and their bottoms slope up.",
+      "textHash": "b3f22f7bc9c10b7cd1b6e6f0865733f5b02c68ad0e7d843b353272ad14adc80a",
+      "durationMs": 4960
+    },
+    "bands": {
+      "file": "bands.m4a",
+      "text": "A band along the top of each side, sloping the same way.",
+      "textHash": "9739458822989d487b3f8738b2cd1550e28e4ac9245ec49e9426a1ecdc7924ff",
+      "durationMs": 3840
+    },
+    "roof": {
+      "file": "roof.m4a",
+      "text": "The roof is one round curve from far corner to far corner, with a small knob on top.",
+      "textHash": "eb1702e2639938653516ce6928054624215b56c99fe63527b9a96a93451fac50",
+      "durationMs": 6000
+    },
+    "left-panes": {
+      "file": "left-panes.m4a",
+      "text": "Six panes on the left side, three rows of two, tilted like the side.",
+      "textHash": "69d08e392299ef92b61db63459b5eb3c424a9602effd6ab0b165db1c28b0705e",
+      "durationMs": 4960
+    },
+    "right-panes": {
+      "file": "right-panes.m4a",
+      "text": "Six more on the right. The far ones are a little narrower.",
+      "textHash": "bcca044ae5bc879781a26ca297e5b73017b8ed1756fa298f550df5ec458a21f3",
+      "durationMs": 3760
+    },
+    "base": {
+      "file": "base.m4a",
+      "text": "Along the bottom, a low band turns the corner. A short line on the left is the handle.",
+      "textHash": "544b4c892082e3db297b11987f1213d31b667bf6fb9b74ac384c952eb861c5a6",
+      "durationMs": 5520
+    },
+    "tree": {
+      "file": "tree.m4a",
+      "text": "A round, bumpy tree peeks out from behind the right side.",
+      "textHash": "2600d183ac37c1ceacc839b90522249fc7db6fa523b5ac49ddaa362b8bd45f90",
+      "durationMs": 3520
+    },
+    "red": {
+      "file": "red.m4a",
+      "text": "Color the left side red, and the roof too.",
+      "textHash": "b64ae336a0931a173ed4c4d24b98bcd55d6a73778242c7853df1cd1f17cc2e71",
+      "durationMs": 3200
+    },
+    "brown": {
+      "file": "brown.m4a",
+      "text": "The right side is brown, because it's in the shade.",
+      "textHash": "4452a0d1fe2ef355502a7a312ff66873827c0e49c4aa1e56c8057768fff3de5f",
+      "durationMs": 3520
+    },
+    "cream-yellow": {
+      "file": "cream-yellow.m4a",
+      "text": "Cream and yellow for the two bands. The knob is yellow.",
+      "textHash": "7d06b758efad94d0891e05fe638223dbf0ef46642fe791b1003b72114129f404",
+      "durationMs": 3920
+    },
+    "blue": {
+      "file": "blue.m4a",
+      "text": "All twelve panes are blue.",
+      "textHash": "cc50e57f4a86200dce75d9a2f89ce3c5652d95e80f0342b387bd1d547bad66c2",
+      "durationMs": 2000
+    },
+    "gray-green": {
+      "file": "gray-green.m4a",
+      "text": "Gray for the base, and pale green for the tree.",
+      "textHash": "3b128801637e561e4c4d9cb432bedb62661dbdf9062a0fb00a16da302382c1b2",
+      "durationMs": 3520
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your phone box is ready for a call. Who would you ring first?",
+      "textHash": "4bf371afac5f726bf20c6080bdbfebf3b3bc3dbc687d20ac1b1920d697988831",
+      "durationMs": 3760
+    }
+  }
+}

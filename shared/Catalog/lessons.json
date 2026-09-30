@@ -1020,6 +1020,16 @@
         "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-29, flower-box shadow removed and margin added by hand; AI-generated for Paper Coach; owned by Softroni",
         "license": "AI-generated for Paper Coach; owned by Softroni"
       }
+    },
+    {
+      "id": "phone-box",
+      "status": "approved",
+      "objective": "Red phone box in two-point view: domed roof, blank sign bands, twelve panes, a tree behind",
+      "reference": {
+        "file": "phone-box.svg",
+        "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-29, margin added; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
     }
   ]
 }
