@@ -248,14 +248,21 @@ plant with a stem in two pieces, two flowers and four leaves.
 
 ### 3 · `phone-box`
 
-Objective: Phone box in two-point view: domed top, blank sign bands, six panes a side, a tree behind.
+Objective: Red phone box in two-point view: domed roof, blank sign bands, twelve panes, a tree behind.
 
 Attach `shop-front` as well as the apple: the tree behind the box is the one behind the shop.
 
+Reworked 2026-09-29 after the shop front and balcony rounds: the roof is red like a real phone box (the sign bands
+keep it apart from the red side), a small knob sits on top, the box stands a little left of the middle so that the
+tree balances it, and the prompt says no to what the image model added on those two (soft shadows, bevels, an image
+filled edge to edge).
+
 ```text
-SUBJECT: one old-fashioned telephone box standing on its own: a tall box with a domed top, a
-blank sign band under the dome, rows of glass panes, a door handle and a low base, seen from one
-corner so that two of its sides show, and the round crown of a tree behind its right side.
+SUBJECT: one old red telephone box standing on its own, seen from one corner so that two of its
+sides show: a tall box with a domed roof and a small knob on top, a blank sign band under the
+roof on each side, rows of small glass panes, a door handle, a low base, and the round crown of a
+tree behind its right side. The box and the tree together fill about 70% of the image's height,
+with clear white margin on all four sides.
 Here the box does stand in front of the tree: the box hides the tree's left part.
 VIEW: two-point perspective, seen from one corner by someone standing beside the box, whose eye
 level is about two thirds of the way up the box. Both vanishing points lie far outside the
@@ -263,22 +270,26 @@ picture: no horizon line and no dots are drawn. Every upright edge stays perfect
 edges of each side go away toward that side's vanishing point: the top edges slope gently down as
 they go away from the near corner, the bottom edges slope a little up, and the edges in between
 (sign bands, panes, base) slope less the nearer they are to the eye level.
-- Near corner: the upright edge where the two sides meet, a little right of the middle of the
-  image, drawn once, from the dome down to the base. It is the tallest upright edge.
+LIGHT: from the upper left, so the left side is lit and the right side is in shadow. This shows
+only in the two sides' colors: no shadows, drop shadows or soft shading anywhere.
+- Near corner: the upright edge where the two sides meet, a little left of the middle of the
+  image, drawn once, from the roof down to the base. It is the tallest upright edge.
 - Left side: one tall four-sided shape going away to the left: the near corner, a shorter upright
   far edge, and a top edge and a bottom edge as the VIEW says. About three times as tall as it is
   wide. Color: red #d8433b.
-- Right side: the same going away to the right, a little narrower than the left side.
-  Color: brown #8a5a33.
+- Right side: the same going away to the right, a little narrower than the left side. It is the
+  shadow side. Color: brown #8a5a33.
 - Sign bands: one across the top of each side, from the near corner to that side's far edge,
   about one eighth as tall as the side: its top edge is the side's top edge (shared) and one line
   sloping like it divides it from the rest of the side. The two bands meet at the near corner.
-  They are blank: no letters. Colors: cream #f6e7b8 on the left side, yellow #f7cf46 on the
-  right, like a lit sign.
-- Dome: one closed shape sitting on the box. Its bottom edge is the two sign bands' top edges
+  They are blank: no letters and no pictures. Colors: cream #f6e7b8 on the left side, yellow
+  #f7cf46 on the right, like a lit sign.
+- Roof: one closed shape sitting on the box. Its bottom edge is the two sign bands' top edges
   (shared lines, drawn once); its top is one smooth round curve rising from the left far corner,
   over the near corner, and down to the right far corner. It is about one fifth as tall as the box
-  is wide. Color: watermelon pink #ee5a6a.
+  is wide. Color: red #d8433b.
+- Knob: one small half circle sitting on the highest point of the roof (one shared line). Color:
+  yellow #f7cf46.
 - Panes: exactly six on each side, twelve in all. On each side they sit in three rows of two, under
   the sign band and above the lower third of the side, with a clear strip of the side's color at
   least three line-widths wide between them and all around them; the lower third of each side is
@@ -295,13 +306,13 @@ they go away from the near corner, the bottom edges slope a little up, and the e
 - Tree: only its crown shows, behind the right side's far edge: one closed shape whose outer side
   is made of exactly four big round bumps (one on top, two down the right, one at the bottom), and
   whose outline stops on the box's right far edge, which runs in front of it. Its top is a clear
-  strip below the dome, and its bottom a clear strip above the base. No trunk. Color: pale green
-  #b9dc8a. It is drawn like the tree behind the attached shop front; nothing else of the shop
-  front belongs in this picture.
-Nothing else: no letters, no crown on the dome, no hinges, no telephone or anything seen through
-the glass, no shine lines, no step, no ground, no shadow, no horizon, no dots. Twenty shapes and
-lines in total. Count: two sides, two sign bands, one dome, six panes on each side, one handle,
-one base, one tree.
+  strip below the roof, and its bottom a clear strip above the base. No trunk. Color: pale green
+  #b9dc8a.
+Nothing else: no letters or pictures, no crown other than the knob, no hinges, no telephone or
+anything seen through the glass, no shine lines, no frames or bars around the panes, no shadows,
+drop shadows or soft shading, no thin inner or bevel lines, no step, no ground, no horizon, no
+dots. Twenty-one shapes and lines in total. Count: two sides, two sign bands, one roof with one
+knob, six panes on each side, one handle, one base, one tree.
 ```
 
 ### 4 · `street-corner`
