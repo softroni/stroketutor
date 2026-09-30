@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-30T14:09:25-05:00",
+  "updated": "2026-09-30T14:31:28-05:00",
   "headline": "Apple approved 1.0 (2), and Paper Coach is on the App Store. The build is tagged 1.0(2), and Apple Ads is set up in the US at $10 a day; it starts serving once Apple finishes categorizing the new app.",
   "app": {
     "live": {
@@ -199,6 +199,10 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-09-30T14:31:28-05:00",
+      "text": "Prices: $29.99/year and $3.99/week for new subscribers from Oct 2 (set by Kevin, all 175 storefronts, existing subscribers keep theirs); repo updated"
+    },
     {
       "at": "2026-09-30T14:09:25-05:00",
       "text": "Kevin added Crash Data and Performance Data to App Privacy. 1.0.1 dropped: 1.1 carries it, with Urban, the photo modes and next-builds items 1 and 4 (docs/releases/1.1.md)"
