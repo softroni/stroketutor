@@ -160,20 +160,23 @@ lines, one pot, one bush, one tree.
 
 ### 2 · `balcony`
 
-Objective: Tall doors under a pointed hood behind a seven-bar railing, a flower box and its shadow.
+Objective: Tall doors under a pointed hood behind a seven-bar railing, a flower box, its shadow and a vine.
 
 Three rounds on 2026-09-29. The first design (yellow wall, square green doors under a triangle hood, a flower box on
 the wall) looked too plain to the creator, and a southern-town redesign (pink wall, arched door, open shutters) did
 not resonate. Asked to improve the first one, ChatGPT made the look the creator likes: a pointed stone hood on a band,
 a pair of green doors, a slab on two curved brackets, a flower box of red flowers with its shadow. But it drew soft
 drop shadows everywhere, thin bevel lines, filled bars with knots and balls, petaled flowers, a rim and legs on the
-box and pale streaks on the glass. This prompt keeps that design and says no to each of those.
+box and pale streaks on the glass. This prompt keeps that design and says no to each of those. The next picture
+added a climbing plant up the left side and centered the doors; the creator kept the idea, so the prompt now has a
+simple one (a stem, four leaves, two flowers) in place of the first one's dozens of leaves and petaled flowers.
 
 ```text
 SUBJECT: a patch of a yellow town house wall, seen straight on, with one balcony: a pair of tall
 green doors under a pointed stone hood, standing on a stone slab held up by two brackets, a
-railing of seven bars in front of the doors' lower part, and on the wall to the right a flower
-box, with the flower box's shadow on the wall.
+railing of seven bars in front of the doors' lower part, on the wall to the right a flower box
+with the flower box's shadow on the wall, and a simple climbing plant up the wall's left side.
+The wall fills about 70% of the image, with clear white margin on all four sides.
 LIGHT: from the upper left. The flower box's shadow is the only light or shadow in the picture:
 no other shadow, drop shadow or soft shading anywhere.
 Here the railing does stand in front of the doors: that is part of what this lesson teaches.
@@ -189,7 +192,7 @@ Here the railing does stand in front of the doors: that is part of what this les
   the slab, with a clear strip of wall color below. No groove or inner line. Color: orange
   #f08a2c.
 - Doors: one tall closed shape with four straight sides standing on the slab's top edge (one
-  shared line), in the left half of the wall, about twice as tall as wide. One upright line
+  shared line), in the middle of the wall, about twice as tall as wide. One upright line
   divides it down the middle into two doors, running from outline to outline. No panels, bevels
   or other lines. Color: dark green #2f6b3a.
 - Hood: one closed shape sitting on the doors' top edge: a flat band a little wider than the doors,
@@ -205,7 +208,8 @@ Here the railing does stand in front of the doors: that is part of what this les
   other line: not white, not pale, not filled.
 - Knobs: exactly two small circles, one on each side of the middle line, below the panes and above
   the top rail, floating with a clear gap of door color at least three line-widths wide between
-  them, from the middle line and all around them. Color: yellow #f7cf46.
+  them, from the middle line and all around them: they never touch or overlap the glass. Color:
+  yellow #f7cf46.
 - Railing: exactly seven bars and one top rail, all single bold charcoal lines with no color and
   nothing on them: no balls, knots or thick filled bars. The bars stand upright on the slab's top
   edge, touching it, evenly spaced from near the slab's left end to near its right end. The top
@@ -221,16 +225,26 @@ Here the railing does stand in front of the doors: that is part of what this les
   made of exactly five round bumps. Color: leaf green #4f9d4a.
 - Flowers: exactly three plain circles floating in the mound, each with a clear band of green at
   least three line-widths wide around it. No petals, no centers. Color: red #d8433b.
-- Shadow: the flower box's shadow on the wall: one flat four-sided shape hanging from the box's
-  bottom edge (one shared line). Its two sides run down and to the right, parallel, and one level
+- Shadow: the flower box's shadow on the wall: one flat four-sided shape with its own bold
+  charcoal outline, hanging from the box's bottom edge (one shared line). Its two sides run down and to the right, parallel, and one level
   bottom edge closes it. It is about as tall as the box and ends with a clear strip of wall color
   above the top rail. Color: gray #c9ced6.
+- Climbing plant: up the wall's left side, between the wall's left edge and the doors, keeping a
+  clear gap of wall color at least three line-widths wide from the wall's edges, the hood, the
+  doors, the railing and the slab. One smooth charcoal stem line with no color climbs from near
+  the wall's bottom to near its top, gently curving, and ends at the top flower. Exactly two
+  flowers, plain circles with no petals and no centers, color red #d8433b: one at the stem's top
+  and one about halfway up, where the stem stops on the flower's outline and carries on from its
+  other side. Exactly four leaves, plain pointed ovals with no veins, color leaf green #4f9d4a,
+  two on each side of the stem, each touching the stem only at its narrow end. Leaves and flowers
+  keep at least three line-widths from each other. No curls, tendrils or other leaves.
 Nothing else: no drop shadows or soft shading, no thin inner or bevel lines, no door panels, no
 knots or balls on the railing, no rim or legs on the box, no petals or centers on the flowers, no
 leaves outside the mound, no streaks on the glass, no shutters, no bricks, no roof, no second
-window. Thirty shapes and lines in total. Count: one pair of doors with a middle line, two panes,
-four shine lines and two knobs; one hood with its dividing line; one slab on two brackets; seven
-bars and one top rail; one flower box with one mound and three flowers; one shadow.
+window. Thirty-eight shapes and lines in total. Count: one pair of doors with a middle line, two
+panes, four shine lines and two knobs; one hood with its dividing line; one slab on two brackets;
+seven bars and one top rail; one flower box with one mound and three flowers; one shadow; one
+climbing plant with a stem in two pieces, two flowers and four leaves.
 ```
 
 ### 3 · `phone-box`
