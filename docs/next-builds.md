@@ -89,7 +89,8 @@ review page is there, but almost nobody goes looking for it.
 - Cuts the onboarding A/B test to two designs as soon as one is clearly behind: there is too little traffic for three.
 - Keywords and promotional text with every release (docs/ops/README.md).
 
-## Suggested order
+## Order (decided 2026-09-30)
 
-1.1 carries items 1 and 4 (both small). The price test (2) starts as soon as 1.1 is on sale. Item 3 goes in the
-build after, or in 1.1 if there is time.
+**1.1 carries items 1 and 4**, with Urban's Café and everything on `main` since 1.0 (2); it is cut once all three
+are merged. The plan and its checklist: [docs/releases/1.1.md](releases/1.1.md). The price test (2) starts as soon as
+1.1 is on sale. Item 3 goes in the build after.
