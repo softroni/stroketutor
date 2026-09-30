@@ -38,7 +38,7 @@ final class OnboardingLevelTests: XCTestCase {
                        "Only the first four paths, in catalog order, are offered.")
 
         let advanced = try XCTUnwrap(choices.level(id: "advanced"))
-        XCTAssertEqual(advanced.paths.map(\.id), ["food-treats", "landscape"])
+        XCTAssertEqual(advanced.paths.map(\.id), ["food-treats", "landscape", "urban"])
         XCTAssertNil(advanced.onlyPath)
     }
 
