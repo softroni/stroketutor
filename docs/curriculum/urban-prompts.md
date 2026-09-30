@@ -35,7 +35,7 @@ What the lesson prompts on this path take care of, beyond the system prompt:
   ripples keep a wide gap.
 - **A VIEW paragraph only where the view needs saying.** Four lessons are flat fronts and have none (`shop-front`,
   `balcony`, `brick-window`, `rooftops`); the others say how they are seen, the bridge for its reflection.
-- **Vanishing points stay outside the picture in the two-point views** (`phone-box`, `street-corner`, `tram`): at
+- **Vanishing points stay outside the picture in the two-point views** (`phone-box`, `street-corner`): at
   70% of the image, dots on the page would squash the far walls. The eye level is drawn only where the objective
   names it: two short pieces of horizon beside the corner building, and one piece beside the hill street, whose
   road ends at the one dot on the path.
@@ -43,7 +43,7 @@ What the lesson prompts on this path take care of, beyond the system prompt:
   lit from the upper left. (The balcony's flower-box shadow was taken out: there was no room for a right one.) Cast
   shadows are gray, as on Light & Shadow; a shadow side is the darker partner of its color (red → brown), and on the
   hydrant it runs down every stacked part. Glass gets its shine only as two short bold charcoal lines in a pane's
-  upper left corner (shop window and door, balcony doors, tram front, brick window, café window), never as pale
+  upper left corner (shop window and door, balcony doors, brick window, café window), never as pale
   streaks.
 - **Texture only where the objective asks**: nine bricks in three patches (`brick-window`) and six cobblestones
   (`fire-hydrant`). Both are counted, closed and floating, never a pattern.
@@ -51,7 +51,7 @@ What the lesson prompts on this path take care of, beyond the system prompt:
   box (`phone-box`), the doors behind the railing (`balcony`), the four roofs and the dormer (`rooftops`), and in
   the finale the tram in front of the houses and the houses in front of the rooftops.
 - **Details are single lines**: railing bars and rail, awning stripe lines, water arcs and ripples, tram rails, the
-  trolley pole, the phone box's handle, tank legs, street edges, the shine on glass. Each prompt calls them
+  tram's wire and trolley pole, the phone box's handle, tank legs, street edges, the shine on glass. Each prompt calls them
   charcoal lines with no color.
 - **One color scheme for the town**: windows and glass blue, doors brown, dark openings purple, as on Buildings.
   Where the system prompt's "neighboring areas never share a color" meets a thing that is one color in life (a red
@@ -519,55 +519,71 @@ with three ring bands, two quay reflections, four ripples.
 
 ### 7 · `tram`
 
-Objective: Old tram in three-quarter view on rails curving around a corner.
+Objective: Side view of an old tram: six windows over six panels, pole touching the wire.
+
+Second design, 2026-09-30, in the creator's style (the fountain and the canal bridge): the old three-quarter tram
+had a plain box for a body and rails curving around a corner, which a picture model rarely draws cleanly. This is
+the old Lisbon tram seen flat from the side, built as stacked bands like the fountain's tiers: a lantern on a gray
+roof, a cream window band with six windows, a red belt, a yellow lower body with six orange panels under them, a
+brown chassis, red wheels on a gray street. Two dark green posts hold the wire at the ends of the scene, framing it
+as the houses frame the bridge, and the trolley pole touches the wire. The finale's tram is this tram, simplified.
 
 ```text
-SUBJECT: one old city tram with a rounded roof, a blank destination board, a bumper, a band along
-its side and a trolley pole, standing on two rails that come out from under its front and curve
-around a corner toward the viewer.
-VIEW: three-quarter view: the front of the tram faces the lower left of the picture and its long
-side goes away to the right, so both show. Every upright edge stays upright. The side's top and
-bottom edges draw gently together toward its far end, which is a little shorter than the front.
-The vanishing points lie outside the picture: no horizon and no dots.
-- Front: one upright four-sided shape, a little taller than wide. Color: orange #f08a2c.
-- Side: one long four-sided shape going away to the right from the front's right edge (one shared
-  line, drawn once), about three times as long as the front is wide. Color: yellow #f7cf46.
-- Roof: one low closed shape lying on the front and the side (its bottom edges are their top
-  edges, shared), its top one smooth rounded curve. It is about one sixth as tall as the side.
+SUBJECT: one old city tram, like the yellow trams of Lisbon, seen straight from the side, standing
+on a street between two tall posts that hold its overhead wire. The tram is about two thirds of
+the image's width; the whole scene, posts included, about 80% of the width, with clear white
+margin on all four sides; nothing is cut off by the image's edge.
+VIEW: a flat side view with no perspective. Every edge of the tram is level or upright, except
+the roof's rounded ends and the trolley pole.
+No shadows, drop shadows, soft shading, texture, transparency or shine anywhere.
+- Street: one long band with four straight sides along the bottom of the scene, from one post to the
+  other and a little beyond, about one tenth of the image's height tall. Its top edge is the rail
+  the tram runs on. Color: gray #c9ced6.
+- Posts: exactly two tall narrow upright shapes with four straight sides, one at each end of the
+  street, standing on its top edge (one shared line), each at least four line-widths wide, rising
+  well above the tram. Color: dark green #2f6b3a. On top of each, one round ball sitting on the
+  post's top edge (shared), a little wider than the post. Color: yellow #f7cf46.
+- Wire: one single straight level line from one post to the other, meeting each post a little below
+  its ball, well above the tram's roof. A charcoal line with no color.
+- Wheels: exactly two, each a half circle with its straight edge on top, one under each end of the
+  tram, their round bottoms standing on the street's top edge (touching it). Color: red #d8433b.
+  Inside each, one smaller half circle sharing the same straight top edge, about half as wide.
   Color: cream #f6e7b8.
-- Destination board: one flat shape with four straight sides floating across the top of the
-  front, under the roof, almost as wide as the front, with a clear strip of front color at least
-  three line-widths wide around it. It is blank: no letters or numbers. Color: cream #f6e7b8.
-- Front window: one big four-sided window floating in the upper half of the front, under the
-  board, with a clear strip of front color between them. Color: blue #5b8fc7.
-- Window shine: exactly two short straight lines in the front window's upper left corner,
-  parallel, slanting up to the right, floating, touching nothing. Bold charcoal lines like every
-  other line: not white, not pale, not filled.
-- Headlight: one small circle floating in the middle of the lower half of the front. Color: cream
+- Chassis: one long band with four straight sides lying on the two wheels' straight top edges
+  (shared), as long as the tram's body, about four line-widths tall. Color: brown #8a5a33.
+- Bumpers: exactly two, one at each end of the chassis, a small shape with four straight sides
+  sticking out from the chassis's end (one shared line), as tall as the chassis and about as long as
+  it is tall. Color: gray #c9ced6.
+- Lower body: one long shape with four straight sides standing on the chassis (one shared line), as
+  long as the chassis, about one seventh as tall as it is long. Color: yellow #f7cf46.
+- Panels: exactly six, in a row, floating in the lower body, one under each window, as wide as the
+  window above it, each with four straight sides, with a clear strip of yellow at least three
+  line-widths wide between them and all around them. Color: orange #f08a2c.
+- Belt: one long band lying along the lower body's top edge (one shared line), the tram's whole
+  length, about three line-widths tall. Color: red #d8433b.
+- Window band: one long shape with four straight sides standing on the belt (one shared line), as
+  long as the lower body and a little taller than it. Color: cream #f6e7b8.
+- Windows: exactly six, in a row, evenly spaced, floating in the window band, each a little taller
+  than wide, with four straight sides, a clear strip of cream at least three line-widths wide
+  between them and all around them. Plain glass: no shine lines, no bars. Color: blue #5b8fc7.
+- Roof: one low shape lying on the window band's top edge (one shared line), a little longer than
+  the body at each end, its ends curving down in a gentle round, about four line-widths tall. Color:
+  gray #c9ced6.
+- Lantern: one long raised strip lying along the middle of the roof's top edge (one shared line),
+  about half the roof's length, about three line-widths tall, with rounded ends. Color: cream
   #f6e7b8.
-- Bumper: one low flat shape with four straight sides hanging under the front's bottom edge (one
-  shared line), as wide as the front and about four line-widths tall. Color: gray #c9ced6.
-- Side windows: exactly four in a row, floating in the upper half of the side, evenly spaced, with
-  a clear strip of yellow at least three line-widths wide between them and all around them, each
-  a four-sided shape with upright sides and top and bottom edges that follow the side's edges,
-  a little smaller toward the far end. Color: blue #5b8fc7.
-- Side band: one long band running the whole length of the side, below the windows with a clear
-  strip of yellow between them: its near end is a stretch of the front's right edge, its far end
-  a stretch of the side's far edge, and its top and bottom edges follow the side's edges, drawing
-  together toward the far end. About one tenth as tall as the side. Color: cream #f6e7b8.
-- Trolley pole: one single straight line rising from the middle of the roof and leaning back
-  toward the far end, about as long as the side is tall. Its top end is free. A charcoal line with
-  no color.
-- Rails: exactly two single lines, parallel. They come out from under the bumper, one near each
-  end of its bottom edge, touching it, and run toward the lower left in one smooth curve that
-  bends round, so that at their near ends they point straight down the picture, like a track
-  turning a corner. They spread a little apart as they come nearer, and both end open, a clear
-  margin above the bottom of the image. Charcoal lines with no color.
-Nothing else: no wheels, no wire above the pole, no letters, numbers or route sign, no doors, no
-steps, no sleepers between the rails, no street, curb, buildings or ground. Eighteen shapes and
-lines in total. Count: one front with a board, a window, two shine lines, a headlight and a
-bumper; one side in two parts, split by one band, with four windows; one roof, one pole, two
-rails.
+- Destination boards: exactly two, one standing on each end of the roof (their bottom edges on the
+  roof's top, shared), each a small shape with four straight sides, wider than tall, with a clear
+  gap of at least three line-widths from the lantern. Blank: no letters or numbers. Color: cream
+  #f6e7b8.
+- Trolley pole: on the lantern's top edge near its right end, one small low base with four straight
+  sides (shared bottom edge), color brown #8a5a33; from it, one single straight line rising and
+  leaning back to the right, its top end touching the wire. A charcoal line with no color.
+Nothing else: no doors, no headlights, no shine lines, no second rail, no people, no letters or
+numbers, no route sign, no cobbles, no sky color, buildings, trees, cars or birds.
+Thirty-four shapes and lines in total. Count: one street, two posts with two balls, one wire; two
+wheels with two hubs, one chassis with two bumpers; one lower body with six panels, one belt, one
+window band with six windows; one roof with one lantern and two boards; one pole base, one pole.
 ```
 
 ### 8 · `brick-window`
@@ -829,17 +845,16 @@ the edges are the plainest and palest: the highest house and the rooftops have n
   Colors from the bottom up: orange #f08a2c, pale green #b9dc8a, cream #f6e7b8. Windows, floating
   in the upper half, blue #5b8fc7: exactly two side by side in the first house, one in the
   second, none in the third.
-- Tram, on the rails in front of the lower parts of the first two houses, as long as about one
-  and a half houses: a body, one long four-sided shape tilted with the street, its bottom and top
-  edges parallel to the street and its two ends at right angles to them, color yellow #f7cf46; a
-  roof, one low rounded shape lying along the body's top edge (shared), color cream #f6e7b8;
-  exactly three windows floating in the upper half of the body, evenly spaced, blue #5b8fc7; one
-  band running the body's whole length below the windows, parallel to the street, with a clear
-  strip of yellow between it and the windows, color cream #f6e7b8, as on the attached tram;
-  exactly two wheels, each a half circle hanging from the body's bottom edge near one end (shared
-  edge) and standing on the lower rail, color gray #c9ced6; one trolley pole, a single straight
-  line rising from the roof and leaning back down the hill, its top end free, a charcoal line
-  with no color.
+- Tram, on the rails in front of the lower parts of the first two houses, as long as about one and a
+  half houses, a simpler cousin of the attached tram: a body, one long four-sided shape tilted with
+  the street, its bottom and top edges parallel to the street and its two ends at right angles to
+  them, split along its length by one band parallel to the street, color red #d8433b, into an upper
+  part, color cream #f6e7b8, and a lower part, color yellow #f7cf46; a roof, one low rounded shape
+  lying along the body's top edge (shared), color gray #c9ced6; exactly three windows floating in
+  the upper part, evenly spaced, with a clear strip of cream around them, blue #5b8fc7; exactly two
+  wheels, each a half circle hanging from the body's bottom edge near one end (shared edge) and
+  standing on the lower rail, color red #d8433b; one trolley pole, a single straight line rising
+  from the roof and leaning back down the hill, its top end free, a charcoal line with no color.
 - Rooftops: exactly three pointed roofs rising behind the three houses, one behind each, their
   lower parts hidden by the houses, each a triangle with a gently rounded peak whose tip rises
   well above the house in front of it. Each roof is no wider than its house, and neighboring roofs
