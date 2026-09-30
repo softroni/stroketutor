@@ -215,15 +215,15 @@
       "level": "advanced",
       "color": "butter",
       "lessonIds": [
+        "fire-hydrant",
         "shop-front",
         "balcony",
+        "brick-window",
         "phone-box",
         "street-corner",
-        "fountain",
         "canal-bridge",
-        "brick-window",
-        "fire-hydrant",
         "rooftops",
+        "fountain",
         "cafe"
       ]
     }

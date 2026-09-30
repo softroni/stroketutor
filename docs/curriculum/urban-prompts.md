@@ -10,6 +10,10 @@ and made `cafe`, their own picture, the tenth and last lesson. The three prompts
 before this one has them); where the notes below still speak of the tram, the hill street or the finale, they
 describe those prompts.
 
+**2026-09-30, reordered easy to hard.** The path now runs fire-hydrant, shop-front, balcony, brick-window,
+phone-box, street-corner, canal-bridge, rooftops, fountain, cafe. The numbers in the headings below are the
+planning order, not the path's.
+
 ## How to run them
 
 - **System prompt: `style-v5-advanced`**, the Advanced level's, copied from the level's menu in the Studio

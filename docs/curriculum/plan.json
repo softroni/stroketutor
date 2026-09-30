@@ -1017,6 +1017,11 @@
       "description": "The city as you see it: shop fronts, balconies and bridges, textures you suggest instead of copying, a tiled rooftop, ending with a café and its table for two.",
       "lessons": [
         {
+          "id": "fire-hydrant",
+          "title": "Fire Hydrant",
+          "objective": "Fire hydrant with a ribbed dome and two bands, water pouring from one nozzle into a puddle"
+        },
+        {
           "id": "shop-front",
           "title": "Shop Front",
           "objective": "A bookshop front: striped awning, a window of books, a paneled door, a potted bush and a tree"
@@ -1025,6 +1030,11 @@
           "id": "balcony",
           "title": "Balcony",
           "objective": "Tall doors under a pointed hood behind a railing, a flower box and a climbing vine"
+        },
+        {
+          "id": "brick-window",
+          "title": "Brick Window",
+          "objective": "Arched window under a brick arch, with two climbing vines and bricks in three small patches"
         },
         {
           "id": "phone-box",
@@ -1037,29 +1047,19 @@
           "objective": "Corner café in two-point view: striped awning, flower boxes, a chimney, eye level at the door"
         },
         {
-          "id": "fountain",
-          "title": "Fountain",
-          "objective": "Three-tier town fountain drawn in ellipses, with ribbed bowls and arcs of water"
-        },
-        {
           "id": "canal-bridge",
           "title": "Canal Bridge",
           "objective": "Humpbacked bridge of three stone arches between brick quays, mirrored in the canal"
         },
         {
-          "id": "brick-window",
-          "title": "Brick Window",
-          "objective": "Arched window under a brick arch, with two climbing vines and bricks in three small patches"
-        },
-        {
-          "id": "fire-hydrant",
-          "title": "Fire Hydrant",
-          "objective": "Fire hydrant with a ribbed dome and two bands, water pouring from one nozzle into a puddle"
-        },
-        {
           "id": "rooftops",
           "title": "Rooftops",
           "objective": "Tiled roof in three rows over a gable window, with a two-pot chimney and a water tank"
+        },
+        {
+          "id": "fountain",
+          "title": "Fountain",
+          "objective": "Three-tier town fountain drawn in ellipses, with ribbed bowls and arcs of water"
         },
         {
           "id": "cafe",
