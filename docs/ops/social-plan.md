@@ -64,13 +64,23 @@ Lessons are the everyday posts; news is for moments worth telling, **at most two
 
 ## Cost
 
-Upload-Post Basic, yearly (about $192). About 90 uploads a month is well inside it. TikTok needs it.
+Upload-Post Basic, **monthly ($24) for the first two months**, then yearly ($192, $16 a month) if social is
+bringing downloads (decided with Kevin on 2026-09-30). If it works, that costs $16 more than yearly from the start;
+if it doesn't, $48 instead of $192. Two months rather than the four-week review, because new accounts are often
+quiet for their first weeks. Basic has no upload limit, so ~90 uploads a month are fine. TikTok needs it: TikTok
+lets only audited apps post publicly, and won't audit a tool for posting to your own accounts.
+
+**The decision (about 2026-11-30):** downloads per platform in App Store Connect (the `ct=` campaigns) and
+Upload-Post's views. Claude writes it up under *Log* and puts it in Needs you; staying, going yearly or stopping is
+Kevin's call.
 
 ## Checklist
 
 Waiting on Kevin:
 
-- [ ] Buy Upload-Post Basic (yearly) and connect TikTok to the `softroni` profile.
+- [ ] Buy Upload-Post Basic (monthly) and connect TikTok to the `softroni` profile (as a Business account, so the
+  bio link shows).
+- [ ] About 2026-11-30: monthly → yearly, or stop (see *Cost*).
 - [ ] Provider token for campaign links (see *Knowing what works*).
 - [ ] Bio links on TikTok, Instagram and X to the App Store (tagged links once the token is in).
 - [ ] YouTube "made for kids" and the AI label: defaults stand (no; TikTok only) unless Kevin says otherwise.
@@ -96,3 +106,4 @@ Then (Claude, once the plan and TikTok are on):
 - 2026-09-30: 1.0 on sale; the queue now reads the version on sale (`1.0(2)`, 100 lessons). Plan agreed.
 - 2026-09-30: built the up-next list, campaign links, step pins with a board per path, the speed draw and
   `social announce`. Nothing posted publicly yet: waiting on the paid plan and TikTok.
+- 2026-09-30: Upload-Post monthly for two months, then yearly if it brings downloads (not yearly up front).
