@@ -1014,7 +1014,7 @@
       "title": "Urban",
       "level": "advanced",
       "color": "butter",
-      "description": "The city as you see it: shop fronts, balconies and bridges, textures you suggest instead of copying, streets that climb, ending with a tram climbing past a corner café.",
+      "description": "The city as you see it: shop fronts, balconies and bridges, textures you suggest instead of copying, a tiled rooftop, ending with a café and its table for two.",
       "lessons": [
         {
           "id": "shop-front",
@@ -1047,11 +1047,6 @@
           "objective": "Humpbacked bridge of three stone arches between brick quays, mirrored in the canal"
         },
         {
-          "id": "tram",
-          "title": "Tram",
-          "objective": "Old tram in three-quarter view on rails curving around a corner"
-        },
-        {
           "id": "brick-window",
           "title": "Brick Window",
           "objective": "Arched window under a brick arch, with two climbing vines and bricks in three small patches"
@@ -1067,14 +1062,9 @@
           "objective": "Tiled roof in three rows over a gable window, with a two-pot chimney and a water tank"
         },
         {
-          "id": "hill-street",
-          "title": "Hill Street",
-          "objective": "Street climbing a hill: houses step up, the road's edges meet above the horizon"
-        },
-        {
-          "id": "tram-hill",
-          "title": "Tram Hill",
-          "objective": "Café corner at the foot of a steep street, a tram climbing it, rooftops behind, edges fading out"
+          "id": "cafe",
+          "title": "Café",
+          "objective": "Two-story café seen from its corner: tiled roof, striped awning, a table and two chairs"
         }
       ]
     },

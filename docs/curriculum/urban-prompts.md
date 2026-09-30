@@ -1,9 +1,14 @@
 # Urban — image-generation prompts
 
-Source art for the twelve `urban` lessons (Advanced level, learners aged 16 and up), written for a raster
+Source art for the ten `urban` lessons (Advanced level, learners aged 16 and up), written for a raster
 image model (OpenAI image, Gemini / Nano Banana). Same pipeline as the fruits:
 PNG → `svg from-image --palette ../docs/curriculum/palette.json` → `author-lesson`. The **system prompt** is the
 Advanced level's; only the **lesson prompt** changes.
+
+**2026-09-30: the path ends on the café.** The creator took `tram`, `hill-street` and `tram-hill` out of the path
+and made `cafe`, their own picture, the tenth and last lesson. The three prompts are gone from this file (the commit
+before this one has them); where the notes below still speak of the tram, the hill street or the finale, they
+describe those prompts.
 
 ## How to run them
 
@@ -14,9 +19,7 @@ Advanced level's; only the **lesson prompt** changes.
   reflections, the palette and the composition, so the lesson prompts add to it and never say it again.
 - Attach the **published apple** (`fruits/apple-openai.png`) to every request; the system prompt says how to match
   it, so there is no reference line. `shop-front` is published (its picture is `urban/shop-front-openai.png`):
-  attach it to `phone-box` too, whose tree is the shop front's tree, and to `tram-hill`, with `tram` once that is
-  kept, so the finale's café and tram look like the ones drawn before. Make `tram-hill` last. No other lesson needs a
-  second picture.
+  attach it to `phone-box` too, whose tree is the shop front's tree. No other lesson needs a second picture.
 - Square, 1024 × 1024 or larger, PNG, opaque white background.
 - Generate 3–4 candidates per lesson and keep the one with the fewest, cleanest lines, not the prettiest. Reject
   any candidate that gets a count wrong: the counts are the teaching points.
@@ -519,86 +522,7 @@ each with a roof and a window, one cypress, one round tree with a trunk, the bri
 with three ring bands, two quay reflections, four ripples.
 ```
 
-### 7 · `tram`
-
-Objective: Old tram in three-quarter view on rails curving around a corner.
-
-Third design, 2026-09-30. The flat side view (six windows over six panels between two posts) came back correct but
-dull. The creator liked another ChatGPT tram instead: a red and cream tram in three-quarter view, its front to the
-lower right, with a big windshield and a wiper, a round headlight, a double door with tall windows, a raised strip
-on the roof, a trolley on a wire, and gray rails curving round under it. This prompt keeps that tram and makes it
-simpler: one windshield instead of three, one pole instead of a jointed trolley, two wheels instead of bogies, no
-cream pinstripes, and palette colors for its dark grays (a gray roof, brown wheels and bumper), since charcoal
-fills would trace as ink.
-
-```text
-SUBJECT: one old city tram, red below and cream above, in three-quarter view, standing on two rails
-that curve round a corner, with its trolley pole touching an overhead wire. The tram is about 70% of
-the image's width; the whole scene, rails and wire included, about 80%, with clear white margin on
-all four sides; nothing is cut off by the image's edge.
-VIEW: three-quarter view: the front of the tram faces the lower right of the picture and its long
-side goes away to the upper left, so both show. Every upright edge stays upright. The side's top and
-bottom edges draw gently together toward its far end, which is a little shorter than the front. The
-vanishing points lie outside the picture: no horizon and no dots.
-No shadows, drop shadows, soft shading, texture, transparency or shine anywhere.
-- Front: one upright four-sided shape, a little taller than wide. One level line across it a little
-  below its middle divides it into a cream #f6e7b8 upper part and a red #d8433b lower part.
-- Side: one long four-sided shape going away to the upper left from the front's left edge (the
-  corner, one shared upright line), about two and a half times as long as the front is wide. One
-  line along it, at the same height as the front's and following the side's edges, divides it the
-  same way: cream #f6e7b8 above, red #d8433b below. The corner line is the only line between the
-  side and the front.
-- Roof: one low shape lying along the tops of the side and the front (shared lines), overhanging
-  them a little, its front end rounded down over the front's top corners, about one eighth as tall
-  as the front. Color: gray #c9ced6.
-- Lantern: one long raised strip lying along the middle of the roof's top over the side (shared
-  line), about half the side's length, about three line-widths tall, with rounded ends. Color: cream
-  #f6e7b8.
-- Front window: one big window with gently rounded corners floating in the front's cream part,
-  filling most of it, with a clear strip of cream at least three line-widths wide all around it.
-  Color: blue #5b8fc7.
-- Wiper: one single straight line starting on the front window's bottom edge near its middle and
-  slanting up to the left, ending inside the glass, about one third as long as the window is tall. A
-  bold charcoal line with no color.
-- Headlight: one circle floating in the middle of the front's red part, with a clear strip of red
-  around it, color gray #c9ced6, and inside it one smaller circle with a clear ring of gray around
-  it, color yellow #f7cf46.
-- Bumper: one low flat shape with four straight sides lying along the front's bottom edge (one
-  shared line), as wide as the front and about four line-widths tall. Color: brown #8a5a33.
-- Door: near the front end of the side, two tall narrow door leaves side by side, sharing their
-  middle line, standing on the side's bottom edge (shared) and reaching up to the level of the
-  window tops, crossing the line between cream and red, which stops at the door's edges. Color:
-  brown #8a5a33. In each leaf, one tall narrow window floating in its upper half with a clear strip
-  of brown around it. Color: blue #5b8fc7.
-- Side windows: exactly four in a row between the door and the far end, floating in the side's cream
-  part, evenly spaced, each with gently rounded corners, upright sides and top and bottom edges that
-  follow the side's edges, a little smaller toward the far end, with a clear strip of cream at least
-  three line-widths wide between them and all around them. Color: blue #5b8fc7.
-- Wheels: exactly two, each a half circle with its straight edge on top, hanging from the side's
-  bottom edge (shared), one under the part just behind the door and one near the far end, each at
-  least three line-widths from the bumper. Color: brown #8a5a33.
-- Rails: exactly two long bands, each about three line-widths wide with a small straight end at each
-  end, running parallel and curving the same way, like a track turning a corner. The near rail runs
-  under the side, the wheels standing on its top edge (touching it), from a little beyond the far
-  end, and carries on past the front corner, a clear gap below the bumper, curving down toward the
-  lower right. The far rail comes out from under the bumper (its end touching the bumper's bottom
-  edge) and curves down toward the lower right beside the near rail, spreading a little apart from
-  it as they come nearer. Both end open, a clear margin inside the image's edges. Color: gray
-  #c9ced6.
-- Trolley pole: on the lantern's top near its front end, one small low base with four straight sides
-  (shared bottom edge), color brown #8a5a33; from it, one single straight line rising and leaning
-  back toward the far end, its top end touching the wire. A charcoal line with no color.
-- Wire: one single straight line well above the roof, running parallel to the side's top edge, from
-  above the front to a little beyond the far end, both ends open. A charcoal line with no color.
-Nothing else: no second arm or joint on the trolley, no cream stripes, no bogies or extra wheels, no
-mirrors, no shine lines, no letters, numbers or route sign, no people, no street, curb, buildings or
-ground, no sleepers between the rails.
-Twenty-six shapes and lines in total. Count: one front in two parts with a window, a wiper, a
-headlight in two circles and a bumper; one side in two parts with a two-leaf door with two windows
-and four windows; one roof with a lantern; two wheels; two rails; one pole base, one pole, one wire.
-```
-
-### 8 · `brick-window`
+### 7 · `brick-window`
 
 Objective: Arched window under a brick arch, with two climbing vines and bricks in three small patches.
 
@@ -645,7 +569,7 @@ stones, no shutters, no plants, no shadow. Eighteen shapes and lines in total. C
 with three panes, two shine lines, one keystone, one sill, nine bricks in three patches of three.
 ```
 
-### 9 · `fire-hydrant`
+### 8 · `fire-hydrant`
 
 Objective: Fire hydrant with a ribbed dome and two bands, water pouring from one nozzle into a puddle.
 
@@ -709,7 +633,7 @@ nut; two nozzles, each a neck, a cap and a knob; one foot; one pavement in three
 two lines.
 ```
 
-### 10 · `rooftops`
+### 9 · `rooftops`
 
 Objective: Tiled roof in three rows over a gable window, with a two-pot chimney and a water tank.
 
@@ -773,148 +697,32 @@ roofs, one dormer with one window, one round window, two chimneys, four pots, on
 on three legs.
 ```
 
-### 11 · `hill-street`
+### 10 · `cafe`
 
-Objective: Street climbing a hill: houses step up, the road's edges meet above the horizon.
+Objective: Two-story café seen from its corner: tiled roof, striped awning, a table and two chairs.
 
-```text
-SUBJECT: a steep street climbing a hill, seen from the bottom of it, looking straight up the
-street, with two tram rails running up it. Three houses line its left side, stepping up the hill
-one after another, each with a band of eaves along its top, a door and two windows. On the right
-side there are no houses: the view opens out, and the horizon shows there.
-VIEW: one-point perspective, from the eye level of someone standing at the bottom of the street.
-Because the street climbs, its two edges meet at a point high in the picture, far above the eye
-level. The houses stand level on the slope, so their level edges aim at a point on the horizon
-straight below that; that lower point is not drawn. Every upright edge stays perfectly upright.
-- Road: one long triangle: a wide level bottom edge across the bottom of the scene, and two
-  straight edges climbing from its ends and meeting at one point in the upper part of the picture,
-  a little right of the middle. Color: gray #c9ced6.
-- Vanishing point: exactly one small solid round dot where the road's two edges meet, in the
-  charcoal line color.
-- Horizon: one straight level line to the right of the road, at the eye level, about one third of
-  the way up the nearest house and well below the dot. It runs from the road's right edge, ending
-  exactly on it, to about 85% of the image width. A charcoal line with no color. The dot is
-  clearly above it.
-- Houses: exactly three walls along the road's left edge, going away up the street, each a
-  four-sided shape: an upright near edge, a shorter upright far edge, a bottom edge that is a
-  stretch of the road's left edge (one shared line, climbing), and a top edge that slopes gently
-  down toward the far end. The first house is the tallest and nearest, at the left of the scene;
-  each next house begins where the one before ends, and its near edge rises higher than the
-  previous house's far edge, so the rooftops step up like stairs; the lower part of that near edge
-  is the previous house's far edge (one shared line). The houses get smaller up the hill and the
-  third ends about halfway up the road. Colors from the bottom up: watermelon pink #ee5a6a,
-  yellow #f7cf46, pale green #b9dc8a.
-- Eaves: along the top of each house, one band from its near edge to its far edge: its top edge is
-  the house's top edge (shared), and one line under it, sloping the same way, divides it from the
-  wall. About one eighth as tall as the house's near edge. Color: brown #8a5a33.
-- Windows: exactly two in each house, six in all, side by side under the eaves, floating with a
-  clear strip of wall color around them, each a four-sided shape with upright sides and top and
-  bottom edges that slope like the house's top edge; the far window in each house is a little
-  smaller. Color: blue #5b8fc7.
-- Doors: exactly one in each house, three in all, under its near window with a clear strip of
-  wall color between them: two upright sides, a top edge that slopes like the house's top edge,
-  and a bottom edge that is a stretch of the road's left edge (one shared line, climbing), as
-  doors on a steep street are. Color: brown #8a5a33.
-- Rails: exactly two single straight lines on the road, starting on its bottom edge, one on each
-  side of its middle and well apart, climbing toward the dot and drawing together as the road's
-  edges do. Both stop open about halfway up the road, well below the dot, touching nothing else.
-  Charcoal lines with no color.
-Nothing else: no roofs, chimneys or balconies, no door handles, no sidewalk or curb, no road
-markings, no tram, no lamp posts, no houses on the right, no hills, trees, sea or city below the
-horizon, no guide lines, no second dot. Twenty shapes and lines in total. Count: three houses
-with eaves, three doors, six windows, two rails, one dot, one horizon.
-```
+Kept picture (2026-09-30): the creator's own design, with no prompt behind it, and it is the lesson and the path's
+last one (`urban/cafe-openai.png`). A cream two-story house seen from its corner: a tiled roof with a ball at its
+peak, a band of five tiles down the gable's edge and a chimney with two pots; an arched window over a flower box
+with two bushes; a green band across the front, and under it a red and cream awning of seven stripes, a shop window
+of four panes, a door with a pane and a panel, and a round table between two chairs; two windows on ledges on the
+side wall. It pulls together what the path drew before it: the shop front's awning, the balcony's flower box, the
+brick window's arch, the rooftop's tiles and chimney.
 
-### 12 · `tram-hill`
+The creator asked for small changes so it fits the app, and four were made to the picture before tracing:
+- the potted bush at the side wall's foot was taken out (one step fewer), and the wall's corner it hid was finished
+  with the two straight lines that lead to it;
+- the tabletop was moved eight pixels lower: it all but touched the line above it, and the two fused in the trace;
+- the dark rim shadows on the two chimney pots were painted the pots' own color (one came out as a line, the other
+  as an orange sliver);
+- the pale off-white of the frames, ledges, stripes, cap and tabletop was painted the wall's cream, because the
+  palette has no white and it snapped to gray in speckles. `from-image` was given the palette without gray and brown
+  (`--snap-distance 40`), so the table's leg is orange like the chairs.
 
-Objective: Café corner at the foot of a steep street, a tram climbing it, rooftops behind, edges fading out.
-
-Attach `shop-front` and the kept `tram` as well as the apple; make this one last.
-
-```text
-SUBJECT: a small street scene like a sketch from a hilly old town: a café on the corner at the
-foot of a steep street, with a blank sign, a striped awning and a potted bush, the street
-climbing to the upper right with three houses stepping up along it, a yellow tram climbing the
-street, and rooftops behind the houses. Its edges fade out, the way a sketch fades out on a page.
-VIEW: a flat side view with no perspective. The ground under the café is level; from the café's
-right, the street climbs steeply to the upper right, at about thirty degrees. The café, the houses
-and the tram are seen straight from the side; the tram tilts with the street.
-Here some things do overlap, and only these: the tram stands in front of the lower parts of the
-houses and hides the stretch of the street's far edge behind it, the tram's wheels stand in front
-of the lower rail, and the houses stand in front of the lower parts of the rooftops. The thing in
-front hides the thing behind.
-FADING EDGES: the scene has no frame and no straight outer edge. The street is not colored: it
-stays white paper, like the sky, between its two edge lines, and at both ends those lines stop
-open in the white without being joined, so the street is not an enclosed shape. The parts nearest
-the edges are the plainest and palest: the highest house and the rooftops have no windows.
-- Street: two single lines, each straight but for one bend: the street's far edge and near edge.
-  The far edge starts
-  open at the left, runs level under the café as its ground line, and at the café's right bends up
-  and climbs to the upper right, where it stops open. The near edge runs below it, level at first
-  and then climbing parallel to it, about one sixth of the image height lower; it starts open
-  below the café's door and stops open at the upper right, a little before the far edge. Charcoal
-  lines with no color.
-- Rails: exactly two single lines running up the middle of the climbing street, parallel to its
-  edges, about half the street's width apart, starting open near the foot of the slope and
-  stopping open near the top. The tram's body's bottom edge runs midway between them, at least
-  three line-widths from each. The lower rail passes behind the lower part of each wheel: it stops
-  on the wheel's outline on one side and carries on from the other. The upper rail passes behind
-  the tram's body and is hidden there. Charcoal lines with no color.
-- Café, at the lower left, standing on the level ground line (one shared line), about one third of
-  the image width, a small cousin of the attached shop front:
-  - Wall: one closed shape with four straight sides, about as tall as wide. Color: watermelon
-    pink #ee5a6a.
-  - Roof: one low four-sided shape sitting on the wall's top edge (shared), a little wider than
-    the wall, with slanting ends. Color: orange #f08a2c.
-  - Sign: one long flat shape with four straight sides floating across the top of the wall, with a
-    clear strip of wall color above it and at both ends, color yellow #f7cf46, and inside it one
-    smaller floating shape with a clear strip of yellow around it, color cream #f6e7b8. Blank.
-  - Awning: floating under the sign with a clear strip of wall color between them, like the
-    attached shop front's but with exactly five scallops and four lines dividing it into five
-    stripes: red #d8433b, cream #f6e7b8, red, cream, red.
-  - Window: one big shape with four straight sides under the left part of the awning, floating,
-    blue #5b8fc7, with exactly two short shine lines in its upper left corner: bold charcoal,
-    parallel, slanting up to the right, floating.
-  - Door: one tall shape under the right part of the awning, standing on the ground line
-    (shared), brown #8a5a33, with one glass pane floating in its upper half, blue #5b8fc7.
-  - Potted bush: standing on the ground line to the left of the wall, with a clear gap of white
-    at least three line-widths wide between them: a pot, one shape wider at the top than at the
-    bottom with no rim line, orange #f08a2c, and a bush, one closed shape sitting on the pot's top
-    edge (shared) with a top of exactly three round bumps, leaf green #4f9d4a.
-- Houses: exactly three flat fronts standing along the climbing street's far edge, one after
-  another, a clear gap of white between the café and the first. Each has upright sides, a level
-  top edge, and a bottom edge that is a stretch of the street's far edge (one shared line,
-  climbing). Each house's top is higher than the one before, so the houses step up like stairs;
-  the lower part of each house's left side is the previous house's right side (one shared line).
-  Colors from the bottom up: orange #f08a2c, pale green #b9dc8a, cream #f6e7b8. Windows, floating
-  in the upper half, blue #5b8fc7: exactly two side by side in the first house, one in the
-  second, none in the third.
-- Tram, on the rails in front of the lower parts of the first two houses, as long as about one and a
-  half houses, a simpler cousin of the attached tram seen from the side: a body, one long four-sided
-  shape tilted with the street, its bottom and top edges parallel to the street and its two ends at
-  right angles to them, divided along its length by one line parallel to the street into an upper
-  part, color cream #f6e7b8, and a lower part, color red #d8433b; a roof, one low rounded shape
-  lying along the body's top edge (shared), color gray #c9ced6; exactly three windows floating in
-  the upper part, evenly spaced, with a clear strip of cream around them, blue #5b8fc7; exactly two
-  wheels, each a half circle hanging from the body's bottom edge near one end (shared edge) and
-  standing on the lower rail, color brown #8a5a33; one trolley pole, a single straight line rising
-  from the roof and leaning back down the hill, its top end free, a charcoal line with no color.
-- Rooftops: exactly three pointed roofs rising behind the three houses, one behind each, their
-  lower parts hidden by the houses, each a triangle with a gently rounded peak whose tip rises
-  well above the house in front of it. Each roof is no wider than its house, and neighboring roofs
-  keep a clear gap of white at least three line-widths wide. Colors from the bottom up: watermelon
-  pink #ee5a6a, gray #c9ced6, pale green #b9dc8a. On the middle roof stands one chimney, a small
-  upright shape with four straight sides whose bottom follows the roof's slope (shared), color
-  brown #8a5a33, topped by exactly two chimney pots side by side on its top edge (shared), with a
-  clear gap of white at least three line-widths wide between them, color orange #f08a2c.
-Nothing else: no people, no birds, no cars, no letters on the café or the tram, no café tables or
-chairs, no lamp posts, no wire above the tram, no doors on the houses, no sky, no clouds, no sun,
-no ground color, no frame. Forty-two shapes and lines in total. Count: two street lines, two
-rails; one café with a roof, a framed sign, a five-stripe awning, a window with two shine lines, a
-door with a pane, and a potted bush; three houses with three windows; one tram body in two parts
-with a roof, three windows, a dividing line, two wheels and a pole; three rooftops; one chimney
-with two pots.
-```
+Still fused in the trace, and drawn as they came: the hem's last two bumps lie on the door's top line, and the right
+chair's back ends on the shop window's corner. The roof's lines were cut at every crossing and put back together as
+three wavy lines down the roof, one along its foot and eight bumps; the color areas are the regions the drawn lines
+enclose, each given the color the picture has there.
 
 ## What to send back
 

@@ -1,7 +1,7 @@
 # Urban: what Lina says
 
-The words of a path are planned together, so twelve lessons in a row do not say the same sentence
-twelve times, and do not sound like twelve different teachers either. This is the plan for the
+The words of a path are planned together, so ten lessons in a row do not say the same sentence
+ten times, and do not sound like ten different teachers either. This is the plan for the
 `urban` lessons (Advanced level, learners 16 and up, 2026-09-29), written from the
 pictures as they come back, not from the prompts in
 [urban-prompts.md](urban-prompts.md). A lesson's script is added here when its
@@ -317,3 +317,40 @@ and the braces are drawn as the four gaps around the X. The picture's orange is 
 - tree: "Last, a tree behind it all. A small bump by the left leg, then five big ones from the tank to the roof."
 - colors: "Cream for the walls, the chimney, the window frame and the ledge." / "Red for the whole roof, the ball, both bands and the two pots." / "Green for the tree, brown for the tank and its legs. Blue for the lid and the glass, around a white cross."
 - outro: "Your roof is on, and every tile is in place. Hope you're not afraid of heights."
+
+### cafe
+
+The creator's picture (2026-09-30) and the path's last lesson, in place of the tram on the hill: a
+cream two-story house seen from its corner, with a café downstairs. A tiled roof with a ball at the
+peak, a band of five tiles down the gable's edge and a chimney with two pots; an arched window with
+a cross of two bars, behind a flower box with two bushes; a dark green band across the front, and
+under it a red and cream awning of seven stripes, the shop's window of four panes, a door with a
+pane and a panel, and out front a round table between two chairs; two windows on ledges on the side
+wall. The potted bush that stood at the side wall's foot was taken out. Drawn from the ball at the
+peak, as Rooftops was: roof, front wall and its band, side wall, chimney, then the tiles (three wavy
+lines down the roof, one along its foot, and two rows of four bumps); the flower box before the
+window behind it; the awning's hem before the window under it; the table, then the chairs, then
+their legs, with the dashes of the shop's foot that show between them. The hem's last two bumps lie
+flat on the door's top line, as in the picture. Lina ties it back to the path: it is every earlier
+lesson in one house.
+
+- intro: "Here is the whole town in one house: a tiled roof, a striped awning, a table out front. It's the café on the corner. Watch it go up, floor by floor, then pull up a chair."
+- peak: "Begin at the very top with a ball. A band slopes down to the left, and four short lines cut it into tiles."
+- roof: "The roof slopes down from the ball and runs to a round tip. Add its top, two wall lines and a long band."
+- side-wall: "Below the band, the corner runs down, along the ground and up to the roof's tip. Two windows, each on a ledge."
+- chimney: "Next, the chimney: a short side up from the roof, a flat cap, and a second side below. Two pots stand on top."
+- roof-lines: "Close the roof from the chimney to the tip. Three wavy lines slope down it, and one runs along the bottom."
+- tiles-top: "Four bumps make the top row of tiles. Each one bridges two wavy lines."
+- tiles-middle: "Then four more bumps, one row lower."
+- flower-box: "On the front wall, a long flower box. Two bumpy bushes grow in it, with a short line between them."
+- window: "Behind the bushes, an arched window: a big arch, a smaller one inside, and a cross of two bars."
+- awning: "The awning hangs from the long band: two sides, a fold line and a wavy hem of seven bumps."
+- stripes: "Six slanting lines divide the awning into seven stripes, right down to the hem."
+- shop-window: "Under the awning, the shop's left side and a post. Then the big window, with a cross of two bars."
+- door: "Right of the window, the door: its frame, a tall pane of glass and a square panel. A line along the ground."
+- table: "Out front, a small round table: a flat oval top on one leg that spreads into a foot."
+- chairs: "A chair on each side: a rounded back and an oval seat. A line joins the two backs, under the window."
+- left-legs: "The left chair stands on three thin legs. Two short dashes between them show the shop's foot."
+- right-legs: "Three legs for the right chair too, and two more dashes of ground."
+- colors: "Cream for the walls, the chimney, the frames and ledges, three stripes and the tabletop." / "Red for the roof, the pots and four stripes. Blue for every pane of glass." / "Dark green for the shop front, green for the bushes. Orange for the chairs, the table leg and the flower box."
+- outro: "Your café is open, from the chimney pots down to the chair legs. Go on, take the seat by the window."
