@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-30T16:13:41-05:00",
-  "headline": "Apple approved 1.0 (2), and Paper Coach is on the App Store. The build is tagged 1.0(2), and Apple Ads is set up in the US at $10 a day; it starts serving once Apple finishes categorizing the new app.",
+  "updated": "2026-09-30T16:16:30-05:00",
+  "headline": "1.1 is with Apple: Around Town, the dim-light photo modes, Premium Lifetime and crash reports, submitted today at 4:16 PM with its 16 new screenshots. 1.0 is on sale; prices rise to $29.99 and $3.99 on Oct 2.",
   "app": {
     "live": {
       "version": "1.0",
@@ -166,11 +166,6 @@
   ],
   "needsYou": [
     {
-      "title": "Say \"submit\" for 1.1",
-      "detail": "Everything is ready in App Store Connect: build 1.1 (4), text, 16 screenshots, phased release, and Premium Lifetime goes to review with it.",
-      "since": "2026-09-30"
-    },
-    {
       "title": "Upload-Post yearly plan, and connect TikTok",
       "detail": "The app is on sale, so the daily lesson videos can start. The last thing waiting is the paid Upload-Post plan and TikTok on the softroni profile. Once they're in, Claude installs the 17:00 launch agent.",
       "since": "2026-09-30"
@@ -185,7 +180,7 @@
     {
       "title": "1.1 release",
       "state": "waiting",
-      "detail": "Ready to submit: build 4 attached, all tests pass. Waiting for Kevin."
+      "detail": "Submitted 2026-09-30 4:16 PM with Premium Lifetime; waiting for review. Phased release after approval."
     },
     {
       "title": "Apple Ads, first days",
@@ -209,6 +204,10 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-09-30T16:16:30-05:00",
+      "text": "Submitted 1.1 (4) with Premium Lifetime (Kevin's go-ahead): both Waiting for Review, phased release after approval"
+    },
     {
       "at": "2026-09-30T16:13:41-05:00",
       "text": "1.1 (4) ready to submit: 393 iOS and 758 web tests pass, walkthrough done, build uploaded (VALID) and attached, text and 16 screenshots in App Store Connect (shot 4 now the finished fire hydrant), Lifetime Ready to Submit. Waiting for Kevin's Submit"
