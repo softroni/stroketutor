@@ -1,0 +1,136 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "rooftops",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-30T15:35:49.644Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Above every street there's a second town of chimney pots, water tanks and tiles. The tiles are only slanted lines and bumps. Watch them fall into place, then lay your own.",
+      "textHash": "c54a19a3e897516e4a67dc23cff6edfdcfdc46c8fd8ac514ae7a2e0ab6adc9dc",
+      "durationMs": 10800
+    },
+    "peak": {
+      "file": "peak.m4a",
+      "text": "Start with a small ball for the roof's peak. A band slopes down to the left and ends in a round tip.",
+      "textHash": "2b841bd0333f60ca13d700e2f5fae9725fb569d28efb4415d0e42e7393774246",
+      "durationMs": 5840
+    },
+    "roof": {
+      "file": "roof.m4a",
+      "text": "From the ball, a long line slopes down to the right. The bottom edge runs across and curls up at the end.",
+      "textHash": "a4d1513d3cb42ef668da2d3dc2095a8beb6fc164af05ff6cdf0a392f9d537813",
+      "durationMs": 7360
+    },
+    "walls": {
+      "file": "walls.m4a",
+      "text": "A wall drops from each end of the roof: a tall one on the left, a short one on the right.",
+      "textHash": "5a39e56ecc562890a5a533289e17c19e58220592ffb4bab68459f5935277d14a",
+      "durationMs": 5600
+    },
+    "window": {
+      "file": "window.m4a",
+      "text": "In the wall, a long flat ledge. On it stands a tall arch, with a smaller arch inside.",
+      "textHash": "6fc18523f83f4b0ae559550af74d1a518ee8e98388076b993fcb0229836b538b",
+      "durationMs": 6240
+    },
+    "top-band": {
+      "file": "top-band.m4a",
+      "text": "Along the top, a band runs right from the ball to a round tip. Four short lines cut both bands into tiles.",
+      "textHash": "665f72da7aba93b364db206074248ef41dbf33ee96a89d29d1825864442d623e",
+      "durationMs": 7040
+    },
+    "chimney": {
+      "file": "chimney.m4a",
+      "text": "Next, the chimney, behind the band's tip. Its foot slants down the roof, and three lines go straight up.",
+      "textHash": "25ec40784403e0940a8b5ae281e97bab4fa823c7510c4ca5d8e6df24d7bfb76f",
+      "durationMs": 7280
+    },
+    "pots": {
+      "file": "pots.m4a",
+      "text": "A flat cap sits on the chimney, with a line at its corner. Two pots stand on it, each with a rim.",
+      "textHash": "8798e7ca894b40cd4621247dd4fb493105addc314a6da734edf480574f548041",
+      "durationMs": 6160
+    },
+    "far-band": {
+      "file": "far-band.m4a",
+      "text": "Past the chimney, the top band carries on to another round tip. Three short lines make its tiles.",
+      "textHash": "24e4904f920c4a9abdbd16713618932b9e435faa4268c49fa16d28ff352024a3",
+      "durationMs": 6880
+    },
+    "roof-lines": {
+      "file": "roof-lines.m4a",
+      "text": "Close the roof with a line from that tip down to the curl. Five more lines slope the same way.",
+      "textHash": "68429d0eec9258d62f4b0de31de82b04c8a5f6f31885ec91dad3f874e555f740",
+      "durationMs": 5920
+    },
+    "tiles-top": {
+      "file": "tiles-top.m4a",
+      "text": "Now the tiles. In the top row, six bumps, each from one line up and over to the next.",
+      "textHash": "3449ce6541bf8a8311b61f5a2bb5dad734ecc2d2e0f9a45e2166d3fda576ad72",
+      "durationMs": 6640
+    },
+    "tiles-middle": {
+      "file": "tiles-middle.m4a",
+      "text": "A second row of six bumps, halfway down the roof.",
+      "textHash": "68546ac4c1d151b54f4dce37e16e3bc17a96d656d6eece46a62c04c65ee5e961",
+      "durationMs": 3360
+    },
+    "tiles-bottom": {
+      "file": "tiles-bottom.m4a",
+      "text": "Then a third row, just above the bottom edge.",
+      "textHash": "51881b70cd6f30cd93d6f5b7f86dcee552733dfdb255596952fcd3b996a9eb78",
+      "durationMs": 3440
+    },
+    "tank": {
+      "file": "tank.m4a",
+      "text": "Two legs rise from the band behind the roof. A wide tub sits on them: bottom, two sides and a top.",
+      "textHash": "2ddc696d94366c2d713b9e24d9ee022a2fe74e43034348b7b9107f4d468fdae4",
+      "durationMs": 7040
+    },
+    "lid": {
+      "file": "lid.m4a",
+      "text": "Two hoops run around the tub. On top, a pointed lid with a small knob.",
+      "textHash": "6bb48b6fc4c77e75efd0ba10f89700e820e8d30e57db5597237218877b1a9aea",
+      "durationMs": 5040
+    },
+    "braces": {
+      "file": "braces.m4a",
+      "text": "The legs are braced with an X. Draw the gaps around it: a wide one on top, one each side, a tiny one.",
+      "textHash": "9400db034fbd62572649178f189e29417cd22c4bc23c3bef7b8b0e42cc6d05d9",
+      "durationMs": 7040
+    },
+    "tree": {
+      "file": "tree.m4a",
+      "text": "Last, a tree behind it all. A small bump by the left leg, then five big ones from the tank to the roof.",
+      "textHash": "603dfb2369088ad6e48bbb0cbb844d0bd45a8a39c047881995fe83b441f9c926",
+      "durationMs": 7440
+    },
+    "cream": {
+      "file": "cream.m4a",
+      "text": "Cream for the walls, the chimney, the window frame and the ledge.",
+      "textHash": "0827c32a50bd3e336491d52fe30cf4e5a9043a2d668a61898beee548de4160ee",
+      "durationMs": 4320
+    },
+    "red": {
+      "file": "red.m4a",
+      "text": "Red for the whole roof, the ball, both bands and the two pots.",
+      "textHash": "979b4edb243da2d12cd4db208d46573923d1151fda32d12eac1e785f6f830d2a",
+      "durationMs": 4720
+    },
+    "rest": {
+      "file": "rest.m4a",
+      "text": "Green for the tree, brown for the tank and its legs. Blue for the lid and the glass, around a white cross.",
+      "textHash": "5ffa194cafbea858b375a0e2bcea26aac01b6043bcd94b7eed0c9d9ddf77d035",
+      "durationMs": 6880
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your roof is on, and every tile is in place. Hope you're not afraid of heights.",
+      "textHash": "1a83bcda32982b10c61915a21314794d8e522f0d7c85e6e2a8ef10c8a63e46ee",
+      "durationMs": 4560
+    }
+  }
+}

@@ -1080,6 +1080,16 @@
         "source": "OpenAI image model, prompt style-v5-advanced (docs/curriculum/urban-prompts.md) with the creator's own changes, generated 2026-09-30, margin added",
         "license": "AI-generated for Paper Coach; owned by Softroni"
       }
+    },
+    {
+      "id": "rooftops",
+      "status": "approved",
+      "objective": "Tiled roof in three rows over a gable window, with a two-pot chimney and a water tank",
+      "reference": {
+        "file": "rooftops.svg",
+        "source": "OpenAI image model, prompt style-v5-advanced (docs/curriculum/urban-prompts.md), the creator's own design, generated 2026-09-30, margin added",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
     }
   ]
 }

@@ -711,7 +711,19 @@ two lines.
 
 ### 10 · `rooftops`
 
-Objective: Four overlapping roofs at different angles, with a dormer, chimney pots and a water tank.
+Objective: Tiled roof in three rows over a gable window, with a two-pot chimney and a water tank.
+
+Kept picture (2026-09-30): the creator's own design, and it is the lesson (`urban/rooftops-openai.png`, a white
+margin added): one roof where the prompt asked for four. A cream gable wall with an arched window on a ledge (four
+panes round a white cross, no dormer); a band of four tiles down the gable's edge, a ball at the peak and a band of
+tiles along the top; the roof itself tiled, five slanting lines crossed by three rows of six bumps; a cream chimney
+with a cap and two pots standing through the roof; a brown water tank with two hoops, a blue pointed lid and a knob,
+on two legs braced with an X; a green tree behind. The roof's slanting lines, the marks on the top band and the
+cap's corner are thin see-through strokes in the picture: `from-image` made them brown slivers, so the lesson is
+traced from a working copy in which those pixels are ink. The tracer ran each bump on into the slanting line below
+it; the lines were cut at every crossing and put back together as five slanting lines and eighteen bumps, and each
+color area runs along the drawn lines (the traced ones spilled past the tank's lid). The picture's orange snaps to
+the palette's red, and its slate lid to blue. The prompt below is the one it started from.
 
 ```text
 SUBJECT: a view across the rooftops of a town: four roofs at four different angles, one behind

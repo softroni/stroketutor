@@ -283,3 +283,37 @@ collar: the dome and its top sit on it, the barrel hangs from it.
 - stones: "Last, three paving stones on the ground, each a slab with rounded corners."
 - colors: "Color the hydrant red: the dome, the ring, the barrel and both necks." / "Blue for the water and the puddle." / "Gray for the caps and knobs, the foot and the three stones." / "Cream for the nut, the collar and the belt."
 - outro: "Your hydrant is gushing away. Would you splash in that puddle?"
+
+### rooftops
+
+The creator's picture (2026-09-30), not the prompt's: one tiled roof seen from the gable end, where
+the prompt asked for four roofs. A cream gable wall with an arched window on a ledge (four blue
+panes round a white cross that is left uncolored); a band of four tiles down the gable's left edge,
+a ball at the peak and a band of tiles along the top, broken by the chimney; the roof's slope, tiled
+with five slanting lines and three rows of six bumps; a cream chimney with a flat cap and two red
+pots; behind the roof a brown water tank with two hoops, a blue pointed lid and a knob, on two legs
+braced with an X; and a green tree behind it all. No dormer. Drawn from the ball at the peak:
+everything on the roof starts from it. The chimney stands behind the left band's tip and in front of
+the right band, so it comes between the two; the roof's far edge needs the right band's tip, so it
+is drawn with the slanting lines. The tank's legs rise from the band before the tub is set on them,
+and the braces are drawn as the four gaps around the X. The picture's orange is the palette's red.
+
+- intro: "Above every street there's a second town of chimney pots, water tanks and tiles. The tiles are only slanted lines and bumps. Watch them fall into place, then lay your own."
+- peak: "Start with a small ball for the roof's peak. A band slopes down to the left and ends in a round tip."
+- roof: "From the ball, a long line slopes down to the right. The bottom edge runs across and curls up at the end."
+- walls: "A wall drops from each end of the roof: a tall one on the left, a short one on the right."
+- window: "In the wall, a long flat ledge. On it stands a tall arch, with a smaller arch inside."
+- top-band: "Along the top, a band runs right from the ball to a round tip. Four short lines cut both bands into tiles."
+- chimney: "Next, the chimney, behind the band's tip. Its foot slants down the roof, and three lines go straight up."
+- pots: "A flat cap sits on the chimney, with a line at its corner. Two pots stand on it, each with a rim."
+- far-band: "Past the chimney, the top band carries on to another round tip. Three short lines make its tiles."
+- roof-lines: "Close the roof with a line from that tip down to the curl. Five more lines slope the same way."
+- tiles-top: "Now the tiles. In the top row, six bumps, each from one line up and over to the next."
+- tiles-middle: "A second row of six bumps, halfway down the roof."
+- tiles-bottom: "Then a third row, just above the bottom edge."
+- tank: "Two legs rise from the band behind the roof. A wide tub sits on them: bottom, two sides and a top."
+- lid: "Two hoops run around the tub. On top, a pointed lid with a small knob."
+- braces: "The legs are braced with an X. Draw the gaps around it: a wide one on top, one each side, a tiny one."
+- tree: "Last, a tree behind it all. A small bump by the left leg, then five big ones from the tank to the roof."
+- colors: "Cream for the walls, the chimney, the window frame and the ledge." / "Red for the whole roof, the ball, both bands and the two pots." / "Green for the tree, brown for the tank and its legs. Blue for the lid and the glass, around a white cross."
+- outro: "Your roof is on, and every tile is in place. Hope you're not afraid of heights."
