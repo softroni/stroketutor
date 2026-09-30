@@ -132,3 +132,30 @@ green tree behind the right side.
 - tree: "A round, bumpy tree peeks out from behind the right side."
 - colors: "Color the left side red, and the roof too." / "The right side is brown, because it's in the shade." / "Cream and yellow for the two bands. The knob is yellow." / "All twelve panes are blue." / "Gray for the base, and pale green for the tree."
 - outro: "Your phone box is ready for a call. Who would you ring first?"
+
+### street-corner
+
+A corner café building in two-point view: a short level line on each side at the height of the
+door (the eye line), a yellow left wall and an orange right wall meeting at the near corner, a
+cream band along the top turning the corner, a chimney (red front, brown side) on it, a brown door
+with a blue pane on the left wall, a big blue café window with two shine lines on the right wall
+under a red and cream awning of five scallops, eight blue windows on the two upper floors, six
+cream ledges, and two brown flower boxes with green bushes under the first-floor windows (on the
+left wall under the far window, on the right wall under the near one). The flowers in the bushes
+are tiny red dots with no outline, colored in the last step.
+
+- intro: "Stand on any street corner and look up: the walls run away from you on both sides. This one has a little café downstairs. Watch it come together, then build one on your own block."
+- eye-line: "Start with two short level lines, one on each side, at the height of your eyes."
+- corner: "Next, the near corner: one tall upright line between them."
+- walls: "Each wall runs back from the corner, its top tipping down and its foot tipping up."
+- top-band: "Along the roofline, a cream band that turns the corner."
+- chimney: "A small chimney sits on the band, two faces and a flat top."
+- door: "On the left wall, the door stands on the ground, with a window in it."
+- cafe-window: "On the right, the big café window, with two short lines for shine."
+- awning: "Over it, the awning: five bumps along the bottom, four lines between the stripes."
+- left-windows: "Four windows up the left wall, two on each floor, leaning like the wall."
+- right-windows: "Four more on the right wall. The far ones come out a little smaller."
+- ledges: "A ledge under six of the windows, tilted like each window."
+- flower-boxes: "The last two windows get a flower box instead, each with a bumpy bush on top."
+- colors: "Color the left wall yellow and the right wall orange." / "Cream for the top band, the ledges and two stripes." / "Every window is blue, the café window and the door's pane too." / "Brown for the door, the flower boxes and one side of the chimney." / "Red for the chimney's front, three stripes and the tiny flowers. Green for both bushes."
+- outro: "Your corner café is open. What's the first thing you'd order?"
