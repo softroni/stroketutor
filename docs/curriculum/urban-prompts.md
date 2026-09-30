@@ -450,61 +450,71 @@ the step, no benches, lamps, plants or trees, no people.
 
 ### 6 · `canal-bridge`
 
-Objective: Three-arch stone bridge over a blue canal: arch stones, round openings, arches mirrored below.
+Objective: Humpbacked bridge of three stone arches between brick quays, mirrored in the canal.
 
-Reworked 2026-09-30 in the creator's style, as their fountain showed it: one subject made richer by ornament that
-repeats (arch stones, parapet panels, quay blocks, round openings between the arches) and colored water, with no
-companions around it. The reflection is kept to what reads at once: each arch's dark opening mirrored as a gray
-half circle in the blue water, so that arch and reflection make one round opening.
+Third round, 2026-09-30. The creator did not like the flat bridge the previous prompt made (purple arches, a gray
+parapet with panels) and generated their own: a humpbacked sandstone bridge whose top curves up in a wave, cream arch
+stones round three open arches you see the sky through, red brick quays with cream copings, a house and trees at
+each end, and everything mirrored in pale blue water. This prompt keeps that design and leaves out what cannot be
+drawn: the stone and brick texture over every wall, a see-through reflection, houses cut off by the image's edge,
+and colors outside the palette. Only the bridge and the quays are mirrored, so the houses and trees are drawn once.
 
 ```text
-SUBJECT: one old stone bridge with three round arches crossing a town canal, seen straight from
-the side, between two stone quays: a parapet with three panels along its top, a ring of arch
-stones round each arch, two small round openings between the arches, blue water under it with a
-few ripples, and each arch mirrored in the water as a paler half circle. The bridge and quays fill
-about 75% of the image's width, with clear white margin on all four sides.
-VIEW: a flat side view with no perspective. The waterline is one straight level line.
-No shadows, drop shadows, soft shading, stone texture or shine anywhere.
-- Water: one wide flat band below the waterline: its top edge is the waterline, from the left quay's
-  outer end to the right quay's outer end; a level bottom edge about one quarter of the image's
-  height lower; two short upright ends. Color: blue #5b8fc7.
-- Bridge: one closed shape standing on the waterline, about half the image's width long: a top
-  edge that rises gently to the middle and falls again, like a very shallow hump; two short upright
-  ends standing on the waterline; and along its bottom exactly three round arches, each a half
-  circle rising from the waterline, a bigger one in the middle and a smaller one on each side.
-  Between the arches and at both ends, its bottom edge is the waterline (one shared line). Color:
-  cream #f6e7b8.
-- Arch openings: the three spaces under the arches, between each arch and the waterline, are the
-  dark under the bridge. Color: purple #7b4fa3.
-- Arch stones: round each arch, one ring band about four line-widths wide following the half
-  circle, its inner edge the arch's own edge (shared), its two ends standing on the waterline.
-  Exactly four short lines divide each ring into five stones, each line pointing at the arch's
-  center and running from the ring's inner edge to its outer edge. Color: orange #f08a2c.
-- Round openings: exactly two small circles, one above each pier between the arches, floating in
-  the cream with a clear strip of cream at least three line-widths wide all around. Color: purple
-  #7b4fa3.
-- Parapet: one band lying along the bridge's top edge (one shared line), following its gentle
-  hump, about five line-widths tall, with two short upright ends straight above the bridge's ends.
-  Color: gray #c9ced6. On it float exactly three panels, one above each arch, each a shape with
-  upright sides and top and bottom edges following the hump, with a clear strip of gray at least
-  three line-widths wide around each. Color: orange #f08a2c.
-- Quays: exactly two, one at each end of the bridge, each one block with four straight sides
-  standing on the waterline (one shared line): its inner side is the lower part of the bridge's
-  upright end (one shared line), its level top a little lower than the bridge's end, about one
-  fifth as long as the bridge. Exactly two short upright lines divide each quay into three stone
-  blocks, running from its top edge to the waterline. Color: gray #c9ced6.
-- Reflections: exactly three half circles hanging from the waterline in the water, straight below
-  the three arch openings and the same sizes, opening downward: each arch and its reflection make
-  one round opening, cut across its middle by the waterline. Color: gray #c9ced6.
-- Ripples: exactly four short straight level lines floating in the water: one below each side
-  arch's reflection and one below each quay, at least three line-widths from everything. Charcoal
-  lines with no color.
-Nothing else: no reflection of the bridge's body, the parapet or the quays, no lamps, no railings
-or balusters, no road, no boats, no trees, plants or people, no bricks or stones other than the
-arch stones and quay blocks, no sky.
-Thirty-nine shapes and lines in total. Count: one water band, one bridge with three arch openings,
-three rings of five arch stones, two round openings, one parapet with three panels, two quays of
-three blocks each, three reflections, four ripples.
+SUBJECT: a canal in an old town, seen straight from the side: a humpbacked stone bridge with three
+round arches, red brick quays on both banks, a small house and a tree at each end, and the bridge
+and quays mirrored in the still blue water below. The whole scene fills about 80% of the image's
+width, with clear white margin on all four sides; nothing is cut off by the image's edge.
+VIEW: a flat side view with no perspective. The waterline is one straight level line across the
+scene.
+No shadows, drop shadows, soft shading, stone or brick texture, transparency or shine anywhere.
+- Water: one wide band below the waterline, from the left end of the scene to the right end, about
+  one third of the image's height tall, with a level bottom edge and short upright ends. Color:
+  blue #5b8fc7.
+- Bridge: one closed shape standing on the waterline, about 55% of the image's width long. Its top
+  edge rises from each end in a gentle wave, low over the side arches and highest over the middle
+  one, like a humped back. Along its bottom, exactly three round arches rising from the waterline,
+  a big one in the middle and a smaller one on each side, each a little more than a half circle.
+  Between the arches its bottom edge is the waterline (one shared line). The arch openings are
+  open: the white paper shows through them, as sky. Color: yellow #f7cf46.
+- Arch stones: round each arch, one ring band about four line-widths wide following its curve, its
+  inner edge the arch's own edge (shared), its two ends standing on the waterline. Short lines
+  pointing at the arch's center divide the rings into stones: exactly seven on the middle ring,
+  five on each side ring. Color: cream #f6e7b8.
+- Coping: one band lying along the bridge's whole top edge (one shared line), following its wave,
+  about four line-widths tall. Color: cream #f6e7b8. It keeps a clear strip of yellow at least
+  three line-widths wide from the middle ring.
+- Quays: exactly two brick walls, one at each end of the bridge, each one long block with four
+  straight sides standing on the waterline (one shared line): its inner side is the lower part of
+  the bridge's end, and its top a little lower than the bridge's end. Each is about one fifth of
+  the image's width. Color: red #d8433b. On each lies a cream #f6e7b8 coping band, about three
+  line-widths tall, as long as the quay.
+- Houses: exactly two small houses, one standing on the outer end of each quay's coping (one
+  shared line), each complete: a front wall with four straight sides, taller than wide; a roof, one
+  low four-sided shape sloping down toward the canal, a little wider than the wall; and one window
+  floating in the wall's upper half. Left house: wall yellow #f7cf46, roof red #d8433b, window blue
+  #5b8fc7. Right house: wall orange #f08a2c, roof brown #8a5a33, window blue #5b8fc7.
+- Trees: on the left quay, between the house and the bridge, one tall pointed cypress, a narrow
+  flame shape standing on the coping, color dark green #2f6b3a. On the right quay, between the
+  bridge and the house, one round tree: a short trunk standing on the coping, color brown #8a5a33,
+  and a crown of exactly five round bumps sitting on it, color leaf green #4f9d4a. Each keeps at
+  least three line-widths from the house and the bridge.
+- Reflection: below the waterline, the mirror image of the bridge and the two quays only, the same
+  sizes and straight below them, upside down: the bridge's reflection is one shape hanging from the
+  waterline, its bottom edge the wave of the bridge's top turned over, dipping deepest in the
+  middle, color cream #f6e7b8; the reflected arch openings are holes in it where the blue water
+  shows, so that each arch and its reflection make one round opening cut by the waterline; round
+  each reflected opening, a reflected ring band with no stone lines, color gray #c9ced6; the quays'
+  reflections hang below the quays, color watermelon pink #ee5a6a. The houses, trees and copings
+  are not reflected.
+- Ripples: exactly four short straight level lines floating in the water below the reflection,
+  at least three line-widths from everything. Charcoal lines with no color.
+Nothing else: no bricks or stones drawn on the walls or quays other than the arch stones, no
+reflection of the houses, trees or copings, no boats, lamps, railings, people or birds, no sky
+color, no ground beyond the quays.
+Forty-three shapes and lines in total. Count: one water band, one bridge with three open arches,
+three rings (seven, five and five stones), one coping, two quays with their copings, two houses
+each with a roof and a window, one cypress, one round tree with a trunk, the bridge's reflection
+with three ring bands, two quay reflections, four ripples.
 ```
 
 ### 7 · `tram`
