@@ -214,7 +214,7 @@
       "description": "The city as you see it: shop fronts, balconies and bridges, textures you suggest instead of copying, streets that climb, ending with a tram climbing past a corner café.",
       "level": "advanced",
       "color": "butter",
-      "lessonIds": ["shop-front", "balcony", "phone-box"]
+      "lessonIds": ["shop-front", "balcony", "phone-box", "street-corner"]
     }
   ]
 }

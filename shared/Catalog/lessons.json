@@ -1030,6 +1030,16 @@
         "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-29, margin added; AI-generated for Paper Coach; owned by Softroni",
         "license": "AI-generated for Paper Coach; owned by Softroni"
       }
+    },
+    {
+      "id": "street-corner",
+      "status": "approved",
+      "objective": "Corner café in two-point view: striped awning, flower boxes, a chimney, eye level at the door",
+      "reference": {
+        "file": "street-corner.svg",
+        "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-29, margin added; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
     }
   ]
 }
