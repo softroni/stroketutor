@@ -47,9 +47,8 @@ What the lesson prompts on this path take care of, beyond the system prompt:
 - **Texture only where the objective asks**: nine bricks in three patches (`brick-window`) and six cobblestones
   (`fire-hydrant`). Both are counted, closed and floating, never a pattern.
 - **Overlap only where the objective is about it**: a tree behind the shop (`shop-front`) and behind the phone
-  box (`phone-box`), the doors behind the railing (`balcony`), the four roofs and
-  the dormer (`rooftops`), and in the finale the tram in front of the houses and the houses in front of the
-  rooftops.
+  box (`phone-box`), the doors behind the railing (`balcony`), the four roofs and the dormer (`rooftops`), and in
+  the finale the tram in front of the houses and the houses in front of the rooftops.
 - **Details are single lines**: railing bars and rail, awning stripe lines, water arcs and ripples, tram rails, the
   trolley pole, the phone box's handle, tank legs, street edges, the shine on glass. Each prompt calls them
   charcoal lines with no color.
