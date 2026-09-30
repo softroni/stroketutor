@@ -1,4 +1,4 @@
-# Urban — image-generation prompts
+# Around Town (`urban`) — image-generation prompts
 
 Source art for the ten `urban` lessons (Advanced level, learners aged 16 and up), written for a raster
 image model (OpenAI image, Gemini / Nano Banana). Same pipeline as the fruits:
@@ -586,7 +586,7 @@ Third design, 2026-09-30. The shadow-and-water hydrant came back as asked but th
 preferred a ChatGPT hydrant drawn flat, with no light: a pink dome with ribs under a red ring and a cream nut, a
 cream collar, a red barrel with a big cream front cap and a gray six-sided nut, a capped nozzle on each side, a
 gray flared foot, and three paving slabs under it, seen from a little above. This prompt keeps that design. Its
-repeated ornament is the dome's ribs; the shadow side, cast shadow and cobbles are gone, so no Urban lesson draws
+repeated ornament is the dome's ribs; the shadow side, cast shadow and cobbles are gone, so no Around Town lesson draws
 light now (Light & Shadow is the path for it).
 
 ```text

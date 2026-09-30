@@ -1011,10 +1011,10 @@
     },
     {
       "id": "urban",
-      "title": "Urban",
+      "title": "Around Town",
       "level": "advanced",
       "color": "butter",
-      "description": "The city as you see it: shop fronts, balconies and bridges, textures you suggest instead of copying, a tiled rooftop, ending with a café and its table for two.",
+      "description": "The town as you see it: shop fronts, balconies and bridges, textures you suggest instead of copying, a tiled rooftop, ending with a café and its table for two.",
       "lessons": [
         {
           "id": "fire-hydrant",

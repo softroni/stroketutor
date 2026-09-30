@@ -138,6 +138,6 @@ downloads the codes, and Claude turns them into one redeem link per person.
 
 ## Order (decided 2026-09-30)
 
-**1.1 carries items 1, 4 and 5**, with Urban's Café and everything on `main` since 1.0 (2); it is cut once all of
+**1.1 carries items 1, 4 and 5**, with Around Town's Café and everything on `main` since 1.0 (2); it is cut once all of
 them are merged (item 1 is: `508ec63`). The plan and its checklist: [docs/releases/1.1.md](releases/1.1.md). The price test (2) starts as soon as
 1.1 is on sale. Item 3 goes in the build after.

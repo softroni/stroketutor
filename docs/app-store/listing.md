@@ -114,7 +114,7 @@ Premium Weekly, $3.99 per week, no introductory offer. On the app's own paywall 
 **What's new**
 
 ```
-• A new path, Urban: ten lessons, from a shop front and a phone box to a canal bridge and a corner café.
+• A new path, Around Town: ten lessons, from a shop front and a phone box to a canal bridge and a corner café.
 • Photographed your drawing in dim light? Choose Original, Bright or Scan.
 • Change a kept page's light and corners any time in your sketchbook.
 • See how long each drawing really took, and the screen stays awake while you draw.
@@ -123,7 +123,7 @@ Premium Weekly, $3.99 per week, no introductory offer. On the app's own paywall 
 • Layouts that make better use of the iPad.
 ```
 
-**Promotional text** (161/170): Draw real pictures on real paper. Lina shows one line at a time, then waits while you draw it. New: Urban. Every path starts free; Premium opens all 110 lessons.
+**Promotional text** (167/170): Draw real pictures on real paper. Lina shows one line at a time, then waits while you draw it. New: Around Town. Every path starts free; Premium opens all 110 lessons.
 
 **Keywords** (100/100): lessons,sketching,tutorial,urban,pencil,drawings,how,beginner,sketch,art,simple,guide,pen,adult,kids
 ("mindful" out; "urban" pairs with "sketching", and "kids" with "drawings" and "lessons".)
@@ -131,7 +131,7 @@ Premium Weekly, $3.99 per week, no introductory offer. On the app's own paywall 
 **Description**: the one below under *Listing copy*, with these changes, and still no price:
 
 ```
-• 110 lessons on 11 paths: Plants, Fruits, Sky & Weather, Forms, Wheels, On the Water, In the Air, Space, Landscape, Food & Treats, and Urban
+• 110 lessons on 11 paths: Plants, Fruits, Sky & Weather, Forms, Wheels, On the Water, In the Air, Space, Landscape, Food & Treats, and Around Town
 • A sketchbook: photograph your finished drawing, even in dim light (Original, Bright or Scan), keep it beside the lesson on your phone only, and fix its light and corners later
 
 FREE AND PREMIUM

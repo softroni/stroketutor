@@ -1,4 +1,4 @@
-# Urban: what Lina says
+# Around Town: what Lina says
 
 The words of a path are planned together, so ten lessons in a row do not say the same sentence
 ten times, and do not sound like ten different teachers either. This is the plan for the
@@ -9,7 +9,7 @@ picture is kept. The models to follow are [landscape-words.md](landscape-words.m
 Advanced path) and the voice of [plants-words.md](plants-words.md) and
 [food-treats-words.md](food-treats-words.md), which the creator likes best.
 
-Urban is the path about drawing a town as it stands, so Lina talks like someone on a
+Around Town (id `urban`) is the path about drawing a town as it stands, so Lina talks like someone on a
 bench with a sketchbook: a building is a few boxes, a row of the same thing is counted, a brick
 wall or a cobbled street is a few marks that stand for the rest, and the thing in front hides the
 thing behind. The learners are grown-ups who never learned to draw, so she is warm and plain, a
