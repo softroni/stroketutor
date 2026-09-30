@@ -39,22 +39,23 @@ What the lesson prompts on this path take care of, beyond the system prompt:
   70% of the image, dots on the page would squash the far walls. The eye level is drawn only where the objective
   names it: two short pieces of horizon beside the corner building, and one piece beside the hill street, whose
   road ends at the one dot on the path.
-- **Light and shadow only where the objective asks**: the flower box's shadow on the wall (`balcony`) and the
+- **Light and shadow only where the objective asks**: the slab's shadow on the wall under it (`balcony`) and the
   hydrant's shadow side and cast shadow (`fire-hydrant`), both lit from the upper left. Cast shadows are gray, as
   on Light & Shadow; a shadow side is the darker partner of its color (red → brown), and on the hydrant it runs
   down every stacked part. Glass gets its shine only as two short bold charcoal lines in a pane's upper left corner
-  (shop window and door, tram front, brick window, café window), never as pale streaks.
+  (shop window and door, balcony door, tram front, brick window, café window), never as pale streaks.
 - **Texture only where the objective asks**: nine bricks in three patches (`brick-window`) and six cobblestones
   (`fire-hydrant`). Both are counted, closed and floating, never a pattern.
 - **Overlap only where the objective is about it**: a tree behind the shop (`shop-front`) and behind the phone
-  box (`phone-box`), the doors behind the railing (`balcony`), the four roofs and the dormer (`rooftops`), and in
-  the finale the tram in front of the houses and the houses in front of the rooftops.
+  box (`phone-box`), the door and shutters behind the railing and the flower box (`balcony`), the four roofs and
+  the dormer (`rooftops`), and in the finale the tram in front of the houses and the houses in front of the
+  rooftops.
 - **Details are single lines**: railing bars and rail, awning stripe lines, water arcs and ripples, tram rails, the
   trolley pole, the phone box's handle, tank legs, street edges, the shine on glass. Each prompt calls them
   charcoal lines with no color.
 - **One color scheme for the town**: windows and glass blue, doors brown, dark openings purple, as on Buildings.
   Where the system prompt's "neighboring areas never share a color" meets a thing that is one color in life (a red
-  phone box, a door's two leaves, bricks in a brick wall), the prompt gives it two colors of one family or joins
+  phone box, bricks in a brick wall), the prompt gives it two colors of one family or joins
   the parts into one shape.
 - **Clean house style for lessons 1–11**, closed shapes and exact corners, as the system prompt asks. The sketchy
   look arrives only in the finale, as fading edges the tracer can still read: the street left uncolored between
@@ -160,61 +161,67 @@ lines, one pot, one bush, one tree.
 
 ### 2 · `balcony`
 
-Objective: Tall doors under a stone hood behind a seven-bar railing, a flower box and its shadow.
+Objective: Arched door between open shutters, a seven-bar railing with a flower box, the slab's shadow.
+
+The creator did not like the style of the first design (a yellow wall, square green doors under a triangle hood,
+a flower box on the wall beside them), 2026-09-29. This one is a balcony from an old southern town: a pink wall, an
+arched brown door between two green shutters folded open, a cream slab, a flower box resting on the railing, and the
+slab's shadow on the wall as the lesson's one drawn shadow.
 
 ```text
-SUBJECT: a patch of a town house's wall, seen straight on, with one balcony: a pair of tall glass
-doors under a stone hood, standing on a stone ledge held up by two brackets, a railing of seven
-bars in front of the doors' lower part, and on the wall beside the doors a flower box, with the
-flower box's shadow on the wall.
-LIGHT: from the upper left. The flower box's shadow is the only light or shadow in the picture.
-Here the railing does stand in front of the doors: that is part of what this lesson teaches.
-- Wall: one closed shape with four straight sides, a little taller than wide. Color: yellow
-  #f7cf46.
-- Ledge: one long flat shape with four straight sides lying across the lower part of the wall,
-  nearly as wide as the wall and about four line-widths tall, floating with a clear strip of wall
-  color at both ends. Color: cream #f6e7b8.
-- Brackets: exactly two, hanging under the ledge, one under each end of it, each one small shape
-  like a quarter of a circle: a level top edge that is a stretch of the ledge's bottom edge (one
-  shared line), a short upright side toward the ledge's end, and one curve sweeping from the
-  bottom of that side back up to the top edge. About twice as tall as the ledge. A clear strip of
-  wall color lies below them. Color: orange #f08a2c.
-- Doors: one tall closed shape with four straight sides standing on the ledge's top edge (one
-  shared line), in the left half of the wall, about twice as tall as wide. Color: dark green
-  #2f6b3a. It has no line down its middle: the two doors are told apart by their two panes and
-  their two knobs.
-- Hood: one low triangle floating above the doors, a little wider than them, with a level bottom
-  edge and a clear strip of wall color at least three line-widths tall between it and the doors.
-  About one quarter as tall as it is wide. Color: cream #f6e7b8.
-- Glass: exactly two tall panes side by side in the upper part of the doors, one in each door,
-  floating, with a clear strip of door color at least three line-widths wide around them and
-  between them. They stop well above the railing. Color: blue #5b8fc7.
-- Knobs: exactly two small circles side by side in the middle of the doors, below the panes and
-  above the top rail, floating with a clear gap of door color at least three line-widths wide
-  between them and all around them. Color: yellow #f7cf46.
+SUBJECT: a patch of a pink town house wall, seen straight on, with one balcony like those of an
+old southern town: a tall arched door between two open shutters, standing on a stone slab, a
+railing of seven bars in front of the lower part of the door and the shutters, a flower box
+resting on the railing, and the slab's shadow on the wall under it.
+LIGHT: from the upper left. The slab's shadow is the only light or shadow in the picture.
+Here the railing does stand in front of the door and the shutters, and the flower box in front
+of the door: that is part of what this lesson teaches.
+- Wall: one closed shape with four straight sides, a little taller than wide. Color: watermelon
+  pink #ee5a6a.
+- Slab: one long flat shape with four straight sides lying across the lower part of the wall,
+  about four line-widths tall, a little wider than the door and both shutters together, floating
+  with a clear strip of wall color at both ends. Color: cream #f6e7b8.
+- Shadow: the slab's shadow on the wall: one flat four-sided shape hanging from the slab's bottom
+  edge (one shared line), about twice as tall as the slab. Its two ends run down and to the
+  right, parallel, and one level bottom edge closes it, with a clear strip of wall color below
+  it. Color: gray #c9ced6.
+- Door: one tall shape standing on the slab's top edge (one shared line), in the middle of the
+  wall: two straight upright sides and a round arched top, a half circle. About twice as tall as
+  wide. Color: brown #8a5a33.
+- Glass: one pane of the same arched form floating in the upper part of the door, above the
+  flower box's plants, with a clear strip of door color at least three line-widths wide all
+  around it. Color: blue #5b8fc7.
+- Window shine: exactly two short straight lines in the glass's upper left, parallel, slanting
+  up to the right, floating, touching nothing. Bold charcoal lines like every other line: not
+  white, not pale, not filled.
+- Shutters: exactly two, folded open flat against the wall, one on each side of the door, with a
+  clear strip of wall color at least three line-widths wide between each and the door. Each is
+  one tall shape with four straight sides standing on the slab's top edge (one shared line), as
+  tall as the door's straight sides and about half as wide as the door. In the upper part of
+  each, above the railing, exactly three level slat lines float, evenly spaced, touching nothing:
+  charcoal lines with no color. Color: leaf green #4f9d4a.
 - Railing: exactly seven bars and one top rail, all charcoal lines with no color. The bars are
-  seven single straight upright lines standing on the ledge's top edge, touching it, evenly spaced
-  from the ledge's left end to its right end, the first and the last at the two ends. The top rail
-  is one single straight level line joining the tops of all seven bars, touching each. The railing
-  is about one third as tall as the doors. Some bars cross in front of the doors' lower part, and
-  the doors' two sides pass behind the top rail; no bar lies on a side of the doors, and each bar
-  keeps at least three line-widths from the doors' sides.
-- Flower box: on the wall to the right of the doors, clear of them and of the hood, its bottom high
-  enough above the top rail that its shadow still ends a clear strip above the rail: one box with
-  four straight sides, about twice as wide as tall. Color: orange #f08a2c.
-- Plants: one mound sitting on the box's top edge (one shared line), as wide as the box, its top
-  made of exactly three round bumps. Color: leaf green #4f9d4a.
+  seven single straight upright lines standing on the slab's top edge, touching it, evenly spaced
+  from the slab's left end to its right end, the first and the last at the two ends. The top rail
+  is one single straight level line joining the tops of all seven bars, touching each. The
+  railing is about one third as tall as the door. The bars cross in front of the lower parts of
+  the door and the shutters, whose sides pass behind the top rail; each bar keeps at least three
+  line-widths from every side of the door and of the shutters.
+- Flower box: one box with four straight sides resting on the middle of the top rail (its bottom
+  edge a stretch of the rail, one shared line), in front of the door, narrower than the door by
+  at least three line-widths at each end, about three times as wide as tall. Color: orange
+  #f08a2c.
+- Plants: one low mound sitting on the box's top edge (one shared line), as wide as the box and
+  about as tall, its top made of exactly three round bumps, with a clear strip of door color
+  between it and the glass. Color: leaf green #4f9d4a.
 - Flowers: exactly three small circles, one inside each bump, each floating with a clear band of
-  green around it. Color: red #d8433b.
-- Shadow: the flower box's shadow on the wall: one flat four-sided shape hanging from the box's
-  bottom edge (one shared line). Its two sides run down and to the right, parallel, and one level
-  bottom edge closes it. It is about half as tall as the box and ends with a clear strip of wall
-  color above the top rail. Color: gray #c9ced6.
-Nothing else: no shadows of the ledge, brackets, hood, doors, railing or plants, no frames or bars
-in the glass, no shutters, no curtains, no leaves or stems outside the mound, no bricks, no roof,
-no second window. Twenty-four shapes and lines in total. Count: one pair of doors with two panes
-and two knobs, one hood, one ledge on two brackets, seven bars and one top rail, one flower box
-with one mound and three flowers, one shadow.
+  green at least three line-widths wide around it. Color: red #d8433b.
+Nothing else: no shadows of the door, shutters, railing, box or plants, no hood, frame or arch
+stones around the door, no knob, no bars or frames in the glass, no brackets, no curtains, no
+leaves or stems outside the mound, no bricks, no roof, no second window. Twenty-eight shapes and
+lines in total. Count: one slab and its shadow, one arched door with one pane and two shine
+lines, two shutters with three slats each, seven bars and one top rail, one flower box with one
+mound and three flowers.
 ```
 
 ### 3 · `phone-box`
