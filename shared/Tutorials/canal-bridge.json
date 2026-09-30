@@ -538,8 +538,8 @@
     },
     {
       "id": "orange-brown",
-      "title": "Color the right house",
-      "instruction": "Orange for the right house, brown for its roof and the trunk.",
+      "title": "Color the right bank",
+      "instruction": "Orange for the right house, brown for its roof and trunk. Dark green and green for the trees.",
       "voiceover": null,
       "strokes": [],
       "fills": [
@@ -554,16 +554,7 @@
           "color": "#8A5A33",
           "duration": 1,
           "fillRule": "evenodd"
-        }
-      ]
-    },
-    {
-      "id": "greens",
-      "title": "Color the trees",
-      "instruction": "Dark green for the tall tree, green for the round one.",
-      "voiceover": null,
-      "strokes": [],
-      "fills": [
+        },
         {
           "d": "M 245 271 C 248 270 250 274 252 275 C 256 289 262 303 265 316 C 268 330 271 343 272 356 C 273 370 274 388 273 397 C 273 404 271 408 269 413 C 267 418 264 423 262 426 C 260 429 259 432 255 433 C 251 435 243 435 239 435 C 236 435 235 434 233 433 C 231 431 226 427 224 424 C 222 421 220 419 219 415 C 218 411 216 404 215 397 C 214 391 214 384 215 376 C 217 361 225 321 229 305 C 231 295 234 287 237 281 C 239 276 243 272 245 271 Z",
           "color": "#2F6B3A",

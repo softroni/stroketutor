@@ -4,7 +4,7 @@
   "voiceId": "lina-bright",
   "voiceName": "Lina, bright",
   "model": "qwen-base clone of lina-lina-bright-09cf35",
-  "generatedAt": "2026-09-30T04:31:26.864Z",
+  "generatedAt": "2026-09-30T19:10:17.216Z",
   "steps": {
     "lesson-intro": {
       "file": "lesson-intro.m4a",
@@ -128,15 +128,9 @@
     },
     "orange-brown": {
       "file": "orange-brown.m4a",
-      "text": "Orange for the right house, brown for its roof and the trunk.",
-      "textHash": "fd5c3523faab1628ad104d6ec3ed8ab1c1626e3cc2b4deb33af18450388355cc",
-      "durationMs": 4240
-    },
-    "greens": {
-      "file": "greens.m4a",
-      "text": "Dark green for the tall tree, green for the round one.",
-      "textHash": "005022d95c42ef2aec76ac8248237e2784b3dbbb8f9f09e2a91f145089ba3cf1",
-      "durationMs": 4000
+      "text": "Orange for the right house, brown for its roof and trunk. Dark green and green for the trees.",
+      "textHash": "cbd8956392630c610e4b662a5d4d8df87d784a47031299241efeb229a463e25d",
+      "durationMs": 5920
     },
     "lesson-outro": {
       "file": "lesson-outro.m4a",
