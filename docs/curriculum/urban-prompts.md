@@ -317,18 +317,30 @@ knob, six panes on each side, one handle, one base, one tree.
 
 ### 4 · `street-corner`
 
-Objective: Corner building in two-point perspective, eye level at the doors, cornice and sills sloping away.
+Objective: Corner café in two-point view: striped awning, flower boxes, a chimney, eye level at the door.
+
+Reworked 2026-09-29 to be much more interesting (the creator's ask): the plain corner building became a corner café.
+It is lesson 4, the first paid one and a sticker on the free lessons' videos, so it should look inviting. The
+teaching point stays the same, everything leaning toward two far points with the eye level through the door, and
+every new part (the awning's stripes, the flower boxes, the chimney) repeats it.
 
 ```text
-SUBJECT: one corner building, three floors high, seen from the street corner in front of it, so
-that its two street walls go away to the left and to the right. Each wall has one glazed door on
-the ground floor and two rows of two windows with sills on the floors above, and a cornice runs
-along the top of both walls.
+SUBJECT: one corner building, three floors high, with a small café on the ground floor, seen from
+the street corner in front of it, so that its two street walls go away to the left and to the
+right. On the ground floor, a glazed door on the left wall and a big café window under a striped
+awning on the right wall. On each upper floor, two windows on each wall: the two first-floor
+windows nearest the corner have flower boxes, the other windows have sills. A cornice runs along
+the top of both walls, with a chimney standing on it. The building fills about 70% of the image's
+height, with clear white margin on all four sides.
 VIEW: two-point perspective from the eye level of someone standing in the street: the eye level
-runs through the two doors, about two thirds of the way up them. Both vanishing points lie far
-outside the picture: no dots are drawn. Every upright edge stays perfectly upright. Edges above
-the eye level slope down as they go away, and the higher they are the more they slope, so the
-roof edges slope the most; edges below the eye level slope a little up as they go away.
+runs through the door, about two thirds of the way up it, and across the café window. Both
+vanishing points lie far outside the picture: no dots are drawn. Every upright edge stays
+perfectly upright. Edges above the eye level slope down as they go away, and the higher they are
+the more they slope, so the cornice slopes the most; edges below the eye level slope a little up
+as they go away. Everything fixed to a wall (awning, windows, sills, flower boxes) slopes like the
+wall's edges at its height and gets a little smaller toward the wall's far end.
+LIGHT: from the upper left, so the left wall is lit and the right wall is in shade. This shows only
+in the colors: no shadows, drop shadows or soft shading anywhere.
 - Horizon: one straight level line at the eye level, passing behind the building. It shows as one
   short piece to the left of the building and one to the right, each about one tenth of the image
   width long and each ending exactly on the building's outline. A charcoal line with no color.
@@ -344,27 +356,53 @@ roof edges slope the most; edges below the eye level slope a little up as they g
   same way, and its two ends are short upright edges straight above the walls' far edges. The
   near corner line stops at the cornice's bottom edge, so the cornice is one shape. About one
   twelfth as tall as the near corner. Color: cream #f6e7b8.
-- Doors: exactly two, one on each wall, on the ground floor, in the half of the wall nearer the
-  corner. Each stands on its wall's bottom edge (one shared line), has upright sides and a top
-  edge that slopes like the wall's edges near it; its top is a little above the eye level.
-  Color: brown #8a5a33.
-- Door panes: one in each door, floating in its upper half with a clear strip of door color at
-  least three line-widths wide around it. The eye level runs through it, so its top and bottom
-  edges are almost level. Color: blue #5b8fc7.
-- Windows: exactly eight, four on each wall, in two rows of two on the two upper floors, one
-  window above each door and one farther from the corner. Each floats, with a clear strip of wall
-  color all around it. Each has upright sides and top and bottom edges that slope like the wall's
-  top edge above it: the upper row slopes more than the lower one. On each wall the far windows
-  are a little narrower and shorter than the near ones. Color: blue #5b8fc7.
-- Sills: exactly eight, one under each window: a flat shape about four line-widths tall hanging
-  from the window's bottom edge (one shared line), a little wider than the window at both ends,
-  its edges sloping like the window's. A clear strip of wall color at least three line-widths
-  tall lies between each sill and the window or door below it. Color: cream #f6e7b8.
-Nothing else: no roof or chimney, no balconies, no shop windows, no awning, no door handles, no
-bars or frames in the windows, no sidewalk, curb or street, no lamp post, no signs or house
-numbers, no guide lines, no vanishing point dots. Twenty-five shapes and lines in total. Count:
-two walls, one cornice, two doors with a pane each, eight windows, eight sills, two pieces of
-horizon.
+- Chimney: one small upright box standing on the cornice above the right wall, about a quarter of
+  the way from the corner to the far end, seen from the same corner: two faces meeting at one
+  upright edge, their bottom edges a stretch of the cornice's top edge (shared), their top edges
+  sloping like the cornice. The face turned like the left wall is red #d8433b, the face turned
+  like the right wall is brown #8a5a33. A little taller than wide.
+- Door: on the left wall's ground floor, in the half nearer the corner: one tall shape standing on
+  the wall's bottom edge (one shared line), with upright sides and a top edge that slopes like the
+  wall's edges near it; its top is a little above the eye level. Color: brown #8a5a33. In its
+  upper half one pane floats, with a clear strip of door color at least three line-widths wide
+  around it; the eye level runs through it, so its edges are almost level. Color: blue #5b8fc7.
+- Café window: on the right wall's ground floor, in the half nearer the corner: one big window,
+  floating, a little wider than tall, with upright sides and top and bottom edges that slope like
+  the wall's edges near it. Color: blue #5b8fc7. In its upper left corner, exactly two short
+  straight shine lines, parallel, slanting up to the right, floating: bold charcoal lines like
+  every other line, not white, not pale, not filled.
+- Awning: fixed flat to the right wall above the café window, with a clear strip of wall color at
+  least three line-widths tall between them: one band as wide as the window, its top edge sloping
+  like the window's top, its bottom edge made of exactly five shallow round scallops that get a
+  little smaller toward the far end. Exactly four upright lines divide it into five stripes, each
+  line running from the top edge down to where two scallops meet. Stripe colors from the corner
+  outward: red #d8433b, cream #f6e7b8, red, cream, red.
+- Windows: exactly eight, four on each wall, in two rows of two on the two upper floors, one window
+  above the door or the awning and one farther from the corner. Each floats, with a clear strip of
+  wall color all around it. Each has upright sides and top and bottom edges that slope like the
+  wall's top edge above it: the upper row slopes more than the lower one. On each wall the far
+  windows are a little narrower and shorter than the near ones. Color: blue #5b8fc7.
+- Flower boxes: exactly two, one under each first-floor window nearest the corner (one on each
+  wall), in place of its sill. Each is a box floating a clear strip of wall color below the
+  window, a little wider than the window and about one third as tall, its top and bottom edges
+  sloping like the window's, color brown #8a5a33; on the box's top edge (one shared line) sits one
+  low mound as wide as the box, its top made of exactly three round bumps, color leaf green
+  #4f9d4a, its top a clear strip below the window; in each mound float exactly two small plain red
+  circles, flowers with no petals and no centers, each with a clear band of green around it, color
+  red #d8433b.
+- Sills: exactly six, one under each of the other six windows: a flat shape about four line-widths
+  tall hanging from the window's bottom edge (one shared line), a little wider than the window at
+  both ends, its edges sloping like the window's. Color: cream #f6e7b8.
+Keep a clear strip of wall color at least three line-widths wide between every part fixed to a
+wall and the next: between each sill or flower box and the window, awning or door below it, and
+between the awning and the flower box above it.
+Nothing else: no roof other than the cornice, no chimney pots, no balconies, no second awning, no
+café tables, chairs or menu board, no door handles, no bars or frames in the windows, no shutters,
+no letters, signs or house numbers, no sidewalk, curb or street, no lamp post, no guide lines, no
+vanishing point dots, no shadows, bevels or soft shading. Thirty-nine shapes and lines in total.
+Count: two walls, one cornice, one chimney with two faces, one door with a pane, one café window
+with two shine lines, one awning with four lines and five stripes, eight windows, two flower boxes
+each with a mound and two flowers, six sills, two pieces of horizon.
 ```
 
 ### 5 · `fountain`
