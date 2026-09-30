@@ -116,7 +116,8 @@ Premium Weekly, $3.99 per week, no introductory offer. On the app's own paywall 
 **Keywords** (99/100): lessons,sketching,tutorial,mindful,pencil,drawings,how,beginner,sketch,art,simple,guide,pen,adult
 **Promotional text** (150/170): Draw real pictures on real paper. Lina shows one line at a time, then waits while you draw it. Every path starts free, and Premium opens all 100 lessons.
 
-**Description**
+**Description** (never name a price here: the App Store lists the plans' prices itself, and a description can't be
+edited once its version is on sale, so 1.0's "$19.99" and "$1.99" went stale when prices rose on 2026-10-02)
 
 ```
 Paper Coach turns your phone into a patient drawing teacher for real pen and paper.
@@ -140,7 +141,6 @@ FREE AND PREMIUM
 Every path is open, and the first three lessons of each path are free. Paper Coach Premium unlocks every lesson on every path:
 • Yearly, with a 7-day free trial for new subscribers
 • Weekly
-(No prices here from 1.1 on: 1.0's description named $19.99 and $1.99, which went stale on 2026-10-02. The App Store and the paywall always show the real price.)
 Both plans can be shared with your family through Family Sharing.
 
 Payment is charged to your Apple Account when you confirm the purchase, or when the free trial ends. The subscription renews automatically unless it is canceled at least 24 hours before the end of the current period. You can manage or cancel it in your Apple Account settings at any time. Any unused part of a free trial is forfeited when you buy a subscription.
