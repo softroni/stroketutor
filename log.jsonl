@@ -20,3 +20,7 @@
 {"at": "2026-09-28T22:08:38-05:00", "text": "Paths now have their own colors, set in the Studio (Edit details… or `studio paths color`). Lesson videos use their path's color as the background, and the app will use the same colors from the next release. Plants is green, Sky & Weather blue. App Store screenshots 2, 3, 5, 6 and 8 were taken again. Pushed 29372d8; nothing was submitted to Apple."}
 {"at": "2026-09-28T23:53:03-05:00", "text": "Lesson videos: Lina now ends on 'Draw more with Paper Coach. It's free on the App Store.' ('free to download' for Premium lessons), her closing line is captioned, and stickers of the path's next lessons land round the drawing instead of an 8 s still frame (d2c81d4)"}
 {"at": "2026-09-29T13:15:35-05:00", "text": "Daily check: 1.0 (2) still waiting for review; no reviews, sales, crashes or PostHog traffic yet. Ads wait for approval."}
+{"at": "2026-09-30T13:57:31-05:00", "text": "Apple approved 1.0 (2); Paper Coach is on the App Store (READY_FOR_DISTRIBUTION)"}
+{"at": "2026-09-30T13:57:31-05:00", "text": "Tagged afa25bc as 1.0(2) and pushed the tag"}
+{"at": "2026-09-30T13:57:31-05:00", "text": "Apple Ads: 4 campaigns live, US, $10 a day (Brand $1, Category $5, Competitors $2, Discovery $2), with keywords and exclusions per apple-ads-plan.md; serving waits for Apple to categorize the app"}
+{"at": "2026-09-30T13:57:31-05:00", "text": "First real learner: onboarding finished, then a Pine Tree drawing; no crashes"}
