@@ -11,7 +11,10 @@
 	     the id lasts one launch and PostHog keeps no person. For 13 and over the id is
 	     the profile's random UUID, so those events are declared linked (Product
 	     Interaction, User ID). No location is derived ($geoip_disable) and the
-	     project discards IP addresses.
+	     project discards IP addresses. Each event does carry device_region, the
+	     Region chosen in the phone's Settings ("US"), so charts can be split by
+	     country: declared as Coarse Location, and linked for the same reason
+	     (since 2026-09-30).
 
 	     Superwall (SuperwallKit, App/SuperwallPaywalls.swift) serves the paywall to
 	     learners 13 and over, and only starts once one is drawing. It is never told
@@ -104,7 +107,7 @@
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeCoarseLocation</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
-			<false/>
+			<true/>
 			<key>NSPrivacyCollectedDataTypeTracking</key>
 			<false/>
 			<key>NSPrivacyCollectedDataTypePurposes</key>

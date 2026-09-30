@@ -1,9 +1,9 @@
 import XCTest
 @testable import PaperCoach
 
-/// What the PostHog sink sends: only what each age tier allows, never a location,
-/// in batches that survive a missing network and are let go when PostHog refuses
-/// them.
+/// What the PostHog sink sends: only what each age tier allows, never a location
+/// (only the Region the phone is set to), in batches that survive a missing network
+/// and are let go when PostHog refuses them.
 @MainActor
 final class PostHogSinkTests: XCTestCase {
 
@@ -42,6 +42,27 @@ final class PostHogSinkTests: XCTestCase {
         XCTAssertEqual(event.properties["build"], .string("debug"))
         XCTAssertEqual(event.properties["$app_version"], .string("1.0"))
         XCTAssertEqual(event.properties["$lib"], .string("paper-coach-ios"))
+    }
+
+    func testEveryEventSaysWhichRegionThePhoneIsSetTo() {
+        let sink = PostHogSink(appVersion: "1.0", build: "debug", region: { "FR" }, transport: { _ in .sent })
+        for policy in [child, teen, adult] {
+            let event = sink.makeEvent(name: "lesson_started", properties: [:], distinctId: "d", policy: policy)
+            XCTAssertEqual(event.properties[PostHogSink.regionKey], .string("FR"))
+            XCTAssertEqual(event.properties["$geoip_disable"], .bool(true), "A setting, never a location from the connection.")
+        }
+    }
+
+    func testAPhoneWithNoRegionSendsNone() {
+        let sink = PostHogSink(appVersion: "1.0", build: "debug", region: { nil }, transport: { _ in .sent })
+        let event = sink.makeEvent(name: "x", properties: [:], distinctId: "d", policy: adult)
+        XCTAssertNil(event.properties[PostHogSink.regionKey])
+    }
+
+    func testTheRegionIsNeverPutOnAPerson() {
+        let sink = PostHogSink(appVersion: "1.0", build: "debug", region: { "FR" }, transport: { _ in .sent })
+        sink.identify(distinctId: "profile", properties: ["age_group": "18plus"], policy: adult)
+        XCTAssertEqual(sink.queue.first?.properties["$set"], .object(["age_group": "18plus"]))
     }
 
     func testIdentifySendsNothingForAChild() {

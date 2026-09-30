@@ -884,6 +884,9 @@ protected tier needs it.
   - under 13, "prefer not to say" or never asked: anonymous events, with an id that lasts one launch;
   - 13 to 17: the profile's own id, no session replay;
   - 18+: everything.
+- **Country (2026-09-30):** PostHog derives no location and the project discards IPs, so every event carries
+  `device_region` instead, the Region chosen in the phone's Settings ("US"), for every tier. Not the App Store
+  storefront, which StoreKit asks apps not to keep with customer data. Declared as Coarse Location, linked.
 - **The name typed on `ob-who` is never sent.**
 - **Before either SDK ships:** put the paywall behind the PIN on child-tier profiles and word it for the parent;
   update the privacy label; check both vendors' terms for apps children use; check the state app-store age laws and
@@ -1007,7 +1010,8 @@ app update. SuperwallKit 4.17 comes in through Swift Package Manager.
   Premium 50% / Premium Gift 50%, In-app Premium = Premium 100%, no holdout; publish only after screenshots of both
   trial states. The same designs as code are in `superwall/`, waiting for "Superwall for Agents" beta access.
 - **Privacy:** `PrivacyInfo.xcprivacy` and the App Privacy answers in `docs/app-store/listing.md` declare purchase
-  history, product interaction, the vendor id and an IP-derived coarse location, none linked or used for tracking;
+  history, product interaction, the vendor id and an IP-derived coarse location, none linked or used for tracking
+  (since then PostHog added linked items, and coarse location became linked with `device_region`, 2026-09-30);
   the review note names the SDK.
 - **Verified 2026-09-25:** the build, and `xcodebuild test` 273 passed (31 new in `RemotePaywallsTests`). On the
   simulator, an 18+ learner's launch started Superwall (config, enrichment, entitlements) with no install-attribution

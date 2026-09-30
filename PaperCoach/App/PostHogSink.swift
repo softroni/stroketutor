@@ -4,7 +4,7 @@ import os
 /// Sends `Analytics` events to PostHog (project "Paper Coach", 629055, US cloud)
 /// through its batch capture API, with no SDK: only the events `Analytics` names
 /// leave the device, never a tap or a screen on their own, never a recording, and
-/// nothing about the device beyond the app's version.
+/// nothing about the device beyond the app's version and the Region it is set to.
 ///
 /// What each age tier allows (`AnalyticsPolicy`) comes out as:
 /// - **child**: `$process_person_profile` false, so PostHog keeps no person for the
@@ -17,6 +17,17 @@ import os
 /// data", Settings › Project). "Controlling data storage"
 /// (https://posthog.com/docs/privacy/data-storage), read 2026-09-26.
 ///
+/// What an event does say about place is `device_region`: the Region chosen in the
+/// phone's Settings (Language & Region), as its ISO code ("US", "GB"), so charts can
+/// be split by country (asked for by the creator, 2026-09-30). It is a setting read
+/// on the device, not a place worked out from the connection. Not the App Store
+/// storefront: StoreKit asks apps not to save it with customer information or use
+/// it to build a customer profile
+/// (https://developer.apple.com/documentation/storekit/storefront, read 2026-09-30).
+/// A country still describes where someone is, so it is declared as Coarse Location
+/// in `PrivacyInfo.xcprivacy`, linked because a 13+ learner's events carry their id
+/// (https://developer.apple.com/app-store/app-privacy-details/, read 2026-09-30).
+///
 /// Events wait in memory and go in batches: every `flushInterval`, at `flushCount`,
 /// and when the app goes to the background (`flush()`). A batch that fails for want
 /// of a network stays for the next try; one PostHog refuses is dropped.
@@ -27,6 +38,8 @@ final class PostHogSink: AnalyticsSink {
     /// lets the app send events, never read them.
     nonisolated static let projectKey = "phc_ypKEM2MfVWZQZEz24GhQwzG3NyfZksRgHEMpUiLojXQt"
     nonisolated static let batchURL = URL(string: "https://us.i.posthog.com/batch/")!
+    /// The Region set on the phone (see above), on every event.
+    nonisolated static let regionKey = "device_region"
     static let flushInterval: Duration = .seconds(15)
     static let flushCount = 20
     /// Beyond this, the oldest events are let go rather than kept forever offline.
@@ -43,14 +56,20 @@ final class PostHogSink: AnalyticsSink {
     private let appVersion: String
     private let build: String
     private let now: () -> Date
+    private let region: () -> String?
     private(set) var queue: [PostHogEvent] = []
     private var timer: Task<Void, Never>?
     private var isSending = false
 
-    init(appVersion: String, build: String, now: @escaping () -> Date = Date.init, transport: @escaping Transport) {
+    init(appVersion: String,
+         build: String,
+         now: @escaping () -> Date = Date.init,
+         region: @escaping () -> String? = { Locale.autoupdatingCurrent.region?.identifier },
+         transport: @escaping Transport) {
         self.appVersion = appVersion
         self.build = build
         self.now = now
+        self.region = region
         self.transport = transport
     }
 
@@ -125,6 +144,9 @@ final class PostHogSink: AnalyticsSink {
         values["$app_version"] = .string(appVersion)
         values["$os"] = .string("iOS")
         values["build"] = .string(build)
+        if let region = region() {
+            values[Self.regionKey] = .string(region)
+        }
         return PostHogEvent(event: name,
                             distinctId: distinctId,
                             uuid: UUID().uuidString.lowercased(),

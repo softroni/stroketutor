@@ -45,7 +45,11 @@ The API refused these, or has no endpoint for them, in the order a first submiss
      kept): Analytics, **linked** (for 13 and over the events carry the profile's random id).
    - Identifiers › **User ID** (that random profile id, PostHog, 13 and over only): Analytics, **linked**.
    - Identifiers › **Device ID** (the vendor identifier, IDFV): Analytics, App Functionality.
-   - Location › **Coarse Location** (country, region and city from the IP address): Analytics, App Functionality.
+   - Location › **Coarse Location** (country, region and city from the IP address, Superwall; and from the release
+     after 1.1, the Region set in the phone's Settings on every PostHog event, `device_region`): Analytics, App
+     Functionality, **linked** from that release (a 13+ learner's events carry their id). Changed in the privacy
+     manifest 2026-09-30; **App Privacy on App Store Connect needs this row switched to linked by hand** (there is
+     no API for it) before the build with it is submitted.
    - Usage Data › **Advertising Data** (Apple Ads attribution: the campaign, ad group and keyword ids AdServices
      returns, sent to PostHog): Analytics, **linked** (on a 13+ learner's person), not tracking. Added to the
      privacy manifest 2026-09-26 with `AppleAdsAttribution`; **App Privacy on App Store Connect still needs this
@@ -74,7 +78,7 @@ The API refused these, or has no endpoint for them, in the order a first submiss
 ## App Review notes (paste into "Notes")
 
 ```
-Paper Coach 1.0 requires no account or sign-in. The learner's work stays on the device: lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo stays in the app's sketchbook (saved to Photos only while "Also save to Photos" is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. The app sends its own usage events (lessons, onboarding and paywall steps), keyed by a random id and never a name, to PostHog without an SDK: for a learner under 13 the id lasts one launch and no profile is kept; no location is derived and IP addresses are discarded. Once per install the app asks Apple's AdServices framework which Apple Ads campaign, if any, led to the install: Apple's own attribution, with no advertising identifier and no App Tracking Transparency request. Purchases always go through StoreKit.
+Paper Coach 1.0 requires no account or sign-in. The learner's work stays on the device: lessons ship in the bundle, the camera is used only when the learner chooses to photograph a finished drawing, and that photo stays in the app's sketchbook (saved to Photos only while "Also save to Photos" is on). The one third-party SDK is Superwall (SuperwallKit), which serves the paywall to learners 13 and over; it never runs for a learner under 13 or who chose "Prefer not to say", is never told who anyone is, and does no install attribution or tracking. The app sends its own usage events (lessons, onboarding and paywall steps), keyed by a random id and never a name, to PostHog without an SDK: for a learner under 13 the id lasts one launch and no profile is kept; no location is derived from the connection and IP addresses are discarded; each event carries only the Region chosen in the phone's Settings (such as "US"). Once per install the app asks Apple's AdServices framework which Apple Ads campaign, if any, led to the install: Apple's own attribution, with no advertising identifier and no App Tracking Transparency request. Purchases always go through StoreKit.
 
 WHAT THE APP DOES
 The phone is a drawing instructor for real pen and paper. Each lesson animates one line, then waits until the learner taps "I drew it". There are 10 paths of 10 lessons. Lessons 1-3 of every path are free; lessons 4-10 wear a gold crown and need Premium.

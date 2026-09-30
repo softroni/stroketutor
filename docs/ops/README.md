@@ -23,7 +23,9 @@ every scheduled run follows it.
   budget rule under *Apple Ads*.
 - **ASO:** promotional text at any time. Keywords, subtitle and description go out with the next
   version Claude submits.
-- **PostHog:** dashboards, insights, cohorts, alerts.
+- **PostHog:** dashboards, insights, cohorts, alerts. From the release after 1.1, every event carries
+  `device_region`, the Region set in the phone's Settings ("US", "GB"): break down by it to read any chart
+  by country. PostHog has no `$geoip_*` for this app (off on purpose), so it is the only country there.
 - **The Studio Today page** and the daily summary.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
