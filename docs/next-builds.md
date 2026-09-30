@@ -98,6 +98,12 @@ review page is there, but almost nobody goes looking for it.
 
 ## 5. Premium Lifetime, and redeeming a code in the app (medium, in 1.1)
 
+**Built 2026-09-30, not shipped:** on `main` in `a69946e`, for 1.1. As specified below. The redeem row's check is
+the paywall's (the PIN when set, else the question), and `premium_from_code` is sent once per code, not with each
+renewal a code's free months carry. `PaperCoach.storekit` has Lifetime, but only Run from Xcode uses it: the
+simulator's harness and tests ask the App Store sandbox, so the plans sheet shows Lifetime there once App Store
+Connect serves it.
+
 **Why:** Kevin wants friends and family to have Premium for good. Subscription offer codes stop at a year free, but
 since iOS 18.4 (back-deployed to 16.3) offer codes also work for one-time purchases, so a **Lifetime** product plus
 free one-time codes does it. Lifetime is also a plan anyone can buy. Decided with Kevin 2026-09-30.
