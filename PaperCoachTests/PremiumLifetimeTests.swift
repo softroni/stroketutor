@@ -133,6 +133,15 @@ final class PremiumLifetimeTests: XCTestCase {
                        "Without its product from StoreKit, no Lifetime row and no made-up price.")
     }
 
+    func testThePlansSheetSubtitleSaysLifetimeIsOnePayment() {
+        XCTAssertEqual(PaywallPlansSheet.subtitle(for: .lifetime), "Paper Coach Premium · one payment",
+                       "Lifetime never renews.")
+        XCTAssertEqual(PaywallPlansSheet.subtitle(for: .yearly), "Paper Coach Premium · auto-renewing")
+        XCTAssertEqual(PaywallPlansSheet.subtitle(for: .weekly), "Paper Coach Premium · auto-renewing")
+        XCTAssertEqual(PaywallPlansSheet.subtitle(for: PaywallPlansSheet.initialPlan),
+                       "Paper Coach Premium · auto-renewing", "The sheet opens on Yearly.")
+    }
+
     /// The three plans as the App Store sandbox gives them, which is what
     /// `xcodebuild test` asks (the scheme's `PaperCoach.storekit` is only for Run).
     /// Skipped offline, and until Lifetime exists in App Store Connect.

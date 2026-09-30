@@ -357,6 +357,15 @@ struct PaywallPlansSheet: View {
         PremiumStore.Plan.allCases.filter(offered)
     }
 
+    /// The line under "Choose a plan", for the chosen plan: Lifetime is one payment
+    /// and never renews, the two subscriptions renew.
+    static func subtitle(for plan: PremiumStore.Plan) -> String {
+        switch plan {
+        case .yearly, .weekly: return "Paper Coach Premium · auto-renewing"
+        case .lifetime: return "Paper Coach Premium · one payment"
+        }
+    }
+
     var body: some View {
         // Scrolls, so the buy button and the legal links stay reachable at the
         // medium detent and with large text.
@@ -371,7 +380,7 @@ struct PaywallPlansSheet: View {
                             .textRole(.title2)
                             .foregroundStyle(Theme.ink)
                             .accessibilityAddTraits(.isHeader)
-                        Text(plan == .lifetime ? "Paper Coach Premium · one payment" : "Paper Coach Premium · auto-renewing")
+                        Text(Self.subtitle(for: plan))
                             .textRole(.footnote)
                             .foregroundStyle(Theme.ink55)
                     }
