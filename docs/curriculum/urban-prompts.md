@@ -39,17 +39,17 @@ What the lesson prompts on this path take care of, beyond the system prompt:
   70% of the image, dots on the page would squash the far walls. The eye level is drawn only where the objective
   names it: two short pieces of horizon beside the corner building, and one piece beside the hill street, whose
   road ends at the one dot on the path.
-- **Light and shadow only where the objective asks**: the hydrant's shadow side and cast shadow (`fire-hydrant`),
-  lit from the upper left. (The balcony's flower-box shadow was taken out: there was no room for a right one.) Cast
-  shadows are gray, as on Light & Shadow; a shadow side is the darker partner of its color (red → brown), and on the
-  hydrant it runs down every stacked part. Glass gets its shine only as two short bold charcoal lines in a pane's
-  upper left corner (shop window and door, balcony doors, brick window, café window), never as pale
-  streaks.
-- **Texture only where the objective asks**: nine bricks in three patches (`brick-window`) and six cobblestones
-  (`fire-hydrant`). Both are counted, closed and floating, never a pattern.
-- **Overlap only where the objective is about it**: a tree behind the shop (`shop-front`) and behind the phone
-  box (`phone-box`), the doors behind the railing (`balcony`), the four roofs and the dormer (`rooftops`), and in
-  the finale the tram in front of the houses and the houses in front of the rooftops.
+- **Light and shadow only where the objective asks**, and since the creator chose a flat hydrant (2026-09-30) none
+  does: the first hydrant's shadow side and cast shadow are gone, and the balcony's flower-box shadow was taken out
+  (there was no room for a right one). Light & Shadow is the path that draws light. Glass gets its shine only as
+  two short bold charcoal lines in a pane's upper left corner (shop window and door, balcony doors, brick window,
+  café window), never as pale streaks.
+- **Texture only where the objective asks**: nine bricks in three patches (`brick-window`), counted, closed and
+  floating, never a pattern. The hydrant's pavement is three slabs divided by two lines, not a texture.
+- **Overlap only where the objective is about it**: a tree behind the shop (`shop-front`) and behind the phone box
+  (`phone-box`), the doors behind the railing (`balcony`), the pavement's back edge behind the hydrant's foot
+  (`fire-hydrant`), the four roofs and the dormer (`rooftops`), and in the finale the tram in front of the houses
+  and the houses in front of the rooftops.
 - **Details are single lines**: railing bars and rail, awning stripe lines, water arcs and ripples, the tram's wire
   and trolley pole and the wiper on its glass, the phone box's handle, tank legs, street edges, the shine on glass.
   Each prompt calls them charcoal lines with no color.
@@ -640,77 +640,61 @@ with three panes, two shine lines, one keystone, one sill, nine bricks in three 
 
 ### 9 · `fire-hydrant`
 
-Objective: Open hydrant spraying into a puddle, with a shadow side and a cast shadow on cobbles.
+Objective: Fire hydrant with a ribbed dome, capped nozzles and a front cap, on three paving slabs.
 
-Second design, 2026-09-30, in the creator's style (stacked tiers, colored water): the hydrant is opened on a summer
-day. Its tiers are stacked higher (a cap nut, a dome, a collar, the barrel split by a belt, a flange), each with
-its lit and shadow color, and a blue arc of water pours from the left nozzle into a puddle with two ripples, in the
-light, while the cast shadow lies across three of the six cobbles on the right. The lesson's point is unchanged:
-one shadow line through every tier, and stones that change color in the shadow.
+Third design, 2026-09-30. The shadow-and-water hydrant came back as asked but the creator did not like it; they
+preferred a ChatGPT hydrant drawn flat, with no light: a pink dome with ribs under a red ring and a cream nut, a
+cream collar, a red barrel with a big cream front cap and a gray six-sided nut, a capped nozzle on each side, a
+gray flared foot, and three paving slabs under it, seen from a little above. This prompt keeps that design. Its
+repeated ornament is the dome's ribs; the shadow side, cast shadow and cobbles are gone, so no Urban lesson draws
+light now (Light & Shadow is the path for it).
 
 ```text
-SUBJECT: one old fire hydrant opened on a summer day, standing on a cobbled street, lit from the
-upper left: a dome, a collar, a barrel with a belt and a base flange stacked one on another, a
-nozzle on each side, its shadow side running down every tier, water arcing from its left nozzle into
-a puddle, and its cast shadow lying across a few cobblestones on the right. The whole scene fills
-about 80% of the image's width, with clear white margin on all four sides; nothing is cut off by the
-image's edge.
-VIEW: the hydrant is seen straight on. The ground is seen from a little above, so the puddle, the
-cast shadow and the cobblestones are flat shapes lying on it. The ground itself stays white paper.
-LIGHT: from the upper left. The hydrant's right side is its shadow side, and its cast shadow falls
-on the ground to the right. These are the only shadows.
-- Hydrant: six parts stacked from top to bottom, each sitting on the one below (one shared line
-  each), all centered on one upright middle line. Together about two and a half times as tall as the
-  barrel is wide, standing a little left of the middle of the image.
-  - Dome: the top half of a circle, as wide as the barrel.
-  - Collar: one flat band with four straight sides, a little wider than the barrel at both ends,
-    about four line-widths tall.
-  - Upper barrel: one shape with straight upright sides, a little taller than wide.
-  - Belt: one flat band with four straight sides, as wide as the barrel, about three line-widths
-    tall.
-  - Lower barrel: one shape with straight upright sides, about half as tall as the upper barrel.
-  - Flange: one flat band with four straight sides at the bottom, wider than the collar, about four
-    line-widths tall, with a flat level bottom.
-- Shadow side: one single line divides the whole hydrant from top to bottom: it starts on the dome a
-  little right of its top, curves down, and runs straight and upright through the collar, both parts
-  of the barrel, the belt and the flange to the flange's bottom edge, about one third of the
-  barrel's width in from its right side, touching the outline at both ends. Left of it is the lit
-  side, right of it the shadow side. Colors, lit then shadow: dome, upper barrel and lower barrel
-  red #d8433b and brown #8a5a33; collar, belt and flange yellow #f7cf46 and orange #f08a2c.
-- Cap nut: one small shape sitting a little left of the dome's top: three straight sides and a
-  bottom edge following the dome's curve (one shared line). The dividing line starts at least three
-  line-widths to the right of it. Color: yellow #f7cf46.
-- Nozzles: exactly two, one on each side of the upper barrel, a little above its middle, with a
-  clear strip of red or brown at least three line-widths wide between them and the belt: each a
-  short stubby shape with four straight sides sticking straight out, attached to the barrel's side
-  (one shared edge), about as long as it is tall. The left one, in the light, is yellow #f7cf46 and
-  open. The right one, in the shadow, is orange #f08a2c, and on its outer end sits one cap (one
-  shared line), a short shape with four straight sides a little taller than the nozzle, brown
-  #8a5a33.
-- Water: one smooth band of water leaving the left nozzle's outer end (that end is its start, one
-  shared line), about as wide as the nozzle is tall, arcing out to the left and down like a bent
-  tube, and landing on the puddle: its lower end is a stretch of the puddle's top edge (one shared
-  line). Water and puddle are both blue, on purpose. Color: blue #5b8fc7.
-- Puddle: one flat rounded shape lying on the ground to the left of the flange, wider than tall,
-  with a clear gap of white at least three line-widths wide from the flange. Color: blue #5b8fc7.
-  Inside it, exactly two short curved ripple lines, floating, touching nothing: charcoal lines with
-  no color.
-- Cast shadow: one long flat shape lying on the ground and stretching to the right, about two and a
-  half times as long as the barrel is wide and about as tall as the barrel is wide. Its near end is
-  the flange's right end (one shared line); its bottom edge carries on from the flange's bottom
-  edge, level; its top edge rises from the flange's top right corner, then runs nearly level; its
-  far end is rounded, like the dome lying on its side. Color: gray #c9ced6.
-- Cobblestones: exactly six, each a small flat rounded shape, wider than tall, about one third as
-  wide as the barrel. Exactly three lie in a row inside the cast shadow, each wholly inside it with
-  a clear band of gray at least three line-widths wide all around it: color brown #8a5a33, stones in
-  the shadow. The other three lie in a row on the white ground just below the shadow and the flange,
-  at least three line-widths clear of the shadow, the puddle and each other: color cream #f6e7b8,
-  stones in the light. No stone is cut by the shadow's edge.
-Nothing else: no front nozzle, no chains, no bolts, no spray drops, mist or splashes, no highlight,
-no ground line, curb or sidewalk, no other stones, no second puddle. Twenty-eight shapes and lines
-in total. Count: six stacked parts, each in a lit and a shadow color, split by one shadow line; one
-cap nut; two nozzles and one cap; one water arc; one puddle with two ripples; one cast shadow; six
-cobblestones, three of them in the shadow.
+SUBJECT: one old fire hydrant standing on a small patch of pavement: a nut and a ring on top of a
+ribbed dome, a collar, a tall barrel with a big front cap, a capped nozzle on each side, and a
+flared foot standing on three paving slabs. The whole scene fills about 80% of the image's width,
+with clear white margin on all four sides; nothing is cut off by the image's edge.
+VIEW: the hydrant stands upright and is seen straight on, from a little above: the foot's bottom and
+the pavement show as flat shapes lying on the ground, the pavement a little wider at its front edge
+than at its back edge. No light and no shadow.
+- Barrel: one tall shape with straight upright sides, about twice as tall as it is wide, standing a
+  little above the middle of the image. Color: red #d8433b.
+- Collar: one flat band with rounded ends lying on the barrel's top edge (one shared line), a little
+  wider than the barrel at both ends, about four line-widths tall. Color: cream #f6e7b8.
+- Dome: one rounded dome sitting on the collar (one shared line), a little narrower than the collar,
+  about as tall as it is wide. Color: watermelon pink #ee5a6a. Exactly four ribs: single curved
+  lines running from the ring down to the collar, following the dome's curve, evenly spaced,
+  dividing the dome into five strips, each at least three line-widths wide. Charcoal lines with no
+  color.
+- Ring: one small flat band with rounded ends sitting on the dome's top (one shared line), about one
+  third as wide as the dome, about three line-widths tall. Color: red #d8433b.
+- Top nut: one small upright shape with rounded corners sitting on the ring (one shared line), about
+  half as wide as the ring, a little taller than the ring. Color: cream #f6e7b8.
+- Front cap: one big circle floating in the middle of the barrel, about two thirds as wide as the
+  barrel, with a clear strip of red at least three line-widths wide all around it. Color: cream
+  #f6e7b8. In its middle, one six-sided nut floating, about one third as wide as the cap. Color:
+  gray #c9ced6.
+- Side nozzles: exactly two, one on each side of the barrel, level with the front cap, mirror images
+  of each other. Each is three parts in a row going outward: a short neck attached to the barrel's
+  side (one shared edge), color watermelon pink #ee5a6a; a cap, one taller shape with rounded
+  corners attached to the neck's outer end (one shared line), color gray #c9ced6; and a knob, one
+  smaller shape with rounded corners on the cap's outer end (one shared line), also gray #c9ced6, on
+  purpose.
+- Foot: one gray shape under the barrel: its top edge is the barrel's bottom edge (one shared line),
+  its two sides flare outward in one smooth curve each, and its bottom is the front half of a wide
+  flat oval, about twice as wide as the barrel. Color: gray #c9ced6.
+- Pavement: one flat four-sided shape lying on the ground under the foot, much wider than the foot,
+  its back edge level and a little shorter than its level front edge, its left and right sides
+  slanting outward toward the front. Two single lines divide it into exactly three slabs, each line
+  running from the back edge to the front edge and slanting outward like the sides: the middle slab,
+  under the foot, is a little wider than the foot, color cream #f6e7b8; the two outer slabs are gray
+  #c9ced6. The hydrant stands in front of the middle of the pavement's back edge: that edge stops on
+  the foot's outline on each side, and the foot's bottom lies wholly inside the middle slab.
+Nothing else: no light, shading, shadow side or cast shadow, no shine lines, no chains, no bolts, no
+water, no cobbles, no curb, no other stones or ground. Twenty-one shapes and lines in total. Count:
+one barrel with a front cap and its nut; one collar; one dome with four ribs; one ring and one top
+nut; two nozzles, each a neck, a cap and a knob; one foot; one pavement in three slabs, divided by
+two lines.
 ```
 
 ### 10 · `rooftops`
