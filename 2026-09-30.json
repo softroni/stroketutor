@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-30T13:57:31-05:00",
+  "updated": "2026-09-30T14:09:25-05:00",
   "headline": "Apple approved 1.0 (2), and Paper Coach is on the App Store. The build is tagged 1.0(2), and Apple Ads is set up in the US at $10 a day; it starts serving once Apple finishes categorizing the new app.",
   "app": {
     "live": {
@@ -169,14 +169,14 @@
       "title": "Upload-Post yearly plan, and connect TikTok",
       "detail": "The app is on sale, so the daily lesson videos can start. The last thing waiting is the paid Upload-Post plan and TikTok on the softroni profile. Once they're in, Claude installs the 17:00 launch agent.",
       "since": "2026-09-30"
-    },
-    {
-      "title": "Add Crash Data and Performance Data to App Privacy",
-      "detail": "Both under Diagnostics: not linked to the user, not tracking, App Functionality. Kevin will do it later; Claude reminds him when 1.0.1 is ready to submit, and holds 1.0.1 until it is done.",
-      "since": "2026-09-27"
     }
   ],
   "working": [
+    {
+      "title": "1.1 release",
+      "state": "waiting",
+      "detail": "Cut once the Café and next-builds items 1 (Premium fix) and 4 (rating prompt) are on main. Plan: docs/releases/1.1.md."
+    },
     {
       "title": "Apple Ads, first days",
       "state": "running",
@@ -193,17 +193,16 @@
       "detail": "Private test on Monday: YouTube Shorts posted, and Facebook Reels posted on the second try. Public posting starts with the paid plan (see Needs you)."
     },
     {
-      "title": "1.0.1: crash and hang reports",
-      "state": "waiting",
-      "detail": "Ready on release/1.0.1 (306 tests pass). It ships with the first fix, once App Privacy has the Crash Data row."
-    },
-    {
       "title": "Keyword baseline",
       "state": "next",
       "detail": "Where Paper Coach ranks for its keywords in its first days, so later changes can be measured."
     }
   ],
   "log": [
+    {
+      "at": "2026-09-30T14:09:25-05:00",
+      "text": "Kevin added Crash Data and Performance Data to App Privacy. 1.0.1 dropped: 1.1 carries it, with Urban, the photo modes and next-builds items 1 and 4 (docs/releases/1.1.md)"
+    },
     {
       "at": "2026-09-30T13:57:31-05:00",
       "text": "First real learner: onboarding finished, then a Pine Tree drawing; no crashes"
