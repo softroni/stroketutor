@@ -227,7 +227,7 @@ The waterline comes first because the bridge stands on it and its reflection han
 - mirror-arches: "In the water each arch shows again, upside down. Its rings close into circles."
 - reflection: "Carry the bridge's ends down into the water. Then its mirror: level, a dip, level again."
 - ripples: "Three pairs of short level lines make ripples."
-- colors: "Blue for the water, inside the mirrored arches too, and both windows." / "Cream for the bands along the top, the stones and the reflection. Gray for the mirrored rings." / "Yellow for the bridge and the left house." / "Red for the brick walls and the left roof. Pink for their reflections." / "Orange for the right house, brown for its roof and the trunk." / "Dark green for the tall tree, green for the round one."
+- colors: "Blue for the water, inside the mirrored arches too, and both windows." / "Cream for the bands along the top, the stones and the reflection. Gray for the mirrored rings." / "Yellow for the bridge and the left house." / "Red for the brick walls and the left roof. Pink for their reflections." / "Orange for the right house, brown for its roof and trunk. Dark green and green for the trees."
 - outro: "Your bridge is standing, and so is its twin in the water. Which one would you walk across?"
 
 ### fire-hydrant
