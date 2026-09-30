@@ -1,0 +1,118 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "balcony",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-09-30T03:26:06.362Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Look up in any old town and you'll spot balconies. This one has green doors, a pointed hood and a rail to lean on. Watch it come out, then step onto your own.",
+      "textHash": "3b0fe50a3b3a964ee743968474c5044a47ac610eabd0c9bf21b908f0d08c875a",
+      "durationMs": 10240
+    },
+    "wall": {
+      "file": "wall.m4a",
+      "text": "The wall comes first: one big box, a little taller than wide.",
+      "textHash": "8deb3cc358c428753fa414cc275df1af217fe809d85eebb3390fe9d780ee69ac",
+      "durationMs": 4480
+    },
+    "slab": {
+      "file": "slab.m4a",
+      "text": "Low down, a long stone slab runs almost from side to side.",
+      "textHash": "3b7042cbee96ab30c3501b9b8b7b4be934826f6122695a1eb4ec17a1e35316e6",
+      "durationMs": 4400
+    },
+    "brackets": {
+      "file": "brackets.m4a",
+      "text": "Two brackets hold it up. Curved on the outside, straight on the inside.",
+      "textHash": "8efd28b6cde417c258ec1e8af918d9a2298458c0145d5d5aabfebc5248fc7ffb",
+      "durationMs": 4800
+    },
+    "rail": {
+      "file": "rail.m4a",
+      "text": "Next, the railing, which stands in front. One level rail, with a bar down from each end.",
+      "textHash": "7dd844b3c4609a3d99e35759d1c089cd5db26652f441cf35d7f0ac4e7c4bfd8f",
+      "durationMs": 6320
+    },
+    "bars": {
+      "file": "bars.m4a",
+      "text": "Six more bars between them, spaced out evenly.",
+      "textHash": "3c5a2039f2ca251e5ed14bace423907ffa536d6f50dbf0198e0413ef8d093c22",
+      "durationMs": 3360
+    },
+    "doors": {
+      "file": "doors.m4a",
+      "text": "The doors stand behind the rail: up from it, across, and back down. Add a line down the middle.",
+      "textHash": "c9687cf4bb44a92f0c2f6c16d4c7e321a829337422bf1df3c1f2aa4bd6b1542d",
+      "durationMs": 6800
+    },
+    "hood": {
+      "file": "hood.m4a",
+      "text": "Over the doors, a flat band with a low pointed roof on top.",
+      "textHash": "79bdff3fee31485599e7283fe51672aec25fab01c47c8d6eb6755acd213c2823",
+      "durationMs": 4080
+    },
+    "glass": {
+      "file": "glass.m4a",
+      "text": "A tall pane in each door, each with two short slanted lines.",
+      "textHash": "29808b63311395139f29d070923cfe4553214a0765c5ccf1832cab2354f8dad8",
+      "durationMs": 4480
+    },
+    "knobs": {
+      "file": "knobs.m4a",
+      "text": "Two round knobs just below the glass, one each side of the middle.",
+      "textHash": "07fd695f16f6108bddbf652a2c3581bead6220da864822e03e498b529cd222d7",
+      "durationMs": 4560
+    },
+    "flower-box": {
+      "file": "flower-box.m4a",
+      "text": "On the right, a box a little wider at the top. A bush of five bumps sits in it.",
+      "textHash": "6bd79a2c71f0b10e613d21813427f04adff806d227a099a256761381075bde8d",
+      "durationMs": 5520
+    },
+    "vine-stem": {
+      "file": "vine-stem.m4a",
+      "text": "Up the left side, a winding stem with a round flower halfway and one at the top.",
+      "textHash": "30b7d8237701b3e3a1e4f4cdf3535a03fcc59dd02977dad7f2e3881a2e91941a",
+      "durationMs": 5360
+    },
+    "leaves": {
+      "file": "leaves.m4a",
+      "text": "Four leaves grow off the stem, two on each side.",
+      "textHash": "783e8dd19e47f01714151428a2e767f1e00f9ad551867ad7c3a5e78d9bd197a6",
+      "durationMs": 3920
+    },
+    "yellow": {
+      "file": "yellow.m4a",
+      "text": "Color the wall yellow, and the two knobs as well.",
+      "textHash": "bce71ac5d4e6379b8993ca96a16228ffb72dedae0e4c00529fd5d0bbeed6828d",
+      "durationMs": 3360
+    },
+    "green": {
+      "file": "green.m4a",
+      "text": "Green for the doors, the bush and the four leaves.",
+      "textHash": "82eae1fd0613252dc2aa0ff390480b40ea50b9c86bebf8f023680800cc60fb6f",
+      "durationMs": 3760
+    },
+    "cream-blue": {
+      "file": "cream-blue.m4a",
+      "text": "Cream for the slab and the hood. The glass is blue.",
+      "textHash": "418f3623128ea99277befed3e44528adeeb387771baf887dc02ee64ac1fb36b1",
+      "durationMs": 3600
+    },
+    "orange-red": {
+      "file": "orange-red.m4a",
+      "text": "Orange for the brackets and the box. Red for the two flowers, and three dots on the bush.",
+      "textHash": "7bc8f8bfc99048cb95e433cdfac4c05727c86025a7179ec632a4c834c738427b",
+      "durationMs": 5920
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your balcony is ready. Who would you wave to from up there?",
+      "textHash": "a13c50b9f86075365f174fe288018a4441ef29dfd07bf843eb3edddf0b69c971",
+      "durationMs": 3680
+    }
+  }
+}

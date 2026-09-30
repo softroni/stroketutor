@@ -1010,6 +1010,16 @@
         "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-29, tree added by the creator; AI-generated for Paper Coach; owned by Softroni",
         "license": "AI-generated for Paper Coach; owned by Softroni"
       }
+    },
+    {
+      "id": "balcony",
+      "status": "approved",
+      "objective": "Tall doors under a pointed hood behind a railing, a flower box and a climbing vine",
+      "reference": {
+        "file": "balcony.svg",
+        "source": "OpenAI image model, prompt style-v4-advanced (docs/curriculum/urban-prompts.md), generated 2026-09-29, flower-box shadow removed and margin added by hand; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
     }
   ]
 }
