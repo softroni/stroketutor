@@ -88,6 +88,11 @@ fails twice is reported, not worked around. Keep those rules in any rewrite of t
 (`~/.claude/scheduled-tasks/paper-coach-*/SKILL.md`). The runs log by adding lines to `addLog` in `notes.json`,
 which `publish` moves into `log.jsonl`.
 
+**A log line is one short sentence, under 120 characters,** saying in plain words what happened: "Apple
+approved 1.1 (4); tagged and merged", not the paragraph behind it. Commit hashes, test counts, product ids and
+the steps taken go in the commit, `docs/releases/` or this runbook. `today.py` warns about a line over 140
+characters. The page shows the newest five, cut to two lines, and the rest on "Show all".
+
 `notes.json` numbers replace a collected number of the same label. Keep the headline to two
 sentences, and "Needs you" to what only Kevin can do.
 

@@ -201,18 +201,7 @@ function Status({ status }: { status: TodayStatus }) {
           <h2 id="today-log" className="st-today__h2">
             Log
           </h2>
-          {status.log.length ? (
-            <ol className="st-today__log">
-              {status.log.slice(0, 15).map((entry) => (
-                <li key={`${entry.at}-${entry.text}`}>
-                  <time dateTime={entry.at}>{dateTime.format(new Date(entry.at))}</time>
-                  <span>{entry.text}</span>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="st-today__quiet">Nothing yet.</p>
-          )}
+          {status.log.length ? <LogList log={status.log} /> : <p className="st-today__quiet">Nothing yet.</p>}
         </section>
       </div>
 
@@ -352,6 +341,40 @@ function Status({ status }: { status: TodayStatus }) {
             </a>
           ))}
         </nav>
+      ) : null}
+    </>
+  )
+}
+
+/** How many log entries show before "Show all". */
+const LOG_SHOWN = 5
+
+/**
+ * The newest few entries, each cut to two lines (the full text on hover); the rest, in full, on request.
+ * Nothing is dropped from the log itself: every entry stays in log.jsonl and the day's history.
+ */
+function LogList({ log }: { log: TodayStatus['log'] }) {
+  const [open, setOpen] = useState(false)
+  const entries = open ? log : log.slice(0, LOG_SHOWN)
+  return (
+    <>
+      <ol className={open ? 'st-today__log st-today__log--open' : 'st-today__log'}>
+        {entries.map((entry) => (
+          <li key={`${entry.at}-${entry.text}`}>
+            <time dateTime={entry.at}>{dateTime.format(new Date(entry.at))}</time>
+            <span title={open ? undefined : entry.text}>{entry.text}</span>
+          </li>
+        ))}
+      </ol>
+      {log.length > LOG_SHOWN ? (
+        <button
+          type="button"
+          className="st-button st-button--compact st-today__more"
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
+          {open ? 'Show less' : `Show all ${log.length}`}
+        </button>
       ) : null}
     </>
   )

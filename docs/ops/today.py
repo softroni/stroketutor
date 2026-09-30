@@ -399,6 +399,8 @@ def check() -> list[dict]:
 
 
 def append_log(text: str) -> None:
+    if len(text) > 140:
+        print(f"today.py: that log line is {len(text)} characters; keep them under 120 (docs/ops/README.md)", file=sys.stderr)
     OPS.mkdir(parents=True, exist_ok=True)
     with open(OPS / "log.jsonl", "a") as log:
         log.write(json.dumps({"at": now().isoformat(), "text": text}, ensure_ascii=False) + "\n")

@@ -294,6 +294,19 @@
   color: var(--ink-faint);
 }
 
+/* Until "Show all", each entry is cut to two lines. */
+.st-today__log:not(.st-today__log--open) span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.st-today__more {
+  margin-top: 10px;
+}
+
 .st-today__cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
