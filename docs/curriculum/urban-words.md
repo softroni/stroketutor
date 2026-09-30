@@ -187,3 +187,33 @@ creator's request: the fountain alone is enough to draw.
 - ripples: "Two ripples curve across the water below."
 - colors: "Cream for the stone: the rim, the bowls, the stem and the ball." / "Blue for all the water, the arcs too." / "Orange for the three panels." / "Gray for the step and the column."
 - outro: "Your fountain is splashing away. Would you toss a coin in?"
+
+### canal-bridge
+
+The creator's own humpbacked bridge: a yellow bridge with a cream band along its humped top, three
+open arches (white sky above the waterline), each with a cream ring of stones (nine on the middle
+ring, six on each side ring, where the prompt asked for seven and five); red brick walls on both
+banks with cream bands on top; a yellow house with a red roof and a dark green pointed tree on the
+left, an orange house with a brown roof and a round tree on the right; a flat blue canal. Below the
+waterline, the bridge is mirrored in cream with gray rings, so each arch and its reflection make one
+round opening, and the walls in pink. Six ripples, in three pairs (the prompt asked for four).
+The waterline comes first because the bridge stands on it and its reflection hangs from it.
+
+- intro: "Canal towns are full of old stone bridges. The still water turns every arch into a ring. Watch it take shape, then cross over to your own page."
+- waterline: "Start with the waterline: one long level line straight across."
+- bridge: "The bridge's two ends stand on it, joined by a humped top. A second hump runs just below."
+- middle-arch: "In the middle, a tall round arch with a second one inside. Two short lines at the top make the wedge."
+- middle-stones: "Three more lines down each side split the ring into stones. Each points at the middle."
+- side-arches: "Then a smaller arch on each side, doubled the same way."
+- left-stones: "The left ring gets five lines: one at the top, then two down each side."
+- right-stones: "Five more on the right ring, placed the same way."
+- quays: "A brick wall along each bank: a flat top, a band just under it, and a straight outer end."
+- left-house: "A small house stands on the left bank: two sides, a sloping roof and one window."
+- right-house: "The right house matches it, its roof sloping the other way."
+- trees: "A tall pointed tree on the left bank. On the right, a round one on a short trunk."
+- water: "Now the canal: down from the waterline's left end, across the bottom and back up."
+- mirror-arches: "In the water each arch shows again, upside down. Its rings close into circles."
+- reflection: "Carry the bridge's ends down into the water. Then its mirror: level, a dip, level again."
+- ripples: "Three pairs of short level lines make ripples."
+- colors: "Blue for the water, inside the mirrored arches too, and both windows." / "Cream for the bands along the top, the stones and the reflection. Gray for the mirrored rings." / "Yellow for the bridge and the left house." / "Red for the brick walls and the left roof. Pink for their reflections." / "Orange for the right house, brown for its roof and the trunk." / "Dark green for the tall tree, green for the round one."
+- outro: "Your bridge is standing, and so is its twin in the water. Which one would you walk across?"
