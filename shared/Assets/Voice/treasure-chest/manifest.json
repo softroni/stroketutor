@@ -1,0 +1,136 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "treasure-chest",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:32:58.400Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Every adventure ends with a treasure chest, and this one holds the crown and the sword you drew before. It's a box, a lid and a heap of gold. Watch it fill up, then claim your treasure.",
+      "textHash": "1142da2af746e9dbdd763d64886fa989cc1018e54091632c56171d7b16d5b115",
+      "durationMs": 11600
+    },
+    "box": {
+      "file": "box.m4a",
+      "text": "The chest is a box. Draw the top edge of its front, then its left side, bottom and right edge.",
+      "textHash": "6e683edd74dfe9eac9e90b053244e7401d9e78d165027cf4afcb9910ec4abd98",
+      "durationMs": 6960
+    },
+    "side": {
+      "file": "side.m4a",
+      "text": "Its right side slants back. A short top edge, then down the back and along the bottom.",
+      "textHash": "6aca9f5b06b9dbad9a26caf323bb9bd220014a4abb0895438b4552abc19ab4e4",
+      "durationMs": 5920
+    },
+    "bands": {
+      "file": "bands.m4a",
+      "text": "Three metal bands wrap the box, two on the front and one on the side. Each is two straight lines.",
+      "textHash": "98ae06ae1cb11680e9e53d99c66790316cde293d512b909ecea251c792000b03",
+      "durationMs": 7200
+    },
+    "lock": {
+      "file": "lock.m4a",
+      "text": "Between the front bands, a lock plate hangs from the top edge, with a keyhole inside.",
+      "textHash": "cb830ebc2dc4a536f4eff0eedd89c2840b9f07f8785c16fbe8736ecaa6412729",
+      "durationMs": 5360
+    },
+    "heap": {
+      "file": "heap.m4a",
+      "text": "Gold piles up out of the box. Draw its bumpy top on each side, leaving room for the crown.",
+      "textHash": "3d84bbf00d35f66a0650ed8d037e0f9843b85e3b3ea59c2a0bbe61ef51265a93",
+      "durationMs": 6640
+    },
+    "crown-band": {
+      "file": "crown-band.m4a",
+      "text": "The crown from earlier sits on the gold. Start with its band: a curved top line, then sides and bottom.",
+      "textHash": "9422a1c3e1e889f13575d4a263ee8e589462765aa6933bd9d7099379df3b71d5",
+      "durationMs": 7600
+    },
+    "crown-points": {
+      "file": "crown-points.m4a",
+      "text": "Five points zigzag up from the band, the middle one tallest, just as before.",
+      "textHash": "293083c8186bcd32456e8410fb86ffcb030dd06da76123b605e4c27fef8110ac",
+      "durationMs": 5280
+    },
+    "pearls": {
+      "file": "pearls.m4a",
+      "text": "Put a pearl on each point, finishing the ones the zigzag left open.",
+      "textHash": "4daa3bbb5f95ba9a2d24bafcfd14222d846528ea02bc117850ba33982bff4a6b",
+      "durationMs": 4640
+    },
+    "velvet": {
+      "file": "velvet.m4a",
+      "text": "In each of the four dips, a short curve marks the velvet.",
+      "textHash": "9c4acf38973af1b3280ced1476d91ebad1de67e07f3e1985668e2c6d25d74c02",
+      "durationMs": 3760
+    },
+    "sword": {
+      "file": "sword.m4a",
+      "text": "The sword from earlier is stuck in the gold. Draw its guard, then the blade and its groove down into the heap.",
+      "textHash": "f080a34bc8df2d4d1b93f794bd100bd03d80a8d4a0437b1754451cef56aa9677",
+      "durationMs": 6480
+    },
+    "grip": {
+      "file": "grip.m4a",
+      "text": "Above the guard, the grip with two wraps, and the round knob on top.",
+      "textHash": "9f6adef935ad7407e2bf5ac843d149dd6f1f781ba7e32187410610ecf062b95c",
+      "durationMs": 4400
+    },
+    "lid": {
+      "file": "lid.m4a",
+      "text": "The open lid stands behind it all. Draw its top and left side, its right side, then the rim inside.",
+      "textHash": "d1b70d47fb1355735bf66f1ecfd3323dd8e00e881fbd204ca12b5624a5d3a7de",
+      "durationMs": 7600
+    },
+    "lid-end": {
+      "file": "lid-end.m4a",
+      "text": "The lid is domed, and its round end shows on the right, like a letter D, with a band along its curve.",
+      "textHash": "772513bc359ee538bdd4054a334e5d7cd94cf484c0797e7c56a282a347764901",
+      "durationMs": 6880
+    },
+    "coins": {
+      "file": "coins.m4a",
+      "text": "Five round coins lie scattered on the gold.",
+      "textHash": "d02ce2b48adb4fc3c81f86d25332abb80f121221bf232ee66a18a04cfbf22bc9",
+      "durationMs": 3280
+    },
+    "gems": {
+      "file": "gems.m4a",
+      "text": "Three gems sit among the coins: diamonds, each split down the middle by one line.",
+      "textHash": "a9e7d9414720535d7bee9d1b8d011b87525c89312375b09aa90069b6e1635ec7",
+      "durationMs": 5920
+    },
+    "red-brown": {
+      "file": "red-brown.m4a",
+      "text": "Color the box front red, and the red gem's dark half. The side and the lid's round end are brown.",
+      "textHash": "a34564b1cd7fb9e90c6c2d68218761ce9b77ae96d774ab774dff45e3702dade3",
+      "durationMs": 6800
+    },
+    "blue-gray": {
+      "file": "blue-gray.m4a",
+      "text": "Blue for the lining and half of the blue gem. The bands, the rims and the blade are gray.",
+      "textHash": "8c68ed5204c71e677dcd1d84cb09cbbfcbb4dbd33edf669137cc469943861d08",
+      "durationMs": 5840
+    },
+    "gold": {
+      "file": "gold.m4a",
+      "text": "Yellow for the heap, crown, guard, knob and lock. Orange for the coins and the crown's band.",
+      "textHash": "01a1ae712a0e0d21016066b2e105d13357856f3e17b4ac7168c1adf2d82a1cc5",
+      "durationMs": 6880
+    },
+    "jewels": {
+      "file": "jewels.m4a",
+      "text": "Last, cream pearls; purple for the velvet, the keyhole and a gem half; pink and greens for the gems.",
+      "textHash": "53d27106438bf7bbed1f74318aa785553d493a39f91435250ea793cb04f2a24c",
+      "durationMs": 7440
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "The chest is full and the treasure is yours. Just remember where you buried it.",
+      "textHash": "650c79479f644f8144a3a403d10a3b10267cae59394cf5a05b4c88f14cb4b4d6",
+      "durationMs": 5040
+    }
+  }
+}

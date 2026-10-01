@@ -1062,6 +1062,16 @@
       }
     },
     {
+      "id": "treasure-chest",
+      "status": "approved",
+      "objective": "Open chest in ¾ view: banded domed lid, heaped coins and gems, the crown and the sword",
+      "reference": {
+        "file": "treasure-chest.svg",
+        "source": "Codex image tool with the creator's Paper Coach - Advanced plugin (= system prompt style-v5-advanced), prompt docs/curriculum/fantasy-objects-prompts.md (rectangular domed lid) plus a placement note, the kept crown and sword attached, generated 2026-10-01, seventh candidate; box front recolored red and lining blue at the creator's request; white margin added; lines regrouped with .studio/tools/graph.mjs; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
+    },
+    {
       "id": "shop-front",
       "status": "approved",
       "objective": "A bookshop front: striped awning, a window of books, a paneled door, a potted bush and a tree",
