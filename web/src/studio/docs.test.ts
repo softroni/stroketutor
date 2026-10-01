@@ -76,6 +76,10 @@ describe('the Docs page', () => {
     for (const line of allLines.filter((line) => line.includes('upload.py '))) {
       for (const flag of line.match(/--[\w-]+/g) ?? []) expect(upload, line).toContain(`"${flag}"`)
     }
+    const acquisition = readFileSync(`${repoRoot}docs/ops/acquisition.py`, 'utf8')
+    for (const line of allLines.filter((line) => line.includes('acquisition.py '))) {
+      for (const flag of line.match(/--[\w-]+/g) ?? []) expect(acquisition, line).toContain(`"${flag}"`)
+    }
   })
 
   it('names only npm and bun scripts that the packages define', () => {

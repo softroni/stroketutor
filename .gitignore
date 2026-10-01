@@ -1,5 +1,7 @@
 .DS_Store
 xcuserdata/
+# Python's bytecode, from the ops scripts and their tests (docs/ops).
+__pycache__/
 # The Studio's local workspace: drafts, history and trash. Only published lessons reach git (shared/).
 .studio/
 # Lock + heartbeat for the milestone runner (see README "Working on milestones").

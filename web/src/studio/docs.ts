@@ -283,6 +283,35 @@ export const DOC_TOOLS: DocTool[] = [
     ],
   },
   {
+    id: 'acquisition',
+    kind: 'terminal',
+    name: 'App Store acquisition: acquisition.py',
+    about:
+      'Page views, Get taps and downloads from App Store Connect’s analytics reports: by source every day, and per campaign, platform and referring app or website where Apple shows them. Read-only.',
+    where: 'repo root',
+    usedBy: 'Claude’s daily check, and the social check on Fridays',
+    needs: ['The Sales and Reports key in `~/.appstoreconnect/config`'],
+    tips: [
+      'Each run replaces `.studio/ops/acquisition.json`; Apple keeps the history.',
+      'A campaign that is missing is hidden by Apple (fewer than 5 people), not 0. `hidden` says how much of each total the campaign rows leave out.',
+      'Weekly reports come out on Fridays, for Monday to Sunday before; monthly ones on the 5th. The last 3 days of daily data are provisional.',
+    ],
+    more: [repo('docs/ops/README.md', 'The ops runbook'), repo('docs/ops/acquisition.py')],
+    groups: [
+      {
+        title: 'Read it',
+        commands: [
+          { run: 'python3 docs/ops/acquisition.py', does: 'The last 10 days by day, and the newest week and month, with a short summary.' },
+          {
+            run: 'python3 docs/ops/acquisition.py --granularity WEEKLY --days 28',
+            does: 'The weeks out in the last 28 days, per campaign and platform: the table for a review.',
+          },
+          { run: 'python3 docs/ops/acquisition.py --json', does: 'The JSON it wrote, instead of the summary.' },
+        ],
+      },
+    ],
+  },
+  {
     id: 'screenshots',
     kind: 'terminal',
     name: 'App Store screenshots',

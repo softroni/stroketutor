@@ -54,7 +54,8 @@ and the next midnight check reports its result too.
 
 **The daily check:**
 
-1. `python3 docs/ops/today.py check`, then `collect`. Read `facts.json`'s errors first.
+1. `python3 docs/ops/today.py check`, then `collect`. Read `facts.json`'s errors first. Then
+   `python3 docs/ops/acquisition.py`: the App Store's page views and downloads by source (*Lesson videos on social*).
 2. PostHog (MCP, project 629055): run the dashboard
    [Paper Coach: how it's going](https://us.posthog.com/project/629055/dashboard/2140277)
    (`dashboard-insights-run 2140277`) and read every tile. Look for crashes (`app_crashed`,
@@ -82,6 +83,7 @@ main checkout, whichever worktree ran the script:
 | `log.jsonl` | `log` | one line per thing done, never edited or deleted |
 | `state.json` | `check` | what the last check saw, to tell what changed |
 | `status.json` | `publish` | what the page shows (`web/src/studio/today.ts` has the shape) |
+| `acquisition.json` | `acquisition.py` | App Store page views, Get taps and downloads by source, campaign, platform and referrer; replaced each run (Apple keeps the history) |
 | `history/` | `publish`, `archive` | a worktree of the branch **`ops-history`**: each day's status as it stood at its end, and `log.jsonl`. **Never delete anything here.** `archive` pushes it to GitHub; the page shows any day at `#/today/YYYY-MM-DD` |
 
 **Scheduled runs and approvals.** Since 2026-09-30 both scheduled tasks run in **Bypass permissions** mode (set
@@ -260,6 +262,15 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
   post finishes and pushed by `today.py archive` at once and every night. The Studio's Social page shows the posts
   day by day. Never delete or rewrite those lines.
 
+**Downloads per campaign** (social-plan.md, *What we steer by*): `python3 docs/ops/acquisition.py` reads App Store
+Connect's analytics reports with the Sales key, read-only, replaces `.studio/ops/acquisition.json` and prints a short
+summary. Per day, week and month: page views, Get taps, first-time downloads and redownloads by source (Apple's
+totals, never hidden), and from the detailed reports per campaign, per platform (its campaigns' prefix) and per
+referring app or website, with how much of the total those rows leave out. The daily check runs it for the daily
+totals (the last 3 days are provisional). Fridays bring the weekly report (Monday to Sunday before), and the social
+check reads its campaigns and platforms; the 5th brings the monthly. `--granularity WEEKLY --days 28` gives the four
+weeks a review needs. A campaign missing from it is hidden by Apple, not 0.
+
 **The social check** (the `paper-coach-social` routine at 17:45; its prompt, kept in this repo, is
 [routines/paper-coach-social.md](routines/paper-coach-social.md)). The daily check, just after midnight, looks
 back at the day that ended: if this routine logged no "Social check:" line from 17:00 on, it does the same steps for
@@ -345,9 +356,12 @@ WhatsApp the words and an App Store link. Read it in three steps, release builds
   the first 7 finished drawings had none (2026-10-01).
 - **Shares:** `drawing_share_opened` (by `entry`: `saved`, `sketchbook`, `sketchbook_bar`) and `drawing_shared` (by
   `activity`, the app it went to). Opened but not shared means the sheet was closed.
-- **Downloads they bring:** App Store Connect › Analytics › Acquisition › Campaigns. Each place in the app that
-  hands out the link has its own campaign, and the social posts and profiles have theirs (`pinterest`,
-  `tiktok-bio`…, docs/ops/social-plan.md, *Knowing what works*). Only people who share analytics with developers are counted, so read it as a floor.
+- **Downloads they bring:** App Store Connect › Analytics › Acquisition › Campaigns, or
+  `python3 docs/ops/acquisition.py` (*Lesson videos on social*). Each place in the app that hands out the link has
+  its own campaign, and the social posts and profiles have theirs (`pinterest`, `tiktok-bio`…,
+  docs/ops/social-plan.md, *Knowing what works*). Impressions, page views and downloads count everyone, not only
+  people who share analytics with developers. Still read them as a floor: Apple leaves out a row from fewer than 5
+  people, credits a download to a campaign only within 24 hours of the tap, and gives it to the last link tapped.
 
   | Campaign | Where the link was handed out |
   |---|---|
@@ -377,7 +391,7 @@ On a simulator: `-STScreen entry-share` (18+), `entry-share-child` (the grown-up
 | What | Where |
 |---|---|
 | App Store Connect | app `6816231257`, SKU `papercouch`, team PLQFG9VC25; keys in `~/.appstoreconnect/config` (App Manager, and Sales and Reports) |
-| App Store analytics reports | request `aab01b37-1c1b-4b92-8334-446f08ebae4a` (Sales key reads it) |
+| App Store analytics reports | request `aab01b37-1c1b-4b92-8334-446f08ebae4a` (Sales key reads it); `acquisition.py` reads the acquisition ones |
 | Superwall | project 42098, app 56531; campaigns Onboarding offer 109312, In-app Premium 109313 |
 | PostHog | project 629055; dashboard 2140277 |
 | Apple Ads | org 20605790, through `superwall asa --app 54792` |
