@@ -113,19 +113,19 @@ up" on the Today page and does what each says on the day.
 | When | What | Who |
 |---|---|---|
 | Every day 17:00, from Thu 2026-10-01 | The next lesson's video to every connected platform; its step pin on Pinterest at 21:00 | launch agent |
-| Every day 00:00 | Check the day's post, post once more to a platform that failed, accounts to connect | daily check |
+| Every day 00:00 | Check the day's post, post once more to a platform that failed, accounts to connect; `acquisition.py` for the App Store's daily totals | daily check |
 | Every day, after the post | `social snapshot`: every number per post and account into `metrics.jsonl` | social check |
 | Mondays, from 2026-10-05 | `social scorecard`: views, hold, taps per platform on Today; subjects that do well move up | social check |
-| Fridays, from 2026-10-09 | App Store Connect's weekly report: page views and downloads per campaign | social check |
+| Fridays, from 2026-10-09 | App Store Connect's weekly report: page views and downloads per campaign (`acquisition.py`) | social check |
 | 2026-10-05 | E1: the new opening becomes the default (*Growth*) | Claude |
 | 2026-10-13 | E1 read | Claude |
 | 2026-10-14 | E2 starts: the speed draw on TikTok and Reels on B days | Claude |
 | 2026-10-15 | E4: winter boards and pins | Claude |
 | 2026-10-21 | Seasonal pin numbers to Kevin, for the Christmas-lessons question | Claude |
-| 2026-11-05 | October's monthly report from App Store Connect: the first downloads per platform | Claude |
+| 2026-11-05 | October's monthly report from App Store Connect: the first downloads per platform (`acquisition.py`) | Claude |
 | 2026-11-12 | Six-week wrap-up of *Growth*, written under *Log* | Claude |
 | The day 1.1 goes on sale | `social announce` with the best Around Town lesson; its ten lessons join the queue | daily check |
-| 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log* | daily check |
+| 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log*. October's monthly report comes only on Nov 5, so the weekly ones: `acquisition.py --granularity WEEKLY --days 28` | daily check |
 | 2026-10-30 | Upload-Post renews monthly ($24) | automatic |
 | 2026-11-23 | The two-month write-up under *Log*, and "monthly → yearly, or stop?" under Needs you | daily check |
 | Before 2026-11-30 | Kevin decides; the plan renews that day | Kevin |
@@ -184,6 +184,11 @@ Studio can make, what works for drawing content, and who the audience is.
   share still watching at 3 s and profile views per 1,000 views; saves and shares where reported.
 - **Where it comes from:** `social snapshot` keeps every number Upload-Post gives, per post and per account, in
   `.studio/social/metrics.jsonl`; `social scorecard` adds it up for Mondays.
+- **The App Store's side:** `python3 docs/ops/acquisition.py` (README.md, *Lesson videos on social*) writes
+  `.studio/ops/acquisition.json`: page views, Get taps and downloads by source every day in the daily check (Apple's
+  totals; the last 3 days provisional), per campaign, platform and referrer from the weekly report on Fridays
+  (social check), and the monthly on the 5th. `--granularity WEEKLY --days 28` for the four-week review. Its
+  `hidden` says how much of each total the campaign rows leave out.
 
 **Day 1 (Pine Tree, read 2026-10-01):** Facebook 305 views, TikTok 41, Threads 12, Instagram 10, X 3, YouTube 2,
 Pinterest 0 (a personal account, which gets no numbers). On TikTok 40% were still watching at 1 s, 10% at 4 s and
@@ -330,7 +335,8 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - [ ] `social snapshot`: every number Upload-Post gives, per post and per account, daily into `metrics.jsonl`
   (mirrored to `ops-history`); Pinterest's clicks and TikTok's retention kept, not dropped.
 - [ ] `social scorecard` for Mondays.
-- [ ] App Store Connect acquisition pull: daily totals by source, weekly and monthly per campaign.
+- [x] App Store Connect acquisition pull: daily totals by source, weekly and monthly per campaign (`acquisition.py`,
+  2026-10-01).
 - [ ] Tap counter on the seven profile links: drafted; live once Kevin says yes to the website wording.
 - [ ] Captions that open with the search phrase, 5 tags, the YouTube line, the Facebook link check. (Board names
   stay: renaming one in code would make a second board, since `boardFor` matches by name.)
@@ -351,3 +357,5 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - 2026-09-30: Upload-Post monthly for two months, then yearly if it brings downloads (not yearly up front).
 - 2026-10-01: Claude made social media manager (*Growth*). Day 1: 373 views, mostly Facebook; TikTok viewers gone
   within seconds. TikTok and Instagram had shown the YouTube title instead of our caption: fixed before Watermelon.
+- 2026-10-01: `acquisition.py` reads App Store Connect's acquisition reports. First day (Sep 30): 2 first downloads,
+  6 page views, 4 of them from an app; no campaign rows yet.
