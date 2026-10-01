@@ -1,0 +1,82 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "hourglass",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:29:46.649Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Wizards turn it over to count the minutes, and the sand never hurries. It's two slabs at each end, a pinched glass and two posts. Watch the sand fall, then turn over your own.",
+      "textHash": "baeb3eb9db0c6821648a0e26c205b24dfa98715c3206bdbbe8f032b51497f243",
+      "durationMs": 11280
+    },
+    "base": {
+      "file": "base.m4a",
+      "text": "The hourglass stands on two slabs. A wide one with rounded ends, then a narrower one on top.",
+      "textHash": "609cb6e479002669b5dedc0097df39eb1cdeea3360a9653363b782bc3e2f5122",
+      "durationMs": 6560
+    },
+    "glass": {
+      "file": "glass.m4a",
+      "text": "The glass rises from the middle. Curve each side in to a narrow waist and out again.",
+      "textHash": "739fbaf40d7a76d773ba6047341e80d341dda20ed67e7d37f7ae3f799f130f1b",
+      "durationMs": 5920
+    },
+    "top": {
+      "file": "top.m4a",
+      "text": "The same two slabs cap the top: the narrow one on the glass, the wide one above it.",
+      "textHash": "810cb9f6f6fdfc31abd4e70600094f6e042a50e1d62c42de52d83426e9dd6f61",
+      "durationMs": 5760
+    },
+    "posts": {
+      "file": "posts.m4a",
+      "text": "Two posts stand between the wide slabs. Each edge bulges out three times, like beads on a string.",
+      "textHash": "30c6a79e0bb4831618f77094348a27bc8e3a339c00d227c00e09691dd2a4762c",
+      "durationMs": 6240
+    },
+    "sand-top": {
+      "file": "sand-top.m4a",
+      "text": "Sand fills the bottom of the upper bulb. Draw its level top, then a short line across the waist.",
+      "textHash": "26011ac958378794984823379b4695dff041986f235a57841262cc98e873cd19",
+      "durationMs": 6880
+    },
+    "sand-fall": {
+      "file": "sand-fall.m4a",
+      "text": "A thin line of sand falls from the waist onto a soft heap below.",
+      "textHash": "3e6890b50afc4ed355112321c8aa7d146a85103e9f7dcb115ecb6ed9e37be5bf",
+      "durationMs": 4160
+    },
+    "wood": {
+      "file": "wood.m4a",
+      "text": "Color the wide slabs brown and the narrow ones orange.",
+      "textHash": "c400a15885607d1bdabbe554deb2b34c508d7c5fc22cbca01a6f82cbbb971fd7",
+      "durationMs": 3760
+    },
+    "glass-color": {
+      "file": "glass-color.m4a",
+      "text": "Color the glass blue.",
+      "textHash": "6a32a19752046a53b45a9d43f46d33680b16b3b2358853c7c26ed2603bcafa23",
+      "durationMs": 1520
+    },
+    "sand-color": {
+      "file": "sand-color.m4a",
+      "text": "Color the sand yellow, top and bottom.",
+      "textHash": "7316aa01fc2428f1631c7ea6c2916a1415625f8329722a95375f64007de6ff4c",
+      "durationMs": 2960
+    },
+    "posts-color": {
+      "file": "posts-color.m4a",
+      "text": "The posts are cream.",
+      "textHash": "1635825c050e8cc637df4731a857223d0540b3ff04a905aa58c71f31796dfdfa",
+      "durationMs": 1680
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Time is running out, one grain at a time. Better start your next drawing before it empties.",
+      "textHash": "011e6c739b9d0dfb74f28d6d60f9391eab8c771643a4d947405eaf687941e028",
+      "durationMs": 6160
+    }
+  }
+}

@@ -1142,6 +1142,16 @@
       }
     },
     {
+      "id": "hourglass",
+      "status": "approved",
+      "objective": "Hourglass with stacked caps and two turned posts, sand falling into a heap",
+      "reference": {
+        "file": "hourglass.svg",
+        "source": "Codex image tool with the creator's Paper Coach - Advanced plugin (= system prompt style-v5-advanced), prompt docs/curriculum/fantasy-objects-prompts.md, generated 2026-10-01, first candidate, white margin added; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
+    },
+    {
       "id": "cauldron",
       "status": "approved",
       "objective": "Three-legged cauldron of green brew with bubbles, a ladle and flames under it",
