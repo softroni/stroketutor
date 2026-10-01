@@ -178,9 +178,7 @@ export function Studio() {
     <div className={`st-studio ${route.name === 'lesson' ? 'st-studio--fill' : ''}`}>
       <header className="st-studio__bar">
         <a className="st-studio__brand" href={routeHref({ name: 'today', day: null })}>
-          <span className="st-studio__mark" aria-hidden="true">
-            ✎
-          </span>
+          <img className="st-studio__mark" src="/icon.png" alt="" />
           <span>
             <span className="st-studio__name">Paper Coach Studio</span>
             <span className="st-studio__tagline">Private lesson authoring</span>

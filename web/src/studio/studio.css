@@ -28,15 +28,11 @@
   text-decoration: none;
 }
 
+/* The app icon, already rounded by scripts/icons.sh. */
 .st-studio__mark {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: var(--ink);
-  color: #faf7f0;
-  font-size: 18px;
 }
 
 .st-studio__name {
