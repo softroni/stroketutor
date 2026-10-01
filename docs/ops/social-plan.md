@@ -219,9 +219,8 @@ Changes made without a test:
 - **From 2026-10-02 to 04:**
   - Captions open with what people search ("How to draw a mushroom: 6 easy steps"), with 5 tags (Instagram counts
     only 5).
-  - Pinterest boards get searchable names.
   - YouTube Shorts say "The app's link is on our channel" instead of a link nobody can tap.
-  - Facebook's link moves to a first comment, if the description link can't be tapped.
+  - Facebook: check whether a Reel's description link can be tapped; if not, the link goes in a first comment.
 
 Tests:
 
@@ -333,7 +332,8 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - [ ] `social scorecard` for Mondays.
 - [ ] App Store Connect acquisition pull: daily totals by source, weekly and monthly per campaign.
 - [ ] Tap counter on the seven profile links: drafted; live once Kevin says yes to the website wording.
-- [ ] Captions that open with the search phrase, 5 tags, searchable boards, the YouTube and Facebook links.
+- [ ] Captions that open with the search phrase, 5 tags, the YouTube line, the Facebook link check. (Board names
+  stay: renaming one in code would make a second board, since `boardFor` matches by name.)
 - [ ] E1, the new opening, default from Oct 5.
 
 ## Log
