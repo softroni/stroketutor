@@ -55,7 +55,7 @@ Every lesson in the version on sale gives, from the Studio, with no one filming 
 |---|---|---|---|---|
 | **Pinterest** | 1 | 2 a day | The draw-along as a video pin at 17:00, the step pin of the same lesson at 21:00, on a board per path ("Paper Coach: Plants"…) | **On every pin**, straight to the App Store |
 | **TikTok** | 2 | 1 a day; 2 (add the speed draw) once something takes off | The draw-along | Bio |
-| **YouTube Shorts** | 3 | 1 a day | The draw-along, "How to draw a ___ step by step #shorts" | Description, channel |
+| **YouTube Shorts** | 3 | 1 a day; plus one long 16:9 video a week from Oct 10 (E5, *Long videos*) | The draw-along, "How to draw a ___ step by step #shorts" | Description, channel; **tappable** in the long videos |
 | **Instagram Reels** | 4 | 1 a day, plus 1–2 step posts a week | The draw-along | Bio |
 | **Facebook Reels** | 5 | 1 a day | The draw-along (Facebook skews to parents who draw with their kids) | Description |
 | **Threads** | 6 | 1 a day | The draw-along with a short caption, topic tag "Drawing" (Threads' one tag a post, for reach beyond followers) | **In the post** (`ct=threads`) and the bio |
@@ -117,6 +117,7 @@ up" on the Today page and does what each says on the day.
 | Every day, after the post | `social snapshot`: every number per post and account into `metrics.jsonl` | social check |
 | Mondays, from 2026-10-05 | `social scorecard`: views, hold, taps per platform on Today; subjects that do well move up | social check |
 | Fridays, from 2026-10-09 | App Store Connect's weekly report comes out; the nightly `acquisition.py` reads it and the next Monday scorecard shows it | daily check |
+| Saturdays, 2026-10-10 to 11-14 | E5: the week's long 16:9 video to YouTube and Facebook (*Long videos*) | social check |
 | 2026-10-05 | E1: the new opening becomes the default (*Growth*) | Claude |
 | 2026-10-13 | E1 read | Claude |
 | 2026-10-14 | E2 starts: the speed draw on TikTok and Reels on B days | Claude |
@@ -128,6 +129,7 @@ up" on the Today page and does what each says on the day.
 | 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log*. October's monthly report comes only on Nov 5, so the weekly ones: `acquisition.py --granularity WEEKLY --days 28` | daily check |
 | 2026-10-30 | Upload-Post renews monthly ($24) | automatic |
 | 2026-11-23 | The two-month write-up under *Log*, and "monthly → yearly, or stop?" under Needs you | daily check |
+| 2026-11-23 | E5 read, in the two-month write-up | Claude |
 | Before 2026-11-30 | Kevin decides; the plan renews that day | Kevin |
 
 The order (*Decisions*): `docs/ops/social-up-next.txt` first (Watermelon Slice on 2026-10-01), then a free lesson
@@ -235,13 +237,45 @@ Tests:
 | E2 | **Length:** on B days TikTok and Reels get the 20-s speed draw at 17:00, the others the draw-along | TikTok, Instagram | Oct 14–27, AABB | Oct 28 | Median 72-h views, and profile views per 1,000, by the rules above |
 | E3 | **Library pins:** earlier lessons as new pins, 1 a day, then 2–3, never the same design twice, `ct=pinterest` | Pinterest | Once the business account shows impressions | Oct 28, Nov 12 | Weekly outbound clicks rise, and impressions per new pin don't halve |
 | E4 | **Winter, posted early:** winter boards and pins (snowflake, gift box, star, mug, the pine tree as a winter tree), inside the day's pins | Pinterest | From Oct 15 | Oct 21, Nov 12 | Seasonal pins 1.5× same-age pins: keep through December. These numbers go to Kevin for the Christmas-lessons question |
+| E5 | **Long 16:9 videos** (*Long videos*, below): a path episode and a slow draw-along by turns, one a week | YouTube (normal videos, not Shorts), Facebook (feed video, not a Reel) | Saturdays Oct 10 – Nov 14, once the wide layout is built | Nov 23 | Keep if the six's median 7-day YouTube views beat the Shorts' median at 7 days, or `youtube-long` shows downloads; otherwise six more, then stop. Facebook stays in only if its 72-h views reach the same week's Reels median |
+
+#### Long videos (E5)
+
+Agreed with Kevin on 2026-10-01. Once a week, a 16:9 video for YouTube and Facebook; TikTok, Reels, Shorts,
+Threads and Pinterest stay vertical. Why: a long video's description link can be tapped (a Short's can't), "how to
+draw ___ step by step" is searched on YouTube and long videos keep ranking for it, people draw along on a TV or a
+laptop, and Facebook (305 of day 1's 373 views) plays landscape video in the feed. This replaces the earlier
+"only once a Short breaks out or the channel passes 100 subscribers": the "made for kids" risk is the same at any
+size, and with Shorts at 2 views there was little to protect.
+
+- **Two formats, by turns:**
+  - *Path episode:* every lesson of a path, easy to hard, 12–20 min, a chapter per lesson ("How to draw 10
+    landscapes, step by step").
+  - *Slow draw-along:* one lesson at drawing pace, 4–8 min: Lina's lines, then a pause with a countdown after each
+    step, the finished picture always in a corner. The lesson is the best recent daily post from a Core or Advanced
+    path (Monday numbers).
+- **First six:** Landscape (Oct 10), a draw-along (Oct 17), Space (Oct 24), a draw-along (Oct 31), Food & Treats
+  (Nov 7), a draw-along (Nov 14).
+- **The frame:** the drawing on the right; the finished picture and the steps on the left; Lina's caption below;
+  Paper Coach and the App Store badge at the end. A thumbnail of the finished picture with the title.
+- **Core and Advanced paths only, to stay clear of "made for kids":** Landscape, Food & Treats, Space, On the
+  Water, Wheels, In the Air, and Around Town or Fantasy Objects once they are on sale. Titles say "step by step" or
+  "for beginners", never "for kids"; not made for kids in the upload, as now; no children on screen. If YouTube
+  marks any video made for kids, E5 stops and Kevin hears the same day.
+- **The link:** in the description, straight to the App Store with `ct=youtube-long` (`facebook-long` on Facebook),
+  so App Store Connect counts these apart from the Shorts. A path episode's description says which lessons are
+  Premium, with the usual "free to download, with 30 free lessons".
+- **Not one of the three tests at once:** it adds one post a week where no other test reads, and changes none of
+  the daily ones.
+- **Later, if E5 holds:** easy / medium / hard (one subject at three levels); a 60–90 s trailer when a version goes
+  on sale, also the channel trailer; seasonal compilations; a split screen with Kevin's hand on paper (his time, his
+  call). Not planned: hour-long "relaxing drawing" loops (views without downloads) and behind-the-scenes videos
+  (they reach developers, not buyers).
 
 **Later, if the numbers call for them:**
 - a pinned first comment on TikTok
 - step carousels (TikTok photo mode, Instagram)
 - "pick the next drawing" polls on Threads
-- long "draw with me" YouTube videos, only once a Short breaks out or the channel passes about 100 subscribers (they
-  risk a "made for kids" relabel)
 
 **Not now:** "Day N" numbering, mystery openings, posting-time tests (no hourly data yet), paid boosts, X's link
 add-on.
@@ -346,6 +380,16 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - [ ] Captions that open with the search phrase, 5 tags, the YouTube line, the Facebook link check. (Board names
   stay: renaming one in code would make a second board, since `boardFor` matches by name.)
 - [ ] E1, the new opening, default from Oct 5.
+- [ ] E5, long videos (*Long videos*), before Oct 10:
+  - [ ] A 16:9 layout for the video renderer (1920 × 1080; today `FRAME` in `web/server/video/page.ts` is
+    vertical only), as an option of `lessons video`.
+  - [ ] The path episode: every lesson of a path in one video, with chapter times for the description.
+  - [ ] The slow draw-along: a pause with a countdown after each step.
+  - [ ] A thumbnail from the Studio; check whether Upload-Post can set it on YouTube.
+  - [ ] Posting: YouTube as a normal video (no `#shorts`, chapters, `ct=youtube-long`), Facebook as a feed video
+    (not `REELS`, `ct=facebook-long`); kept apart from the Shorts in `posts.jsonl`, `metrics.jsonl` and the
+    scorecard. The Docs page row for any new command.
+  - [ ] The social check posts it on Saturdays (both copies of its prompt).
 
 ## Log
 
@@ -366,3 +410,6 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
   6 page views, 4 of them from an app; no campaign rows yet.
 - 2026-10-01: built `social snapshot` (every number per post and account into `metrics.jsonl`, copied to
   `ops-history`) and `social scorecard`; `social stats` counts replies and reactions, and links pins to the pin.
+- 2026-10-01: E5 agreed with Kevin: one long 16:9 video a week on YouTube and Facebook, Saturdays from Oct 10,
+  path episodes and slow draw-alongs by turns, Core and Advanced paths only; read Nov 23. The wide layout comes
+  first.
