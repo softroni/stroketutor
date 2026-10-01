@@ -114,7 +114,10 @@ of the last two weeks opens any day kept, with how much was logged that day.
     each step from a first open to a purchase, from the dashboard's onboarding funnel, first step first.
   - `"upcoming": [{"at": "2026-10-02", "what": "Prices rise to $29.99 a year and $3.99 a week"}]`: dates worth
     seeing coming (a day, or a date and time): a price change, a reminder, a phased release reaching everyone.
-    `next` joins them; anything past drops off by itself.
+    `next` joins them; anything past drops off by itself. A time, here or in `next`, carries Central's offset for
+    the day it names, not today's, or the page shows it an hour off: `-06:00` from 2 AM on the first Sunday of
+    November to 2 AM on the second Sunday of March, `-05:00` the rest of the year. So the midnight check on
+    2026-11-01 is `2026-11-01T00:00:00-05:00`, and the next one `2026-11-02T00:00:00-06:00`.
 - **A log line may say what it is about:** `today.py log --kind release "…"`, or `{"text": "…", "kind":
   "release"}` in `addLog`. Kinds: `release`, `review`, `ads`, `tests`, `social`, `build`, `money`, `learners`,
   `check`. Without one the page reads it from the opening words, so lead with the subject ("Apple approved…",
