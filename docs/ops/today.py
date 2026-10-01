@@ -43,13 +43,14 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 APP_ID = "6816231257"  # Paper Coach on App Store Connect
 APP_SKU = "papercouch"  # its SKU (App Store Connect cannot change one); sales rows of its subscriptions name it as parent
 SUPERWALL_APP = "56531"  # Paper Coach in Superwall
 ASA_VIA_APP = "54792"  # the Superwall app whose Apple Ads connection reaches the Softroni LLC org
 POSTHOG_DASHBOARD = "https://us.posthog.com/project/629055/dashboard/2140277"
-LOCAL_TZ = dt.timezone(dt.timedelta(hours=-5), "CDT")  # the creator's clock (Central)
+LOCAL_TZ = ZoneInfo("America/Chicago")  # the creator's clock (Central: -05:00 in summer, -06:00 in winter)
 
 # App Store Connect states, as a person would say them, and how they should feel.
 STATES = {
@@ -112,6 +113,7 @@ def write_json(name: str, value) -> None:
 
 
 def now() -> dt.datetime:
+    """The creator's time; its date is the day a log line and a history file are kept under."""
     return dt.datetime.now(LOCAL_TZ).replace(microsecond=0)
 
 
@@ -243,7 +245,7 @@ def sales_days(days: int = 14) -> dict:
     if not vendor:
         return {"missing": "vendor number (ASC_VENDOR_NUMBER in ~/.appstoreconnect/config)"}
     rows = []
-    today = dt.date.today()
+    today = now().date()
     for back in range(days, 0, -1):
         day = today - dt.timedelta(days=back)
         query = urllib.parse.urlencode(
@@ -301,8 +303,9 @@ def apple_ads(days: int = 14) -> dict:
     ]
     if not campaigns:
         return {"campaigns": [], "days": []}
-    start = (dt.date.today() - dt.timedelta(days=days)).isoformat()
-    end = dt.date.today().isoformat()
+    today = now().date()
+    start = (today - dt.timedelta(days=days)).isoformat()
+    end = today.isoformat()
     report = superwall(
         "asa", "reports", "campaigns", "--app", ASA_VIA_APP, "--start", start, "--end", end, "--granularity", "DAILY"
     )
@@ -598,8 +601,9 @@ def publish() -> dict:
     )
 
     errors = facts.get("errors") or []
+    updated = now()
     status = {
-        "updated": now().isoformat(),
+        "updated": updated.isoformat(),
         "headline": notes.get("headline") or "No headline yet.",
         "app": {"live": build(versions.get("live"), live_since), "inReview": build(pending, pending_since)},
         "numbers": numbers,
@@ -623,7 +627,7 @@ def publish() -> dict:
     }
     write_json("status.json", status)
     (OPS / "history").mkdir(exist_ok=True)
-    write_json(f"history/{dt.date.today().isoformat()}.json", status)
+    write_json(f"history/{updated.date().isoformat()}.json", status)
     if (OPS / "log.jsonl").exists():
         (OPS / "history" / "log.jsonl").write_text((OPS / "log.jsonl").read_text())
     return status
@@ -638,7 +642,7 @@ def archive() -> str:
     git("add", "-A")
     if git("diff", "--cached", "--quiet").returncode == 0:
         return "history already archived"
-    git("commit", "-q", "-m", f"History to {dt.date.today().isoformat()}")
+    git("commit", "-q", "-m", f"History to {now().date().isoformat()}")
     pushed = git("push", "-q", "-u", "origin", "ops-history")
     return "history archived and pushed" if pushed.returncode == 0 else f"committed; push failed: {pushed.stderr.strip()}"
 
