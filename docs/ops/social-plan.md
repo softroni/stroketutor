@@ -114,7 +114,16 @@ up" on the Today page and does what each says on the day.
 |---|---|---|
 | Every day 17:00, from Thu 2026-10-01 | The next lesson's video to every connected platform; its step pin on Pinterest at 21:00 | launch agent |
 | Every day 00:00 | Check the day's post, post once more to a platform that failed, accounts to connect | daily check |
-| Mondays, from 2026-10-05 | `social stats --days 7`: views per platform on Today; subjects that do well move up | daily check |
+| Every day, after the post | `social snapshot`: every number per post and account into `metrics.jsonl` | social check |
+| Mondays, from 2026-10-05 | `social scorecard`: views, hold, taps per platform on Today; subjects that do well move up | social check |
+| Fridays, from 2026-10-09 | App Store Connect's weekly report: page views and downloads per campaign | social check |
+| 2026-10-05 | E1: the new opening becomes the default (*Growth*) | Claude |
+| 2026-10-13 | E1 read | Claude |
+| 2026-10-14 | E2 starts: the speed draw on TikTok and Reels on B days | Claude |
+| 2026-10-15 | E4: winter boards and pins | Claude |
+| 2026-10-21 | Seasonal pin numbers to Kevin, for the Christmas-lessons question | Claude |
+| 2026-11-05 | October's monthly report from App Store Connect: the first downloads per platform | Claude |
+| 2026-11-12 | Six-week wrap-up of *Growth*, written under *Log* | Claude |
 | The day 1.1 goes on sale | `social announce` with the best Around Town lesson; its ten lessons join the queue | daily check |
 | 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log* | daily check |
 | 2026-10-30 | Upload-Post renews monthly ($24) | automatic |
@@ -148,8 +157,107 @@ Lessons are the everyday posts; news is for moments worth telling, **at most two
   has its own campaign behind its short softroni.com link (the table under *Checklist*). So **a platform's downloads
   are every campaign starting with its name**: Pinterest is `pinterest`, `pinterest-steps`, `pinterest-news` and
   `pinterest-profile`. TikTok, Instagram and X posts carry no link, so theirs are the profile's alone (`tiktok-bio`…).
-- **After four weeks:** downloads per 1,000 views per platform. Double what works, drop what doesn't (X first).
+- **Apple hides small numbers:** a campaign row under 5 downloads (or 5 devices) is left out, so per-platform
+  downloads stay mostly hidden for weeks. Until they show, steer by taps (*Growth*, below).
 - **Expect** two or three quiet weeks while new accounts earn trust; the daily rhythm matters more than any post.
+
+## Growth: Claude as social media manager
+
+Since 2026-10-01 (Kevin): Claude runs social to grow the app. It measures what works on each platform, down to
+link taps, decides what to post next, and experiments. **Claude decides** formats, openings, captions, tags, timing,
+cadence, the order within Kevin's rules (*Decisions*), and the measurement. **Kevin decides** money (paid boosts,
+plans, add-ons), new lessons or other new app content, account settings and connections, and anything filmed or
+posted under his name. Every change goes in the Today log; a test is written here before it starts. The research
+behind this section (2026-10-01): Upload-Post's analytics, App Store Connect's reports, link counting, what the
+Studio can make, what works for drawing content, and who the audience is.
+
+### What we steer by
+
+- **Goal: first-time downloads from social per week.** App Store Connect's detailed reports by campaign prefix:
+  weekly (out Fridays) and monthly (out on the 5th). A hidden row is unknown, not 0. Beside them, the daily App
+  referrer + Web referrer total, which Apple never hides.
+- **Steering number until downloads show: taps toward the App Store per week.** That is Pinterest's
+  `outbound_clicks`, plus the profile-link tap counter once it is live (PostHog `social_link_opened`,
+  `traffic = human`). TikTok `bio_link_clicks`, Instagram `profile_links_taps` and Threads `link_clicks` (Threads
+  may no longer count) cross-check the counter; they count the same taps, so they are never added on top.
+- **Per post, at a fixed age** (72 hours; Pinterest 14 and 28 days; YouTube 7 and 28 days): views; on TikTok the
+  share still watching at 3 s and profile views per 1,000 views; saves and shares where reported.
+- **Where it comes from:** `social snapshot` keeps every number Upload-Post gives, per post and per account, in
+  `.studio/social/metrics.jsonl`; `social scorecard` adds it up for Mondays.
+
+**Day 1 (Pine Tree, read 2026-10-01):** Facebook 305 views, TikTok 41, Threads 12, Instagram 10, X 3, YouTube 2,
+Pinterest 0 (a personal account, which gets no numbers). On TikTok 40% were still watching at 1 s, 10% at 4 s and
+2% from 7 s; nobody watched to the end, and nobody tapped the bio link. The first second is the first problem.
+
+### Rules for deciding
+
+- **Fair comparisons.** Compare within one platform, at a fixed age, by medians, never by means, and never before
+  against after. Test arms alternate in 2-day blocks (AABB), so each gets a free day and a Premium day.
+- **At most three tests at once,** and only on numbers with volume (TikTok views and hold now; Pinterest once it
+  reports). Anything else is a change made without a test.
+- **Counts** (taps, clicks, follows): decide after at least 10 in all. The winner needs 8 of 10, 9 of 12, 12 of 16
+  or 14 of 20 for wording, design or timing. Dropping a format, or anything that costs Kevin time, needs 9 of 10,
+  10 of 12, 12 of 16 or 15 of 20, or the same result twice. An inconclusive test runs once more, then the cheaper
+  arm stays.
+- **Ratios** (hold, saves per reach): the unit is the post. At least 6 posts per arm with 30 or more views each; a
+  win is at least 1.25× pooled and 7 of 8 pairs.
+- **Floors, so noise triggers nothing:** a breakout is at least 5× the platform's last-14-post median *and* at least
+  1,000 views. "Views but no taps" needs 10,000 views or 100 profile views with 0 taps. A stop rule ("median down
+  50%") needs the same floor. 0 taps in N views puts the rate below 3 in N.
+- **A breakout, within 24 hours:** its speed draw at the next 12:00 on TikTok; its path's next lesson one place up
+  in `social-up-next.txt`, keeping free and Premium by turns and never the same path two days running; a fresh pin
+  of it; ask Kevin to pin it on the TikTok profile.
+- **Account health first:** Pinterest at most 3 new pins a day until it has shown impressions for 2–3 weeks
+  without a warning; nothing aimed at children (no "for kids" on YouTube, no children on screen); every Premium post
+  says Premium.
+
+### Running and next
+
+Changes made without a test:
+- **2026-10-01:** TikTok and Instagram get our caption. Until then Upload-Post gave them the YouTube title: no
+  "link in bio", no tags, no Premium line.
+- **From 2026-10-02 to 04:**
+  - Captions open with what people search ("How to draw a mushroom: 6 easy steps"), with 5 tags (Instagram counts
+    only 5).
+  - Pinterest boards get searchable names.
+  - YouTube Shorts say "The app's link is on our channel" instead of a link nobody can tap.
+  - Facebook's link moves to a first comment, if the description link can't be tapped.
+
+Tests:
+
+| # | What | Where | When | Read | Bar |
+|---|---|---|---|---|---|
+| E1 | **Opening:** the finished picture and "How to draw a X · N easy steps" on screen from 0 s, then the drawing with no blank fade; the app's name moves to the end | Every video; read on TikTok | Default from Oct 5, with 4 posts against 4 of the old opening (AABB, Oct 5–12) as a guardrail | Oct 13 | Back to the old opening only if the 3-s hold is clearly worse |
+| E2 | **Length:** on B days TikTok and Reels get the 20-s speed draw at 17:00, the others the draw-along | TikTok, Instagram | Oct 14–27, AABB | Oct 28 | Median 72-h views, and profile views per 1,000, by the rules above |
+| E3 | **Library pins:** earlier lessons as new pins, 1 a day, then 2–3, never the same design twice, `ct=pinterest` | Pinterest | Once the business account shows impressions | Oct 28, Nov 12 | Weekly outbound clicks rise, and impressions per new pin don't halve |
+| E4 | **Winter, posted early:** winter boards and pins (snowflake, gift box, star, mug, the pine tree as a winter tree), inside the day's pins | Pinterest | From Oct 15 | Oct 21, Nov 12 | Seasonal pins 1.5× same-age pins: keep through December. These numbers go to Kevin for the Christmas-lessons question |
+
+**Later, if the numbers call for them:**
+- a pinned first comment on TikTok
+- step carousels (TikTok photo mode, Instagram)
+- "pick the next drawing" polls on Threads
+- long "draw with me" YouTube videos, only once a Short breaks out or the channel passes about 100 subscribers (they
+  risk a "made for kids" relabel)
+
+**Not now:** "Day N" numbering, mystery openings, posting-time tests (no hourly data yet), paid boosts, X's link
+add-on.
+
+### Needs Kevin
+
+**Now:**
+1. Switch Pinterest to a free business account. Pinterest gives personal accounts no analytics, so every pin reads
+   0. Then check that Upload-Post still posts.
+2. A yes on the website wording for the tap counter. It is drafted, not live.
+3. The AI label. Claude recommends labelling on Instagram and Facebook as well as TikTok, since Meta asks for it on
+   realistic synthetic voices. YouTube can stay unlabelled.
+
+**After the first scorecard (Oct 5):**
+- Bios ("One easy drawing a day…") and the display name ("Paper Coach by Softroni").
+- Reconnect YouTube in Upload-Post: its watch time comes back "unavailable".
+- A standing yes for comment replies within set rules.
+- Christmas lessons, decided by about Oct 20, with the first seasonal pin numbers on Oct 21.
+- A "Where did you hear about Paper Coach?" question in onboarding: a feature, for the release after 1.1, and the
+  only way past Apple's hidden small numbers.
 
 ## Cost
 
@@ -217,6 +325,17 @@ Then (Claude, once the plan and TikTok are on):
   the first real post on each platform.
 - [ ] Week 4: first review of downloads per platform, written below.
 
+Growth (Claude, from 2026-10-01; *Growth* says why):
+
+- [x] TikTok and Instagram get our caption, not the YouTube title (2026-10-01).
+- [ ] `social snapshot`: every number Upload-Post gives, per post and per account, daily into `metrics.jsonl`
+  (mirrored to `ops-history`); Pinterest's clicks and TikTok's retention kept, not dropped.
+- [ ] `social scorecard` for Mondays.
+- [ ] App Store Connect acquisition pull: daily totals by source, weekly and monthly per campaign.
+- [ ] Tap counter on the seven profile links: drafted; live once Kevin says yes to the website wording.
+- [ ] Captions that open with the search phrase, 5 tags, searchable boards, the YouTube and Facebook links.
+- [ ] E1, the new opening, default from Oct 5.
+
 ## Log
 
 - 2026-09-28: pipeline built; private YouTube Short and Facebook draft worked.
@@ -230,3 +349,5 @@ Then (Claude, once the plan and TikTok are on):
 - 2026-09-30: first real post (Pine Tree, all seven platforms, 23:12). Post links kept on `ops-history`; the Social
   page; the social check routine (17:45); Premium lessons in by turns from 2026-10-02 (Kevin's decision).
 - 2026-09-30: Upload-Post monthly for two months, then yearly if it brings downloads (not yearly up front).
+- 2026-10-01: Claude made social media manager (*Growth*). Day 1: 373 views, mostly Facebook; TikTok viewers gone
+  within seconds. TikTok and Instagram had shown the YouTube title instead of our caption: fixed before Watermelon.
