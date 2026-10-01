@@ -1,33 +1,3 @@
-# The Premium lessons in the order they take their turns on social, the most eye-catching first, one
-# path after another (social-plan.md, Decisions, 2026-09-30). One lesson id a line. Premium lessons not
-# listed follow in posting order (lesson 4 of every path, then lesson 5…). The weekly review may reorder.
-pirate-ship
-cupcake
-solar-system
-monster-truck
-volcano
-strawberry
-bonsai
-helicopter
-waterfall
-gift-box
-ramen-bowl
-ufo
-submarine
-race-car
-tornado
-pineapple
-rose
-drone
-mountain-valley
-stack-of-books
-ice-cream-cone
-space-shuttle
-train
-longship
-snowflake
-sunflower
-jet
-boba-tea
-planet-with-rings
-cruise-ship
+# Premium lessons to post before the others of their kind, one lesson id a line (social-plan.md, Decisions).
+# Empty since 2026-10-01 (Kevin): Premium goes in path order like the app, lesson 4 of every path, then 5…
+# A lesson listed here takes Premium's next turn; the weekly review may list one that is doing well.

@@ -61,8 +61,11 @@ bursts of views, but a download there takes bio → link → App Store.
   people pay for; drawing it themselves with the app, one line at a time, and the whole library is. So a Premium
   video is an advertisement for Premium. How:
   - **Alternate a free lesson and a Premium one, day by day**, from 2026-10-02 (2026-10-01 stays Watermelon
-    Slice), Premium starting with its most eye-catching subjects. A free day says "draw this one now, free"; a
-    Premium day brings the reach and shows what's beyond.
+    Slice). A free day says "draw this one now, free"; a Premium day brings the reach and shows what's beyond.
+  - **Premium in path order, like the app** (Kevin, 2026-10-01): lesson 4 of every path, then lesson 5, and so
+    on, so the feed levels up as the app does and a viewer meets a lesson where it sits. (The first version put
+    the most eye-catching first: Pirate Ship, Solar System…; a lesson that does well can still be moved up in
+    `docs/ops/social-premium-first.txt`.)
   - **Every Premium post says so plainly**: "Lesson 7 of the On the Water path, in Paper Coach Premium. The app
     is free to download, with 30 free lessons." The video's last words already say "free to download" for a
     Premium lesson; the captions and pins match, so nobody downloads for a lesson and finds it locked unwarned.
@@ -86,10 +89,10 @@ up" on the Today page and does what each says on the day.
 | Before 2026-11-30 | Kevin decides; the plan renews that day | Kevin |
 
 The order (*Decisions*): `docs/ops/social-up-next.txt` first (Watermelon Slice on 2026-10-01), then a free lesson
-and a Premium one by turns, never the same path two days running. Free lessons go lesson 1 of every path, then 2
-and 3; Premium ones in `docs/ops/social-premium-first.txt`'s order (the most eye-catching first: Pirate Ship,
-Cupcake, Solar System, Monster Truck, Volcano…), then the rest. So: Pirate Ship (Oct 2), Sun, Cupcake, Cube, Solar
-System, Donut, Monster Truck… `social queue` and the Studio's Social page (*Coming up*) show it as it stands.
+and a Premium one by turns, never the same path two days running. Both go in path order: free lessons 1, 2 and 3 of
+every path, Premium lessons 4, 5, 6… of every path (anything listed in `social-premium-first.txt` first). So:
+Mushroom (Oct 2), Sun, Cherries, Donut, Rain Cloud, Cube, Boba Tea, School Bus… `social queue` and the Studio's
+Social page (*Coming up*) show it as it stands.
 
 ## Release news
 

@@ -207,8 +207,8 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
 
 - **Order** (`social queue`, and *Coming up* on the Studio's Social page): `social-up-next.txt` first, then a
   free lesson and a Premium one by turns (Kevin's decision, social-plan.md *Decisions*), never the same path two
-  days running. Free lessons go lesson 1 of every path, then 2 and 3; Premium ones in `social-premium-first.txt`'s
-  order, the most eye-catching first. Only lessons in the version on sale (its tag's catalog), so a lesson that is
+  days running. Both go in path order (Kevin, 2026-10-01): free lessons 1, 2 and 3 of every path,
+  Premium lessons 4, 5, 6… of every path, anything listed in `social-premium-first.txt` first. Only lessons in the version on sale (its tag's catalog), so a lesson that is
   only on main waits for its release. A lesson Lina hasn't fully recorded is skipped until she has. A Premium
   post says so: "in Paper Coach Premium. The app is free to download, with 30 free lessons"
 - **When:** the launch agent `docs/ops/com.softroni.papercoach-social.plist` runs `social next --log` at 17:00
