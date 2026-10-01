@@ -195,3 +195,94 @@ cover's far edges, three upright edges and the bottom before building.
 - gold: "Gold for the corners, the medallion and the clasp."
 - jewel-strap: "The jewel is blue. The strap is orange on the cover and brown down the side."
 - outro: "Your spellbook is closed and clasped. What's the first spell you'd write inside?"
+
+### crystal-ball
+
+Kept picture: `fantasy-objects/crystal-ball-codex.png` (Codex, first of two candidates; white margin added, to
+70% because the ball is one big round shape). A blue ball with one charcoal swirl winding out from its middle
+and three gold five-point stars (big, middle, small), held in a gold cup; under it a short orange collar, a wide
+gold base with rounded ends, and three orange feet: the outer two curl out like hooks, the middle one ends in a
+round knob. The trace ran the ball and the cup as one line; it was cut at the cup's corners before building.
+
+- intro: "Fortune tellers gaze into one of these to see what's coming. It's a big round ball with a swirl and three stars, on a little golden stand. Watch it come into focus, then read your own future."
+- ball: "The crystal ball is a big circle. From the top, round down each side to where the stand begins."
+- cup: "A cup holds the ball: one curved line across, then a bowl shape below it."
+- base: "Under the cup, a short collar, then a wide flat base with rounded ends."
+- feet: "Three feet stand under the base. The outer two curl out like hooks, the middle one ends in a knob."
+- swirl: "Now the swirl: one line that winds out from the middle of the ball."
+- stars: "Three stars float around the swirl: a big one, a middle one and a small one."
+- blue: "Color the ball blue."
+- gold: "The cup, the base and the stars are gold."
+- orange: "Color the collar and the feet orange."
+- outro: "Look deep into your crystal ball. Does it say you'll draw again tomorrow?"
+
+### shield
+
+Kept picture: `fantasy-objects/shield-codex.png` (Codex, first of two candidates; white margin added). A flat
+knight's shield with a flat top and a soft point: a gray rim between two outlines, ten small gold rivets on it
+(three along the top, three down each side, one at the point), a field cut into four quarters by one upright
+and one level line (blue top left and bottom right, red top right and bottom left), and a round gold boss where
+the lines cross.
+
+- intro: "Before battle, every knight painted their shield in their own colors. This one is split into four quarters with a rim of rivets. Watch it get painted, then design a shield of your own."
+- outline: "The shield has a flat top and a point at the bottom. From the middle of the top, draw each half."
+- rim: "A second outline runs just inside the first, the same shape. The band between them is the rim."
+- boss: "In the middle of the shield sits a round boss."
+- quarters: "Two lines cross behind the boss, one down and one across, cutting four quarters."
+- rivets-1: "Small round rivets stud the rim. Three along the top, three down the left side."
+- rivets-2: "Three more down the right side and one at the point, ten in all."
+- gray: "Color the rim gray."
+- quarters-color: "Two quarters are blue and two are red, matching across the corners."
+- gold: "Gold for the boss and all ten rivets."
+- outro: "Your shield is ready for battle. Which colors would you paint on yours?"
+
+### crystal-cluster
+
+Kept picture: `fantasy-objects/crystal-cluster-codex.png` (Codex, first of two candidates; white margin added).
+Five crystals like fat pencils fan out from a low gray rock: the middle one upright and tallest, two leaning a
+little, two leaning further and shortest. Each is split by one line from its point down its middle: the left
+side blue (in the light), the right side purple (in shadow). No hatching.
+
+- intro: "Deep in caves, crystals grow in clusters, all reaching for the light. These five sprout from one rock, each with a bright side and a dark side. Watch them grow, then start a cluster of your own."
+- rock: "The crystals grow out of a low rock. From the top, draw one half, then the other, flat along the bottom."
+- middle: "The middle crystal stands straight up, like a fat pencil. Then one line down its middle."
+- inner: "The next two lean out a little on each side. Give each its line down the middle."
+- outer: "Two more lean out further, the shortest of all. That makes five crystals."
+- gray: "Color the rock gray."
+- light: "The light catches the left side of every crystal. Color those blue."
+- dark: "The right sides are in shadow. Color them purple."
+- outro: "Five crystals, every one with a light side and a dark side. That's a trick you can use on anything you draw."
+
+### treasure-chest
+
+Kept picture: `fantasy-objects/treasure-chest-codex.png` (Codex, third of four candidates, the kept crown and sword
+attached; white margin added). The first two let the crown and the sword's hilt spill over the lid's rim, which
+traced into a tangle; a note kept both inside the red lining. The fourth had lines half as thick. An orange box
+seen from the front and a little from the right (brown side), two gray bands on the front and one on the side, a
+gold lock plate with a purple keyhole; the open lid behind it, red inside with a gray rim; a gold heap with six
+orange coins and three gems (red, green and blue, each split down the middle); the crown from lesson 2 on the
+left of the heap (band, five points with pearls, velvet in the dips, no jewels) and the sword from lesson 4 stuck
+in the right of it. The trace was cut at every junction and put back together into 55 lines
+(`.studio/tools/graph.mjs`); the keyhole's outline came from the color-edge trace.
+
+- intro: "Every adventure ends with a treasure chest, and this one holds the crown and the sword you drew before. It's a box, a lid and a heap of gold. Watch it fill up, then claim your treasure."
+- box: "The chest is a box. Draw the top edge of its front, then its left side, bottom and right edge."
+- side: "Its right side slants back. A short top edge, then down the back and along the bottom."
+- bands: "Three metal bands wrap the box, two on the front and one on the side. Each is two straight lines."
+- lock: "Between the front bands, a lock plate with a rounded bottom and a keyhole inside."
+- lid: "The open lid stands behind the box, one tall arch. Then a second arch inside it for the rim."
+- crown-band: "The crown from earlier sits in the chest. Start with its band: a curved top line, then sides and bottom."
+- crown-points: "Five points zigzag up from the band, the middle one tallest, just as before."
+- pearls: "Put a pearl on each point, finishing the last two where the zigzag left gaps."
+- velvet: "In each of the four dips, a short curve marks the velvet."
+- guard: "The sword from earlier is stuck in the gold. Draw its guard first, both arms curling."
+- blade: "The blade runs down from the guard into the heap: two edges and the groove between them."
+- grip: "Above the guard, the grip with two wraps, and the round knob on top."
+- heap: "Gold piles up out of the box. Its bumpy top runs out from both sides of the crown."
+- coins: "Six round coins lie scattered on the gold."
+- gems: "Three gems sit among the coins: diamonds, each split down the middle by one line."
+- red-gray: "Color the lining red, and the dark half of the red gem. The rim, the bands and the blade are gray."
+- gold: "Yellow for all the gold: the heap, the crown, the guard, the knob and the lock."
+- wood: "Orange for the box front, the coins and the crown's band. Brown for the box's side and the grip."
+- jewels: "Last, cream pearls, purple velvet and keyhole, and the gems: pink, two greens, blue and purple."
+- outro: "The chest is full and the treasure is yours. Just remember where you buried it."
