@@ -192,15 +192,14 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
   it until it is on sale.
 - **Start:** US only, **$10 a day** across the campaigns, the day 1.0 is approved, as
   [apple-ads-plan.md](apple-ads-plan.md) lays out.
-- **Budget rule:** total ad spend stays at or below **$150 plus the proceeds from learners the ads
-  brought** (after Apple's cut). Until trials have had time to turn paid, count a trial at the
-  trial-to-paid rate actually seen, or not at all while there is none.
-- **Move the daily cap by at most 25% a week.** Raise it while the last 14 days of ads paid for
-  themselves; lower it when they didn't. When the ceiling is reached, stop until proceeds catch up.
-- **Any increase goes to Kevin first** (his rule, 2026-10-01): before raising the daily cap or any campaign's
-  budget, or spending past the $150 ceiling, tell him what, why and the numbers behind it, under "Needs you" and in
-  the summary, and wait for his yes. Lowering, pausing, moving budget between campaigns within the same total,
-  bids, keywords and excluded keywords stay Claude's (he made Claude his ads and sales manager the same day).
+- **Budget rule (Kevin, 2026-10-01):** total ad spend stays at or below **$150** until Kevin approves more.
+  Within it, everything is Claude's to experiment with, as his ads and sales manager: the daily cap, each
+  campaign's budget, bids, keywords, excluded keywords, pausing, new campaigns or ad groups. Spend it to learn
+  what brings learners who pay, not evenly by the day.
+- **Going past $150 is Kevin's yes.** Before total spend reaches it, bring him a plan under "Needs you" and in
+  the summary: how much more, on what campaigns and keywords, what the first $150 showed (cost per install, per
+  trial, per paying learner, proceeds after Apple's cut, counting a trial at the trial-to-paid rate actually seen),
+  what the extra should return, and when it stops. Until he says yes, stop the ads at $150.
 - Pause a keyword that has spent $15 with no trial or purchase; add search terms that don't fit as
   excluded keywords. New English-speaking storefronts once the US pays for itself.
 - PostHog: `install_attributed` and the `asa_*` keys on onboarding, trial and purchase events join
