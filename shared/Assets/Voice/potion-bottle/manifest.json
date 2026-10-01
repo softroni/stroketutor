@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "potion-bottle",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:28:56.741Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Every wizard keeps a shelf of potions, and this one is ready to pour. It's a round flask, a wavy line of purple and three gold rings. Watch it brew, then mix up a bottle of your own.",
+      "textHash": "31a64a9f223a29b96cbc291add6aa646e2471e12b6b14b6adf76c0b7d8defb18",
+      "durationMs": 11600
+    },
+    "body-left": {
+      "file": "body-left.m4a",
+      "text": "The flask is a big round belly. From the neck, curve down the left side to the flat bottom.",
+      "textHash": "cbb4562b43012152f009f0607514d11204f6c2a049310e5f67e32f94cc886b0d",
+      "durationMs": 6320
+    },
+    "body-right": {
+      "file": "body-right.m4a",
+      "text": "Now the right side, rounding down from the neck until it meets the bottom.",
+      "textHash": "056c7e19ef3a2d6c7ad5ccfe78dfc4f3954b0f2883c27467f938c9e9b3de7839",
+      "durationMs": 4800
+    },
+    "ring-low": {
+      "file": "ring-low.m4a",
+      "text": "The neck starts with a gold ring. Close the top with a short line, then lay a band with round ends on it.",
+      "textHash": "59fec6734f4bef3c197c89bc16cd61c5d7fe77e1af29271147c871d01a89a52a",
+      "durationMs": 6640
+    },
+    "neck-low": {
+      "file": "neck-low.m4a",
+      "text": "A short piece of neck stands on the ring, then a second ring just like the first.",
+      "textHash": "ba79c1d41eb8c043b0d049224cca363b70758d8c0ed6d5af6b7956b9eed96aed",
+      "durationMs": 4960
+    },
+    "neck-top": {
+      "file": "neck-top.m4a",
+      "text": "One more piece of neck, the third ring, and the cork pushed in on top.",
+      "textHash": "44e6a9e56b73af6e3070693798c9c70d067902cdf00ebd31cafa3545ae452a84",
+      "durationMs": 4640
+    },
+    "potion": {
+      "file": "potion.m4a",
+      "text": "Now the potion. A wavy line crosses the flask, a little above the middle.",
+      "textHash": "969db852d3e208a663db23568922584dc899cdadb416a914800a5fac98bccb8e",
+      "durationMs": 5920
+    },
+    "bubbles": {
+      "file": "bubbles.m4a",
+      "text": "Five bubbles float in the potion. The big one sits low, the four smaller ones around it.",
+      "textHash": "8d07cc2483a0ad7c2451a888de17a180a8b9a929fe504b307334135142bdc323",
+      "durationMs": 6160
+    },
+    "purple": {
+      "file": "purple.m4a",
+      "text": "Color the potion purple.",
+      "textHash": "816ad71cca117778d7f2f82dc7ea110459ebddae992396f4f6e32196248a555b",
+      "durationMs": 1680
+    },
+    "blue": {
+      "file": "blue.m4a",
+      "text": "The glass above it and both pieces of neck are blue.",
+      "textHash": "3e311f09cbcddb49bb97f2b0fd1c700471c8be630826cf7b933441b2f22a8727",
+      "durationMs": 3200
+    },
+    "pink": {
+      "file": "pink.m4a",
+      "text": "Color the five bubbles pink.",
+      "textHash": "262e21d46fc3ff13467511fafc0292242b471c8b21d795b94dbbc655631e2280",
+      "durationMs": 2240
+    },
+    "gold": {
+      "file": "gold.m4a",
+      "text": "Gold for the three rings and brown for the cork.",
+      "textHash": "c5d9ce9254c47909b72377bd8b7c352f3603d3b820da9c1e6c0f9bbae2319178",
+      "durationMs": 3200
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "One potion, corked and ready. What do you think it does?",
+      "textHash": "b32a711b06d5dbebd0b9d351d1bce9e5b6f6947bf2a11e1c7e6989c998354e54",
+      "durationMs": 3920
+    }
+  }
+}

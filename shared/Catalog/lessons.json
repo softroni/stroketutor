@@ -1012,6 +1012,16 @@
       }
     },
     {
+      "id": "potion-bottle",
+      "status": "approved",
+      "objective": "Round flask of purple potion with five bubbles, a ringed neck and a cork",
+      "reference": {
+        "file": "potion-bottle.svg",
+        "source": "Codex image tool with the creator's Paper Coach - Advanced plugin (= system prompt style-v5-advanced), prompt docs/curriculum/fantasy-objects-prompts.md, generated 2026-10-01, first candidate; tag and string painted out at the creator's request, re-centered; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
+    },
+    {
       "id": "sword",
       "status": "approved",
       "objective": "Diagonal sword with a fuller, a curled crossguard, a wrapped grip and two jewels",
