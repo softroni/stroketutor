@@ -1191,34 +1191,14 @@
       "description": "Treasures from a fantasy world: a potion, a jeweled crown and an hourglass, then a sword, a spellbook and a cauldron, ending with an open treasure chest.",
       "lessons": [
         {
-          "id": "potion-bottle",
-          "title": "Potion Bottle",
-          "objective": "Round flask of purple potion with five bubbles, a ringed neck, a cork and a tag"
-        },
-        {
-          "id": "crown",
-          "title": "Crown",
-          "objective": "Jeweled crown with five ball-tipped points, a band of seven jewels and a velvet cap"
-        },
-        {
-          "id": "hourglass",
-          "title": "Hourglass",
-          "objective": "Hourglass with stacked caps and two turned posts, sand falling into a heap"
-        },
-        {
-          "id": "sword",
-          "title": "Knight's Sword",
-          "objective": "Diagonal sword with a fuller, a curled crossguard, a wrapped grip and two jewels"
-        },
-        {
-          "id": "spellbook",
-          "title": "Spellbook",
-          "objective": "Thick book in ¾ view with metal corners, a jeweled medallion, a strap and a clasp"
-        },
-        {
           "id": "cauldron",
           "title": "Cauldron",
           "objective": "Three-legged cauldron of green brew with bubbles, a ladle and flames under it"
+        },
+        {
+          "id": "crystal-cluster",
+          "title": "Crystal Cluster",
+          "objective": "Five crystals on a rock, each with a light facet and a dark facet"
         },
         {
           "id": "crystal-ball",
@@ -1231,9 +1211,29 @@
           "objective": "Heraldic shield in four colored quarters, with a rim of ten rivets and a round boss"
         },
         {
-          "id": "crystal-cluster",
-          "title": "Crystal Cluster",
-          "objective": "Five crystals on a rock, each with a light facet and a dark facet"
+          "id": "sword",
+          "title": "Knight's Sword",
+          "objective": "Diagonal sword with a fuller, a curled crossguard, a wrapped grip and two jewels"
+        },
+        {
+          "id": "potion-bottle",
+          "title": "Potion Bottle",
+          "objective": "Round flask of purple potion with five bubbles, a ringed neck and a cork"
+        },
+        {
+          "id": "hourglass",
+          "title": "Hourglass",
+          "objective": "Hourglass with stacked caps and two turned posts, sand falling into a heap"
+        },
+        {
+          "id": "crown",
+          "title": "Crown",
+          "objective": "Jeweled crown with five ball-tipped points, a band of seven jewels and a velvet cap"
+        },
+        {
+          "id": "spellbook",
+          "title": "Spellbook",
+          "objective": "Thick book in ¾ view with metal corners, a jeweled medallion, a strap and a clasp"
         },
         {
           "id": "treasure-chest",

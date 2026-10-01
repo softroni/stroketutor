@@ -19,6 +19,11 @@ and plain, enjoys the subject without being cute, and is never technical.
 
 **Where a picture differs from its prompt, the words follow the picture.**
 
+**2026-10-01, reordered (the creator's rule): the most interesting lesson first, then easy to complex, the
+treasure chest last.** The path now runs cauldron, crystal-cluster, crystal-ball, shield, sword, potion-bottle,
+hourglass, crown, spellbook, treasure-chest. The numbers in the headings below are the planning order, not the
+path's.
+
 ## Rules
 
 1. **US English.** Color, center, gray.
@@ -62,12 +67,12 @@ Step ids follow each lesson's trace. Colors are listed in the order they are pai
 ### potion-bottle
 
 Kept picture: `fantasy-objects/potion-bottle-codex.png` (Codex, first candidate). A round flask with a flat
-bottom; the neck is a stack from the body up: a gold ring, a blue piece of neck, a second ring, a second
-piece, the third ring, then a brown cork. A wavy line with two waves: purple potion below, blue glass above.
-Five pink bubbles (one large at the bottom, two medium, two small). A string from the bottom ring's right end
-to a cream five-sided tag on the right.
+bottom; the neck is a stack from the body up: a gold ring, a blue piece of neck, a second ring, a second piece,
+the third ring, then a brown cork. A wavy line with two waves: purple potion below, blue glass above. Five pink
+bubbles (one large at the bottom, two medium, two small). The creator had the tag and its string taken out
+(2026-10-01): they were painted out of the picture, which was re-centered and traced again.
 
-- intro: "Every wizard keeps a shelf of potions, and this one is ready to pour. It's a round flask, a wavy line of purple and a tag. Watch it brew, then mix up a bottle of your own."
+- intro: "Every wizard keeps a shelf of potions, and this one is ready to pour. It's a round flask, a wavy line of purple and three gold rings. Watch it brew, then mix up a bottle of your own."
 - body-left: "The flask is a big round belly. From the neck, curve down the left side to the flat bottom."
 - body-right: "Now the right side, rounding down from the neck until it meets the bottom."
 - ring-low: "The neck starts with a gold ring. Close the top with a short line, then lay a band with round ends on it."
@@ -75,12 +80,11 @@ to a cream five-sided tag on the right.
 - neck-top: "One more piece of neck, the third ring, and the cork pushed in on top."
 - potion: "Now the potion. A wavy line crosses the flask, a little above the middle."
 - bubbles: "Five bubbles float in the potion. The big one sits low, the four smaller ones around it."
-- tag: "A string swings out from the bottom ring. On its end hangs a tag with a pointed top."
 - purple: "Color the potion purple."
 - blue: "The glass above it and both pieces of neck are blue."
 - pink: "Color the five bubbles pink."
-- gold: "Gold for the three rings, brown for the cork and cream for the tag."
-- outro: "One potion, bottled and labeled. What would you write on that tag?"
+- gold: "Gold for the three rings and brown for the cork."
+- outro: "One potion, corked and ready. What do you think it does?"
 
 ### crown
 
@@ -255,34 +259,37 @@ side blue (in the light), the right side purple (in shadow). No hatching.
 
 ### treasure-chest
 
-Kept picture: `fantasy-objects/treasure-chest-codex.png` (Codex, third of four candidates, the kept crown and sword
-attached; white margin added). The first two let the crown and the sword's hilt spill over the lid's rim, which
-traced into a tangle; a note kept both inside the red lining. The fourth had lines half as thick. An orange box
-seen from the front and a little from the right (brown side), two gray bands on the front and one on the side, a
-gold lock plate with a purple keyhole; the open lid behind it, red inside with a gray rim; a gold heap with six
-orange coins and three gems (red, green and blue, each split down the middle); the crown from lesson 2 on the
-left of the heap (band, five points with pearls, velvet in the dips, no jewels) and the sword from lesson 4 stuck
-in the right of it. The trace was cut at every junction and put back together into 55 lines
-(`.studio/tools/graph.mjs`); the keyhole's outline came from the color-edge trace.
+Kept picture: `fantasy-objects/treasure-chest-codex.png` (Codex, seventh candidate, the kept crown and sword
+attached; recolored and white margin added). Redone 2026-10-01 after the creator pointed out that the first
+chest's lid was an arch on a rectangular box: a domed lid curves front to back, so open and seen from the front
+it is a rectangle, and the dome shows only at its end. Now: a red box front (recolored from orange, with the
+lining recolored from red to blue, because the creator found the chest too yellow and orange), a brown side,
+two gray bands on the front and one on the side, a gold lock plate hanging from the top edge with a purple
+keyhole; the open lid behind, blue inside with a gray rim, its domed right end a brown half-round with a gray
+band; a gold heap with five orange coins and three gems (red, green and blue, each split down the middle); the
+crown from lesson 8 on the left of the heap and the sword from lesson 5 stuck in the right of it. Codex kept
+placing the crown's left pearl on the rim, so the rim's inner line stops at that pearl. The trace was cut at
+every junction and put back together into 54 lines (`.studio/tools/graph.mjs`); the lid is drawn after the
+crown and the sword, so its lines stop where they pass behind them.
 
 - intro: "Every adventure ends with a treasure chest, and this one holds the crown and the sword you drew before. It's a box, a lid and a heap of gold. Watch it fill up, then claim your treasure."
 - box: "The chest is a box. Draw the top edge of its front, then its left side, bottom and right edge."
 - side: "Its right side slants back. A short top edge, then down the back and along the bottom."
 - bands: "Three metal bands wrap the box, two on the front and one on the side. Each is two straight lines."
-- lock: "Between the front bands, a lock plate with a rounded bottom and a keyhole inside."
-- lid: "The open lid stands behind the box, one tall arch. Then a second arch inside it for the rim."
-- crown-band: "The crown from earlier sits in the chest. Start with its band: a curved top line, then sides and bottom."
+- lock: "Between the front bands, a lock plate hangs from the top edge, with a keyhole inside."
+- heap: "Gold piles up out of the box. Draw its bumpy top on each side, leaving room for the crown."
+- crown-band: "The crown from earlier sits on the gold. Start with its band: a curved top line, then sides and bottom."
 - crown-points: "Five points zigzag up from the band, the middle one tallest, just as before."
-- pearls: "Put a pearl on each point, finishing the last two where the zigzag left gaps."
+- pearls: "Put a pearl on each point, finishing the ones the zigzag left open."
 - velvet: "In each of the four dips, a short curve marks the velvet."
-- guard: "The sword from earlier is stuck in the gold. Draw its guard first, both arms curling."
-- blade: "The blade runs down from the guard into the heap: two edges and the groove between them."
+- sword: "The sword from earlier is stuck in the gold. Draw its guard, then the blade and its groove down into the heap."
 - grip: "Above the guard, the grip with two wraps, and the round knob on top."
-- heap: "Gold piles up out of the box. Its bumpy top runs out from both sides of the crown."
-- coins: "Six round coins lie scattered on the gold."
+- lid: "The open lid stands behind it all. Draw its top and left side, its right side, then the rim inside."
+- lid-end: "The lid is domed, and its round end shows on the right, like a letter D, with a band along its curve."
+- coins: "Five round coins lie scattered on the gold."
 - gems: "Three gems sit among the coins: diamonds, each split down the middle by one line."
-- red-gray: "Color the lining red, and the dark half of the red gem. The rim, the bands and the blade are gray."
-- gold: "Yellow for all the gold: the heap, the crown, the guard, the knob and the lock."
-- wood: "Orange for the box front, the coins and the crown's band. Brown for the box's side and the grip."
-- jewels: "Last, cream pearls, purple velvet and keyhole, and the gems: pink, two greens, blue and purple."
+- red-brown: "Color the box front red, and the red gem's dark half. The side and the lid's round end are brown."
+- blue-gray: "Blue for the lining and half of the blue gem. The bands, the rims and the blade are gray."
+- gold: "Yellow for the heap, crown, guard, knob and lock. Orange for the coins and the crown's band."
+- jewels: "Last, cream pearls; purple for the velvet, the keyhole and a gem half; pink and greens for the gems."
 - outro: "The chest is full and the treasure is yours. Just remember where you buried it."

@@ -11,6 +11,11 @@ lessons' videos (sword, spellbook, cauldron, crystal ball), 8–9 are breathers 
 the treasure chest, with the crown and the sword on its heap, is the finale. The prompts of the first lineup
 (2026-09-21, written for `style-v2`, with the magic wand, the key and the wizard hat) are in git history.
 
+**2026-10-01, reordered (the creator's rule): the most interesting lesson first, then easy to complex, the
+treasure chest last.** The path now runs cauldron, crystal-cluster, crystal-ball, shield, sword, potion-bottle,
+hourglass, crown, spellbook, treasure-chest. The numbers in the headings below are the planning order, not the
+path's.
+
 ## How to run them
 
 - **System prompt: `style-v5-advanced`**, the Advanced level's, copied from the level's menu in the Studio
@@ -56,7 +61,7 @@ Each is complete as written, on top of the system prompt; the counts are the les
 
 ### 1 · `potion-bottle`
 
-Objective: Round flask of purple potion with five bubbles, a ringed neck, a cork and a tag.
+Objective: Round flask of purple potion with five bubbles, a ringed neck and a cork.
 
 The first lesson, posted first on social and shown as a sticker on other paths' videos, so the most
 eye-catching simple picture: a round flask, a colored potion under one wavy line, five bubbles. The neck is a
@@ -65,7 +70,7 @@ the neck.
 
 ```text
 SUBJECT: one round potion flask, upright, with purple potion in it, exactly five bubbles in the
-potion, a neck with exactly three gold rings, a cork, and a tag hanging from the neck on a string.
+potion, a neck with exactly three gold rings, and a cork.
 - Flask: one closed outline: a large round body, almost a circle, a little flattened at the
   bottom so it could stand, and a short straight neck rising from the top of the body, about a
   quarter as wide as the body. Body and neck are one shape with one outline.
@@ -86,17 +91,7 @@ potion, a neck with exactly three gold rings, a cork, and a tag hanging from the
   medium (7%) and two small (5%), spread out over the potion. Each floats: a strip of purple at
   least three line-widths wide lies all around it, and it touches neither the flask's outline,
   nor the wavy line, nor another bubble. Color: watermelon pink #ee5a6a.
-- Tag: one small closed shape with five straight sides: an upright rectangle whose top is a
-  point, like a gift tag, about 13% of the image tall. It hangs in the white to the right of the
-  flask's body, clear of it: a gap of white at least three line-widths wide lies between them.
-  Nothing is written or drawn on it. Color: cream #f6e7b8.
-- String: exactly one single bold line, gently curved, in the same charcoal as the outlines and
-  with no color: not a cord, not a tube. It starts at the right end of the lowest ring and runs
-  out to the right and down to the tag's top point, touching only those two.
-The flask and its tag together fill about 70% of the image across, so the flask itself stands a
-little left of center.
-Nothing else: no label, picture or skull on the flask, no knot or bow on the string, no hole in
-the tag, no bubbles above the potion, no shine lines on the glass, no steam, smoke or drips, no
+Nothing else: no label, picture, tag or string on the flask, no skull, no bubbles above the potion, no shine lines on the glass, no steam, smoke or drips, no
 stand.
 Count the bubbles: five. Count the rings: three.
 ```
@@ -440,15 +435,18 @@ Objective: Open chest in ¾ view: banded domed lid, heaped coins and gems, the c
 
 The finale, built from the path: the crown of lesson 2 and the sword of lesson 4 (attach both kept pictures)
 on a heap of gold with coins and the faceted gems of lesson 9, in an open chest drawn in the spellbook's
-three-quarter view. An open domed lid shows its inside, and its outer bands face away, so the lid has one
-metal band along its arch and the box three upright bands. The crown and the sword are smaller and lose their
+three-quarter view. A domed lid curves from front to back, like half a barrel lying on its side, so when it is
+open and seen from the front it is a rectangle as wide as the box; the dome shows only at its right end, as a
+half-round piece above the box's side (2026-10-01: the first version drew the lid's top as an arch, which only a
+round-topped box could carry; the creator caught it). The crown and the sword stand wholly inside the lid's red
+lining, because where they crossed its rim the trace became a tangle. The crown and the sword are smaller and lose their
 jewels, so the lesson stays within about twenty steps.
 
 ```text
 The attached pictures are the crown and the sword from earlier in the course: draw them here as
 they look there, smaller, with the changes given below.
 SUBJECT: one open treasure chest heaped with gold: a box with exactly three metal bands and a lock
-plate, an open domed lid with a metal band along its arch, and on the heap exactly six coins,
+plate, an open domed lid with metal bands, and on the heap exactly six coins,
 exactly three gems, the crown standing on the heap and the sword stuck into it.
 VIEW: not a flat front view. The chest is seen from the front, a little from the right and a little
 from above, so its long front face and its short right side face both show, and you look down onto
@@ -458,29 +456,36 @@ LIGHT: from the upper left, shown only by the flat colors named for the box's fa
 facets: no shadow, no hatching.
 Here some parts do overlap, and only these: the box's front and right top edges pass in front of
 the bottom of the heap; the heap passes in front of the bottom of the lid and of the sword's point
-and lower blade; the crown and the sword stand in front of the lid.
+and lower blade; the crown and the sword stand in front of the lid's red lining, wholly inside it,
+crossing none of its metal bands.
 - Box: a plain box with straight edges, about twice as long as it is tall. Its long front face,
-  color orange #f08a2c, and its short right side face, which slants up and away to the right,
-  color brown #8a5a33, meet at one upright edge.
+  color red #d8433b, and its short right side face, which slants up and away to the right,
+  color brown #8a5a33, meet at one upright edge. (Recolored 2026-10-01: the creator found the first
+  chest too yellow and orange; the kept picture's front and lining were recolored by hand.)
 - Bands: exactly three upright metal bands, each about 5% of the image wide: two on the front
   face, each about a quarter of the way in from its ends, and one in the middle of the right side
   face. Each band's two edges are straight lines running from the box's top edge to its bottom
   edge, touching both: they divide the face. Color: gray #c9ced6.
 - Lock plate: one small plate in the middle of the front face, near its top, between the two
-  bands: a straight top edge, straight sides and a rounded bottom. It floats: a strip of orange at
+  bands: a straight top edge, straight sides and a rounded bottom. It floats: a strip of red at
   least three line-widths wide lies all around it. Color: yellow #f7cf46. In its middle floats a
   keyhole: one closed shape, a small circle with a short triangle below it, with a strip of yellow
   all around it. Color: purple #7b4fa3.
 - Lid: open, standing up behind the box and leaning back a little, hinged along the box's back top
-  edge. You see its inside: one flat shape as wide as the box, with two straight upright sides and
-  a top edge that is one high, round arch: the dome. Its bottom is hidden behind the heap. Color of
-  the lining: red #d8433b. Along the arch runs one metal band, the lid's rim: a curved band at
-  least three line-widths wide from the top of the left side to the top of the right side, its
-  inner edge one line parallel to the arch. Color: gray #c9ced6. The lid's thickness and its ends
-  are not drawn.
+  edge. The lid is as long as the box and domed like half a barrel lying on its side, curving from
+  front to back, so seen from the front it is a rectangle: you see its inside, one tall flat shape as
+  wide as the box's front, with two straight upright sides and a straight level top edge, never an
+  arch. Its bottom is hidden behind the heap. Color of the lining: blue #5b8fc7. A metal rim runs
+  along its top edge and down both sides: one band at least three line-widths wide, its inner edge
+  one line parallel to the outer edge. Color: gray #c9ced6.
+- Lid end: above the box's right side face, the end of the dome shows as one half-round shape, like
+  a letter D: its straight edge is the lid's right side, and its round edge bulges out to the right
+  and back, slanting the same way as the box's side face. Color: brown #8a5a33, like the box's side.
+  Along its round edge runs one metal band at least three line-widths wide. Color: gray #c9ced6.
+  The lid's thickness is not drawn.
 - Heap: one closed shape with a smooth, rounded top, like a low hill, rising out of the box and
   filling its whole opening, so nothing of the inside of the box shows. Its top stays well below
-  the lid's arch. Color: yellow #f7cf46.
+  the lid's top edge. Color: yellow #f7cf46.
 - Coins: exactly six circles on the heap, all the same size, each about 5% of the image wide,
   spread over the heap. Each floats: a strip of yellow at least three line-widths wide lies all
   around it, and it touches nothing. Nothing is drawn on them. Color: orange #f08a2c.
@@ -491,13 +496,15 @@ and lower blade; the crown and the sword stand in front of the lid.
   pale green #b9dc8a, right leaf green #4f9d4a. One blue gem: left blue #5b8fc7, right purple
   #7b4fa3.
 - Crown: the crown from the attached picture, about 28% of the image wide, standing upright on the
-  left part of the heap, in front of the lid: the bottom edge of its band lies on the heap. It keeps
+  left part of the heap, in front of the lid's lining, with red all around its points and pearls: the
+  bottom edge of its band lies on the heap. It keeps
   its band, its five points with a ball on each tip and its velvet cap showing in the four dips, in
   the same colors. At this size its band has no jewels.
 - Sword: the sword from the attached picture, about 45% of the image long, stuck point down into
   the right part of the heap and leaning a little to the right. A good length of blade shows above
   the heap, with its fuller line; the crossguard with its two curled arms, the grip and the pommel
-  stand in front of the lid, below its rim. At this size the grip has two lines across it, making
+  stand in front of the lid's lining, with red all around them, clear of the rim. At this size the grip
+  has two lines across it, making
   three bands (brown, orange, brown), and the sword has no jewels.
 The chest with its lid fills about 70% of the image across.
 Nothing else: no coins or gems outside the chest, no coins falling, no other treasure (no cups,
