@@ -456,6 +456,73 @@ export function postStates(records: SocialRecord[]): PostState[] {
     .reverse()
 }
 
+// ---------- Posts by day: the repo's copy and the Studio's page ----------
+
+/** Days are Central, where the posting job runs: a post at 23:12 Central belongs to that day, not to UTC's next. */
+export const POSTING_TIME_ZONE = 'America/Chicago'
+
+/** `YYYY-MM-DD` of a moment in the posting time zone. */
+export function dayOf(iso: string, timeZone = POSTING_TIME_ZONE): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso))
+}
+
+/** One post as the repo keeps it and the Studio shows it: when, what, and each platform's link or error. */
+export interface PostEntry {
+  /** The day it went out (or is scheduled to), Central. */
+  day: string
+  /** When it went out, or is scheduled to. */
+  at: string
+  requestId: string
+  lessonId: string
+  /** The lesson's title when known, so the record reads without the catalog. */
+  title?: string
+  media: 'video' | 'speed' | 'pin'
+  purpose: 'lesson' | 'announce'
+  private: boolean
+  /** `scheduled` and `processing` until every platform has answered; then `completed`, `partial` or `failed`. */
+  status: string
+  platforms: { platform: string; ok: boolean | null; url: string | null; inbox?: boolean; error: string | null }[]
+}
+
+export function postEntry({ post, status }: PostState, title?: string, now = Date.now()): PostEntry {
+  const at = post.scheduledAt ?? post.at
+  const results = status?.results ?? {}
+  return {
+    day: dayOf(at),
+    at,
+    requestId: post.requestId,
+    lessonId: post.lessonId,
+    ...(title ? { title } : {}),
+    media: post.media ?? 'video',
+    purpose: post.purpose ?? 'lesson',
+    private: post.private,
+    status: status?.status ?? (post.scheduledAt && Date.parse(post.scheduledAt) > now ? 'scheduled' : 'processing'),
+    platforms: post.platforms.map((platform) => {
+      const result = results[platform]
+      if (!result) return { platform, ok: null, url: null, error: null }
+      return {
+        platform,
+        ok: result.success && !result.inbox,
+        url: platformLink(platform, result.url ?? null, result.postId ?? null),
+        ...(result.inbox ? { inbox: true } : {}),
+        error: result.error ?? null,
+      }
+    }),
+  }
+}
+
+/** Every post that went out (refusals sent nothing and are left out), by day, newest day and newest post first. */
+export function postsByDay(records: SocialRecord[], titles: (lessonId: string) => string | undefined = () => undefined, now = Date.now()): { day: string; posts: PostEntry[] }[] {
+  const days = new Map<string, PostEntry[]>()
+  for (const state of postStates(records)) {
+    const entry = postEntry(state, titles(state.post.lessonId), now)
+    days.set(entry.day, [...(days.get(entry.day) ?? []), entry])
+  }
+  return [...days]
+    .sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0))
+    .map(([day, posts]) => ({ day, posts: posts.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)) }))
+}
+
 /**
  * Lessons whose whole video went out for everyone to see. A test post, one
  * that failed everywhere, news, a speed draw or a step pin doesn't count: the
@@ -473,6 +540,17 @@ export function postedLessons(records: SocialRecord[]): Set<string> {
 
 const STILL_WORKING = new Set(['pending', 'queued', 'processing', 'in_progress', 'retryable'])
 
+/**
+ * Where a post can be seen. Upload-Post gives a pin's destination (our App
+ * Store link) where its own address should be, and a private YouTube video
+ * no link at all; both are rebuilt from the platform's id for the post.
+ */
+export function platformLink(platform: string, given: string | null, postId: string | null): string | null {
+  if (platform === 'pinterest' && postId && !(given && /pinterest\./.test(given))) return `https://www.pinterest.com/pin/${postId}/`
+  if (platform === 'youtube' && postId && !given) return `https://youtube.com/shorts/${postId}`
+  return given
+}
+
 /** Upload-Post's per-platform results (an object by platform, or a list with `platform`) in one shape; those still at work are left out. */
 export function normaliseResults(results: unknown): Record<string, PlatformResult> {
   const out: Record<string, PlatformResult> = {}
@@ -482,10 +560,8 @@ export function normaliseResults(results: unknown): Record<string, PlatformResul
     const name = platform === 'twitter' ? 'x' : platform
     const text = (candidate: unknown) => (typeof candidate === 'string' && candidate ? candidate : null)
     const postId = text(value.platform_post_id) ?? text(value.post_id) ?? text(value.video_id)
-    // A private YouTube video has no public link, but the owner can open it by its id.
-    const url =
-      [value.url, value.post_url, value.postUrl].map(text).find((candidate) => candidate !== null && /^https?:/.test(candidate)) ??
-      (name === 'youtube' && postId ? `https://youtube.com/shorts/${postId}` : null)
+    const given = [value.url, value.post_url, value.postUrl].map(text).find((candidate) => candidate !== null && /^https?:/.test(candidate)) ?? null
+    const url = platformLink(name, given, postId)
     const error = text(value.error) ?? text(value.error_message) ?? (value.success === false ? text(value.message) : null)
     out[name] = { success: value.success === true, url, postId, error }
     if (value.fallback_to_inbox === true || /sent to inbox/i.test(String(value.post_url ?? ''))) out[name].inbox = true

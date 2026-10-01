@@ -34,7 +34,7 @@ seven tags. TikTok judges a new account by watch time, so the first weeks are ab
 about any one video. Once a video clearly takes off (several times the views of the rest), add its speed draw at
 12:00 as a second daily post (`social post <id> --speed --platforms tiktok`) and post that subject's lessons
 sooner (`social-up-next.txt`). When TikTok's daily cap is hit it puts the video in the account's inbox,
-unpublished; the morning check sees that and asks Kevin to publish it in the app.
+unpublished; the midnight check sees that and asks Kevin to publish it in the app.
 
 **Threads in detail.** Instagram's text network: the same video, a shorter caption with no hashtags (Threads takes
 one topic tag instead), and the App Store link right in the post, where it can be tapped. Low effort, so it stays
@@ -47,7 +47,7 @@ bursts of views, but a download there takes bio → link → App Store.
 ## A day
 
 - **17:00 Central** (launch agent): the next lesson's draw-along to every platform; the step pin scheduled for 21:00.
-- **Next morning, the daily check:** read how the post did, re-post a platform that failed, log it on Today.
+- **At midnight, the daily check:** read how the post did, re-post a platform that failed, log it on Today.
 - **Weekly (Monday's daily check):** Upload-Post analytics per post; subjects that do well (vehicles, food, space…)
   move up by listing lessons in `docs/ops/social-up-next.txt`, which `social next` posts before the queue.
 - **Optional, from Kevin, once a week:** 15–20 s filmed on a phone of a hand drawing on paper beside the app. Real
@@ -55,13 +55,13 @@ bursts of views, but a download there takes bio → link → App Store.
 
 ## Schedule
 
-Started 2026-09-30 (Upload-Post Basic, monthly). Times are Central. The daily check keeps these in "dates coming
+Started 2026-09-30 (Upload-Post Basic, monthly); the first post went out that night at 23:12. Times are Central. The daily check keeps these in "dates coming
 up" on the Today page and does what each says on the day.
 
 | When | What | Who |
 |---|---|---|
 | Every day 17:00, from Thu 2026-10-01 | The next lesson's video to every connected platform; its step pin on Pinterest at 21:00 | launch agent |
-| Every day 08:00 | Check the last post, post once more to a platform that failed, accounts to connect | daily check |
+| Every day 00:00 | Check the day's post, post once more to a platform that failed, accounts to connect | daily check |
 | Mondays, from 2026-10-05 | `social stats --days 7`: views per platform on Today; subjects that do well move up | daily check |
 | The day 1.1 goes on sale | `social announce` with the best Around Town lesson; its ten lessons join the queue | daily check |
 | 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log* | daily check |

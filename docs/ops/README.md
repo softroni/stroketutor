@@ -58,7 +58,7 @@ created it, which passes anything urgent to Kevin's phone.
 3. Act by *Who does what*: a rejection, a reported bug or a serious crash comes first.
 4. Reviews: reply to anything unanswered.
 5. A/B tests and Apple Ads: apply their rules; record every change in the log.
-   Social: the morning steps under *Lesson videos on social*.
+   Social: the nightly steps under *Lesson videos on social*.
 6. Write `.studio/ops/notes.json` (headline, needsYou, working, PostHog numbers and the onboarding funnel,
    experiment results, ads notes, next run, dates coming up), then `today.py publish` and `today.py archive`.
 7. Finish with a summary of at most five lines: what changed, what Claude did, and what needs Kevin.
@@ -223,14 +223,18 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
   profile, the Pinterest board and Facebook Page ids, the AI label (`tiktok` by default: Lina's voice is
   synthetic), and whether YouTube should mark the videos as made for kids (no by default; Kevin's call).
 - **The record** is `.studio/social/posts.jsonl`, one line per post and per status seen. It only grows.
+- **The links, in the repo:** every finished post, with each platform's link or error, is a line in
+  `social/posts.jsonl` on the **`ops-history`** branch (`.studio/ops/history/social/posts.jsonl`), written as the
+  post finishes and pushed by `today.py archive` at once and every night. The Studio's Social page shows the posts
+  day by day. Never delete or rewrite those lines.
 
-**Every morning (the daily check)**, in `web/`:
+**Every night (the daily check, at midnight)**, in `web/`:
 
 1. `node cli/studio.mjs social status --refresh --limit 4`. A platform that failed with a real error (not "still
    processing"): post once more to it alone, `social post <id> --platforms <platform> --no-pin`; if that fails
    too, report it. TikTok "in the inbox, not published" (its daily cap) goes under "Needs you": Kevin publishes
-   the draft in the TikTok app. No post since yesterday's 17:00: read `.studio/logs/social.log` and say why. Don't post in the
-   morning to catch up: the next 17:00 run takes the same lesson.
+   the draft in the TikTok app. No post since the last 17:00: read `.studio/logs/social.log` and say why. Don't
+   post at night to catch up: the next 17:00 run takes the same lesson.
 2. `node cli/studio.mjs social check`: an account not connected or needing reconnecting goes under "Needs you"
    (TikTok until it is connected; its bio link once TikTok has verified the business).
 3. Mondays: `node cli/studio.mjs social stats --days 7`. Views per platform go in `notes.json`'s numbers

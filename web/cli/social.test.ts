@@ -334,6 +334,32 @@ describe('the daily rhythm', () => {
   })
 })
 
+describe('the repo’s copy of the posts', () => {
+  it('keeps each finished post with its links on the ops-history branch, once', async () => {
+    await onSale(true)
+    // Where the ops-history worktree is; a test's scratch root has none, so make one.
+    const history = path.join(t.root, '.studio', 'ops', 'history')
+    await mkdir(history, { recursive: true })
+    await writeFile(path.join(history, '.git'), 'gitdir: elsewhere')
+    statusAnswers = [{ status: 'completed', results: [{ platform: 'youtube', success: true, post_url: 'https://www.youtube.com/watch?v=abc' }] }]
+    const outcome = await t.studio(['social', 'post', 'simple-house', '--video', path.join(t.root, 'clip.mp4'), '--platforms', 'youtube'])
+    expect(outcome.code).toBe(0)
+    const kept = async () => (await readFile(path.join(history, 'social', 'posts.jsonl'), 'utf8')).trim().split('\n').map((line) => JSON.parse(line) as Record<string, unknown>)
+    expect(await kept()).toEqual([
+      expect.objectContaining({ lessonId: 'simple-house', title: 'Simple House', media: 'video', status: 'completed', platforms: [{ platform: 'youtube', ok: true, url: 'https://www.youtube.com/watch?v=abc', error: null }] }),
+    ])
+    // Asking again adds nothing: one line a post.
+    expect((await t.studio('social status --refresh')).code).toBe(0)
+    expect(await kept()).toHaveLength(1)
+  })
+
+  it('keeps nothing where there is no ops-history worktree, and never a test post', async () => {
+    statusAnswers = [{ status: 'completed', results: [{ platform: 'youtube', success: true, post_url: 'https://youtube.com/shorts/abc' }] }]
+    expect((await t.studio(['social', 'post', 'simple-house', '--private', '--video', path.join(t.root, 'clip.mp4'), '--platforms', 'youtube'])).code).toBe(0)
+    await expect(readFile(path.join(t.root, '.studio', 'ops', 'history', 'social', 'posts.jsonl'), 'utf8')).rejects.toThrow()
+  })
+})
+
 describe('social stats', () => {
   it('adds up each platform’s views over the last days, leaving out tests and older posts', async () => {
     await mkdir(path.join(t.root, '.studio', 'social'), { recursive: true })

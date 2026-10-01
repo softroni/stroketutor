@@ -493,6 +493,10 @@ Reels, Threads, Pinterest, X) through Upload-Post, one request for every platfor
 - `.studio/social/posts.jsonl` (outside git) is the record: one line per post and per status seen, with
   `media` (`video`, `speed`, `pin`) and `purpose` (`lesson`, `announce`). It only grows; never edit or
   delete it.
+- The repo's copy: each finished post (`postEntry` in `web/server/social/posts.ts`: day in Central time,
+  lesson, each platform's link or error) is a line in `.studio/ops/history/social/posts.jsonl` on the
+  `ops-history` branch, written when the post finishes or `social status` sees it finish, and pushed by
+  `today.py archive`. `postsByDay` groups the posts by day for the Studio's Social page.
 
 ## Gotchas
 

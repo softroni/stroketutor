@@ -8,6 +8,9 @@ import {
   appStoreLink,
   boardDescription,
   boardName,
+  dayOf,
+  platformLink,
+  postsByDay,
   pinFields,
   pinTexts,
   normaliseResults,
@@ -148,6 +151,55 @@ describe('uploadFields', () => {
     expect(fields.tiktok_is_ai_generated).toBeUndefined()
     expect(fields.facebook_page_id).toEqual(['42'])
     expect(fields.selfDeclaredMadeForKids).toEqual(['true'])
+  })
+})
+
+describe('posts by day', () => {
+  const sent = (requestId: string, at: string, extra: Partial<Extract<SocialRecord, { kind: 'post' }>> = {}): SocialRecord => ({
+    kind: 'post', at, lessonId: 'pine-tree', profile: 'softroni', platforms: ['youtube', 'pinterest'], private: false, requestId, outcome: 'sent', ...extra,
+  })
+  const finished = (requestId: string): SocialRecord => ({
+    kind: 'status', at: '2026-10-01T04:14:00Z', requestId, status: 'completed',
+    results: {
+      youtube: { success: true, url: 'https://www.youtube.com/watch?v=w6lmWyYtzGE', postId: 'w6lmWyYtzGE' },
+      // As Upload-Post reported the first real post: the pin's destination where its address should be.
+      pinterest: { success: true, url: 'https://apps.apple.com/app/apple-store/id6816231257?pt=1&ct=pinterest&mt=8', postId: '989806824387717196' },
+    },
+  })
+
+  it('counts days in Central time, where the posting job runs', () => {
+    expect(dayOf('2026-10-01T04:12:01Z')).toBe('2026-09-30')
+    expect(dayOf('2026-10-01T22:00:00Z')).toBe('2026-10-01')
+  })
+
+  it('gives a pin its own address, and a private Short one from its id', () => {
+    expect(platformLink('pinterest', 'https://apps.apple.com/app/x', '98')).toBe('https://www.pinterest.com/pin/98/')
+    expect(platformLink('pinterest', 'https://www.pinterest.com/pin/98/', '98')).toBe('https://www.pinterest.com/pin/98/')
+    expect(platformLink('youtube', null, 'abc')).toBe('https://youtube.com/shorts/abc')
+    expect(platformLink('x', 'https://x.com/s/1', '1')).toBe('https://x.com/s/1')
+  })
+
+  it('groups what went out by day, newest first, with each platform’s link and no refusals', () => {
+    const records: SocialRecord[] = [
+      sent('first', '2026-10-01T04:12:01Z'),
+      finished('first'),
+      sent('refused', '2026-10-01T22:00:00Z', { outcome: 'refused' }),
+      sent('pin', '2026-10-01T04:12:03Z', { platforms: ['pinterest'], media: 'pin', scheduledAt: '2026-10-01T08:12:01Z' }),
+      sent('second', '2026-10-01T22:01:00Z', { lessonId: 'watermelon-slice' }),
+    ]
+    const days = postsByDay(records, (id) => (id === 'pine-tree' ? 'Pine Tree' : undefined), Date.parse('2026-10-01T05:00:00Z'))
+    expect(days.map((day) => day.day)).toEqual(['2026-10-01', '2026-09-30'])
+    // The pin goes out at 3:12 am Central on the next day, so it belongs to that day.
+    expect(days[0].posts.map((post) => [post.requestId, post.media, post.status])).toEqual([
+      ['second', 'video', 'processing'],
+      ['pin', 'pin', 'scheduled'],
+    ])
+    const [video] = days[1].posts
+    expect(video.title).toBe('Pine Tree')
+    expect(video.platforms).toEqual([
+      { platform: 'youtube', ok: true, url: 'https://www.youtube.com/watch?v=w6lmWyYtzGE', error: null },
+      { platform: 'pinterest', ok: true, url: 'https://www.pinterest.com/pin/989806824387717196/', error: null },
+    ])
   })
 })
 

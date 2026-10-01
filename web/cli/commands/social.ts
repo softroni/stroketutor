@@ -12,6 +12,7 @@ import {
   boardName,
   pinFields,
   pinTexts,
+  postEntry,
   type PinTexts,
   PLATFORMS,
   PRIVATE_PLATFORMS,
@@ -70,6 +71,34 @@ async function readRecords(ctx: Context): Promise<SocialRecord[]> {
       }
     })
 }
+
+/**
+ * The repo's copy of every finished post with its links: one line per post in
+ * `.studio/ops/history/social/posts.jsonl`, on the ops-history branch, which
+ * `today.py archive` commits and pushes (here at once, and every night). Only
+ * where that worktree is, so a test or another machine writes nothing.
+ */
+async function keepInHistory(ctx: Context, states: PostState[], titles: (lessonId: string) => string | undefined): Promise<void> {
+  const repoDir = repoDirOf(ctx)
+  const history = path.join(repoDir, '.studio', 'ops', 'history')
+  if (!existsSync(path.join(history, '.git'))) return
+  const file = path.join(history, 'social', 'posts.jsonl')
+  const kept = await readFile(file, 'utf8').catch(() => '')
+  const fresh = states
+    .filter((state) => !state.post.private)
+    .map((state) => postEntry(state, titles(state.post.lessonId)))
+    .filter((entry) => FINAL_STATUSES.has(entry.status) && !kept.includes(`"requestId":"${entry.requestId}"`))
+  if (fresh.length === 0) return
+  await mkdir(path.dirname(file), { recursive: true })
+  await appendFile(file, fresh.map((entry) => `${JSON.stringify(entry)}\n`).join(''))
+  const script = path.join(repoDir, 'docs', 'ops', 'today.py')
+  if (existsSync(script)) {
+    await promisify(execFile)('python3', [script, 'archive']).catch((error: unknown) => ctx.out.warn(`today.py archive failed: ${String(error)}`))
+  }
+}
+
+/** Lesson titles by id, for the repo's copy of the posts. */
+const titlesOf = (lessons: Curriculum) => (lessonId: string) => lessons.tutorials.get(lessonId)?.tutorial.title
 
 /** The record only grows: one line per post and per status seen. */
 async function addRecord(ctx: Context, record: SocialRecord): Promise<void> {
@@ -393,16 +422,19 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     outcome.pin = null
   }
 
+  const finished = async (status: string, results: Record<string, PlatformResult>) => {
+    await addRecord(ctx, { kind: 'status', at: new Date().toISOString(), requestId, status, results })
+    await keepInHistory(ctx, postStates(await readRecords(ctx)).filter((state) => state.post.requestId === requestId), titlesOf(lessons))
+    return { ...outcome, status, results }
+  }
   if (accepted.results) {
     const results = normaliseResults(accepted.results)
-    const status = settledStatus('completed', results, platforms)
-    await addRecord(ctx, { kind: 'status', at: new Date().toISOString(), requestId, status, results })
-    return { ...outcome, status, results }
+    return finished(settledStatus('completed', results, platforms), results)
   }
   if (at || values['no-wait'] === true) return { ...outcome, status: at ? 'scheduled' : 'processing' }
 
   const seen = await waitFor(ctx, client, requestId, platforms)
-  return { ...outcome, status: seen.status, results: seen.results }
+  return finished(seen.status, seen.results)
 }
 
 /** The Pinterest board for the lesson's path ("Easy Drawings: Plants"), made the first time; the settings' board outside every path. */
@@ -466,7 +498,6 @@ async function waitFor(ctx: Context, client: UploadPostClient, requestId: string
     if (FINAL_STATUSES.has(last.status) || Date.now() > deadline) break
     if (attempt % 4 === 0) ctx.out.note(`Upload-Post: ${status.status}…`)
   }
-  await addRecord(ctx, { kind: 'status', at: new Date().toISOString(), requestId, ...last })
   return last
 }
 
@@ -743,6 +774,7 @@ export const socialCommands: Command[] = [
         }
       }
       const states = postStates(await readRecords(ctx)).slice(0, limit)
+      await keepInHistory(ctx, states, titlesOf(await curriculum(ctx)))
       ctx.out.result(states, () => (states.length ? states.flatMap(describeState) : ['Nothing has been posted yet.']))
     },
   ),
