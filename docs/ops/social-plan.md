@@ -113,8 +113,7 @@ Waiting on Kevin:
 
 - [x] Upload-Post Basic, monthly, from 2026-09-30.
 - [x] TikTok (softroni.app) and Threads (softroniapps) connected to the `softroni` profile (2026-09-30).
-- [ ] Threads bio link: Edit profile → Links,
-  `https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=threads-bio&mt=8`.
+- [x] Threads bio link (`ct=threads-bio`), 2026-09-30.
 - [ ] About 2026-11-30: monthly → yearly, or stop (see *Cost*).
 - [x] Provider token for campaign links: `128560181`, in `APP_STORE_PROVIDER_TOKEN` (2026-09-30).
 - [x] Campaign links in the profiles of Instagram, X, YouTube, Facebook and Pinterest (`<platform>-bio`,
