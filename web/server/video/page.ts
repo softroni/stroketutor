@@ -8,6 +8,17 @@ export const FRAME = { width: 1080, height: 1920 }
 /** Where nothing the platforms draw on top reaches: the brand at the top to Lina's line at the bottom, clear of the buttons on the right. */
 export const SAFE = { top: 170, bottom: 1450, left: 180, right: 900 }
 
+/**
+ * Where the hook's title goes (plan.ts, `Opening`): the top of the frame down
+ * to the progress bar, where the classic opening has Paper Coach, the lesson's
+ * place and its title. Wider than `SAFE`, since the buttons on the right start
+ * far lower, but clear of the 55 px a taller phone crops off each side.
+ */
+export const HOOK_BOX = { top: SAFE.top, bottom: 528, left: 80, right: FRAME.width - 80 }
+
+/** The hook's title at its largest, in CSS pixels; a long subject is set smaller until the title and its second line fit `HOOK_BOX`. */
+const HOOK_SIZE = 112
+
 export interface PageAssets {
   /** Fredoka, the App Store screenshots' face, as base64 TTF. */
   font: string
@@ -158,6 +169,21 @@ export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAsset
   .title > span { text-wrap: balance; }
   .title em { font-style: normal; color: var(--highlight); }
   .title small { display: block; margin-top: 14px; font-size: 42px; font-weight: 500; letter-spacing: 0; opacity: 0.95; }
+  /* The hook: what the video is, as people search for it, large over the finished picture from the first frame. */
+  .hook {
+    position: absolute; top: ${HOOK_BOX.top}px; left: ${HOOK_BOX.left}px; width: ${HOOK_BOX.right - HOOK_BOX.left}px; height: ${HOOK_BOX.bottom - HOOK_BOX.top}px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+  }
+  .hook > div { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .hook b {
+    display: block; width: 100%; font-size: ${HOOK_SIZE}px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; text-wrap: balance;
+    text-shadow: 0 0.04em 0.22em rgba(0, 0, 0, 0.2);
+  }
+  .hook b em { font-style: normal; color: var(--highlight); }
+  .hook span {
+    padding: 6px 34px 12px; border-radius: 50px; background: #fff; color: var(--backdrop-deep);
+    font-size: 60px; font-weight: 600; line-height: 1.1; white-space: nowrap; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  }
   .progress { position: absolute; top: 540px; left: ${SAFE.left}px; width: ${SAFE.right - SAFE.left}px; height: 12px; border-radius: 6px; background: rgba(0, 0, 0, 0.16); overflow: hidden; }
   .progress > div { height: 100%; width: 0; background: var(--highlight); border-radius: 6px; }
   .card {
@@ -195,6 +221,7 @@ export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAsset
   <div class="brand" id="brand"><img src="${icon}" alt=""><span>Paper Coach</span></div>
   <div class="chip" id="chip"></div>
   <div class="title" id="title"></div>
+  <div class="hook" id="hook">${plan.text.hook ? `<div><b id="hook-title">${plan.text.hook.title}</b>${plan.text.hook.steps ? `<span>${plan.text.hook.steps}</span>` : ''}</div>` : ''}</div>
   <div class="progress"><div id="bar"></div></div>
   <div class="card">
     <svg id="drawing" viewBox="0 0 ${tutorial.canvas.width} ${tutorial.canvas.height}" preserveAspectRatio="xMidYMid meet">
@@ -214,6 +241,7 @@ export function videoPage(tutorial: Tutorial, plan: VideoPlan, assets: PageAsset
 <script>
 const D = ${JSON.stringify(data).replace(/</g, '\\u003c')};
 const CAPTION_SIZE = ${CAPTION_SIZE};
+const HOOK_SIZE = ${HOOK_SIZE};
 ${FRAME_SCRIPT}
 </script></body></html>`
 }
@@ -333,6 +361,18 @@ function fitCaption() {
   if (width > node.clientWidth) node.style.fontSize = (CAPTION_SIZE * node.clientWidth) / width + 'px';
 }
 
+// The hook's title is set smaller, a step at a time, until it and its second line fit their box and no word runs
+// past its sides. Once, at the first frame, when Fredoka has loaded.
+let hookFitted = false;
+function fitHook() {
+  hookFitted = true;
+  const title = $('hook-title');
+  if (!title) return;
+  const box = $('hook');
+  const fits = () => title.parentNode.getBoundingClientRect().height <= box.clientHeight && title.scrollWidth <= title.clientWidth;
+  for (let size = HOOK_SIZE; size > 48 && !fits(); size -= 4) title.style.fontSize = size - 4 + 'px';
+}
+
 const escapeHtml = (text) => text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 // The caption's words, the one Lina is saying at t marked.
@@ -415,7 +455,12 @@ function placeStickers(landing, t) {
   });
 }
 
+// In the hook, Paper Coach is left out of the opening and comes in with step 1; a speed draw, with no steps, has it
+// only in the ending's bottom row.
+const firstStep = D.plan.segments.find((s) => s.kind === 'step');
+
 window.renderAt = (t) => {
+  if (!hookFitted) fitHook();
   const P = D.plan;
   const seg = P.segments.find((s) => t >= s.start && t < s.end) || P.segments[P.segments.length - 1];
   const progress = els.map(() => 0);
@@ -423,12 +468,16 @@ window.renderAt = (t) => {
   let ghost = 0;
   let bar = 0;
   let swap = 0;
+  let hook = 0;
 
   if (seg.kind === 'intro') {
-    ghost = t < P.hook.hold ? 1 : clamp(1 - (t - P.hook.hold) / 0.25);
-    runSequence(els.map((_, i) => i), (t - P.hook.drawFrom) * P.hook.speed, progress);
+    // The finished picture, then it fades (to nothing, or in the hook to a faint guide) as the lesson is drawn fast.
+    const F = P.fastDraw;
+    ghost = t < F.hold ? 1 : Math.max(F.floor, 1 - (clamp((t - F.hold) / F.fade) * (1 - F.floor)));
+    runSequence(els.map((_, i) => i), (t - F.drawFrom) * F.speed, progress);
     setText('chip', P.text.introChip, 1, true);
     setText('title', P.text.introTitle, 1, true);
+    hook = P.text.hook ? 1 : 0;
   } else if (seg.kind === 'step') {
     const step = D.tutorial.steps[seg.index];
     const colouring = step.strokes.length === 0;
@@ -449,14 +498,16 @@ window.renderAt = (t) => {
     progress.fill(1);
     bar = 1;
     swap = clamp((t - seg.swapAt) / 0.6);
-    setText('chip', '', 0, false);
+    setText('chip', P.text.outroChip, t - seg.start, true);
     setText('title', P.text.outroTitle, t - seg.start, true);
   }
 
   const caption = P.captions.find((c) => t >= c.from && t < c.to);
   setText('caption', caption ? captionHtml(caption, t) : '', caption ? (caption.from === 0 ? 1 : t - caption.from) : 0, true, 0.12);
+  const brand = (P.text.hook ? (firstStep ? clamp((t - firstStep.start) / 0.2) : 0) : 1) * (1 - swap);
   $('lina').style.opacity = 1 - swap;
-  $('brand').style.opacity = 1 - swap;
+  $('brand').style.opacity = brand;
+  $('hook').style.opacity = hook;
   $('cta').style.opacity = swap;
   const stuck = placeStickers(seg.kind === 'outro' ? seg.stickersAt : [], t);
 
@@ -497,6 +548,8 @@ window.renderAt = (t) => {
     Math.round(ghost * 1e4),
     Math.round(bar * 1e5),
     Math.round(swap * 1e4),
+    Math.round(brand * 1e4),
+    hook,
     textState,
     stuck,
   ]);

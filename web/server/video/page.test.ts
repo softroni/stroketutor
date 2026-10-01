@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest'
 
 import type { Tutorial } from '../../src/schema/types'
 
-import { backdropStops, FRAME, SAFE, STICKER_BOUNDS, STICKER_SLOTS, stickerCandidates, videoPage, withinBounds } from './page'
+import { backdropStops, FRAME, HOOK_BOX, SAFE, STICKER_BOUNDS, STICKER_SLOTS, stickerCandidates, videoPage, withinBounds } from './page'
 import { MAX_STICKERS, type VideoPlan } from './plan'
 
 const tutorial = { title: 'Sun', canvas: { width: 100, height: 100 }, steps: [] } as unknown as Tutorial
-const plan = { text: { introChip: '', introTitle: '', outroTitle: '', cta: 'Free' } } as unknown as VideoPlan
+const plan = { text: { introChip: '', introTitle: '', hook: null, outroChip: '', outroTitle: '', cta: 'Free' } } as unknown as VideoPlan
 const assets = { font: '', icon: '', badge: null, stickers: [] }
 
 describe('backdropStops', () => {
@@ -28,6 +28,24 @@ describe('videoPage', () => {
     expect(count(videoPage(tutorial, plan, { ...assets, stickers: [svg, svg] }))).toBe(2)
     expect(count(videoPage(tutorial, plan, { ...assets, stickers: Array(9).fill(svg) }))).toBe(STICKER_SLOTS.length)
     expect(count(videoPage(tutorial, plan, assets))).toBe(0)
+  })
+})
+
+describe('the hook’s title', () => {
+  it('sits where the classic opening’s brand, place and title are: from the top of the safe area to above the progress bar and the card, clear of the crop', () => {
+    expect(HOOK_BOX.top).toBeGreaterThanOrEqual(SAFE.top)
+    expect(HOOK_BOX.bottom).toBeLessThan(540)
+    expect(HOOK_BOX.left).toBeGreaterThanOrEqual(55 + 20)
+    expect(FRAME.width - HOOK_BOX.right).toBeGreaterThanOrEqual(55 + 20)
+    // Far above where the platforms' buttons start down the right.
+    expect(HOOK_BOX.bottom).toBeLessThan(STICKER_BOUNDS.buttons.top)
+  })
+
+  it('is on the page only for the hook opening', () => {
+    const hook = { text: { ...plan.text, hook: { title: 'How to draw a <em>sun</em>', steps: '4 easy steps' } } } as unknown as VideoPlan
+    const html = videoPage(tutorial, hook, assets)
+    expect(html).toContain('<b id="hook-title">How to draw a <em>sun</em></b><span>4 easy steps</span>')
+    expect(videoPage(tutorial, plan, assets)).not.toContain('id="hook-title"')
   })
 })
 

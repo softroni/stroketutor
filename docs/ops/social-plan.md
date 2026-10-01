@@ -232,6 +232,10 @@ Tests:
 | E3 | **Library pins:** earlier lessons as new pins, 1 a day, then 2–3, never the same design twice, `ct=pinterest` | Pinterest | Once the business account shows impressions | Oct 28, Nov 12 | Weekly outbound clicks rise, and impressions per new pin don't halve |
 | E4 | **Winter, posted early:** winter boards and pins (snowflake, gift box, star, mug, the pine tree as a winter tree), inside the day's pins | Pinterest | From Oct 15 | Oct 21, Nov 12 | Seasonal pins 1.5× same-age pins: keep through December. These numbers go to Kevin for the Christmas-lessons question |
 
+Which day is which arm is in `docs/ops/social-experiments.json` (E1: the classic opening on Oct 7, 8, 11 and 12, the
+hook on every other day from Oct 5). `social next` reads it, and every post's record carries its `opening` and
+`experiments` arm, so the scorecard splits by arm.
+
 **Later, if the numbers call for them:**
 - a pinned first comment on TikTok
 - step carousels (TikTok photo mode, Instagram)

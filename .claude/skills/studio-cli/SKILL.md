@@ -148,7 +148,7 @@ The table gives each command's shape and what matters; `reference.md` has every 
 | `summary <id>` | The lesson as ids: per step, each line (label, box, start, end, length) and colour (label, colour, box, area) |
 | `apply <id> --layer steps\|order\|instructions --plan <file> [--no-checkpoint]` | A plan by hand; see Plans below |
 | `render <id> [--sheet] [--columns 3] [--no-labels] [--size px] [--svg] [--out file]` | The finished drawing, or a contact sheet (one panel per step, this step's lines labelled). Default `<id>.png` / `<id>.sheet.png` in the cwd |
-| `video <id> [--intro words] [--signoff words] [--cta words] [--out file.mp4] [--stills dir]` | A vertical draw-along video for Shorts, TikTok and Reels (see *Lesson videos*). Default `.studio/videos/<id>.mp4`, outside git, with the post caption beside it as `.txt` |
+| `video <id> [--opening classic\|hook] [--intro words] [--signoff words] [--cta words] [--out file.mp4] [--stills dir]` | A vertical draw-along video for Shorts, TikTok and Reels (see *Lesson videos*). Default `.studio/videos/<id>.mp4` (`<id>-hook.mp4` with the hook opening), outside git, with the post caption beside it as `.txt` |
 
 **Steps** (`steps …`; all edits take `--no-checkpoint`)
 
@@ -398,7 +398,18 @@ STUDIO_WORKSPACE=/tmp/ws.sqlite npm run studio -- status
 Instagram Reels, with the same code as the lesson page's **Video** tab (`web/server/video/`):
 
 1. **Opening.** The finished picture, then the whole lesson drawn fast while Lina says her opening line
-   (default: "Let’s draw a rocket. Grab a pencil and draw along with me."; `--intro` changes it).
+   (default: "Let’s draw a rocket. Grab a pencil and draw along with me."; `--intro` changes it). Two ways
+   (`--opening`, `Opening` in `web/server/video/plan.ts`; social-plan.md *Growth*, E1):
+   - **hook**: from the very first frame the finished picture in color under a large "How to draw a rocket"
+     and a pill "7 easy steps" (the steps with lines, as the captions count them); the pencil starts drawing
+     over it at 0.3 s while the picture fades to a faint guide, so the card is never blank. Paper Coach
+     comes in at the top with step 1, and the lesson's place ("Space · Lesson 1 of 10") moves to the
+     ending, above "Now draw it yourself". A long subject is set smaller until the title fits (`HOOK_BOX`).
+   - **classic**: Paper Coach, the place and "Let’s draw a rocket" at the top; the picture fades out by
+     about 1 s and the drawing starts at 1.1 s.
+   - Lina's words, the steps and the ending's call to action are the same either way, so a video is the
+     same length in both. The default is the day's opening (below, *Posting lesson videos*): the hook from
+     2026-10-05, the classic opening before and on the days `docs/ops/social-experiments.json` lists.
 2. **Every step** at the lesson's own pace, with Lina's recording for it, her words beside her portrait
    two or three at a time on one large line, the word she is saying in yellow, and the step's title and
    "Step n of N" at the top.
@@ -435,7 +446,10 @@ Instagram Reels, with the same code as the lesson page's **Video** tab (`web/ser
   scaled down, split across up to four Chromiums (`STUDIO_VIDEO_WORKERS` overrides), and frames where
   nothing moved reuse the picture before them. Needs ffmpeg and Google Chrome (or Playwright's
   Chromium, or `STUDIO_CHROMIUM`).
-- Videos go to `.studio/videos/` (gitignored). **Never commit a video**; `--out` elsewhere is fine.
+- Videos go to `.studio/videos/` (gitignored). **Never commit a video**; `--out` elsewhere is fine. The
+  hook gets its own names (`<id>-hook.mp4`, `<id>-speed-hook.mp4`, stills `<id>-hook-opening.png`…); the
+  classic opening keeps the names videos always had (`videoFile` in `web/server/video/render.ts`), so a
+  video of one opening is never taken for the other. In a worktree, `.studio/` is the worktree's own.
 - Apple's badge is `docs/app-store/marketing/assets/badges/download-on-the-app-store-black.svg`, used
   as supplied (never recoloured, stretched or animated beyond the fade). Without the file the ending
   says "Free on the App Store · link in bio" instead.
@@ -484,7 +498,18 @@ Reels, Threads, Pinterest, X) through Upload-Post, one request for every platfor
   out). Pins, and the video's Pinterest post, go on the path's board, "Easy Drawings: <path>", made the
   first time it is needed; `UPLOAD_POST_PINTEREST_BOARD` is only for a lesson in no path.
 - **Speed draws** (`lessons video <id> --speed`, `social post <id> --speed`): about 20 s, the whole picture
-  drawn in 8 s while Lina says "Watch a … come together", then the ending. Written to `<id>-speed.mp4`.
+  drawn in 8 s while Lina says "Watch a … come together", then the ending. Written to `<id>-speed.mp4`
+  (`<id>-speed-hook.mp4` with the hook, which opens it the same way as the whole video).
+- **Openings and tests** (`web/server/social/experiments.ts`): every post's video opens the day's way.
+  `docs/ops/social-experiments.json` maps each test to its arms and days, e.g. E1:
+  `{ "E1": { "from": "2026-10-05", "until": "2026-10-12", "classic": ["2026-10-07", …] } }`: the listed days
+  post the classic opening, every other day from 2026-10-05 the hook (`HOOK_FROM`), and every day before
+  that the classic opening. Days are Central, as the posts' days are. `social next`, `social post` and `social
+  announce` read it (`--opening` overrides; `--dry-run` says which opening and test); a lesson posted
+  again (to a platform that failed) keeps the opening it first went out with. The weekly review edits the
+  file; a file that can't be read is a warning, and the day gets the opening it would have with no test.
+  `social post --video f.mp4` refuses a file whose name says the other opening (`<id>-hook.mp4` is the
+  hook, `<id>.mp4` the classic) unless `--opening` names it.
 - **Release news** (`social announce --lesson <id> --news "…" --headline "…"`): a lesson's speed draw with
   words saying what's new, to every platform. Only when the version with the news is on sale, and at
   most two or three a month (docs/ops/social-plan.md, *Release news*).
@@ -493,8 +518,10 @@ Reels, Threads, Pinterest, X) through Upload-Post, one request for every platfor
 - What counts as posted: only a lesson's whole video. A speed draw, a step pin or news leaves the lesson
   in the queue, and doesn't hold back the next day's lesson.
 - `.studio/social/posts.jsonl` (outside git) is the record: one line per post and per status seen, with
-  `media` (`video`, `speed`, `pin`) and `purpose` (`lesson`, `announce`). It only grows; never edit or
-  delete it.
+  `media` (`video`, `speed`, `pin`), `purpose` (`lesson`, `announce`), and for a video `opening`
+  (`classic`, `hook`; absent on older records, all classic) and, while a test runs, `experiments` with the
+  post's arm (`{ "E1": "hook" }`), which the repo's copy keeps too, so the scorecard can split by arm. It
+  only grows; never edit or delete it.
 - The repo's copy: each finished post (`postEntry` in `web/server/social/posts.ts`: day in Central time,
   lesson, each platform's link or error) is a line in `.studio/ops/history/social/posts.jsonl` on the
   `ops-history` branch, written when the post finishes or `social status` sees it finish, and pushed by

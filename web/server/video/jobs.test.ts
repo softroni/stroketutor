@@ -8,6 +8,7 @@ import type { VideoDeps, exportVideo } from './render'
 const deps = async () => ({}) as VideoDeps
 const result = (lessonId: string): VideoResult => ({
   lessonId,
+  opening: 'classic',
   file: `/videos/${lessonId}.mp4`,
   captionFile: null,
   caption: '',

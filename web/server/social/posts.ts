@@ -1,5 +1,5 @@
 import type { Tutorial } from '../../src/schema/types'
-import { subjectOf, type VideoInput } from '../video/plan'
+import { lineSteps, subjectOf, type Opening, type VideoInput } from '../video/plan'
 
 /**
  * Posting lesson videos to Softroni's social accounts through Upload-Post
@@ -145,7 +145,7 @@ const FREE_LESSON: Access = { premium: false, freeLessons: 0 }
 export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], providerToken: string | null = null, access: Access = FREE_LESSON): SocialTexts {
   const { article, subject } = subjectOf(tutorial.title)
   const what = `${article ? `${article} ` : ''}${subject}`
-  const steps = tutorial.steps.filter((step) => step.strokes.length > 0).length
+  const steps = lineSteps(tutorial)
   const opening = `Let’s draw ${what}: ${steps} easy ${steps === 1 ? 'step' : 'steps'}, then color it in.`
   const { premium } = access
   const placeLine = place
@@ -431,6 +431,10 @@ export type SocialRecord =
       media?: 'video' | 'speed' | 'pin'
       /** A lesson in the queue (the default), or release news, which never counts the lesson as posted. */
       purpose?: 'lesson' | 'announce'
+      /** How a video or speed draw opens (plan.ts, `Opening`); absent on a step pin, and on the videos posted before openings were recorded, all classic. */
+      opening?: Opening
+      /** The tests it was part of and its arm in each (docs/ops/social-experiments.json), so the scorecard can split by arm: `{ E1: 'hook' }`. */
+      experiments?: Record<string, string>
       /** `sent`: Upload-Post took it. `refused`: it said no, and nothing was posted. */
       outcome: 'sent' | 'refused'
       message?: string | null
@@ -498,6 +502,9 @@ export interface PostEntry {
   title?: string
   media: 'video' | 'speed' | 'pin'
   purpose: 'lesson' | 'announce'
+  /** How the video opens, and the tests it was part of with its arm, when its record says (`SocialRecord`). */
+  opening?: Opening
+  experiments?: Record<string, string>
   private: boolean
   /** `scheduled` and `processing` until every platform has answered; then `completed`, `partial` or `failed`. */
   status: string
@@ -515,6 +522,8 @@ export function postEntry({ post, status }: PostState, title?: string, now = Dat
     ...(title ? { title } : {}),
     media: post.media ?? 'video',
     purpose: post.purpose ?? 'lesson',
+    ...(post.opening ? { opening: post.opening } : {}),
+    ...(post.experiments ? { experiments: post.experiments } : {}),
     private: post.private,
     status: status?.status ?? (post.scheduledAt && Date.parse(post.scheduledAt) > now ? 'scheduled' : 'processing'),
     platforms: post.platforms.map((platform) => {

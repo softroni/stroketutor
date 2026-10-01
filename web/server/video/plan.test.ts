@@ -9,6 +9,7 @@ import {
   defaultSpeedIntro,
   defaultSignoff,
   lineChunks,
+  lineSteps,
   planVideo,
   postCaption,
   stickerLessons,
@@ -69,15 +70,71 @@ describe('the speed draw', () => {
   it('holds the opening until the whole picture has drawn, at no faster than the lesson’s own pace', () => {
     // Three seconds of drawing: the opening waits for all of it, however short Lina's line.
     const short = plan({ speed: true, intro: { text: 'Watch.', durationS: 0.5 } })
-    expect(short.hook.speed).toBeCloseTo(1)
-    expect(short.hook.drawFrom + 3 / short.hook.speed).toBeLessThanOrEqual(short.segments[0].end + 1e-9)
+    expect(short.fastDraw.speed).toBeCloseTo(1)
+    expect(short.fastDraw.drawFrom + 3 / short.fastDraw.speed).toBeLessThanOrEqual(short.segments[0].end + 1e-9)
     // A long lesson is drawn in SPEED_DRAW seconds.
     const long = plan({ speed: true, tutorial: { ...tutorial, steps: tutorial.steps.map((step) => ({ ...step, strokes: step.strokes.map((stroke) => ({ ...stroke, duration: 30 })) })) } })
-    expect(long.hook.drawFrom + 31 / long.hook.speed).toBeCloseTo(long.hook.drawFrom + SPEED_DRAW)
+    expect(long.fastDraw.drawFrom + 31 / long.fastDraw.speed).toBeCloseTo(long.fastDraw.drawFrom + SPEED_DRAW)
   })
 
   it('says it shows the drawing rather than drawing along', () => {
     expect(defaultSpeedIntro('Rocket')).toBe('Watch a rocket come together, one line at a time.')
+  })
+})
+
+describe('the hook opening', () => {
+  it('says what the video is from the first frame, counting the steps with lines as the captions do, and leaves the place to the ending', () => {
+    const { text } = plan({ opening: 'hook' })
+    expect(text.hook).toEqual({ title: 'How to draw a <em>fish &amp; &lt;chips&gt;</em>', steps: '1 easy step' })
+    expect([text.introChip, text.introTitle]).toEqual(['', ''])
+    expect(text.outroChip).toBe('Food &amp; Treats · Lesson 2 of 10')
+    expect(lineSteps(tutorial)).toBe(1)
+    const three = { ...tutorial, title: 'Grapes', steps: [tutorial.steps[0], { ...tutorial.steps[0], id: 'b' }, { ...tutorial.steps[0], id: 'c' }, tutorial.steps[1]] }
+    expect(plan({ opening: 'hook', tutorial: three }).text.hook).toEqual({ title: 'How to draw <em>grapes</em>', steps: '3 easy steps' })
+    // Outside every path the ending has no label.
+    expect(plan({ opening: 'hook', place: null }).text.outroChip).toBe('')
+  })
+
+  it('is the classic opening when none is asked for, with nothing of the hook', () => {
+    const { text } = plan()
+    expect(text.hook).toBeNull()
+    expect(text.outroChip).toBe('')
+    expect(plan()).toEqual(plan({ opening: 'classic' }))
+  })
+
+  it('shows the finished picture at once and starts drawing within the first second, fading it to a guide, never to an empty card', () => {
+    const { fastDraw } = plan({ opening: 'hook' })
+    expect(fastDraw.hold).toBeLessThan(0.5)
+    expect(fastDraw.drawFrom).toBeLessThanOrEqual(fastDraw.hold)
+    expect(fastDraw.floor).toBeGreaterThan(0)
+    expect(fastDraw.hold + fastDraw.fade).toBeLessThan(1)
+    // The classic opening fades the picture out completely before it draws.
+    const classic = plan().fastDraw
+    expect(classic.floor).toBe(0)
+    expect(classic.drawFrom).toBeGreaterThanOrEqual(classic.hold + classic.fade)
+  })
+
+  it('keeps Lina’s words and every step where they are, so her voice still matches the lines', () => {
+    const classic = plan()
+    const hook = plan({ opening: 'hook' })
+    expect(hook.cues).toEqual(classic.cues)
+    expect(hook.captions).toEqual(classic.captions)
+    expect(hook.segments).toEqual(classic.segments)
+    expect(hook.total).toBe(classic.total)
+    // Drawing from earlier, the fast drawing goes no faster, and still finishes before step 1.
+    expect(hook.fastDraw.speed).toBeLessThanOrEqual(classic.fastDraw.speed)
+    expect(hook.fastDraw.drawFrom + 3 / hook.fastDraw.speed).toBeLessThanOrEqual(hook.segments[0].end)
+  })
+
+  it('opens a speed draw the same way, drawing the whole picture in SPEED_DRAW seconds from the first moments', () => {
+    const long = { ...tutorial, steps: tutorial.steps.map((step) => ({ ...step, strokes: step.strokes.map((stroke) => ({ ...stroke, duration: 30 })) })) }
+    const hook = plan({ speed: true, opening: 'hook', tutorial: long })
+    expect(hook.segments.map((segment) => segment.kind)).toEqual(['intro', 'outro'])
+    expect(hook.text.hook?.title).toBe('How to draw a <em>fish &amp; &lt;chips&gt;</em>')
+    expect(31 / hook.fastDraw.speed).toBeCloseTo(SPEED_DRAW)
+    expect(hook.fastDraw.drawFrom).toBeLessThan(0.5)
+    // Lina's line is at the same moment as in the classic speed draw.
+    expect(hook.cues[0]).toEqual(plan({ speed: true, tutorial: long }).cues[0])
   })
 })
 
@@ -127,10 +184,10 @@ describe('planVideo', () => {
   })
 
   it('draws the whole lesson in the opening, never slower than its own pace', () => {
-    const { hook, segments } = plan()
-    expect(hook.speed).toBe(1)
-    expect(hook.drawFrom).toBeGreaterThan(hook.hold)
-    expect(hook.drawFrom + 3 / hook.speed).toBeLessThanOrEqual(segments[0].end)
+    const { fastDraw, segments } = plan()
+    expect(fastDraw.speed).toBe(1)
+    expect(fastDraw.drawFrom).toBeGreaterThan(fastDraw.hold)
+    expect(fastDraw.drawFrom + 3 / fastDraw.speed).toBeLessThanOrEqual(segments[0].end)
   })
 
   it('escapes every piece of text the page shows as HTML', () => {

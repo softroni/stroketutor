@@ -1,8 +1,11 @@
 import path from 'node:path'
 
+import { HOOK_FROM, REGISTER_FILE, openingFor } from '../../server/social/experiments'
+import { dayOf } from '../../server/social/posts'
+import { OPENINGS, type Opening } from '../../server/video/plan'
 import { exportVideo, type VideoDeps, type VideoRequest, type VideoResult } from '../../server/video/render'
 
-import { stringValue } from '../args'
+import { UsageError, stringValue, type Parsed } from '../args'
 import { command, type Command } from '../command'
 import type { Context } from '../context'
 
@@ -19,6 +22,33 @@ export const shown = (file: string) => {
   const relative = path.relative(process.cwd(), file)
   return relative.startsWith('..') || path.isAbsolute(relative) ? file : relative
 }
+
+/** `--opening`'s value, checked; undefined when it wasn't given. */
+export function openingValue(values: Parsed['values']): Opening | undefined {
+  const value = stringValue(values, 'opening')
+  if (value === undefined) return undefined
+  if (!OPENINGS.includes(value as Opening)) throw new UsageError(`--opening is ${OPENINGS.join(' or ')}, not “${value}”.`)
+  return value as Opening
+}
+
+/**
+ * The opening a video for `day` gets: `--opening` when given, else the day's
+ * from the register (docs/ops/social-experiments.json), with a warning and
+ * the opening the day would have with no test when the register can't be read.
+ */
+export async function chooseOpening(ctx: Context, values: Parsed['values'], day: string): Promise<Opening> {
+  const asked = openingValue(values)
+  if (asked) return asked
+  const { opening, problem } = await openingFor(path.resolve(ctx.sharedDir, '..'), day)
+  if (problem) ctx.out.warn(problem)
+  return opening
+}
+
+export const OPENING_OPTION = {
+  type: 'string',
+  description: `How the video opens: hook (the finished picture under “How to draw a <lesson>” and “N easy steps” from the first frame, drawn over at once; Paper Coach and the lesson’s place at the end) or classic (Paper Coach, the place and “Let’s draw a <lesson>”, the picture fading before the drawing). Default: the day’s, from ${REGISTER_FILE}: the hook from ${HOOK_FROM} except the days listed there for the classic opening.`,
+  placeholder: 'classic|hook',
+} as const
 
 /** `exportVideo` with its progress as notes, a tenth at a time, and a warning for each out-of-date recording. */
 export async function renderVideo(ctx: Context, request: VideoRequest): Promise<VideoResult> {
@@ -51,11 +81,12 @@ export const videoCommands: Command[] = [
     'A vertical draw-along video of a lesson (1080 × 1920) for Shorts, TikTok and Reels: Lina’s opening line over the drawing coming together, every step with her recording, her closing line as stickers of the path’s next lessons land, and Paper Coach with the App Store badge as she says her last words.',
     ['<id>'],
     {
-      out: { type: 'string', description: 'Where to write the video (default .studio/videos/<id>.mp4). A caption to post with it goes beside it as .txt.', placeholder: 'file.mp4' },
+      out: { type: 'string', description: 'Where to write the video (default .studio/videos/<id>.mp4, <id>-hook.mp4 with the hook opening). A caption to post with it goes beside it as .txt.', placeholder: 'file.mp4' },
       intro: { type: 'string', description: 'Lina’s opening line (default “Let’s draw a <lesson>. Grab a pencil and draw along with me.”). Spoken through the Studio in her cast voice, and reused once made.', placeholder: 'words' },
       signoff: { type: 'string', description: 'Lina’s last words, after her closing line, as Paper Coach takes her place (default “Draw more with Paper Coach. It’s free on the App Store.”, “free to download” for a Premium lesson). Spoken like the opening line; "" for none.', placeholder: 'words' },
       cta: { type: 'string', description: 'The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge).', placeholder: 'words' },
-      speed: { type: 'boolean', description: 'The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4.' },
+      opening: OPENING_OPTION,
+      speed: { type: 'boolean', description: 'The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4 (<id>-speed-hook.mp4 with the hook).' },
       stills: { type: 'string', description: 'Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, Lina’s closing line, the ending), to check the look in seconds.', placeholder: 'dir' },
     },
     async (ctx, args) => {
@@ -67,14 +98,15 @@ export const videoCommands: Command[] = [
         out: stringValue(args.values, 'out') ?? null,
         stillsDir: stringValue(args.values, 'stills') ?? null,
         speed: args.values.speed === true,
+        opening: await chooseOpening(ctx, args.values, dayOf(new Date().toISOString())),
       })
       ctx.out.result(result, (data: VideoResult) =>
         data.file
           ? [
-              `Wrote ${shown(data.file)} (${minutes(data.durationS)}, ${(data.bytes / 1e6).toFixed(1)} MB) in ${minutes(data.renderSeconds)}: ${data.frames} frames, ${data.stillFrames} of them still.`,
+              `Wrote ${shown(data.file)} (${minutes(data.durationS)}, ${(data.bytes / 1e6).toFixed(1)} MB, the ${data.opening} opening) in ${minutes(data.renderSeconds)}: ${data.frames} frames, ${data.stillFrames} of them still.`,
               `The post caption is beside it: ${shown(data.captionFile ?? '')}`,
             ]
-          : [`Wrote ${data.stills.length} stills of a ${minutes(data.durationS)} video:`, ...data.stills.map((file) => `  ${shown(file)}`)],
+          : [`Wrote ${data.stills.length} stills of a ${minutes(data.durationS)} video with the ${data.opening} opening:`, ...data.stills.map((file) => `  ${shown(file)}`)],
       )
     },
   ),
