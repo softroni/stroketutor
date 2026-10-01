@@ -283,13 +283,13 @@ describe('social next', () => {
     expect(outcome.stdout).toContain('Then the step pin on Pinterest, 4 hours later')
   })
 
-  it('waits a day between posts unless told to post again', async () => {
+  it('waits 12 hours between posts unless told to post again', async () => {
     await mkdir(path.join(t.root, '.studio', 'social'), { recursive: true })
     const recent = { kind: 'post', at: new Date(Date.now() - 3600_000).toISOString(), lessonId: 'palm-tree-4', profile: 'softroni', platforms: ['youtube'], private: false, requestId: 'r1', outcome: 'sent' }
     await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), `${JSON.stringify(recent)}\n`)
     const outcome = await t.studio('social next')
     expect(outcome.code).toBe(1)
-    expect(outcome.stderr).toContain('the next one waits a day')
+    expect(outcome.stderr).toContain('the next one waits until 12 hours have passed')
     expect(calls).toEqual([])
   })
 })
@@ -329,7 +329,7 @@ describe('the daily rhythm', () => {
     await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), `${recent('pin', 'lesson')}\n${recent('speed', 'announce')}\n`)
     const outcome = await t.studio('social next')
     // Nothing is narrated in the fixture, so it stops there, not at the once-a-day rule.
-    expect(outcome.stderr).not.toContain('waits a day')
+    expect(outcome.stderr).not.toContain('waits until')
     expect(outcome.stderr).toContain('Every narrated lesson in the version on sale has been posted')
   })
 })

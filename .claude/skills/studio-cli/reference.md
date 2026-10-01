@@ -595,7 +595,7 @@ Options:
 
 Usage: studio social next
 
-Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 20 hours unless --again.
+Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 12 hours unless --again, so the job can’t post twice in a day.
 
 Options:
       --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
@@ -606,7 +606,7 @@ Options:
       --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
       --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
       --no-pin            Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only).
-      --again             Post even though a lesson went out in the last 20 hours.
+      --again             Post even though a lesson went out in the last 12 hours.
 
 Usage: studio social announce
 

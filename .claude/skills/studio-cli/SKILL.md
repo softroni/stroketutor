@@ -461,7 +461,7 @@ Reels, Threads, Pinterest, X) through Upload-Post, one request for every platfor
   recorded; unrecorded ones are skipped with a warning. Lessons listed in `docs/ops/social-up-next.txt`
   (one id a line) go before the rest, in that order.
 - `social post <id>` renders the lesson now (as `lessons video` does) unless `--video` names a file;
-  `social next` posts the next lesson in the queue, at most once in 20 hours unless `--again`. Both
+  `social next` posts the next lesson in the queue, at most once in 12 hours unless `--again`. Both
   wait for every platform to finish (up to 20 minutes) and print each post's link or error; `--log`
   adds a line to the Today page. A platform not connected to the profile (or needing reconnecting) is
   left out with a warning: Upload-Post would never answer for it. `social status --refresh` asks again

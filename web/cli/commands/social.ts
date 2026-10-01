@@ -634,9 +634,9 @@ export const socialCommands: Command[] = [
 
   command(
     'social next',
-    'Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 20 hours unless --again.',
+    'Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 12 hours unless --again, so the job can’t post twice in a day.',
     [],
-    { ...LESSON_OPTIONS, again: { type: 'boolean', description: 'Post even though a lesson went out in the last 20 hours.' } },
+    { ...LESSON_OPTIONS, again: { type: 'boolean', description: 'Post even though a lesson went out in the last 12 hours.' } },
     async (ctx, args) => {
       const records = await readRecords(ctx)
       const isPrivate = args.values.private === true
@@ -645,8 +645,8 @@ export const socialCommands: Command[] = [
         const last = postStates(records).find(
           ({ post }) => !post.private && (post.purpose ?? 'lesson') === 'lesson' && (post.media ?? 'video') === 'video',
         )
-        if (last && Date.now() - Date.parse(last.post.at) < 20 * 3600_000) {
-          throw new CliError(`“${last.post.lessonId}” was posted at ${last.post.at}; the next one waits a day. Pass --again to post anyway.`)
+        if (last && Date.now() - Date.parse(last.post.at) < 12 * 3600_000) {
+          throw new CliError(`“${last.post.lessonId}” was posted at ${last.post.at}; the next one waits until 12 hours have passed. Pass --again to post anyway.`)
         }
       }
       const lessons = await curriculum(ctx)
