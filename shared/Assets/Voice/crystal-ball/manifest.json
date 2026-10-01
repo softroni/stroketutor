@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "crystal-ball",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:25:26.692Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Fortune tellers gaze into one of these to see what's coming. It's a big round ball with a swirl and three stars, on a little golden stand. Watch it come into focus, then read your own future.",
+      "textHash": "473329c7293b3679c23baa549f5058ec5f5b987d612591e830f6fc482bf27d14",
+      "durationMs": 12160
+    },
+    "ball": {
+      "file": "ball.m4a",
+      "text": "The crystal ball is a big circle. From the top, round down each side to where the stand begins.",
+      "textHash": "c85f2b4a1a3fc6d2ccfc309a255436198c48796c443c42ed0a27ae80c9d074cd",
+      "durationMs": 5920
+    },
+    "cup": {
+      "file": "cup.m4a",
+      "text": "A cup holds the ball: one curved line across, then a bowl shape below it.",
+      "textHash": "ba70d5c34a031d87b11becc0e1100baf91c026fe12998fb4e1bdfae19c28c93c",
+      "durationMs": 5440
+    },
+    "base": {
+      "file": "base.m4a",
+      "text": "Under the cup, a short collar, then a wide flat base with rounded ends.",
+      "textHash": "e25cc1236e8c88a05006955dd4f626c6205aca385d231914fd22c381f6070c8f",
+      "durationMs": 5360
+    },
+    "feet": {
+      "file": "feet.m4a",
+      "text": "Three feet stand under the base. The outer two curl out like hooks, the middle one ends in a knob.",
+      "textHash": "5423640bf6626ff7fb2bddbae359dc6b27a3d5193e308df6f88c68f7ff58bb3b",
+      "durationMs": 6400
+    },
+    "swirl": {
+      "file": "swirl.m4a",
+      "text": "Now the swirl: one line that winds out from the middle of the ball.",
+      "textHash": "5f6be1051d9db364aa385ec97e300ba09e0710e22b7e1fe3233f45e057f68fa3",
+      "durationMs": 4080
+    },
+    "stars": {
+      "file": "stars.m4a",
+      "text": "Three stars float around the swirl: a big one, a middle one and a small one.",
+      "textHash": "b512714c6805e1fa398df6b2b78adee8d1128006eacca48f4cb6914128537b43",
+      "durationMs": 5680
+    },
+    "blue": {
+      "file": "blue.m4a",
+      "text": "Color the ball blue.",
+      "textHash": "d1286dcb04bd56e12961970e7610745ee163626f097edd9f38d481abaf66de71",
+      "durationMs": 1680
+    },
+    "gold": {
+      "file": "gold.m4a",
+      "text": "The cup, the base and the stars are gold.",
+      "textHash": "b89a59d746b4633ad56e583d756d6a3770121642c0824640bd2b7932ff26271b",
+      "durationMs": 3360
+    },
+    "orange": {
+      "file": "orange.m4a",
+      "text": "Color the collar and the feet orange.",
+      "textHash": "d8bd49fe94e40f60fed6169201e8f6d0628d4376f5ea8ee9356b4d80499caa8b",
+      "durationMs": 2560
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Look deep into your crystal ball. Does it say you'll draw again tomorrow?",
+      "textHash": "fa157d590c58ddb6d06c0ab50b97f2a1033e36419a86717a0f0e580c0f94effd",
+      "durationMs": 4160
+    }
+  }
+}
