@@ -5,7 +5,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { postingOrder, postStates, withUpNext, type QueueEntry, type QueuePath, type SocialRecord } from './posts'
+import { postingOrder, postStates, type QueueEntry, type QueuePath, type SocialRecord } from './posts'
 import {
   hourOn,
   lastLessonVideo,
@@ -58,14 +58,16 @@ describe('the posting queue', () => {
     expect(await pathsOnSale(repo)).toBeNull()
   })
 
-  it('posts the version on sale in its order, the up-next lessons first', async () => {
+  it('posts from the version on sale, with the two lists in docs/ops', async () => {
     tagged(onSalePaths)
     write('docs/ops/social-up-next.txt', '# moved up after a good week\ncomet\n')
+    write('docs/ops/social-premium-first.txt', '# the most eye-catching first\nbig-oak\n')
     const working: QueuePath[] = [...onSalePaths, { id: 'cars', title: 'Cars', lessonIds: ['classic-red-car'] }]
     const queue = await postingQueue(repo, working)
     expect(queue.paths).toEqual(onSalePaths)
-    expect(queue.order).toEqual(withUpNext(postingOrder(onSalePaths), ['comet']))
-    expect(queue.order[0].lessonId).toBe('comet')
+    expect(queue.order).toEqual(postingOrder(onSalePaths))
+    expect(queue.upNext).toEqual(['comet'])
+    expect(queue.premiumFirst).toEqual(['big-oak'])
     expect([...queue.inApp!].sort()).toEqual(['big-oak', 'bonsai', 'cactus', 'comet', 'palm-tree', 'rocket'])
   })
 
@@ -87,7 +89,51 @@ describe('the posting queue', () => {
 
   it('owes a video to every lesson not posted yet that may go, in order', () => {
     const order: QueueEntry[] = ['palm-tree', 'rocket', 'cactus', 'comet'].map((lessonId, index) => ({ lessonId, pathId: 'p', number: index + 1, free: true }))
-    expect(stillToPost(order, new Set(['palm-tree']), (lessonId) => lessonId !== 'cactus').map((entry) => entry.lessonId)).toEqual(['rocket', 'comet'])
+    expect(stillToPost({ order }, new Set(['palm-tree']), (lessonId) => lessonId !== 'cactus').map((entry) => entry.lessonId)).toEqual(['rocket', 'comet'])
+  })
+
+  describe('free and Premium by turns (social-plan.md, Decisions, 2026-09-30)', () => {
+    const lesson = (lessonId: string, free: boolean): QueueEntry => ({ lessonId, pathId: 'p', number: 1, free })
+    // In posting order: the free lessons of each path come first, the Premium ones after.
+    const order = [lesson('f1', true), lesson('f2', true), lesson('f3', true), lesson('p1', false), lesson('p2', false), lesson('p3', false)]
+    const ids = (entries: QueueEntry[]) => entries.map((entry) => entry.lessonId)
+    const lastVideo = (lessonId: string) => postStates([{ kind: 'post', at: '2026-09-30T22:00:00Z', lessonId, profile: 's', platforms: ['youtube'], private: false, requestId: 'r', outcome: 'sent' }])[0]
+    const everything = () => true
+
+    it('starts free before anything has gone out, then takes turns', () => {
+      expect(ids(stillToPost({ order }, new Set(), everything))).toEqual(['f1', 'p1', 'f2', 'p2', 'f3', 'p3'])
+    })
+
+    it('follows a free lesson with a Premium one, and a Premium one with a free one', () => {
+      expect(ids(stillToPost({ order }, new Set(['f1']), everything, lastVideo('f1')))).toEqual(['p1', 'f2', 'p2', 'f3', 'p3'])
+      expect(ids(stillToPost({ order }, new Set(['f1', 'p1']), everything, lastVideo('p1')))).toEqual(['f2', 'p2', 'f3', 'p3'])
+    })
+
+    it('takes the Premium lessons in the premium-first order, then the rest in posting order', () => {
+      expect(ids(stillToPost({ order, premiumFirst: ['p3', 'f2', 'nowhere'] }, new Set(), everything))).toEqual(['f1', 'p3', 'f2', 'p1', 'f3', 'p2'])
+    })
+
+    it('puts the up-next lessons first, and takes turns from the last of them', () => {
+      // Watermelon Slice on 2026-10-01 was free and up next, so Premium follows it.
+      expect(ids(stillToPost({ order, upNext: ['f2'] }, new Set(['f1']), everything, lastVideo('f1')))).toEqual(['f2', 'p1', 'f3', 'p2', 'p3'])
+    })
+
+    it('takes a lesson from another path than the day before where it can', () => {
+      const paths = [
+        { lessonId: 'cupcake', pathId: 'food', number: 7, free: false },
+        { lessonId: 'donut', pathId: 'food', number: 1, free: true },
+        { lessonId: 'cube', pathId: 'forms', number: 1, free: true },
+      ]
+      expect(ids(stillToPost({ order: paths }, new Set(), everything, lastVideo('sun')))).toEqual(['donut', 'cupcake', 'cube'])
+      // After the cupcake, the donut would make two food days in a row: the cube goes first.
+      expect(ids(stillToPost({ order: paths, premiumFirst: ['cupcake'] }, new Set(), everything, lastVideo('nothing-free')))).toEqual(['donut', 'cupcake', 'cube'])
+      const afterCupcake = postStates([{ kind: 'post', at: '2026-10-04T22:00:00Z', lessonId: 'cupcake', profile: 's', platforms: ['youtube'], private: false, requestId: 'r', outcome: 'sent' }])[0]
+      expect(ids(stillToPost({ order: paths }, new Set(['cupcake']), everything, afterCupcake))).toEqual(['cube', 'donut'])
+    })
+
+    it('carries on with one kind when the other runs out, and skips what may not go', () => {
+      expect(ids(stillToPost({ order }, new Set(['f1', 'f2', 'f3']), (lessonId) => lessonId !== 'p2', lastVideo('f3')))).toEqual(['p1', 'p3'])
+    })
   })
 })
 

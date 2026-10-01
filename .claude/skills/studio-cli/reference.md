@@ -572,7 +572,7 @@ The Upload-Post key and plan, the accounts on the profile, and the Pinterest boa
 
 Usage: studio social queue
 
-The order lessons are posted in (lesson 1 of every path, then lesson 2…, so the free ones go first), what has been posted, and what comes next.
+The order lessons are posted in (the up-next list first, then a free lesson and a Premium one by turns), what has been posted, and what comes next.
 
 Options:
       --limit <n>  How many coming lessons to show (default 10).

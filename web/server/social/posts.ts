@@ -1,5 +1,5 @@
 import type { Tutorial } from '../../src/schema/types'
-import { postCaption, subjectOf, type VideoInput } from '../video/plan'
+import { subjectOf, type VideoInput } from '../video/plan'
 
 /**
  * Posting lesson videos to Softroni's social accounts through Upload-Post
@@ -129,38 +129,59 @@ export interface SocialTexts {
   threads: string
 }
 
-export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], providerToken: string | null = null): SocialTexts {
+/**
+ * Whether the app gives a lesson away, and how many lessons it gives away in
+ * all. A Premium lesson's post says plainly that it is Premium and that the
+ * app is free to download, so nobody downloads for it and finds it locked
+ * unwarned (social-plan.md, *Decisions*, 2026-09-30).
+ */
+export interface Access {
+  premium: boolean
+  freeLessons: number
+}
+
+const FREE_LESSON: Access = { premium: false, freeLessons: 0 }
+
+export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], providerToken: string | null = null, access: Access = FREE_LESSON): SocialTexts {
   const { article, subject } = subjectOf(tutorial.title)
   const what = `${article ? `${article} ` : ''}${subject}`
   const steps = tutorial.steps.filter((step) => step.strokes.length > 0).length
   const opening = `Let’s draw ${what}: ${steps} easy ${steps === 1 ? 'step' : 'steps'}, then color it in.`
-  const placeLine = place ? `Lesson ${place.number} of the ${place.pathTitle} path in Paper Coach.` : null
+  const { premium } = access
+  const placeLine = place
+    ? `Lesson ${place.number} of the ${place.pathTitle} path${premium ? ', in Paper Coach Premium.' : ' in Paper Coach.'}`
+    : premium
+      ? 'A lesson in Paper Coach Premium.'
+      : null
+  const offer = premium ? `The app is free to download, with ${access.freeLessons} free lessons` : 'Free on the App Store'
   const tags = [...TAGS, `#${tutorial.id.replace(/-/g, '')}`, '#papercoach'].join(' ')
   const withLink = (campaign: string) =>
-    [opening, placeLine, '', APP_LINE, `Free on the App Store: ${appStoreLink(campaign, providerToken)}`, '', tags]
+    [opening, placeLine, '', APP_LINE, `${offer}: ${appStoreLink(campaign, providerToken)}`, '', tags]
       .filter((line) => line !== null)
       .join('\n')
   return {
-    caption: postCaption(tutorial, place),
+    caption: [opening, placeLine, '', `${APP_LINE} ${offer}, link in bio.`, '', tags].filter((line) => line !== null).join('\n'),
     youtubeTitle: fit(`How to draw ${what} step by step #shorts`, 100, `How to draw ${what} #shorts`),
     youtubeDescription: withLink('youtube'),
     facebookDescription: withLink('facebook'),
     pinterestTitle: fit(`How to draw ${what}: easy step-by-step drawing`, 100, `How to draw ${what}`),
     pinterestDescription: fit(
-      [opening, APP_LINE, 'Free on the App Store.', '', tags].join('\n'),
+      [opening, ...(premium ? ['This lesson is in Paper Coach Premium.'] : []), APP_LINE, `${offer}.`, '', tags].join('\n'),
       500,
-      [opening, 'Free on the App Store.'].join('\n'),
+      [opening, `${offer}.`].join('\n'),
     ),
     pinterestLink: appStoreLink('pinterest', providerToken),
     x: fit(
-      [`${opening} ✏️`, '', `${APP_LINE} Free on the App Store.`, '', '#howtodraw #drawingtutorial'].join('\n'),
+      premium
+        ? [`${opening} ✏️`, '', `In Paper Coach Premium. ${offer}.`, '', '#howtodraw #drawingtutorial'].join('\n')
+        : [`${opening} ✏️`, '', `${APP_LINE} Free on the App Store.`, '', '#howtodraw #drawingtutorial'].join('\n'),
       280,
-      `${opening} ✏️\n\nFree on the App Store: Paper Coach.`,
+      `${opening} ✏️\n\n${premium ? 'In Paper Coach Premium; the app is free.' : 'Free on the App Store: Paper Coach.'}`,
     ),
     threads: fit(
-      [`${opening} ✏️`, '', APP_LINE, `Free on the App Store: ${appStoreLink('threads', providerToken)}`].join('\n'),
+      [`${opening} ✏️`, '', ...(premium ? ['This lesson is in Paper Coach Premium.'] : []), APP_LINE, `${offer}: ${appStoreLink('threads', providerToken)}`].join('\n'),
       500,
-      `${opening}\n\nFree on the App Store: ${appStoreLink('threads', providerToken)}`,
+      `${opening}\n\n${offer}: ${appStoreLink('threads', providerToken)}`,
     ),
   }
 }
@@ -175,14 +196,16 @@ export interface PinTexts {
 }
 
 /** A step pin's words: a title people search for, the steps by name, and the App Store link on the pin. */
-export function pinTexts(tutorial: Tutorial, providerToken: string | null = null): PinTexts {
+export function pinTexts(tutorial: Tutorial, providerToken: string | null = null, access: Access = FREE_LESSON): PinTexts {
   const { article, subject } = subjectOf(tutorial.title)
   const what = `${article ? `${article} ` : ''}${subject}`
   const count = tutorial.steps.length
   const stepList = tutorial.steps.map((step, index) => `${index + 1}. ${step.title}`).join('\n')
   const tags = [...TAGS, `#${tutorial.id.replace(/-/g, '')}drawing`, '#papercoach'].join(' ')
   const head = `How to draw ${what} in ${count} easy steps, one line at a time.`
-  const tail = `${APP_LINE} Free on the App Store.`
+  const tail = access.premium
+    ? `This lesson is in Paper Coach Premium. ${APP_LINE} The app is free to download, with ${access.freeLessons} free lessons.`
+    : `${APP_LINE} Free on the App Store.`
   return {
     title: fit(`${capitalised(subject)} drawing: ${count} easy steps for beginners`, 100, `How to draw ${what}`),
     description: fit([head, '', stepList, '', tail, '', tags].join('\n'), 500, [head, '', tail, '', tags].join('\n')),
@@ -365,22 +388,16 @@ export function postingOrder(paths: QueuePath[]): QueueEntry[] {
 }
 
 /**
- * `docs/ops/social-up-next.txt`: one lesson id a line (`#` comments), posted
- * before the rest of the queue, in that order. How the weekly review moves
- * subjects that do well up.
+ * A list of lessons in docs/ops, one id a line (`#` comments):
+ * social-up-next.txt, posted before any other, which is how the weekly review
+ * moves subjects that do well up; social-premium-first.txt, the Premium
+ * lessons in the order they take their turns.
  */
 export function parseUpNext(text: string): string[] {
   return text
     .split('\n')
     .map((line) => line.replace(/#.*$/, '').trim())
     .filter(Boolean)
-}
-
-/** The posting order with the up-next lessons first; an id not in the order (not on sale) is left out. */
-export function withUpNext(order: QueueEntry[], upNext: string[]): QueueEntry[] {
-  const first = upNext.flatMap((lessonId) => order.filter((entry) => entry.lessonId === lessonId))
-  const firstIds = new Set(first.map((entry) => entry.lessonId))
-  return [...first, ...order.filter((entry) => !firstIds.has(entry.lessonId))]
 }
 
 // ---------- The record of what was posted ----------

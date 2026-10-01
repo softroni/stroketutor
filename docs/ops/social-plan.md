@@ -85,9 +85,11 @@ up" on the Today page and does what each says on the day.
 | 2026-11-23 | The two-month write-up under *Log*, and "monthly → yearly, or stop?" under Needs you | daily check |
 | Before 2026-11-30 | Kevin decides; the plan renews that day | Kevin |
 
-Until the free/Premium alternation is built (*Decisions*), the queue posts lesson 1 of every path first: Pine Tree,
-Watermelon Slice, Sun, Donut, Cube…; then lessons 2 and 3, the Premium ones after. `social queue` shows it as it
-stands.
+The order (*Decisions*): `docs/ops/social-up-next.txt` first (Watermelon Slice on 2026-10-01), then a free lesson
+and a Premium one by turns, never the same path two days running. Free lessons go lesson 1 of every path, then 2
+and 3; Premium ones in `docs/ops/social-premium-first.txt`'s order (the most eye-catching first: Pirate Ship,
+Cupcake, Solar System, Monster Truck, Volcano…), then the rest. So: Pirate Ship (Oct 2), Sun, Cupcake, Cube, Solar
+System, Donut, Monster Truck… `social queue` and the Studio's Social page (*Coming up*) show it as it stands.
 
 ## Release news
 
@@ -148,9 +150,10 @@ To build (Claude):
 - [x] Speed draw: a short video of the whole picture drawn fast, then the ending.
 - [x] `social announce`: release news to every platform with a caption written for the release.
 - [x] Runbook and skill updated for all of the above.
-- [ ] Alternate free and Premium lessons in the queue (free, Premium, free…; Premium by most eye-catching first)
-  from 2026-10-02, and say "in Paper Coach Premium; the app is free to download, with 30 free lessons" in every
-  Premium post's captions and pin (*Decisions*, 2026-09-30). Tests, then `social queue` to check the order.
+- [x] Free and Premium by turns from 2026-10-02 (`stillToPost` in web/server/social/queue.ts, which the daily
+  job and the Social page share; Premium in `social-premium-first.txt`'s order), and "in Paper Coach Premium. The
+  app is free to download, with 30 free lessons" in every Premium post and pin (2026-09-30).
+- [x] The Studio's Social page (`#/social`): every post day by day with its links, and *Coming up* (2026-09-30).
 
 Then (Claude, once the plan and TikTok are on):
 
@@ -168,4 +171,6 @@ Then (Claude, once the plan and TikTok are on):
 - 2026-09-30: Basic monthly; launch agent installed; the daily check now runs the morning social steps
   (README.md, *Lesson videos on social*); `social stats` reads views per post for the Monday numbers.
 - 2026-09-30: TikTok and Threads connected; Threads added to every post, with its own link (`ct=threads`).
+- 2026-09-30: first real post (Pine Tree, all seven platforms, 23:12). Post links kept on `ops-history`; the Social
+  page; the social check routine (17:45); Premium lessons in by turns from 2026-10-02 (Kevin's decision).
 - 2026-09-30: Upload-Post monthly for two months, then yearly if it brings downloads (not yearly up front).

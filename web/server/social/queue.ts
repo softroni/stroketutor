@@ -11,7 +11,6 @@ import {
   POSTING_TIME_ZONE,
   postingOrder,
   postStates,
-  withUpNext,
   type PostState,
   type QueueEntry,
   type QueuePath,
@@ -21,9 +20,10 @@ import {
 /**
  * Which lesson the daily job posts next, and when: shared by `studio social
  * next`, which posts it, and the Studio's Social page, which shows what is
- * coming, so the two never disagree. The order is the version on sale's with
- * the up-next list first, a lesson goes out once, and never two within
- * POST_GAP_HOURS.
+ * coming, so the two never disagree. The lessons are the version on sale's:
+ * the up-next list first, then a free lesson and a Premium one by turns
+ * (docs/ops/social-plan.md, *Decisions*); a lesson goes out once, and never
+ * two within POST_GAP_HOURS.
  */
 
 /** When the launch agent runs `social next` (docs/ops/com.softroni.papercoach-social.plist): 17:00 Central. */
@@ -55,24 +55,30 @@ export async function pathsOnSale(repoDir: string): Promise<QueuePath[] | null> 
 export interface PostingQueue {
   /** The paths as on sale, or the working curriculum's where that is unknown: their titles, boards and colors. */
   paths: QueuePath[]
-  /** Every lesson in the order it is posted, the up-next ones first. */
+  /** Every lesson in `postingOrder` (lesson 1 of every path, then lesson 2…): which are free, and each one's place. */
   order: QueueEntry[]
+  /** docs/ops/social-up-next.txt: lessons posted before any other, in that order. */
+  upNext: string[]
+  /** docs/ops/social-premium-first.txt: the Premium lessons to post first, the most eye-catching first. */
+  premiumFirst: string[]
   /** The lessons of the version on sale; null where that is unknown, and any published lesson may go. */
   inApp: Set<string> | null
 }
 
 /**
- * The posting order as `social next` follows it: the paths of the version on
- * sale (`workingPaths` where that is unknown) in `postingOrder`, with the
- * lessons of docs/ops/social-up-next.txt before the rest.
+ * What `social next` posts from: the paths of the version on sale
+ * (`workingPaths` where that is unknown) in `postingOrder`, and the two lists
+ * in docs/ops that put lessons first. `stillToPost` makes the order of them.
  */
 export async function postingQueue(repoDir: string, workingPaths: QueuePath[]): Promise<PostingQueue> {
   const onSale = await pathsOnSale(repoDir)
   const paths = onSale ?? workingPaths
-  const upNext = parseUpNext(await readFile(path.join(repoDir, 'docs', 'ops', 'social-up-next.txt'), 'utf8').catch(() => ''))
+  const list = async (name: string) => parseUpNext(await readFile(path.join(repoDir, 'docs', 'ops', name), 'utf8').catch(() => ''))
   return {
     paths,
-    order: withUpNext(postingOrder(paths), upNext),
+    order: postingOrder(paths),
+    upNext: await list('social-up-next.txt'),
+    premiumFirst: await list('social-premium-first.txt'),
     inApp: onSale ? new Set(onSale.flatMap((entry) => entry.lessonIds)) : null,
   }
 }
@@ -82,9 +88,47 @@ export function mayPost(queue: Pick<PostingQueue, 'inApp'>, lessonId: string, st
   return (state === 'published' || state === 'published-edited') && (queue.inApp?.has(lessonId) ?? true)
 }
 
-/** The lessons still owed their video, in posting order: never posted, and `allowed` to go. `social next` posts the first Lina has narrated. */
-export function stillToPost(order: QueueEntry[], posted: Set<string>, allowed: (lessonId: string) => boolean): QueueEntry[] {
-  return order.filter((entry) => !posted.has(entry.lessonId) && allowed(entry.lessonId))
+/**
+ * The lessons still owed their video (never posted, and `allowed` to go), in
+ * the order the daily job posts them: the up-next lessons first; then a free
+ * lesson and a Premium one by turns, starting with the kind `last` (the last
+ * lesson video) wasn't, or free before anything has gone out. Free lessons go
+ * in posting order; Premium ones in the premium-first list's order, the rest
+ * after in posting order. Each turn takes the first of its kind from another
+ * path than the lesson before, so two days in a row never show the same path
+ * where it can be helped. When one kind runs out, the other carries on.
+ * `social next` posts the first Lina has narrated.
+ */
+export function stillToPost(
+  queue: Pick<PostingQueue, 'order'> & Partial<Pick<PostingQueue, 'upNext' | 'premiumFirst'>>,
+  posted: Set<string>,
+  allowed: (lessonId: string) => boolean,
+  last: PostState | null = null,
+): QueueEntry[] {
+  const byId = new Map(queue.order.map((entry) => [entry.lessonId, entry]))
+  const owed = (entry: QueueEntry | undefined): entry is QueueEntry => Boolean(entry) && !posted.has(entry!.lessonId) && allowed(entry!.lessonId)
+  const listed = (ids: string[] = []) => [...new Set(ids)].map((id) => byId.get(id)).filter(owed)
+  const first = listed(queue.upNext)
+  const placed = new Set(first.map((entry) => entry.lessonId))
+  const rest = queue.order.filter((entry) => owed(entry) && !placed.has(entry.lessonId))
+  const premiumListed = listed(queue.premiumFirst).filter((entry) => !entry.free && !placed.has(entry.lessonId))
+  const premiumIds = new Set(premiumListed.map((entry) => entry.lessonId))
+  const free = rest.filter((entry) => entry.free)
+  const premium = [...premiumListed, ...rest.filter((entry) => !entry.free && !premiumIds.has(entry.lessonId))]
+
+  const before = first.length > 0 ? first[first.length - 1] : last ? byId.get(last.post.lessonId) : undefined
+  const order = [...first]
+  let previous = before
+  let wantFree = previous ? !previous.free : true
+  while (free.length > 0 || premium.length > 0) {
+    const pool = (wantFree && free.length > 0) || premium.length === 0 ? free : premium
+    const otherPath = pool.findIndex((entry) => entry.pathId !== previous?.pathId)
+    const [next] = pool.splice(Math.max(otherPath, 0), 1)
+    order.push(next)
+    previous = next
+    wantFree = !next.free
+  }
+  return order
 }
 
 /** The last lesson video that went out for everyone: its step pin, a speed draw or news don't hold the next lesson back. */

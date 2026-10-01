@@ -23,7 +23,7 @@ export interface SocialLessons {
   /** A lesson's title, where the working library has it. */
   title: (lessonId: string) => string | undefined
   /** The posting order and which lessons may go, as `social next` reads them (server/social/queue.ts); without it, nothing shows as coming. */
-  queue?: () => Promise<{ order: QueueEntry[]; allowed: (lessonId: string) => boolean }>
+  queue?: () => Promise<{ order: QueueEntry[]; upNext?: string[]; premiumFirst?: string[]; allowed: (lessonId: string) => boolean }>
 }
 
 /**
@@ -76,7 +76,7 @@ async function comingUp(records: SocialRecord[], lessons: SocialLessons, now: nu
   } catch (error) {
     return { coming: null, comingProblem: error instanceof Error ? error.message : String(error) }
   }
-  const next = stillToPost(queue.order, postedLessons(records), queue.allowed).slice(0, COMING_SHOWN)
+  const next = stillToPost(queue, postedLessons(records), queue.allowed, lastLessonVideo(records)).slice(0, COMING_SHOWN)
   const runs = postingRuns(now, lastLessonVideo(records), next.length)
   return {
     coming: next.map((entry, index): ComingPost => {

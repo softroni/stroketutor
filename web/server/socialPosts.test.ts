@@ -149,9 +149,10 @@ describe('the Social page', () => {
       write(files.record, [video, finished, pin])
       // Pine Tree has gone out, and the draft may not.
       const response = await coming(async () => ({ order, allowed: (lessonId) => lessonId !== 'draft-lesson' }))
+      // Pine Tree was free, so a Premium lesson takes the next turn.
       expect(response.coming).toEqual([
-        { at: '2026-10-01T22:00:00.000Z', pinAt: '2026-10-02T02:00:00.000Z', lessonId: 'rocket', title: 'Rocket', free: true },
-        { at: '2026-10-02T22:00:00.000Z', pinAt: '2026-10-03T02:00:00.000Z', lessonId: 'big-oak', title: 'Big Oak', free: false },
+        { at: '2026-10-01T22:00:00.000Z', pinAt: '2026-10-02T02:00:00.000Z', lessonId: 'big-oak', title: 'Big Oak', free: false },
+        { at: '2026-10-02T22:00:00.000Z', pinAt: '2026-10-03T02:00:00.000Z', lessonId: 'rocket', title: 'Rocket', free: true },
       ])
     })
 
@@ -159,7 +160,7 @@ describe('the Social page', () => {
       write(files.record, [{ ...video, at: '2026-10-01T12:00:00Z' }])
       const response = await readSocialPosts(files, lessons(async () => ({ order, allowed: () => true })), Date.parse('2026-10-01T16:00:00Z'))
       // A video posted by hand at 7 am leaves that day's 17:00 run, 10 hours on, nothing to do.
-      expect(response.coming?.[0]).toMatchObject({ at: '2026-10-02T22:00:00.000Z', lessonId: 'rocket' })
+      expect(response.coming?.[0]).toMatchObject({ at: '2026-10-02T22:00:00.000Z', lessonId: 'big-oak' })
     })
 
     it('shows a week of them at most, and the first ones before anything is posted', async () => {

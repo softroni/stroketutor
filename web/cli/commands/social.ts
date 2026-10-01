@@ -13,6 +13,7 @@ import {
   pinFields,
   pinTexts,
   postEntry,
+  type Access,
   type PinTexts,
   PLATFORMS,
   PRIVATE_PLATFORMS,
@@ -154,6 +155,8 @@ interface Curriculum {
   /** The paths as on sale (or the working ones), for their colors. */
   paths: QueuePath[]
   order: QueueEntry[]
+  upNext: string[]
+  premiumFirst: string[]
   titles: Map<string, { title: string; count: number }>
   tutorials: Map<string, { tutorial: Tutorial; published: boolean }>
 }
@@ -165,9 +168,17 @@ async function curriculum(ctx: Context): Promise<Curriculum> {
   return {
     paths: queue.paths,
     order: queue.order,
+    upNext: queue.upNext,
+    premiumFirst: queue.premiumFirst,
     titles: new Map(queue.paths.map((entry) => [entry.id, { title: entry.title, count: entry.lessonIds.length }])),
     tutorials: new Map([...library.tutorials.values()].map((entry) => [entry.id, { tutorial: entry.tutorial, published: mayPost(queue, entry.id, entry.state) }])),
   }
+}
+
+/** Whether the app gives the lesson away, and how many lessons it gives away in all: what a post says about Premium. */
+function accessOf(lessons: Curriculum, lessonId: string): Access {
+  const entry = lessons.order.find((candidate) => candidate.lessonId === lessonId)
+  return { premium: entry ? !entry.free : false, freeLessons: lessons.order.filter((candidate) => candidate.free).length }
 }
 
 /** The step pin of a lesson as a PNG: `.studio/videos/<id>-pin.png` unless `out` says otherwise. */
@@ -279,7 +290,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
 
   const texts = news
     ? announcementTexts(news.news, news.headline, settings.providerToken)
-    : socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken)
+    : socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken, accessOf(lessons, lessonId))
   // A lesson's full video brings its step pin to Pinterest a few hours later; news and speed draws don't.
   const wantsPin = purpose === 'lesson' && !speed && !isPrivate && values['no-pin'] !== true && platforms.includes('pinterest')
   const requestId = randomUUID()
@@ -309,7 +320,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     results: {},
     fields: null,
     video: null,
-    pin: wantsPin ? { texts: pinTexts(lesson.tutorial, settings.providerToken), scheduledAt: null, jobId: null } : null,
+    pin: wantsPin ? { texts: pinTexts(lesson.tutorial, settings.providerToken, accessOf(lessons, lessonId)), scheduledAt: null, jobId: null } : null,
     usage: null,
     warnings,
   }
@@ -439,7 +450,7 @@ async function schedulePin(
   videoAt: string | null,
 ): Promise<PostOutcome['pin']> {
   const tutorial = lessons.tutorials.get(lessonId)!.tutorial
-  const texts = pinTexts(tutorial, settings.providerToken)
+  const texts = pinTexts(tutorial, settings.providerToken, accessOf(lessons, lessonId))
   const scheduledAt = new Date((videoAt ? Date.parse(videoAt) : Date.now()) + PIN_DELAY_HOURS * 3600_000).toISOString()
   const requestId = randomUUID()
   const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms: ['pinterest'] as Platform[], private: false, requestId, scheduledAt, media: 'pin' as const, purpose: 'lesson' as const }
@@ -530,9 +541,14 @@ async function logToToday(ctx: Context, text: string): Promise<void> {
 }
 
 /** The next lesson to post: first in the posting order, in the version on sale, never posted, and fully recorded. */
-async function nextLesson(ctx: Context, lessons: Curriculum, posted: Set<string>): Promise<{ entry: QueueEntry | null; skipped: { lessonId: string; missing: string[] }[] }> {
+async function nextLesson(
+  ctx: Context,
+  lessons: Curriculum,
+  posted: Set<string>,
+  last: PostState | null,
+): Promise<{ entry: QueueEntry | null; skipped: { lessonId: string; missing: string[] }[] }> {
   const skipped: { lessonId: string; missing: string[] }[] = []
-  for (const entry of stillToPost(lessons.order, posted, (lessonId) => Boolean(lessons.tutorials.get(lessonId)?.published))) {
+  for (const entry of stillToPost(lessons, posted, (lessonId) => Boolean(lessons.tutorials.get(lessonId)?.published), last)) {
     const missing = await unrecorded(ctx, entry.lessonId)
     if (missing.length === 0) return { entry, skipped }
     skipped.push({ lessonId: entry.lessonId, missing })
@@ -593,7 +609,7 @@ export const socialCommands: Command[] = [
 
   command(
     'social queue',
-    'The order lessons are posted in (lesson 1 of every path, then lesson 2…, so the free ones go first), what has been posted, and what comes next.',
+    'The order lessons are posted in (the up-next list first, then a free lesson and a Premium one by turns), what has been posted, and what comes next.',
     [],
     { limit: { type: 'string', description: 'How many coming lessons to show (default 10).', placeholder: 'n' } },
     async (ctx, args) => {
@@ -602,7 +618,7 @@ export const socialCommands: Command[] = [
       const records = await readRecords(ctx)
       const posted = postedLessons(records)
       const coming: { lessonId: string; title: string; path: string; number: number; free: boolean; missing: string[] }[] = []
-      for (const entry of stillToPost(lessons.order, posted, (lessonId) => Boolean(lessons.tutorials.get(lessonId)?.published))) {
+      for (const entry of stillToPost(lessons, posted, (lessonId) => Boolean(lessons.tutorials.get(lessonId)?.published), lastLessonVideo(records))) {
         if (coming.length >= limit) break
         const lesson = lessons.tutorials.get(entry.lessonId)!
         coming.push({ lessonId: entry.lessonId, title: lesson.tutorial.title, path: entry.pathId, number: entry.number, free: entry.free, missing: await unrecorded(ctx, entry.lessonId) })
@@ -648,7 +664,7 @@ export const socialCommands: Command[] = [
         }
       }
       const lessons = await curriculum(ctx)
-      const { entry, skipped } = await nextLesson(ctx, lessons, postedLessons(records))
+      const { entry, skipped } = await nextLesson(ctx, lessons, postedLessons(records), lastLessonVideo(records))
       for (const skip of skipped) ctx.out.warn(`Skipped “${skip.lessonId}”: Lina hasn’t recorded ${plural(skip.missing.length, 'step')} (voice narrate ${skip.lessonId}).`)
       if (!entry) throw new CliError('Every narrated lesson in the version on sale has been posted.')
       const outcome = await postLesson(ctx, entry.lessonId, args.values, lessons)

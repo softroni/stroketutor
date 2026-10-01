@@ -317,7 +317,7 @@ async function handle(
           title: (lessonId) => library.tutorials.get(lessonId)?.tutorial.title,
           queue: async () => {
             const queue = await postingQueue(repoDir, library.catalog?.paths ?? [])
-            return { order: queue.order, allowed: (lessonId) => mayPost(queue, lessonId, library.tutorials.get(lessonId)?.state) }
+            return { ...queue, allowed: (lessonId) => mayPost(queue, lessonId, library.tutorials.get(lessonId)?.state) }
           },
         }),
       )

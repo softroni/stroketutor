@@ -454,9 +454,11 @@ Reels, Threads, Pinterest, X) through Upload-Post, one request for every platfor
   environment wins over the file. Never print the key or put it in the repository.
 - `social check` first: the plan, which accounts are connected, and the Pinterest board and Facebook
   Page ids to set.
-- **Order** (`social queue`): lesson 1 of every path in curriculum order, then lesson 2 of every path,
-  and so on, so the 30 free lessons go out before any Premium one and two posts in a row never come
-  from the same path. Only lessons in the version on sale (the catalog at the tag of the live build in
+- **Order** (`social queue`; `stillToPost` in `web/server/social/queue.ts`, shared with the Studio's
+  Social page): `docs/ops/social-up-next.txt` first, then a free lesson and a Premium one by turns,
+  starting with the kind the last video wasn't, never the same path two days running. Free lessons go
+  lesson 1 of every path, then 2 and 3; Premium ones in `docs/ops/social-premium-first.txt`'s order,
+  then the rest. A Premium lesson's captions and pin say it is Premium and the app free to download. Only lessons in the version on sale (the catalog at the tag of the live build in
   `.studio/ops/facts.json`, e.g. `1.0(2)`; the working catalog when that is unknown) with every step
   recorded; unrecorded ones are skipped with a warning. Lessons listed in `docs/ops/social-up-next.txt`
   (one id a line) go before the rest, in that order.

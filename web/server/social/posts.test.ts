@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Tutorial } from '../../src/schema/types'
+import { postCaption } from '../video/plan'
 
 import {
   APP_STORE_URL,
@@ -23,7 +24,6 @@ import {
   socialSettings,
   socialTexts,
   uploadFields,
-  withUpNext,
   type PostEntry,
   type PostRequest,
   type SocialRecord,
@@ -101,6 +101,27 @@ describe('socialTexts', () => {
     expect(texts.x).not.toContain('http')
     // A link in a Threads post can be tapped.
     expect(texts.threads).toContain(APP_STORE_URL)
+  })
+
+  it('reads for a free lesson as the video export’s caption does', () => {
+    expect(texts.caption).toBe(postCaption(tutorial, { pathTitle: 'In the Air', number: 1, count: 10 }))
+  })
+
+  it('says plainly when a lesson is Premium, and that the app is free to download', () => {
+    const premium = socialTexts(tutorial, { pathTitle: 'On the Water', number: 7, count: 10 }, null, { premium: true, freeLessons: 30 })
+    expect(premium.caption).toContain('Lesson 7 of the On the Water path, in Paper Coach Premium.')
+    expect(premium.caption).toContain('The app is free to download, with 30 free lessons, link in bio.')
+    expect(premium.youtubeDescription).toContain('The app is free to download, with 30 free lessons: https://apps.apple.com/')
+    expect(premium.facebookDescription).toContain('in Paper Coach Premium.')
+    expect(premium.pinterestDescription).toContain('This lesson is in Paper Coach Premium.')
+    expect(premium.x).toContain('In Paper Coach Premium. The app is free to download, with 30 free lessons.')
+    expect(premium.threads).toContain('This lesson is in Paper Coach Premium.')
+    for (const text of [premium.caption, premium.youtubeDescription, premium.x, premium.threads, premium.pinterestDescription]) {
+      expect(text).not.toContain('Free on the App Store')
+    }
+    const pin = pinTexts(tutorial, null, { premium: true, freeLessons: 30 })
+    expect(pin.description).toContain('This lesson is in Paper Coach Premium.')
+    expect(pin.description).toContain('The app is free to download, with 30 free lessons.')
   })
 
   it('keeps every text within its platform’s limit, however long the title', () => {
@@ -278,19 +299,9 @@ describe('campaign links', () => {
   })
 })
 
-describe('the up-next list', () => {
-  const order = postingOrder([
-    { id: 'plants', title: 'Plants', lessonIds: ['p1', 'p2'] },
-    { id: 'space', title: 'Space', lessonIds: ['s1', 's2'] },
-  ])
-
-  it('reads one id a line, without comments or blanks', () => {
+describe('the lists in docs/ops', () => {
+  it('read one id a line, without comments or blanks', () => {
     expect(parseUpNext('# first the rockets\ns2  # it did well\n\np2\n')).toEqual(['s2', 'p2'])
-  })
-
-  it('puts its lessons first, in its order, and passes over one not on sale', () => {
-    expect(withUpNext(order, ['s2', 'nowhere', 'p2']).map((entry) => entry.lessonId)).toEqual(['s2', 'p2', 'p1', 's1'])
-    expect(withUpNext(order, [])).toEqual(order)
   })
 })
 
