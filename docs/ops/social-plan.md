@@ -131,10 +131,12 @@ Lessons are the everyday posts; news is for moments worth telling, **at most two
 
 ## Knowing what works
 
-- **One App Store link per platform** (`…?pt=<provider token>&ct=pinterest`), so App Store Connect → Analytics →
-  Sources shows downloads per platform. Needs Softroni's provider token (App Store Connect → Analytics → campaign
-  link generator) in `APP_STORE_PROVIDER_TOKEN` in `~/.config/upload-post/config`; until then links carry none.
-  The bios should use the same tagged link, for `ct=tiktok`, `ct=instagram`, `ct=x`.
+- **A campaign on every link** (`…?pt=<provider token>&ct=pinterest`), so App Store Connect → Analytics → Sources
+  shows where downloads came from. The provider token is `APP_STORE_PROVIDER_TOKEN` in `~/.config/upload-post/config`.
+  Posts carry the platform's name (the step pin `pinterest-steps`, release news `<platform>-news`), and each profile
+  has its own campaign behind its short softroni.com link (the table under *Checklist*). So **a platform's downloads
+  are every campaign starting with its name**: Pinterest is `pinterest`, `pinterest-steps`, `pinterest-news` and
+  `pinterest-profile`. TikTok, Instagram and X posts carry no link, so theirs are the profile's alone (`tiktok-bio`…).
 - **After four weeks:** downloads per 1,000 views per platform. Double what works, drop what doesn't (X first).
 - **Expect** two or three quiet weeks while new accounts earn trust; the daily rhythm matters more than any post.
 

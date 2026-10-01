@@ -46,8 +46,10 @@ and icon, and anything that changes what Premium includes.
 | whenever something happens | a log line, the page republished | `today.py log "…"` in a session; a scheduled run adds to `addLog` in `notes.json` instead |
 
 The tasks run on this Mac (`m4-1`, which never sleeps) while the Claude app is open; a run that was
-due while it was closed happens on the next launch. When one finishes it notifies the session that
-created it, which passes anything urgent to Kevin's phone.
+due while it was closed happens on the next launch. Each run decides and acts on its own, by its prompt,
+and sends anything that needs Kevin to his phone itself. When the daily check or the heartbeat finishes,
+it also wakes the pinned session **Paper Coach Monitor**, which created them and reads the run. The
+social check, made in Routines, wakes no session: the next midnight check reports its result.
 
 **The daily check:**
 
@@ -235,8 +237,9 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
   day by day. Never delete or rewrite those lines.
 
 **The social check** (the `paper-coach-social` routine at 17:45; its prompt, kept in this repo, is
-[routines/paper-coach-social.md](routines/paper-coach-social.md)). On a day it didn't run, the midnight daily check
-does the same steps; on a day it did, the daily check only reports its result. The steps, in `web/`:
+[routines/paper-coach-social.md](routines/paper-coach-social.md)). The daily check, just after midnight, looks
+back at the day that ended: if this routine logged no "Social check:" line from 17:00 on, it does the same steps for
+that day; if it did, it only reports its result. The steps, in `web/`:
 
 1. `node cli/studio.mjs social status --refresh --limit 4`. A platform that failed with a real error (not "still
    processing"), unless a later post of the same lesson already reached it: post once more to it alone,
@@ -319,8 +322,8 @@ WhatsApp the words and an App Store link. Read it in three steps, release builds
 - **Shares:** `drawing_share_opened` (by `entry`: `saved`, `sketchbook`, `sketchbook_bar`) and `drawing_shared` (by
   `activity`, the app it went to). Opened but not shared means the sheet was closed.
 - **Downloads they bring:** App Store Connect › Analytics › Acquisition › Campaigns. Each place in the app that
-  hands out the link has its own campaign, and the social posts have theirs (`tiktok`, `threads-bio`…,
-  docs/ops/social-plan.md). Only people who share analytics with developers are counted, so read it as a floor.
+  hands out the link has its own campaign, and the social posts and profiles have theirs (`pinterest`,
+  `tiktok-bio`…, docs/ops/social-plan.md, *Knowing what works*). Only people who share analytics with developers are counted, so read it as a floor.
 
   | Campaign | Where the link was handed out |
   |---|---|
