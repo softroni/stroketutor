@@ -64,17 +64,27 @@ export async function readScreenshot(marketingDir: string, device: string, name:
   return fs.readFile(path.join(marketingDir, 'out', device, name)).catch(() => null)
 }
 
+/** The versions of shots.js (path and time) already reported as unreadable. */
+const reported = new Set<string>()
+
 /**
  * shots.js, imported fresh whenever it changes (the file's time is in the URL,
  * so Node's module cache never serves an old copy). An unreadable file leaves
- * the ids as titles rather than failing the page.
+ * the ids as titles rather than failing the page, and the server log says why,
+ * once for each version of the file: the page asks again every few seconds.
  */
 async function readShotsModule(marketingDir: string): Promise<ShotsModule> {
   const file = path.join(marketingDir, 'shots.js')
+  let stamp = 0
   try {
-    const stamp = Math.round((await fs.stat(file)).mtimeMs)
+    stamp = Math.round((await fs.stat(file)).mtimeMs)
     return (await import(/* @vite-ignore */ `${pathToFileURL(file).href}?v=${stamp}`)) as ShotsModule
-  } catch {
+  } catch (error) {
+    const version = `${file}@${stamp}`
+    if (!reported.has(version)) {
+      reported.add(version)
+      console.warn(`[studio] could not read ${file}; the Screenshots page shows ids instead of headlines:`, error)
+    }
     return {}
   }
 }

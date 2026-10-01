@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { neighbour, plainTitle } from '../src/studio/screenshots'
 
@@ -27,7 +27,10 @@ describe('the Screenshots page', () => {
     }
   })
 
-  afterEach(() => rmSync(dir, { recursive: true, force: true }))
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true })
+    vi.restoreAllMocks()
+  })
 
   it('lists each device in listing order, with plain headlines and addresses that change with the file', async () => {
     const list = await listScreenshots(dir)
@@ -42,10 +45,14 @@ describe('the Screenshots page', () => {
     expect(list.updated).toBeGreaterThan(0)
   })
 
-  it('still lists the files when shots.js cannot be read', async () => {
+  it('still lists the files when shots.js cannot be read, and says why once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     writeFileSync(path.join(dir, 'shots.js'), 'this is not javascript (')
     const list = await listScreenshots(dir)
     expect(list.sets[0].shots.map((shot) => shot.title)).toEqual(['learn', 'paths'])
+    await listScreenshots(dir)
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(warn.mock.calls[0][0]).toContain(path.join(dir, 'shots.js'))
   })
 
   it('serves only screenshots', async () => {
