@@ -227,8 +227,9 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
   new lesson's speed draw with what's new, the day it is live (social-plan.md, *Release news*).
 - **The opening (E1):** from 2026-10-05 a video opens with the hook ("How to draw a … · N easy steps" over the
   finished picture, drawn over at once); before that, and on the days `social-experiments.json` lists for it, the
-  classic opening. `social next` reads that file for the day, a lesson posted again keeps its first opening, and
-  each post's record says its opening and arm. Change a day's arm only in that file, before 17:00.
+  classic opening. `social next` reads that file for the day, a lesson posted again keeps its first post's
+  opening and arm (a re-post after midnight counts on the day it belongs to), and each post's record says its
+  opening and arm. Change a day's arm only in that file, before 17:00.
 - **Never before Paper Coach is on sale:** every video ends on the App Store. `social next` refuses a public
   post until `facts.json` shows a live version; `--private` is for tests.
 - **Claude:** reads the record in the daily check, re-posts to a platform that failed (`social post <id>

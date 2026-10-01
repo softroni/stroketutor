@@ -506,8 +506,10 @@ Reels, Threads, Pinterest, X) through Upload-Post, one request for every platfor
   post the classic opening, every other day from 2026-10-05 the hook (`HOOK_FROM`), and every day before
   that the classic opening. Days are Central, as the posts' days are. `social next`, `social post` and `social
   announce` read it (`--opening` overrides; `--dry-run` says which opening and test); a lesson posted
-  again (to a platform that failed) keeps the opening it first went out with. The weekly review edits the
-  file; a file that can't be read is a warning, and the day gets the opening it would have with no test.
+  again (to a platform that failed) keeps the opening and the arm its first post went out with, so the
+  re-post after midnight counts on its own day, and a lesson from before a test stays out of it. The weekly
+  review edits the file; a file that can't be read is a warning, and the day gets the opening it would have
+  with no test.
   `social post --video f.mp4` refuses a file whose name says the other opening (`<id>-hook.mp4` is the
   hook, `<id>.mp4` the classic) unless `--opening` names it.
 - **Release news** (`social announce --lesson <id> --news "…" --headline "…"`): a lesson's speed draw with

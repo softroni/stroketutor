@@ -265,10 +265,12 @@ interface PostOutcome {
  * `--opening` when given; else a lesson posted again (to a platform that
  * failed, say) keeps the opening its video first went out with, so a lesson
  * is one video everywhere; else the day's, from the register. A post that
- * reached no platform at all doesn't count as having gone out. A file passed
- * with `--video` whose name says the other opening (as `videoFile` names
- * them) is refused, so a classic video is never posted and recorded as the
- * hook, or the reverse.
+ * reached no platform at all doesn't count as having gone out. The same
+ * video posted again keeps its first post's arm too, so the daily check's
+ * re-post after midnight counts in the test the day it belongs to, and a
+ * lesson from before a test never joins it. A file passed with `--video`
+ * whose name says the other opening (as `videoFile` names them) is refused,
+ * so a classic video is never posted and recorded as the hook, or the reverse.
  */
 async function postOpening(
   ctx: Context,
@@ -279,14 +281,17 @@ async function postOpening(
   const today = await openingFor(repoDirOf(ctx), day)
   if (today.problem) ctx.out.warn(today.problem)
   const wentOut = ({ status }: PostState) => !(status && FINAL_STATUSES.has(status.status) && !Object.values(status.results).some((result) => result.success))
-  const before =
+  // The lesson's first post that went out: postStates lists the newest first.
+  const first =
     purpose === 'lesson'
-      ? postStates(await readRecords(ctx)).find(
-          (state) => state.post.lessonId === lessonId && !state.post.private && (state.post.purpose ?? 'lesson') === 'lesson' && (state.post.media ?? 'video') === media && wentOut(state),
-        )
+      ? postStates(await readRecords(ctx))
+          .reverse()
+          .find(
+            (state) => state.post.lessonId === lessonId && !state.post.private && (state.post.purpose ?? 'lesson') === 'lesson' && (state.post.media ?? 'video') === media && wentOut(state),
+          )
       : undefined
-  const opening = asked ?? (before ? (before.post.opening ?? 'classic') : today.opening)
-  const why = asked ? 'as --opening says' : before ? `as it went out on ${dayOf(before.post.scheduledAt ?? before.post.at)}` : `the opening for ${day} (${REGISTER_FILE})`
+  const opening = asked ?? (first ? (first.post.opening ?? 'classic') : today.opening)
+  const why = asked ? 'as --opening says' : first ? `as it went out on ${dayOf(first.post.scheduledAt ?? first.post.at)}` : `the opening for ${day} (${REGISTER_FILE})`
   const named = video ? openingOfVideo(video, lessonId) : null
   if (video && named && named !== opening) {
     throw new CliError(
@@ -295,7 +300,8 @@ async function postOpening(
     )
   }
   if (video && !named && !asked) ctx.out.note(`Recorded as the ${opening} opening (${why}); pass --opening if ${path.basename(video)} has the other.`)
-  return { opening, experiments: experimentsOn(day, today.register, opening) }
+  const again = first !== undefined && opening === (first.post.opening ?? 'classic')
+  return { opening, experiments: again ? (first.post.experiments ?? null) : experimentsOn(day, today.register, opening) }
 }
 
 async function postLesson(ctx: Context, lessonId: string, values: Parsed['values'], known?: Curriculum, news?: Announcement): Promise<PostOutcome> {

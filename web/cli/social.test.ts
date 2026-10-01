@@ -299,16 +299,44 @@ describe('the opening (E1)', () => {
     expect(mismatched.stderr).toContain('simple-house-hook.mp4 has the hook opening, by its name, and this post takes the classic')
   })
 
-  it('keeps the opening a lesson first went out with when it is posted again', async () => {
-    await register('classic')
+  /** Earlier posts of Simple House that went out, oldest first, in the scratch repository's record. */
+  const postedBefore = async (...posts: { at: string; opening?: string; experiments?: Record<string, string> }[]) => {
     await mkdir(path.join(t.root, '.studio', 'social'), { recursive: true })
-    const earlier = { kind: 'post', at: '2026-10-06T22:00:00Z', lessonId: 'simple-house', profile: 'softroni', platforms: ['youtube'], private: false, requestId: 'r1', outcome: 'sent', media: 'video', purpose: 'lesson', opening: 'hook' }
-    await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), `${JSON.stringify(earlier)}\n`)
-    const again = await t.json<{ opening: string; experiments: Record<string, string> }>('social post simple-house --platforms tiktok --dry-run')
-    expect(again.opening).toBe('hook')
-    expect(again.experiments).toEqual({ E1: 'hook' })
+    const lines = posts.map((post, index) => ({
+      kind: 'post', lessonId: 'simple-house', profile: 'softroni', platforms: ['youtube'], private: false, requestId: `r${index + 1}`, outcome: 'sent', media: 'video', purpose: 'lesson', ...post,
+    }))
+    await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), lines.map((line) => `${JSON.stringify(line)}\n`).join(''))
+  }
+  const postedAgain = (argv = '') =>
+    t.json<{ opening: string; experiments: Record<string, string> | null }>(`social post simple-house --platforms tiktok --dry-run ${argv}`.trim())
+
+  it('keeps the opening and the arm a lesson first went out with when it is posted again', async () => {
+    await register('classic')
+    await postedBefore({ at: '2026-10-06T22:00:00Z', opening: 'hook', experiments: { E1: 'hook' } })
+    const again = await postedAgain()
+    expect([again.opening, again.experiments]).toEqual(['hook', { E1: 'hook' }])
     // Its speed draw, never posted, takes the day's.
     expect((await t.json<{ opening: string }>('social post simple-house --speed --dry-run')).opening).toBe('classic')
+  })
+
+  it('counts a re-post in the test its first post was in, never in one it wasn’t', async () => {
+    // Posted again after the test's last day (the daily check's re-post after midnight): still that day's arm.
+    await mkdir(path.join(t.root, 'docs', 'ops'), { recursive: true })
+    await writeFile(path.join(t.root, 'docs', 'ops', 'social-experiments.json'), JSON.stringify({ E1: { classic: ['2020-01-01'] } }))
+    await postedBefore({ at: '2020-01-01T23:00:00Z', opening: 'classic', experiments: { E1: 'classic' } })
+    expect(await postedAgain()).toMatchObject({ opening: 'classic', experiments: { E1: 'classic' } })
+    // A lesson that went out before the test, posted again while it runs, stays out of it.
+    await register('classic')
+    await postedBefore({ at: '2026-09-30T22:00:00Z' })
+    expect(await postedAgain()).toMatchObject({ opening: 'classic', experiments: null })
+  })
+
+  it('takes the opening of the lesson’s first post, not of a later one made by hand', async () => {
+    await register('classic')
+    await postedBefore({ at: '2026-10-06T22:00:00Z', opening: 'hook', experiments: { E1: 'hook' } }, { at: '2026-10-07T22:00:00Z', opening: 'classic', experiments: { E1: 'classic' } })
+    expect(await postedAgain()).toMatchObject({ opening: 'hook', experiments: { E1: 'hook' } })
+    // The other opening, asked for, is a new video: the day's arm.
+    expect(await postedAgain('--opening classic')).toMatchObject({ opening: 'classic', experiments: { E1: 'classic' } })
   })
 
   it('takes the day’s opening for a lesson whose earlier post reached no platform', async () => {
