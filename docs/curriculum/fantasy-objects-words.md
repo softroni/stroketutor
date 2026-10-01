@@ -123,3 +123,27 @@ posts on the narrow slabs, close to the glass.
 - sand-color: "Color the sand yellow, top and bottom."
 - posts-color: "The posts are cream."
 - outro: "Time is running out, one grain at a time. How long would yours take to empty?"
+
+### sword
+
+Kept picture: `fantasy-objects/sword-codex.png` (Codex, second of two candidates; white margin added). The
+sword runs from the knob at the lower left to the point at the upper right: a gray blade with one groove line,
+a round gold boss with a red jewel where blade and grip meet, two gold arms curling back toward the grip like
+ram's horns (mirror images; the first candidate's curled opposite ways), a grip of five bands (brown, orange,
+brown, orange, brown) and a round gold knob with a blue jewel. The boss is drawn first, so every other part
+starts on something already drawn.
+
+- intro: "In the old stories, a knight never left home without one. This sword has a long blade, curled arms and two jewels. Watch the blade come together, then forge one of your own."
+- boss: "Start in the middle with a round boss, where the blade meets the grip."
+- blade: "The blade is long and straight. Draw both edges from the boss up to a sharp point."
+- groove: "Now a groove down the middle of the blade, one line that stops short of both ends."
+- arms: "Two arms curl out of the boss like ram's horns, one on each side."
+- grip: "The grip runs down from the boss. Draw its two straight edges side by side."
+- knob: "A big round knob caps the end of the grip."
+- wraps: "Four slanted lines wrap the grip, making five bands."
+- jewels: "Set a round jewel in the boss, and another in the knob."
+- gray: "Color the blade gray."
+- gold: "Gold for the boss, both arms and the knob."
+- grip-color: "The grip bands are brown and orange, taking turns."
+- jewel-color: "The jewel in the boss is red, the one in the knob blue."
+- outro: "One sword, sharp and shining. What would you name it?"
