@@ -167,7 +167,7 @@ export function Studio() {
   return (
     <div className={`st-studio ${route.name === 'lesson' ? 'st-studio--fill' : ''}`}>
       <header className="st-studio__bar">
-        <a className="st-studio__brand" href={routeHref({ name: 'paths', pathId: null })}>
+        <a className="st-studio__brand" href={routeHref({ name: 'today', day: null })}>
           <span className="st-studio__mark" aria-hidden="true">
             ✎
           </span>

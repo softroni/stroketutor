@@ -105,7 +105,10 @@ export function TodayView({ day, available }: { day: string | null; available: b
     return (
       <div className="st-today">
         <h1 className="st-today__title">Today</h1>
-        <p className="st-notice">Today needs the Studio server. Run npm run dev.</p>
+        <p className="st-notice">
+          Today needs the Studio server. Run npm run dev, or go to{' '}
+          <a href={routeHref({ name: 'paths', pathId: null })}>Paths</a>.
+        </p>
       </div>
     )
   }

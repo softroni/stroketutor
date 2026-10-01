@@ -6,6 +6,8 @@
  * `#/new?lesson=<lessonId>` · `#/publish` · `#/voice` · `#/trash` · `#/settings` · `#/import` ·
  * `#/screenshots[/<device>[/<shot>]]` · `#/today[/<YYYY-MM-DD>]`
  *
+ * Today is the Studio's front page: no hash, or one it does not know, opens it.
+ *
  * One screen takes a named parameter rather than a segment: New lesson can be
  * opened to fill a planned lesson, which is a way of arriving at the screen
  * rather than another screen, so it reads as a query.
@@ -59,7 +61,7 @@ export function parseRoute(hash: string): Route {
     case 'paths':
       return { name: 'paths', pathId: parts[1] ?? null }
   }
-  return { name: 'paths', pathId: null }
+  return { name: 'today', day: null }
 }
 
 export function routeHref(route: Route): string {

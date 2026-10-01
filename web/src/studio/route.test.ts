@@ -3,10 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { parseRoute, routeHref, type Route } from './route'
 
 describe('parseRoute', () => {
-  it('falls back to the paths overview', () => {
-    expect(parseRoute('')).toEqual({ name: 'paths', pathId: null })
-    expect(parseRoute('#/nowhere')).toEqual({ name: 'paths', pathId: null })
-    expect(parseRoute('#/lessons')).toEqual({ name: 'paths', pathId: null })
+  it('opens Today when there is no screen named, or one it does not know', () => {
+    expect(parseRoute('')).toEqual({ name: 'today', day: null })
+    expect(parseRoute('#/')).toEqual({ name: 'today', day: null })
+    expect(parseRoute('#/nowhere')).toEqual({ name: 'today', day: null })
+    expect(parseRoute('#/lessons')).toEqual({ name: 'today', day: null })
+    // Paths keeps its own address.
+    expect(parseRoute('#/paths')).toEqual({ name: 'paths', pathId: null })
   })
 
   it('reads each screen', () => {
