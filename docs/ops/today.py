@@ -686,7 +686,8 @@ def main(argv: list[str]) -> int:
         words, kind = argv[2:], None
         if words[:1] == ["--kind"]:
             kind, words = (words[1] if len(words) > 1 else None), words[2:]
-        if not words:
+        # A flag where the text should be ("log --help") is a mistake, and the log can't be edited afterwards.
+        if not words or words[0].startswith("--"):
             print('usage: today.py log [--kind release|review|ads|tests|social|build|money|learners|check] "what happened"', file=sys.stderr)
             return 2
         append_log(" ".join(words), kind)

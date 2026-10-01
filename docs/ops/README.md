@@ -200,8 +200,25 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
   the summary: how much more, on what campaigns and keywords, what the first $150 showed (cost per install, per
   trial, per paying learner, proceeds after Apple's cut, counting a trial at the trial-to-paid rate actually seen),
   what the extra should return, and when it stops. Until he says yes, stop the ads at $150.
-- Pause a keyword that has spent $15 with no trial or purchase; add search terms that don't fit as
-  excluded keywords. New English-speaking storefronts once the US pays for itself.
+- **How Claude runs the first $150 (from 2026-10-01; the setup is in [apple-ads-plan.md](apple-ads-plan.md) ›
+  *Current setup*).** It is a learning budget: find what a tap, an install and a paywall reached cost, keyword by
+  keyword, early enough that the first trials reach day 7 inside it.
+  - Spend counts from 2026-09-30, in the org's time zone (`--time-zone ORTZ`), Paper Coach's campaigns only.
+  - **Stop at $140**, keeping $10 for Apple's late reporting and a day's overspend. Apple refuses lifetime
+    campaign budgets on this account (`LIFETIME_BUDGET_NOT_SUPPORTED`), so the stop is ours: from $100 spent, the
+    daily caps add up to at most half of what is left to $140, so one missed check can't break it.
+  - **The plan for more goes to Kevin at $100 spent or on Oct 9**, whichever comes first.
+  - **Bid ladder:** a keyword with no impressions (or under 20 a day) rises $0.25 a day, up to $2.75 for "learn
+    to draw" and "how to draw", $2.00 for the step-by-step and adult terms, $1.75 for the easy and tutorial terms,
+    $1.20 for the kids terms and broad match. A keyword winning at well under its bid comes down to about 1.2 times
+    its average cost per tap.
+  - Judge keywords on **tap installs** only (view-through installs inflate them). Until trials are numerous,
+    **cost per paywall reached** steers the money; trials and purchases confirm it.
+  - Every night during the first $150: junk search terms with 5 or more impressions become exact excluded
+    keywords in Discovery; a fitting term with an install or 3 taps becomes an exact keyword in Category.
+- Pause a keyword that has spent $15 with no trial or purchase (from any paywall, counting tap installs only);
+  add search terms that don't fit as excluded keywords. New English-speaking storefronts once the US pays for
+  itself.
 - PostHog: `install_attributed` and the `asa_*` keys on onboarding, trial and purchase events join
   installs to keywords (filter out `asa_test_payload`).
 

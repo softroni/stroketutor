@@ -159,6 +159,25 @@ screen is App Store shot 7).
 PostHog (docs/ops/README.md › *Shared drawings*). **Later, if it works:** a card for a finished path with all its
 drawings, which needs no new photo.
 
+## 7. Small app changes from the ads and sales review (2026-10-01)
+
+Claude, as Kevin's ads and sales manager, read every paywall and the first real learners' funnel. These need the
+app, so they are Kevin's; each is small:
+
+- **The age question loops.** A learner on 1.0 went back and forth between the who and age beats 19 times and left
+  without answering. The rail's Skip shouldn't jump into the who beat, and the age beat shouldn't bounce back.
+- **The app's own 13+ paywall** (Superwall's fallback and holdout, and the only paywall 1.0 learners will see once
+  Lifetime is gated to 1.1) **and the grown-up's**: a benefit headline above the price (today the price is the first
+  and biggest text), and a smaller line under it with the yearly plan's weekly cost, worked out from StoreKit's
+  price ("about $0.58 a week" at $29.99). The billed amount stays the most prominent price (3.1.2(c)).
+- **Placement parameters for Superwall**, so its designs can show what the learner drew: on `onboarding_offer` the
+  path title, the first drawing's title and the lessons left; on `premium_lesson` the lesson and path titles. Catalog
+  content only, never age or tier.
+- **Clean numbers:** an `install_source` property on every event (StoreKit `AppTransaction` environment: production,
+  sandbox or xcode), so App Review and TestFlight stop counting as learners; send `superwall_paywall_open` and
+  `offer_screen_viewed` with the `asa_*` keys; and send the age answer under the id from before the switch, so one
+  funnel follows a 13+ learner from first open to the paywall.
+
 ## What Claude does meanwhile (no app change)
 
 - Custom product pages: one for parents (children drawing, the parental check, no ads) and one for adults (calm

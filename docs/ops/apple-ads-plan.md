@@ -1,5 +1,21 @@
 # Apple Ads: the launch plan
 
+## Current setup (2026-10-01, Claude as ads and sales manager)
+
+The launch bids below won no auctions: in the first 16 hours the 24 exact keywords had 0 impressions at
+$0.50–1.00, while US drawing searches clear at about $1.50–2.75 a tap; only Discovery's broad match showed (132
+impressions, 0 taps, $0 spent). So on Oct 1:
+
+| Campaign | Daily | Bids |
+|---|---|---|
+| PC - US - Category | $8 | learn to draw $2.25 · how to draw $2.00 · drawing lessons, draw step by step, step by step drawing, learn drawing, drawing for beginners, sketching for beginners $1.75 · how to draw app $1.75 (moved from Competitors) · learn to draw for adults, drawing for adults $1.50 (new) · easy drawing, drawing tutorial, draw easy, how to draw easy $1.40 · how to draw for kids, drawing for kids $1.20 (a probe) |
+| PC - US - Discovery | $4 | broad learn to draw, drawing lessons, how to draw $0.90; Search Match at the $0.60 default; "ve" and the two new adult terms excluded |
+| PC - US - Brand | $1 | $0.50 (almost nobody searches the name yet) |
+| PC - US - Competitors | paused | rivals with 240k–788k ratings, median $3.26 a tap: the worst value for an app with none |
+
+$13 a day in all, inside the $150 learning budget (rules: [README.md](README.md) › *Apple Ads*). An impression-share
+report (73149732) was requested for Sep 30–Oct 1. The table below is the launch plan, kept as history.
+
 Written 2026-09-27, before 1.0 was approved. Carried out the day Apple approves 1.0 (the heartbeat or the
 daily check that sees `READY_FOR_SALE`). The rules that govern it afterwards are in
 [README.md](README.md) › *Apple Ads*.
