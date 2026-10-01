@@ -41,7 +41,8 @@ and icon, and anything that changes what Premium includes.
 |---|---|---|
 | 00:00 | **Daily check** and summary (midnight since 2026-09-30, Kevin's choice; it was 08:00) | scheduled task `paper-coach-daily` |
 | 08:00, 12:00, 16:00, 20:00 | **Heartbeat**: review state, new reviews | scheduled task `paper-coach-heartbeat` |
-| 17:00 | **Lesson video** on Softroni's accounts (once installed; see *Lesson videos on social*) | launch agent `com.softroni.papercoach-social` |
+| 17:00 | **Lesson video** on Softroni's accounts (see *Lesson videos on social*) | launch agent `com.softroni.papercoach-social` (not a routine: it needs no Claude) |
+| 17:45 | **Social check**: the post went out everywhere, fixes, Monday numbers, release news, the plan's dates | scheduled task `paper-coach-social`, prompt in [routines/paper-coach-social.md](routines/paper-coach-social.md) (Kevin creates it in Routines) |
 | whenever something happens | a log line, the page republished | `today.py log "…"` in a session; a scheduled run adds to `addLog` in `notes.json` instead |
 
 The tasks run on this Mac (`m4-1`, which never sleeps) while the Claude app is open; a run that was
@@ -228,10 +229,13 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
   post finishes and pushed by `today.py archive` at once and every night. The Studio's Social page shows the posts
   day by day. Never delete or rewrite those lines.
 
-**Every night (the daily check, at midnight)**, in `web/`:
+**The social check** (the `paper-coach-social` routine at 17:45; its prompt, kept in this repo, is
+[routines/paper-coach-social.md](routines/paper-coach-social.md)). On a day it didn't run, the midnight daily check
+does the same steps; on a day it did, the daily check only reports its result. The steps, in `web/`:
 
 1. `node cli/studio.mjs social status --refresh --limit 4`. A platform that failed with a real error (not "still
-   processing"): post once more to it alone, `social post <id> --platforms <platform> --no-pin`; if that fails
+   processing"), unless a later post of the same lesson already reached it: post once more to it alone,
+   `social post <id> --platforms <platform> --no-pin`; if that fails
    too, report it. TikTok "in the inbox, not published" (its daily cap) goes under "Needs you": Kevin publishes
    the draft in the TikTok app. No post since the last 17:00: read `.studio/logs/social.log` and say why. Don't
    post at night to catch up: the next 17:00 run takes the same lesson.
