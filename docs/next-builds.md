@@ -175,7 +175,8 @@ app, so they are Kevin's; each is small:
   price ("about $0.58 a week" at $29.99). The billed amount stays the most prominent price (3.1.2(c)).
 - **Placement parameters for Superwall**, so its designs can show what the learner drew: on `onboarding_offer` the
   path title, the first drawing's title and the lessons left; on `premium_lesson` the lesson and path titles. Catalog
-  content only, never age or tier.
+  content only, never age or tier. Also the catalog's lesson count, so the designs can round it down to the nearest 50 themselves
+  ("100+ lessons", then "150+") and nobody has to remember to update them (Kevin's idea, 2026-10-01).
 - **Clean numbers:** an `install_source` property on every event (StoreKit `AppTransaction` environment: production,
   sandbox or xcode), so App Review and TestFlight stop counting as learners; send `superwall_paywall_open` and
   `offer_screen_viewed` with the `asa_*` keys; and send the age answer under the id from before the switch, so one

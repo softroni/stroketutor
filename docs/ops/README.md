@@ -183,6 +183,9 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
   and get nothing. 1.0 (2) counts only the yearly and weekly ids; from 1.1 (docs/next-builds.md items 1 and 5),
   any product in Premium's subscription group `22413930` counts, and Lifetime
   (`com.softroni.papercoach.premium.lifetime`), and nothing else ever does.
+- **No exact lesson counts in Superwall designs** (Kevin, 2026-10-01): they say "100+ lessons", rounded down to the
+  nearest 50, so one wording is true for every build on sale. At each release, if the catalog passes the next
+  50, change them to "150+" and so on. The app's own paywall counts from the catalog and is always exact.
 - Record every change in the log with its reason.
 
 ## Apple Ads
