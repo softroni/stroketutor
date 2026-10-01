@@ -136,7 +136,7 @@ downloads the codes, and Claude turns them into one redeem link per person.
 
 ## 6. Share a drawing (small, for the build after 1.1)
 
-**Built 2026-10-01, not shipped:** on `main`, for the build after 1.1. Kevin's idea and call (2026-10-01): a child
+**Built 2026-10-01, not shipped:** on `main` in `1622c66`, for the build after 1.1. Kevin's idea and call (2026-10-01): a child
 who drew something wants to show it, and a friend who sees a real drawing on real paper is the cheapest install
 there is. What was built (README › M8, `DrawingShare`):
 - On a sketchbook page "Share your drawing" is the green button and "Draw it again" moved beside Delete; the saved
