@@ -11,6 +11,8 @@ import { listVisionModels } from './models'
 import { regenerate } from './regenerate'
 import { listScreenshots, readScreenshot } from './screenshots'
 import { gitIn, releaseLesson } from './release'
+import { mayPost, postingQueue } from './social/queue'
+import { readSocialPosts } from './socialPosts'
 import { readToday } from './today'
 import {
   MAX_REFERENCE_BYTES,
@@ -88,6 +90,8 @@ export interface StudioApiOptions {
   marketingDir?: string
   /** .studio/ops, where Claude writes the status the Today page shows. */
   opsDir?: string
+  /** .studio/social, where `studio social` keeps its record of every post, for the Social page. */
+  socialDir?: string
   /** .studio/videos, where the Video tab's lesson videos are made. */
   videosDir?: string
 }
@@ -153,6 +157,9 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `GET  /api/screenshots/:device/:file` one of them (PNG); read-only, like the list
  * - `GET  /api/today[?day=YYYY-MM-DD]`    how the app stands and what Claude is doing (.studio/ops/status.json),
  *                                         or a past day from its history, with the list of kept days; read-only
+ * - `GET  /api/social/posts`              every post sent to social media, by day, with each platform's link
+ *                                         (.studio/social/posts.jsonl, or the repo's copy on ops-history), and the
+ *                                         lessons the daily job posts next, as `social next` picks them; read-only
  * - `GET  /api/video/lessons/:lesson`     its video's default words, what Lina hasn't recorded, the last video and job
  * - `POST /api/video/lessons/:lesson`     `{ intro?, cta? }` → starts making its video (a job; one at a time)
  * - `GET  /api/video/lessons/:lesson/file[?download]`  the last video (byte ranges; `download` saves it as a file)
@@ -291,6 +298,29 @@ async function handle(
 
     if (resource === 'library' && parts.length === 1 && method === 'GET') {
       return send(res, 200, await workspace.readLibrary())
+    }
+
+    if (resource === 'social' && name === 'posts' && parts.length === 2 && method === 'GET' && options.socialDir) {
+      const repoDir = path.resolve(options.sharedDir, '..')
+      const files = {
+        record: path.join(options.socialDir, 'posts.jsonl'),
+        // .studio/ops/history is the ops-history worktree, where the finished posts are kept in the repo.
+        kept: path.join(options.opsDir ?? path.join(repoDir, '.studio', 'ops'), 'history', 'social', 'posts.jsonl'),
+      }
+      // The library as the command line builds it, so the lessons shown coming are the ones `social next` will post.
+      const { buildLibrary } = (await server.ssrLoadModule('/src/studio/library.ts')) as typeof import('../src/studio/library')
+      const library = buildLibrary({ ...(await workspace.readLibrary()), writable: true })
+      return send(
+        res,
+        200,
+        await readSocialPosts(files, {
+          title: (lessonId) => library.tutorials.get(lessonId)?.tutorial.title,
+          queue: async () => {
+            const queue = await postingQueue(repoDir, library.catalog?.paths ?? [])
+            return { order: queue.order, allowed: (lessonId) => mayPost(queue, lessonId, library.tutorials.get(lessonId)?.state) }
+          },
+        }),
+      )
     }
 
     if (resource === 'tutorials' && parts.length === 2) {

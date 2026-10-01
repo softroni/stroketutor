@@ -41,6 +41,9 @@ export default defineConfig(({ mode }) => {
         // Claude's status for the Today page, written by docs/ops/today.py. STUDIO_OPS_DIR shows
         // another copy instead (a sample, or the ops-history branch), leaving .studio/ops alone.
         opsDir: env.STUDIO_OPS_DIR || `${studioDir}/ops`,
+        // What `studio social` posted, for the Social page. STUDIO_SOCIAL_DIR shows another record
+        // instead (a sample), leaving .studio/social alone.
+        socialDir: env.STUDIO_SOCIAL_DIR || `${studioDir}/social`,
         // Lesson videos from the Video tab; outside git, like the rest of .studio.
         videosDir: `${studioDir}/videos`,
       }),

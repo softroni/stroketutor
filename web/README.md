@@ -128,6 +128,13 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
   first three at App Store search size, then all of them in listing order. A shot opens full size, where
   ←/→ step through them and Esc closes. It re-reads the folder every 15 seconds and when the tab comes back,
   so a new render, or a pull that brings one, shows up by itself. Read-only (`GET /api/screenshots`).
+- **Social** shows every post on Softroni's accounts day by day, in Central time: each lesson video, speed
+  draw, step pin and piece of release news with the lesson's drawing, how it went, and each platform's link,
+  or why there is none yet (still processing, scheduled, in TikTok's inbox, or the platform's error). Above
+  them, **Coming up** has the next seven lessons the daily job will post, one a day at 17:00, worked out as
+  `social next` picks them (`server/social/queue.ts`, shared with the command). It reads
+  `.studio/social/posts.jsonl` when opened, or on a machine that never posted the repo's copy on `ops-history`,
+  and leaves test posts out. Read-only (`GET /api/social/posts`); `STUDIO_SOCIAL_DIR` shows another record.
 - **⌘K**, or **Jump to…** in the header, opens a palette to jump to any lesson, path or page by typing
   a few letters.
 - **Export video…** (a lesson's header, or the **Video** tab of its drawer) makes a vertical draw-along

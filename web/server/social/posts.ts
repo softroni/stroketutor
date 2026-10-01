@@ -513,11 +513,13 @@ export function postEntry({ post, status }: PostState, title?: string, now = Dat
 
 /** Every post that went out (refusals sent nothing and are left out), by day, newest day and newest post first. */
 export function postsByDay(records: SocialRecord[], titles: (lessonId: string) => string | undefined = () => undefined, now = Date.now()): { day: string; posts: PostEntry[] }[] {
+  return entriesByDay(postStates(records).map((state) => postEntry(state, titles(state.post.lessonId), now)))
+}
+
+/** Posts under their day, newest day and newest post first: the record's, or the repo's copy as it is kept. */
+export function entriesByDay(entries: PostEntry[]): { day: string; posts: PostEntry[] }[] {
   const days = new Map<string, PostEntry[]>()
-  for (const state of postStates(records)) {
-    const entry = postEntry(state, titles(state.post.lessonId), now)
-    days.set(entry.day, [...(days.get(entry.day) ?? []), entry])
-  }
+  for (const entry of entries) days.set(entry.day, [...(days.get(entry.day) ?? []), entry])
   return [...days]
     .sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0))
     .map(([day, posts]) => ({ day, posts: posts.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)) }))

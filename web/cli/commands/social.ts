@@ -19,15 +19,12 @@ import {
   SETTINGS_KEYS,
   normaliseResults,
   parseConfig,
-  parseUpNext,
   postStates,
   postedLessons,
-  postingOrder,
   settledStatus,
   socialSettings,
   socialTexts,
   uploadFields,
-  withUpNext,
   type Platform,
   type PlatformResult,
   type PostState,
@@ -36,6 +33,7 @@ import {
   type SocialRecord,
   type SocialSettings,
 } from '../../server/social/posts'
+import { lastLessonVideo, mayPost, PIN_DELAY_HOURS, POST_GAP_HOURS, postingQueue, stillToPost, tooSoonAfter } from '../../server/social/queue'
 import { UploadPostError, uploadPostClient, type UploadPostClient } from '../../server/social/uploadPost'
 import { pinPage } from '../../server/social/pin'
 import { FONT, ICON, readAsset, videoDefaults } from '../../server/video/render'
@@ -160,39 +158,15 @@ interface Curriculum {
   tutorials: Map<string, { tutorial: Tutorial; published: boolean }>
 }
 
-/**
- * The paths of the version on sale, from the tag of its build (`1.0(2)`), so a
- * video never sends people to a lesson that is only on main. Null when that is
- * unknown here: no `facts.json`, nothing live, or no such tag.
- */
-async function pathsOnSale(ctx: Context): Promise<QueuePath[] | null> {
-  const text = await readFile(path.join(repoDirOf(ctx), '.studio', 'ops', 'facts.json'), 'utf8').catch(() => null)
-  const live = text ? (JSON.parse(text) as { versions?: { live?: { version?: string; build?: string } | null } }).versions?.live : null
-  if (!live?.version || !live.build) return null
-  try {
-    const { stdout } = await promisify(execFile)('git', ['-C', repoDirOf(ctx), 'show', `${live.version}(${live.build}):shared/Catalog/paths.json`], { maxBuffer: 16 << 20 })
-    return (JSON.parse(stdout) as { paths: QueuePath[] }).paths
-  } catch {
-    return null
-  }
-}
-
+/** The posting order of the version on sale (server/social/queue.ts, which the Studio's Social page reads too), and the lessons that may go. */
 async function curriculum(ctx: Context): Promise<Curriculum> {
   const library = await ctx.library()
-  const onSale = await pathsOnSale(ctx)
-  const paths = onSale ?? library.catalog?.paths ?? []
-  const inApp = onSale ? new Set(onSale.flatMap((entry) => entry.lessonIds)) : null
-  const upNext = parseUpNext(await readFile(path.join(repoDirOf(ctx), 'docs', 'ops', 'social-up-next.txt'), 'utf8').catch(() => ''))
+  const queue = await postingQueue(repoDirOf(ctx), library.catalog?.paths ?? [])
   return {
-    paths,
-    order: withUpNext(postingOrder(paths), upNext),
-    titles: new Map(paths.map((entry) => [entry.id, { title: entry.title, count: entry.lessonIds.length }])),
-    tutorials: new Map(
-      [...library.tutorials.values()].map((entry) => [
-        entry.id,
-        { tutorial: entry.tutorial, published: (entry.state === 'published' || entry.state === 'published-edited') && (inApp?.has(entry.id) ?? true) },
-      ]),
-    ),
+    paths: queue.paths,
+    order: queue.order,
+    titles: new Map(queue.paths.map((entry) => [entry.id, { title: entry.title, count: entry.lessonIds.length }])),
+    tutorials: new Map([...library.tutorials.values()].map((entry) => [entry.id, { tutorial: entry.tutorial, published: mayPost(queue, entry.id, entry.state) }])),
   }
 }
 
@@ -225,9 +199,6 @@ const SHARED_OPTIONS = {
   'no-wait': { type: 'boolean', description: 'Return once Upload-Post has the video, without waiting for each platform to publish.' },
   log: { type: 'boolean', description: 'Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.' },
 } as const
-
-/** Hours between a lesson's video and its step pin on Pinterest: the evening's second pin. */
-const PIN_DELAY_HOURS = 4
 
 const LESSON_OPTIONS = {
   ...SHARED_OPTIONS,
@@ -561,8 +532,7 @@ async function logToToday(ctx: Context, text: string): Promise<void> {
 /** The next lesson to post: first in the posting order, in the version on sale, never posted, and fully recorded. */
 async function nextLesson(ctx: Context, lessons: Curriculum, posted: Set<string>): Promise<{ entry: QueueEntry | null; skipped: { lessonId: string; missing: string[] }[] }> {
   const skipped: { lessonId: string; missing: string[] }[] = []
-  for (const entry of lessons.order) {
-    if (posted.has(entry.lessonId) || !lessons.tutorials.get(entry.lessonId)?.published) continue
+  for (const entry of stillToPost(lessons.order, posted, (lessonId) => Boolean(lessons.tutorials.get(lessonId)?.published))) {
     const missing = await unrecorded(ctx, entry.lessonId)
     if (missing.length === 0) return { entry, skipped }
     skipped.push({ lessonId: entry.lessonId, missing })
@@ -632,10 +602,9 @@ export const socialCommands: Command[] = [
       const records = await readRecords(ctx)
       const posted = postedLessons(records)
       const coming: { lessonId: string; title: string; path: string; number: number; free: boolean; missing: string[] }[] = []
-      for (const entry of lessons.order) {
+      for (const entry of stillToPost(lessons.order, posted, (lessonId) => Boolean(lessons.tutorials.get(lessonId)?.published))) {
         if (coming.length >= limit) break
-        const lesson = lessons.tutorials.get(entry.lessonId)
-        if (posted.has(entry.lessonId) || !lesson?.published) continue
+        const lesson = lessons.tutorials.get(entry.lessonId)!
         coming.push({ lessonId: entry.lessonId, title: lesson.tutorial.title, path: entry.pathId, number: entry.number, free: entry.free, missing: await unrecorded(ctx, entry.lessonId) })
       }
       const recent = postStates(records).slice(0, 5)
@@ -665,19 +634,17 @@ export const socialCommands: Command[] = [
 
   command(
     'social next',
-    'Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 12 hours unless --again, so the job can’t post twice in a day.',
+    `Post the next lesson in the queue (see \`social queue\`): what the daily job runs. Refuses a second post within ${POST_GAP_HOURS} hours unless --again, so the job can’t post twice in a day.`,
     [],
-    { ...LESSON_OPTIONS, again: { type: 'boolean', description: 'Post even though a lesson went out in the last 12 hours.' } },
+    { ...LESSON_OPTIONS, again: { type: 'boolean', description: `Post even though a lesson went out in the last ${POST_GAP_HOURS} hours.` } },
     async (ctx, args) => {
       const records = await readRecords(ctx)
       const isPrivate = args.values.private === true
       if (!isPrivate && args.values.again !== true && args.values['dry-run'] !== true) {
         // Only a lesson's own video counts: its step pin, a speed draw or news don't hold back the next lesson.
-        const last = postStates(records).find(
-          ({ post }) => !post.private && (post.purpose ?? 'lesson') === 'lesson' && (post.media ?? 'video') === 'video',
-        )
-        if (last && Date.now() - Date.parse(last.post.at) < 12 * 3600_000) {
-          throw new CliError(`“${last.post.lessonId}” was posted at ${last.post.at}; the next one waits until 12 hours have passed. Pass --again to post anyway.`)
+        const last = lastLessonVideo(records)
+        if (last && tooSoonAfter(last, Date.now())) {
+          throw new CliError(`“${last.post.lessonId}” was posted at ${last.post.at}; the next one waits until ${POST_GAP_HOURS} hours have passed. Pass --again to post anyway.`)
         }
       }
       const lessons = await curriculum(ctx)

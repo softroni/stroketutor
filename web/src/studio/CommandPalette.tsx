@@ -67,6 +67,13 @@ export function CommandPalette({ library, onClose }: { library: Library; onClose
         href: routeHref({ name: 'screenshots', device: 'iphone', shot: null }),
       },
       { id: 'page:today', kind: 'Page', label: 'Today: how the app stands', href: routeHref({ name: 'today', day: null }) },
+      {
+        id: 'page:social',
+        kind: 'Page',
+        label: 'Social',
+        detail: 'every post, day by day',
+        href: routeHref({ name: 'social' }),
+      },
       { id: 'page:settings', kind: 'Page', label: 'Settings', href: routeHref({ name: 'settings' }) },
     ]
     const paths: Command[] = (catalog?.paths ?? []).map((path) => ({

@@ -1,0 +1,389 @@
+/* ---------- Social: every post, day by day ----------
+   The Today page's paper, tones and type (the page wears `.st-today` too): each day a heading, each
+   post a card with its lesson's drawing, and each platform a line that opens the post there or says in
+   words why it can't yet. What went fine stays quiet; a failure is tinted, never loud. */
+
+.st-social {
+  max-width: 1040px;
+}
+
+.st-social__source {
+  color: var(--ink-faint);
+}
+
+.st-social__empty {
+  margin: 28px 0 0;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--today-radius-panel);
+  background: var(--surface);
+  font-size: 15px;
+  color: var(--ink-muted);
+}
+
+/* ---------- Coming up: the lessons the daily job posts next ---------- */
+
+.st-social__coming {
+  margin-top: 32px;
+}
+
+/* Two columns that read down, then across (`--rows` is half the list); one on a phone. */
+.st-social__queue {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows, 4), auto);
+  grid-auto-flow: column;
+  column-gap: 32px;
+  margin: 0;
+  padding: 4px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--today-radius-panel);
+  background: var(--surface);
+  list-style: none;
+}
+
+.st-social__next {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.st-social__next[data-column-top] {
+  border-top: 0;
+}
+
+.st-social__next .st-social__drawing {
+  width: 44px;
+}
+
+.st-social__when {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.st-social__next .st-social__lesson {
+  font-size: 16px;
+}
+
+/* Free or Premium: what the lesson is in the app, a label rather than a state. */
+.st-pill.st-social__access--premium {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+/* ---------- A day ---------- */
+
+.st-social__day {
+  margin-top: 36px;
+}
+
+.st-social__h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 14px;
+  font-family: var(--today-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.st-social__near {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--ink-faint);
+}
+
+.st-social__posts {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The time, then the post: the time column of Today's log, a little wider. */
+.st-social__post {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.st-social__time {
+  padding-top: 21px;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--ink-muted);
+}
+
+/* ---------- A post: its lesson, what it was and how it went ---------- */
+
+.st-social__card {
+  min-width: 0;
+  padding: 16px 18px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--today-radius-panel);
+  background: var(--surface);
+}
+
+.st-social__head {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.st-social__drawing {
+  display: block;
+  width: 52px;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--page);
+  overflow: hidden;
+}
+
+.st-social__what {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.st-social__lesson {
+  justify-self: start;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.st-social__lesson:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.st-social__kind {
+  font-size: 13.5px;
+  color: var(--ink-faint);
+}
+
+/* The post's status: its word on a pill in its tone. Scheduled keeps the plain pill. */
+.st-pill.st-social__status--good {
+  background: var(--good-tint);
+  color: var(--good);
+}
+
+.st-pill.st-social__status--waiting {
+  background: var(--waiting-tint);
+  color: var(--waiting);
+}
+
+.st-pill.st-social__status--attention {
+  background: var(--attention-tint);
+  color: var(--attention);
+}
+
+.st-pill.st-social__status--bad {
+  background: var(--bad-tint);
+  color: var(--bad);
+}
+
+/* ---------- Each platform: its name, then the post's address ↗, or a mark and why there is none ---------- */
+
+.st-social__platforms {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2px 24px;
+  margin: 14px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+/* Each line fills its cell, so two tinted side by side are one height when an error wraps. */
+.st-social__platforms > li {
+  display: grid;
+  min-width: 0;
+}
+
+.st-social__platform {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 -8px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  font-size: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.st-social__platform:hover {
+  background: var(--surface-hover);
+}
+
+.st-social__platform-name {
+  font-weight: 600;
+}
+
+.st-social__platform-state {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.st-social__platform-words {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-faint);
+}
+
+a.st-social__platform:hover .st-social__platform-words,
+a.st-social__platform:hover .st-social__mark {
+  color: var(--ink-muted);
+}
+
+.st-social__mark {
+  flex: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+
+div.st-social__platform--live .st-social__mark {
+  color: var(--good);
+}
+
+.st-social__platform--waiting .st-social__platform-words,
+.st-social__platform--waiting .st-social__mark {
+  color: var(--waiting);
+}
+
+.st-social__platform--held {
+  background: var(--attention-tint);
+}
+
+.st-social__platform--held .st-social__platform-words,
+.st-social__platform--held .st-social__mark {
+  color: var(--attention);
+}
+
+/* A failure: the platform's own words, in full up to two lines, on a soft red. */
+.st-social__platform--failed {
+  background: var(--bad-tint);
+}
+
+.st-social__platform--failed .st-social__platform-words {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  color: var(--ink-muted);
+}
+
+.st-social__platform--failed .st-social__mark {
+  color: var(--bad);
+}
+
+/* ---------- Narrower: what is coming in one column ---------- */
+
+@media (max-width: 860px) {
+  .st-social__queue {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-flow: row;
+  }
+
+  .st-social__next[data-column-top] {
+    border-top: 1px solid var(--line);
+  }
+
+  .st-social__next:first-child {
+    border-top: 0;
+  }
+}
+
+/* ---------- A phone: the time above its post, one platform a line ---------- */
+
+@media (max-width: 640px) {
+  .st-social__day {
+    margin-top: 28px;
+  }
+
+  .st-social__h2 {
+    font-size: 19px;
+  }
+
+  .st-social__queue {
+    padding: 2px 14px;
+  }
+
+  /* Free or Premium under the words, which then have the row's width. */
+  .st-social__next {
+    grid-template-columns: 44px minmax(0, 1fr);
+    row-gap: 6px;
+  }
+
+  .st-social__access {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .st-social__post {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .st-social__time {
+    padding-top: 0;
+    text-align: left;
+  }
+
+  .st-social__card {
+    padding: 14px 14px 10px;
+  }
+
+  .st-social__head {
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 6px 12px;
+  }
+
+  .st-social__drawing {
+    width: 44px;
+  }
+
+  .st-social__status {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .st-social__platforms {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .st-social__platform {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+}

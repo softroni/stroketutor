@@ -14,6 +14,7 @@ import { PublishView } from './PublishView'
 import { parseRoute, routeHref, type Route } from './route'
 import { ScreenshotsView } from './ScreenshotsView'
 import { SettingsView } from './SettingsView'
+import { SocialView } from './SocialView'
 import { loadSources } from './sources'
 import { TodayView } from './TodayView'
 import { TrashView } from './TrashView'
@@ -28,6 +29,7 @@ import './forms.css'
 import './voice.css'
 import './screenshots.css'
 import './today.css'
+import './social.css'
 
 /**
  * Paper Coach Studio: the private authoring tool built around the existing
@@ -157,6 +159,9 @@ export function Studio() {
       case 'today':
         screen = <TodayView day={route.day} available={library.writable} />
         break
+      case 'social':
+        screen = <SocialView library={library} />
+        break
     }
   }
 
@@ -195,6 +200,9 @@ export function Studio() {
           <nav className="st-studio__nav" aria-label="Studio">
             <a href={routeHref({ name: 'today', day: null })} aria-current={current('today')}>
               Today
+            </a>
+            <a href={routeHref({ name: 'social' })} aria-current={current('social')}>
+              Social
             </a>
             <a href={routeHref({ name: 'paths', pathId: null })} aria-current={current(['paths', 'unfiled', 'lesson', 'trash'])}>
               Paths

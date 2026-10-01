@@ -4,7 +4,7 @@
  *
  * `#/paths/<pathId>` · `#/unfiled` · `#/lessons/<lessonId>` · `#/new/<pathId>` ·
  * `#/new?lesson=<lessonId>` · `#/publish` · `#/voice` · `#/trash` · `#/settings` · `#/import` ·
- * `#/screenshots[/<device>[/<shot>]]` · `#/today[/<YYYY-MM-DD>]`
+ * `#/screenshots[/<device>[/<shot>]]` · `#/today[/<YYYY-MM-DD>]` · `#/social`
  *
  * Today is the Studio's front page: no hash, or one it does not know, opens it.
  *
@@ -28,6 +28,8 @@ export type Route =
   | { name: 'screenshots'; device: ScreenshotDevice; shot: string | null }
   /** How the app stands and what Claude is doing, written by Claude every morning; `day` shows a past one. */
   | { name: 'today'; day: string | null }
+  /** Every post on social media, day by day, with a link to each on each platform. */
+  | { name: 'social' }
 
 export function parseRoute(hash: string): Route {
   const [path, search = ''] = hash.replace(/^#\/?/, '').split('?')
@@ -58,6 +60,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'screenshots', device: parts[1] === 'ipad' ? 'ipad' : 'iphone', shot: parts[2] ?? null }
     case 'today':
       return { name: 'today', day: parts[1] && /^\d{4}-\d{2}-\d{2}$/.test(parts[1]) ? parts[1] : null }
+    case 'social':
+      return { name: 'social' }
     case 'paths':
       return { name: 'paths', pathId: parts[1] ?? null }
   }
@@ -90,6 +94,8 @@ export function routeHref(route: Route): string {
       return route.device === 'iphone' ? '#/screenshots' : `#/screenshots/${route.device}`
     case 'today':
       return route.day ? `#/today/${route.day}` : '#/today'
+    case 'social':
+      return '#/social'
   }
 }
 

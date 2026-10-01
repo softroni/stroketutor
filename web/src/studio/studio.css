@@ -21,6 +21,7 @@
 
 .st-studio__brand {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 12px;
   color: inherit;
@@ -51,8 +52,11 @@
   color: var(--ink-faint);
 }
 
+/* Narrower than its pages, the nav takes a second row rather than squeeze the name or run off the edge. */
 .st-studio__nav {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 4px;
 }
 

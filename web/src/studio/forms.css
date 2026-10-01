@@ -145,6 +145,7 @@
 
 .st-palette-button {
   display: inline-flex;
+  flex: none;
   align-items: center;
   gap: 10px;
   padding: 6px 8px 6px 12px;

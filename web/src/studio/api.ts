@@ -7,6 +7,7 @@ import type { VideoJob, VideoLessonState } from '../video/types'
 import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
 import type { ScreenshotList } from './screenshots'
+import type { SocialResponse } from './social'
 import type { TodayResponse } from './today'
 
 import { mockVoiceApi } from './voice/mockVoiceApi'
@@ -95,6 +96,11 @@ export function listScreenshots() {
 /** How the app stands and what Claude is doing, or how it stood at the end of a past day (read-only). */
 export function readToday(day: string | null = null) {
   return call<TodayResponse>(day ? `/api/today?day=${encodeURIComponent(day)}` : '/api/today')
+}
+
+/** Every post sent to social media, by day, with each platform's link or what stopped it (read-only). */
+export function readSocialPosts() {
+  return call<SocialResponse>('/api/social/posts')
 }
 
 export function readSettings() {

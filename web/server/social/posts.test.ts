@@ -9,6 +9,7 @@ import {
   boardDescription,
   boardName,
   dayOf,
+  entriesByDay,
   platformLink,
   postsByDay,
   pinFields,
@@ -23,6 +24,7 @@ import {
   socialTexts,
   uploadFields,
   withUpNext,
+  type PostEntry,
   type PostRequest,
   type SocialRecord,
 } from './posts'
@@ -199,6 +201,21 @@ describe('posts by day', () => {
     expect(video.platforms).toEqual([
       { platform: 'youtube', ok: true, url: 'https://www.youtube.com/watch?v=w6lmWyYtzGE', error: null },
       { platform: 'pinterest', ok: true, url: 'https://www.pinterest.com/pin/989806824387717196/', error: null },
+    ])
+  })
+
+  it('groups the repo’s copy, kept a post a line in the order each finished, the same way', () => {
+    const kept = (requestId: string, day: string, at: string): PostEntry => ({
+      day, at, requestId, lessonId: 'pine-tree', media: 'video', purpose: 'lesson', private: false, status: 'completed', platforms: [],
+    })
+    const days = entriesByDay([
+      kept('evening', '2026-09-30', '2026-10-01T04:12:01Z'),
+      kept('next-day', '2026-10-01', '2026-10-01T22:00:00Z'),
+      kept('afternoon', '2026-09-30', '2026-09-30T22:00:00Z'),
+    ])
+    expect(days.map((day) => [day.day, day.posts.map((post) => post.requestId)])).toEqual([
+      ['2026-10-01', ['next-day']],
+      ['2026-09-30', ['evening', 'afternoon']],
     ])
   })
 })
