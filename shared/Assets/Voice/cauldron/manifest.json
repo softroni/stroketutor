@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "cauldron",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:23:40.057Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Halloween isn't complete without a bubbling cauldron. This one has a green brew, a ladle and a fire underneath. Watch it bubble up, then stir a pot of your own.",
+      "textHash": "a22060cf2d94d8d6e6f41f9eb90b1929c8f6462804df738514dc3e8190c5e1c0",
+      "durationMs": 10320
+    },
+    "ladle": {
+      "file": "ladle.m4a",
+      "text": "Start with the ladle's handle, a long stick leaning to the right.",
+      "textHash": "564153114523c327ef422ab4faa9db4848bbff9f2270c78360d50a8949356589",
+      "durationMs": 4160
+    },
+    "rim": {
+      "file": "rim.m4a",
+      "text": "The rim is a wide oval. From the handle, go round each side and meet at the front.",
+      "textHash": "55d2c19a9207ff94ee87c7f61c8c311fda2ac09ca89cd8adcbc7f73664ad2c7b",
+      "durationMs": 6400
+    },
+    "brew": {
+      "file": "brew.m4a",
+      "text": "Inside it, a smaller oval for the brew, again from the handle round both sides.",
+      "textHash": "a80ae3ff6e87236b0ae8d9f925883de9d927979369b2f00335e7f6c49a26fd49",
+      "durationMs": 5920
+    },
+    "pot": {
+      "file": "pot.m4a",
+      "text": "The pot hangs from the rim, a round belly wider than the rim. One side, then the other.",
+      "textHash": "3e3a3433a004ce86cd1b3578153611c1f75f9ae1eefa96a01c7f2d8e4e6df452",
+      "durationMs": 5120
+    },
+    "legs": {
+      "file": "legs.m4a",
+      "text": "Three short legs stand under the belly: left, middle and right.",
+      "textHash": "3c5dfcddc473844cf6fbaff8cfaef45a246c29e288a605aeba22713f6a58e313",
+      "durationMs": 5040
+    },
+    "flames": {
+      "file": "flames.m4a",
+      "text": "Between the legs burn two flames with three tips each, a small flame inside each one.",
+      "textHash": "c49ad2c92fba867516639c71688a91de225958e754a4a00499e965be8cc3d049",
+      "durationMs": 6240
+    },
+    "bubbles": {
+      "file": "bubbles.m4a",
+      "text": "Five bubbles: three on the brew, two floating up into the air.",
+      "textHash": "35a5a7d528a9c811b20a86f436d18cfc4e5dc7787dd158852a5b010e32acbdfe",
+      "durationMs": 4160
+    },
+    "purple": {
+      "file": "purple.m4a",
+      "text": "Color the cauldron purple.",
+      "textHash": "08ca01c4e1a95603fc1331920add9239236c7a763248d878f2a226c7c9e292a1",
+      "durationMs": 1760
+    },
+    "gray": {
+      "file": "gray.m4a",
+      "text": "The rim and the legs are gray.",
+      "textHash": "08b667ded6fa8bda64701461ce0658f64d78bcba67afef6d7e83e8c6239de12a",
+      "durationMs": 2400
+    },
+    "greens": {
+      "file": "greens.m4a",
+      "text": "Color the brew green and the bubbles pale green.",
+      "textHash": "1cbac3a7773bb7dd75e7cde2b77e9bf9e014a628382bc0cbeee0b44895f3cdb0",
+      "durationMs": 3280
+    },
+    "fire": {
+      "file": "fire.m4a",
+      "text": "Brown for the ladle, red and yellow for the flames.",
+      "textHash": "b2fc2dfa0277083f981af0e7b98b41aeb76af38fbc4d945e487abed32275298b",
+      "durationMs": 3520
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your cauldron is bubbling away. Whatever's in it, maybe don't taste it.",
+      "textHash": "56fa3c25261c9f307f81cdd51df9e9c9c1fa9523c00789d33062ab3e1370de2e",
+      "durationMs": 5200
+    }
+  }
+}
