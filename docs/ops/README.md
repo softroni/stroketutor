@@ -287,12 +287,19 @@ that day; if it did, it only reports its result. The steps, in `web/`:
    post at night to catch up: the next 17:00 run takes the same lesson.
 2. `node cli/studio.mjs social check`: an account not connected or needing reconnecting goes under "Needs you"
    (TikTok until it is connected; its bio link once TikTok has verified the business).
-3. Mondays: `node cli/studio.mjs social stats --days 7`. Views per platform go in `notes.json`'s numbers
-   ("Social views, 7 days"). A subject well ahead of the rest moves its path's next lessons up in
-   `docs/ops/social-up-next.txt` (commit only that file, and only if `git status` shows nothing else).
-4. The day a version with news goes on sale (once it is tagged): `social announce` with its best new lesson
+3. `node cli/studio.mjs social snapshot` (up to 10 minutes): every number Upload-Post gives, per post and per
+   account, appended to `.studio/social/metrics.jsonl` and its `ops-history` copy. That file only grows. When the
+   midnight check catches up a missed Monday, add `--all` (it is Tuesday by then).
+4. Mondays: `node cli/studio.mjs social scorecard --days 7`, and the week's profile-link taps from PostHog
+   (`social_link_opened` with `traffic = 'human'`, by `platform`; social-plan.md, *Growth*). Views and taps per
+   platform go in `notes.json`'s numbers ("Social views, 7 days", "Profile-link taps, 7 days"). A breakout moves its
+   path's next lesson one place up in `docs/ops/social-up-next.txt`, keeping free and Premium by turns (commit only
+   that file, and only if `git status` shows nothing else).
+5. The day a version with news goes on sale (once it is tagged): `social announce` with its best new lesson
    (social-plan.md, *Release news*). Its new lessons join the queue by themselves.
-5. Keep the social dates in "dates coming up" (social-plan.md, *Schedule*), and on those days do what it says.
+6. Keep the social dates in "dates coming up" (social-plan.md, *Schedule*), and on those days do what it says. On
+   a *Growth* date the run gathers the numbers; the decision, and any change to code or tests, is made by the
+   session the run wakes (Paper Coach Social Monitor).
 
 **Setting it up** (once): make the Upload-Post account and connect the Softroni accounts to one profile, put
 the key in the settings file, run `npm run studio -- social check` in `web/` and set the board and Page ids it

@@ -116,7 +116,7 @@ up" on the Today page and does what each says on the day.
 | Every day 00:00 | Check the day's post, post once more to a platform that failed, accounts to connect; `acquisition.py` for the App Store's daily totals | daily check |
 | Every day, after the post | `social snapshot`: every number per post and account into `metrics.jsonl` | social check |
 | Mondays, from 2026-10-05 | `social scorecard`: views, hold, taps per platform on Today; subjects that do well move up | social check |
-| Fridays, from 2026-10-09 | App Store Connect's weekly report: page views and downloads per campaign (`acquisition.py`) | social check |
+| Fridays, from 2026-10-09 | App Store Connect's weekly report comes out; the nightly `acquisition.py` reads it and the next Monday scorecard shows it | daily check |
 | 2026-10-05 | E1: the new opening becomes the default (*Growth*) | Claude |
 | 2026-10-13 | E1 read | Claude |
 | 2026-10-14 | E2 starts: the speed draw on TikTok and Reels on B days | Claude |
@@ -289,7 +289,8 @@ Waiting on Kevin:
 - [x] TikTok: business verification approved and the bio link in (`ct=tiktok-bio`), 2026-10-01.
 - [x] Short profile links on softroni.com (2026-10-01). Each platform has its own, forwarding to its own campaign,
   so App Store Connect still counts downloads per platform; one link shared by all would lump them together.
-  They are one-line redirect pages in the softroni.com repo (`~/dev/softroni.com`, GitHub Pages):
+  They are redirect pages in the softroni.com repo (`~/dev/softroni.com`, GitHub Pages), each counting the tap first
+  (*Growth*, the tap counter):
 
   | Profile | Short link | Campaign |
   |---|---|---|
@@ -335,11 +336,12 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - [x] `social snapshot`: every number Upload-Post gives, per post and per account, daily into `metrics.jsonl`
   (mirrored to `ops-history`); Pinterest's clicks and TikTok's retention kept, not dropped (2026-10-01).
 - [x] `social scorecard` for Mondays (2026-10-01).
-- [ ] The social check runs `social snapshot` every day and `social scorecard` on Mondays, in both copies of its
-  prompt (it still runs `social stats`).
+- [x] The social check runs `social snapshot` every day and `social scorecard` with the week's PostHog taps on
+  Mondays, in both copies of its prompt (2026-10-01).
 - [x] App Store Connect acquisition pull: daily totals by source, weekly and monthly per campaign (`acquisition.py`,
   2026-10-01).
-- [ ] Tap counter on the seven profile links: drafted; live once Kevin says yes to the website wording.
+- [x] Tap counter on the seven profile links, with the privacy policy's "Our website" wording (Kevin's yes,
+  2026-10-01): each tap is a PostHog `social_link_opened` event, cookie-less and anonymous.
 - [ ] Captions that open with the search phrase, 5 tags, the YouTube line, the Facebook link check. (Board names
   stay: renaming one in code would make a second board, since `boardFor` matches by name.)
 - [ ] E1, the new opening, default from Oct 5.
