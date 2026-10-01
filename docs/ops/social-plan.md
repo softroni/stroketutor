@@ -249,8 +249,8 @@ add-on.
 ### Needs Kevin
 
 **Now:**
-1. Switch Pinterest to a free business account. Pinterest gives personal accounts no analytics, so every pin reads
-   0. Then check that Upload-Post still posts.
+1. ~~Switch Pinterest to a free business account.~~ Done 2026-10-01: Upload-Post reads it as `BUSINESS`, with
+   numbers from Pinterest's analytics API; still connected. E3 starts once a pin shows impressions.
 2. A yes on the website wording for the tap counter. It is drafted, not live.
 3. The AI label. Claude recommends labelling on Instagram and Facebook as well as TikTok, since Meta asks for it on
    realistic synthetic voices. YouTube can stay unlabelled.
@@ -308,6 +308,7 @@ Waiting on Kevin:
   2026-10-01 once every profile had moved over.)
 
   Never point a profile at another platform's link, and keep each page's campaign if its target ever changes.
+- [x] Pinterest is a business account (2026-10-01), so its pins report impressions, saves and outbound clicks.
 - [ ] YouTube "made for kids" and the AI label: defaults stand (no; TikTok only) unless Kevin says otherwise.
 
 To build (Claude):
