@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "shield",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:27:26.659Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Before battle, every knight painted their shield in their own colors. This one is split into four quarters with a rim of rivets. Watch it get painted, then design a shield of your own.",
+      "textHash": "e13ec3a9f0b691d3b8634f31ca7fe0f56e385430d38b3178db3ce9428442e856",
+      "durationMs": 10160
+    },
+    "outline": {
+      "file": "outline.m4a",
+      "text": "The shield has a flat top and a point at the bottom. From the middle of the top, draw each half.",
+      "textHash": "31e34ee2366329f1ba7ae488939e4906b5a329130670e2f99ef2db0f9efa4f59",
+      "durationMs": 6640
+    },
+    "rim": {
+      "file": "rim.m4a",
+      "text": "A second outline runs just inside the first, the same shape. The band between them is the rim.",
+      "textHash": "4b27e758e2da2969bf772f6f04bde48c6ab1e1b61fc4f623777124dafbdb6684",
+      "durationMs": 6080
+    },
+    "boss": {
+      "file": "boss.m4a",
+      "text": "In the middle of the shield sits a round boss.",
+      "textHash": "686952e4b04c552ca21585fa30f4ca5ad5f453e1455a5363ef6a7f40ef5f3abf",
+      "durationMs": 3200
+    },
+    "quarters": {
+      "file": "quarters.m4a",
+      "text": "Two lines cross behind the boss, one down and one across, cutting four quarters.",
+      "textHash": "f4aa49338cd898f41d3c9dc92159cfcada3bc2055d2bf49271c4237c2b174610",
+      "durationMs": 5680
+    },
+    "rivets-1": {
+      "file": "rivets-1.m4a",
+      "text": "Small round rivets stud the rim. Three along the top, three down the left side.",
+      "textHash": "6f6b65dc0350215d21a1e34987fd5118c273bca40fc68f0fad930369ccf9ff42",
+      "durationMs": 6240
+    },
+    "rivets-2": {
+      "file": "rivets-2.m4a",
+      "text": "Three more down the right side and one at the point, ten in all.",
+      "textHash": "8106a0c7062288f7eef9676e71e37d10fb3c7c98593b6ae33a5266ac1e100983",
+      "durationMs": 5120
+    },
+    "gray": {
+      "file": "gray.m4a",
+      "text": "Color the rim gray.",
+      "textHash": "f26a2c697df4d2b45c030c0aef5dc87b35cc72e2b335a5bb3ba296be011d5c18",
+      "durationMs": 1760
+    },
+    "quarters-color": {
+      "file": "quarters-color.m4a",
+      "text": "Two quarters are blue and two are red, matching across the corners.",
+      "textHash": "d9a4ca6707daa92c2c860ebed5c6c4d4a89c69c4bfd8e22bede7a02439e259b5",
+      "durationMs": 4240
+    },
+    "gold": {
+      "file": "gold.m4a",
+      "text": "Gold for the boss and all ten rivets.",
+      "textHash": "f463d2f9ccfe75047d1d2b1ce30d85897fe67abf0946025e5e8a44b696c3a77d",
+      "durationMs": 2640
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your shield is ready for battle. Which colors would you paint on yours?",
+      "textHash": "bcd933901fb4136ba6d8c171474f2386e638a1eecfbfcf5f4bc8d982d945baa4",
+      "durationMs": 4160
+    }
+  }
+}
