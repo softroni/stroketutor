@@ -162,6 +162,21 @@ Waiting on Kevin:
 - [x] Campaign links in the profiles of Instagram, X, YouTube, Facebook and Pinterest (`<platform>-bio`,
   `youtube-channel`, `facebook-page`, `pinterest-profile`).
 - [x] TikTok: business verification approved and the bio link in (`ct=tiktok-bio`), 2026-10-01.
+- [x] Short profile links on softroni.com (2026-10-01). Each platform has its own, forwarding to its own campaign,
+  so App Store Connect still counts downloads per platform; one link shared by all would lump them together.
+  They are one-line redirect pages in the softroni.com repo (`~/dev/softroni.com`, GitHub Pages):
+
+  | Profile | Short link | Campaign |
+  |---|---|---|
+  | TikTok | softroni.com/draw (`draw.html`) | `tiktok-bio` |
+  | X | softroni.com/x/draw | `x-bio` |
+  | Threads | softroni.com/threads/draw | `threads-bio` |
+  | Instagram | softroni.com/instagram/draw | `instagram-bio` |
+  | Facebook | softroni.com/facebook/draw | `facebook-page` |
+  | YouTube | softroni.com/youtube/draw | `youtube-channel` |
+  | Pinterest | softroni.com/pinterest/draw | `pinterest-profile` |
+
+  Never point a profile at another platform's link, and keep each page's campaign if its target ever changes.
 - [ ] YouTube "made for kids" and the AI label: defaults stand (no; TikTok only) unless Kevin says otherwise.
 
 To build (Claude):
