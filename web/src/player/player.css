@@ -98,7 +98,7 @@
   width: 100%;
   height: 100%;
   border-radius: 18px;
-  filter: drop-shadow(0 8px 24px rgba(31, 27, 20, 0.08));
+  filter: drop-shadow(0 8px 24px rgb(var(--shade) / 0.08));
 }
 
 .st-card {
@@ -184,7 +184,7 @@
 }
 
 .st-button--primary:hover:not(:disabled) {
-  background: #000;
+  background: var(--ink-strong);
 }
 
 /* Speed picker, the same set and size as the Studio's replay speeds. */
@@ -240,7 +240,7 @@
   aspect-ratio: var(--ratio, 1);
   border-radius: 10px;
   cursor: zoom-in;
-  box-shadow: 0 2px 8px rgba(31, 27, 20, 0.1);
+  box-shadow: 0 2px 8px rgb(var(--shade) / 0.1);
 }
 .st-goal[aria-pressed='true'] {
   outline: 2px solid var(--accent, #1f6feb);

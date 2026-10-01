@@ -40,6 +40,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* On the chosen device's ink fill, a quieter shade of its label, in either theme. */
+[aria-pressed='true'] > .st-shots__count {
+  color: inherit;
+  opacity: 0.65;
+}
+
 .st-shots__section {
   margin-top: 32px;
 }
@@ -113,7 +119,7 @@
 .st-shots__card:hover img,
 .st-shots__card:focus-visible img {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(31, 27, 20, 0.14);
+  box-shadow: 0 10px 24px rgb(var(--shade) / 0.14);
 }
 
 .st-shots__caption {

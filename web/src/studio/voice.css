@@ -13,6 +13,12 @@
   --clay-line: #eccdbc;
 }
 
+:root[data-theme='dark'] {
+  --clay: #e08a62;
+  --clay-tint: #2d1e17;
+  --clay-line: #5a3626;
+}
+
 /* ---------- The page and its title row ---------- */
 
 .st-voice {
@@ -48,8 +54,8 @@
 }
 
 .st-voice__server.is-up {
-  background: #e5f3ea;
-  color: #1f6b3a;
+  background: var(--good-soft);
+  color: var(--good);
 }
 
 .st-voice__server.is-busy {
@@ -107,7 +113,7 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  border-color: #e6bfc3;
+  border-color: var(--danger-line);
   background: var(--danger-tint);
   color: var(--ink-muted);
 }
@@ -226,15 +232,15 @@
 }
 
 .st-voice-chip--ready {
-  border-color: #b9dcc5;
-  background: #eef8f1;
-  color: #1f6b3a;
+  border-color: var(--good-line);
+  background: var(--good-tint);
+  color: var(--good);
 }
 
 .st-voice-chip--changed {
-  border-color: #e9d9ad;
-  background: #fdf8ea;
-  color: #8a5a00;
+  border-color: var(--amber-line);
+  background: var(--amber-tint);
+  color: var(--amber);
 }
 
 .st-voice-chip--todo {
@@ -627,7 +633,7 @@
 }
 
 .st-freeze-option__time.is-off {
-  color: #8a5a00;
+  color: var(--amber);
 }
 
 /* ---------- The script ---------- */
@@ -694,7 +700,7 @@
 }
 
 .st-narrate__warning {
-  color: #8a5a00;
+  color: var(--amber);
 }
 
 .st-narrate__toolbar {
@@ -733,7 +739,7 @@
 }
 
 .st-narrate__behind {
-  color: #8a5a00;
+  color: var(--amber);
   font-weight: 600;
 }
 
@@ -867,7 +873,7 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  border-color: #e6bfc3;
+  border-color: var(--danger-line);
   background: var(--danger-tint);
   color: var(--ink-muted);
 }
@@ -1003,7 +1009,7 @@
   font-size: 13px;
 }
 .st-preview-voice__note.is-stale {
-  color: #a15c00;
+  color: var(--amber);
 }
 .st-bookend {
   display: flex;

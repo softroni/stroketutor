@@ -1,13 +1,13 @@
 /* Workspace vs published: badges, the Publish and Trash views, dialogs and menus. */
 
 .st-pill--published {
-  background: #e3edf8;
-  color: #1d4f86;
+  background: var(--chip-blue-tint);
+  color: var(--chip-blue);
 }
 
 .st-pill--edited {
-  background: #ece6f7;
-  color: #5b3a99;
+  background: var(--chip-violet-tint);
+  color: var(--chip-violet);
 }
 
 .st-nav-badge {
@@ -19,7 +19,7 @@
   padding: 0 6px;
   border-radius: 999px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-fill);
   font-size: 12px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -37,8 +37,8 @@
   gap: 14px;
   flex-wrap: wrap;
   padding: 10px 32px;
-  border-bottom: 1px solid #e9d9ad;
-  background: #fdf8ea;
+  border-bottom: 1px solid var(--amber-line);
+  background: var(--amber-tint);
   font-size: 14px;
   color: var(--ink-muted);
 }
@@ -50,11 +50,11 @@
 .st-button--danger-solid {
   border-color: var(--danger);
   background: var(--danger);
-  color: #fff;
+  color: var(--on-fill);
 }
 
 .st-button--danger-solid:hover:not(:disabled) {
-  background: #8c1826;
+  background: color-mix(in srgb, var(--danger) 82%, var(--ink-strong));
 }
 
 .st-link-button--danger {
@@ -71,7 +71,7 @@
   border-radius: 18px;
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 24px 64px rgba(31, 27, 20, 0.22);
+  box-shadow: 0 24px 64px rgb(var(--shade) / 0.22);
 }
 
 .st-dialog--wide {
@@ -89,7 +89,7 @@
 }
 
 .st-dialog::backdrop {
-  background: rgba(31, 27, 20, 0.35);
+  background: var(--scrim);
 }
 
 .st-dialog__form {
@@ -173,7 +173,7 @@
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface);
-  box-shadow: 0 12px 32px rgba(31, 27, 20, 0.16);
+  box-shadow: 0 12px 32px rgb(var(--shade) / 0.16);
 }
 
 .st-menu__item {
@@ -338,7 +338,7 @@
   padding: 10px 12px;
   overflow-x: auto;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.7);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
   font-size: 12.5px;
   color: var(--ink);
   white-space: pre-wrap;

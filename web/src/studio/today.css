@@ -27,12 +27,27 @@
   --today-variant-4: #eda100;
   --today-radius-sheet: 22px;
   --today-radius-panel: 16px;
-  --today-lift: 0 1px 2px rgba(31, 27, 20, 0.04), 0 14px 36px -22px rgba(31, 27, 20, 0.28);
+  --today-lift: 0 1px 2px rgb(var(--shade) / 0.04), 0 14px 36px -22px rgb(var(--shade) / 0.28);
 
   width: 100%;
   max-width: 1180px;
   margin: 0 auto;
   padding: 32px 32px 72px;
+}
+
+/* Dark: the same tones, lifted so they read on charcoal; the paywall colors stay as validated. */
+:root[data-theme='dark'] .st-today {
+  --good: #7ccf98;
+  --good-tint: #172a1f;
+  --good-line: #2e5a3e;
+  --waiting: #e2b45c;
+  --waiting-tint: #2a2315;
+  --waiting-line: #574721;
+  --attention: #f08a5d;
+  --attention-tint: #2e1d15;
+  --attention-line: #5c3322;
+  --bad-line: #5e2d33;
+  --today-lift: 0 1px 2px rgb(var(--shade) / 0.3), 0 14px 36px -22px rgb(var(--shade) / 0.7);
 }
 
 .st-today a:focus-visible,
@@ -404,11 +419,11 @@
 /* The one motion on the page: the version on its way to Apple breathes while it waits. */
 @keyframes st-today-waiting {
   0% {
-    box-shadow: 0 0 0 4px var(--surface), 0 0 0 5px rgba(138, 90, 0, 0.45);
+    box-shadow: 0 0 0 4px var(--surface), 0 0 0 5px color-mix(in srgb, var(--waiting) 45%, transparent);
   }
   70%,
   100% {
-    box-shadow: 0 0 0 4px var(--surface), 0 0 0 16px rgba(138, 90, 0, 0);
+    box-shadow: 0 0 0 4px var(--surface), 0 0 0 16px color-mix(in srgb, var(--waiting) 0%, transparent);
   }
 }
 
@@ -510,7 +525,7 @@
 .st-today__phased-days span {
   height: 6px;
   border-radius: 2px;
-  background: rgba(31, 27, 20, 0.1);
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
 }
 
 .st-today__phased-days span.st-today__phased-on {
@@ -549,7 +564,7 @@
   padding: 0 7px;
   border-radius: 999px;
   background: var(--waiting);
-  color: #fff;
+  color: var(--on-fill);
   font-size: 12.5px;
   font-weight: 700;
 }
@@ -580,7 +595,7 @@
   height: 28px;
   border-radius: 50%;
   background: var(--waiting);
-  color: #fff;
+  color: var(--on-fill);
   font-family: var(--today-display);
   font-size: 15px;
   font-weight: 800;
@@ -589,7 +604,7 @@
 .st-today__age {
   padding: 2px 9px;
   border-radius: 999px;
-  background: rgba(138, 90, 0, 0.1);
+  background: color-mix(in srgb, var(--waiting) 10%, transparent);
   color: var(--waiting);
   font-size: 12.5px;
   font-weight: 650;
@@ -1084,7 +1099,8 @@
   min-width: 0;
   font-size: 12px;
   font-weight: 700;
-  color: var(--ink);
+  /* The light theme's ink in both themes: the design colors behind it do not change. */
+  color: #1f1b14;
 }
 
 .st-today__split span.st-today__split-light {
@@ -1154,7 +1170,7 @@
   height: 8px;
   border-radius: 999px;
   background: var(--accent-tint);
-  box-shadow: inset 0 0 0 1px rgba(43, 108, 176, 0.14);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 14%, transparent);
   overflow: hidden;
 }
 

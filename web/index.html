@@ -8,6 +8,19 @@
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/icon.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- The theme before the first paint, so a dark Studio never flashes light: the choice saved by
+         the bar's toggle, else the system's. src/studio/theme.ts keeps it in step after that. -->
+    <script>
+      ;(function () {
+        var theme = null
+        try {
+          theme = localStorage.getItem('papercoach:theme')
+        } catch (error) {}
+        if (theme !== 'light' && theme !== 'dark')
+          theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

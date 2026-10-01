@@ -99,7 +99,7 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
-  box-shadow: 0 16px 40px rgba(31, 27, 20, 0.18);
+  box-shadow: 0 16px 40px rgb(var(--shade) / 0.18);
 }
 
 /* ---------- Panes ---------- */
@@ -143,7 +143,7 @@
 .st-rail .st-reference img {
   max-height: 34vh;
   object-fit: contain;
-  background: var(--page);
+  background: var(--paper-warm);
 }
 
 .st-rail .st-label + .st-lesson-details {
@@ -269,13 +269,13 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
-  box-shadow: 0 12px 32px rgba(31, 27, 20, 0.16);
+  box-shadow: 0 12px 32px rgb(var(--shade) / 0.16);
   font-size: 14px;
 }
 
 .st-selection-bar__count {
   font-weight: 650;
-  color: #b01f33;
+  color: var(--danger);
 }
 
 .st-selection-bar select {
@@ -349,7 +349,7 @@
 }
 
 .st-step-card__selected {
-  color: #b01f33;
+  color: var(--danger);
   font-weight: 600;
 }
 
@@ -403,7 +403,7 @@
   width: min(900px, calc(100% - 120px));
   border-left: 1px solid var(--line);
   background: var(--surface);
-  box-shadow: -16px 0 40px rgba(31, 27, 20, 0.14);
+  box-shadow: -16px 0 40px rgb(var(--shade) / 0.14);
   transform: translateX(104%);
   visibility: hidden;
   transition:
@@ -477,16 +477,16 @@
   align-items: flex-start;
   gap: 10px;
   padding: 10px 10px 10px 14px;
-  border: 1px solid #b9dcc5;
+  border: 1px solid var(--good-line);
   border-radius: 12px;
-  background: #eef8f1;
-  box-shadow: 0 8px 24px rgba(31, 27, 20, 0.12);
-  color: #1f6b3a;
+  background: var(--good-tint);
+  box-shadow: 0 8px 24px rgb(var(--shade) / 0.12);
+  color: var(--good);
   font-size: 14px;
 }
 
 .st-toast--error {
-  border-color: #e6bfc3;
+  border-color: var(--danger-line);
   background: var(--danger-tint);
   color: var(--danger);
 }
@@ -562,7 +562,7 @@
     left: 0;
     z-index: 15;
     width: 280px;
-    box-shadow: 16px 0 40px rgba(31, 27, 20, 0.14);
+    box-shadow: 16px 0 40px rgb(var(--shade) / 0.14);
   }
 
   .st-workspace__panes:not(.is-rail-closed) .st-stage-pane {
@@ -656,8 +656,8 @@
   transform: translateX(-50%);
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 8px 24px rgba(31, 27, 20, 0.12);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: 0 8px 24px rgb(var(--shade) / 0.12);
   font-size: 13px;
   color: var(--ink-muted);
   white-space: nowrap;

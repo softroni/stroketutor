@@ -45,7 +45,7 @@
 }
 
 .st-paths__count.is-none {
-  color: #a58a4b;
+  color: var(--amber-faint);
 }
 
 /* ---------- Levels ---------- */
@@ -299,7 +299,7 @@
 }
 
 .st-lesson-row__note {
-  color: #8a5a00;
+  color: var(--amber);
 }
 
 /* ---------- Grid ---------- */
@@ -475,7 +475,7 @@
 }
 
 .st-path-colors__swatch input:checked + span {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ink);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink);
 }
 
 .st-path-colors__swatch input:focus-visible + span {

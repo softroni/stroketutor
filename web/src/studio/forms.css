@@ -36,7 +36,7 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
-  box-shadow: 0 -4px 24px rgba(31, 27, 20, 0.08);
+  box-shadow: 0 -4px 24px rgb(var(--shade) / 0.08);
 }
 
 .st-new-lesson__status {
@@ -47,7 +47,7 @@
 }
 
 .st-new-lesson__status.is-ready {
-  color: #1f6b3a;
+  color: var(--good);
 }
 
 .st-new-lesson__footer .st-button {
@@ -94,6 +94,7 @@
   max-width: 100%;
   max-height: 360px;
   border-radius: 10px;
+  background: var(--paper);
   object-fit: contain;
 }
 

@@ -2,16 +2,46 @@
   --ink: #1f1b14;
   --ink-muted: #4a453c;
   --ink-faint: #8a8377;
+  /* Hover on a solid ink button: one step past the ink. */
+  --ink-strong: #000;
   --surface: #ffffff;
+  /* Behind source pictures, which may be transparent: white paper in both themes, so a picture's
+     dark outlines read the same at night. */
+  --paper: #fff;
+  --paper-warm: #f6f4ef;
   --surface-hover: #f3f1ec;
   --page: #f6f4ef;
+  /* Text boxes and open folds: a touch warmer than the card around them. */
+  --field: #fcfbf8;
   --line: #e3dfd6;
   --line-strong: #cfc9bc;
+  /* A quiet neutral chip. */
+  --pill: #efece5;
   --accent: #2b6cb0;
   --accent-soft: rgba(43, 108, 176, 0.18);
   --accent-tint: #f2f7fc;
   --danger: #a8202f;
   --danger-tint: #fdf3f3;
+  --danger-line: #e6bfc3;
+  --good: #1f6b3a;
+  --good-soft: #e5f3ea;
+  --good-tint: #eef8f1;
+  --good-line: #b9dcc5;
+  --amber: #8a5a00;
+  --amber-faint: #a58a4b;
+  --amber-soft: #fbf1dc;
+  --amber-tint: #fdf8ea;
+  --amber-line: #e9d9ad;
+  /* Kinds of change on the Publish page. */
+  --chip-blue: #1d4f86;
+  --chip-blue-tint: #e3edf8;
+  --chip-violet: #5b3a99;
+  --chip-violet-tint: #ece6f7;
+  /* Text on a solid accent, danger, good or amber fill. */
+  --on-fill: #fff;
+  /* Shadows, as rgb(var(--shade) / alpha), and the dim behind a dialog. */
+  --shade: 31 27 20;
+  --scrim: rgb(var(--shade) / 0.35);
 
   color-scheme: light;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, Helvetica, Arial,
@@ -21,6 +51,47 @@
   color: var(--ink);
   background: var(--page);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Dark: the same paper and ink at night, warm charcoal rather than blue-black. index.html sets
+   data-theme before the first paint, from the creator's saved choice or else the system's. The
+   lesson drawings keep their own white paper, so a drawing looks the same in either theme. */
+:root[data-theme='dark'] {
+  --ink: #ede8de;
+  --ink-muted: #c2baad;
+  --ink-faint: #918a7e;
+  --ink-strong: #fff;
+  --surface: #1e1c19;
+  --surface-hover: #292622;
+  --page: #151412;
+  --field: #191714;
+  --line: #322e29;
+  --line-strong: #47423a;
+  --pill: #2c2924;
+  --accent: #6ea8ea;
+  --accent-soft: rgba(110, 168, 234, 0.3);
+  --accent-tint: #1a2433;
+  --danger: #ef8a92;
+  --danger-tint: #2e1b1d;
+  --danger-line: #5e2d33;
+  --good: #7ccf98;
+  --good-soft: #1d3326;
+  --good-tint: #172a1f;
+  --good-line: #2e5a3e;
+  --amber: #e2b45c;
+  --amber-faint: #b39b66;
+  --amber-soft: #33291a;
+  --amber-tint: #2a2315;
+  --amber-line: #574721;
+  --chip-blue: #9cc4f0;
+  --chip-blue-tint: #1b2a3d;
+  --chip-violet: #c3acf0;
+  --chip-violet-tint: #28203d;
+  --on-fill: #17140f;
+  --shade: 0 0 0;
+  --scrim: rgba(0, 0, 0, 0.55);
+
+  color-scheme: dark;
 }
 
 * {

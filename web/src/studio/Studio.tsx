@@ -17,6 +17,7 @@ import { ScreenshotsView } from './ScreenshotsView'
 import { SettingsView } from './SettingsView'
 import { SocialView } from './SocialView'
 import { loadSources } from './sources'
+import { ThemeToggle } from './ThemeToggle'
 import { TodayView } from './TodayView'
 import { TrashView } from './TrashView'
 import { VoiceView } from './VoiceView'
@@ -239,6 +240,7 @@ export function Studio() {
               Settings
             </a>
           </nav>
+          <ThemeToggle />
         </div>
       </header>
       {library?.publishing.sharedChangedOutside ? (
