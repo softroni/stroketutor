@@ -332,9 +332,11 @@ Then (Claude, once the plan and TikTok are on):
 Growth (Claude, from 2026-10-01; *Growth* says why):
 
 - [x] TikTok and Instagram get our caption, not the YouTube title (2026-10-01).
-- [ ] `social snapshot`: every number Upload-Post gives, per post and per account, daily into `metrics.jsonl`
-  (mirrored to `ops-history`); Pinterest's clicks and TikTok's retention kept, not dropped.
-- [ ] `social scorecard` for Mondays.
+- [x] `social snapshot`: every number Upload-Post gives, per post and per account, daily into `metrics.jsonl`
+  (mirrored to `ops-history`); Pinterest's clicks and TikTok's retention kept, not dropped (2026-10-01).
+- [x] `social scorecard` for Mondays (2026-10-01).
+- [ ] The social check runs `social snapshot` every day and `social scorecard` on Mondays, in both copies of its
+  prompt (it still runs `social stats`).
 - [x] App Store Connect acquisition pull: daily totals by source, weekly and monthly per campaign (`acquisition.py`,
   2026-10-01).
 - [ ] Tap counter on the seven profile links: drafted; live once Kevin says yes to the website wording.
@@ -359,3 +361,5 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
   within seconds. TikTok and Instagram had shown the YouTube title instead of our caption: fixed before Watermelon.
 - 2026-10-01: `acquisition.py` reads App Store Connect's acquisition reports. First day (Sep 30): 2 first downloads,
   6 page views, 4 of them from an app; no campaign rows yet.
+- 2026-10-01: built `social snapshot` (every number per post and account into `metrics.jsonl`, copied to
+  `ops-history`) and `social scorecard`; `social stats` counts replies and reactions, and links pins to the pin.

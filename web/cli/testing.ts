@@ -73,7 +73,7 @@ export async function openTestStudio(
       tts: options.tts,
       browser: options.browser,
       // Never the real settings file: a test that posts names its own.
-      social: { configFile: path.join(root, 'upload-post.config'), pollMs: 0, ...options.social },
+      social: { configFile: path.join(root, 'upload-post.config'), pollMs: 0, pauseMs: 0, ...options.social },
       io,
     })
     return { code, stdout, stderr }

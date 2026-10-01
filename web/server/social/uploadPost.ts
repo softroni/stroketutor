@@ -1,11 +1,15 @@
 import { openAsBlob } from 'node:fs'
 import path from 'node:path'
 
+import { metricsSummary } from './metrics'
+import { platformLink } from './posts'
+
 /**
  * The few Upload-Post endpoints the social command uses
  * (https://docs.upload-post.com): who the key belongs to, the profile's
- * connected accounts, Pinterest boards and Facebook Pages, an upload, and its
- * status. `fetch` is injectable so tests never reach the network.
+ * connected accounts, Pinterest boards and Facebook Pages, an upload, its
+ * status, and the numbers of posts and accounts. `fetch` is injectable so
+ * tests never reach the network.
  */
 
 export const UPLOAD_POST_API = 'https://api.upload-post.com'
@@ -55,17 +59,31 @@ export interface UploadPostClient {
   uploadPhotos(fields: [string, string][], imageFiles: string[], requestId: string): Promise<UploadAccepted>
   createPinterestBoard(profile: string, name: string, description: string): Promise<{ id: string; name: string }>
   status(id: { requestId?: string; jobId?: string }): Promise<UploadStatus>
-  /** How a post is doing on each platform it went to: views, likes and comments, as the platforms report them. */
+  /** How a post is doing on each platform it went to, as the platforms report it (read live; at most 100 calls in 5 minutes). */
   postMetrics(requestId: string): Promise<Record<string, PostMetrics>>
+  /**
+   * The accounts' own numbers (followers, reach, Instagram's bio-link taps, Threads' link clicks,
+   * Pinterest's outbound clicks…), each platform's object as Upload-Post gives it. Facebook needs
+   * its Page, and takes a window in days (30 by default).
+   */
+  accountMetrics(profile: string, platforms: string[], options?: { pageId?: string | null; days?: number }): Promise<Record<string, Record<string, unknown>>>
+  /** TikTok's audience over whole days (`YYYY-MM-DD`): bio-link taps, followers by day, when followers are online. */
+  tiktokAudience(profile: string, range: { start: string; end: string }): Promise<Record<string, unknown>>
 }
 
 export interface PostMetrics {
+  /** Views, likes and comments, whatever the platform calls them (`metricsSummary`). */
   views: number | null
   likes: number | null
   comments: number | null
+  /** Where the post can be seen: for a pin its own address, not the App Store link it leads to. */
   url: string | null
+  /** The platform's own id for the post. */
+  postId: string | null
   /** Why a platform's numbers are missing (a token to refresh, a post not found), when they are. */
   error: string | null
+  /** Everything the platform reported (`post_metrics`): TikTok's retention, Pinterest's outbound clicks, saves… */
+  raw: Record<string, unknown>
 }
 
 export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch, base = UPLOAD_POST_API): UploadPostClient {
@@ -158,19 +176,38 @@ export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch
 
     async postMetrics(requestId) {
       const body = await call('GET', `/api/uploadposts/post-analytics/${encodeURIComponent(requestId)}`)
-      const number = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : null)
       const out: Record<string, PostMetrics> = {}
-      for (const [platform, value] of Object.entries((body.platforms ?? {}) as Record<string, Record<string, unknown>>)) {
-        const metrics = (value.post_metrics ?? {}) as Record<string, unknown>
-        out[platform === 'twitter' ? 'x' : platform] = {
-          views: number(metrics.views) ?? number(metrics.impressions) ?? number(metrics.plays),
-          likes: number(metrics.likes),
-          comments: number(metrics.comments),
-          url: text(value.post_url) && /^https?:/.test(String(value.post_url)) ? String(value.post_url) : null,
-          error: text(value.post_metrics_error),
-        }
+      for (const [name, value] of Object.entries((body.platforms ?? {}) as Record<string, Record<string, unknown>>)) {
+        if (!value || typeof value !== 'object') continue
+        const platform = name.toLowerCase() === 'twitter' ? 'x' : name.toLowerCase()
+        const raw = (value.post_metrics && typeof value.post_metrics === 'object' ? value.post_metrics : {}) as Record<string, unknown>
+        const postId = text(value.platform_post_id)
+        const given = text(value.post_url) && /^https?:/.test(String(value.post_url)) ? String(value.post_url) : null
+        out[platform] = { ...metricsSummary(raw), url: platformLink(platform, given, postId), postId, error: text(value.post_metrics_error), raw }
       }
       return out
+    },
+
+    async accountMetrics(profile, platforms, options = {}) {
+      const query = [`platforms=${platforms.map(encodeURIComponent).join(',')}`]
+      if (options.pageId) query.push(`page_id=${encodeURIComponent(options.pageId)}`)
+      if (options.days) query.push(`days=${options.days}`)
+      const body = await call('GET', `/api/analytics/${encodeURIComponent(profile)}?${query.join('&')}`)
+      const out: Record<string, Record<string, unknown>> = {}
+      for (const [name, value] of Object.entries(body)) {
+        const platform = name === 'twitter' ? 'x' : name
+        // The platforms asked for, each an object; anything else in the answer is not a platform's numbers.
+        if (platforms.includes(platform) && value && typeof value === 'object' && !Array.isArray(value)) out[platform] = value as Record<string, unknown>
+      }
+      return out
+    },
+
+    async tiktokAudience(profile, range) {
+      const query = `platform=tiktok&user=${encodeURIComponent(profile)}&start_date=${range.start}&end_date=${range.end}`
+      const numbers = { ...(await call('GET', `/api/uploadposts/audience?${query}`)) }
+      // The 25 benchmark categories it always lists are a picker's choices, not numbers.
+      for (const key of ['success', 'platform', 'benchmark_categories']) delete numbers[key]
+      return numbers
     },
 
     async status({ requestId, jobId }) {

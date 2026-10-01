@@ -46,6 +46,8 @@ export interface SocialDeps {
   configFile: string
   /** Milliseconds between status checks while waiting for a post to go out. */
   pollMs: number
+  /** Milliseconds between analytics reads (`social snapshot`): Upload-Post allows 100 post reads in 5 minutes. */
+  pauseMs: number
   /** Screenshots a step pin's page to a PNG (Chrome); tests write a stand-in. */
   renderPin: (html: string, out: string) => Promise<string>
 }
@@ -149,6 +151,7 @@ export function createContext(flags: GlobalFlags, options: RunOptions): Context 
       fetch: globalThis.fetch,
       configFile: options.env.UPLOAD_POST_CONFIG || path.join(homedir(), '.config', 'upload-post', 'config'),
       pollMs: 15_000,
+      pauseMs: 3_200,
       renderPin,
       ...options.social,
     },

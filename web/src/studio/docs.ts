@@ -792,6 +792,7 @@ export const DOC_TASKS: DocTask[] = [
     steps: [
       { run: 'npm run studio -- social queue', does: 'What goes out next' },
       { run: 'npm run studio -- social status --refresh', does: 'Where the last posts reached' },
+      { run: 'npm run studio -- social scorecard', does: 'How each platform did this week' },
       { run: 'npm run studio -- social post <id> --platforms <platform> --no-pin', does: 'Post a lesson again, to one platform' },
     ],
   },
