@@ -156,6 +156,12 @@ describe('uploadFields', () => {
     expect(fields.privacy_level).toBeUndefined()
   })
 
+  it('puts the TikTok and Instagram caption in the general title, which those two publish', () => {
+    expect(fieldsOf(uploadFields(request())).title).toEqual([texts.caption])
+    expect(fieldsOf(uploadFields(request({ platforms: ['instagram', 'x'] }))).title).toEqual([texts.caption])
+    expect(fieldsOf(uploadFields(request({ platforms: ['youtube', 'facebook'] }))).title).toEqual([texts.youtubeTitle])
+  })
+
   it('keeps a test post private where it can be', () => {
     const fields = fieldsOf(uploadFields(request({ platforms: ['youtube', 'tiktok', 'facebook'], private: true })))
     expect(fields.privacyStatus).toEqual(['private'])

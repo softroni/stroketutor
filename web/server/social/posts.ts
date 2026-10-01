@@ -302,7 +302,10 @@ export function uploadFields(request: PostRequest): [string, string][] {
   const has = (platform: Platform) => platforms.includes(platform)
   const fields: [string, string][] = [['user', request.profile]]
   for (const platform of platforms) fields.push(['platform[]', API_PLATFORM[platform]])
-  fields.push(['title', texts.youtubeTitle], ['external_id', request.externalId], ['request_id', request.requestId])
+  // TikTok and Instagram publish the general `title` as their caption, whatever `tiktok_title` and `instagram_title`
+  // say (Pine Tree, 2026-10-01), so `title` carries their caption; every other platform has a text field of its own.
+  const title = has('tiktok') || has('instagram') ? texts.caption : texts.youtubeTitle
+  fields.push(['title', title], ['external_id', request.externalId], ['request_id', request.requestId])
   if (request.scheduledAt) fields.push(['scheduled_date', request.scheduledAt])
   else fields.push(['async_upload', 'true'])
   if (settings.aiLabel === 'all') fields.push(['is_ai_generated', 'true'])
