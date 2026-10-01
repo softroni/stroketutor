@@ -5,12 +5,13 @@ import { appendFile, mkdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { promisify } from 'node:util'
 
+import { experimentsOn, openingFor, REGISTER_FILE } from '../../server/social/experiments'
 import {
   FINAL_STATUSES,
   announcementTexts,
+  dayOf,
   boardDescription,
   boardName,
-  dayOf,
   pinFields,
   pinTexts,
   postEntry,
@@ -35,7 +36,6 @@ import {
   type SocialRecord,
   type SocialSettings,
 } from '../../server/social/posts'
-import { experimentsOn, openingFor, REGISTER_FILE } from '../../server/social/experiments'
 import { lastLessonVideo, mayPost, PIN_DELAY_HOURS, POST_GAP_HOURS, postingQueue, stillToPost, tooSoonAfter } from '../../server/social/queue'
 import { UploadPostError, uploadPostClient, type UploadPostClient } from '../../server/social/uploadPost'
 import { pinPage } from '../../server/social/pin'
