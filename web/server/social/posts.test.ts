@@ -111,7 +111,7 @@ describe('socialTexts', () => {
 describe('uploadFields', () => {
   it('sends each platform its own text, and Pinterest the App Store link', () => {
     const fields = fieldsOf(uploadFields(request()))
-    expect(fields['platform[]']).toEqual(['youtube', 'tiktok', 'instagram', 'facebook', 'threads', 'pinterest', 'twitter'])
+    expect(fields['platform[]']).toEqual(['youtube', 'tiktok', 'instagram', 'facebook', 'threads', 'pinterest', 'x'])
     expect(fields.threads_title).toEqual([texts.threads])
     expect(fields.threads_topic_tag).toEqual(['Drawing'])
     expect(fields.youtube_title).toEqual([texts.youtubeTitle])

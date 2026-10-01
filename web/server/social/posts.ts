@@ -23,7 +23,7 @@ export function appStoreLink(campaign: string, providerToken: string | null): st
 export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook', 'threads', 'pinterest', 'x'] as const
 export type Platform = (typeof PLATFORMS)[number]
 
-/** What Upload-Post calls each platform in `platform[]` and in its results. */
+/** What Upload-Post calls each platform in `platform[]` and in its results. Its docs say "twitter" for X, but the API refuses that ("Invalid platforms: ['twitter']") and wants "x". */
 export const API_PLATFORM: Record<Platform, string> = {
   youtube: 'youtube',
   tiktok: 'tiktok',
@@ -31,7 +31,7 @@ export const API_PLATFORM: Record<Platform, string> = {
   facebook: 'facebook',
   threads: 'threads',
   pinterest: 'pinterest',
-  x: 'twitter',
+  x: 'x',
 }
 
 /** Where a post can be kept to the account for a test: YouTube private, TikTok "only me", a Facebook draft. */
