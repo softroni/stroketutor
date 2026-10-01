@@ -46,6 +46,9 @@ the crowns**. Nothing may sell a new product until a build with this change is o
 
 ## 2. A price test (Kevin sets the prices; after item 1 is on sale)
 
+**On hold (Kevin, 2026-10-01):** keep $29.99 for now. Test a higher price only once Paper Coach has steady
+revenue, and judge it by whether it raises profit. Don't propose the products before then.
+
 **Why:** the biggest lever on whether ads can pay, and on revenue from every learner who does subscribe.
 
 **Plan:**
@@ -189,5 +192,5 @@ app, so they are Kevin's; each is small:
 ## Order (decided 2026-09-30)
 
 **1.1 carries items 1, 4 and 5**, with Around Town's Café and everything on `main` since 1.0 (2); it is cut once all of
-them are merged (item 1 is: `508ec63`). The plan and its checklist: [docs/releases/1.1.md](releases/1.1.md). The price test (2) starts as soon as
-1.1 is on sale. Item 3 goes in the build after, with item 6 (sharing, on `main` since 2026-10-01).
+them are merged (item 1 is: `508ec63`). The plan and its checklist: [docs/releases/1.1.md](releases/1.1.md). The price test (2) waits for steady revenue
+(Kevin, 2026-10-01). Item 3 goes in the build after, with item 6 (sharing, on `main` since 2026-10-01).
