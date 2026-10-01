@@ -122,7 +122,7 @@ posts on the narrow slabs, close to the glass.
 - glass-color: "Color the glass blue."
 - sand-color: "Color the sand yellow, top and bottom."
 - posts-color: "The posts are cream."
-- outro: "Time is running out, one grain at a time. How long would yours take to empty?"
+- outro: "Time is running out, one grain at a time. Better start your next drawing before it empties."
 
 ### sword
 
@@ -168,7 +168,7 @@ drawn first, so both ovals of the rim start and end on it.
 - gray: "The rim and the legs are gray."
 - greens: "Color the brew green and the bubbles pale green."
 - fire: "Brown for the ladle, red and yellow for the flames."
-- outro: "Your cauldron is bubbling away. What's in your brew tonight?"
+- outro: "Your cauldron is bubbling away. Whatever's in it, maybe don't taste it."
 
 ### spellbook
 
@@ -181,7 +181,7 @@ the right edge and a strap running from it over the edge and down the pages (ora
 side). The trace ran the book's whole outline and one side of the strap as one line; it was cut into the
 cover's far edges, three upright edges and the bottom before building.
 
-- intro: "Every wizard's library has one book that's locked for a reason. This one has gold corners, a sun on the cover and a strap. Watch it appear, then write your own spells."
+- intro: "Some books come with a lock, and there's always a reason. This one has gold corners, a sun on the cover and a strap. Watch it appear, then write your own spells."
 - cover: "The cover is a leaning diamond. Draw its two near edges, then its two far edges."
 - edges: "Three short edges hang down from the cover: at the left, the front and the right corner."
 - bottom: "Join their ends along the bottom, running the same way as the cover's edges."
