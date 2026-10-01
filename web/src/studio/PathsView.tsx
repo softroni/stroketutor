@@ -98,21 +98,25 @@ const UI_KEY = 'papercoach.studio.paths'
 
 interface ViewPrefs {
   filter: Filter
-  density: Density
+  layout: Density
   lastPathId: string | null
 }
 
-/** The filter, layout and last path, remembered in this browser only. */
+/**
+ * The filter, layout and last path, remembered in this browser only. Grid is the default layout. The
+ * layout used to be stored as `density`, written with every other change while list was the default,
+ * so an old stored value is not a choice; it is ignored and the grid shows until List is picked.
+ */
 function readPrefs(): ViewPrefs {
   try {
     const stored = JSON.parse(localStorage.getItem(UI_KEY) ?? '{}') as Partial<ViewPrefs>
     return {
       filter: FILTERS.some((filter) => filter.id === stored.filter) ? (stored.filter as Filter) : 'all',
-      density: stored.density === 'grid' ? 'grid' : 'list',
+      layout: stored.layout === 'list' ? 'list' : 'grid',
       lastPathId: typeof stored.lastPathId === 'string' ? stored.lastPathId : null,
     }
   } catch {
-    return { filter: 'all', density: 'list', lastPathId: null }
+    return { filter: 'all', layout: 'grid', lastPathId: null }
   }
 }
 
@@ -506,10 +510,10 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
             ))}
           </div>
           <div className="st-segmented" role="group" aria-label="Layout">
-            <button type="button" aria-pressed={prefs.density === 'list'} onClick={() => updatePrefs({ density: 'list' })}>
+            <button type="button" aria-pressed={prefs.layout === 'list'} onClick={() => updatePrefs({ layout: 'list' })}>
               List
             </button>
-            <button type="button" aria-pressed={prefs.density === 'grid'} onClick={() => updatePrefs({ density: 'grid' })}>
+            <button type="button" aria-pressed={prefs.layout === 'grid'} onClick={() => updatePrefs({ layout: 'grid' })}>
               Grid
             </button>
           </div>
@@ -532,7 +536,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
             <LessonList
               rows={found.filter((row) => matches(row, prefs.filter))}
               hidden={found.length - found.filter((row) => matches(row, prefs.filter)).length}
-              density={prefs.density}
+              density={prefs.layout}
               library={library}
               onReload={onReload}
               onEdit={onEdit}
@@ -551,7 +555,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
             <LessonList
               rows={outside.filter((row) => matches(row, prefs.filter))}
               hidden={outside.length - outside.filter((row) => matches(row, prefs.filter)).length}
-              density={prefs.density}
+              density={prefs.layout}
               library={library}
               onReload={onReload}
               onEdit={onEdit}
@@ -571,7 +575,7 @@ export function PathsView({ library, selectedPathId, unfiled = false, onEdit, on
             rows={selectedRows}
             published={inApp(selected)}
             filter={prefs.filter}
-            density={prefs.density}
+            density={prefs.layout}
             library={library}
             editable={editable}
             busy={busy}
