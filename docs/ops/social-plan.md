@@ -53,6 +53,22 @@ bursts of views, but a download there takes bio → link → App Store.
 - **Optional, from Kevin, once a week:** 15–20 s filmed on a phone of a hand drawing on paper beside the app. Real
   hands on real paper tend to convert better than animation. Posted to TikTok and Reels with `social post --video`.
 
+## Decisions
+
+- **2026-09-30, Kevin: Premium lessons are posted too, not only the free ones.** The most eye-catching drawings
+  (pirate ship, solar system, bonsai, ramen bowl, monster truck, volcano, waterfall) are Premium, while the free
+  lessons, the first three of each path, are the simplest (cube, cone, sun, cloud). Watching a lesson isn't what
+  people pay for; drawing it themselves with the app, one line at a time, and the whole library is. So a Premium
+  video is an advertisement for Premium. How:
+  - **Alternate a free lesson and a Premium one, day by day**, from 2026-10-02 (2026-10-01 stays Watermelon
+    Slice), Premium starting with its most eye-catching subjects. A free day says "draw this one now, free"; a
+    Premium day brings the reach and shows what's beyond.
+  - **Every Premium post says so plainly**: "Lesson 7 of the On the Water path, in Paper Coach Premium. The app
+    is free to download, with 30 free lessons." The video's last words already say "free to download" for a
+    Premium lesson; the captions and pins match, so nobody downloads for a lesson and finds it locked unwarned.
+  - **Measured** by the Monday numbers (views on Premium days against free days) and PostHog's trials and
+    purchases over the weeks; the ratio is revisited at the 2026-10-28 review.
+
 ## Schedule
 
 Started 2026-09-30 (Upload-Post Basic, monthly); the first post went out that night at 23:12. Times are Central. The daily check keeps these in "dates coming
@@ -69,9 +85,9 @@ up" on the Today page and does what each says on the day.
 | 2026-11-23 | The two-month write-up under *Log*, and "monthly → yearly, or stop?" under Needs you | daily check |
 | Before 2026-11-30 | Kevin decides; the plan renews that day | Kevin |
 
-The queue posts lesson 1 of every path first, so the first ten days are Pine Tree, Watermelon Slice, Sun, Donut,
-Cube, School Bus, Sailboat, Hot Air Balloon, Rocket and Rolling Hills; then lesson 2 of every path, and lesson 3:
-all thirty free lessons by about 2026-10-30, the Premium ones after. `social queue` shows it as it stands.
+Until the free/Premium alternation is built (*Decisions*), the queue posts lesson 1 of every path first: Pine Tree,
+Watermelon Slice, Sun, Donut, Cube…; then lessons 2 and 3, the Premium ones after. `social queue` shows it as it
+stands.
 
 ## Release news
 
@@ -132,6 +148,9 @@ To build (Claude):
 - [x] Speed draw: a short video of the whole picture drawn fast, then the ending.
 - [x] `social announce`: release news to every platform with a caption written for the release.
 - [x] Runbook and skill updated for all of the above.
+- [ ] Alternate free and Premium lessons in the queue (free, Premium, free…; Premium by most eye-catching first)
+  from 2026-10-02, and say "in Paper Coach Premium; the app is free to download, with 30 free lessons" in every
+  Premium post's captions and pin (*Decisions*, 2026-09-30). Tests, then `social queue` to check the order.
 
 Then (Claude, once the plan and TikTok are on):
 
