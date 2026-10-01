@@ -1042,6 +1042,16 @@
       }
     },
     {
+      "id": "spellbook",
+      "status": "approved",
+      "objective": "Thick book in ¾ view with metal corners, a jeweled medallion, a strap and a clasp",
+      "reference": {
+        "file": "spellbook.svg",
+        "source": "Codex image tool with the creator's Paper Coach - Advanced plugin (= system prompt style-v5-advanced), prompt docs/curriculum/fantasy-objects-prompts.md plus a note (sun-shaped medallion as one outline, thicker book), generated 2026-10-01, fifth of six candidates, white margin added; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
+    },
+    {
       "id": "crystal-cluster",
       "status": "approved",
       "objective": "Five crystals on a rock, each with a light facet and a dark facet",

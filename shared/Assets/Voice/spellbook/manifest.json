@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "spellbook",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:31:46.069Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Some books come with a lock, and there's always a reason. This one has gold corners, a sun on the cover and a strap. Watch it appear, then write your own spells.",
+      "textHash": "96f9fef9f120f12da6695a156e69d509d90c077256a4984ab280bef2f964fc20",
+      "durationMs": 10240
+    },
+    "cover": {
+      "file": "cover.m4a",
+      "text": "The cover is a leaning diamond. Draw its two near edges, then its two far edges.",
+      "textHash": "f7a302b67cda6a07b527cc48274499b6e8369c6b99cacb325b1c287a8da0e294",
+      "durationMs": 5600
+    },
+    "edges": {
+      "file": "edges.m4a",
+      "text": "Three short edges hang down from the cover: at the left, the front and the right corner.",
+      "textHash": "10ac3f65bc76df2e5530b4475604f403ae6f44bed7896f9ea8df8788ac1f6a15",
+      "durationMs": 5760
+    },
+    "bottom": {
+      "file": "bottom.m4a",
+      "text": "Join their ends along the bottom, running the same way as the cover's edges.",
+      "textHash": "3813df0b913c92aa1141d02b74196723eae62f6adbb6b1a63a79e72cb1efc5eb",
+      "durationMs": 4640
+    },
+    "corners": {
+      "file": "corners.m4a",
+      "text": "Cut a small triangle off each corner of the cover. These are the metal caps.",
+      "textHash": "0882f823cffe6fa2b5c9964a45f7681e4f9ab4fa8d783aa5000b2fa74cbc850c",
+      "durationMs": 5120
+    },
+    "medallion": {
+      "file": "medallion.m4a",
+      "text": "In the middle sits a medallion shaped like a sun, with eight pointed rays.",
+      "textHash": "ee3eaef21cd1bc3d6603a78dfdde4f01ac211984bd0fd9b4e67b63824ef6f0cf",
+      "durationMs": 4880
+    },
+    "jewel": {
+      "file": "jewel.m4a",
+      "text": "An oval jewel fills its center.",
+      "textHash": "5d506641032b9156fa3898173e7843c250257376a172f7e268830e12ce46380f",
+      "durationMs": 2720
+    },
+    "clasp": {
+      "file": "clasp.m4a",
+      "text": "Near the right edge, a small square clasp keeps the book shut.",
+      "textHash": "42a9b846a61910df7fc4f018465f6f01e9aa87018e0b1419e93f73f7bdc43f5d",
+      "durationMs": 4160
+    },
+    "strap": {
+      "file": "strap.m4a",
+      "text": "The strap runs from the clasp over the edge and down the pages: two lines side by side.",
+      "textHash": "672506017e074c12b6437121d2323ecb26efe2efe777870c8d2e96b5cf1a8e24",
+      "durationMs": 5840
+    },
+    "red": {
+      "file": "red.m4a",
+      "text": "Color the cover red.",
+      "textHash": "a89d49edee0ffa84163d5f6298620a0e0f67d00cc675f0ab9f8fd26e57a9f237",
+      "durationMs": 1840
+    },
+    "pages": {
+      "file": "pages.m4a",
+      "text": "The pages are cream on the left side and gray on the right.",
+      "textHash": "b6b470fe69f68baf6373d073cae7478a703d55b84901a91095facd4b4d011596",
+      "durationMs": 3440
+    },
+    "gold": {
+      "file": "gold.m4a",
+      "text": "Gold for the corners, the medallion and the clasp.",
+      "textHash": "c0f48fe953e3755391680808564bf98b8ec7bc03abfb879b503358f2d7b62b15",
+      "durationMs": 3520
+    },
+    "jewel-strap": {
+      "file": "jewel-strap.m4a",
+      "text": "The jewel is blue. The strap is orange on the cover and brown down the side.",
+      "textHash": "1029a428413e37d7a38277dd8d07e4b32be4afe54f01b7a8ae9ed157ff57d992",
+      "durationMs": 5040
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your spellbook is closed and clasped. What's the first spell you'd write inside?",
+      "textHash": "12392fa78567790232b6cae9b5aae1483ab9987702877078b83912929fd8ffdd",
+      "durationMs": 4960
+    }
+  }
+}
