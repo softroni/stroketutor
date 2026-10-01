@@ -178,8 +178,8 @@ Waiting on Kevin:
 
   Kevin's naming (2026-10-01): a platform's letters, then the app, so another Softroni app gets its own
   (`softroni.com/t/geoblitz`); plain `softroni.com/papercoach` stays free for an app page like the others have.
-  Each is `<letters>/papercoach.html`. The first ones, `softroni.com/draw` (TikTok) and `<letter>/draw` (`t/draw`
-  was Threads), still forward to the same campaigns; remove them once no profile uses them.
+  Each is `<letters>/papercoach.html`. (The first ones, `softroni.com/draw` and `<letter>/draw`, were removed on
+  2026-10-01 once every profile had moved over.)
 
   Never point a profile at another platform's link, and keep each page's campaign if its target ever changes.
 - [ ] YouTube "made for kids" and the AI label: defaults stand (no; TikTok only) unless Kevin says otherwise.
