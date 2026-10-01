@@ -1,0 +1,642 @@
+{
+  "updated": "2026-10-01T00:06:42-05:00",
+  "headline": "1.1 is still waiting for Apple's review (submitted Sep 30, 4:16 PM). 1.0's first day on sale: 3 learners, all finished a drawing, no crashes; the ads are now serving and the first daily lesson video goes out at 5 PM.",
+  "app": {
+    "live": {
+      "version": "1.0",
+      "build": "2",
+      "state": "On sale",
+      "tone": "good",
+      "since": "2026-09-30T08:03:01-05:00",
+      "code": "READY_FOR_DISTRIBUTION",
+      "phased": null
+    },
+    "inReview": {
+      "version": "1.1",
+      "build": "4",
+      "state": "Waiting for review",
+      "tone": "waiting",
+      "since": "2026-09-30T21:16:05.47Z",
+      "code": "WAITING_FOR_REVIEW",
+      "phased": {
+        "state": "INACTIVE",
+        "day": 0
+      }
+    }
+  },
+  "numbers": [
+    {
+      "label": "Installs",
+      "value": "0",
+      "period": "Sep 30",
+      "detail": "14 days: 0",
+      "series": [
+        {
+          "day": "2026-09-17",
+          "value": 0
+        },
+        {
+          "day": "2026-09-18",
+          "value": 0
+        },
+        {
+          "day": "2026-09-19",
+          "value": 0
+        },
+        {
+          "day": "2026-09-20",
+          "value": 0
+        },
+        {
+          "day": "2026-09-21",
+          "value": 0
+        },
+        {
+          "day": "2026-09-22",
+          "value": 0
+        },
+        {
+          "day": "2026-09-23",
+          "value": 0
+        },
+        {
+          "day": "2026-09-24",
+          "value": 0
+        },
+        {
+          "day": "2026-09-25",
+          "value": 0
+        },
+        {
+          "day": "2026-09-26",
+          "value": 0
+        },
+        {
+          "day": "2026-09-27",
+          "value": 0
+        },
+        {
+          "day": "2026-09-28",
+          "value": 0
+        },
+        {
+          "day": "2026-09-29",
+          "value": 0
+        },
+        {
+          "day": "2026-09-30",
+          "value": 0
+        }
+      ],
+      "source": "App Store"
+    },
+    {
+      "label": "Proceeds",
+      "value": "$0.00",
+      "period": "Sep 30",
+      "detail": "14 days: $0.00",
+      "series": [
+        {
+          "day": "2026-09-17",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-18",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-19",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-20",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-21",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-22",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-23",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-24",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-25",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-26",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-27",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-28",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-29",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-30",
+          "value": 0.0
+        }
+      ],
+      "source": "App Store"
+    },
+    {
+      "label": "Ad spend",
+      "value": "$0.00",
+      "period": "Oct 1",
+      "detail": "14 days: $0.00",
+      "series": [
+        {
+          "day": "2026-09-17",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-18",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-19",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-20",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-21",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-22",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-23",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-24",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-25",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-26",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-27",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-28",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-29",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-30",
+          "value": 0.0
+        },
+        {
+          "day": "2026-10-01",
+          "value": 0.0
+        }
+      ],
+      "source": "Apple Ads"
+    },
+    {
+      "label": "First opens",
+      "value": "3",
+      "period": "since 30 Sep",
+      "detail": "real learners on 1.0, release builds; 2 more opens were 1.1 test builds",
+      "source": "PostHog"
+    },
+    {
+      "label": "Drawings finished",
+      "value": "3",
+      "period": "since 30 Sep",
+      "detail": "Pine Tree, School Bus, Watermelon Slice; a Donut was started and left",
+      "source": "PostHog"
+    },
+    {
+      "label": "Purchases",
+      "value": "0",
+      "period": "since 30 Sep",
+      "detail": "1 onboarding offer seen (Flow 1); the yearly plan was tapped, then cancelled",
+      "source": "PostHog"
+    },
+    {
+      "label": "Crashes and hangs",
+      "value": "0",
+      "period": "since 30 Sep",
+      "detail": "1.0 has no crash reports; they start with 1.1",
+      "source": "PostHog"
+    }
+  ],
+  "funnel": {
+    "period": "since 30 Sep, 1.0",
+    "steps": [
+      {
+        "label": "First open",
+        "value": 3
+      },
+      {
+        "label": "Age answered",
+        "value": 3
+      },
+      {
+        "label": "Onboarding finished",
+        "value": 3
+      },
+      {
+        "label": "First drawing finished",
+        "value": 3
+      },
+      {
+        "label": "Paywall seen (13+)",
+        "value": 1
+      },
+      {
+        "label": "Purchase",
+        "value": 0
+      }
+    ]
+  },
+  "needsYou": [
+    {
+      "title": "Don't publish Paywall 1 or Flow 1 in Superwall yet",
+      "detail": "They have Lifetime as drafts. Publishing before 1.1 is on sale would sell Lifetime to 1.0, which doesn't unlock it. Claude tells you the moment 1.1 is on sale.",
+      "since": "2026-09-30"
+    },
+    {
+      "title": "TikTok bio link, once TikTok verifies the business",
+      "detail": "Verification was submitted Sep 30 (up to three days). Then Edit profile › Links: https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=tiktok-bio&mt=8",
+      "since": "2026-09-30"
+    }
+  ],
+  "working": [
+    {
+      "title": "1.1 release",
+      "state": "waiting",
+      "detail": "Submitted 2026-09-30 4:16 PM with Premium Lifetime; still waiting for review at midnight. Phased release after approval."
+    },
+    {
+      "title": "Remind Kevin the moment 1.1 is on sale",
+      "state": "waiting",
+      "detail": "Publish Paywall 1 and Flow 1 in Superwall (their Lifetime drafts), and create the Friends & Family Lifetime offer codes. Claude sends it to his phone."
+    },
+    {
+      "title": "Apple Ads, first days",
+      "state": "running",
+      "detail": "4 campaigns, US, $10 a day. Apple has categorized the app: campaigns and ad groups are now serving, with nothing spent yet."
+    },
+    {
+      "title": "First real learners",
+      "state": "running",
+      "detail": "3 first opens on 1.0 on launch day; all 3 finished onboarding and a drawing (Pine Tree, School Bus, Watermelon Slice). One learner 13+ saw the onboarding offer and left at the yearly plan. No crashes."
+    },
+    {
+      "title": "Lesson videos on social",
+      "state": "running",
+      "detail": "Pine Tree is up on all seven platforms; its step pin goes to Pinterest at 3 AM. Every account connected. Daily 5 PM posts start today with Watermelon Slice, then Pirate Ship (Premium) on Oct 2."
+    },
+    {
+      "title": "Onboarding funnel tile",
+      "state": "next",
+      "detail": "Empty on the dashboard: a learner's id changes once they answer the age question (on purpose, for children's privacy), so a funnel can't follow one person from first open. To rebuild as step counts."
+    },
+    {
+      "title": "Keyword baseline",
+      "state": "next",
+      "detail": "Where Paper Coach ranks for its keywords in its first days, so later changes can be measured."
+    }
+  ],
+  "log": [
+    {
+      "at": "2026-10-01T00:06:41-05:00",
+      "text": "Daily check: 1.1 still waiting for review; 3 learners on 1.0, all finished a drawing; no crashes or reviews",
+      "kind": "check"
+    },
+    {
+      "at": "2026-10-01T00:06:41-05:00",
+      "text": "Social check: Pine Tree is up on all seven platforms; every account connected",
+      "kind": "social"
+    },
+    {
+      "at": "2026-10-01T00:06:41-05:00",
+      "text": "Apple Ads: Apple has categorized the app; all 4 campaigns are now serving, nothing spent yet",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-09-30T23:13:51-05:00",
+      "text": "Social: “Pine Tree” posted on youtube, facebook, x, pinterest, threads, tiktok, instagram."
+    },
+    {
+      "at": "2026-09-30T23:09:20-05:00",
+      "text": "Social: daily 5 pm posting is on from Oct 1; TikTok and Threads connected; the 8 am check watches it."
+    },
+    {
+      "at": "2026-09-30T23:04:07-05:00",
+      "text": "Daily check moved to midnight Central; heartbeats now at 8 AM, noon, 4 PM and 8 PM"
+    },
+    {
+      "at": "2026-09-30T18:15:44-05:00",
+      "text": "Social: Upload-Post monthly for two months, then yearly if it brings downloads (decide about Nov 30)",
+      "kind": "social"
+    },
+    {
+      "at": "2026-09-30T17:42:17-05:00",
+      "text": "Social: plan agreed (docs/ops/social-plan.md); built step pins, a Pinterest board per path, speed draws and release news. Posting waits on the paid plan and TikTok."
+    },
+    {
+      "at": "2026-09-30T16:29:16-05:00",
+      "text": "Reminder set: when 1.1 is on sale, Kevin publishes Paywall 1 and Flow 1 in Superwall and creates the Friends & Family Lifetime codes"
+    },
+    {
+      "at": "2026-09-30T16:16:30-05:00",
+      "text": "Submitted 1.1 (4) with Premium Lifetime (Kevin's go-ahead): both Waiting for Review, phased release after approval"
+    },
+    {
+      "at": "2026-09-30T16:13:41-05:00",
+      "text": "1.1 (4) ready to submit: 393 iOS and 758 web tests pass, walkthrough done, build uploaded (VALID) and attached, text and 16 screenshots in App Store Connect (shot 4 now the finished fire hydrant), Lifetime Ready to Submit. Waiting for Kevin's Submit"
+    },
+    {
+      "at": "2026-09-30T15:38:52-05:00",
+      "text": "1.1 in App Store Connect (Prepare for Submission): text, keywords, review notes, phased release, 16 screenshots uploaded; Lifetime availability saved (175). Waiting on the plans-sheet subtitle fix, then build and QA"
+    },
+    {
+      "at": "2026-09-30T14:59:29-05:00",
+      "text": "Lifetime added to Superwall (product 679735) and to designs 1 and 3 under View more plans, as drafts until 1.1 is on sale; stale onboarding test fixed; iPad shots say Around Town"
+    },
+    {
+      "at": "2026-09-30T14:50:22-05:00",
+      "text": "Built next-builds item 5 on main (a69946e): Premium Lifetime ($99.99 non-consumable, counted as Premium bought, family-shared or from a code) as the third row of View more plans, and Settings > Premium > Redeem a code (grown-ups' check for a child). Events offer_code_sheet_opened and premium_from_code. 1.1's boxes are all ticked. The simulator asks the App Store sandbox, so the Lifetime row shows there only once App Store Connect serves the product (availability still to set)."
+    },
+    {
+      "at": "2026-09-30T14:49:15-05:00",
+      "text": "1.1 prep: store text drafted (listing.md), Lifetime product checked, iPad Paths and Home screenshots show Urban. Waiting on Lifetime in the app"
+    },
+    {
+      "at": "2026-09-30T14:40:33-05:00",
+      "text": "Built next-builds item 4 on main (6ae5669): learners 13 and over are asked for an App Store rating two seconds after a finished drawing, from their third on, never in their first session, at most once per version per device; never a child, the first run, screenshots or tests. rating_prompt_requested goes to PostHog. Ships with 1.1; 1.1's third box is ticked."
+    },
+    {
+      "at": "2026-09-30T14:37:09-05:00",
+      "text": "Built next-builds item 1 on main (508ec63): any product in Premium's subscription group 22413930 now unlocks Premium, purchase_attempted reports a product's plan by its period, and 'Your free week has started' names the price of the product the week began on. Ships with 1.1; 1.1's second box is ticked. Until 1.1 is on sale, no new product may go on a paywall."
+    },
+    {
+      "at": "2026-09-30T14:31:28-05:00",
+      "text": "Prices: $29.99/year and $3.99/week for new subscribers from Oct 2 (set by Kevin, all 175 storefronts, existing subscribers keep theirs); repo updated"
+    },
+    {
+      "at": "2026-09-30T14:09:25-05:00",
+      "text": "Kevin added Crash Data and Performance Data to App Privacy. 1.0.1 dropped: 1.1 carries it, with Urban, the photo modes and next-builds items 1 and 4 (docs/releases/1.1.md)"
+    },
+    {
+      "at": "2026-09-30T13:57:31-05:00",
+      "text": "First real learner: onboarding finished, then a Pine Tree drawing; no crashes"
+    },
+    {
+      "at": "2026-09-30T13:57:31-05:00",
+      "text": "Apple Ads: 4 campaigns live, US, $10 a day (Brand $1, Category $5, Competitors $2, Discovery $2), with keywords and exclusions per apple-ads-plan.md; serving waits for Apple to categorize the app"
+    },
+    {
+      "at": "2026-09-30T13:57:31-05:00",
+      "text": "Tagged afa25bc as 1.0(2) and pushed the tag"
+    },
+    {
+      "at": "2026-09-30T13:57:31-05:00",
+      "text": "Apple approved 1.0 (2); Paper Coach is on the App Store (READY_FOR_DISTRIBUTION)"
+    },
+    {
+      "at": "2026-09-29T13:15:35-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; no reviews, sales, crashes or PostHog traffic yet. Ads wait for approval."
+    },
+    {
+      "at": "2026-09-28T23:53:03-05:00",
+      "text": "Lesson videos: Lina now ends on 'Draw more with Paper Coach. It's free on the App Store.' ('free to download' for Premium lessons), her closing line is captioned, and stickers of the path's next lessons land round the drawing instead of an 8 s still frame (d2c81d4)"
+    },
+    {
+      "at": "2026-09-28T22:08:38-05:00",
+      "text": "Paths now have their own colors, set in the Studio (Edit details… or `studio paths color`). Lesson videos use their path's color as the background, and the app will use the same colors from the next release. Plants is green, Sky & Weather blue. App Store screenshots 2, 3, 5, 6 and 8 were taken again. Pushed 29372d8; nothing was submitted to Apple."
+    },
+    {
+      "at": "2026-09-28T21:38:23-05:00",
+      "text": "Lesson videos: layout moved clear of YouTube's buttons and channel line (measured on the test Short), and Lina's words now show 2–3 at a time on one big line with the spoken word in yellow, timed by Whisper (ef650b7)."
+    },
+    {
+      "at": "2026-09-28T19:23:04-05:00",
+      "text": "Built on main at the creator's request: Edit on a sketchbook page, to change its light (Original / Bright / Scan) and corners later (ecea871). Not released."
+    },
+    {
+      "at": "2026-09-28T19:06:10-05:00",
+      "text": "Built on main at the creator's request: Original / Bright / Scan for sketchbook photos taken in dim light (c33ada7). Not released."
+    },
+    {
+      "at": "2026-09-28T16:51:59-05:00",
+      "text": "Social: lesson videos now post through Upload-Post to Softroni's accounts (studio social). Tested privately on YouTube and a Facebook draft; public posts, and the daily 17:00 job, wait for Paper Coach to go on sale."
+    },
+    {
+      "at": "2026-09-28T15:25:15-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"
+    },
+    {
+      "at": "2026-09-28T08:50:51-05:00",
+      "text": "Scheduled runs now log through notes.json's addLog, so they need only fixed commands"
+    },
+    {
+      "at": "2026-09-27T14:53:34-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"
+    },
+    {
+      "at": "2026-09-27T09:56:45-05:00",
+      "text": "docs/next-builds.md: what to build next for revenue (price test prerequisite, price test, the grown-up's door, rating prompt)"
+    },
+    {
+      "at": "2026-09-27T01:10:34-05:00",
+      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, no ads yet"
+    },
+    {
+      "at": "2026-09-27T01:10:27-05:00",
+      "text": "Temporary Admin key revoked by Kevin; both check-ins run once by hand to approve their tools"
+    },
+    {
+      "at": "2026-09-27T01:06:49-05:00",
+      "text": "Vendor number in: installs, subscriptions and proceeds now come from Apple's daily sales reports"
+    },
+    {
+      "at": "2026-09-27T01:04:57-05:00",
+      "text": "Scheduled: daily check at 8:03 AM, heartbeat at 12 PM, 4 PM, 8 PM and midnight"
+    },
+    {
+      "at": "2026-09-27T01:04:57-05:00",
+      "text": "Apple Ads launch plan written: four US campaigns, $10 a day, made the day 1.0 goes on sale"
+    },
+    {
+      "at": "2026-09-27T00:57:57-05:00",
+      "text": "Studio Today page added"
+    }
+  ],
+  "experiments": [
+    {
+      "name": "Onboarding offer",
+      "placement": "onboarding_offer",
+      "status": "running, 1 open",
+      "note": "3 designs for learners 13+; Flow 1 had the first open, no purchase. Down to 2 once each has about 150 opens.",
+      "variants": [
+        {
+          "name": "Paywall 1",
+          "variantId": "643125",
+          "share": 34
+        },
+        {
+          "name": "Flow 1",
+          "variantId": "643126",
+          "share": 33
+        },
+        {
+          "name": "Flow 2",
+          "variantId": "643129",
+          "share": 33
+        }
+      ]
+    },
+    {
+      "name": "In-app Premium",
+      "placement": "premium_lesson, settings_premium",
+      "status": "running, no opens yet",
+      "note": "Crowned lessons and Settings › Premium, 13+.",
+      "variants": [
+        {
+          "name": "Paywall 1",
+          "variantId": "643130",
+          "share": 50
+        },
+        {
+          "name": "Paywall 2",
+          "variantId": "643131",
+          "share": 50
+        }
+      ]
+    }
+  ],
+  "ads": {
+    "state": "running",
+    "note": "Serving since Apple categorized the app: $10 a day, US, 4 campaigns, nothing spent yet. The first $150 is the seed; after that the ads spend only what they earn back.",
+    "dailyCap": 10,
+    "spentToDate": 0,
+    "earnedToDate": 0,
+    "spendCeiling": 150,
+    "campaigns": [
+      {
+        "name": "PC - US - Competitors",
+        "status": "running",
+        "spend": 0.0,
+        "installs": 0,
+        "costPerInstall": null
+      },
+      {
+        "name": "PC - US - Category",
+        "status": "running",
+        "spend": 0.0,
+        "installs": 0,
+        "costPerInstall": null
+      },
+      {
+        "name": "PC - US - Brand",
+        "status": "running",
+        "spend": 0.0,
+        "installs": 0,
+        "costPerInstall": null
+      },
+      {
+        "name": "PC - US - Discovery",
+        "status": "running",
+        "spend": 0.0,
+        "installs": 0,
+        "costPerInstall": null
+      }
+    ]
+  },
+  "reviews": {
+    "average": 0,
+    "count": 0,
+    "latest": []
+  },
+  "links": [
+    {
+      "label": "PostHog dashboard",
+      "url": "https://us.posthog.com/project/629055/dashboard/2140277"
+    },
+    {
+      "label": "App Store Connect",
+      "url": "https://appstoreconnect.apple.com/apps/6816231257/distribution"
+    },
+    {
+      "label": "Superwall",
+      "url": "https://superwall.com/applications/56531"
+    },
+    {
+      "label": "Apple Ads",
+      "url": "https://app-ads.apple.com/cm/app/20605790/report/campaigns"
+    }
+  ],
+  "next": {
+    "at": "2026-10-02T00:00:00-05:00",
+    "what": "Daily check and summary"
+  },
+  "upcoming": [
+    {
+      "at": "2026-10-01T17:00:00-05:00",
+      "what": "First daily lesson video: Watermelon Slice, to all seven platforms"
+    },
+    {
+      "at": "2026-10-02",
+      "what": "Prices rise to $29.99 a year and $3.99 a week for new subscribers"
+    },
+    {
+      "at": "2026-10-02",
+      "what": "Social: Premium lessons start, by turns with free ones (Pirate Ship first)"
+    },
+    {
+      "at": "2026-10-05",
+      "what": "Social: first Monday numbers, views per platform"
+    },
+    {
+      "at": "2026-10-28",
+      "what": "Social: four-week review of downloads and views per platform"
+    },
+    {
+      "at": "2026-10-30",
+      "what": "Upload-Post renews monthly ($24)"
+    },
+    {
+      "at": "2026-11-23",
+      "what": "Social: two-month write-up, and monthly → yearly or stop"
+    },
+    {
+      "at": "2026-11-30",
+      "what": "Upload-Post: go yearly or stop, from two months of downloads per platform"
+    }
+  ]
+}
