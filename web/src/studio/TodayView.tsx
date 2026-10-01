@@ -70,7 +70,7 @@ function dollars(value: number): string {
 
 /**
  * Today: how Paper Coach stands and what Claude is doing about it, at a glance.
- * Claude writes the status every morning and after anything worth telling
+ * Claude writes the status every night at midnight and after anything worth telling
  * (docs/ops/today.py); this page only reads it, and picks up a new one by itself.
  * Every past day is kept (`day`, #/today/YYYY-MM-DD), as it stood at its end.
  */
@@ -132,7 +132,7 @@ export function TodayView({ day, available }: { day: string | null; available: b
       {response && !status ? <p className="st-notice">{response.problem}</p> : null}
       {status && !day && isStale(status, now) ? (
         <p className="st-notice" role="status">
-          Claude has not written a status since {fmt(dateTime, status.updated)}. The morning run may not
+          Claude has not written a status since {fmt(dateTime, status.updated)}. The midnight run may not
           have happened: this Mac asleep, or the Claude app closed.
         </p>
       ) : null}

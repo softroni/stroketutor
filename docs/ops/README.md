@@ -39,8 +39,8 @@ and icon, and anything that changes what Premium includes.
 
 | When (Central) | What | How |
 |---|---|---|
-| 08:00 | **Daily check** and summary | scheduled task `paper-coach-daily` |
-| 12:00, 16:00, 20:00, 00:00 | **Heartbeat**: review state, new reviews | scheduled task `paper-coach-heartbeat` |
+| 00:00 | **Daily check** and summary (midnight since 2026-09-30, Kevin's choice; it was 08:00) | scheduled task `paper-coach-daily` |
+| 08:00, 12:00, 16:00, 20:00 | **Heartbeat**: review state, new reviews | scheduled task `paper-coach-heartbeat` |
 | 17:00 | **Lesson video** on Softroni's accounts (once installed; see *Lesson videos on social*) | launch agent `com.softroni.papercoach-social` |
 | whenever something happens | a log line, the page republished | `today.py log "…"` in a session; a scheduled run adds to `addLog` in `notes.json` instead |
 

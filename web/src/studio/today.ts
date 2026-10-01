@@ -1,6 +1,6 @@
 /**
  * The Today page: how Paper Coach stands and what Claude is doing about it, at a
- * glance. Claude writes it (`docs/ops/today.py publish`) every morning and after
+ * glance. Claude writes it (`docs/ops/today.py publish`) every night at midnight and after
  * anything worth telling, to `.studio/ops/status.json`; the Studio only reads it.
  * docs/ops/README.md says what goes in each part.
  */
