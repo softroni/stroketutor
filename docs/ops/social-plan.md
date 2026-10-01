@@ -161,9 +161,7 @@ Waiting on Kevin:
 - [x] Provider token for campaign links: `128560181`, in `APP_STORE_PROVIDER_TOKEN` (2026-09-30).
 - [x] Campaign links in the profiles of Instagram, X, YouTube, Facebook and Pinterest (`<platform>-bio`,
   `youtube-channel`, `facebook-page`, `pinterest-profile`).
-- [ ] TikTok bio link: the account is now a Business account; TikTok's business verification (submitted
-  2026-09-30, up to three days) comes first. Then Edit profile → Links:
-  `https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=tiktok-bio&mt=8`.
+- [x] TikTok: business verification approved and the bio link in (`ct=tiktok-bio`), 2026-10-01.
 - [ ] YouTube "made for kids" and the AI label: defaults stand (no; TikTok only) unless Kevin says otherwise.
 
 To build (Claude):
