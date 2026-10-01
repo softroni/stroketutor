@@ -628,10 +628,25 @@ Options:
 
 Usage: studio social stats
 
-How the posts of the last days are doing: views, likes and comments on each platform, as Upload-Post reads them from the platforms. What the weekly review reads.
+How the posts of the last days are doing: views, likes and comments on each platform (Threads’ and X’s replies count as comments, Pinterest’s reactions as likes), as Upload-Post reads them from the platforms. The Monday numbers are `social scorecard`.
 
 Options:
       --days <n>  Posts from this many days back (default 7).
+
+Usage: studio social snapshot
+
+Every number Upload-Post gives, appended to .studio/social/metrics.jsonl (and its copy on ops-history): each finished public post up to 15 days old (every one on Mondays), a line per platform; then the accounts, and TikTok’s bio-link taps. Reads only; posts nothing.
+
+Options:
+      --all      Read every finished post, however old, as Mondays do.
+      --dry-run  Show what would be read, and stop. Needs no key and writes nothing.
+
+Usage: studio social scorecard
+
+The Monday numbers, from what `social snapshot` kept: per platform, posts, median views at a fixed age (72 h; YouTube 7 days, Pinterest 14), TikTok’s hold at 3 s, taps toward the App Store, followers and breakouts (5× the last 14 posts, and 1,000 views), with App Store Connect’s numbers when .studio/ops/acquisition.json has them. Calls nothing.
+
+Options:
+      --days <n>  The window, in days back from now (default 7).
 
 Usage: studio social status
 

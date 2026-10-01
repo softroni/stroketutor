@@ -8,6 +8,7 @@ import { promisify } from 'node:util'
 import {
   FINAL_STATUSES,
   announcementTexts,
+  dayOf,
   boardDescription,
   boardName,
   pinFields,
@@ -34,8 +35,26 @@ import {
   type SocialRecord,
   type SocialSettings,
 } from '../../server/social/posts'
+import {
+  addDays,
+  audienceRange,
+  BREAKOUT,
+  DAILY_SNAPSHOT_DAYS,
+  isMonday,
+  lastAudienceRange,
+  metricsKey,
+  postLines,
+  postsToSnapshot,
+  publishedPosts,
+  scorecard,
+  type AppleCount,
+  type DayRange,
+  type MetricsRecord,
+  type PlatformScore,
+  type Scorecard,
+} from '../../server/social/metrics'
 import { lastLessonVideo, mayPost, PIN_DELAY_HOURS, POST_GAP_HOURS, postingQueue, stillToPost, tooSoonAfter } from '../../server/social/queue'
-import { UploadPostError, uploadPostClient, type UploadPostClient } from '../../server/social/uploadPost'
+import { UploadPostError, uploadPostClient, type PostMetrics, type UploadPostClient } from '../../server/social/uploadPost'
 import { pinPage } from '../../server/social/pin'
 import { FONT, ICON, readAsset, videoDefaults } from '../../server/video/render'
 import { colorOfPath, PATH_SWATCHES } from '../../src/catalog/pathColors'
@@ -56,19 +75,34 @@ import { renderVideo, shown, videoDeps } from './video'
 
 const repoDirOf = (ctx: Context) => path.resolve(ctx.sharedDir, '..')
 const recordsFile = (ctx: Context) => path.join(repoDirOf(ctx), '.studio', 'social', 'posts.jsonl')
+/** Every number `social snapshot` read: a line per post and platform, and per account, a reading (server/social/metrics.ts). */
+const metricsFile = (ctx: Context) => path.join(repoDirOf(ctx), '.studio', 'social', 'metrics.jsonl')
+/** The ops-history worktree, where the repo keeps its copies; only where `today.py` made it. */
+const historyDirOf = (ctx: Context) => path.join(repoDirOf(ctx), '.studio', 'ops', 'history')
 
-async function readRecords(ctx: Context): Promise<SocialRecord[]> {
-  const text = await readFile(recordsFile(ctx), 'utf8').catch(() => '')
+async function readLines<T>(file: string): Promise<T[]> {
+  const text = await readFile(file, 'utf8').catch(() => '')
   return text
     .split('\n')
     .filter((line) => line.trim())
     .flatMap((line) => {
       try {
-        return [JSON.parse(line) as SocialRecord]
+        return [JSON.parse(line) as T]
       } catch {
         return []
       }
     })
+}
+
+const readRecords = (ctx: Context) => readLines<SocialRecord>(recordsFile(ctx))
+const readMetrics = (ctx: Context) => readLines<MetricsRecord>(metricsFile(ctx))
+
+/** Commits and pushes the ops-history worktree, as `today.py archive` does every night. */
+async function archiveHistory(ctx: Context): Promise<void> {
+  const script = path.join(repoDirOf(ctx), 'docs', 'ops', 'today.py')
+  if (existsSync(script)) {
+    await promisify(execFile)('python3', [script, 'archive']).catch((error: unknown) => ctx.out.warn(`today.py archive failed: ${String(error)}`))
+  }
 }
 
 /**
@@ -78,8 +112,7 @@ async function readRecords(ctx: Context): Promise<SocialRecord[]> {
  * where that worktree is, so a test or another machine writes nothing.
  */
 async function keepInHistory(ctx: Context, states: PostState[], titles: (lessonId: string) => string | undefined): Promise<void> {
-  const repoDir = repoDirOf(ctx)
-  const history = path.join(repoDir, '.studio', 'ops', 'history')
+  const history = historyDirOf(ctx)
   if (!existsSync(path.join(history, '.git'))) return
   const file = path.join(history, 'social', 'posts.jsonl')
   const kept = await readFile(file, 'utf8').catch(() => '')
@@ -90,10 +123,35 @@ async function keepInHistory(ctx: Context, states: PostState[], titles: (lessonI
   if (fresh.length === 0) return
   await mkdir(path.dirname(file), { recursive: true })
   await appendFile(file, fresh.map((entry) => `${JSON.stringify(entry)}\n`).join(''))
-  const script = path.join(repoDir, 'docs', 'ops', 'today.py')
-  if (existsSync(script)) {
-    await promisify(execFile)('python3', [script, 'archive']).catch((error: unknown) => ctx.out.warn(`today.py archive failed: ${String(error)}`))
+  await archiveHistory(ctx)
+}
+
+/**
+ * The repo's copy of the numbers: every line of metrics.jsonl, as it is, in
+ * `.studio/ops/history/social/metrics.jsonl` on the ops-history branch, which
+ * `today.py archive` commits and pushes. Lines are only added, each once
+ * (`metricsKey`), so a line missed one day is added the next and none is ever
+ * rewritten. Only where that worktree is; null where it isn't.
+ */
+async function keepMetricsInHistory(ctx: Context): Promise<number | null> {
+  const history = historyDirOf(ctx)
+  if (!existsSync(path.join(history, '.git'))) return null
+  const file = path.join(history, 'social', 'metrics.jsonl')
+  const keyOf = (line: string) => {
+    try {
+      return metricsKey(JSON.parse(line) as MetricsRecord)
+    } catch {
+      return line
+    }
   }
+  const kept = await readFile(file, 'utf8').catch(() => '')
+  const keys = new Set(kept.split('\n').filter((line) => line.trim()).map(keyOf))
+  const fresh = (await readFile(metricsFile(ctx), 'utf8').catch(() => '')).split('\n').filter((line) => line.trim() && !keys.has(keyOf(line)))
+  if (fresh.length === 0) return 0
+  await mkdir(path.dirname(file), { recursive: true })
+  await appendFile(file, `${kept && !kept.endsWith('\n') ? '\n' : ''}${fresh.map((line) => `${line}\n`).join('')}`)
+  await archiveHistory(ctx)
+  return fresh.length
 }
 
 /** Lesson titles by id, for the repo's copy of the posts. */
@@ -698,7 +756,7 @@ export const socialCommands: Command[] = [
 
   command(
     'social stats',
-    'How the posts of the last days are doing: views, likes and comments on each platform, as Upload-Post reads them from the platforms. What the weekly review reads.',
+    'How the posts of the last days are doing: views, likes and comments on each platform (Threads’ and X’s replies count as comments, Pinterest’s reactions as likes), as Upload-Post reads them from the platforms. The Monday numbers are `social scorecard`.',
     [],
     { days: { type: 'string', description: 'Posts from this many days back (default 7).', placeholder: 'n' } },
     async (ctx, args) => {
@@ -708,9 +766,11 @@ export const socialCommands: Command[] = [
       const client = clientOf(ctx, await loadSettings(ctx))
       const rows: { lessonId: string; at: string; media: string; platform: string; views: number | null; likes: number | null; comments: number | null; url: string | null; error: string | null }[] = []
       for (const { post } of posts) {
-        const metrics = await client.postMetrics(post.requestId).catch((error: unknown) => ({ _: { views: null, likes: null, comments: null, url: null, error: String(error) } }))
-        for (const [platform, numbers] of Object.entries(metrics)) {
-          rows.push({ lessonId: post.lessonId, at: post.at, media: post.media ?? 'video', platform, ...numbers })
+        const metrics: Record<string, Pick<PostMetrics, 'views' | 'likes' | 'comments' | 'url' | 'error'>> = await client
+          .postMetrics(post.requestId)
+          .catch((error: unknown) => ({ _: { views: null, likes: null, comments: null, url: null, error: String(error) } }))
+        for (const [platform, { views, likes, comments, url, error }] of Object.entries(metrics)) {
+          rows.push({ lessonId: post.lessonId, at: post.at, media: post.media ?? 'video', platform, views, likes, comments, url, error })
         }
       }
       const byPlatform = new Map<string, { posts: number; views: number; likes: number; comments: number }>()
@@ -729,6 +789,36 @@ export const socialCommands: Command[] = [
           ['lesson', 'what', 'platform', 'views', 'likes', 'comments', 'note'],
         ),
       ])
+    },
+  ),
+
+  command(
+    'social snapshot',
+    `Every number Upload-Post gives, appended to .studio/social/metrics.jsonl (and its copy on ops-history): each finished public post up to ${DAILY_SNAPSHOT_DAYS} days old (every one on Mondays), a line per platform; then the accounts, and TikTok’s bio-link taps. Reads only; posts nothing.`,
+    [],
+    {
+      all: { type: 'boolean', description: 'Read every finished post, however old, as Mondays do.' },
+      'dry-run': { type: 'boolean', description: 'Show what would be read, and stop. Needs no key and writes nothing.' },
+    },
+    async (ctx, args) => {
+      const outcome = await takeSnapshot(ctx, args.values)
+      ctx.out.result(outcome, describeSnapshot)
+    },
+  ),
+
+  command(
+    'social scorecard',
+    `The Monday numbers, from what \`social snapshot\` kept: per platform, posts, median views at a fixed age (72 h; YouTube 7 days, Pinterest 14), TikTok’s hold at 3 s, taps toward the App Store, followers and breakouts (${BREAKOUT.times}× the last ${BREAKOUT.trailing} posts, and ${BREAKOUT.views.toLocaleString('en-US')} views), with App Store Connect’s numbers when .studio/ops/acquisition.json has them. Calls nothing.`,
+    [],
+    { days: { type: 'string', description: 'The window, in days back from now (default 7).', placeholder: 'n' } },
+    async (ctx, args) => {
+      const days = stringValue(args.values, 'days') ? parseNumber(stringValue(args.values, 'days'), '--days') : 7
+      if (days <= 0) throw new CliError('--days is a number of days above 0.')
+      const acquisition = await readAcquisition(ctx)
+      const card = scorecard({ records: await readMetrics(ctx), posts: publishedPosts(await readRecords(ctx)), now: Date.now(), days, acquisition: acquisition ?? undefined })
+      ctx.out.result({ ...card, metricsFile: metricsFile(ctx), acquisitionFile: acquisition === null ? null : acquisitionFile(ctx) }, () =>
+        describeScorecard(card, acquisition !== null),
+      )
     },
   ),
 
@@ -769,4 +859,221 @@ function describeState({ post, status }: PostState): string[] {
     `${post.lessonId}${post.private ? ' (private)' : ''}, ${when}: ${status?.status ?? 'sent'}`,
     ...resultLines(status?.results ?? {}, post.platforms).map((line) => `  ${line}`),
   ]
+}
+
+// ---------- What the posts and accounts are doing ----------
+
+/** The accounts read in one call; Facebook needs its Page, so it has a call of its own. */
+const ACCOUNT_PLATFORMS: Platform[] = ['instagram', 'tiktok', 'youtube', 'threads', 'pinterest', 'x']
+
+/** Facebook's account numbers cover this many days: a week, as the scorecard reads them. */
+const FACEBOOK_DAYS = 7
+
+const acquisitionFile = (ctx: Context) => path.join(repoDirOf(ctx), '.studio', 'ops', 'acquisition.json')
+
+/** App Store Connect's numbers by campaign and source, when the acquisition pull has written them; null when it hasn't. */
+async function readAcquisition(ctx: Context): Promise<unknown | null> {
+  const text = await readFile(acquisitionFile(ctx), 'utf8').catch(() => null)
+  if (text === null) return null
+  try {
+    return JSON.parse(text) as unknown
+  } catch {
+    throw new CliError(`${acquisitionFile(ctx)} isn’t JSON.`)
+  }
+}
+
+interface SnapshotOutcome {
+  at: string
+  dryRun: boolean
+  file: string
+  /** Every finished post, however old (Mondays, or --all). */
+  everything: boolean
+  posts: { requestId: string; lessonId: string; media: string; ageHours: number; read: string; views: Record<string, number | null> }[]
+  accounts: { platform: string; source: 'analytics' | 'audience'; read: string }[]
+  /** The days TikTok's audience is read for. */
+  audience: DayRange | null
+  lines: number
+  /** Lines added to the copy on ops-history; null where there is no ops-history worktree. */
+  mirrored: number | null
+  problems: string[]
+}
+
+async function takeSnapshot(ctx: Context, values: Parsed['values']): Promise<SnapshotOutcome> {
+  const settings = await loadSettings(ctx)
+  const now = Date.now()
+  const at = new Date(now).toISOString()
+  const everything = values.all === true || isMonday(now)
+  const posts = postsToSnapshot(publishedPosts(await readRecords(ctx)), now, everything)
+  const has = (platform: Platform) => settings.platforms.includes(platform)
+  const accountPlatforms = ACCOUNT_PLATFORMS.filter(has)
+  const facebookPage = has('facebook') ? settings.facebookPage : null
+  const audience = has('tiktok') ? audienceRange(lastAudienceRange(await readMetrics(ctx)), addDays(dayOf(at), -1)) : null
+  const profile = encodeURIComponent(settings.profile)
+  const outcome: SnapshotOutcome = {
+    at,
+    dryRun: values['dry-run'] === true,
+    file: metricsFile(ctx),
+    everything,
+    posts: posts.map((post) => ({ requestId: post.requestId, lessonId: post.lessonId, media: post.media, ageHours: post.ageHours, read: `GET /api/uploadposts/post-analytics/${post.requestId}`, views: {} })),
+    accounts: [
+      ...accountPlatforms.map((platform) => ({ platform, source: 'analytics' as const, read: `GET /api/analytics/${profile}?platforms=${accountPlatforms.join(',')}` })),
+      ...(facebookPage ? [{ platform: 'facebook', source: 'analytics' as const, read: `GET /api/analytics/${profile}?platforms=facebook&page_id=${facebookPage}&days=${FACEBOOK_DAYS}` }] : []),
+      ...(audience ? [{ platform: 'tiktok', source: 'audience' as const, read: `GET /api/uploadposts/audience?platform=tiktok&user=${profile}&start_date=${audience.start}&end_date=${audience.end}` }] : []),
+    ],
+    audience,
+    lines: 0,
+    mirrored: null,
+    problems: has('facebook') && !facebookPage ? [`Facebook’s account numbers need ${SETTINGS_KEYS.facebookPage}; left out.`] : [],
+  }
+  if (outcome.dryRun) return outcome
+
+  const client = clientOf(ctx, settings)
+  let calls = 0
+  // A pause between calls keeps well inside Upload-Post's limits; told to slow down, it waits twenty pauses and tries once more.
+  const read = async <T>(what: string, work: () => Promise<T>): Promise<T | null> => {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      if (calls > 0) await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? ctx.social.pauseMs : ctx.social.pauseMs * 20))
+      calls += 1
+      try {
+        return await work()
+      } catch (error) {
+        if (error instanceof UploadPostError && error.status === 429 && attempt === 0) continue
+        outcome.problems.push(`${what}: ${error instanceof Error ? error.message : String(error)}`)
+        return null
+      }
+    }
+    return null
+  }
+
+  const lines: MetricsRecord[] = []
+  for (const [index, post] of posts.entries()) {
+    const found = await read(`${post.lessonId} ${post.media} (${post.requestId})`, () => client.postMetrics(post.requestId))
+    if (!found) continue
+    lines.push(...postLines(post, found, at))
+    outcome.posts[index].views = Object.fromEntries(Object.entries(found).map(([platform, metrics]) => [platform, metrics.views]))
+  }
+  if (accountPlatforms.length > 0) {
+    const found = await read('the accounts', () => client.accountMetrics(settings.profile, accountPlatforms))
+    for (const [platform, metrics] of Object.entries(found ?? {})) lines.push({ kind: 'account', at, platform, source: 'analytics', metrics })
+  }
+  if (facebookPage) {
+    const found = await read('Facebook’s Page', () => client.accountMetrics(settings.profile, ['facebook'], { pageId: facebookPage, days: FACEBOOK_DAYS }))
+    if (found?.facebook) lines.push({ kind: 'account', at, platform: 'facebook', source: 'analytics', metrics: found.facebook })
+  }
+  if (audience) {
+    const found = await read('TikTok’s audience', () => client.tiktokAudience(settings.profile, audience))
+    if (found) lines.push({ kind: 'account', at, platform: 'tiktok', source: 'audience', metrics: found })
+  }
+
+  if (lines.length > 0) {
+    // The file only grows: this snapshot's lines, added at the end in one write.
+    await mkdir(path.dirname(metricsFile(ctx)), { recursive: true })
+    await appendFile(metricsFile(ctx), lines.map((line) => `${JSON.stringify(line)}\n`).join(''))
+  }
+  outcome.lines = lines.length
+  outcome.mirrored = await keepMetricsInHistory(ctx)
+  return outcome
+}
+
+const PLATFORM_NAMES: Record<string, string> = {
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  threads: 'Threads',
+  pinterest: 'Pinterest',
+  x: 'X',
+}
+
+const nameOf = (platform: string) => PLATFORM_NAMES[platform] ?? platform
+const whole = (value: number) => value.toLocaleString('en-US', { maximumFractionDigits: 1 })
+/** An age as people say it: hours up to three days, days after. */
+const ageOf = (hours: number) => (hours <= 72 ? `${Math.round(hours)} h` : `${whole(Math.round((hours / 24) * 10) / 10)} days`)
+/** `2026-09-24` as "Sep 24". */
+const shortDay = (day: string) => new Date(`${day}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+const appleCount = (count: AppleCount) => (typeof count === 'number' ? whole(count) : count)
+
+function describeSnapshot(outcome: SnapshotOutcome): string[] {
+  const what = (post: SnapshotOutcome['posts'][number]) => `${post.lessonId} ${post.media}, ${ageOf(post.ageHours)}`
+  const read = (platform: string) => outcome.accounts.some((account) => account.platform === platform && account.source === 'analytics')
+  const accounts = [
+    ACCOUNT_PLATFORMS.filter(read).join(', '),
+    ...(read('facebook') ? [`facebook (${FACEBOOK_DAYS} days)`] : []),
+    ...(outcome.audience ? [`TikTok’s audience, ${shortDay(outcome.audience.start)} to ${shortDay(outcome.audience.end)}`] : []),
+  ].filter(Boolean)
+  const problems = outcome.problems.length ? ['', 'Problems:', ...outcome.problems.map((problem) => `  - ${problem}`)] : []
+  if (outcome.dryRun) {
+    return [
+      `Would read ${plural(outcome.posts.length, 'post')}${outcome.everything ? ' (every one: Monday or --all)' : ''} and the accounts, adding to ${shown(outcome.file)}:`,
+      ...outcome.posts.map((post) => `  ${what(post)}: ${post.read}`),
+      ...[...new Set(outcome.accounts.map((account) => account.read))].map((read) => `  ${read}`),
+      ...problems,
+    ]
+  }
+  return [
+    `Read ${plural(outcome.posts.length, 'post')} and the accounts: ${plural(outcome.lines, 'line')} added to ${shown(outcome.file)}.`,
+    ...outcome.posts.map((post) => {
+      const views = Object.entries(post.views)
+        .sort(([, a], [, b]) => (b ?? -1) - (a ?? -1))
+        .map(([platform, count]) => `${platform} ${count === null ? '–' : whole(count)}`)
+      return `  ${what(post)}: ${views.length ? views.join(' · ') : 'no numbers'}`
+    }),
+    `  Accounts: ${accounts.join('; ') || 'none'}`,
+    ...(outcome.mirrored === null ? [] : [`Kept on ops-history too (${plural(outcome.mirrored, 'new line')}).`]),
+    ...problems,
+  ]
+}
+
+function describeScorecard(card: Scorecard, hasAcquisition: boolean): string[] {
+  const lines = [`The last ${plural(card.days, 'day')} (${shortDay(dayOf(card.from))} to ${shortDay(dayOf(card.to))}), from ${plural(card.snapshots, 'snapshot')}.`]
+  if (card.snapshots === 0) lines.push('No snapshot in the window: `social snapshot` keeps the numbers.')
+  for (const score of card.platforms) {
+    lines.push('', `${nameOf(score.platform)}: ${plural(score.posts, 'post')}`, ...scoreLines(score))
+  }
+  const breakouts = card.platforms.reduce((sum, score) => sum + score.breakouts.length, 0)
+  lines.push(
+    '',
+    breakouts
+      ? `${plural(breakouts, 'breakout')}: within 24 hours, its speed draw, its path’s next lesson up and a fresh pin (social-plan.md, Rules for deciding).`
+      : `Breakouts (${BREAKOUT.times}× the last ${BREAKOUT.trailing} posts, and ${whole(BREAKOUT.views)} views): none.`,
+  )
+  const acquisition = card.acquisition
+  const count = (value: number | null) => (value === null ? '–' : whole(value))
+  if (!hasAcquisition) lines.push('App Store Connect: no .studio/ops/acquisition.json yet, so no page views or downloads per platform.')
+  else if (!acquisition?.covered) lines.push('App Store Connect: acquisition.json has nothing for these days yet.')
+  else {
+    const { covered, total, sources, hidden } = acquisition
+    const days = covered.start === covered.end ? shortDay(covered.start) : `${shortDay(covered.start)} to ${shortDay(covered.end)}`
+    lines.push(`App Store Connect, ${days} (${acquisition.granularity.toLowerCase()}):`)
+    lines.push(`  All sources: ${count(total.pageViews)} page views, ${count(total.firstDownloads)} first downloads`)
+    if (sources.length) lines.push(`  First downloads by source: ${sources.map((source) => `${source.source} ${whole(source.firstDownloads)}`).join(' · ')}`)
+    if (hidden?.of) lines.push(`  Apple hides ${whole(hidden.firstDownloads)} of ${plural(hidden.of, 'first download')} from the campaign rows (“<5” above)`)
+  }
+  return lines
+}
+
+function scoreLines(score: PlatformScore): string[] {
+  const { views } = score
+  const age = ageOf(views.ageHours)
+  const young = views.tooYoung ? `; ${views.tooYoung} too young` : ''
+  const lines: string[] = []
+  if (views.posts) lines.push(`  At ${age}: median ${whole(views.median!)} views (${plural(views.posts, 'post')}${young})`)
+  else if (score.posts) lines.push(`  At ${age}: ${views.tooYoung ? 'too young' : 'no post reached it in the window'}`)
+  if (score.stillWatching3s?.posts || score.profileViewsPer1000?.posts) {
+    const hold = score.stillWatching3s?.median
+    const perThousand = score.profileViewsPer1000?.median
+    lines.push(`    ${hold == null ? '–' : `${Math.round(hold * 100)}%`} still watching at 3 s; ${perThousand == null ? '–' : whole(perThousand)} profile views per 1,000`)
+  }
+  if (score.taps) {
+    const what = `${score.taps.what[0].toUpperCase()}${score.taps.what.slice(1)}`
+    const note = score.taps.note.replace(/^(\d{4}-\d\d-\d\d) to (\d{4}-\d\d-\d\d)$/, (_, start: string, end: string) => `${shortDay(start)} to ${shortDay(end)}`)
+    lines.push(score.taps.count === null ? `  ${what}: not read yet` : `  ${what}: ${whole(score.taps.count)} (${note})`)
+  }
+  const { now, change } = score.followers
+  lines.push(`  Followers: ${now === null ? 'not read yet' : `${whole(now)} (${change === null ? 'first reading' : `${change >= 0 ? '+' : ''}${whole(change)}`})`}`)
+  for (const breakout of score.breakouts) {
+    lines.push(`  Breakout: ${breakout.lessonId} ${breakout.media}, ${whole(breakout.views)} views at ${ageOf(breakout.ageHours)} (median before: ${whole(breakout.baseline)})`)
+  }
+  if (score.appStore) lines.push(`  App Store: ${appleCount(score.appStore.pageViews)} page views, ${appleCount(score.appStore.firstDownloads)} first downloads`)
+  return lines
 }

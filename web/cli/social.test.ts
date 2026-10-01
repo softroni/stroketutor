@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fakeConverter, startFakeTts, type FakeTts } from '../server/testing'
 
@@ -67,9 +67,40 @@ const fakeUploadPost = (async (url: string, init: RequestInit) => {
       success: true,
       platforms: {
         youtube: { success: true, post_url: 'https://youtube.com/shorts/abc', post_metrics: { views: 120, likes: 9, comments: 1 } },
-        twitter: { success: true, post_metrics: { impressions: 40, likes: 2 } },
+        twitter: { success: true, post_metrics: { impressions: 40, likes: 2, replies: 3 } },
         tiktok: { success: true, post_metrics_error: 'The token may need to be refreshed.' },
+        // A pin's post_url is where it leads (the App Store), not the pin.
+        pinterest: {
+          success: true,
+          platform_post_id: '989806824387717196',
+          post_url: 'https://apps.apple.com/app/apple-store/id6816231257?pt=1&ct=pinterest&mt=8',
+          post_metrics: { impressions: 30, saves: 1, reactions: 4, comments: 0, outbound_clicks: 2, metrics_window_days: 90 },
+        },
       },
+    })
+  }
+  if (pathname.startsWith('/api/analytics/')) {
+    const query = new URLSearchParams(search)
+    const accounts: Record<string, Record<string, unknown>> = {
+      instagram: { followers: 1, profile_links_taps: 2 },
+      tiktok: { followers: 5, impressions: 41 },
+      youtube: { followers: 0, stale: true },
+      threads: { followers: 0, link_clicks: [{ url: 'https://softroni.com/th/papercoach', clicks: 1 }] },
+      pinterest: { followers: 0, outbound_clicks: 2, account_type: 'PINNER' },
+      twitter: { followers: 3 },
+      facebook: { followers: 7, period_days: Number(query.get('days')), page: query.get('page_id') },
+    }
+    return json(Object.fromEntries((query.get('platforms') ?? '').split(',').map((platform) => (platform === 'x' ? 'twitter' : platform)).map((platform) => [platform, accounts[platform]])))
+  }
+  if (pathname === '/api/uploadposts/audience') {
+    const query = new URLSearchParams(search)
+    return json({
+      success: true,
+      platform: 'tiktok',
+      range: { start_date: query.get('start_date'), end_date: query.get('end_date') },
+      followers_daily: [{ date: query.get('end_date'), total: 5, new: 1, lost: 0 }],
+      profile_actions: { bio_link_clicks: 2, app_download_clicks: null },
+      benchmark_categories: ['ART_AND_CRAFTS', 'SOFTWARE_AND_APPS'],
     })
   }
   return json({ success: false, message: 'Not found' }, 404)
@@ -366,15 +397,183 @@ describe('social stats', () => {
     const post = (requestId: string, daysAgo: number, isPrivate = false) =>
       JSON.stringify({ kind: 'post', at: new Date(Date.now() - daysAgo * 86_400_000).toISOString(), lessonId: 'palm-tree-4', profile: 'softroni', platforms: ['youtube'], private: isPrivate, requestId, jobId: 'job', outcome: 'sent', media: 'video' })
     await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), [post('recent', 2), post('test', 1, true), post('old', 20)].join('\n') + '\n')
-    const stats = await t.json<{ posts: number; totals: { platform: string; views: number }[]; rows: { platform: string; error: string | null }[] }>('social stats')
+    const stats = await t.json<{ posts: number; totals: { platform: string; views: number }[]; rows: { platform: string; error: string | null; url: string | null }[] }>('social stats')
     expect(stats.posts).toBe(1)
+    // X's replies count as comments, Pinterest's reactions as likes.
     expect(stats.totals).toEqual([
       { platform: 'youtube', posts: 1, views: 120, likes: 9, comments: 1 },
-      { platform: 'x', posts: 1, views: 40, likes: 2, comments: 0 },
+      { platform: 'x', posts: 1, views: 40, likes: 2, comments: 3 },
       { platform: 'tiktok', posts: 1, views: 0, likes: 0, comments: 0 },
+      { platform: 'pinterest', posts: 1, views: 30, likes: 4, comments: 0 },
     ])
     expect(stats.rows.find((row) => row.platform === 'tiktok')?.error).toContain('refreshed')
+    expect(stats.rows.find((row) => row.platform === 'pinterest')).toEqual(expect.objectContaining({ url: 'https://www.pinterest.com/pin/989806824387717196/' }))
+    expect(stats.rows.find((row) => row.platform === 'pinterest')).not.toHaveProperty('raw')
     expect(calls.filter((call) => call.route.startsWith('/api/uploadposts/post-analytics/')).map((call) => call.route)).toEqual(['/api/uploadposts/post-analytics/recent'])
+  })
+})
+
+describe('social snapshot and scorecard', () => {
+  // A Wednesday, 17:45 Central: not a Monday, so older posts wait for one.
+  const NOW = Date.parse('2026-10-14T22:45:00Z')
+  const hoursAgo = (hours: number) => new Date(NOW - hours * 3_600_000).toISOString()
+  const metricsFile = () => path.join(t.root, '.studio', 'social', 'metrics.jsonl')
+  const metricsLines = async (file = metricsFile()) =>
+    (await readFile(file, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line) as Record<string, unknown>)
+
+  beforeEach(async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(NOW)
+    await writeFile(path.join(t.root, 'upload-post.config'), 'UPLOAD_POST_API_KEY=test-key\nUPLOAD_POST_PROFILE=softroni\nUPLOAD_POST_FACEBOOK_PAGE=42\n')
+    await mkdir(path.join(t.root, '.studio', 'social'), { recursive: true })
+    const post = (requestId: string, at: string, platforms: string[], extra: Record<string, unknown> = {}) =>
+      JSON.stringify({ kind: 'post', at, lessonId: 'pine-tree', profile: 'softroni', platforms, private: false, requestId, jobId: 'job', outcome: 'sent', media: 'video', purpose: 'lesson', ...extra })
+    const status = (requestId: string, platforms: string[]) =>
+      JSON.stringify({ kind: 'status', at: NOW, requestId, status: 'completed', results: Object.fromEntries(platforms.map((platform) => [platform, { success: true, url: null, postId: null, error: null }])) })
+    await writeFile(
+      path.join(t.root, '.studio', 'social', 'posts.jsonl'),
+      [
+        post('recent', hoursAgo(30), ['youtube', 'x', 'tiktok', 'pinterest']),
+        status('recent', ['youtube', 'x', 'tiktok', 'pinterest']),
+        post('test', hoursAgo(20), ['youtube'], { private: true }),
+        status('test', ['youtube']),
+        post('old', hoursAgo(20 * 24), ['youtube']),
+        status('old', ['youtube']),
+      ].join('\n') + '\n',
+    )
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('keeps every number of each recent post and of the accounts, a line each, and only adds', async () => {
+    const outcome = await t.json<{ posts: { requestId: string }[]; lines: number; mirrored: number | null; problems: string[] }>('social snapshot')
+    expect(outcome.posts.map((post) => post.requestId)).toEqual(['recent'])
+    expect(outcome.problems).toEqual([])
+    expect(outcome.mirrored).toBeNull()
+
+    const lines = await metricsLines()
+    expect(lines.filter((line) => line.kind === 'post').map((line) => [line.platform, line.ageHours, line.requestId])).toEqual([
+      ['youtube', 30, 'recent'],
+      ['x', 30, 'recent'],
+      ['tiktok', 30, 'recent'],
+      ['pinterest', 30, 'recent'],
+    ])
+    // Every number as the platform gave it, and why TikTok has none.
+    expect(lines.find((line) => line.platform === 'pinterest')).toEqual(
+      expect.objectContaining({ lessonId: 'pine-tree', media: 'video', purpose: 'lesson', metrics: { impressions: 30, saves: 1, reactions: 4, comments: 0, outbound_clicks: 2, metrics_window_days: 90 } }),
+    )
+    expect(lines.find((line) => line.platform === 'tiktok' && line.kind === 'post')).toEqual(expect.objectContaining({ metrics: {}, error: 'The token may need to be refreshed.' }))
+    expect(lines.filter((line) => line.kind === 'account').map((line) => [line.platform, line.source])).toEqual([
+      ['instagram', 'analytics'],
+      ['tiktok', 'analytics'],
+      ['youtube', 'analytics'],
+      ['threads', 'analytics'],
+      ['pinterest', 'analytics'],
+      ['x', 'analytics'],
+      ['facebook', 'analytics'],
+      ['tiktok', 'audience'],
+    ])
+    expect(lines.find((line) => line.source === 'audience')?.metrics).toEqual({
+      range: { start_date: '2026-10-07', end_date: '2026-10-13' },
+      followers_daily: [{ date: '2026-10-13', total: 5, new: 1, lost: 0 }],
+      profile_actions: { bio_link_clicks: 2, app_download_clicks: null },
+    })
+    expect(calls.map((call) => call.route)).toEqual([
+      '/api/uploadposts/post-analytics/recent',
+      '/api/analytics/softroni?platforms=instagram,tiktok,youtube,threads,pinterest,x',
+      '/api/analytics/softroni?platforms=facebook&page_id=42&days=7',
+      '/api/uploadposts/audience?platform=tiktok&user=softroni&start_date=2026-10-07&end_date=2026-10-13',
+    ])
+    expect(calls.every((call) => call.method === 'GET')).toBe(true)
+
+    // Two days on: the same post again, at its new age, below the lines already there; TikTok's audience from the day after.
+    vi.setSystemTime(NOW + 48 * 3_600_000)
+    calls = []
+    expect((await t.studio('social snapshot')).code).toBe(0)
+    const again = await metricsLines()
+    expect(again.slice(0, lines.length)).toEqual(lines)
+    expect(again.filter((line) => line.kind === 'post').map((line) => line.ageHours)).toEqual([30, 30, 30, 30, 78, 78, 78, 78])
+    expect(calls.map((call) => call.route)).toContain('/api/uploadposts/audience?platform=tiktok&user=softroni&start_date=2026-10-14&end_date=2026-10-15')
+
+    // And the week adds up for a person.
+    const card = await t.studio('social scorecard')
+    expect(card.code).toBe(0)
+    expect(card.stdout).toContain('The last 7 days (Oct 9 to Oct 16), from 2 snapshots.')
+    expect(card.stdout).toContain('X: 1 post\n  At 72 h: median 40 views (1 post)\n  Followers: 3 (+0)')
+    expect(card.stdout).toContain('Pinterest: 1 post\n  At 14 days: too young\n  Outbound clicks: 2 (1 pin read)')
+    expect(card.stdout).toContain('TikTok: 1 post\n  At 72 h: no post reached it in the window\n  Bio-link taps: 4 (Oct 7 to Oct 15)\n  Followers: 5 (+0)')
+    expect(card.stdout).toContain('Breakouts (5× the last 14 posts, and 1,000 views): none.')
+    expect(card.stdout).toContain('App Store Connect: no .studio/ops/acquisition.json yet')
+  })
+
+  it('reads every post, however old, on Mondays or with --all', async () => {
+    const outcome = await t.json<{ posts: { requestId: string }[]; everything: boolean }>('social snapshot --all')
+    expect(outcome.everything).toBe(true)
+    expect(outcome.posts.map((post) => post.requestId)).toEqual(['recent', 'old'])
+    vi.setSystemTime(Date.parse('2026-10-12T22:45:00Z'))
+    expect((await t.json<{ everything: boolean }>('social snapshot --dry-run')).everything).toBe(true)
+  })
+
+  it('shows what it would read without a key, and reads and writes nothing', async () => {
+    await writeFile(path.join(t.root, 'upload-post.config'), 'UPLOAD_POST_PROFILE=softroni\n')
+    const outcome = await t.studio('social snapshot --dry-run')
+    expect(outcome.code).toBe(0)
+    expect(outcome.stdout).toContain('Would read 1 post and the accounts')
+    expect(outcome.stdout).toContain('GET /api/uploadposts/post-analytics/recent')
+    expect(outcome.stdout).toContain('GET /api/analytics/softroni?platforms=instagram,tiktok,youtube,threads,pinterest,x')
+    expect(outcome.stdout).toContain('Facebook’s account numbers need UPLOAD_POST_FACEBOOK_PAGE')
+    expect(calls).toEqual([])
+    await expect(readFile(metricsFile(), 'utf8')).rejects.toThrow()
+  })
+
+  it('keeps a copy on the ops-history branch, adding each line once and rewriting none', async () => {
+    const history = path.join(t.root, '.studio', 'ops', 'history')
+    await mkdir(path.join(history, 'social'), { recursive: true })
+    await writeFile(path.join(history, '.git'), 'gitdir: elsewhere')
+    const kept = path.join(history, 'social', 'metrics.jsonl')
+    await writeFile(kept, '{"kind":"account","at":"2026-10-01T00:00:00.000Z","platform":"x","source":"analytics","metrics":{"followers":0}}\n')
+    const first = await t.json<{ mirrored: number }>('social snapshot')
+    expect(first.mirrored).toBe(12)
+    vi.setSystemTime(NOW + 24 * 3_600_000)
+    expect((await t.json<{ mirrored: number }>('social snapshot')).mirrored).toBe(12)
+    const copy = await metricsLines(kept)
+    expect(copy[0]).toEqual({ kind: 'account', at: '2026-10-01T00:00:00.000Z', platform: 'x', source: 'analytics', metrics: { followers: 0 } })
+    expect(copy.slice(1)).toEqual(await metricsLines())
+  })
+
+  it('adds App Store Connect’s numbers per platform where the acquisition file has them', async () => {
+    await t.studio('social snapshot')
+    await mkdir(path.join(t.root, '.studio', 'ops'), { recursive: true })
+    await writeFile(
+      path.join(t.root, '.studio', 'ops', 'acquisition.json'),
+      JSON.stringify({
+        periods: {
+          DAILY: [
+            {
+              date: '2026-10-12',
+              end: '2026-10-12',
+              total: { pageViews: 30, firstDownloads: 4 },
+              sourceTypes: [{ sourceType: 'App referrer', pageViews: 30, firstDownloads: 4 }],
+              hidden: { firstDownloads: { standard: 4, detailed: 0, hidden: 4, share: 1 } },
+              campaigns: [{ campaign: 'pinterest-steps', pageViews: 9, firstDownloads: null }],
+              platforms: [],
+            },
+          ],
+        },
+      }),
+    )
+    const card = await t.studio('social scorecard')
+    expect(card.stdout).toContain('App Store: 9 page views, <5 first downloads')
+    expect(card.stdout).toContain('App Store: <5 page views, <5 first downloads')
+    expect(card.stdout).toContain('App Store Connect, Oct 12 (daily):\n  All sources: 30 page views, 4 first downloads\n  First downloads by source: App referrer 4')
+    expect(card.stdout).toContain('Apple hides 4 of 4 first downloads from the campaign rows')
+    const data = await t.json<{ platforms: { platform: string; appStore: unknown }[] }>('social scorecard --days 14')
+    expect(data.platforms.find((score) => score.platform === 'pinterest')?.appStore).toEqual({ pageViews: 9, firstDownloads: '<5' })
   })
 })
 
