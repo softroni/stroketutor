@@ -168,15 +168,18 @@ Waiting on Kevin:
 
   | Profile | Short link | Campaign |
   |---|---|---|
-  | TikTok | softroni.com/draw (`draw.html`) | `tiktok-bio` |
-  | Threads | softroni.com/t/draw | `threads-bio` |
-  | X | softroni.com/x/draw | `x-bio` |
-  | Instagram | softroni.com/i/draw | `instagram-bio` |
-  | Facebook | softroni.com/f/draw | `facebook-page` |
-  | YouTube | softroni.com/y/draw | `youtube-channel` |
-  | Pinterest | softroni.com/p/draw | `pinterest-profile` |
+  | TikTok | softroni.com/t/papercoach | `tiktok-bio` |
+  | Threads | softroni.com/th/papercoach | `threads-bio` |
+  | X | softroni.com/x/papercoach | `x-bio` |
+  | Instagram | softroni.com/i/papercoach | `instagram-bio` |
+  | Facebook | softroni.com/f/papercoach | `facebook-page` |
+  | YouTube | softroni.com/y/papercoach | `youtube-channel` |
+  | Pinterest | softroni.com/p/papercoach | `pinterest-profile` |
 
-  One letter a platform (Kevin's idea); the page is `<letter>/draw.html`.
+  Kevin's naming (2026-10-01): a platform's letters, then the app, so another Softroni app gets its own
+  (`softroni.com/t/geoblitz`); plain `softroni.com/papercoach` stays free for an app page like the others have.
+  Each is `<letters>/papercoach.html`. The first ones, `softroni.com/draw` (TikTok) and `<letter>/draw` (`t/draw`
+  was Threads), still forward to the same campaigns; remove them once no profile uses them.
 
   Never point a profile at another platform's link, and keep each page's campaign if its target ever changes.
 - [ ] YouTube "made for kids" and the AI label: defaults stand (no; TikTok only) unless Kevin says otherwise.
