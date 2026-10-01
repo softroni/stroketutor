@@ -102,3 +102,24 @@ points (the middle one tallest) with a cream pearl on every tip, and purple velv
 - velvet-color: "The velvet is purple and the pearls are cream."
 - jewel-colors: "Blue for the round jewels, red for the diamonds."
 - outro: "Your crown is finished, jewels and all. Who in your house gets to wear it first?"
+
+### hourglass
+
+Kept picture: `fantasy-objects/hourglass-codex.png` (Codex, first of two candidates; white margin added). Two
+stacked slabs at each end (wide brown, narrow orange), a blue glass of two bulbs pinched at a waist, yellow sand
+under a level line in the top bulb, a short line across the waist, one falling line onto a soft heap, and two
+cream posts, each edge bulging three times, standing outside the narrow slabs. The second candidate had its
+posts on the narrow slabs, close to the glass.
+
+- intro: "Wizards turn it over to count the minutes, and the sand never hurries. It's two slabs at each end, a pinched glass and two posts. Watch the sand fall, then turn over your own."
+- base: "The hourglass stands on two slabs. A wide one with rounded ends, then a narrower one on top."
+- glass: "The glass rises from the middle. Curve each side in to a narrow waist and out again."
+- top: "The same two slabs cap the top: the narrow one on the glass, the wide one above it."
+- posts: "Two posts stand between the wide slabs. Each edge bulges out three times, like beads on a string."
+- sand-top: "Sand fills the bottom of the upper bulb. Draw its level top, then a short line across the waist."
+- sand-fall: "A thin line of sand falls from the waist onto a soft heap below."
+- wood: "Color the wide slabs brown and the narrow ones orange."
+- glass-color: "Color the glass blue."
+- sand-color: "Color the sand yellow, top and bottom."
+- posts-color: "The posts are cream."
+- outro: "Time is running out, one grain at a time. How long would yours take to empty?"
