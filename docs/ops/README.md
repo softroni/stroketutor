@@ -235,6 +235,9 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
   profile, the Pinterest board and Facebook Page ids, the AI label (`tiktok` by default: Lina's voice is
   synthetic), and whether YouTube should mark the videos as made for kids (no by default; Kevin's call).
 - **The record** is `.studio/social/posts.jsonl`, one line per post and per status seen. It only grows.
+- **The numbers** are `.studio/social/metrics.jsonl`: `social snapshot` adds a line per account and per post and
+  platform each time it runs, and `social scorecard` adds them up (social-plan.md, *What we steer by*). Its copy
+  is `social/metrics.jsonl` on `ops-history`. Like the record, it only grows: never delete or rewrite a line.
 - **The links, in the repo:** every finished post, with each platform's link or error, is a line in
   `social/posts.jsonl` on the **`ops-history`** branch (`.studio/ops/history/social/posts.jsonl`), written as the
   post finishes and pushed by `today.py archive` at once and every night. The Studio's Social page shows the posts

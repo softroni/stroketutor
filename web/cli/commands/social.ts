@@ -47,6 +47,7 @@ import {
   postsToSnapshot,
   publishedPosts,
   scorecard,
+  type AccountMetricsRecord,
   type AppleCount,
   type DayRange,
   type MetricsRecord,
@@ -794,7 +795,7 @@ export const socialCommands: Command[] = [
 
   command(
     'social snapshot',
-    `Every number Upload-Post gives, appended to .studio/social/metrics.jsonl (and its copy on ops-history): each finished public post up to ${DAILY_SNAPSHOT_DAYS} days old (every one on Mondays), a line per platform; then the accounts, and TikTok’s bio-link taps. Reads only; posts nothing.`,
+    `Every number Upload-Post gives, appended to .studio/social/metrics.jsonl as it is read (and its copy on ops-history): the accounts and TikTok’s bio-link taps, then each finished public post up to ${DAILY_SNAPSHOT_DAYS} days old (every one on Mondays), a line per platform. Reads only; posts nothing.`,
     [],
     {
       all: { type: 'boolean', description: 'Read every finished post, however old, as Mondays do.' },
@@ -945,32 +946,36 @@ async function takeSnapshot(ctx: Context, values: Parsed['values']): Promise<Sna
     return null
   }
 
-  const lines: MetricsRecord[] = []
-  for (const [index, post] of posts.entries()) {
-    const found = await read(`${post.lessonId} ${post.media} (${post.requestId})`, () => client.postMetrics(post.requestId))
-    if (!found) continue
-    lines.push(...postLines(post, found, at))
-    outcome.posts[index].views = Object.fromEntries(Object.entries(found).map(([platform, metrics]) => [platform, metrics.views]))
+  // The file only grows, and each reading is added as soon as it is read: a run cut short (a Monday's
+  // every post takes minutes) keeps what it read. The accounts come first, the oldest posts last.
+  const keep = async (lines: MetricsRecord[]) => {
+    if (lines.length === 0) return
+    await mkdir(path.dirname(metricsFile(ctx)), { recursive: true })
+    await appendFile(metricsFile(ctx), lines.map((line) => `${JSON.stringify(line)}\n`).join(''))
+    outcome.lines += lines.length
   }
+  const accounts: AccountMetricsRecord[] = []
   if (accountPlatforms.length > 0) {
     const found = await read('the accounts', () => client.accountMetrics(settings.profile, accountPlatforms))
-    for (const [platform, metrics] of Object.entries(found ?? {})) lines.push({ kind: 'account', at, platform, source: 'analytics', metrics })
+    for (const [platform, metrics] of Object.entries(found ?? {})) accounts.push({ kind: 'account', at, platform, source: 'analytics', metrics })
   }
   if (facebookPage) {
     const found = await read('Facebook’s Page', () => client.accountMetrics(settings.profile, ['facebook'], { pageId: facebookPage, days: FACEBOOK_DAYS }))
-    if (found?.facebook) lines.push({ kind: 'account', at, platform: 'facebook', source: 'analytics', metrics: found.facebook })
+    if (found?.facebook) accounts.push({ kind: 'account', at, platform: 'facebook', source: 'analytics', metrics: found.facebook })
   }
   if (audience) {
     const found = await read('TikTok’s audience', () => client.tiktokAudience(settings.profile, audience))
-    if (found) lines.push({ kind: 'account', at, platform: 'tiktok', source: 'audience', metrics: found })
+    if (found) accounts.push({ kind: 'account', at, platform: 'tiktok', source: 'audience', metrics: found })
   }
-
-  if (lines.length > 0) {
-    // The file only grows: this snapshot's lines, added at the end in one write.
-    await mkdir(path.dirname(metricsFile(ctx)), { recursive: true })
-    await appendFile(metricsFile(ctx), lines.map((line) => `${JSON.stringify(line)}\n`).join(''))
+  await keep(accounts)
+  // What was read, not what was meant to be: a call that failed is under problems.
+  outcome.accounts = outcome.accounts.filter(({ platform, source }) => accounts.some((line) => line.platform === platform && line.source === source))
+  for (const [index, post] of posts.entries()) {
+    const found = await read(`${post.lessonId} ${post.media} (${post.requestId})`, () => client.postMetrics(post.requestId))
+    if (!found) continue
+    await keep(postLines(post, found, at))
+    outcome.posts[index].views = Object.fromEntries(Object.entries(found).map(([platform, metrics]) => [platform, metrics.views]))
   }
-  outcome.lines = lines.length
   outcome.mirrored = await keepMetricsInHistory(ctx)
   return outcome
 }
@@ -995,18 +1000,18 @@ const appleCount = (count: AppleCount) => (typeof count === 'number' ? whole(cou
 
 function describeSnapshot(outcome: SnapshotOutcome): string[] {
   const what = (post: SnapshotOutcome['posts'][number]) => `${post.lessonId} ${post.media}, ${ageOf(post.ageHours)}`
-  const read = (platform: string) => outcome.accounts.some((account) => account.platform === platform && account.source === 'analytics')
+  const read = (platform: string, source = 'analytics') => outcome.accounts.some((account) => account.platform === platform && account.source === source)
   const accounts = [
-    ACCOUNT_PLATFORMS.filter(read).join(', '),
+    ACCOUNT_PLATFORMS.filter((platform) => read(platform)).join(', '),
     ...(read('facebook') ? [`facebook (${FACEBOOK_DAYS} days)`] : []),
-    ...(outcome.audience ? [`TikTok’s audience, ${shortDay(outcome.audience.start)} to ${shortDay(outcome.audience.end)}`] : []),
+    ...(outcome.audience && read('tiktok', 'audience') ? [`TikTok’s audience, ${shortDay(outcome.audience.start)} to ${shortDay(outcome.audience.end)}`] : []),
   ].filter(Boolean)
   const problems = outcome.problems.length ? ['', 'Problems:', ...outcome.problems.map((problem) => `  - ${problem}`)] : []
   if (outcome.dryRun) {
     return [
-      `Would read ${plural(outcome.posts.length, 'post')}${outcome.everything ? ' (every one: Monday or --all)' : ''} and the accounts, adding to ${shown(outcome.file)}:`,
-      ...outcome.posts.map((post) => `  ${what(post)}: ${post.read}`),
+      `Would read the accounts and ${plural(outcome.posts.length, 'post')}${outcome.everything ? ' (every one: Monday or --all)' : ''}, adding to ${shown(outcome.file)}:`,
       ...[...new Set(outcome.accounts.map((account) => account.read))].map((read) => `  ${read}`),
+      ...outcome.posts.map((post) => `  ${what(post)}: ${post.read}`),
       ...problems,
     ]
   }
@@ -1047,7 +1052,7 @@ function describeScorecard(card: Scorecard, hasAcquisition: boolean): string[] {
     lines.push(`App Store Connect, ${days} (${acquisition.granularity.toLowerCase()}):`)
     lines.push(`  All sources: ${count(total.pageViews)} page views, ${count(total.firstDownloads)} first downloads`)
     if (sources.length) lines.push(`  First downloads by source: ${sources.map((source) => `${source.source} ${whole(source.firstDownloads)}`).join(' · ')}`)
-    if (hidden?.of) lines.push(`  Apple hides ${whole(hidden.firstDownloads)} of ${plural(hidden.of, 'first download')} from the campaign rows (“<5” above)`)
+    if (hidden?.of) lines.push(`  Apple hides ${whole(hidden.firstDownloads)} of ${plural(hidden.of, 'first download')} from the campaign rows: the “<5” and “+” above`)
   }
   return lines
 }
@@ -1058,7 +1063,8 @@ function scoreLines(score: PlatformScore): string[] {
   const young = views.tooYoung ? `; ${views.tooYoung} too young` : ''
   const lines: string[] = []
   if (views.posts) lines.push(`  At ${age}: median ${whole(views.median!)} views (${plural(views.posts, 'post')}${young})`)
-  else if (score.posts) lines.push(`  At ${age}: ${views.tooYoung ? 'too young' : 'no post reached it in the window'}`)
+  else if (score.posts && views.tooYoung === score.posts) lines.push(`  At ${age}: too young`)
+  else if (score.posts) lines.push(`  At ${age}: no reading at that age${young}`)
   if (score.stillWatching3s?.posts || score.profileViewsPer1000?.posts) {
     const hold = score.stillWatching3s?.median
     const perThousand = score.profileViewsPer1000?.median
@@ -1074,6 +1080,6 @@ function scoreLines(score: PlatformScore): string[] {
   for (const breakout of score.breakouts) {
     lines.push(`  Breakout: ${breakout.lessonId} ${breakout.media}, ${whole(breakout.views)} views at ${ageOf(breakout.ageHours)} (median before: ${whole(breakout.baseline)})`)
   }
-  if (score.appStore) lines.push(`  App Store: ${appleCount(score.appStore.pageViews)} page views, ${appleCount(score.appStore.firstDownloads)} first downloads`)
+  if (score.appStore) lines.push(`  App Store: page views ${appleCount(score.appStore.pageViews)}, first downloads ${appleCount(score.appStore.firstDownloads)}`)
   return lines
 }

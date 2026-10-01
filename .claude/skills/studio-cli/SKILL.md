@@ -494,27 +494,32 @@ Reels, Threads, Pinterest, X) through Upload-Post, one request for every platfor
   a pin's link is rebuilt from its id, since Upload-Post gives the App Store link it leads to), with totals per
   platform. A quick look; the Monday numbers are the scorecard's.
 - `social snapshot` (daily, after the post): every number Upload-Post gives, appended to
-  `.studio/social/metrics.jsonl` (`web/server/social/metrics.ts`). One line per post and platform,
+  `.studio/social/metrics.jsonl` (`web/server/social/metrics.ts`) as it is read, so a run cut short keeps what it
+  read. First one line per account, `{kind: "account", at, platform, source, metrics}`:
+  `GET /api/analytics/<profile>` for Instagram, TikTok, YouTube, Threads, Pinterest and X; Facebook on its own
+  with `UPLOAD_POST_FACEBOOK_PAGE` and `days=7`; and TikTok's audience (`source: "audience"`: `bio_link_clicks`,
+  `followers_daily`) for the days after the last it read, up to yesterday, so its totals add up without counting
+  a day twice. Then one line per post and platform,
   `{kind: "post", at, requestId, lessonId, media, purpose, platform, ageHours, metrics, error?}`, where `metrics` is
   the platform's whole `post_metrics` (TikTok's `retention`, Pinterest's `outbound_clicks`…), for every finished
-  public post up to 15 days old, and every one on Mondays (Central) or with `--all`. Then one line per account,
-  `{kind: "account", at, platform, source, metrics}`: `GET /api/analytics/<profile>` for Instagram, TikTok,
-  YouTube, Threads, Pinterest and X; Facebook on its own with `UPLOAD_POST_FACEBOOK_PAGE` and `days=7`; and
-  TikTok's audience (`source: "audience"`: `bio_link_clicks`, `followers_daily`) for the days after the last it
-  read, up to yesterday, so its totals add up without counting a day twice. GET calls only, about 3 s apart
-  (Upload-Post allows 100 post reads in 5 minutes; a 429 waits a minute and tries once more). `--dry-run`
-  lists the calls with no key and writes nothing. The file only grows; never edit or delete it. Its copy is
-  `.studio/ops/history/social/metrics.jsonl` on `ops-history`: lines are only appended, each once, and pushed
-  by `today.py archive`.
+  public post up to 15 days old, newest first, and every one on Mondays (Central) or with `--all`. GET calls only,
+  about 3 s apart (Upload-Post allows 100 post reads in 5 minutes; a 429 waits a minute and tries once more), so
+  a run takes about 3 s a post, past two minutes once a day has 3 posts and far longer on Mondays: give it a long
+  timeout or run it in the background. `--dry-run` lists the calls with no key and writes nothing. The file only
+  grows; never edit or delete it. Its copy is `.studio/ops/history/social/metrics.jsonl` on `ops-history`: lines
+  are only appended, each once, and pushed by `today.py archive`.
 - `social scorecard [--days 7]`: the Monday numbers from `metrics.jsonl` and `posts.jsonl`, no calls. Per
   platform: posts in the window; median views at a fixed age (72 h; YouTube 7 days, Pinterest 14 days) over the
   posts that reached that age in the window, from each post's first reading at or after it (and before 1.5×
   it), "too young" until one has; on TikTok the median share still watching at 3 s and profile views per
-  1,000 views; taps toward the App Store (Pinterest's outbound clicks in the window over every pin read,
-  TikTok's bio-link taps over the days read, Instagram's `profile_links_taps` and Threads' `link_clicks` at the
-  latest account reading); followers and their change; breakouts (5× the median of the 14 posts before, at
-  the same age, and 1,000 views). With `.studio/ops/acquisition.json` (App Store Connect by campaign and
-  source), each platform's page views and first downloads, a hidden count as `<5` (or `12+`).
+  1,000 views; taps toward the App Store (Pinterest's outbound clicks in the window over every pin read, from
+  each pin's reading nearest the window's start; TikTok's bio-link taps over the days read; Instagram's
+  `profile_links_taps` and Threads' `link_clicks` at the latest account reading); followers and their change
+  since the reading nearest the window's start; breakouts (5× the median of the 14 posts before, at the same
+  age, and 1,000 views). A line that only says why a platform had no numbers counts for nothing. With
+  `.studio/ops/acquisition.json` (App Store Connect by campaign and source), each platform's page views and
+  first downloads from its campaign rows: a hidden count (no row, or the pull's 0) as `<5`, `<5 a day` over
+  several days, or `12+` when only some rows show.
 - What counts as posted: only a lesson's whole video. A speed draw, a step pin or news leaves the lesson
   in the queue, and doesn't hold back the next day's lesson.
 - `.studio/social/posts.jsonl` (outside git) is the record: one line per post and per status seen, with

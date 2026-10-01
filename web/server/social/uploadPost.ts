@@ -179,7 +179,7 @@ export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch
       const out: Record<string, PostMetrics> = {}
       for (const [name, value] of Object.entries((body.platforms ?? {}) as Record<string, Record<string, unknown>>)) {
         if (!value || typeof value !== 'object') continue
-        const platform = name === 'twitter' ? 'x' : name
+        const platform = name.toLowerCase() === 'twitter' ? 'x' : name.toLowerCase()
         const raw = (value.post_metrics && typeof value.post_metrics === 'object' ? value.post_metrics : {}) as Record<string, unknown>
         const postId = text(value.platform_post_id)
         const given = text(value.post_url) && /^https?:/.test(String(value.post_url)) ? String(value.post_url) : null
@@ -195,7 +195,9 @@ export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch
       const body = await call('GET', `/api/analytics/${encodeURIComponent(profile)}?${query.join('&')}`)
       const out: Record<string, Record<string, unknown>> = {}
       for (const [name, value] of Object.entries(body)) {
-        if (value && typeof value === 'object' && !Array.isArray(value)) out[name === 'twitter' ? 'x' : name] = value as Record<string, unknown>
+        const platform = name === 'twitter' ? 'x' : name
+        // The platforms asked for, each an object; anything else in the answer is not a platform's numbers.
+        if (platforms.includes(platform) && value && typeof value === 'object' && !Array.isArray(value)) out[platform] = value as Record<string, unknown>
       }
       return out
     },

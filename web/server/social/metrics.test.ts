@@ -164,6 +164,20 @@ describe('the scorecard’s numbers', () => {
     expect(pinterestClicks(new Map(), published, NOW - 7 * 24 * HOUR, NOW)).toEqual({ count: null, pins: 0 })
   })
 
+  it('opens the week at last Monday’s reading even when it ran a little late, so an old pin’s clicks count once', () => {
+    // An old pin is read on Mondays only: two weeks ago, last Monday 40 minutes after this week's window opened,
+    // and now. Its week is 9 - 5, not the two weeks since 2.
+    const lines = [
+      reading('old', 'pinterest', 2000, 2000 - 336.1, { outbound_clicks: 2 }),
+      reading('old', 'pinterest', 2000, 2000 - 167.3, { outbound_clicks: 5 }),
+      reading('old', 'pinterest', 2000, 2000 - 0.05, { outbound_clicks: 9 }),
+    ]
+    expect(pinterestClicks(new Map([['old', lines]]), new Map([['old', { at: NOW - 2000 * HOUR }]]), NOW - 168 * HOUR, NOW)).toEqual({ count: 4, pins: 1 })
+    // Followers likewise, from the reading nearest the window's start.
+    const followers = [account('x', hoursAgo(191), { followers: 2 }), account('x', hoursAgo(167.3), { followers: 5 }), account('x', hoursAgo(0.05), { followers: 9 })]
+    expect(followersOf(followers, NOW - 168 * HOUR)).toEqual({ now: 9, change: 4 })
+  })
+
   it('adds up TikTok’s bio-link taps over the days read, each day once, the latest reading of the same days winning', () => {
     const audience = (at: number, start: string, end: string, clicks: number | null) =>
       account('tiktok', hoursAgo(at), { range: { start_date: start, end_date: end }, profile_actions: { bio_link_clicks: clicks } }, 'audience')
@@ -200,6 +214,18 @@ describe('the scorecard’s numbers', () => {
     // 5× a median of 400 is 2,000: 1,500 isn't a breakout.
     for (const [id, lines] of byPost) if (id.startsWith('earlier')) lines[0].metrics = { views: 400 }
     expect(breakoutsOn(byPost, published, NOW - 168 * HOUR, NOW)).toEqual([])
+  })
+
+  it('judges a breakout by its last reading with views, not a later one that only says why there are none', () => {
+    const published = new Map<string, { at: number; lessonId: string; media: 'video' }>()
+    const byPost = new Map<string, PostMetricsRecord[]>()
+    for (let day = 0; day < 5; day += 1) {
+      published.set(`earlier-${day}`, { at: NOW - (400 + day * 24) * HOUR, lessonId: `earlier-${day}`, media: 'video' })
+      byPost.set(`earlier-${day}`, [reading(`earlier-${day}`, 'tiktok', 400 + day * 24, 48.75, { views: 100 })])
+    }
+    published.set('hit', { at: NOW - 80 * HOUR, lessonId: 'hit', media: 'video' })
+    byPost.set('hit', [reading('hit', 'tiktok', 80, 48.75, { views: 3000 }), { ...reading('hit', 'tiktok', 80, 72.75, {}), error: 'The token may need to be refreshed.' }])
+    expect(breakoutsOn(byPost, published, NOW - 168 * HOUR, NOW)).toMatchObject([{ requestId: 'hit', views: 3000, ageHours: 48.75, baseline: 100 }])
   })
 })
 
@@ -241,6 +267,15 @@ describe('the scorecard', () => {
     expect(card.snapshots).toBe(4)
   })
 
+  it('passes over a line that only says why a platform had no numbers', () => {
+    // Read at 72.75 h with a token to refresh, then at 96.75 h: the later reading is its 72-hour one.
+    const lines: MetricsRecord[] = [
+      { ...reading('a', 'tiktok', 100, 72.75, {}), error: 'The token may need to be refreshed.' },
+      reading('a', 'tiktok', 100, 96.75, { views: 400, profile_views: 4 }),
+    ]
+    expect(scorecard({ records: lines, posts: [posted('a', 100, ['tiktok'])], now: NOW, days: 7 }).platforms[0].views).toEqual({ ageHours: 72, median: 400, posts: 1, tooYoung: 0 })
+  })
+
   /** A period of the acquisition pull, as `.studio/ops/acquisition.json` keeps it. */
   const period = (date: string, end: string, extra: Record<string, unknown> = {}) => ({
     date,
@@ -273,14 +308,14 @@ describe('the scorecard', () => {
       covered: { start: '2026-10-06', end: '2026-10-07' },
       total: { pageViews: 40, firstDownloads: 18 },
       sources: [
-        { source: 'App Store search', firstDownloads: 8 },
         { source: 'App referrer', firstDownloads: 10 },
+        { source: 'App Store search', firstDownloads: 8 },
       ],
       hidden: { firstDownloads: 6, of: 18 },
     })
     expect(card.platforms.find((score) => score.platform === 'tiktok')?.appStore).toEqual({ pageViews: 15, firstDownloads: '5+' })
     expect(card.platforms.find((score) => score.platform === 'pinterest')?.appStore).toEqual({ pageViews: '7+', firstDownloads: '6+' })
-    expect(card.platforms.find((score) => score.platform === 'threads')?.appStore).toEqual({ pageViews: '<5', firstDownloads: '<5' })
+    expect(card.platforms.find((score) => score.platform === 'threads')?.appStore).toEqual({ pageViews: '<5 a day', firstDownloads: '<5 a day' })
     // A file with nothing for the window says nothing per platform.
     expect(scorecard({ records, posts, now: NOW, days: 7, acquisition: { periods: { DAILY: [] } } }).platforms[0].appStore).toBeNull()
   })
@@ -305,5 +340,32 @@ describe('the scorecard', () => {
     expect(summary.platforms.pinterest).toEqual({ pageViews: 15, firstDownloads: 12 })
     expect(summary.platforms.x).toEqual({ pageViews: 5, firstDownloads: 5 })
     expect(summary.platforms.tiktok).toEqual({ pageViews: '<5', firstDownloads: '<5' })
+  })
+
+  it('takes a 0 in the pull’s campaign rows as hidden, never as nobody', () => {
+    // As acquisition.py writes a day: a number with no Detailed row comes out 0, and `platforms` adds the campaigns up.
+    const counts = (pageViews: number, firstDownloads: number) => ({ pageViews, getTaps: 0, firstDownloads, redownloads: 0, purchases: 0, proceedsUsd: 0 })
+    const day = period('2026-10-06', '2026-10-06', {
+      campaigns: [
+        { campaign: 'pinterest', ...counts(0, 6) },
+        { campaign: 'tiktok-bio', ...counts(8, 0) },
+        { campaign: 'pinterest-steps', ...counts(7, 0) },
+      ],
+      platforms: [
+        { platform: 'pinterest', campaigns: ['pinterest', 'pinterest-steps'], ...counts(7, 6) },
+        { platform: 'tiktok', campaigns: ['tiktok-bio'], ...counts(8, 0) },
+      ],
+    })
+    const oneDay = summariseAcquisition({ periods: { DAILY: [day] } }, '2026-10-06', '2026-10-06')
+    expect(oneDay.platforms.pinterest).toEqual({ pageViews: '7+', firstDownloads: '6+' })
+    expect(oneDay.platforms.tiktok).toEqual({ pageViews: 8, firstDownloads: '<5' })
+    expect(oneDay.platforms.threads).toEqual({ pageViews: '<5', firstDownloads: '<5' })
+    // Several days hidden are under 5 each, not under 5 in all.
+    const twoDays = summariseAcquisition({ periods: { DAILY: [day, period('2026-10-07', '2026-10-07')] } }, '2026-10-06', '2026-10-07')
+    expect(twoDays.platforms.tiktok).toEqual({ pageViews: '8+', firstDownloads: '<5 a day' })
+    expect(twoDays.platforms.threads).toEqual({ pageViews: '<5 a day', firstDownloads: '<5 a day' })
+    // Only `platforms`, as an older file might have: the same rule.
+    const platformsOnly = summariseAcquisition({ periods: { DAILY: [{ ...day, campaigns: [] }] } }, '2026-10-06', '2026-10-06')
+    expect(platformsOnly.platforms.tiktok).toEqual({ pageViews: 8, firstDownloads: '<5' })
   })
 })

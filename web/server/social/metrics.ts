@@ -45,6 +45,16 @@ const number = (value: unknown) => (typeof value === 'number' && Number.isFinite
 const lastOf = <T>(items: T[]): T | undefined => items[items.length - 1]
 
 /**
+ * The reading taken nearest a moment, the earlier on a tie: what a counter stood at when a window
+ * opened. A snapshot's time of day moves a little from one day to the next, so last Monday's
+ * reading opens this Monday's week even when it ran a few minutes after the week began.
+ */
+function nearestTo<T extends { at: string }>(readings: T[], time: number): T | undefined {
+  const distance = (reading: T) => Math.abs(Date.parse(reading.at) - time)
+  return readings.reduce<T | undefined>((best, reading) => (best === undefined || distance(reading) < distance(best) ? reading : best), undefined)
+}
+
+/**
  * Views, likes and comments in one shape, whatever each platform calls them: Threads and X say
  * `replies` for comments, Pinterest `reactions` for likes, and X and Pinterest count impressions.
  */
@@ -218,9 +228,10 @@ export interface Breakout {
 
 /**
  * A count Apple may hide (it leaves out a row under 5): the number; `<5` when every row was
- * hidden; `12+` when some were, on top of the 12 shown. Unknown, never 0.
+ * hidden (`<5 a day` over several days, each under 5); `12+` when some were, on top of the 12
+ * shown. Unknown, never 0.
  */
-export type AppleCount = number | '<5' | `${number}+`
+export type AppleCount = number | '<5' | `<5 a ${'day' | 'week' | 'month'}` | `${number}+`
 
 export interface PlatformScore {
   platform: string
@@ -267,6 +278,8 @@ export function scorecard(input: { records: MetricsRecord[]; posts: PublishedPos
   }
   const readings = new Map<string, Map<string, PostMetricsRecord[]>>()
   for (const line of postRecords) {
+    // A line that only says why a platform gave no numbers (a token to refresh…) is no reading.
+    if (Object.keys(line.metrics ?? {}).length === 0) continue
     const byPost = readings.get(line.platform) ?? new Map<string, PostMetricsRecord[]>()
     byPost.set(line.requestId, [...(byPost.get(line.requestId) ?? []), line])
     readings.set(line.platform, byPost)
@@ -340,22 +353,22 @@ function tapsOn(
 }
 
 /**
- * Pinterest's outbound clicks in the window, over every pin read: each pin's count at its last
- * reading in the window less its count before the window (0 for a pin that went out in it), so
- * a pin found months later through search still counts.
+ * Pinterest's outbound clicks in the window, over every pin read in it: each pin's count at its
+ * last reading less its count at the reading nearest the window's start (0 for a pin that went
+ * out in the window), so a pin found months later through search still counts, and an old pin
+ * read only on Mondays counts its week once.
  */
 export function pinterestClicks(byPost: Map<string, PostMetricsRecord[]>, published: Map<string, { at: number }>, start: number, now: number): { count: number | null; pins: number } {
   let count: number | null = null
   let pins = 0
   for (const [id, lines] of byPost) {
     const clicksOf = (line: PostMetricsRecord) => number(line.metrics.outbound_clicks)
-    const read = lines.filter((line) => clicksOf(line) !== null).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))
-    const during = read.filter((line) => Date.parse(line.at) >= start && Date.parse(line.at) <= now)
-    if (during.length === 0) continue
-    const before = lastOf(read.filter((line) => Date.parse(line.at) < start))
+    const read = lines.filter((line) => clicksOf(line) !== null && Date.parse(line.at) <= now).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))
+    const last = lastOf(read)
+    if (!last || Date.parse(last.at) < start) continue
     const wentOut = published.get(id)?.at ?? Number.NaN
-    const baseline = before ? clicksOf(before)! : wentOut >= start ? 0 : clicksOf(during[0])!
-    count = (count ?? 0) + Math.max(0, clicksOf(lastOf(during)!)! - baseline)
+    const opening = wentOut >= start ? null : nearestTo(read, start)!
+    count = (count ?? 0) + Math.max(0, clicksOf(last)! - (opening ? clicksOf(opening)! : 0))
     pins += 1
   }
   return { count, pins }
@@ -387,30 +400,34 @@ export function bioLinkTaps(accounts: AccountMetricsRecord[], fromDay: string, t
   return { count, range: first ? { start: first, end: lastEnd } : null }
 }
 
-/** Followers at the last reading, and the change since the last reading before the window (or the first in it). */
+/** Followers at the last reading, and the change since the reading nearest the window's start. */
 export function followersOf(readings: AccountMetricsRecord[], start: number): PlatformScore['followers'] {
   const read = readings.filter((record) => number(record.metrics.followers) !== null)
   const last = lastOf(read)
   if (!last) return { now: null, change: null }
-  const before = lastOf(read.filter((record) => Date.parse(record.at) < start)) ?? read.find((record) => Date.parse(record.at) >= start)
+  const opening = nearestTo(read, start)
   const now = number(last.metrics.followers)!
-  return { now, change: before && before !== last ? now - number(before.metrics.followers)! : null }
+  return { now, change: opening && opening !== last ? now - number(opening.metrics.followers)! : null }
 }
 
 /** The window's breakouts on one platform: each post's latest views against the 14 posts before it at the same age. */
 export function breakoutsOn(byPost: Map<string, PostMetricsRecord[]>, published: Map<string, { at: number; lessonId: string; media: Media }>, start: number, now: number): Breakout[] {
+  const viewsOf = (reading: PostMetricsRecord) => metricsSummary(reading.metrics).views
+  // Readings with views only: one that says why there are none stands for nothing.
+  const withViews = (id: string) => byPost.get(id)!.filter((reading) => viewsOf(reading) !== null)
   const ids = [...byPost.keys()].filter((id) => published.has(id)).sort((a, b) => published.get(a)!.at - published.get(b)!.at)
   const found: Breakout[] = []
   ids.forEach((id, index) => {
     const post = published.get(id)!
     if (post.at < start || post.at > now) return
-    const latest = lastOf([...byPost.get(id)!].sort((a, b) => a.ageHours - b.ageHours))!
-    const views = metricsSummary(latest.metrics).views
-    if (views === null || views < BREAKOUT.views) return
+    const latest = lastOf(withViews(id).sort((a, b) => a.ageHours - b.ageHours))
+    if (!latest) return
+    const views = viewsOf(latest)!
+    if (views < BREAKOUT.views) return
     const before = ids
       .slice(Math.max(0, index - BREAKOUT.trailing), index)
-      .map((other) => readingAt(byPost.get(other)!, latest.ageHours))
-      .map((reading) => (reading ? metricsSummary(reading.metrics).views : null))
+      .map((other) => readingAt(withViews(other), latest.ageHours))
+      .map((reading) => (reading ? viewsOf(reading) : null))
       .filter((value): value is number => value !== null)
     const baseline = median(before)
     if (baseline === null || before.length < BREAKOUT.atLeast || views < BREAKOUT.times * baseline) return
@@ -426,8 +443,9 @@ export function breakoutsOn(byPost: Map<string, PostMetricsRecord[]>, published:
  * the window. Its `periods` (DAILY, WEEKLY, MONTHLY) each run from `date` to `end`, with a `total`
  * and `sourceTypes` (the Standard reports, never hidden), and `platforms` and `campaigns` (the
  * Detailed ones, by campaign: a platform's campaigns all start with its name, `pinterest`,
- * `pinterest-steps`…). Apple leaves out a row under 5, so a platform with no row is "<5": unknown,
- * not 0. The periods used are those that cover most of the window, the finest on a tie.
+ * `pinterest-steps`…). Apple leaves out a row under 5, and the pull writes 0 for a number with no
+ * row, so a platform with no row, or a 0, is "<5": unknown, not 0. The periods used are those
+ * that cover most of the window, the finest on a tie.
  */
 export interface AcquisitionSummary {
   granularity: string
@@ -447,7 +465,7 @@ type Row = Record<string, unknown>
 const field = (row: Row | undefined, ...names: string[]) => (row ? names.map((name) => row[name]).find((value) => value !== undefined) : undefined)
 const rowsOf = (value: unknown): Row[] => (Array.isArray(value) ? value.filter((row): row is Row => Boolean(row) && typeof row === 'object') : [])
 
-/** Rows added up: what they show, and whether any was hidden (no row, or no value). */
+/** Rows added up: what they show, and whether any was hidden (no row, no value, or 0: a Detailed row is never under 5). */
 interface Tally {
   shown: number
   hidden: boolean
@@ -455,12 +473,16 @@ interface Tally {
 
 function tally(total: Tally | undefined, value: unknown): Tally {
   const counted = number(value)
-  return { shown: (total?.shown ?? 0) + (counted ?? 0), hidden: (total?.hidden ?? false) || counted === null }
+  const shown = counted !== null && counted > 0 ? counted : 0
+  return { shown: (total?.shown ?? 0) + shown, hidden: (total?.hidden ?? false) || shown === 0 }
 }
 
-function appleCount({ shown, hidden }: Tally): AppleCount {
+const PERIOD_WORDS: Record<string, 'day' | 'week' | 'month'> = { DAILY: 'day', WEEKLY: 'week', MONTHLY: 'month' }
+
+function appleCount({ shown, hidden }: Tally, periods: number, granularity: string): AppleCount {
   if (!hidden) return shown
-  return shown === 0 ? '<5' : `${shown}+`
+  if (shown > 0) return `${shown}+`
+  return periods > 1 ? `<5 a ${PERIOD_WORDS[granularity] ?? 'day'}` : '<5'
 }
 
 export function summariseAcquisition(data: unknown, fromDay: string, toDay: string): AcquisitionSummary {
@@ -495,11 +517,12 @@ export function summariseAcquisition(data: unknown, fromDay: string, toDay: stri
       hidden.of += number(field(share, 'standard'))!
       hidden.reported = true
     }
-    // A platform's row for the period, or its campaigns' rows added up; none at all is a hidden count.
+    // A platform's campaigns in the period, added up; the pull's own `platforms` rows where there are no
+    // campaign rows. Only the campaigns say which of them Apple hid. None at all is a hidden count.
     const byPlatform = new Map<string, Row[]>()
-    const named = rowsOf(field(period, 'platforms'))
-    for (const row of named.length ? named : rowsOf(field(period, 'campaigns'))) {
-      const name = String(field(row, 'platform') ?? field(row, 'campaign') ?? '')
+    const campaigns = rowsOf(field(period, 'campaigns'))
+    for (const row of campaigns.length ? campaigns : rowsOf(field(period, 'platforms'))) {
+      const name = String(field(row, 'campaign') ?? field(row, 'platform') ?? '').toLowerCase()
       const platform = SCORECARD_ORDER.find((candidate) => name === candidate || name.startsWith(`${candidate}-`))
       if (platform) byPlatform.set(platform, [...(byPlatform.get(platform) ?? []), row])
     }
@@ -517,8 +540,13 @@ export function summariseAcquisition(data: unknown, fromDay: string, toDay: stri
     granularity,
     covered: days.length ? { start: days[0], end: lastOf(days)! } : null,
     total,
-    platforms: Object.fromEntries([...platforms].map(([platform, sum]) => [platform, { pageViews: appleCount(sum.pageViews!), firstDownloads: appleCount(sum.firstDownloads!) }])),
-    sources: [...sources].map(([source, firstDownloads]) => ({ source, firstDownloads })),
+    platforms: Object.fromEntries(
+      [...platforms].map(([platform, sum]) => [
+        platform,
+        { pageViews: appleCount(sum.pageViews!, rows.length, granularity), firstDownloads: appleCount(sum.firstDownloads!, rows.length, granularity) },
+      ]),
+    ),
+    sources: [...sources].map(([source, firstDownloads]) => ({ source, firstDownloads })).sort((a, b) => b.firstDownloads - a.firstDownloads),
     hidden: hidden.reported ? { firstDownloads: hidden.firstDownloads, of: hidden.of } : null,
   }
 }

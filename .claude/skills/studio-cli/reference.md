@@ -635,7 +635,7 @@ Options:
 
 Usage: studio social snapshot
 
-Every number Upload-Post gives, appended to .studio/social/metrics.jsonl (and its copy on ops-history): each finished public post up to 15 days old (every one on Mondays), a line per platform; then the accounts, and TikTok’s bio-link taps. Reads only; posts nothing.
+Every number Upload-Post gives, appended to .studio/social/metrics.jsonl as it is read (and its copy on ops-history): the accounts and TikTok’s bio-link taps, then each finished public post up to 15 days old (every one on Mondays), a line per platform. Reads only; posts nothing.
 
 Options:
       --all      Read every finished post, however old, as Mondays do.

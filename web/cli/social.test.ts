@@ -16,6 +16,8 @@ let calls: { method: string; route: string; fields?: Record<string, string[]>; v
 /** The Pinterest boards the fake account has; a board made through the API joins them. */
 let boards: { id: string; name: string }[]
 let statusAnswers: Record<string, unknown>[]
+/** Statuses the fake answers GET calls with, by the start of their path, one per call, before it answers normally. */
+let failures: Record<string, number[]>
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 
@@ -41,6 +43,8 @@ const fakeUploadPost = (async (url: string, init: RequestInit) => {
     return json({ success: true, board }, 201)
   }
   calls.push({ method: init.method ?? 'GET', route })
+  const failure = Object.entries(failures).find(([prefix, statuses]) => pathname.startsWith(prefix) && statuses.length > 0)
+  if (failure) return json({ success: false, message: 'Upload-Post is busy' }, failure[1].shift())
   if (pathname === '/api/uploadposts/me') return json({ success: true, email: 'hello@softroni.com', plan })
   if (pathname === '/api/uploadposts/users/softroni') {
     return json({
@@ -90,7 +94,9 @@ const fakeUploadPost = (async (url: string, init: RequestInit) => {
       twitter: { followers: 3 },
       facebook: { followers: 7, period_days: Number(query.get('days')), page: query.get('page_id') },
     }
-    return json(Object.fromEntries((query.get('platforms') ?? '').split(',').map((platform) => (platform === 'x' ? 'twitter' : platform)).map((platform) => [platform, accounts[platform]])))
+    const asked = (query.get('platforms') ?? '').split(',').map((platform) => (platform === 'x' ? 'twitter' : platform))
+    // Beside the platforms, something that isn't one.
+    return json({ ...Object.fromEntries(asked.map((platform) => [platform, accounts[platform]])), meta: { profile: 'softroni' } })
   }
   if (pathname === '/api/uploadposts/audience') {
     const query = new URLSearchParams(search)
@@ -111,6 +117,7 @@ beforeEach(async () => {
   calls = []
   boards = [{ id: '77', name: 'Drawing lessons' }]
   statusAnswers = []
+  failures = {}
   tts = await startFakeTts()
   t = await openTestStudio({
     // Rendering a pin needs Chrome; this writes a stand-in where the pin would go.
@@ -464,7 +471,7 @@ describe('social snapshot and scorecard', () => {
       ['pinterest', 30, 'recent'],
     ])
     // Every number as the platform gave it, and why TikTok has none.
-    expect(lines.find((line) => line.platform === 'pinterest')).toEqual(
+    expect(lines.find((line) => line.platform === 'pinterest' && line.kind === 'post')).toEqual(
       expect.objectContaining({ lessonId: 'pine-tree', media: 'video', purpose: 'lesson', metrics: { impressions: 30, saves: 1, reactions: 4, comments: 0, outbound_clicks: 2, metrics_window_days: 90 } }),
     )
     expect(lines.find((line) => line.platform === 'tiktok' && line.kind === 'post')).toEqual(expect.objectContaining({ metrics: {}, error: 'The token may need to be refreshed.' }))
@@ -483,11 +490,12 @@ describe('social snapshot and scorecard', () => {
       followers_daily: [{ date: '2026-10-13', total: 5, new: 1, lost: 0 }],
       profile_actions: { bio_link_clicks: 2, app_download_clicks: null },
     })
+    // The accounts first, so a run cut short among the posts still has them.
     expect(calls.map((call) => call.route)).toEqual([
-      '/api/uploadposts/post-analytics/recent',
       '/api/analytics/softroni?platforms=instagram,tiktok,youtube,threads,pinterest,x',
       '/api/analytics/softroni?platforms=facebook&page_id=42&days=7',
       '/api/uploadposts/audience?platform=tiktok&user=softroni&start_date=2026-10-07&end_date=2026-10-13',
+      '/api/uploadposts/post-analytics/recent',
     ])
     expect(calls.every((call) => call.method === 'GET')).toBe(true)
 
@@ -506,9 +514,34 @@ describe('social snapshot and scorecard', () => {
     expect(card.stdout).toContain('The last 7 days (Oct 9 to Oct 16), from 2 snapshots.')
     expect(card.stdout).toContain('X: 1 post\n  At 72 h: median 40 views (1 post)\n  Followers: 3 (+0)')
     expect(card.stdout).toContain('Pinterest: 1 post\n  At 14 days: too young\n  Outbound clicks: 2 (1 pin read)')
-    expect(card.stdout).toContain('TikTok: 1 post\n  At 72 h: no post reached it in the window\n  Bio-link taps: 4 (Oct 7 to Oct 15)\n  Followers: 5 (+0)')
+    // TikTok only ever said why it had no numbers: the post is 78 hours old, with no reading at 72.
+    expect(card.stdout).toContain('TikTok: 1 post\n  At 72 h: no reading at that age\n  Bio-link taps: 4 (Oct 7 to Oct 15)\n  Followers: 5 (+0)')
     expect(card.stdout).toContain('Breakouts (5× the last 14 posts, and 1,000 views): none.')
     expect(card.stdout).toContain('App Store Connect: no .studio/ops/acquisition.json yet')
+  })
+
+  it('keeps what it read when a call fails, says which, and tries once more when told to slow down', async () => {
+    failures = { '/api/uploadposts/audience': [500], '/api/uploadposts/post-analytics/': [429] }
+    const outcome = await t.studio('social snapshot')
+    expect(outcome.code).toBe(0)
+    expect(outcome.stdout).toContain('Accounts: instagram, tiktok, youtube, threads, pinterest, x; facebook (7 days)\n')
+    expect(outcome.stdout).not.toContain('TikTok’s audience,')
+    expect(outcome.stdout).toContain('  - TikTok’s audience: Upload-Post said 500: Upload-Post is busy')
+    // The 429 was asked again, and read.
+    expect(calls.filter((call) => call.route === '/api/uploadposts/post-analytics/recent')).toHaveLength(2)
+    expect((await metricsLines()).map((line) => `${line.kind} ${line.platform}`)).toEqual([
+      'account instagram',
+      'account tiktok',
+      'account youtube',
+      'account threads',
+      'account pinterest',
+      'account x',
+      'account facebook',
+      'post youtube',
+      'post x',
+      'post tiktok',
+      'post pinterest',
+    ])
   })
 
   it('reads every post, however old, on Mondays or with --all', async () => {
@@ -523,7 +556,7 @@ describe('social snapshot and scorecard', () => {
     await writeFile(path.join(t.root, 'upload-post.config'), 'UPLOAD_POST_PROFILE=softroni\n')
     const outcome = await t.studio('social snapshot --dry-run')
     expect(outcome.code).toBe(0)
-    expect(outcome.stdout).toContain('Would read 1 post and the accounts')
+    expect(outcome.stdout).toContain('Would read the accounts and 1 post')
     expect(outcome.stdout).toContain('GET /api/uploadposts/post-analytics/recent')
     expect(outcome.stdout).toContain('GET /api/analytics/softroni?platforms=instagram,tiktok,youtube,threads,pinterest,x')
     expect(outcome.stdout).toContain('Facebook’s account numbers need UPLOAD_POST_FACEBOOK_PAGE')
@@ -568,8 +601,8 @@ describe('social snapshot and scorecard', () => {
       }),
     )
     const card = await t.studio('social scorecard')
-    expect(card.stdout).toContain('App Store: 9 page views, <5 first downloads')
-    expect(card.stdout).toContain('App Store: <5 page views, <5 first downloads')
+    expect(card.stdout).toContain('App Store: page views 9, first downloads <5')
+    expect(card.stdout).toContain('App Store: page views <5, first downloads <5')
     expect(card.stdout).toContain('App Store Connect, Oct 12 (daily):\n  All sources: 30 page views, 4 first downloads\n  First downloads by source: App referrer 4')
     expect(card.stdout).toContain('Apple hides 4 of 4 first downloads from the campaign rows')
     const data = await t.json<{ platforms: { platform: string; appStore: unknown }[] }>('social scorecard --days 14')
