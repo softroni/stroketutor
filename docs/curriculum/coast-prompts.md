@@ -4,6 +4,17 @@ Source art for the ten `coast` lessons (Advanced level) in `plan.json`, written 
 model (OpenAI image, Gemini / Nano Banana). Same pipeline as the fruits:
 PNG → `svg from-image --palette ../docs/curriculum/palette.json` → `author-lesson`.
 
+**2026-10-01: new lineup, these prompts are out of date.** The path was reworked to look better and to sell
+Premium (the first three lessons are free; lessons 4–7 are the stickers at the end of the free videos). In order:
+striped-tower ("Striped Lighthouse"), beach-huts, buoy-shack (free) · spiral-lighthouse, boathouse, wooden-pier
+("Pier to the Light", a small lighthouse at its end), lighthouse-beam ("Lighthouse at Night", on one big purple
+circle of night sky) (paid teasers) · anchor, lantern-room (breathers) · storm-at-the-point (finale). Water is now
+colored blue, as the creator likes it (fountain, canal bridge), not left white. The live titles and objectives are
+in the Studio and `plan.json`. `bell-buoy` and `harbor-light` left the path (Studio Trash, restorable);
+`buoy-shack` and `anchor` are new and have no prompt yet. The prompts below were written for `style-v2` and simpler
+pictures: each lesson's prompt is rewritten for `style-v5-advanced` (as in [urban-prompts.md](urban-prompts.md))
+when its picture is made, one at a time.
+
 ## How to run them
 
 - Send **style prompt + a blank line + reference line + lesson prompt** as one message (or put the

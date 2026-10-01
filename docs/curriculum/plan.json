@@ -1072,57 +1072,57 @@
       "id": "coast",
       "title": "Coast",
       "level": "advanced",
-      "description": "Lighthouses and the shore around them: bands that wrap a tower, a pier to the horizon, reflections and a beam at night, ending with a storm at the point.",
+      "description": "Lighthouses and the shore around them: towers wrapped in stripes, huts and a boathouse over blue water, a pier to the light, ending with a storm at the point.",
       "lessons": [
         {
-          "id": "bell-buoy",
-          "title": "Bell Buoy",
-          "objective": "Cone cage on a floating drum with a waterline ellipse and two ripple rings"
-        },
-        {
-          "id": "harbor-light",
-          "title": "Harbor Light",
-          "objective": "Short tapered tower with one band and a lantern on the end of a pier"
+          "id": "striped-tower",
+          "title": "Striped Lighthouse",
+          "objective": "Tapered lighthouse on a rock with four curved bands, a railed gallery and a domed lantern"
         },
         {
           "id": "beach-huts",
           "title": "Beach Huts",
-          "objective": "Three overlapping striped huts with pitched roofs"
+          "objective": "Three overlapping beach huts with striped walls, pitched roofs and paneled doors"
         },
         {
-          "id": "striped-tower",
-          "title": "Striped Tower",
-          "objective": "Tall tapered lighthouse with four bands that curve around it"
-        },
-        {
-          "id": "wooden-pier",
-          "title": "Wooden Pier",
-          "objective": "One-point perspective deck with six pairs of posts shrinking to the horizon"
+          "id": "buoy-shack",
+          "title": "Buoy Shack",
+          "objective": "Plank fishing shack with four striped buoys hanging on its wall and a coiled rope"
         },
         {
           "id": "spiral-lighthouse",
           "title": "Spiral Lighthouse",
-          "objective": "Tower with one stripe winding around it three times"
+          "objective": "Tower with one red stripe winding around it three times, on rocks above the waves"
         },
         {
           "id": "boathouse",
           "title": "Boathouse",
-          "objective": "Hut on four stilts over the water with its broken reflection"
+          "objective": "Boathouse on six stilts with a big door, mirrored in blue water"
+        },
+        {
+          "id": "wooden-pier",
+          "title": "Pier to the Light",
+          "objective": "One-point pier with posts shrinking to a small lighthouse at its end"
+        },
+        {
+          "id": "lighthouse-beam",
+          "title": "Lighthouse at Night",
+          "objective": "Lighthouse on a round night sky: two beams, lit windows, a moon and its reflection"
+        },
+        {
+          "id": "anchor",
+          "title": "Anchor",
+          "objective": "Ship's anchor with a ring, a stock with ball ends and a rope wrapped around it twice"
         },
         {
           "id": "lantern-room",
           "title": "Lantern Room",
-          "objective": "Close-up of the top: gallery railing, six glass panes, the lens and a domed roof"
-        },
-        {
-          "id": "lighthouse-beam",
-          "title": "Lighthouse Beam",
-          "objective": "Night tower with two pale wedges of light, lit windows and a reflection on the water"
+          "objective": "Close-up of the top: railed gallery, six panes, a ringed lens and a domed roof"
         },
         {
           "id": "storm-at-the-point",
           "title": "Storm at the Point",
-          "objective": "Lighthouse, keeper's house, rocks, three big waves, the beam and a small ship far out"
+          "objective": "Lighthouse and keeper's cottage on the rocks, three curling waves, a beam and a far ship"
         }
       ]
     },
@@ -1188,57 +1188,57 @@
       "id": "fantasy-objects",
       "title": "Fantasy Objects",
       "level": "advanced",
-      "description": "Wands, crowns and crystals, ending with a treasure chest in three-quarter view.",
+      "description": "Treasures from a fantasy world: a potion, a jeweled crown and an hourglass, then a sword, a spellbook and a cauldron, ending with an open treasure chest.",
       "lessons": [
         {
-          "id": "magic-wand",
-          "title": "Magic Wand",
-          "objective": "Stick with a star tip and three sparkles"
-        },
-        {
-          "id": "shield",
-          "title": "Shield",
-          "objective": "Curved shield with a stripe emblem and rivets"
+          "id": "potion-bottle",
+          "title": "Potion Bottle",
+          "objective": "Round flask of purple potion with five bubbles, a ringed neck, a cork and a tag"
         },
         {
           "id": "crown",
           "title": "Crown",
-          "objective": "Pointed crown with three jewels"
+          "objective": "Jeweled crown with five ball-tipped points, a band of seven jewels and a velvet cap"
         },
         {
-          "id": "key",
-          "title": "Key",
-          "objective": "Ornate loop handle with a toothed end"
-        },
-        {
-          "id": "potion-bottle",
-          "title": "Potion Bottle",
-          "objective": "Round flask with a cork, bubbles and a tag"
+          "id": "hourglass",
+          "title": "Hourglass",
+          "objective": "Hourglass between two round caps and three turned posts, sand falling into a heap"
         },
         {
           "id": "sword",
-          "title": "Sword",
-          "objective": "Blade with a fuller line, crossguard and wrapped grip"
-        },
-        {
-          "id": "wizard-hat",
-          "title": "Wizard Hat",
-          "objective": "Tall pointed hat with stars and a bent tip"
+          "title": "Knight's Sword",
+          "objective": "Diagonal sword with a fuller, a curled crossguard, a wrapped grip and two jewels"
         },
         {
           "id": "spellbook",
           "title": "Spellbook",
-          "objective": "Thick book in ¾ view with a clasp and corner caps"
+          "objective": "Thick book in ¾ view with metal corners, a jeweled medallion, a strap and a clasp"
+        },
+        {
+          "id": "cauldron",
+          "title": "Cauldron",
+          "objective": "Three-legged cauldron of green brew with bubbles, a ladle and flames under it"
+        },
+        {
+          "id": "crystal-ball",
+          "title": "Crystal Ball",
+          "objective": "Crystal ball with a swirl and three stars, on a stand with three curled feet"
+        },
+        {
+          "id": "shield",
+          "title": "Shield",
+          "objective": "Heraldic shield in four colored quarters, with a rim of ten rivets and a round boss"
         },
         {
           "id": "crystal-cluster",
           "title": "Crystal Cluster",
-          "objective": "Five faceted shards with hatched shadow sides"
+          "objective": "Five crystals on a rock, each with a light facet and a dark facet"
         },
         {
           "id": "treasure-chest",
           "title": "Treasure Chest",
-          "objective": "Open chest in ¾ view with coins, the crown and the key"
+          "objective": "Open chest in ¾ view: banded domed lid, heaped coins and gems, the crown and the sword"
         }
       ]
     },

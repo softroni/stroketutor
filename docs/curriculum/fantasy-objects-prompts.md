@@ -4,6 +4,15 @@ Source art for the ten `fantasy-objects` lessons (Advanced level) in `plan.json`
 image model (OpenAI image, Gemini / Nano Banana). Same pipeline as the fruits:
 PNG → `svg from-image --palette ../docs/curriculum/palette.json` → `author-lesson`.
 
+**2026-10-01: new lineup, these prompts are out of date.** The path was reworked to look better and to sell
+Premium (the first three lessons are free; lessons 4–7 are the stickers at the end of the free videos). In order:
+potion-bottle, crown, hourglass (free) · sword ("Knight's Sword"), spellbook, cauldron, crystal-ball (paid
+teasers) · shield, crystal-cluster (breathers) · treasure-chest (finale, with the crown and the sword). The live
+titles and objectives are in the Studio and `plan.json`. `magic-wand`, `key` and `wizard-hat` left the path (Studio
+Trash, restorable); `hourglass`, `cauldron` and `crystal-ball` are new and have no prompt yet. The prompts below
+were written for `style-v2` and simpler pictures: each lesson's prompt is rewritten for `style-v5-advanced` (as in
+[urban-prompts.md](urban-prompts.md)) when its picture is made, one at a time.
+
 ## How to run them
 
 - Send **style prompt + a blank line + reference line + lesson prompt** as one message (or put the
