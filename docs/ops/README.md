@@ -197,6 +197,10 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
   trial-to-paid rate actually seen, or not at all while there is none.
 - **Move the daily cap by at most 25% a week.** Raise it while the last 14 days of ads paid for
   themselves; lower it when they didn't. When the ceiling is reached, stop until proceeds catch up.
+- **Any increase goes to Kevin first** (his rule, 2026-10-01): before raising the daily cap or any campaign's
+  budget, or spending past the $150 ceiling, tell him what, why and the numbers behind it, under "Needs you" and in
+  the summary, and wait for his yes. Lowering, pausing, moving budget between campaigns within the same total,
+  bids, keywords and excluded keywords stay Claude's (he made Claude his ads and sales manager the same day).
 - Pause a keyword that has spent $15 with no trial or purchase; add search terms that don't fit as
   excluded keywords. New English-speaking storefronts once the US pays for itself.
 - PostHog: `install_attributed` and the `asa_*` keys on onboarding, trial and purchase events join
