@@ -4202,12 +4202,11 @@ progressStore.complete(lesson)                // before presenting; synchronous,
           <div class="navbar">
             <button class="nav-btn start" type="button" aria-label="Back to sketchbook" data-goto="sk-book"><svg><use href="#i-chevron-left"/></svg></button>
             <div class="title">Sketchbook</div>
-            <button class="nav-btn end" type="button" aria-label="Share" data-goto="sk-entry"><svg><use href="#i-share"/></svg></button>
+            <div class="end" style="display:flex;align-items:center"><button class="nav-btn" type="button" style="width:auto;padding:0 6px;font-weight:700;font-size:17px">Edit</button><button class="nav-btn" type="button" aria-label="Share" data-goto="sk-entry"><svg><use href="#i-share"/></svg></button></div>
           </div>
           <div class="screen-body screen-body--scroll stack" style="padding-bottom:46px">
             <div style="position:relative">
               <div class="sk-shot photo photo--warm" role="img" aria-label="Your Palm Tree, 28 August"><div class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-palm"/></svg></div></div>
-              <button type="button" style="position:absolute;top:10px;right:10px;min-height:36px;padding:0 14px;border:0;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.16);font:700 15px var(--font);color:var(--ink)">Edit</button>
             </div>
             <div class="row row--between row--top">
               <div class="stack-4 grow">
@@ -4234,7 +4233,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
           <div class="navbar">
             <button class="nav-btn start" type="button" aria-label="Back to sketchbook" data-goto="sk-book"><svg><use href="#i-chevron-left"/></svg></button>
             <div class="title">Sketchbook</div>
-            <button class="nav-btn end" type="button" aria-label="Share"><svg><use href="#i-share"/></svg></button>
+            <div class="end" style="display:flex;align-items:center"><button class="nav-btn" type="button" style="width:auto;padding:0 6px;font-weight:700;font-size:17px">Edit</button><button class="nav-btn" type="button" aria-label="Share"><svg><use href="#i-share"/></svg></button></div>
           </div>
           <div class="screen-body screen-body--scroll stack" style="padding-bottom:46px">
             <div class="sk-shot photo photo--warm" role="img" aria-label="Your Palm Tree, 28 August"><div class="paper"><svg viewBox="0 0 1000 1000"><use href="#sk-dwg-palm"/></svg></div></div>
@@ -4275,15 +4274,15 @@ progressStore.complete(lesson)                // before presenting; synchronous,
       <p>One kept page, shown large, with the lesson it came from. <span class="tag tag--plan">§32</span> "Associate the image with lesson, path, and completion date." Since 2026-10-01 (the creator's call) the forward action is to share it: a friend who sees a real drawing is how Paper Coach gets found. Drawing it again and deleting are quiet.</p>
       <h4>Layout</h4>
       <ul>
-        <li>Nav bar: back to the sketchbook, title "Sketchbook", share at the trailing edge (44 pt targets). Pushed from the tab; the tab bar hides for the detail.</li>
-        <li>Scrolling body: the <code>.sk-shot</code> full width (353 × 470 pt) with a white "Edit" pill (36 pt, 44 pt target) on its top-right corner, then title 24/800, "Trees · Lesson 1 of 8 · 16 steps" 15/600, the full localised date 13/600, and the <code>chip--gold</code> "Drawn" on the right.</li>
+        <li>Nav bar: back to the sketchbook, title "Sketchbook", then "Edit" (17/700) and share at the trailing edge (44 pt targets). Edit sat on the photo's corner until 2026-10-01, when the creator moved it up here, off the drawing. Pushed from the tab; the tab bar hides for the detail.</li>
+        <li>Scrolling body: the <code>.sk-shot</code> full width (353 × 470 pt), then title 24/800, "Trees · Lesson 1 of 8 · 16 steps" 15/600, the full localised date 13/600, and the <code>chip--gold</code> "Drawn" on the right.</li>
         <li>Note field: a 60 pt <code>--surface</code> row, 17/500, pen icon, placeholder at 40 % ink. Multi-line, grows with content; saves on end editing.</li>
         <li>"Share your drawing" is the 64 pt primary. "Draw it again" and Delete are 48 pt text buttons in one row, Delete in <code>--danger</code>. With no photo on the device there is nothing to share: "Draw it again" is the primary, and Delete stays alone on the right.</li>
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
         <li><b>default</b> — tap or pinch the photo → full-screen zoomable viewer, swipe down to dismiss. "Draw it again" → <code>hp-preview</code> for this lesson.</li>
-        <li><b>Edit</b> (added 2026-09-28, at the creator's request) → <code>sk-edit</code>, full screen: the page large, the light (Original · Bright · Scan, as on capture review) and "Fix corners", then Cancel · Save. It works from the photo as taken, so the light and the corners can be changed any number of times without the page wearing out. Save writes the new picture under a new file name and removes the old one; the note, date and lesson stay. The Photos copy, if one was saved, is not touched (the app can only add to Photos).</li>
+        <li><b>Edit</b> (added 2026-09-28, at the creator's request; in the nav bar since 2026-10-01) → <code>sk-edit</code>, full screen: the page large, the light (Original · Bright · Scan, as on capture review) and "Fix corners", then Cancel · Save. It works from the photo as taken, so the light and the corners can be changed any number of times without the page wearing out. Save writes the new picture under a new file name and removes the old one; the note, date and lesson stay. The Photos copy, if one was saved, is not touched (the app can only add to Photos).</li>
         <li><b>Share</b> (the button or the nav's) → on a child's profile the grown-ups' check first (the PIN when set, else the question in words); then the system share sheet (a popover on iPad) with the card, 1080 × 1350: the photo on its path's tint with the lesson badge, and under it the app icon, the lesson's name and "Drawn with Paper Coach". Apps that take words also get "I drew this with Paper Coach. Can you draw it too?" (a child's: "Look at this drawing, made with Paper Coach!") and the App Store link tagged <code>ct=drawing-share</code>. Nothing is uploaded; there is no feed.</li>
         <li><b>delete</b> — always confirmed with a destructive alert whose body says what survives: the photo and note go, the <code>LessonProgress</code> row stays; deleting never re-locks a lesson. Then <code>modelContext.delete(entry)</code>, remove both files, pop to <code>sk-book</code>. Cheap softening if wanted: a 10 s Undo toast before <code>removeItem</code>.</li>
         <li>Data: one <code>SketchbookEntry</code> (id, lessonId, pathId, completedAt, imageFile, originalFile, corners, look, note). A page kept before editing existed has no original: its first edit keeps its picture as the original, byte for byte. "Lesson 1 of 8" from <code>paths[pathId].lessonIds.firstIndex</code>; drop "of 8" if the lesson left the path.</li>

@@ -16,15 +16,23 @@ enum DrawingShare {
 
     /// Where the share sheet was opened, sent as `entry` with both share events.
     enum Entry: String {
-        /// A page in the sketchbook.
+        /// A sketchbook page's green button.
         case sketchbook
+        /// The share button in a sketchbook page's top bar.
+        case sketchbookBar = "sketchbook_bar"
         /// The page just kept, on the capture flow's last screen.
         case saved
-    }
 
-    /// The campaign on the link, so App Store Connect counts the downloads that
-    /// shared drawings bring (`AppStoreListing.campaignURL`).
-    static let campaign = "drawing-share"
+        /// The link's campaign, one per place, so App Store Connect says which one
+        /// brought a download (`AppStoreListing.Campaign`).
+        var campaign: AppStoreListing.Campaign {
+            switch self {
+            case .sketchbook: return .shareSketchbook
+            case .sketchbookBar: return .shareSketchbookBar
+            case .saved: return .shareSaved
+            }
+        }
+    }
 
     /// The words with the card. Someone 13 or over invites the friend to draw it
     /// too. A child's drawing is sent by the grown-up who passed the check, so the
@@ -64,7 +72,7 @@ enum DrawingShare {
         guard let card = card(photo: photo, tutorial: lesson?.tutorial, title: lesson?.title, tint: tint),
               let file = write(card, named: title) else { return false }
 
-        let text = message(forChild: app.learnerIsChild, link: AppStoreListing.campaignURL(campaign))
+        let text = message(forChild: app.learnerIsChild, link: AppStoreListing.campaignURL(entry.campaign))
         let analytics = app.analytics
         let lessonId = page.lessonId
         let pathId = page.pathId

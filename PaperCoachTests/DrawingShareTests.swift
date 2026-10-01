@@ -23,10 +23,24 @@ final class DrawingShareTests: XCTestCase {
     // MARK: - The words and the link
 
     func testTheLinkIsTaggedSoAppStoreConnectCountsTheDownloadsItBrings() {
-        XCTAssertEqual(AppStoreListing.campaignURL(DrawingShare.campaign)?.absoluteString,
-                       "https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=drawing-share&mt=8")
-        XCTAssertEqual(AppStoreListing.campaignURL("settings-share")?.absoluteString,
-                       "https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=settings-share&mt=8")
+        XCTAssertEqual(AppStoreListing.campaignURL(.shareSaved)?.absoluteString,
+                       "https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=app-share-saved&mt=8")
+        XCTAssertEqual(AppStoreListing.campaignURL(.shareSettings)?.absoluteString,
+                       "https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=app-share-settings&mt=8")
+    }
+
+    func testEveryPlaceThatHandsOutTheLinkHasItsOwnCampaign() {
+        let campaigns = AppStoreListing.Campaign.allCases.map(\.rawValue)
+        XCTAssertEqual(campaigns, ["app-share-saved", "app-share-sketchbook", "app-share-sketchbook-bar", "app-share-settings"],
+                       "These are App Store Connect's campaign names: add new ones, never rename one.")
+        for campaign in campaigns {
+            XCTAssertTrue(campaign.hasPrefix("app-"), "Apart from the social posts' campaigns: \(campaign)")
+            XCTAssertLessThanOrEqual(campaign.count, 40, "Apple's limit for a campaign token: \(campaign)")
+        }
+
+        let entries: [DrawingShare.Entry] = [.sketchbook, .sketchbookBar, .saved]
+        XCTAssertEqual(Set(entries.map(\.campaign)).count, entries.count, "Each share button, its own campaign.")
+        XCTAssertFalse(entries.map(\.campaign).contains(.shareSettings))
     }
 
     func testSomeone13OrOverInvitesTheFriendToDrawItToo() {
@@ -103,6 +117,7 @@ final class DrawingShareTests: XCTestCase {
                                       properties: ["lesson_id": "rocket", "path_id": "space", "entry": "sketchbook",
                                                    "activity": "com.apple.UIKit.activity.Message"]))
         XCTAssertEqual(DrawingShare.Entry.sketchbook.rawValue, "sketchbook")
+        XCTAssertEqual(DrawingShare.Entry.sketchbookBar.rawValue, "sketchbook_bar")
         XCTAssertEqual(DrawingShare.Entry.saved.rawValue, "saved")
     }
 

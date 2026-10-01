@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// The inline navigation bar of v3 (`.navbar`): 56 pt tall, a 44 pt back chevron at
-/// the leading edge, the screen's name centered at 17/heavy, and room for one
-/// trailing control. Screens that use it hide the system bar, so the height, the
+/// the leading edge, the screen's name centered at 17/heavy, and room for a trailing
+/// control or two (a sketchbook page has Edit and Share). Screens that use it hide the system bar, so the height, the
 /// glyph and the title's weight are the mockup's rather than UIKit's.
 ///
 /// The title stays centered even when the back button is present, because the two

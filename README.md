@@ -857,10 +857,15 @@ it again" moved beside Delete (with no photo on the device, Draw it again leads 
   one is set, else the question in words (`AppModel.grownUpCheckBeforeSharing`, `.grownUpCheck(_:)`). The words
   are then the grown-up's: "Look at this drawing, made with Paper Coach!" Settings' "Rate Paper Coach" and
   "Share Paper Coach" ask the same way now, as the privacy policy's link already did.
-- **Measured:** the link carries Softroni's campaign tag (`ct=drawing-share`; Settings' row `ct=settings-share`),
-  so App Store Connect › Analytics counts the downloads shares bring. PostHog gets `drawing_share_opened`
-  (`lesson_id`, `path_id`, `entry`: `sketchbook` or `saved`) when the sheet comes up and `drawing_shared` (the
-  same, and `activity`, the app it went to) when a share goes out.
+- **Measured:** every place that hands out the App Store link tags it with its own campaign
+  (`AppStoreListing.Campaign`), so App Store Connect › Analytics › Campaigns says which one brought a download:
+  `app-share-saved` (the saved screen), `app-share-sketchbook` (a page's green button), `app-share-sketchbook-bar`
+  (the share button in its top bar) and `app-share-settings` (Settings' "Share Paper Coach"). "Rate Paper Coach"
+  has none: a review brings no download. PostHog gets `drawing_share_opened` (`lesson_id`, `path_id`, `entry`:
+  `saved`, `sketchbook` or `sketchbook_bar`) when the sheet comes up and `drawing_shared` (the same, and
+  `activity`, the app it went to) when a share goes out.
+- **Edit moved to the top bar** (2026-10-01, the creator's call), beside the share button, so nothing sits on the
+  drawing.
 - The sheet is UIKit's (`ShareSheet`), not `ShareLink`, because `ShareLink` can neither wait for the check nor say
   where a share went; on iPad it is a popover on the button that opened it. Debug screens `-STScreen entry-share`
   and `entry-share-child`. Tests in `DrawingShareTests`.

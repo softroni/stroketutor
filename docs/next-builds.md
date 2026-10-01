@@ -144,7 +144,9 @@ there is. What was built (README › M8, `DrawingShare`):
 - What goes out is a card made on the device (the photo on its path's color, the lesson in the corner, the app's
   icon and "Drawn with Paper Coach"), because Instagram, Snapchat, Facebook and Save Image keep only the picture.
   Apps that take words also get "I drew this with Paper Coach. Can you draw it too?" and the App Store link,
-  tagged `ct=drawing-share`.
+  tagged with a campaign for each place that hands it out (`app-share-saved`, `app-share-sketchbook`,
+  `app-share-sketchbook-bar`, `app-share-settings`; docs/ops/README.md › *Shared drawings*). Edit moved from the
+  photo to the page's top bar.
 - A child's share asks a grown-up first (the PIN, else the question), and the words are the grown-up's. Settings'
   "Rate" and "Share" rows now ask the same way. No reward for sharing: Apple forbids "share to unlock", and it
   would be pushy with children.
@@ -153,7 +155,7 @@ there is. What was built (README › M8, `DrawingShare`):
 2026-10-01). If photos stay rare, the completion screen's "Add to sketchbook" could promise the share too (that
 screen is App Store shot 7).
 
-**Judge it by** downloads from the `drawing-share` campaign in App Store Connect, against `drawing_shared` in
+**Judge it by** downloads from the `app-share-*` campaigns in App Store Connect, against `drawing_shared` in
 PostHog (docs/ops/README.md › *Shared drawings*). **Later, if it works:** a card for a finished path with all its
 drawings, which needs no new photo.
 

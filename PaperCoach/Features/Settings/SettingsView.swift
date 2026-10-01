@@ -580,15 +580,30 @@ struct AppStoreListing {
     /// (docs/ops/social-plan.md). Not a secret: every tagged link shows it.
     static let providerToken = "128560181"
 
-    /// The App Store page, tagged with `campaign` (`ct`) in the form App Store
-    /// Connect's campaign links take: `drawing-share` on a shared drawing,
-    /// `settings-share` on Settings' "Share Paper Coach". The plain page while the
-    /// app has no record, as `current`.
-    static func campaignURL(_ campaign: String) -> URL? {
+    /// Every place in the app that hands out the App Store link, each with its own
+    /// campaign (`ct`), so App Store Connect › Analytics › Acquisition › Campaigns
+    /// says which one a download came from. `app-` keeps them apart from the social
+    /// posts' campaigns (`tiktok`, `threads-bio`…, docs/ops/social-plan.md). Apple
+    /// takes at most 40 characters. "Rate Paper Coach" carries none: it opens the
+    /// review sheet for someone who already has the app, so it brings no download.
+    enum Campaign: String, CaseIterable {
+        /// A drawing shared from the saved screen, just after Keep.
+        case shareSaved = "app-share-saved"
+        /// A drawing shared with a sketchbook page's green button.
+        case shareSketchbook = "app-share-sketchbook"
+        /// A drawing shared with the share button in a sketchbook page's top bar.
+        case shareSketchbookBar = "app-share-sketchbook-bar"
+        /// Settings' "Share Paper Coach".
+        case shareSettings = "app-share-settings"
+    }
+
+    /// The App Store page, tagged with `campaign` in the form App Store Connect's
+    /// campaign links take. The plain page while the app has no record, as `current`.
+    static func campaignURL(_ campaign: Campaign) -> URL? {
         guard let appID else { return current?.pageURL }
         var components = URLComponents(string: "https://apps.apple.com/app/apple-store/id\(appID)")
         components?.queryItems = [URLQueryItem(name: "pt", value: providerToken),
-                                  URLQueryItem(name: "ct", value: campaign),
+                                  URLQueryItem(name: "ct", value: campaign.rawValue),
                                   URLQueryItem(name: "mt", value: "8")]
         return components?.url
     }
@@ -630,12 +645,12 @@ private extension SettingsView {
         .accessibilityHint("Opens the App Store to write a review.")
     }
 
-    /// The system share sheet with the App Store link (tagged `settings-share`, so
-    /// App Store Connect counts what it brings) and a line to go with it.
+    /// The system share sheet with the App Store link (its own campaign, so App
+    /// Store Connect counts what it brings) and a line to go with it.
     func shareRow(_ listing: AppStoreListing) -> some View {
         Button {
             afterGrownUpCheckForChild(reason: "Needed to share Paper Coach.") {
-                let link = AppStoreListing.campaignURL("settings-share") ?? listing.pageURL
+                let link = AppStoreListing.campaignURL(.shareSettings) ?? listing.pageURL
                 ShareSheet.present([link,
                                     SharedTextItem(text: "Learn to draw one stroke at a time with Paper Coach.",
                                                    subject: "Paper Coach")],

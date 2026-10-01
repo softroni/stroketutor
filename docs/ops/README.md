@@ -316,11 +316,21 @@ WhatsApp the words and an App Store link. Read it in three steps, release builds
 
 - **Photos kept:** `drawing_saved` against `lesson_completed`. Nothing can be shared without a photo, and on 1.0
   the first 7 finished drawings had none (2026-10-01).
-- **Shares:** `drawing_share_opened` (by `entry`: `sketchbook`, `saved`) and `drawing_shared` (by `activity`, the
-  app it went to). Opened but not shared means the sheet was closed.
-- **Downloads they bring:** App Store Connect › Analytics › Acquisition › Campaigns, campaign `drawing-share`
-  (and `settings-share` for Settings' "Share Paper Coach"). Only people who share analytics with developers are
-  counted, so read it as a floor.
+- **Shares:** `drawing_share_opened` (by `entry`: `saved`, `sketchbook`, `sketchbook_bar`) and `drawing_shared` (by
+  `activity`, the app it went to). Opened but not shared means the sheet was closed.
+- **Downloads they bring:** App Store Connect › Analytics › Acquisition › Campaigns. Each place in the app that
+  hands out the link has its own campaign, and the social posts have theirs (`tiktok`, `threads-bio`…,
+  docs/ops/social-plan.md). Only people who share analytics with developers are counted, so read it as a floor.
+
+  | Campaign | Where the link was handed out |
+  |---|---|
+  | `app-share-saved` | "Share your drawing" on the saved screen, just after Keep |
+  | `app-share-sketchbook` | a sketchbook page's green "Share your drawing" |
+  | `app-share-sketchbook-bar` | the share button in a sketchbook page's top bar |
+  | `app-share-settings` | Settings › "Share Paper Coach" |
+
+  A new place that hands out the link gets a new case in `AppStoreListing.Campaign` (never a renamed one) and a
+  row here.
 - If shares stay near zero once a few hundred photos are kept, say so under "Needs you" with the numbers: where
   the button sits and what the card says are Kevin's calls.
 

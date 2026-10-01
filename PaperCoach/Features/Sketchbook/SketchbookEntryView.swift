@@ -5,8 +5,8 @@ import UIKit
 /// with the lesson it was drawn from in color in the corner, then the lesson's name,
 /// one short line ("Plants · Sep 22"), the gold "Drawn" chip, a note, the green way to
 /// share it, and the quiet actions: draw it again, and delete. Delete always asks.
-/// Tapping the photograph shows it full screen (`SketchbookPhotoViewer`); Edit on its
-/// corner makes it again from the photo as taken (`SketchbookPageEditor`).
+/// Tapping the photograph shows it full screen (`SketchbookPhotoViewer`); Edit in the
+/// top bar makes it again from the photo as taken (`SketchbookPageEditor`).
 ///
 /// Plan §32: "Associate the image with lesson, path, and completion date." Since
 /// 2026-10-01 (the creator's call) sharing leads: a friend who sees a real drawing
@@ -38,22 +38,38 @@ struct SketchbookEntryView: View {
     var body: some View {
         VStack(spacing: 0) {
             // The v3 bar (`sk-entry`): a bare chevron, "Sketchbook" 17/heavy, and
-            // the share button as the one trailing control — the same bar the Home
-            // group draws, rather than the system one.
+            // Edit and the share button trailing — the same bar the Home group
+            // draws, rather than the system one. Edit sat on the photograph's corner
+            // until 2026-10-01; the creator moved it up here, off the drawing.
             InlineNavBar(title: "Sketchbook", onBack: { dismiss() }) {
                 if let page, photo(for: page) != nil {
-                    Button {
-                        share(page, from: barShareAnchor)
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
-                            .scaledFont(19, .semibold, design: .default)
-                            .foregroundStyle(Theme.ink)
-                            .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
-                            .contentShape(Rectangle())
+                    HStack(spacing: 0) {
+                        Button {
+                            isEditingPhoto = true
+                        } label: {
+                            Text("Edit")
+                                .scaledFont(17, .bold, relativeTo: .headline)
+                                .foregroundStyle(Theme.ink)
+                                .padding(.horizontal, 6)
+                                .frame(minWidth: Theme.navTapTarget, minHeight: Theme.navTapTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Change the light or the corners of this photo")
+
+                        Button {
+                            share(page, entry: .sketchbookBar, from: barShareAnchor)
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                                .scaledFont(19, .semibold, design: .default)
+                                .foregroundStyle(Theme.ink)
+                                .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .shareAnchor(barShareAnchor)
+                        .accessibilityLabel("Share")
                     }
-                    .buttonStyle(.plain)
-                    .shareAnchor(barShareAnchor)
-                    .accessibilityLabel("Share")
                 }
             }
 
@@ -85,7 +101,7 @@ struct SketchbookEntryView: View {
                 // Once the push has settled and the green button is on screen.
                 Task {
                     try? await Task.sleep(for: .seconds(1))
-                    share(page, from: buttonShareAnchor)
+                    share(page, entry: .sketchbook, from: buttonShareAnchor)
                 }
             }
         }
@@ -107,7 +123,7 @@ struct SketchbookEntryView: View {
 
                 if photo(for: page) != nil {
                     Button {
-                        share(page, from: buttonShareAnchor)
+                        share(page, entry: .sketchbook, from: buttonShareAnchor)
                     } label: {
                         Label("Share your drawing", systemImage: "square.and.arrow.up")
                     }
@@ -190,37 +206,12 @@ struct SketchbookEntryView: View {
                     .accessibilityAddTraits(.isImage)
             }
         }
-            .overlay(alignment: .topTrailing) {
-                if image != nil { editButton }
-            }
             .padding(12)
             .background(shape.fill(tint?.soft ?? Theme.surface))
             .background(alignment: .bottom) {
                 shape.fill(tint?.edge ?? Theme.line).offset(y: 5)
             }
             .padding(.bottom, 5)
-    }
-
-    /// Edit, on the photograph's corner where the eye already is: the light and
-    /// the corners chosen again (`SketchbookPageEditor`).
-    private var editButton: some View {
-        Button {
-            isEditingPhoto = true
-        } label: {
-            Label("Edit", systemImage: "slider.horizontal.3")
-                .scaledFont(15, .bold)
-                .foregroundStyle(Theme.ink)
-                .padding(.horizontal, 14)
-                .frame(minHeight: 36)
-                .background(Capsule().fill(Theme.card))
-                .shadow(color: .black.opacity(0.16), radius: 3, y: 1)
-                .frame(minHeight: Theme.minimumTapTarget)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .padding(.top, 4)
-        .padding(.trailing, 10)
-        .accessibilityHint("Change the light or the corners of this photo")
     }
 
     /// Title, one short line, and the gold "Drawn" chip. Above the accessibility
@@ -391,9 +382,10 @@ struct SketchbookEntryView: View {
     }
 
     /// The card, to wherever the learner sends it (`DrawingShare`); on a child's
-    /// profile, after the grown-ups' check.
-    private func share(_ page: SketchbookPage, from anchor: ShareAnchor) {
+    /// profile, after the grown-ups' check. `entry` says which button, for the
+    /// events and the link's campaign.
+    private func share(_ page: SketchbookPage, entry: DrawingShare.Entry, from anchor: ShareAnchor) {
         shareRequest = DrawingShare.request(sharing: page, photo: photo(for: page),
-                                            app: app, entry: .sketchbook, from: anchor)
+                                            app: app, entry: entry, from: anchor)
     }
 }

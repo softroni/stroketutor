@@ -255,7 +255,8 @@ struct AnalyticsEvent: Equatable {
 
     /// The share sheet came up on a drawing's card (`DrawingShare`), after the
     /// grown-ups' check for a child. `entry` is where it was opened: `sketchbook`
-    /// (a kept page) or `saved` (the page just kept).
+    /// (a kept page's green button), `sketchbook_bar` (the share button in its top
+    /// bar) or `saved` (the page just kept). Each has its own App Store campaign.
     static func drawingShareOpened(lessonId: String, pathId: String, entry: String) -> AnalyticsEvent {
         AnalyticsEvent(name: "drawing_share_opened",
                        properties: [Key.lessonId: lessonId, Key.pathId: pathId, Key.entry: entry])
