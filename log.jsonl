@@ -43,3 +43,7 @@
 {"at": "2026-10-01T00:06:41-05:00", "text": "Apple Ads: Apple has categorized the app; all 4 campaigns are now serving, nothing spent yet", "kind": "ads"}
 {"at": "2026-10-01T00:06:41-05:00", "text": "Social check: Pine Tree is up on all seven platforms; every account connected", "kind": "social"}
 {"at": "2026-10-01T00:06:41-05:00", "text": "Daily check: 1.1 still waiting for review; 3 learners on 1.0, all finished a drawing; no crashes or reviews", "kind": "check"}
+{"at": "2026-10-01T00:17:02-05:00", "text": "Apple Ads: excluded 文墨天机, an unrelated app's name, from Discovery; bids left as they are (Kevin)", "kind": "ads"}
+{"at": "2026-10-01T01:15:21-05:00", "text": "Built drawing sharing on main (1622c66), Kevin's call, for the build after 1.1: Share leads the sketchbook page and sits under the saved page; the card carries the app's name, the link is tagged ct=drawing-share; a child's share asks a grown-up first"}
+{"at": "2026-10-01T01:21:57-05:00", "text": "In-app App Store links get a campaign per place (app-share-*); Edit moved to the top bar (5a8e3d6)"}
+{"at": "2026-10-01T11:51:21-05:00", "text": "Midnight check now leaves social to the 5:45 PM social check when that ran the evening before", "kind": "check"}

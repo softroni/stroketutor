@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-01T00:06:42-05:00",
+  "updated": "2026-10-01T11:51:22-05:00",
   "headline": "1.1 is still waiting for Apple's review (submitted Sep 30, 4:16 PM). 1.0's first day on sale: 3 learners, all finished a drawing, no crashes; the ads are now serving and the first daily lesson video goes out at 5 PM.",
   "app": {
     "live": {
@@ -308,7 +308,7 @@
     {
       "title": "Apple Ads, first days",
       "state": "running",
-      "detail": "4 campaigns, US, $10 a day. Apple has categorized the app: campaigns and ad groups are now serving, with nothing spent yet."
+      "detail": "4 campaigns, US, $10 a day. Apple has categorized the app: campaigns and ad groups are now serving, with nothing spent yet. Kevin, Oct 1: bids stay as they are; at the Oct 2 midnight check, if Category or Competitors are still barely shown, propose new bids to Kevin and wait for his yes before changing any."
     },
     {
       "title": "First real learners",
@@ -332,6 +332,24 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-10-01T11:51:21-05:00",
+      "text": "Midnight check now leaves social to the 5:45 PM social check when that ran the evening before",
+      "kind": "check"
+    },
+    {
+      "at": "2026-10-01T01:21:57-05:00",
+      "text": "In-app App Store links get a campaign per place (app-share-*); Edit moved to the top bar (5a8e3d6)"
+    },
+    {
+      "at": "2026-10-01T01:15:21-05:00",
+      "text": "Built drawing sharing on main (1622c66), Kevin's call, for the build after 1.1: Share leads the sketchbook page and sits under the saved page; the card carries the app's name, the link is tagged ct=drawing-share; a child's share asks a grown-up first"
+    },
+    {
+      "at": "2026-10-01T00:17:02-05:00",
+      "text": "Apple Ads: excluded 文墨天机, an unrelated app's name, from Discovery; bids left as they are (Kevin)",
+      "kind": "ads"
+    },
     {
       "at": "2026-10-01T00:06:41-05:00",
       "text": "Daily check: 1.1 still waiting for review; 3 learners on 1.0, all finished a drawing; no crashes or reviews",
@@ -479,22 +497,6 @@
     {
       "at": "2026-09-27T01:10:27-05:00",
       "text": "Temporary Admin key revoked by Kevin; both check-ins run once by hand to approve their tools"
-    },
-    {
-      "at": "2026-09-27T01:06:49-05:00",
-      "text": "Vendor number in: installs, subscriptions and proceeds now come from Apple's daily sales reports"
-    },
-    {
-      "at": "2026-09-27T01:04:57-05:00",
-      "text": "Scheduled: daily check at 8:03 AM, heartbeat at 12 PM, 4 PM, 8 PM and midnight"
-    },
-    {
-      "at": "2026-09-27T01:04:57-05:00",
-      "text": "Apple Ads launch plan written: four US campaigns, $10 a day, made the day 1.0 goes on sale"
-    },
-    {
-      "at": "2026-09-27T00:57:57-05:00",
-      "text": "Studio Today page added"
     }
   ],
   "experiments": [
