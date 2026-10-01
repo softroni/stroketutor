@@ -13,12 +13,24 @@ import hashlib
 import io
 import json
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
 sys.dont_write_bytecode = True
 import acquisition  # noqa: E402
 import today  # noqa: E402
+
+
+def setUpModule():
+    """Whatever a test writes goes to a folder of its own, never to the main checkout's .studio/ops."""
+    folder = tempfile.TemporaryDirectory(prefix="acquisition-test-")
+    unittest.addModuleCleanup(folder.cleanup)
+    ops = mock.patch.object(today, "OPS", Path(folder.name) / "ops")
+    ops.start()
+    unittest.addModuleCleanup(ops.stop)
+
 
 APP = acquisition.APP_ID
 AS_OF = dt.date(2026, 10, 1)
@@ -135,6 +147,8 @@ class Reading(unittest.TestCase):
             rows[0], {"date": "2026-09-30", "app apple identifier": APP, "page title": '"Back to school" page', "counts": "3"}
         )
         self.assertEqual(rows[1]["counts"], "2")
+        self.assertEqual(acquisition.parse_segment(gzip.compress(b"")), [])  # an empty segment
+        self.assertEqual(acquisition.parse_segment(gzip.compress(b"Date\tCounts\n")), [])  # a header alone
 
     def test_the_newest_instance_of_a_date_wins_and_instances_are_never_added(self):
         older = tsv(DOWNLOADS, first_download("2026-09-28", 1), first_download("2026-09-29", 1))
@@ -169,12 +183,16 @@ class Reading(unittest.TestCase):
             return {"id": day, "attributes": {"processingDate": day}}
 
         found = [instance("2026-09-18"), instance("2026-09-30"), instance("2026-09-25")]
+        self.assertEqual([item["id"] for item in acquisition.chosen(found, "2026-09-25")], ["2026-09-25", "2026-09-30"])
+        self.assertEqual(acquisition.chosen(found, "2026-10-01"), [])
+
         since = dt.date(2026, 9, 26)
-        self.assertEqual([item["id"] for item in acquisition.chosen(found, "DAILY", since)], ["2026-09-30"])
-        old = found[:1] + found[2:]
-        self.assertEqual(acquisition.chosen(old, "DAILY", since), [])
-        self.assertEqual([item["id"] for item in acquisition.chosen(old, "WEEKLY", since)], ["2026-09-25"])  # the newest
-        self.assertEqual(acquisition.chosen([], "MONTHLY", since), [])
+        old = {"downloadsStandard": found[:1] + found[2:], "discoveryStandard": found[:1], "downloads": found}
+        self.assertEqual(acquisition.first_day(old, "DAILY", since), "2026-09-26")
+        self.assertEqual(acquisition.first_day(old, "WEEKLY", since), "2026-09-25")  # the newest Standard report's
+        self.assertEqual(acquisition.first_day({"downloadsStandard": found}, "WEEKLY", since), "2026-09-26")
+        self.assertEqual(acquisition.first_day({"downloads": found}, "MONTHLY", since), "2026-09-26")  # Standard only
+        self.assertEqual(acquisition.first_day({}, "MONTHLY", since), "2026-09-26")
 
 
 class AddingUp(unittest.TestCase):
@@ -305,6 +323,66 @@ class Pulling(unittest.TestCase):
         self.assertEqual(result["errors"], [f"App Store Purchases Detailed: not in report request {acquisition.REQUEST_ID}"])
         json.dumps(result)  # it can be written
 
+    def test_a_detailed_report_held_back_since_an_older_week_adds_nothing(self):
+        # Apple made no Detailed instance for the newest week (every row under 5), only for the one before, whose
+        # totals are not read: that week would come out with 0 downloads and a hidden share below 0.
+        fake = FakeAppStoreConnect(
+            {"App Downloads Standard": "r3", "App Downloads Detailed": "r4"},
+            {
+                ("r3", "WEEKLY"): [
+                    ("2026-09-18", [first_download("2026-09-07", 6)]),
+                    ("2026-09-25", [first_download("2026-09-14", 2)]),
+                ],
+                ("r4", "WEEKLY"): [("2026-09-18", [first_download("2026-09-07", 6)])],
+            },
+        )
+        result = self.pull(fake, granularities=("WEEKLY",))
+        weeks = [(entry["date"], entry["total"]["firstDownloads"]) for entry in result["periods"]["WEEKLY"]]
+        self.assertEqual(weeks, [("2026-09-14", 2)])
+        self.assertEqual(result["periods"]["WEEKLY"][0]["hidden"]["firstDownloads"]["hidden"], 2)
+        self.assertEqual(result["reports"]["downloads"]["WEEKLY"], [])
+
+    def test_with_no_report_out_lately_the_newest_standard_one_sets_the_day_to_read_from(self):
+        fake = FakeAppStoreConnect(
+            {"App Downloads Standard": "r3", "App Downloads Detailed": "r4"},
+            {
+                ("r3", "MONTHLY"): [
+                    ("2026-08-05", [first_download("2026-07-01", 9)]),
+                    ("2026-09-05", [first_download("2026-08-01", 30)]),
+                ],
+                ("r4", "MONTHLY"): [("2026-08-05", [first_download("2026-07-01", 8)])],
+            },
+        )
+        result = self.pull(fake, granularities=("MONTHLY",))
+        self.assertEqual([entry["date"] for entry in result["periods"]["MONTHLY"]], ["2026-08-01"])  # not July
+        self.assertEqual(result["reports"]["downloadsStandard"]["MONTHLY"], ["2026-09-05"])
+        self.assertEqual(result["reports"]["downloads"]["MONTHLY"], [])
+        fake = FakeAppStoreConnect(
+            {"App Downloads Standard": "r3", "App Downloads Detailed": "r4"},
+            {
+                ("r3", "MONTHLY"): [("2026-09-05", [first_download("2026-08-01", 30)])],
+                ("r4", "MONTHLY"): [("2026-09-05", [first_download("2026-08-01", 28)])],
+            },
+        )
+        august = self.pull(fake, granularities=("MONTHLY",))["periods"]["MONTHLY"]  # out the same day: read together
+        self.assertEqual([entry["date"] for entry in august], ["2026-08-01"])
+        self.assertEqual(august[0]["hidden"]["firstDownloads"], {"standard": 30, "detailed": 28, "hidden": 2, "share": 0.07})
+
+    def test_a_date_the_standard_reports_have_not_brought_yet_waits_for_them(self):
+        # The Detailed report of Oct 1 is out, the Standard one not yet: Sep 30 would show 0 downloads in total.
+        fake = FakeAppStoreConnect(
+            {"App Downloads Standard": "r3", "App Downloads Detailed": "r4"},
+            {
+                ("r3", "DAILY"): [("2026-09-30", [first_download("2026-09-29", 7)])],
+                ("r4", "DAILY"): [
+                    ("2026-09-30", [first_download("2026-09-29", 6)]),
+                    ("2026-10-01", [first_download("2026-09-29", 6), first_download("2026-09-30", 5)]),
+                ],
+            },
+        )
+        daily = self.pull(fake, granularities=("DAILY",))["periods"]["DAILY"]
+        self.assertEqual([(entry["date"], entry["total"]["firstDownloads"]) for entry in daily], [("2026-09-29", 7)])
+
     def test_a_report_that_fails_is_reported_and_the_rest_still_run(self):
         fake = FakeAppStoreConnect(
             {name: f"r{index}" for index, name in enumerate(acquisition.REPORTS.values())},
@@ -342,15 +420,24 @@ class Output(unittest.TestCase):
         self.assertLess(len(text.splitlines()), 20)
 
     def test_main_writes_the_file_and_prints_json(self):
-        written = {}
-        with mock.patch.object(acquisition, "collect", return_value=self.result()) as collect, mock.patch.object(
-            today, "write_json", side_effect=lambda name, value: written.update({name: value})
-        ), contextlib.redirect_stdout(io.StringIO()) as out:
+        with mock.patch.object(acquisition, "collect", return_value=self.result()) as collect, contextlib.redirect_stdout(
+            io.StringIO()
+        ) as out:
             code = acquisition.main(["--granularity", "weekly", "--days", "28", "--json"])
         self.assertEqual(code, 0)
         self.assertEqual(collect.call_args.args[:2], (28, ("WEEKLY",)))
-        self.assertEqual(list(written), ["acquisition.json"])
-        self.assertEqual(json.loads(out.getvalue()), written["acquisition.json"])
+        self.assertEqual([path.name for path in today.OPS.iterdir()], ["acquisition.json"])  # nothing else
+        self.assertEqual(json.loads(out.getvalue()), json.loads((today.OPS / "acquisition.json").read_text()))
+
+    def test_when_app_store_connect_is_not_read_the_last_file_stays(self):
+        today.write_json("acquisition.json", {"collected": "the last run"})
+        with mock.patch.object(acquisition, "collect", side_effect=OSError("no network")), contextlib.redirect_stderr(
+            io.StringIO()
+        ) as err:
+            code = acquisition.main([])
+        self.assertEqual(code, 1)
+        self.assertIn("acquisition.json left as it was", err.getvalue())
+        self.assertEqual(today.read_json("acquisition.json", None), {"collected": "the last run"})
 
 
 if __name__ == "__main__":

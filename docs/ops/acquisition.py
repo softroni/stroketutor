@@ -35,8 +35,12 @@ How Apple delivers them (README.md, *Lesson videos on social*):
 - Detailed rows from fewer than 5 users or devices are left out, and the rest carry noise of about ±2: a
   campaign missing here is unknown, not 0, and `hidden` can come out below 0.
 - Weekly reports come out on Fridays, for Monday to Sunday before; monthly ones on the 5th. Daily data is
-  the dates of the last --days; weekly and monthly, the reports out in the last --days, and always the
-  newest, so a daily run keeps the last week and month in the file.
+  the dates of the last --days; weekly and monthly, the reports out in the last --days, or, when no Standard
+  report came out that lately, everything from the day of the newest, so a daily run keeps the last week and
+  month in the file. Every report is read from the same day: a Detailed report with nothing that recent
+  (Apple held back every row) adds nothing, rather than an older week of its own without its totals.
+- A Date the Standard reports have not brought (yet: one report can come out before another) is left out:
+  without its totals, its hidden share would be wrong.
 
 Standard library only, plus PyJWT through today.py. Tests, offline: python3 -B -m unittest discover -s docs/ops
 """
@@ -153,13 +157,24 @@ def parse_segment(raw: bytes) -> list[dict]:
     return [dict(zip(header, (value.strip() for value in line))) for line in reader if any(line)]
 
 
-def chosen(found: list[dict], granularity: str, since: dt.date) -> list[dict]:
-    """The instances to read: those processed since `since`; for weekly and monthly reports, at least the newest."""
-    found = sorted(found, key=lambda item: item["attributes"]["processingDate"])
-    recent = [item for item in found if item["attributes"]["processingDate"][:10] >= since.isoformat()]
-    if not recent and granularity != "DAILY":
-        recent = found[-1:]
-    return recent
+def processed_on(item: dict) -> str:
+    return item["attributes"]["processingDate"][:10]
+
+
+def first_day(listed: dict[str, list[dict]], granularity: str, since: dt.date) -> str:
+    """The processingDate the instances of every report are read from: `since`; for weekly and monthly reports,
+    the newest Standard instance's when none came out since then, so the newest week and month are always read.
+
+    One day for all the reports: reading each one's newest on its own would bring a Detailed report's older week
+    (the newest it has, when Apple held back every row since) without the totals of that week."""
+    start = since.isoformat()
+    standard = [processed_on(item) for report in STANDARD for item in listed.get(report, [])]
+    return min(start, max(standard)) if granularity != "DAILY" and standard else start
+
+
+def chosen(found: list[dict], start: str) -> list[dict]:
+    """The instances processed on `start` or after, oldest first."""
+    return sorted((item for item in found if processed_on(item) >= start), key=processed_on)
 
 
 def newest_by_date(batches: list[tuple[str, list[dict]]]) -> dict[str, tuple[str, list[dict]]]:
@@ -335,26 +350,35 @@ def collect(days: int, granularities: tuple[str, ...], as_of: dt.date) -> dict:
         if not report_id:
             result["errors"].append(f"{REPORTS[report]}: not in report request {REQUEST_ID}")
     for granularity in granularities:
-        dated: dict[str, dict[str, list[dict]]] = {}  # Date -> report -> rows
-        processed: dict[str, dict[str, str]] = {}  # Date -> report -> the processingDate its rows come from
+        listed: dict[str, list[dict]] = {}  # report -> its instances of this granularity
         for report, report_id in ids.items():
             if not report_id:
                 continue
             try:
-                picked = chosen(instances(report_id, granularity), granularity, since)
-                batches = [(item["attributes"]["processingDate"][:10], instance_rows(item["id"])) for item in picked]
-                newest = newest_by_date(batches)
+                listed[report] = instances(report_id, granularity)
             except Exception as error:  # a report that fails is reported, and the rest still run
                 result["errors"].append(f"{REPORTS[report]}, {granularity.lower()}: {error}")
+        start = first_day(listed, granularity, since)
+        dated: dict[str, dict[str, list[dict]]] = {}  # Date -> report -> rows
+        processed: dict[str, dict[str, str]] = {}  # Date -> report -> the processingDate its rows come from
+        for report, found in listed.items():
+            picked = chosen(found, start)
+            try:
+                newest = newest_by_date([(processed_on(item), instance_rows(item["id"])) for item in picked])
+            except Exception as error:
+                result["errors"].append(f"{REPORTS[report]}, {granularity.lower()}: {error}")
                 continue
-            result["reports"][report][granularity] = [item["attributes"]["processingDate"][:10] for item in picked]
+            result["reports"][report][granularity] = [processed_on(item) for item in picked]
             for date, (when, rows) in newest.items():
                 if granularity == "DAILY" and date < since.isoformat():
                     continue
                 dated.setdefault(date, {})[report] = rows
                 processed.setdefault(date, {})[report] = when
+        # A Date with Detailed rows and no Standard ones has no totals yet (Standard reports that come out later
+        # in the day, a correction of the Detailed rows alone): it waits for them.
+        totalled = sorted(date for date, rows in dated.items() if any(report in rows for report in STANDARD))
         result["periods"][granularity] = [
-            period(granularity, date, dated[date], processed[date], as_of) for date in sorted(dated)
+            period(granularity, date, dated[date], processed[date], as_of) for date in totalled
         ]
     return result
 
@@ -437,6 +461,7 @@ def main(argv: list[str] | None = None) -> int:
         "--days",
         type=int,
         default=10,
+        metavar="N",
         help="daily: the dates of the last N days; weekly and monthly: the reports out in the last N days, "
         "and always the newest (default 10)",
     )
