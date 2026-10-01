@@ -1,6 +1,6 @@
 {
-  "updated": "2026-10-01T11:51:22-05:00",
-  "headline": "1.1 is still waiting for Apple's review (submitted Sep 30, 4:16 PM). 1.0's first day on sale: 3 learners, all finished a drawing, no crashes; the ads are now serving and the first daily lesson video goes out at 5 PM.",
+  "updated": "2026-10-01T13:55:38-05:00",
+  "headline": "1.1 is still waiting for Apple's review. Claude is now running ads and sales: the ad bids were too low to win any auction, so they went up today inside the $150 learning budget, and the paywall copy gets fixed before 1.1 goes live.",
   "app": {
     "live": {
       "version": "1.0",
@@ -285,7 +285,7 @@
   "needsYou": [
     {
       "title": "Don't publish Paywall 1 or Flow 1 in Superwall yet",
-      "detail": "They have Lifetime as drafts. Publishing before 1.1 is on sale would sell Lifetime to 1.0, which doesn't unlock it. Claude tells you the moment 1.1 is on sale.",
+      "detail": "They hold the Lifetime drafts. Even once 1.1 is on sale, wait for Claude: phased release keeps learners on 1.0, which doesn't count Lifetime, so Claude first limits both designs to 1.1 and later, then tells you.",
       "since": "2026-09-30"
     },
     {
@@ -306,9 +306,9 @@
       "detail": "Publish Paywall 1 and Flow 1 in Superwall (their Lifetime drafts), and create the Friends & Family Lifetime offer codes. Claude sends it to his phone."
     },
     {
-      "title": "Apple Ads, first days",
+      "title": "Apple Ads: the $150 learning budget",
       "state": "running",
-      "detail": "4 campaigns, US, $10 a day. Apple has categorized the app: campaigns and ad groups are now serving, with nothing spent yet. Kevin, Oct 1: bids stay as they are; at the Oct 2 midnight check, if Category or Competitors are still barely shown, propose new bids to Kevin and wait for his yes before changing any."
+      "detail": "Oct 1: exact keywords had 0 impressions at $0.50-1.00, so Category bids went to $1.20-2.25, Discovery broad to $0.90, three adult terms added, Competitors paused; $13 a day. Goal: cost per install and per paywall reached by keyword. Stop at $140; plan for more to Kevin at $100 or Oct 9."
     },
     {
       "title": "First real learners",
@@ -329,9 +329,70 @@
       "title": "Keyword baseline",
       "state": "next",
       "detail": "Where Paper Coach ranks for its keywords in its first days, so later changes can be measured."
+    },
+    {
+      "title": "Paywall fixes before 1.1 goes live",
+      "state": "waiting",
+      "detail": "Done in the editors on Oct 1: '100+ lessons' in all four designs; Paywall 2 and Flow 2 now name the billing date and the reminder 2 days before. Waiting for Kevin to publish Paywall 2 and Flow 2. Paywall 1 and Flow 1 stay drafts until 1.0 is gated out (Lifetime)."
+    },
+    {
+      "title": "Ads spend guard",
+      "state": "next",
+      "detail": "Apple refuses lifetime budgets on this account, so a small agent that needs no Claude will pause every Paper Coach campaign at $140. Needed before spend passes $100."
+    },
+    {
+      "title": "Measure ads and paywalls",
+      "state": "next",
+      "detail": "PostHog tiles for the paid funnel by keyword (tap install, 13+, paywall reached, trial) and per paywall design, leaving out App Review and test installs."
     }
   ],
   "log": [
+    {
+      "at": "2026-10-01T13:55:37-05:00",
+      "text": "Paywalls: '100+ lessons' in all four; Paywall 2 and Flow 2 name the billing date and reminder",
+      "kind": "tests"
+    },
+    {
+      "at": "2026-10-01T13:42:11-05:00",
+      "text": "Billing grace period on (Kevin): 16 days, all renewals, sandbox and production",
+      "kind": "money"
+    },
+    {
+      "at": "2026-10-01T13:35:26-05:00",
+      "text": "Kevin: $29.99 a year stays; a price test waits for steady revenue",
+      "kind": "money"
+    },
+    {
+      "at": "2026-10-01T13:26:06-05:00",
+      "text": "Apple Ads: added how to draw app, learn to draw for adults, drawing for adults to Category",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-01T13:26:06-05:00",
+      "text": "Apple Ads: bids raised to $1.20-2.25 (none won at $0.50-1.00); Competitors paused; $13 a day",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-01T13:06:44-05:00",
+      "text": "Social: TikTok and Instagram showed the YouTube title instead of our caption; fixed from today's post",
+      "kind": "social"
+    },
+    {
+      "at": "2026-10-01T13:03:56-05:00",
+      "text": "--help"
+    },
+    {
+      "at": "2026-10-01T12:29:15-05:00",
+      "text": "Apple Ads: excluded the junk search \"ve\" from Discovery (12 of its impressions, no taps)"
+    },
+    {
+      "at": "2026-10-01T12:17:22-05:00",
+      "text": "Apple Ads: within $150, cap and budgets are Claude's to test; past $150 needs Kevin's yes and a plan"
+    },
+    {
+      "at": "2026-10-01T12:11:31-05:00",
+      "text": "Apple Ads: Kevin made Claude ads and sales manager; any budget increase goes to him first"
+    },
     {
       "at": "2026-10-01T11:51:21-05:00",
       "text": "Midnight check now leaves social to the 5:45 PM social check when that ran the evening before",
@@ -457,46 +518,6 @@
     {
       "at": "2026-09-28T22:08:38-05:00",
       "text": "Paths now have their own colors, set in the Studio (Edit details… or `studio paths color`). Lesson videos use their path's color as the background, and the app will use the same colors from the next release. Plants is green, Sky & Weather blue. App Store screenshots 2, 3, 5, 6 and 8 were taken again. Pushed 29372d8; nothing was submitted to Apple."
-    },
-    {
-      "at": "2026-09-28T21:38:23-05:00",
-      "text": "Lesson videos: layout moved clear of YouTube's buttons and channel line (measured on the test Short), and Lina's words now show 2–3 at a time on one big line with the spoken word in yellow, timed by Whisper (ef650b7)."
-    },
-    {
-      "at": "2026-09-28T19:23:04-05:00",
-      "text": "Built on main at the creator's request: Edit on a sketchbook page, to change its light (Original / Bright / Scan) and corners later (ecea871). Not released."
-    },
-    {
-      "at": "2026-09-28T19:06:10-05:00",
-      "text": "Built on main at the creator's request: Original / Bright / Scan for sketchbook photos taken in dim light (c33ada7). Not released."
-    },
-    {
-      "at": "2026-09-28T16:51:59-05:00",
-      "text": "Social: lesson videos now post through Upload-Post to Softroni's accounts (studio social). Tested privately on YouTube and a Facebook draft; public posts, and the daily 17:00 job, wait for Paper Coach to go on sale."
-    },
-    {
-      "at": "2026-09-28T15:25:15-05:00",
-      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"
-    },
-    {
-      "at": "2026-09-28T08:50:51-05:00",
-      "text": "Scheduled runs now log through notes.json's addLog, so they need only fixed commands"
-    },
-    {
-      "at": "2026-09-27T14:53:34-05:00",
-      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, Apple Ads can't see the app yet"
-    },
-    {
-      "at": "2026-09-27T09:56:45-05:00",
-      "text": "docs/next-builds.md: what to build next for revenue (price test prerequisite, price test, the grown-up's door, rating prompt)"
-    },
-    {
-      "at": "2026-09-27T01:10:34-05:00",
-      "text": "Daily check: 1.0 (2) still waiting for review; PostHog empty, no reviews, no ads yet"
-    },
-    {
-      "at": "2026-09-27T01:10:27-05:00",
-      "text": "Temporary Admin key revoked by Kevin; both check-ins run once by hand to approve their tools"
     }
   ],
   "experiments": [
@@ -544,8 +565,8 @@
   ],
   "ads": {
     "state": "running",
-    "note": "Serving since Apple categorized the app: $10 a day, US, 4 campaigns, nothing spent yet. The first $150 is the seed; after that the ads spend only what they earn back.",
-    "dailyCap": 10,
+    "note": "Learning budget: $150 in all until Kevin approves more; Claude stops at $140. Oct 1: bids raised to $1.20-2.25 (they won no auctions at $0.50-1.00), Competitors paused, $13 a day. Plan for more at $100 or Oct 9.",
+    "dailyCap": 13,
     "spentToDate": 0,
     "earnedToDate": 0,
     "spendCeiling": 150,
