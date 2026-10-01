@@ -147,3 +147,51 @@ starts on something already drawn.
 - grip-color: "The grip bands are brown and orange, taking turns."
 - jewel-color: "The jewel in the boss is red, the one in the knob blue."
 - outro: "One sword, sharp and shining. What would you name it?"
+
+### cauldron
+
+Kept picture: `fantasy-objects/cauldron-codex.png` (Codex, first of two candidates; white margin added). Seen a
+little from above: a gray rim ring (two ovals), green brew with three pale green bubbles, a purple pot with a
+round belly, three gray legs (left, middle, right), two red flames with yellow middles between the legs, two
+bubbles rising over the left, and a brown ladle handle leaning right across the back of the rim. The ladle is
+drawn first, so both ovals of the rim start and end on it.
+
+- intro: "Halloween isn't complete without a bubbling cauldron. This one has a green brew, a ladle and a fire underneath. Watch it bubble up, then stir a pot of your own."
+- ladle: "Start with the ladle's handle, a long stick leaning to the right."
+- rim: "The rim is a wide oval. From the handle, go round each side and meet at the front."
+- brew: "Inside it, a smaller oval for the brew, again from the handle round both sides."
+- pot: "The pot hangs from the rim, a round belly wider than the rim. One side, then the other."
+- legs: "Three short legs stand under the belly: left, middle and right."
+- flames: "Between the legs burn two flames with three tips each, a small flame inside each one."
+- bubbles: "Five bubbles: three on the brew, two floating up into the air."
+- purple: "Color the cauldron purple."
+- gray: "The rim and the legs are gray."
+- greens: "Color the brew green and the bubbles pale green."
+- fire: "Brown for the ladle, red and yellow for the flames."
+- outro: "Your cauldron is bubbling away. What's in your brew tonight?"
+
+### spellbook
+
+Kept picture: `fantasy-objects/spellbook-codex.png` (Codex, fifth of six candidates; white margin added). The
+first two drew the medallion's points as gear teeth, and one ran the clasp into it; the next two drew sun rays
+as separate shapes on a disc, which traced into a dozen pieces. With a note asking for one outline, the
+medallion is a single sun shape with eight pointed rays and a blue oval jewel. The book is red on top, cream
+pages on the left face, gray on the right, gold triangles on all four corners of the cover, a gold clasp near
+the right edge and a strap running from it over the edge and down the pages (orange on the cover, brown on the
+side). The trace ran the book's whole outline and one side of the strap as one line; it was cut into the
+cover's far edges, three upright edges and the bottom before building.
+
+- intro: "Every wizard's library has one book that's locked for a reason. This one has gold corners, a sun on the cover and a strap. Watch it appear, then write your own spells."
+- cover: "The cover is a leaning diamond. Draw its two near edges, then its two far edges."
+- edges: "Three short edges hang down from the cover: at the left, the front and the right corner."
+- bottom: "Join their ends along the bottom, running the same way as the cover's edges."
+- corners: "Cut a small triangle off each corner of the cover. These are the metal caps."
+- medallion: "In the middle sits a medallion shaped like a sun, with eight pointed rays."
+- jewel: "An oval jewel fills its center."
+- clasp: "Near the right edge, a small square clasp keeps the book shut."
+- strap: "The strap runs from the clasp over the edge and down the pages: two lines side by side."
+- red: "Color the cover red."
+- pages: "The pages are cream on the left side and gray on the right."
+- gold: "Gold for the corners, the medallion and the clasp."
+- jewel-strap: "The jewel is blue. The strap is orange on the cover and brown down the side."
+- outro: "Your spellbook is closed and clasped. What's the first spell you'd write inside?"
