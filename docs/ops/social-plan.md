@@ -81,8 +81,12 @@ Waiting on Kevin:
 - [ ] Buy Upload-Post Basic (monthly) and connect TikTok to the `softroni` profile (as a Business account, so the
   bio link shows).
 - [ ] About 2026-11-30: monthly → yearly, or stop (see *Cost*).
-- [ ] Provider token for campaign links (see *Knowing what works*).
-- [ ] Bio links on TikTok, Instagram and X to the App Store (tagged links once the token is in).
+- [x] Provider token for campaign links: `128560181`, in `APP_STORE_PROVIDER_TOKEN` (2026-09-30).
+- [x] Campaign links in the profiles of Instagram, X, YouTube, Facebook and Pinterest (`<platform>-bio`,
+  `youtube-channel`, `facebook-page`, `pinterest-profile`).
+- [ ] TikTok bio link: the account is now a Business account; TikTok's business verification (submitted
+  2026-09-30, up to three days) comes first. Then Edit profile → Links:
+  `https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=tiktok-bio&mt=8`.
 - [ ] YouTube "made for kids" and the AI label: defaults stand (no; TikTok only) unless Kevin says otherwise.
 
 To build (Claude):
@@ -106,4 +110,5 @@ Then (Claude, once the plan and TikTok are on):
 - 2026-09-30: 1.0 on sale; the queue now reads the version on sale (`1.0(2)`, 100 lessons). Plan agreed.
 - 2026-09-30: built the up-next list, campaign links, step pins with a board per path, the speed draw and
   `social announce`. Nothing posted publicly yet: waiting on the paid plan and TikTok.
+- 2026-09-30: provider token in the settings; campaign links in every profile but TikTok's (verification pending).
 - 2026-09-30: Upload-Post monthly for two months, then yearly if it brings downloads (not yearly up front).
