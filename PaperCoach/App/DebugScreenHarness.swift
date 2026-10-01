@@ -47,6 +47,8 @@ enum DebugScreenHarness {
         pendingCaptureLook = .original
         raiseDeleteConfirmation = false
         raisePageEditor = false
+        raiseShareSheet = false
+        answerGrownUpQuestion = false
         raiseProfileSwitcher = false
         raisePINCreate = false
         pendingLessonsJump = nil
@@ -317,6 +319,21 @@ enum DebugScreenHarness {
                 app.push(.sketchbookEntry(pageId: page.id))
             }
 
+        // The page with its share sheet up, as the green button opens it, for an
+        // 18+ learner. For `entry-share-child`, a 6-to-9 learner's, where the
+        // grown-ups' question comes first; for `entry-share-answered`, the same
+        // question answered right a moment later, and the sheet after it.
+        case "entry-share", "entry-share-child", "entry-share-answered":
+            app.setAgeGroup(app.activeProfile.id, to: name == "entry-share" ? .adult : .from6To9)
+            answerGrownUpQuestion = name == "entry-share-answered"
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            addPlaceholderPage(to: app, lesson: treeLesson)
+            app.selectedTab = .sketchbook
+            if let page = app.sketchbook.pages.first {
+                raiseShareSheet = true
+                app.push(.sketchbookEntry(pageId: page.id))
+            }
+
         // A page kept from a dim photo, straightened, with its editor open: the
         // light chosen again from the sketchbook.
         case "entry-edit":
@@ -453,6 +470,12 @@ enum DebugScreenHarness {
     /// Set by `entry-edit`; `SketchbookEntryView` reads and clears it in
     /// `onAppear`, and opens its page editor.
     static var raisePageEditor = false
+    /// Set by the `entry-share` cases; `SketchbookEntryView` reads and clears it in
+    /// `onAppear`, then shares the page as its green button would.
+    static var raiseShareSheet = false
+    /// Set by `entry-share-answered`; `.grownUpCheck(_:)` answers its question right
+    /// a moment after asking, once.
+    static var answerGrownUpQuestion = false
     /// Set by `profiles-switcher`; `HomeView` reads and clears it in `onAppear`.
     static var raiseProfileSwitcher = false
     /// Set by `pin`; `SettingsView` reads and clears it in `onAppear`.

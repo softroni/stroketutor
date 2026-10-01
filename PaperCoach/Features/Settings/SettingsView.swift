@@ -31,6 +31,8 @@ struct SettingsView: View {
     @State private var grownUpQuestion: ParentalQuestion?
     @State private var grownUpAnswer = ""
     @State private var afterGrownUpCheck: (() -> Void)?
+    /// What "Share Paper Coach"'s sheet points at on iPad.
+    @State private var shareAnchor = ShareAnchor()
     @Environment(\.openURL) private var openURL
 
     /// The PIN pad, when it is opened from its own row.
@@ -571,13 +573,47 @@ struct AppStoreListing {
         return nil
         #endif
     }
+
+    /// Softroni's provider token. App Store Connect counts the downloads a link
+    /// brings (Analytics › Acquisition › Campaigns) only when the link carries it
+    /// beside its campaign; the social posts' links carry the same one
+    /// (docs/ops/social-plan.md). Not a secret: every tagged link shows it.
+    static let providerToken = "128560181"
+
+    /// The App Store page, tagged with `campaign` (`ct`) in the form App Store
+    /// Connect's campaign links take: `drawing-share` on a shared drawing,
+    /// `settings-share` on Settings' "Share Paper Coach". The plain page while the
+    /// app has no record, as `current`.
+    static func campaignURL(_ campaign: String) -> URL? {
+        guard let appID else { return current?.pageURL }
+        var components = URLComponents(string: "https://apps.apple.com/app/apple-store/id\(appID)")
+        components?.queryItems = [URLQueryItem(name: "pt", value: providerToken),
+                                  URLQueryItem(name: "ct", value: campaign),
+                                  URLQueryItem(name: "mt", value: "8")]
+        return components?.url
+    }
 }
 
 private extension SettingsView {
+    /// Leaving the app from a child's profile waits for a grown-up, as the privacy
+    /// policy's link does: the PIN when one is set, else the question in words
+    /// (`AppModel.grownUpCheckBeforeSharing`). Anyone 13 or over goes straight on.
+    func afterGrownUpCheckForChild(reason: String, _ action: @escaping () -> Void) {
+        switch app.grownUpCheckBeforeSharing {
+        case .notNeeded: action()
+        case .pin: gate = PINGateRequest(reason: reason, onApproved: action)
+        case .question: askGrownUp(then: action)
+        }
+    }
+
     /// Opens the App Store's review sheet. A link the learner chooses to follow,
     /// rather than `requestReview`, which iOS rations and may silently ignore.
     func rateRow(_ listing: AppStoreListing) -> some View {
-        Link(destination: listing.reviewURL) {
+        Button {
+            afterGrownUpCheckForChild(reason: "Needed to open the App Store.") {
+                openURL(listing.reviewURL)
+            }
+        } label: {
             SettingsCustomRow(title: "Rate Paper Coach",
                               subtitle: "A review helps other people find it.") {
                 SettingsIconTile(symbol: "star.fill", tint: .gold)
@@ -594,11 +630,18 @@ private extension SettingsView {
         .accessibilityHint("Opens the App Store to write a review.")
     }
 
-    /// The system share sheet with the App Store link and a line to go with it.
+    /// The system share sheet with the App Store link (tagged `settings-share`, so
+    /// App Store Connect counts what it brings) and a line to go with it.
     func shareRow(_ listing: AppStoreListing) -> some View {
-        ShareLink(item: listing.pageURL,
-                  subject: Text("Paper Coach"),
-                  message: Text("Learn to draw one stroke at a time with Paper Coach.")) {
+        Button {
+            afterGrownUpCheckForChild(reason: "Needed to share Paper Coach.") {
+                let link = AppStoreListing.campaignURL("settings-share") ?? listing.pageURL
+                ShareSheet.present([link,
+                                    SharedTextItem(text: "Learn to draw one stroke at a time with Paper Coach.",
+                                                   subject: "Paper Coach")],
+                                   from: shareAnchor) { _ in }
+            }
+        } label: {
             SettingsCustomRow(title: "Share Paper Coach",
                               subtitle: "Send it to someone who’d like to draw.") {
                 SettingsIconTile(symbol: "square.and.arrow.up", tint: .neutral)
@@ -608,6 +651,7 @@ private extension SettingsView {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .shareAnchor(shareAnchor)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
     }

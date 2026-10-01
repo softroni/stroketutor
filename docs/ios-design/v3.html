@@ -721,7 +721,7 @@ article.screen.is-active .notes { animation: rise .65s var(--ease) .12s both; }
     <div class="mast">
       <p class="eyebrow">Design specification · iOS · v3</p>
       <h1>Stroke<em>Tutor</em></h1>
-      <p class="meta"><b>22 screens</b> with developer notes · 2026-09-29</p>
+      <p class="meta"><b>22 screens</b> with developer notes · 2026-10-01</p>
     </div>
     <div class="find"><input type="search" id="find" placeholder="Find a screen" autocomplete="off" spellcheck="false"><kbd>/</kbd></div>
     <section class="ix-group">
@@ -3974,6 +3974,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
               <p class="t-subhead muted">Houses · Lesson 3 · Saturday, 12 September 2026</p>
               <p class="t-footnote muted" style="margin-top:6px">Kept on this iPhone only. Nothing is uploaded.</p>
             </div>
+            <button class="btn btn-secondary" type="button" style="align-self:center;margin-top:4px"><svg><use href="#i-share"/></svg>Share your drawing</button>
             <div class="spacer"></div>
           </div>
           <div class="bottom-area">
@@ -3996,7 +3997,7 @@ progressStore.complete(lesson)                // before presenting; synchronous,
         <li><b>primer</b> — 56 pt icon tile, 30/800 title, one 17 pt line, then three promises in a <code>.list--soft</code> with green check tiles (each row 60 pt). Shown before <code>AVCaptureDevice.requestAccess</code> so "Don't Allow" is an informed choice. "Choose from Photos" needs no permission at all.</li>
         <li><b>camera</b> — dark full-bleed. Guide 300 × 400 pt centred, 1.5 pt dashed at 38 % white, 30 pt corner brackets; hint pill top; lesson ghost 64 pt bottom-right. Bar: Photos · 76 pt shutter · flash, 108 pt + safe area.</li>
         <li><b>review</b> — photo and lesson side by side, both 3 : 4 in a 12 pt grid, so the learner compares rather than judges. Under them the light: a segmented control, Original · Bright · Scan, and a line saying what the chosen one does. One soft button, "Fix corners" once the page has corners (found or placed) and "Crop" while it is the photo as taken; it opens the corner editor. Retake / Keep as a 50-50 row, Keep green.</li>
-        <li><b>saved</b> — the green chip is the whole celebration. The page as it now looks in the sketchbook (196 pt), title, path, full date, the privacy line. Primary "Next lesson", secondary "Open your sketchbook" → <code>sk-book</code>, "Done" → <code>hp-path</code>.</li>
+        <li><b>saved</b> — the green chip is the whole celebration. The page as it now looks in the sketchbook (196 pt), title, path, full date, the privacy line, then "Share your drawing" (the secondary, sized to its words; added 2026-10-01, the same share as <code>sk-entry</code>'s). Primary "Next lesson", secondary "Open your sketchbook" → <code>sk-book</code>, "Done" → <code>hp-path</code>.</li>
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
@@ -4217,9 +4218,9 @@ progressStore.complete(lesson)                // before presenting; synchronous,
               <span class="chip chip--gold" style="margin-top:2px"><svg><use href="#i-check"/></svg>Drawn</span>
             </div>
             <button class="sk-note" type="button" aria-label="Add a note"><svg><use href="#i-pen"/></svg><span class="ph">Add a note. What you noticed, what to try next time.</span></button>
-            <button class="btn btn-secondary" type="button" data-goto="hp-preview" style="margin-top:4px"><svg><use href="#i-pen"/></svg>Draw it again</button>
+            <button class="btn btn-primary" type="button" style="margin-top:4px"><svg><use href="#i-share"/></svg>Share your drawing</button>
             <div class="sk-quiet">
-              <button class="btn btn-text" type="button"><svg><use href="#i-share"/></svg>Share</button>
+              <button class="btn btn-text" type="button" data-goto="hp-preview"><svg><use href="#i-pen"/></svg>Draw it again</button>
               <button class="btn btn-text btn-text--danger" type="button" data-set-variant="delete"><svg><use href="#i-trash"/></svg>Delete</button>
             </div>
           </div>
@@ -4246,9 +4247,9 @@ progressStore.complete(lesson)                // before presenting; synchronous,
               <span class="chip chip--gold" style="margin-top:2px"><svg><use href="#i-check"/></svg>Drawn</span>
             </div>
             <button class="sk-note" type="button" aria-label="Edit note"><svg><use href="#i-pen"/></svg><span>Trunk leans left. Try a lighter first line next time.</span></button>
-            <button class="btn btn-secondary" type="button" style="margin-top:4px"><svg><use href="#i-pen"/></svg>Draw it again</button>
+            <button class="btn btn-primary" type="button" style="margin-top:4px"><svg><use href="#i-share"/></svg>Share your drawing</button>
             <div class="sk-quiet">
-              <button class="btn btn-text" type="button"><svg><use href="#i-share"/></svg>Share</button>
+              <button class="btn btn-text" type="button"><svg><use href="#i-pen"/></svg>Draw it again</button>
               <button class="btn btn-text btn-text--danger" type="button"><svg><use href="#i-trash"/></svg>Delete</button>
             </div>
           </div>
@@ -4265,25 +4266,25 @@ progressStore.complete(lesson)                // before presenting; synchronous,
           <div class="home-indicator"></div>
         </div>
       </div>
-      <p class="device-caption">The body scrolls: the first fold is the photograph and the facts; the note, "Draw it again" and the two quiet actions follow. The delete variant also shows a filled note.</p>
+      <p class="device-caption">The body scrolls: the first fold is the photograph and the facts; the note, "Share your drawing" and the two quiet actions follow. The delete variant also shows a filled note.</p>
     </div>
 
     <aside class="notes">
       <h3>Developer notes</h3>
       <h4>Purpose</h4>
-      <p>One kept page, shown large, with the lesson it came from. <span class="tag tag--plan">§32</span> "Associate the image with lesson, path, and completion date." The only forward action is to draw it again; the rest is quiet.</p>
+      <p>One kept page, shown large, with the lesson it came from. <span class="tag tag--plan">§32</span> "Associate the image with lesson, path, and completion date." Since 2026-10-01 (the creator's call) the forward action is to share it: a friend who sees a real drawing is how Paper Coach gets found. Drawing it again and deleting are quiet.</p>
       <h4>Layout</h4>
       <ul>
         <li>Nav bar: back to the sketchbook, title "Sketchbook", share at the trailing edge (44 pt targets). Pushed from the tab; the tab bar hides for the detail.</li>
         <li>Scrolling body: the <code>.sk-shot</code> full width (353 × 470 pt) with a white "Edit" pill (36 pt, 44 pt target) on its top-right corner, then title 24/800, "Trees · Lesson 1 of 8 · 16 steps" 15/600, the full localised date 13/600, and the <code>chip--gold</code> "Drawn" on the right.</li>
         <li>Note field: a 60 pt <code>--surface</code> row, 17/500, pen icon, placeholder at 40 % ink. Multi-line, grows with content; saves on end editing.</li>
-        <li>"Draw it again" is the 60 pt secondary (not green: the learner already finished this). Share and Delete are 48 pt text buttons in one row, Delete in <code>--danger</code>.</li>
+        <li>"Share your drawing" is the 64 pt primary. "Draw it again" and Delete are 48 pt text buttons in one row, Delete in <code>--danger</code>. With no photo on the device there is nothing to share: "Draw it again" is the primary, and Delete stays alone on the right.</li>
       </ul>
       <h4>States &amp; interactions</h4>
       <ul>
         <li><b>default</b> — tap or pinch the photo → full-screen zoomable viewer, swipe down to dismiss. "Draw it again" → <code>hp-preview</code> for this lesson.</li>
         <li><b>Edit</b> (added 2026-09-28, at the creator's request) → <code>sk-edit</code>, full screen: the page large, the light (Original · Bright · Scan, as on capture review) and "Fix corners", then Cancel · Save. It works from the photo as taken, so the light and the corners can be changed any number of times without the page wearing out. Save writes the new picture under a new file name and removes the old one; the note, date and lesson stay. The Photos copy, if one was saved, is not touched (the app can only add to Photos).</li>
-        <li><b>Share</b> (row or nav) → system share sheet with the 2048 px JPEG: a private export to Messages, Mail, Files or AirDrop. No in-app sharing, no link, no post.</li>
+        <li><b>Share</b> (the button or the nav's) → on a child's profile the grown-ups' check first (the PIN when set, else the question in words); then the system share sheet (a popover on iPad) with the card, 1080 × 1350: the photo on its path's tint with the lesson badge, and under it the app icon, the lesson's name and "Drawn with Paper Coach". Apps that take words also get "I drew this with Paper Coach. Can you draw it too?" (a child's: "Look at this drawing, made with Paper Coach!") and the App Store link tagged <code>ct=drawing-share</code>. Nothing is uploaded; there is no feed.</li>
         <li><b>delete</b> — always confirmed with a destructive alert whose body says what survives: the photo and note go, the <code>LessonProgress</code> row stays; deleting never re-locks a lesson. Then <code>modelContext.delete(entry)</code>, remove both files, pop to <code>sk-book</code>. Cheap softening if wanted: a 10 s Undo toast before <code>removeItem</code>.</li>
         <li>Data: one <code>SketchbookEntry</code> (id, lessonId, pathId, completedAt, imageFile, originalFile, corners, look, note). A page kept before editing existed has no original: its first edit keeps its picture as the original, byte for byte. "Lesson 1 of 8" from <code>paths[pathId].lessonIds.firstIndex</code>; drop "of 8" if the lesson left the path.</li>
       </ul>

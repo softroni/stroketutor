@@ -843,6 +843,28 @@ Read Apple's current camera and photo-library permission guidance before buildin
 Application Support; sketchbook tab by month; entry with note, share and delete; opt-in "Also save to Photos".
 Usage strings cite App Store Review Guideline 5.1.1(ii). Crop and straighten is a disabled stub.
 
+**Sharing a drawing (2026-10-01, the creator's call; after 1.1):** a friend who sees a real drawing is how Paper
+Coach gets found, so sharing leads on the page (`sk-entry`): "Share your drawing" is the green button, and "Draw
+it again" moved beside Delete (with no photo on the device, Draw it again leads as before). The saved screen
+(`sk-capture` saved) has the same button under the page, sized to its words; "Next lesson" stays the way on.
+- **What goes out** (`DrawingShare`): a card made on the device, 1080 × 1350 (4 : 5): the photo on its path's
+  color with the lesson in the corner, and under it the app icon, the lesson's name and "Drawn with Paper Coach".
+  The name is in the picture because Instagram, Snapchat, Facebook and Save Image keep only the picture. With it,
+  "I drew this with Paper Coach. Can you draw it too?" and the App Store link (Messages, Mail, WhatsApp; never
+  AirDrop, Photos, Files or Print). The words never name the lesson, so no title has to fit them ("Cherries",
+  "UFO"). Nothing is uploaded: the card goes only where the learner sends it.
+- **Children:** nothing leaves a child's hands without a grown-up, so a child's share asks first: the PIN when
+  one is set, else the question in words (`AppModel.grownUpCheckBeforeSharing`, `.grownUpCheck(_:)`). The words
+  are then the grown-up's: "Look at this drawing, made with Paper Coach!" Settings' "Rate Paper Coach" and
+  "Share Paper Coach" ask the same way now, as the privacy policy's link already did.
+- **Measured:** the link carries Softroni's campaign tag (`ct=drawing-share`; Settings' row `ct=settings-share`),
+  so App Store Connect › Analytics counts the downloads shares bring. PostHog gets `drawing_share_opened`
+  (`lesson_id`, `path_id`, `entry`: `sketchbook` or `saved`) when the sheet comes up and `drawing_shared` (the
+  same, and `activity`, the app it went to) when a share goes out.
+- The sheet is UIKit's (`ShareSheet`), not `ShareLink`, because `ShareLink` can neither wait for the check nor say
+  where a share went; on iPad it is a popover on the button that opened it. Debug screens `-STScreen entry-share`
+  and `entry-share-child`. Tests in `DrawingShareTests`.
+
 ### Follow-up · First rest goes to All paths (2026-09-23)
 The first time an early learner (three or fewer lessons done) leaves a lesson-complete screen by "Not now", or by
 "Done" after adding the drawing to the sketchbook, they land on All paths (`hp-paths`) instead of their own path's

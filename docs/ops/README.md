@@ -308,6 +308,25 @@ To see it on a simulator (a development build always shows the prompt): an 18+ l
 then send the app to the background and back (a new session), and finish another. Once it has asked, that
 version never asks again on the device; deleting the app resets it.
 
+## Shared drawings
+
+From the build after 1.1, "Share your drawing" leads on a sketchbook page and sits under the page on the saved
+screen (README › M8, `DrawingShare`). A friend gets a card with the app's name on it, and in Messages, Mail or
+WhatsApp the words and an App Store link. Read it in three steps, release builds only:
+
+- **Photos kept:** `drawing_saved` against `lesson_completed`. Nothing can be shared without a photo, and on 1.0
+  the first 7 finished drawings had none (2026-10-01).
+- **Shares:** `drawing_share_opened` (by `entry`: `sketchbook`, `saved`) and `drawing_shared` (by `activity`, the
+  app it went to). Opened but not shared means the sheet was closed.
+- **Downloads they bring:** App Store Connect › Analytics › Acquisition › Campaigns, campaign `drawing-share`
+  (and `settings-share` for Settings' "Share Paper Coach"). Only people who share analytics with developers are
+  counted, so read it as a floor.
+- If shares stay near zero once a few hundred photos are kept, say so under "Needs you" with the numbers: where
+  the button sits and what the card says are Kevin's calls.
+
+On a simulator: `-STScreen entry-share` (18+), `entry-share-child` (the grown-ups' question) and
+`entry-share-answered` (the question answered, then the sheet). The card is written to the app's `tmp/`.
+
 ## Replying to reviews
 
 - Warm, short and specific to what the person wrote, signed "the Paper Coach team". Thank them for

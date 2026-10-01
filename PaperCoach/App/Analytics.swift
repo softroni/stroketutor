@@ -172,6 +172,7 @@ struct AnalyticsEvent: Equatable {
         static let reminderOn = "reminder_on"
         static let saveToPhotosOn = "save_to_photos_on"
         static let finishedDrawings = "finished_drawings"
+        static let activity = "activity"
     }
 
     // MARK: App and acquisition
@@ -250,6 +251,26 @@ struct AnalyticsEvent: Equatable {
     /// the device; only the lesson is named.
     static func drawingSaved(lessonId: String, pathId: String) -> AnalyticsEvent {
         AnalyticsEvent(name: "drawing_saved", properties: [Key.lessonId: lessonId, Key.pathId: pathId])
+    }
+
+    /// The share sheet came up on a drawing's card (`DrawingShare`), after the
+    /// grown-ups' check for a child. `entry` is where it was opened: `sketchbook`
+    /// (a kept page) or `saved` (the page just kept).
+    static func drawingShareOpened(lessonId: String, pathId: String, entry: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "drawing_share_opened",
+                       properties: [Key.lessonId: lessonId, Key.pathId: pathId, Key.entry: entry])
+    }
+
+    /// The card went out. `activity` is the share sheet's choice: Apple's id for
+    /// its own (`com.apple.UIKit.activity.Message`, `….SaveToCameraRoll`) or the
+    /// other app's extension (`net.whatsapp.WhatsApp.ShareExtension`). Never who it
+    /// went to: the sheet does not say, and the app does not ask.
+    static func drawingShared(lessonId: String, pathId: String, entry: String, activity: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "drawing_shared",
+                       properties: [Key.lessonId: lessonId,
+                                    Key.pathId: pathId,
+                                    Key.entry: entry,
+                                    Key.activity: activity])
     }
 
     /// An onboarding beat came on screen. `beat` is its id: `ob-age`, `ob-level`…

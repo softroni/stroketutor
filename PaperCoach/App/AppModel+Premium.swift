@@ -21,6 +21,15 @@ extension AppModel {
         return pin.isSet ? .pin : .question
     }
 
+    /// What comes before something leaves the app from a child's hands — a drawing
+    /// shared from the sketchbook, Settings' "Rate" and "Share" — since nothing does
+    /// without a grown-up (App Review Guidelines 1.3): the same check as before a
+    /// way to Premium, the PIN when one is set, else the question in words. Nothing
+    /// for a learner 13 or over.
+    var grownUpCheckBeforeSharing: GrownUpCheck {
+        grownUpCheckBeforePremium
+    }
+
     /// True when this lesson is past its path's free lessons and Premium is not
     /// active: it wears a crown, and a tap opens the way to Premium.
     func needsPremium(_ lesson: Lesson) -> Bool {

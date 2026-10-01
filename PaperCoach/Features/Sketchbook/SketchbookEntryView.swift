@@ -4,12 +4,14 @@ import UIKit
 /// `sk-entry` — one kept page: the photograph large on a band in its path's tint,
 /// with the lesson it was drawn from in color in the corner, then the lesson's name,
 /// one short line ("Plants · Sep 22"), the gold "Drawn" chip, a note, the green way to
-/// draw it again, and the quiet actions. Delete always asks. Tapping the photograph
-/// shows it full screen (`SketchbookPhotoViewer`); Edit on its corner makes it again
-/// from the photo as taken (`SketchbookPageEditor`).
+/// share it, and the quiet actions: draw it again, and delete. Delete always asks.
+/// Tapping the photograph shows it full screen (`SketchbookPhotoViewer`); Edit on its
+/// corner makes it again from the photo as taken (`SketchbookPageEditor`).
 ///
-/// Plan §32: "Associate the image with lesson, path, and completion date." The only
-/// forward action is to draw it again; the rest is quiet.
+/// Plan §32: "Associate the image with lesson, path, and completion date." Since
+/// 2026-10-01 (the creator's call) sharing leads: a friend who sees a real drawing
+/// is how Paper Coach gets found (`DrawingShare`). With no photo on the device there
+/// is nothing to share, and drawing it again leads instead.
 struct SketchbookEntryView: View {
     let pageId: UUID
 
@@ -22,9 +24,12 @@ struct SketchbookEntryView: View {
     /// The photograph at full size, while it is shown full screen.
     @State private var fullScreenPhoto: FullScreenPhoto?
     @State private var isEditingPhoto = false
-    /// A JPEG in the temporary directory, written so the share sheet hands over a
-    /// real file rather than a re-rendered bitmap.
-    @State private var shareURL: URL?
+    /// What the share sheet points at on iPad: the bar's button, or the green one.
+    @State private var barShareAnchor = ShareAnchor()
+    @State private var buttonShareAnchor = ShareAnchor()
+    /// A share waiting for the grown-ups' check (a child's profile), or going
+    /// straight through it.
+    @State private var shareRequest: GrownUpCheckRequest?
 
     @FocusState private var isEditingNote: Bool
 
@@ -36,14 +41,18 @@ struct SketchbookEntryView: View {
             // the share button as the one trailing control — the same bar the Home
             // group draws, rather than the system one.
             InlineNavBar(title: "Sketchbook", onBack: { dismiss() }) {
-                if let shareURL, let page {
-                    ShareLink(item: shareURL, preview: SharePreview(shareTitle(page))) {
+                if let page, photo(for: page) != nil {
+                    Button {
+                        share(page, from: barShareAnchor)
+                    } label: {
                         Image(systemName: "square.and.arrow.up")
                             .scaledFont(19, .semibold, design: .default)
                             .foregroundStyle(Theme.ink)
                             .frame(width: Theme.navTapTarget, height: Theme.navTapTarget)
                             .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
+                    .shareAnchor(barShareAnchor)
                     .accessibilityLabel("Share")
                 }
             }
@@ -56,11 +65,12 @@ struct SketchbookEntryView: View {
         }
         .background(Theme.page.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .grownUpCheck($shareRequest)
         #if DEBUG
-        // Screenshot-harness only: `DebugScreenHarness`'s `entry-delete` and
-        // `entry-edit` cases set these flags because the confirmation alert and the
-        // editor are behind this view's own private `@State`, which a launch
-        // argument cannot reach directly.
+        // Screenshot-harness only: `DebugScreenHarness`'s `entry-delete`,
+        // `entry-edit` and `entry-share` cases set these flags because the
+        // confirmation alert, the editor and the share are behind this view's own
+        // private `@State`, which a launch argument cannot reach directly.
         .onAppear {
             if DebugScreenHarness.raiseDeleteConfirmation {
                 DebugScreenHarness.raiseDeleteConfirmation = false
@@ -69,6 +79,14 @@ struct SketchbookEntryView: View {
             if DebugScreenHarness.raisePageEditor {
                 DebugScreenHarness.raisePageEditor = false
                 isEditingPhoto = true
+            }
+            if DebugScreenHarness.raiseShareSheet, let page {
+                DebugScreenHarness.raiseShareSheet = false
+                // Once the push has settled and the green button is on screen.
+                Task {
+                    try? await Task.sleep(for: .seconds(1))
+                    share(page, from: buttonShareAnchor)
+                }
             }
         }
         #endif
@@ -87,17 +105,22 @@ struct SketchbookEntryView: View {
 
                 noteField
 
-                if let lesson {
+                if photo(for: page) != nil {
                     Button {
-                        app.showPreview(of: lesson)
+                        share(page, from: buttonShareAnchor)
                     } label: {
-                        Label("Draw it again", systemImage: "pencil")
+                        Label("Share your drawing", systemImage: "square.and.arrow.up")
                     }
                     .buttonStyle(.primary)
+                    .shareAnchor(buttonShareAnchor)
                     .padding(.top, 4)
+                } else if let lesson {
+                    drawAgainButton(lesson)
+                        .buttonStyle(.primary)
+                        .padding(.top, 4)
                 }
 
-                quietActions(page)
+                quietActions(drawAgain: photo(for: page) != nil ? lesson : nil)
             }
             .padding(.horizontal, Theme.gutter)
             // The same 20 pt under the bar that `hp-preview` leaves.
@@ -109,10 +132,6 @@ struct SketchbookEntryView: View {
             guard !didLoadNote else { return }
             note = page.note ?? ""
             didLoadNote = true
-        }
-        // Again after an edit, which gives the page a new picture.
-        .task(id: page.imageFile) {
-            shareURL = makeShareFile(for: page)
         }
         .onChange(of: isEditingNote) { _, editing in
             if !editing { saveNote() }
@@ -146,9 +165,7 @@ struct SketchbookEntryView: View {
         let tint = (app.path(forLesson: page.lessonId) ?? app.path(id: page.pathId))
             .map { app.tint(for: $0) }
         let shape = RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
-        // A screen-sized copy, decoded once: the full photo is only read to share it
-        // or to look at it full screen.
-        let image = app.sketchbook.thumbnail(for: page, maxPixelSize: 1400)
+        let image = photo(for: page)
         let label = "Your \(lesson?.title ?? "page"), \(SketchbookDate.spoken(page.completedAt))"
 
         let shot = SketchbookShot(image: image, tutorial: lesson?.tutorial)
@@ -293,18 +310,29 @@ struct SketchbookEntryView: View {
         .accessibilityLabel(note.isEmpty ? "Add a note" : "Note")
     }
 
-    /// Share and Delete as visible quiet buttons, so nobody has to discover an
-    /// ellipsis. Delete is destructive and always confirmed.
-    private func quietActions(_ page: SketchbookPage) -> some View {
+    /// Back to the lesson's preview, to draw the page again.
+    private func drawAgainButton(_ lesson: Lesson) -> some View {
+        Button {
+            app.showPreview(of: lesson)
+        } label: {
+            Label("Draw it again", systemImage: "pencil")
+        }
+    }
+
+    /// Draw it again (when sharing leads) and Delete as visible quiet buttons, so
+    /// nobody has to discover an ellipsis. Delete is destructive and always
+    /// confirmed, and keeps its place on the right either way.
+    private func quietActions(drawAgain lesson: Lesson?) -> some View {
         HStack(spacing: Theme.stackSpacing) {
             Group {
-                if let shareURL {
-                    ShareLink(item: shareURL, preview: SharePreview(shareTitle(page))) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                            .textRole(.headline)
-                            .foregroundStyle(Theme.ink70)
-                            .frame(maxWidth: .infinity, minHeight: 48)
+                if let lesson {
+                    Button {
+                        app.showPreview(of: lesson)
+                    } label: {
+                        Label("Draw it again", systemImage: "pencil")
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.quiet)
                 } else {
                     Color.clear.frame(maxWidth: .infinity, minHeight: 48)
                 }
@@ -355,18 +383,17 @@ struct SketchbookEntryView: View {
         app.lesson(id: page.lessonId)?.title ?? "Your page"
     }
 
-    /// A private export: the JPEG itself, to Messages, Mail, Files or AirDrop. No
-    /// in-app sharing, no link, no post.
-    private func makeShareFile(for page: SketchbookPage) -> URL? {
-        guard let image = app.sketchbook.image(for: page),
-              let data = SketchbookStore.jpegData(from: image) else { return nil }
-        let name = shareTitle(page).replacingOccurrences(of: "/", with: "-")
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).jpg")
-        do {
-            try data.write(to: url, options: .atomic)
-            return url
-        } catch {
-            return nil
-        }
+    /// A screen-sized copy, decoded once and cached: what the band shows and the
+    /// share card is made from. The full photo is only read to look at it full
+    /// screen. Nil when the photo has gone from the device.
+    private func photo(for page: SketchbookPage) -> UIImage? {
+        app.sketchbook.thumbnail(for: page, maxPixelSize: 1400)
+    }
+
+    /// The card, to wherever the learner sends it (`DrawingShare`); on a child's
+    /// profile, after the grown-ups' check.
+    private func share(_ page: SketchbookPage, from anchor: ShareAnchor) {
+        shareRequest = DrawingShare.request(sharing: page, photo: photo(for: page),
+                                            app: app, entry: .sketchbook, from: anchor)
     }
 }

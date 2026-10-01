@@ -134,6 +134,29 @@ free one-time codes does it. Lifetime is also a plan anyone can buy. Decided wit
 **Then (Claude, after 1.1 is approved):** Kevin creates a free one-time offer code for Lifetime ("Friends & Family"),
 downloads the codes, and Claude turns them into one redeem link per person.
 
+## 6. Share a drawing (small, for the build after 1.1)
+
+**Built 2026-10-01, not shipped:** on `main`, for the build after 1.1. Kevin's idea and call (2026-10-01): a child
+who drew something wants to show it, and a friend who sees a real drawing on real paper is the cheapest install
+there is. What was built (README › M8, `DrawingShare`):
+- On a sketchbook page "Share your drawing" is the green button and "Draw it again" moved beside Delete; the saved
+  screen has the same button under the page, and "Next lesson" stays the way on.
+- What goes out is a card made on the device (the photo on its path's color, the lesson in the corner, the app's
+  icon and "Drawn with Paper Coach"), because Instagram, Snapchat, Facebook and Save Image keep only the picture.
+  Apps that take words also get "I drew this with Paper Coach. Can you draw it too?" and the App Store link,
+  tagged `ct=drawing-share`.
+- A child's share asks a grown-up first (the PIN, else the question), and the words are the grown-up's. Settings'
+  "Rate" and "Share" rows now ask the same way. No reward for sharing: Apple forbids "share to unlock", and it
+  would be pushy with children.
+
+**The catch:** a share needs a photo, and on 1.0 the first 7 finished drawings had none (`drawing_saved` = 0,
+2026-10-01). If photos stay rare, the completion screen's "Add to sketchbook" could promise the share too (that
+screen is App Store shot 7).
+
+**Judge it by** downloads from the `drawing-share` campaign in App Store Connect, against `drawing_shared` in
+PostHog (docs/ops/README.md › *Shared drawings*). **Later, if it works:** a card for a finished path with all its
+drawings, which needs no new photo.
+
 ## What Claude does meanwhile (no app change)
 
 - Custom product pages: one for parents (children drawing, the parental check, no ads) and one for adults (calm
@@ -146,4 +169,4 @@ downloads the codes, and Claude turns them into one redeem link per person.
 
 **1.1 carries items 1, 4 and 5**, with Around Town's Café and everything on `main` since 1.0 (2); it is cut once all of
 them are merged (item 1 is: `508ec63`). The plan and its checklist: [docs/releases/1.1.md](releases/1.1.md). The price test (2) starts as soon as
-1.1 is on sale. Item 3 goes in the build after.
+1.1 is on sale. Item 3 goes in the build after, with item 6 (sharing, on `main` since 2026-10-01).

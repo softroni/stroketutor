@@ -79,6 +79,10 @@ struct CaptureFlow: View {
     /// Set when the page could not be written; the learner stays on review with the
     /// photograph still in memory, as the notes require.
     @State private var didFailToSave = false
+    /// What the share sheet points at on iPad, and a share waiting for the
+    /// grown-ups' check (a child's profile) or going straight through it.
+    @State private var shareAnchor = ShareAnchor()
+    @State private var shareRequest: GrownUpCheckRequest?
 
     var body: some View {
         Group {
@@ -94,6 +98,7 @@ struct CaptureFlow: View {
         .readableColumn(isWide, maxWidth: 680)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.page.ignoresSafeArea())
+        .grownUpCheck($shareRequest)
         .onAppear {
             if owner == nil { owner = app.activeStores }
         }
@@ -451,6 +456,22 @@ struct CaptureFlow: View {
                             .padding(.top, 6)
                     }
                     .padding(.top, 8)
+
+                    // The proudest moment, so the way to show someone sits right
+                    // under the page, sized to its words: "Next lesson" below stays
+                    // the way on (`DrawingShare`).
+                    if let photo = sketchbook.thumbnail(for: page, maxPixelSize: 1400) {
+                        Button {
+                            shareRequest = DrawingShare.request(sharing: page, photo: photo,
+                                                                app: app, entry: .saved, from: shareAnchor)
+                        } label: {
+                            Label("Share your drawing", systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(.secondary)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .shareAnchor(shareAnchor)
+                        .padding(.top, 4)
+                    }
 
                     Spacer(minLength: 24)
                 }
