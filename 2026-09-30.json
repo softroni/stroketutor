@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-30T16:29:16-05:00",
+  "updated": "2026-09-30T23:13:52-05:00",
   "headline": "1.1 is with Apple: Around Town, the dim-light photo modes, Premium Lifetime and crash reports, submitted today at 4:16 PM with its 16 new screenshots. 1.0 is on sale; prices rise to $29.99 and $3.99 on Oct 2.",
   "app": {
     "live": {
@@ -7,15 +7,28 @@
       "build": "2",
       "state": "On sale",
       "tone": "good",
-      "since": "2026-09-30T08:03:01-05:00"
+      "since": "2026-09-30T08:03:01-05:00",
+      "code": "READY_FOR_DISTRIBUTION",
+      "phased": null
     },
-    "inReview": null
+    "inReview": {
+      "version": "1.1",
+      "build": "4",
+      "state": "Waiting for review",
+      "tone": "waiting",
+      "since": "2026-09-30T21:16:05.47Z",
+      "code": "WAITING_FOR_REVIEW",
+      "phased": {
+        "state": "INACTIVE",
+        "day": 0
+      }
+    }
   },
   "numbers": [
     {
       "label": "Installs",
       "value": "0",
-      "period": "on 2026-09-29",
+      "period": "Sep 29",
       "detail": "14 days: 0",
       "series": [
         {
@@ -74,12 +87,13 @@
           "day": "2026-09-29",
           "value": 0
         }
-      ]
+      ],
+      "source": "App Store"
     },
     {
       "label": "Proceeds",
       "value": "$0.00",
-      "period": "on 2026-09-29",
+      "period": "Sep 29",
       "detail": "14 days: $0.00",
       "series": [
         {
@@ -138,7 +152,77 @@
           "day": "2026-09-29",
           "value": 0.0
         }
-      ]
+      ],
+      "source": "App Store"
+    },
+    {
+      "label": "Ad spend",
+      "value": "$0.00",
+      "period": "Sep 30",
+      "detail": "14 days: $0.00",
+      "series": [
+        {
+          "day": "2026-09-16",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-17",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-18",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-19",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-20",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-21",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-22",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-23",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-24",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-25",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-26",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-27",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-28",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-29",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-30",
+          "value": 0.0
+        }
+      ],
+      "source": "Apple Ads"
     },
     {
       "label": "First opens",
@@ -164,10 +248,11 @@
       "period": "since 27 Sep"
     }
   ],
+  "funnel": null,
   "needsYou": [
     {
-      "title": "Upload-Post yearly plan, and connect TikTok",
-      "detail": "The app is on sale, so the daily lesson videos can start. The last thing waiting is the paid Upload-Post plan and TikTok on the softroni profile. Once they're in, Claude installs the 17:00 launch agent.",
+      "title": "Upload-Post Basic (monthly), and connect TikTok",
+      "detail": "The app is on sale, so the daily lesson videos can start. Waiting on the Upload-Post Basic plan, monthly for two months, and TikTok on the softroni profile as a Business account. Then Claude installs the 17:00 launch agent.",
       "since": "2026-09-30"
     },
     {
@@ -209,6 +294,27 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-09-30T23:13:51-05:00",
+      "text": "Social: “Pine Tree” posted on youtube, facebook, x, pinterest, threads, tiktok, instagram."
+    },
+    {
+      "at": "2026-09-30T23:09:20-05:00",
+      "text": "Social: daily 5 pm posting is on from Oct 1; TikTok and Threads connected; the 8 am check watches it."
+    },
+    {
+      "at": "2026-09-30T23:04:07-05:00",
+      "text": "Daily check moved to midnight Central; heartbeats now at 8 AM, noon, 4 PM and 8 PM"
+    },
+    {
+      "at": "2026-09-30T18:15:44-05:00",
+      "text": "Social: Upload-Post monthly for two months, then yearly if it brings downloads (decide about Nov 30)",
+      "kind": "social"
+    },
+    {
+      "at": "2026-09-30T17:42:17-05:00",
+      "text": "Social: plan agreed (docs/ops/social-plan.md); built step pins, a Pinterest board per path, speed draws and release news. Posting waits on the paid plan and TikTok."
+    },
     {
       "at": "2026-09-30T16:29:16-05:00",
       "text": "Reminder set: when 1.1 is on sale, Kevin publishes Paywall 1 and Flow 1 in Superwall and creates the Friends & Family Lifetime codes"
@@ -348,14 +454,6 @@
     {
       "at": "2026-09-27T00:57:57-05:00",
       "text": "Crash and hang reports (MetricKit to PostHog) on release/1.0.1 and main; 318 tests pass on main"
-    },
-    {
-      "at": "2026-09-27T00:57:57-05:00",
-      "text": "Sales and Reports key in; App Store analytics reports switched on for Paper Coach"
-    },
-    {
-      "at": "2026-09-27T00:57:57-05:00",
-      "text": "Took over Paper Coach's operations: rules agreed with Kevin (fixes and rejections ship on their own; features stay with Kevin)"
     }
   ],
   "experiments": [
@@ -408,7 +506,36 @@
     "spentToDate": 0,
     "earnedToDate": 0,
     "spendCeiling": 150,
-    "campaigns": []
+    "campaigns": [
+      {
+        "name": "PC - US - Competitors",
+        "status": "running",
+        "spend": 0.0,
+        "installs": 0,
+        "costPerInstall": null
+      },
+      {
+        "name": "PC - US - Category",
+        "status": "running",
+        "spend": 0.0,
+        "installs": 0,
+        "costPerInstall": null
+      },
+      {
+        "name": "PC - US - Brand",
+        "status": "running",
+        "spend": 0.0,
+        "installs": 0,
+        "costPerInstall": null
+      },
+      {
+        "name": "PC - US - Discovery",
+        "status": "running",
+        "spend": 0.0,
+        "installs": 0,
+        "costPerInstall": null
+      }
+    ]
   },
   "reviews": {
     "average": 0,
@@ -434,7 +561,13 @@
     }
   ],
   "next": {
-    "at": "2026-10-01T08:00:00-05:00",
+    "at": "2026-10-01T00:00:00-05:00",
     "what": "Daily check and summary"
-  }
+  },
+  "upcoming": [
+    {
+      "at": "2026-11-30",
+      "what": "Upload-Post: go yearly or stop, from two months of downloads per platform"
+    }
+  ]
 }
