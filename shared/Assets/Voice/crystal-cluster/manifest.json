@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "crystal-cluster",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:24:17.733Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Deep in caves, crystals grow in clusters, all reaching for the light. These five sprout from one rock, each with a bright side and a dark side. Watch them grow, then start a cluster of your own.",
+      "textHash": "e392eb52a3a4b1b23310c781d484c258f67c552d721144e2de58e08f46fcb8e8",
+      "durationMs": 12240
+    },
+    "rock": {
+      "file": "rock.m4a",
+      "text": "The crystals grow out of a low rock. From the top, draw one half, then the other, flat along the bottom.",
+      "textHash": "53802ddedaa3fde28f297d544422435915318219e228aeed75f384957d99d38d",
+      "durationMs": 6800
+    },
+    "middle": {
+      "file": "middle.m4a",
+      "text": "The middle crystal stands straight up, like a fat pencil. Then one line down its middle.",
+      "textHash": "ef83c1c5baf66d35172218a0c41968c1adfb9521346d1535bd53dd31766486ea",
+      "durationMs": 5680
+    },
+    "inner": {
+      "file": "inner.m4a",
+      "text": "The next two lean out a little on each side. Give each its line down the middle.",
+      "textHash": "d894de54551855cb2bcebcb6049f248c1c6592468663570712130a7d78ef4da1",
+      "durationMs": 5520
+    },
+    "outer": {
+      "file": "outer.m4a",
+      "text": "Two more lean out further, the shortest of all. That makes five crystals.",
+      "textHash": "775724697e4a6f76cb101979aa40f700cb59c24946922dc3da4216fe4e68b406",
+      "durationMs": 4640
+    },
+    "gray": {
+      "file": "gray.m4a",
+      "text": "Color the rock gray.",
+      "textHash": "e09eb85bc5f76a475dd71b6378ccf94e4dfadd7b2052f31b623a389f1d5a38b4",
+      "durationMs": 1760
+    },
+    "light": {
+      "file": "light.m4a",
+      "text": "The light catches the left side of every crystal. Color those blue.",
+      "textHash": "ff1ec6850cc2d9a2fbf6aa36fd0f3e99be1b3f070427c1835507f7fd0caf11a6",
+      "durationMs": 4240
+    },
+    "dark": {
+      "file": "dark.m4a",
+      "text": "The right sides are in shadow. Color them purple.",
+      "textHash": "94cff255c41327a37da74b33b00255e594650441c4df73e8508b776739dedb48",
+      "durationMs": 3440
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Five crystals, every one with a light side and a dark side. That's a trick you can use on anything you draw.",
+      "textHash": "3031e00f901aa04e0f88e496b47f7137ff94746d73eedd9e1c7f9b22d036416b",
+      "durationMs": 6960
+    }
+  }
+}

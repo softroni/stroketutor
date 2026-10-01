@@ -232,7 +232,7 @@
       "title": "Fantasy Objects",
       "description": "Treasures from a fantasy world: a potion, a jeweled crown and an hourglass, then a sword, a spellbook and a cauldron, ending with an open treasure chest.",
       "level": "advanced",
-      "lessonIds": ["cauldron"]
+      "lessonIds": ["cauldron", "crystal-cluster"]
     }
   ]
 }
