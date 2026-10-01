@@ -40,7 +40,7 @@ const texts = socialTexts(tutorial, { pathTitle: 'In the Air', number: 1, count:
 
 const request = (overrides: Partial<PostRequest> = {}): PostRequest => ({
   profile: 'softroni',
-  platforms: ['youtube', 'tiktok', 'instagram', 'facebook', 'pinterest', 'x'],
+  platforms: ['youtube', 'tiktok', 'instagram', 'facebook', 'threads', 'pinterest', 'x'],
   texts,
   settings: { pinterestBoard: 'board-1', facebookPage: null, aiLabel: 'tiktok', youtubeMadeForKids: false },
   private: false,
@@ -68,7 +68,7 @@ describe('the settings file', () => {
     expect(socialSettings({ UPLOAD_POST_API_KEY: 'k' })).toEqual({
       apiKey: 'k',
       profile: 'softroni',
-      platforms: ['youtube', 'tiktok', 'instagram', 'facebook', 'pinterest', 'x'],
+      platforms: ['youtube', 'tiktok', 'instagram', 'facebook', 'threads', 'pinterest', 'x'],
       pinterestBoard: null,
       facebookPage: null,
       aiLabel: 'tiktok',
@@ -94,6 +94,8 @@ describe('socialTexts', () => {
     expect(texts.facebookDescription).toContain(APP_STORE_URL)
     // Upload-Post strips links from X posts, and X charges more for them.
     expect(texts.x).not.toContain('http')
+    // A link in a Threads post can be tapped.
+    expect(texts.threads).toContain(APP_STORE_URL)
   })
 
   it('keeps every text within its platform’s limit, however long the title', () => {
@@ -102,13 +104,16 @@ describe('socialTexts', () => {
     expect([...long.pinterestTitle].length).toBeLessThanOrEqual(100)
     expect([...long.pinterestDescription].length).toBeLessThanOrEqual(500)
     expect([...long.x].length).toBeLessThanOrEqual(280)
+    expect([...long.threads].length).toBeLessThanOrEqual(500)
   })
 })
 
 describe('uploadFields', () => {
   it('sends each platform its own text, and Pinterest the App Store link', () => {
     const fields = fieldsOf(uploadFields(request()))
-    expect(fields['platform[]']).toEqual(['youtube', 'tiktok', 'instagram', 'facebook', 'pinterest', 'twitter'])
+    expect(fields['platform[]']).toEqual(['youtube', 'tiktok', 'instagram', 'facebook', 'threads', 'pinterest', 'twitter'])
+    expect(fields.threads_title).toEqual([texts.threads])
+    expect(fields.threads_topic_tag).toEqual(['Drawing'])
     expect(fields.youtube_title).toEqual([texts.youtubeTitle])
     expect(fields.privacyStatus).toEqual(['public'])
     expect(fields.selfDeclaredMadeForKids).toEqual(['false'])
@@ -188,6 +193,7 @@ describe('release news', () => {
     expect(news.youtubeDescription).toContain('ct=youtube-news')
     expect(news.pinterestLink).toContain('ct=pinterest-news')
     expect(news.x).not.toContain('http')
+    expect(news.threads).toContain('ct=threads-news')
   })
 })
 
@@ -275,6 +281,9 @@ describe('the record of posts', () => {
       linkedin: { success: false, url: null, postId: null, error: 'Expired' },
     })
     expect(normaliseResults([{ platform: 'tiktok', success: true, post_url: 'Video sent to Inbox (No Public URL)' }]).tiktok.url).toBeNull()
+    // TikTok's daily cap puts the video in the inbox, unpublished, though Upload-Post says it succeeded.
+    expect(normaliseResults([{ platform: 'tiktok', success: true, fallback_to_inbox: true, post_url: 'Video sent to Inbox (No Public URL)' }]).tiktok.inbox).toBe(true)
+    expect(normaliseResults([{ platform: 'tiktok', success: true, post_url: 'https://tiktok.com/@s/video/1' }]).tiktok.inbox).toBeUndefined()
   })
 
   it('links a private YouTube video by its id, as Upload-Post reported the first test post', () => {

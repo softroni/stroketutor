@@ -58,8 +58,7 @@ created it, which passes anything urgent to Kevin's phone.
 3. Act by *Who does what*: a rejection, a reported bug or a serious crash comes first.
 4. Reviews: reply to anything unanswered.
 5. A/B tests and Apple Ads: apply their rules; record every change in the log.
-   Social: read the last lines of `.studio/social/posts.jsonl`; a platform that failed goes in the log, and an
-   account Upload-Post says needs reconnecting goes under "Needs you".
+   Social: the morning steps under *Lesson videos on social*.
 6. Write `.studio/ops/notes.json` (headline, needsYou, working, PostHog numbers and the onboarding funnel,
    experiment results, ads notes, next run, dates coming up), then `today.py publish` and `today.py archive`.
 7. Finish with a summary of at most five lines: what changed, what Claude did, and what needs Kevin.
@@ -202,7 +201,7 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 Any session working on social starts there.
 
 One lesson video a day goes to Softroni's own accounts (YouTube Shorts, TikTok, Instagram and Facebook Reels,
-Pinterest, X), through [Upload-Post](https://app.upload-post.com), profile `softroni`. The Studio makes the
+Threads, Pinterest, X), through [Upload-Post](https://app.upload-post.com), profile `softroni`. The Studio makes the
 video and posts it (`studio social …`; the studio-cli skill, *Posting lesson videos*, has the details).
 
 - **Order:** lesson 1 of every path, then lesson 2 of every path, and so on (`social queue`), so the 30 free
@@ -224,6 +223,22 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
   profile, the Pinterest board and Facebook Page ids, the AI label (`tiktok` by default: Lina's voice is
   synthetic), and whether YouTube should mark the videos as made for kids (no by default; Kevin's call).
 - **The record** is `.studio/social/posts.jsonl`, one line per post and per status seen. It only grows.
+
+**Every morning (the daily check)**, in `web/`:
+
+1. `node cli/studio.mjs social status --refresh --limit 4`. A platform that failed with a real error (not "still
+   processing"): post once more to it alone, `social post <id> --platforms <platform> --no-pin`; if that fails
+   too, report it. TikTok "in the inbox, not published" (its daily cap) goes under "Needs you": Kevin publishes
+   the draft in the TikTok app. No post since yesterday's 17:00: read `.studio/logs/social.log` and say why. Don't post in the
+   morning to catch up: the next 17:00 run takes the same lesson.
+2. `node cli/studio.mjs social check`: an account not connected or needing reconnecting goes under "Needs you"
+   (TikTok until it is connected; its bio link once TikTok has verified the business).
+3. Mondays: `node cli/studio.mjs social stats --days 7`. Views per platform go in `notes.json`'s numbers
+   ("Social views, 7 days"). A subject well ahead of the rest moves its path's next lessons up in
+   `docs/ops/social-up-next.txt` (commit only that file, and only if `git status` shows nothing else).
+4. The day a version with news goes on sale (once it is tagged): `social announce` with its best new lesson
+   (social-plan.md, *Release news*). Its new lessons join the queue by themselves.
+5. Keep the social dates in "dates coming up" (social-plan.md, *Schedule*), and on those days do what it says.
 
 **Setting it up** (once): make the Upload-Post account and connect the Softroni accounts to one profile, put
 the key in the settings file, run `npm run studio -- social check` in `web/` and set the board and Page ids it

@@ -47,13 +47,31 @@ const fakeUploadPost = (async (url: string, init: RequestInit) => {
       success: true,
       profile: {
         username: 'softroni',
-        social_accounts: { youtube: { display_name: 'Softroni' }, tiktok: { username: 'softroni' }, instagram: { display_name: 'softroni' }, facebook: { display_name: 'Softroni' }, pinterest: { display_name: 'softroni' }, x: '' },
+        social_accounts: {
+          youtube: { display_name: 'Softroni' },
+          tiktok: { username: 'softroni' },
+          instagram: { display_name: 'softroni' },
+          facebook: { display_name: 'Softroni' },
+          threads: { username: 'softroniapps' },
+          pinterest: { display_name: 'softroni' },
+          x: '',
+        },
       },
     })
   }
   if (pathname === '/api/uploadposts/pinterest/boards') return json({ success: true, boards })
   if (pathname === '/api/uploadposts/facebook/pages') return json({ success: true, pages: [{ id: '42', name: 'Softroni' }] })
   if (pathname === '/api/uploadposts/status') return json(statusAnswers.shift() ?? { status: 'completed', results: [] })
+  if (pathname.startsWith('/api/uploadposts/post-analytics/')) {
+    return json({
+      success: true,
+      platforms: {
+        youtube: { success: true, post_url: 'https://youtube.com/shorts/abc', post_metrics: { views: 120, likes: 9, comments: 1 } },
+        twitter: { success: true, post_metrics: { impressions: 40, likes: 2 } },
+        tiktok: { success: true, post_metrics_error: 'The token may need to be refreshed.' },
+      },
+    })
+  }
   return json({ success: false, message: 'Not found' }, 404)
 }) as unknown as typeof globalThis.fetch
 
@@ -106,7 +124,7 @@ describe('social post', () => {
     ]
     const outcome = await t.studio(['social', 'post', 'simple-house', '--private', '--video', path.join(t.root, 'clip.mp4')])
     expect(outcome.code).toBe(0)
-    expect(outcome.stdout).toContain('A private post leaves out instagram, pinterest, x')
+    expect(outcome.stdout).toContain('A private post leaves out instagram, threads, pinterest, x')
     expect(outcome.stdout).toContain('https://youtube.com/shorts/abc')
     expect(outcome.stdout).toContain('No Page')
 
@@ -133,7 +151,7 @@ describe('social post', () => {
     expect(outcome.stdout).toContain('Made the Pinterest board “Easy Drawings: Houses”')
     expect(outcome.stdout).toContain('The step pin waits for the paid plan')
     const upload = calls.find((call) => call.route === '/api/upload')!
-    expect(upload.fields!['platform[]']).toEqual(['youtube', 'instagram', 'facebook', 'pinterest'])
+    expect(upload.fields!['platform[]']).toEqual(['youtube', 'instagram', 'facebook', 'threads', 'pinterest'])
     expect(upload.fields!.pinterest_board_id).toEqual(['made-board'])
     expect(upload.fields!.privacyStatus).toEqual(['public'])
     expect(calls.some((call) => call.route === '/api/upload_photos')).toBe(false)
@@ -313,6 +331,24 @@ describe('the daily rhythm', () => {
     // Nothing is narrated in the fixture, so it stops there, not at the once-a-day rule.
     expect(outcome.stderr).not.toContain('waits a day')
     expect(outcome.stderr).toContain('Every narrated lesson in the version on sale has been posted')
+  })
+})
+
+describe('social stats', () => {
+  it('adds up each platform’s views over the last days, leaving out tests and older posts', async () => {
+    await mkdir(path.join(t.root, '.studio', 'social'), { recursive: true })
+    const post = (requestId: string, daysAgo: number, isPrivate = false) =>
+      JSON.stringify({ kind: 'post', at: new Date(Date.now() - daysAgo * 86_400_000).toISOString(), lessonId: 'palm-tree-4', profile: 'softroni', platforms: ['youtube'], private: isPrivate, requestId, jobId: 'job', outcome: 'sent', media: 'video' })
+    await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), [post('recent', 2), post('test', 1, true), post('old', 20)].join('\n') + '\n')
+    const stats = await t.json<{ posts: number; totals: { platform: string; views: number }[]; rows: { platform: string; error: string | null }[] }>('social stats')
+    expect(stats.posts).toBe(1)
+    expect(stats.totals).toEqual([
+      { platform: 'youtube', posts: 1, views: 120, likes: 9, comments: 1 },
+      { platform: 'x', posts: 1, views: 40, likes: 2, comments: 0 },
+      { platform: 'tiktok', posts: 1, views: 0, likes: 0, comments: 0 },
+    ])
+    expect(stats.rows.find((row) => row.platform === 'tiktok')?.error).toContain('refreshed')
+    expect(calls.filter((call) => call.route.startsWith('/api/uploadposts/post-analytics/')).map((call) => call.route)).toEqual(['/api/uploadposts/post-analytics/recent'])
   })
 })
 

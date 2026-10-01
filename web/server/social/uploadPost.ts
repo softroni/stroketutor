@@ -55,6 +55,17 @@ export interface UploadPostClient {
   uploadPhotos(fields: [string, string][], imageFiles: string[], requestId: string): Promise<UploadAccepted>
   createPinterestBoard(profile: string, name: string, description: string): Promise<{ id: string; name: string }>
   status(id: { requestId?: string; jobId?: string }): Promise<UploadStatus>
+  /** How a post is doing on each platform it went to: views, likes and comments, as the platforms report them. */
+  postMetrics(requestId: string): Promise<Record<string, PostMetrics>>
+}
+
+export interface PostMetrics {
+  views: number | null
+  likes: number | null
+  comments: number | null
+  url: string | null
+  /** Why a platform's numbers are missing (a token to refresh, a post not found), when they are. */
+  error: string | null
 }
 
 export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch, base = UPLOAD_POST_API): UploadPostClient {
@@ -143,6 +154,23 @@ export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch
       const board = (body.board ?? body) as { id?: unknown; name?: unknown }
       if (board.id === undefined) throw new UploadPostError(500, `Upload-Post made the board “${name}” but didn’t say its id.`, body)
       return { id: String(board.id), name: String(board.name ?? name) }
+    },
+
+    async postMetrics(requestId) {
+      const body = await call('GET', `/api/uploadposts/post-analytics/${encodeURIComponent(requestId)}`)
+      const number = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : null)
+      const out: Record<string, PostMetrics> = {}
+      for (const [platform, value] of Object.entries((body.platforms ?? {}) as Record<string, Record<string, unknown>>)) {
+        const metrics = (value.post_metrics ?? {}) as Record<string, unknown>
+        out[platform === 'twitter' ? 'x' : platform] = {
+          views: number(metrics.views) ?? number(metrics.impressions) ?? number(metrics.plays),
+          likes: number(metrics.likes),
+          comments: number(metrics.comments),
+          url: text(value.post_url) && /^https?:/.test(String(value.post_url)) ? String(value.post_url) : null,
+          error: text(value.post_metrics_error),
+        }
+      }
+      return out
     },
 
     async status({ requestId, jobId }) {

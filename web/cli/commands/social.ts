@@ -475,6 +475,7 @@ function resultLines(results: Record<string, PlatformResult>, platforms: string[
     platforms.map((platform) => {
       const result = results[platform]
       if (!result) return [platform, '…', 'still processing']
+      if (result.inbox) return [platform, '!', 'in TikTok’s inbox, not published: publish it in the TikTok app']
       return [platform, result.success ? '✓' : '✗', result.success ? (result.url ?? 'published') : (result.error ?? 'failed')]
     }),
   )
@@ -508,19 +509,16 @@ function describePost(outcome: PostOutcome): string[] {
   return [head, ...(outcome.scheduledAt ? [] : resultLines(outcome.results, outcome.platforms)), ...pin, ...usage]
 }
 
-/** One sentence for the Today page's log. */
+/** One sentence for the Today page's log, under its 120 characters: what went out, where, and what failed. */
 function logLine(outcome: PostOutcome): string {
   const done = Object.entries(outcome.results).filter(([, result]) => result.success).map(([platform]) => platform)
-  const failed = Object.entries(outcome.results).filter(([, result]) => !result.success).map(([platform, result]) => `${platform} (${result.error ?? 'failed'})`)
-  const pin = outcome.pin?.scheduledAt ? '; step pin to follow on Pinterest' : ''
-  if (outcome.scheduledAt) return `Social: scheduled ${whatWent(outcome)} for ${outcome.scheduledAt} on ${outcome.platforms.join(', ')}${pin}.`
-  return (
-    `Social: posted ${whatWent(outcome)}${done.length ? ` to ${done.join(', ')}` : ''}` +
-    (failed.length ? `; failed on ${failed.join(', ')}` : '') +
-    (outcome.status !== 'completed' && !failed.length ? ` (${outcome.status})` : '') +
-    pin +
-    '.'
-  )
+  const failed = Object.entries(outcome.results).filter(([, result]) => !result.success).map(([platform]) => platform)
+  const what = outcome.purpose === 'announce' ? `News (“${outcome.title}”)` : `“${outcome.title}”${outcome.speed ? ' speed draw' : ''}`
+  if (outcome.scheduledAt) return `Social: ${what} scheduled for ${outcome.scheduledAt.slice(0, 16).replace('T', ' ')}.`
+  const where = done.length ? ` on ${done.join(', ')}` : ''
+  const problems = failed.length ? `; failed on ${failed.join(', ')}` : outcome.status !== 'completed' ? ` (${outcome.status})` : ''
+  const line = `Social: ${what} posted${where}${problems}.`
+  return line.length <= 120 ? line : `Social: ${what} posted on ${done.length} platforms${failed.length ? `, failed on ${failed.length}` : ''}.`
 }
 
 async function logToToday(ctx: Context, text: string): Promise<void> {
@@ -681,6 +679,42 @@ export const socialCommands: Command[] = [
       const outcome = await postLesson(ctx, lessonId, args.values, undefined, { news: newsText, headline, intro: stringValue(args.values, 'intro') ?? null })
       if (args.values.log === true && !outcome.dryRun) await logToToday(ctx, logLine(outcome))
       ctx.out.result(outcome, describePost)
+    },
+  ),
+
+  command(
+    'social stats',
+    'How the posts of the last days are doing: views, likes and comments on each platform, as Upload-Post reads them from the platforms. What the weekly review reads.',
+    [],
+    { days: { type: 'string', description: 'Posts from this many days back (default 7).', placeholder: 'n' } },
+    async (ctx, args) => {
+      const days = stringValue(args.values, 'days') ? parseNumber(stringValue(args.values, 'days'), '--days') : 7
+      const since = Date.now() - days * 86_400_000
+      const posts = postStates(await readRecords(ctx)).filter(({ post }) => !post.private && Date.parse(post.at) >= since)
+      const client = clientOf(ctx, await loadSettings(ctx))
+      const rows: { lessonId: string; at: string; media: string; platform: string; views: number | null; likes: number | null; comments: number | null; url: string | null; error: string | null }[] = []
+      for (const { post } of posts) {
+        const metrics = await client.postMetrics(post.requestId).catch((error: unknown) => ({ _: { views: null, likes: null, comments: null, url: null, error: String(error) } }))
+        for (const [platform, numbers] of Object.entries(metrics)) {
+          rows.push({ lessonId: post.lessonId, at: post.at, media: post.media ?? 'video', platform, ...numbers })
+        }
+      }
+      const byPlatform = new Map<string, { posts: number; views: number; likes: number; comments: number }>()
+      for (const row of rows) {
+        const total = byPlatform.get(row.platform) ?? { posts: 0, views: 0, likes: 0, comments: 0 }
+        byPlatform.set(row.platform, { posts: total.posts + 1, views: total.views + (row.views ?? 0), likes: total.likes + (row.likes ?? 0), comments: total.comments + (row.comments ?? 0) })
+      }
+      const totals = [...byPlatform].map(([platform, total]) => ({ platform, ...total }))
+      const show = (value: number | null) => (value === null ? '–' : String(value))
+      ctx.out.result({ days, posts: posts.length, totals, rows }, () => [
+        `The last ${plural(days, 'day')}: ${plural(posts.length, 'post')}.`,
+        ...table(totals.map((total) => [total.platform, String(total.posts), String(total.views), String(total.likes), String(total.comments)]), ['platform', 'posts', 'views', 'likes', 'comments']),
+        '',
+        ...table(
+          rows.map((row) => [row.lessonId, row.media, row.platform, show(row.views), show(row.likes), show(row.comments), row.error ?? '']),
+          ['lesson', 'what', 'platform', 'views', 'likes', 'comments', 'note'],
+        ),
+      ])
     },
   ),
 

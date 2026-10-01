@@ -20,7 +20,7 @@ export function appStoreLink(campaign: string, providerToken: string | null): st
   return `https://apps.apple.com/app/apple-store/id6816231257?pt=${encodeURIComponent(providerToken)}&ct=${encodeURIComponent(campaign)}&mt=8`
 }
 
-export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook', 'pinterest', 'x'] as const
+export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook', 'threads', 'pinterest', 'x'] as const
 export type Platform = (typeof PLATFORMS)[number]
 
 /** What Upload-Post calls each platform in `platform[]` and in its results. */
@@ -29,6 +29,7 @@ export const API_PLATFORM: Record<Platform, string> = {
   tiktok: 'tiktok',
   instagram: 'instagram',
   facebook: 'facebook',
+  threads: 'threads',
   pinterest: 'pinterest',
   x: 'twitter',
 }
@@ -124,6 +125,8 @@ export interface SocialTexts {
   pinterestLink: string
   /** At most 280 characters. Upload-Post strips links from X posts, so there is none. */
   x: string
+  /** At most 500 characters, Threads' limit; a link in a Threads post can be tapped. */
+  threads: string
 }
 
 export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], providerToken: string | null = null): SocialTexts {
@@ -153,6 +156,11 @@ export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], prov
       [`${opening} ✏️`, '', `${APP_LINE} Free on the App Store.`, '', '#howtodraw #drawingtutorial'].join('\n'),
       280,
       `${opening} ✏️\n\nFree on the App Store: Paper Coach.`,
+    ),
+    threads: fit(
+      [`${opening} ✏️`, '', APP_LINE, `Free on the App Store: ${appStoreLink('threads', providerToken)}`].join('\n'),
+      500,
+      `${opening}\n\nFree on the App Store: ${appStoreLink('threads', providerToken)}`,
     ),
   }
 }
@@ -235,6 +243,7 @@ export function announcementTexts(news: string, headline: string, providerToken:
     pinterestDescription: fit([news, '', `${APP_LINE} Free on the App Store.`, '', tags].join('\n'), 500, news),
     pinterestLink: appStoreLink('pinterest-news', providerToken),
     x: fit([news, '', 'Paper Coach, free on the App Store.'].join('\n'), 280, news),
+    threads: fit([news, '', `Free on the App Store: ${appStoreLink('threads-news', providerToken)}`].join('\n'), 500, news),
   }
 }
 
@@ -312,6 +321,10 @@ export function uploadFields(request: PostRequest): [string, string][] {
     )
     if (settings.pinterestBoard) fields.push(['pinterest_board_id', settings.pinterestBoard])
   }
+  if (has('threads')) {
+    // One topic tag a post, which Threads uses to reach people beyond the followers.
+    fields.push(['threads_title', texts.threads], ['threads_topic_tag', 'Drawing'], ['threads_alt_text', request.altText])
+  }
   if (has('x')) fields.push(['x_title', texts.x])
   return fields
 }
@@ -374,6 +387,8 @@ export function withUpNext(order: QueueEntry[], upNext: string[]): QueueEntry[] 
 
 export interface PlatformResult {
   success: boolean
+  /** TikTok hit its daily cap and put the video in the account's inbox: it is a draft until published in the app. */
+  inbox?: boolean
   url?: string | null
   /** The platform's own id for the post, which a private video has instead of a link. */
   postId?: string | null
@@ -473,6 +488,7 @@ export function normaliseResults(results: unknown): Record<string, PlatformResul
       (name === 'youtube' && postId ? `https://youtube.com/shorts/${postId}` : null)
     const error = text(value.error) ?? text(value.error_message) ?? (value.success === false ? text(value.message) : null)
     out[name] = { success: value.success === true, url, postId, error }
+    if (value.fallback_to_inbox === true || /sent to inbox/i.test(String(value.post_url ?? ''))) out[name].inbox = true
   }
   if (Array.isArray(results)) {
     for (const entry of results) {

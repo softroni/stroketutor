@@ -582,7 +582,7 @@ Usage: studio social post <id>
 Render a lesson’s video and post it to Softroni’s accounts through Upload-Post, with a caption, title and link made for each platform.
 
 Options:
-      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, pinterest, x).
+      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
       --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
       --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
       --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
@@ -598,7 +598,7 @@ Usage: studio social next
 Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 20 hours unless --again.
 
 Options:
-      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, pinterest, x).
+      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
       --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
       --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
       --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
@@ -613,7 +613,7 @@ Usage: studio social announce
 Release news to every platform: the speed draw of a lesson from the release, with words saying what’s new. Only once the version with it is on sale.
 
 Options:
-      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, pinterest, x).
+      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
       --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
       --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
       --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
@@ -625,6 +625,13 @@ Options:
       --headline <words>  A short title for YouTube and Pinterest (“New: draw your town”).
       --intro <words>     Lina’s opening line over the speed draw (default “Watch a … come together, one line at a time.”).
       --video <file.mp4>  Post this file instead of rendering the speed draw now.
+
+Usage: studio social stats
+
+How the posts of the last days are doing: views, likes and comments on each platform, as Upload-Post reads them from the platforms. What the weekly review reads.
+
+Options:
+      --days <n>  Posts from this many days back (default 7).
 
 Usage: studio social status
 

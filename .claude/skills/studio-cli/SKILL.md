@@ -183,7 +183,7 @@ committed for you.
 
 **Trash** (`trash …`): `list`, `restore <id>`, `purge <id>`, `empty`.
 
-**Social** (`social …`): `check`, `queue`, `post <id>`, `next`, `announce`, `pin <id>`, `status`. Lesson videos,
+**Social** (`social …`): `check`, `queue`, `post <id>`, `next`, `announce`, `pin <id>`, `status`, `stats`. Lesson videos,
 step pins and release news posted to Softroni's accounts through Upload-Post; see *Posting lesson videos*.
 
 **SVG** (`svg …`) and **image**
@@ -443,7 +443,7 @@ Instagram Reels, with the same code as the lesson page's **Video** tab (`web/ser
 ## Posting lesson videos
 
 `social …` posts lesson videos to Softroni's accounts (YouTube Shorts, TikTok, Instagram and Facebook
-Reels, Pinterest, X) through Upload-Post, one request for every platform (`web/server/social/`,
+Reels, Threads, Pinterest, X) through Upload-Post, one request for every platform (`web/server/social/`,
 `web/cli/commands/social.ts`). docs/ops/README.md, *Lesson videos on social*, is how they are run.
 
 - **Settings** are in `~/.config/upload-post/config` (`UPLOAD_POST_CONFIG` elsewhere), shell-sourceable
@@ -486,6 +486,8 @@ Reels, Pinterest, X) through Upload-Post, one request for every platform (`web/s
 - **Release news** (`social announce --lesson <id> --news "…" --headline "…"`): a lesson's speed draw with
   words saying what's new, to every platform. Only when the version with the news is on sale, and at
   most two or three a month (docs/ops/social-plan.md, *Release news*).
+- `social stats [--days 7]`: views, likes and comments of each recent post on each platform, as Upload-Post
+  reads them from the platforms, with totals per platform. The Monday numbers on Today come from it.
 - What counts as posted: only a lesson's whole video. A speed draw, a step pin or news leaves the lesson
   in the queue, and doesn't hold back the next day's lesson.
 - `.studio/social/posts.jsonl` (outside git) is the record: one line per post and per status seen, with
