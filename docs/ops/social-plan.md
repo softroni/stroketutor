@@ -169,12 +169,14 @@ Waiting on Kevin:
   | Profile | Short link | Campaign |
   |---|---|---|
   | TikTok | softroni.com/draw (`draw.html`) | `tiktok-bio` |
+  | Threads | softroni.com/t/draw | `threads-bio` |
   | X | softroni.com/x/draw | `x-bio` |
-  | Threads | softroni.com/threads/draw | `threads-bio` |
-  | Instagram | softroni.com/instagram/draw | `instagram-bio` |
-  | Facebook | softroni.com/facebook/draw | `facebook-page` |
-  | YouTube | softroni.com/youtube/draw | `youtube-channel` |
-  | Pinterest | softroni.com/pinterest/draw | `pinterest-profile` |
+  | Instagram | softroni.com/i/draw | `instagram-bio` |
+  | Facebook | softroni.com/f/draw | `facebook-page` |
+  | YouTube | softroni.com/y/draw | `youtube-channel` |
+  | Pinterest | softroni.com/p/draw | `pinterest-profile` |
+
+  One letter a platform (Kevin's idea); the page is `<letter>/draw.html`.
 
   Never point a profile at another platform's link, and keep each page's campaign if its target ever changes.
 - [ ] YouTube "made for kids" and the AI label: defaults stand (no; TikTok only) unless Kevin says otherwise.
