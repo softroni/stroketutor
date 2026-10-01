@@ -49,7 +49,8 @@ The tasks run on this Mac (`m4-1`, which never sleeps) while the Claude app is o
 due while it was closed happens on the next launch. Each run decides and acts on its own, by its prompt,
 and sends anything that needs Kevin to his phone itself. When the daily check or the heartbeat finishes,
 it also wakes the pinned session **Paper Coach Monitor**, which created them and reads the run. The
-social check, made in Routines, wakes no session: the next midnight check reports its result.
+social check wakes the pinned session **Paper Coach Social Monitor** (social-plan.md, *Picking this up*),
+and the next midnight check reports its result too.
 
 **The daily check:**
 
