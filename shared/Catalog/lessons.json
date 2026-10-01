@@ -1012,6 +1012,16 @@
       }
     },
     {
+      "id": "sword",
+      "status": "approved",
+      "objective": "Diagonal sword with a fuller, a curled crossguard, a wrapped grip and two jewels",
+      "reference": {
+        "file": "sword.svg",
+        "source": "Codex image tool with the creator's Paper Coach - Advanced plugin (= system prompt style-v5-advanced), prompt docs/curriculum/fantasy-objects-prompts.md, generated 2026-10-01, second of two candidates, white margin added; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
+    },
+    {
       "id": "crystal-cluster",
       "status": "approved",
       "objective": "Five crystals on a rock, each with a light facet and a dark facet",

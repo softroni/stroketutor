@@ -1,0 +1,94 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "sword",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:28:09.112Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "In the old stories, a knight never left home without one. This sword has a long blade, curled arms and two jewels. Watch the blade come together, then forge one of your own.",
+      "textHash": "acec3007be61c226a0dd3cbc1076a61078ed2eb8ebc588468ba54acd00b55ec8",
+      "durationMs": 10880
+    },
+    "boss": {
+      "file": "boss.m4a",
+      "text": "Start in the middle with a round boss, where the blade meets the grip.",
+      "textHash": "b5bb4b08a24e4bc96aad436568d84162958924798783c024d19732b2c9cc181a",
+      "durationMs": 4240
+    },
+    "blade": {
+      "file": "blade.m4a",
+      "text": "The blade is long and straight. Draw both edges from the boss up to a sharp point.",
+      "textHash": "445a2be9442ee8bd4d79a557211a3d9a9add4563e2c6a6de6bd797c90e9e3783",
+      "durationMs": 5760
+    },
+    "groove": {
+      "file": "groove.m4a",
+      "text": "Now a groove down the middle of the blade, one line that stops short of both ends.",
+      "textHash": "83a976f52389e53d17a76e63e8123843d3bd168ffb3171e1fb789fee5f1c26ee",
+      "durationMs": 5440
+    },
+    "arms": {
+      "file": "arms.m4a",
+      "text": "Two arms curl out of the boss like ram's horns, one on each side.",
+      "textHash": "e1f6b1beb269673b3c36212fcec6bbac8921a8c128434f18b17c5f7adde11bae",
+      "durationMs": 4560
+    },
+    "grip": {
+      "file": "grip.m4a",
+      "text": "The grip runs down from the boss. Draw its two straight edges side by side.",
+      "textHash": "0238a46b81f3a72a6cd0db9502d439b1f3daf0eb2d36a7931160aa275844cd9c",
+      "durationMs": 4880
+    },
+    "knob": {
+      "file": "knob.m4a",
+      "text": "A big round knob caps the end of the grip.",
+      "textHash": "19794a4921f63489888b67838df32518dc7e311adc4d810dad388d31cb37d7fd",
+      "durationMs": 3040
+    },
+    "wraps": {
+      "file": "wraps.m4a",
+      "text": "Four slanted lines wrap the grip, making five bands.",
+      "textHash": "40bc01047b66423fabb9c6e08d3da4855ea7d2b22996522727a9eef9e6bbc651",
+      "durationMs": 4160
+    },
+    "jewels": {
+      "file": "jewels.m4a",
+      "text": "Set a round jewel in the boss, and another in the knob.",
+      "textHash": "e01b650da68810f7aa7d2e7123cba72bf7f3391b37426ae557594599bf12075e",
+      "durationMs": 3840
+    },
+    "gray": {
+      "file": "gray.m4a",
+      "text": "Color the blade gray.",
+      "textHash": "813b66e095f51d0dac4c946cccc0b629ba3aae0004fffce2efb672f5855c2d04",
+      "durationMs": 1840
+    },
+    "gold": {
+      "file": "gold.m4a",
+      "text": "Gold for the boss, both arms and the knob.",
+      "textHash": "a715ceb25f091f19a5dacb1a4172b664bc317bbacdd29fd6bd98b37466f40d42",
+      "durationMs": 3200
+    },
+    "grip-color": {
+      "file": "grip-color.m4a",
+      "text": "The grip bands are brown and orange, taking turns.",
+      "textHash": "5782d8cfdd3430bc65cc6ec0ebaa3f0101dc3ec0cb424373554a0ae4e83ce654",
+      "durationMs": 3440
+    },
+    "jewel-color": {
+      "file": "jewel-color.m4a",
+      "text": "The jewel in the boss is red, the one in the knob blue.",
+      "textHash": "baab1269db445d1bd1ea37e3ad28ce1c36b4a0ddff3539a0d3e819214bab6107",
+      "durationMs": 4080
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "One sword, sharp and shining. What would you name it?",
+      "textHash": "7caaa947a7d9e07193d44e321e72b477189ac852373d1e2ae6082c3574e29d5c",
+      "durationMs": 4160
+    }
+  }
+}
