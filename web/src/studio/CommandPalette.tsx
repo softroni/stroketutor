@@ -2,12 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { readyCount } from '../catalog/publishing'
 
+import { DOC_TOOLS } from './docs'
 import type { Library } from './library'
 import { routeHref } from './route'
 
 interface Command {
   id: string
-  kind: 'Page' | 'Path' | 'Lesson'
+  kind: 'Page' | 'Path' | 'Lesson' | 'Docs'
   label: string
   detail?: string
   href: string
@@ -75,7 +76,22 @@ export function CommandPalette({ library, onClose }: { library: Library; onClose
         href: routeHref({ name: 'social' }),
       },
       { id: 'page:settings', kind: 'Page', label: 'Settings', href: routeHref({ name: 'settings' }) },
+      {
+        id: 'page:docs',
+        kind: 'Page',
+        label: 'Docs',
+        detail: 'every command and MCP tool',
+        href: routeHref({ name: 'docs', section: null }),
+      },
     ]
+    // Each tool on the Docs page, so "superwall" or "posthog" jumps straight to its commands.
+    const docs: Command[] = DOC_TOOLS.map((tool) => ({
+      id: `docs:${tool.id}`,
+      kind: 'Docs',
+      label: tool.name,
+      detail: tool.about.replace(/`/g, ''),
+      href: routeHref({ name: 'docs', section: tool.id }),
+    }))
     const paths: Command[] = (catalog?.paths ?? []).map((path) => ({
       id: `path:${path.id}`,
       kind: 'Path',
@@ -105,7 +121,7 @@ export function CommandPalette({ library, onClose }: { library: Library; onClose
           ]
         : [],
     )
-    return [...lessons, ...planned, ...paths, ...pages]
+    return [...lessons, ...planned, ...paths, ...pages, ...docs]
   }, [library])
 
   const needle = query.trim().toLowerCase()

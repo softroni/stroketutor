@@ -33,6 +33,8 @@ describe('parseRoute', () => {
     expect(parseRoute('#/today/2026-09-27')).toEqual({ name: 'today', day: '2026-09-27' })
     expect(parseRoute('#/today/yesterday')).toEqual({ name: 'today', day: null })
     expect(parseRoute('#/social')).toEqual({ name: 'social' })
+    expect(parseRoute('#/docs')).toEqual({ name: 'docs', section: null })
+    expect(parseRoute('#/docs/studio-cli')).toEqual({ name: 'docs', section: 'studio-cli' })
   })
 
   it('reads the planned lesson New lesson is opened to fill', () => {
@@ -65,6 +67,8 @@ describe('parseRoute', () => {
       { name: 'today', day: null },
       { name: 'today', day: '2026-09-27' },
       { name: 'social' },
+      { name: 'docs', section: null },
+      { name: 'docs', section: 'posthog' },
     ]
     for (const route of routes) expect(parseRoute(routeHref(route))).toEqual(route)
   })

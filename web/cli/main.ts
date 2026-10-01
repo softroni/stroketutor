@@ -3,7 +3,7 @@ import { WriteRefused } from '../server/repoWriter'
 import { EditError } from '../src/studio/editor/ops'
 import { CatalogEditError } from '../src/studio/pathOps'
 
-import { GLOBAL_OPTIONS, UsageError, parseCommandArgs, usageOf, type GlobalFlags, type OptionSpecs } from './args'
+import { GLOBAL_OPTIONS, UsageError, flagOf, parseCommandArgs, usageOf, type GlobalFlags, type OptionSpecs } from './args'
 import type { Command } from './command'
 import { curriculumPlanCommands } from './commands/curriculum'
 import { curriculumCommands, levelCommands } from './commands/paths'
@@ -162,8 +162,7 @@ function overview(): string {
   }
   lines.push('', 'Global options:')
   for (const [name, spec] of Object.entries(GLOBAL_OPTIONS as OptionSpecs)) {
-    const flag = `--${name}${spec.type === 'string' ? ` <${spec.placeholder ?? name}>` : ''}`
-    lines.push(`  ${(spec.short ? `-${spec.short}, ` : '    ') + flag.padEnd(22)}  ${spec.description}`)
+    lines.push(`  ${(spec.short ? `-${spec.short}, ` : '    ') + flagOf(name, spec).padEnd(22)}  ${spec.description}`)
   }
   return lines.filter((line, index, all) => !(line === '' && all[index - 1] === '')).join('\n')
 }

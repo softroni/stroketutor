@@ -126,12 +126,21 @@ function friendly(error: unknown): string {
   return message.replace(/^.*?: /, '').replace(/\. To specify a positional.*$/s, '.')
 }
 
+/** The positionals as written: `<id>` required, `[title]` optional, `<lessonId...>` the rest. */
+export function shapeOf(positionals: Positional[]): string[] {
+  return positionals.map((p) => (p.required ? `<${p.name}${p.rest ? '...' : ''}>` : `[${p.name}${p.rest ? '...' : ''}]`))
+}
+
+/** `--name <value>` for an option that takes a value, `--name` for a flag. */
+export function flagOf(name: string, spec: OptionSpec): string {
+  return `--${name}${spec.type === 'string' ? ` <${spec.placeholder ?? name}>` : ''}`
+}
+
 /** The usage line for `--help`: positionals as written, then each option. */
 export function usageOf(name: string, positionals: Positional[], options: OptionSpecs, summary: string): string {
-  const shape = positionals.map((p) => (p.required ? `<${p.name}${p.rest ? '...' : ''}>` : `[${p.name}${p.rest ? '...' : ''}]`))
-  const lines = [`Usage: studio ${[name, ...shape].join(' ')}`, '', summary]
+  const lines = [`Usage: studio ${[name, ...shapeOf(positionals)].join(' ')}`, '', summary]
   const rows = Object.entries(options).map(([option, spec]) => {
-    const flag = `--${option}${spec.type === 'string' ? ` <${spec.placeholder ?? option}>` : ''}`
+    const flag = flagOf(option, spec)
     return [spec.short ? `-${spec.short}, ${flag}` : `    ${flag}`, spec.description]
   })
   if (rows.length > 0) {

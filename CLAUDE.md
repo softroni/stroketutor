@@ -22,6 +22,13 @@ follows it. In short:
 **Planning or building features?** Read [docs/next-builds.md](docs/next-builds.md) first: the ranked list of what to
 build next for revenue, with specs, and the numbers behind the order.
 
+## Commands and tools
+
+The Studio's **Docs** page (`#/docs`) is where the creator looks up every command line, script, MCP server and skill
+this repo uses, and how to run each. Its words are in `web/src/studio/docs.ts`: **a change that adds, removes or
+alters a command, a script or an MCP tool the repo relies on updates its row in the same work.** The Studio command
+line's own list is generated and checked by `web/cli/reference.test.ts` (`npx vitest run cli/reference -u` in `web/`).
+
 ## App Store screenshots
 
 A standing instruction from the creator, for every session: keep the App Store screenshots in step with the app, and

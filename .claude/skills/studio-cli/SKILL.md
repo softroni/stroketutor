@@ -525,3 +525,7 @@ cd web && node cli/studio.mjs 2>&1 | grep '^  [a-z]' | sed 's/^  //; s/  .*//' |
   node cli/studio.mjs $c --help | grep -v -- '--workspace\|--shared\|--json\|-y, --yes\|-q, --quiet\|--model <id>\|-h, --help'; echo
 done
 ```
+
+The Studio's Docs page (`#/docs`) lists the commands from `web/src/studio/studioCli.json`. A new command,
+or a changed summary or option, fails `cli/reference.test.ts` until it is written again:
+`cd web && npx vitest run cli/reference -u`. Commit it with the change.

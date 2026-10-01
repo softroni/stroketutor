@@ -1,0 +1,1795 @@
+{
+  "global": [
+    {
+      "flag": "--workspace <file>",
+      "description": "The workspace SQLite file (default: STUDIO_WORKSPACE or ../.studio/workspace.sqlite)."
+    },
+    {
+      "flag": "--shared <dir>",
+      "description": "The shared/ directory (default: ../shared)."
+    },
+    {
+      "flag": "--json",
+      "description": "Print the result as JSON, for scripts."
+    },
+    {
+      "flag": "-y, --yes",
+      "description": "Skip confirmations of destructive changes."
+    },
+    {
+      "flag": "-q, --quiet",
+      "description": "Print only results and errors."
+    },
+    {
+      "flag": "--model <id>",
+      "description": "The OpenRouter model to generate with (default: OPENROUTER_MODEL)."
+    },
+    {
+      "flag": "-h, --help",
+      "description": "Show this help."
+    }
+  ],
+  "commands": [
+    {
+      "name": "status",
+      "usage": "status",
+      "summary": "The working library: paths, lessons, what publishing would change.",
+      "options": []
+    },
+    {
+      "name": "settings",
+      "usage": "settings",
+      "summary": "Where the command line reads and writes, and whether generation is possible.",
+      "options": []
+    },
+    {
+      "name": "models",
+      "usage": "models",
+      "summary": "The OpenRouter models that take images and honour structured output.",
+      "options": []
+    },
+    {
+      "name": "adopt-shared",
+      "usage": "adopt-shared",
+      "summary": "Take shared/Catalog as it now is, after a git pull or a hand edit.",
+      "options": []
+    },
+    {
+      "name": "levels list",
+      "usage": "levels list",
+      "summary": "Every level, easiest first, with how many paths it groups.",
+      "options": []
+    },
+    {
+      "name": "levels create",
+      "usage": "levels create [id]",
+      "summary": "A new level at the end. The id is fixed once created.",
+      "options": [
+        {
+          "flag": "--title <title>",
+          "description": "A name, not a number: \"Starter\", not \"Level 1\"."
+        },
+        {
+          "flag": "--description <description>",
+          "description": "One line on what the paths of this level teach."
+        }
+      ]
+    },
+    {
+      "name": "levels rename",
+      "usage": "levels rename <id> <title>",
+      "summary": "A new title for a level.",
+      "options": []
+    },
+    {
+      "name": "levels describe",
+      "usage": "levels describe <id> <description>",
+      "summary": "A new description for a level; an empty text removes it.",
+      "options": []
+    },
+    {
+      "name": "levels move",
+      "usage": "levels move <id>",
+      "summary": "Change where a level comes in the curriculum.",
+      "options": [
+        {
+          "flag": "--to <n>",
+          "description": "Its new place, counting from 1."
+        },
+        {
+          "flag": "--up",
+          "description": "One place earlier."
+        },
+        {
+          "flag": "--down",
+          "description": "One place later."
+        }
+      ]
+    },
+    {
+      "name": "levels delete",
+      "usage": "levels delete <id>",
+      "summary": "Remove a level. Only one with no path under it can go.",
+      "options": []
+    },
+    {
+      "name": "paths list",
+      "usage": "paths list",
+      "summary": "Every path in the working curriculum, in order.",
+      "options": []
+    },
+    {
+      "name": "paths show",
+      "usage": "paths show <id>",
+      "summary": "One path and its lessons in unlock order.",
+      "options": []
+    },
+    {
+      "name": "paths create",
+      "usage": "paths create [id]",
+      "summary": "A new path at the end of the curriculum. The id is fixed once created.",
+      "options": [
+        {
+          "flag": "--title <title>",
+          "description": "The title learners see."
+        },
+        {
+          "flag": "--description <description>",
+          "description": "What the path teaches, in a sentence or two."
+        },
+        {
+          "flag": "--level <id>",
+          "description": "The level to group the path under."
+        },
+        {
+          "flag": "--color <name>",
+          "description": "Its color in the app and its videos (default: one no other path wears): sky, peach, pink, butter, leaf, lavender, aqua, indigo, orchid, sand."
+        }
+      ]
+    },
+    {
+      "name": "paths level",
+      "usage": "paths level <id> [levelId]",
+      "summary": "Group a path under a level, or take it out of every level.",
+      "options": [
+        {
+          "flag": "--none",
+          "description": "List the path after the levels instead of under one."
+        }
+      ]
+    },
+    {
+      "name": "paths rename",
+      "usage": "paths rename <id> <title>",
+      "summary": "A new title for a path.",
+      "options": []
+    },
+    {
+      "name": "paths describe",
+      "usage": "paths describe <id> <description>",
+      "summary": "A new description for a path; an empty text removes it.",
+      "options": []
+    },
+    {
+      "name": "paths color",
+      "usage": "paths color <id> <color>",
+      "summary": "The path's color: its cards and screens in the app, and the backdrop of its lesson videos. One of sky, peach, pink, butter, leaf, lavender, aqua, indigo, orchid, sand.",
+      "options": []
+    },
+    {
+      "name": "paths move",
+      "usage": "paths move <id>",
+      "summary": "Change where a path comes in the curriculum.",
+      "options": [
+        {
+          "flag": "--to <n>",
+          "description": "Its new place, counting from 1."
+        },
+        {
+          "flag": "--up",
+          "description": "One place earlier."
+        },
+        {
+          "flag": "--down",
+          "description": "One place later."
+        }
+      ]
+    },
+    {
+      "name": "paths reorder",
+      "usage": "paths reorder <id> <lessonId>",
+      "summary": "Change where a lesson comes in its path.",
+      "options": [
+        {
+          "flag": "--to <n>",
+          "description": "Its new place in the path, counting from 1."
+        },
+        {
+          "flag": "--earlier",
+          "description": "One place earlier."
+        },
+        {
+          "flag": "--later",
+          "description": "One place later."
+        }
+      ]
+    },
+    {
+      "name": "paths add",
+      "usage": "paths add <id> <lessonId...>",
+      "summary": "Put catalogued lessons at the end of a path, taking each out of the path it was in.",
+      "options": []
+    },
+    {
+      "name": "paths delete",
+      "usage": "paths delete <id>",
+      "summary": "Move a path to the trash. Its lessons stay, in no path, unless --lessons trash.",
+      "options": [
+        {
+          "flag": "--lessons <unfile|trash>",
+          "description": "`unfile` (the default) keeps the lessons outside every path; `trash` deletes them too."
+        }
+      ]
+    },
+    {
+      "name": "curriculum apply",
+      "usage": "curriculum apply <file>",
+      "summary": "Lay a curriculum plan over the working curriculum: levels, paths, and planned lessons in order.",
+      "options": [
+        {
+          "flag": "--dry-run",
+          "description": "Say what applying would change, and stop."
+        }
+      ]
+    },
+    {
+      "name": "lessons list",
+      "usage": "lessons list",
+      "summary": "Every lesson in the working library, with its status and where it sits.",
+      "options": [
+        {
+          "flag": "--path <id>",
+          "description": "Only the lessons of this path, in unlock order."
+        },
+        {
+          "flag": "--unfiled",
+          "description": "Only lessons in no path."
+        },
+        {
+          "flag": "--status <status>",
+          "description": "Only planned, draft, needs-review or approved."
+        },
+        {
+          "flag": "--state <state>",
+          "description": "Only planned, workspace, published or published-edited."
+        }
+      ]
+    },
+    {
+      "name": "lessons show",
+      "usage": "lessons show <id>",
+      "summary": "One lesson: its details, its steps and its quality warnings.",
+      "options": []
+    },
+    {
+      "name": "lessons export",
+      "usage": "lessons export <id>",
+      "summary": "The lesson’s tutorial JSON, as stored.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Write to this file instead of stdout."
+        }
+      ]
+    },
+    {
+      "name": "lessons import",
+      "usage": "lessons import <file>",
+      "summary": "A tutorial JSON file becomes a workspace draft (Import & test’s \"Save as workspace draft\").",
+      "options": [
+        {
+          "flag": "--id <id>",
+          "description": "The lesson id; also its file name once published. Defaults to the document’s id."
+        },
+        {
+          "flag": "--title <title>",
+          "description": "A title, replacing the document’s."
+        },
+        {
+          "flag": "--objective <objective>",
+          "description": "The one-line objective shown in the path."
+        },
+        {
+          "flag": "--path <id>",
+          "description": "The path to put it in."
+        },
+        {
+          "flag": "--position <n>",
+          "description": "Its place in that path, counting from 1 (the end by default)."
+        },
+        {
+          "flag": "--replace",
+          "description": "The file takes the place of an existing lesson’s tutorial: its catalog entry, path and voice stay, and the version before is kept in History."
+        }
+      ]
+    },
+    {
+      "name": "lessons plan",
+      "usage": "lessons plan <id>",
+      "summary": "Hold a place in a path for a lesson nobody has drawn yet: a name, an objective, and nothing else.",
+      "options": [
+        {
+          "flag": "--title <title>",
+          "description": "The name the planned lesson goes by until its tutorial exists."
+        },
+        {
+          "flag": "--objective <objective>",
+          "description": "The one-line objective shown in the path."
+        },
+        {
+          "flag": "--path <id>",
+          "description": "The path it holds a place in."
+        },
+        {
+          "flag": "--position <n>",
+          "description": "Its place in that path, counting from 1 (the end by default)."
+        }
+      ]
+    },
+    {
+      "name": "lessons set",
+      "usage": "lessons set <id>",
+      "summary": "Change a lesson’s details: objective, status, complexity, notes, title.",
+      "options": [
+        {
+          "flag": "--objective <objective>",
+          "description": "The one-line objective. Also catalogues a lesson that is not in the curriculum yet."
+        },
+        {
+          "flag": "--status <status>",
+          "description": "draft, needs-review or approved."
+        },
+        {
+          "flag": "--complexity <n>",
+          "description": "1 (a path’s first lesson) to 5."
+        },
+        {
+          "flag": "--notes <notes>",
+          "description": "Notes for the creator; \"\" removes them."
+        },
+        {
+          "flag": "--title <title>",
+          "description": "The lesson’s title (in the tutorial itself)."
+        }
+      ]
+    },
+    {
+      "name": "lessons move",
+      "usage": "lessons move <id>",
+      "summary": "Put a lesson in a path, or take it out of every path.",
+      "options": [
+        {
+          "flag": "--path <id>",
+          "description": "The path to move it to."
+        },
+        {
+          "flag": "--position <n>",
+          "description": "Its place in that path, counting from 1 (the end by default)."
+        },
+        {
+          "flag": "--unfiled",
+          "description": "Take it out of every path."
+        }
+      ]
+    },
+    {
+      "name": "lessons duplicate",
+      "usage": "lessons duplicate <id>",
+      "summary": "A copy of a lesson as a new draft, right after it in its path.",
+      "options": []
+    },
+    {
+      "name": "lessons delete",
+      "usage": "lessons delete <id>",
+      "summary": "Move a lesson to the trash. A published lesson is unpublished first.",
+      "options": []
+    },
+    {
+      "name": "lessons unpublish",
+      "usage": "lessons unpublish <id>",
+      "summary": "Take a lesson out of shared/, keeping it in the workspace.",
+      "options": []
+    },
+    {
+      "name": "lessons approve",
+      "usage": "lessons approve <id>",
+      "summary": "Mark a lesson approved, after its quality warnings.",
+      "options": [
+        {
+          "flag": "--fail-on-warnings",
+          "description": "Refuse to approve while there are quality warnings."
+        }
+      ]
+    },
+    {
+      "name": "lessons validate",
+      "usage": "lessons validate <id-or-file>",
+      "summary": "Check a lesson, or a tutorial JSON file, strictly.",
+      "options": []
+    },
+    {
+      "name": "lessons quality",
+      "usage": "lessons quality <id>",
+      "summary": "The quality warnings the Studio shows before approval.",
+      "options": []
+    },
+    {
+      "name": "lessons reference set",
+      "usage": "lessons reference set <id> <file>",
+      "summary": "Store a reference image (JPEG, PNG, WebP or SVG) with a lesson, recording its source and licence.",
+      "options": [
+        {
+          "flag": "--source <source>",
+          "description": "Where the image came from."
+        },
+        {
+          "flag": "--license <license>",
+          "description": "The terms it may be used under."
+        }
+      ]
+    },
+    {
+      "name": "lessons reference export",
+      "usage": "lessons reference export <id>",
+      "summary": "Write a lesson’s reference image to a file.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "The file to write (default: the reference’s own name)."
+        }
+      ]
+    },
+    {
+      "name": "steps list",
+      "usage": "steps list <id>",
+      "summary": "The steps of a lesson, numbered as the other commands name them.",
+      "options": []
+    },
+    {
+      "name": "steps set",
+      "usage": "steps set <id> <step>",
+      "summary": "A step’s title and instruction.",
+      "options": [
+        {
+          "flag": "--title <title>",
+          "description": "The new title."
+        },
+        {
+          "flag": "--instruction <instruction>",
+          "description": "The new instruction."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "steps split",
+      "usage": "steps split <id> <step>",
+      "summary": "Split a step before one of its strokes; the second half becomes a new step after it.",
+      "options": [
+        {
+          "flag": "--at <n>",
+          "description": "The stroke the new step starts with, counting from 1 within the step."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "steps merge",
+      "usage": "steps merge <id> <step>",
+      "summary": "Fold the next step into this one, keeping this step’s words.",
+      "options": [
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "steps move",
+      "usage": "steps move <id> <step>",
+      "summary": "Change where a step comes in the lesson.",
+      "options": [
+        {
+          "flag": "--to <n>",
+          "description": "Its new number."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "steps group",
+      "usage": "steps group <id> <strokes...>",
+      "summary": "Turn the selected strokes into one new step, where the first of them was.",
+      "options": [
+        {
+          "flag": "--title <title>",
+          "description": "The new step’s title."
+        },
+        {
+          "flag": "--instruction <instruction>",
+          "description": "The new step’s instruction."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "strokes list",
+      "usage": "strokes list <id> [step]",
+      "summary": "The strokes of a lesson, or of one step, with their selectors.",
+      "options": []
+    },
+    {
+      "name": "strokes move",
+      "usage": "strokes move <id> <strokes...>",
+      "summary": "Move the selected strokes to the end of another step. A step left empty goes.",
+      "options": [
+        {
+          "flag": "--to-step <step>",
+          "description": "The step to move them into."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "strokes reorder",
+      "usage": "strokes reorder <id> <step> <n>",
+      "summary": "Change where a stroke comes within its step.",
+      "options": [
+        {
+          "flag": "--to <n>",
+          "description": "Its new place in the step, counting from 1."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "strokes reverse",
+      "usage": "strokes reverse <id> <strokes...>",
+      "summary": "Draw the selected strokes from their other end: the same shape, animated the other way round.",
+      "options": [
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "strokes split",
+      "usage": "strokes split <id> <stroke>",
+      "summary": "Cut one stroke into several, where a pen would lift: the same shape, drawn in parts. One cut opens a closed line at that point; two make two lines.",
+      "options": [
+        {
+          "flag": "--at <points>",
+          "description": "Where to cut, on the lesson canvas: \"x,y\", or several as \"x,y x,y\". Each cut is made at the nearest point of the line."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "strokes join",
+      "usage": "strokes join <id> <first> <second>",
+      "summary": "Make two open strokes one, drawn without lifting: the second carries on from the end of the first. Reverse one first if it runs the wrong way.",
+      "options": [
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "strokes delete",
+      "usage": "strokes delete <id> <strokes...>",
+      "summary": "Remove the selected strokes for good, and any step they leave empty.",
+      "options": [
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "strokes set",
+      "usage": "strokes set <id> <strokes...>",
+      "summary": "Retime the selected strokes, or change their line width.",
+      "options": [
+        {
+          "flag": "--duration <s>",
+          "description": "Seconds of animation for each selected stroke."
+        },
+        {
+          "flag": "--line-width <w>",
+          "description": "Line width in canvas units."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "history list",
+      "usage": "history list <id>",
+      "summary": "Every recorded version of a lesson, newest first.",
+      "options": []
+    },
+    {
+      "name": "history show",
+      "usage": "history show <id> <entry>",
+      "summary": "One recorded version: its record, and its tutorial with --out.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Write the version’s tutorial JSON to this file."
+        }
+      ]
+    },
+    {
+      "name": "history use",
+      "usage": "history use <id> <entry>",
+      "summary": "Bring a recorded version back as the lesson (kept in History like ⌘S).",
+      "options": []
+    },
+    {
+      "name": "publish pending",
+      "usage": "publish pending",
+      "summary": "What publishing would change in shared/.",
+      "options": []
+    },
+    {
+      "name": "publish lessons",
+      "usage": "publish lessons <id...>",
+      "summary": "Write these lessons, and the curriculum as it stands, into shared/. Publishing approves them.",
+      "options": []
+    },
+    {
+      "name": "publish curriculum",
+      "usage": "publish curriculum",
+      "summary": "Write the curriculum alone into shared/Catalog: paths, titles and order of published lessons.",
+      "options": []
+    },
+    {
+      "name": "publish all",
+      "usage": "publish all",
+      "summary": "Publish every approved lesson with changes, and the curriculum.",
+      "options": []
+    },
+    {
+      "name": "trash list",
+      "usage": "trash list",
+      "summary": "What is in the trash.",
+      "options": []
+    },
+    {
+      "name": "trash restore",
+      "usage": "trash restore <id>",
+      "summary": "Put a trashed lesson or path back where it was, as a draft.",
+      "options": []
+    },
+    {
+      "name": "trash purge",
+      "usage": "trash purge <id>",
+      "summary": "Delete a trashed item for good, with the history of a lesson nothing else uses.",
+      "options": []
+    },
+    {
+      "name": "trash empty",
+      "usage": "trash empty",
+      "summary": "Delete everything in the trash for good.",
+      "options": []
+    },
+    {
+      "name": "svg trace",
+      "usage": "svg trace <file>",
+      "summary": "Trace an SVG into the lines and colours a lesson would be built from.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Write the trace as JSON here (for `svg to-steps --trace`)."
+        },
+        {
+          "flag": "--summary",
+          "description": "Print the trace as ids: each line with its box, where it is drawn from and to, its length; each colour with its area and box. Never path data."
+        },
+        {
+          "flag": "--max-strokes <n>",
+          "description": "Lines to keep, longest first: 32 for fewer, 64 as New lesson traces, 96 for more."
+        },
+        {
+          "flag": "--max-colours <n>",
+          "description": "Colours to reduce the file to (default 8)."
+        },
+        {
+          "flag": "--size <units>",
+          "description": "The square canvas the drawing is fitted into (default 1000)."
+        },
+        {
+          "flag": "--min-stroke-length <units>",
+          "description": "Lines shorter than this are texture and are left out (default 16)."
+        },
+        {
+          "flag": "--ink-max-channel <n>",
+          "description": "A fill is ink when no colour channel is above this, 0–255 (default 56)."
+        },
+        {
+          "flag": "--max-outline-width <units>",
+          "description": "Dark areas wider than this are coloured in, not drawn (default 26)."
+        },
+        {
+          "flag": "--max-bend <deg>",
+          "description": "A line carries on through a junction bending less than this, in degrees (default 55)."
+        },
+        {
+          "flag": "--smoothing <n>",
+          "description": "How calm the traced lines are: passes of smoothing, corners kept (default 40; 0 follows every pixel, 100 is very calm)."
+        },
+        {
+          "flag": "--join-gap <units>",
+          "description": "Line ends this close that continue the same way are joined (default 10)."
+        }
+      ]
+    },
+    {
+      "name": "svg optimize",
+      "usage": "svg optimize <file>",
+      "summary": "Rewrite an SVG as a plain drawing: one path per shape, absolute M/L/C/Q/Z, transforms applied, fitted to the canvas.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Where to write the result (default: <file>.optimized.svg)."
+        },
+        {
+          "flag": "--simplify",
+          "description": "Also simplify each path, drop specks and smooth the curves that remain."
+        },
+        {
+          "flag": "--epsilon <units>",
+          "description": "With --simplify: how far, in canvas units, a simplified path may stray (default 1.2)."
+        },
+        {
+          "flag": "--decimals <n>",
+          "description": "Decimal places kept in coordinates (default 1)."
+        },
+        {
+          "flag": "--min-size <units>",
+          "description": "With --simplify: shapes smaller than this in both directions are specks (default 4)."
+        },
+        {
+          "flag": "--size <units>",
+          "description": "The square canvas the drawing is fitted into (default 1000)."
+        }
+      ]
+    },
+    {
+      "name": "svg from-image",
+      "usage": "svg from-image <file>",
+      "summary": "Turn a flat-colour picture (PNG, JPEG or WebP of a drawing: even dark outlines, solid colour, white paper) into an SVG to trace.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Where to write the SVG (default: <file>.svg)."
+        },
+        {
+          "flag": "--palette <colours>",
+          "description": "The course's colours, as a comma-separated list of hex values or a JSON file holding an array of them; each colour found is replaced by the nearest."
+        },
+        {
+          "flag": "--snap-distance <n>",
+          "description": "With --palette: how far (CIELAB ΔE) a colour may be from a palette colour and still become it (default 18)."
+        },
+        {
+          "flag": "--max-colours <n>",
+          "description": "Colours to reduce the picture to, the outline colour included (default 8)."
+        },
+        {
+          "flag": "--min-area <units>",
+          "description": "Regions smaller than this are specks and join what surrounds them (default 48)."
+        },
+        {
+          "flag": "--size <units>",
+          "description": "The square canvas the picture is fitted into (default 1000)."
+        }
+      ]
+    },
+    {
+      "name": "svg render",
+      "usage": "svg render <file>",
+      "summary": "Render an SVG to a PNG on white paper, as a model would be sent it.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Where to write the PNG (default: <file>.png)."
+        },
+        {
+          "flag": "--size <px>",
+          "description": "Pixels on the longer side (default 1536, what the Studio sends to a model)."
+        }
+      ]
+    },
+    {
+      "name": "lessons generate",
+      "usage": "lessons generate <file>",
+      "summary": "A new lesson from a reference image (a photo, or an SVG traced into exact lines), kept as a draft.",
+      "options": [
+        {
+          "flag": "--id <id>",
+          "description": "The new lesson’s id (lowercase, digits, dashes); also its file name once published. A planned lesson’s id fills that lesson, and lends its title, objective and path."
+        },
+        {
+          "flag": "--title <title>",
+          "description": "The lesson’s title (default: a planned lesson’s own title)."
+        },
+        {
+          "flag": "--objective <objective>",
+          "description": "The one-line objective shown in the path (default: a planned lesson’s own)."
+        },
+        {
+          "flag": "--goal <goal>",
+          "description": "The learning goal the lesson is planned around."
+        },
+        {
+          "flag": "--constraints <constraints>",
+          "description": "Anything the model must respect, in a sentence or two."
+        },
+        {
+          "flag": "--source <source>",
+          "description": "Where the reference image came from."
+        },
+        {
+          "flag": "--license <license>",
+          "description": "The terms the image may be used under."
+        },
+        {
+          "flag": "--path <id>",
+          "description": "The path to put the lesson in."
+        },
+        {
+          "flag": "--position <n>",
+          "description": "Its place in that path, counting from 1 (the end by default)."
+        },
+        {
+          "flag": "--trace <file>",
+          "description": "A trace from `svg trace --out`, instead of tracing the SVG again."
+        },
+        {
+          "flag": "--no-model",
+          "description": "SVG only: build the lesson from the trace without asking a model, a few lines per step."
+        },
+        {
+          "flag": "--plan <file>",
+          "description": "SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids, plus reversedStrokeIds) instead of asking a model."
+        },
+        {
+          "flag": "--no-keep",
+          "description": "Show (and --out) the candidate; keep nothing in the workspace."
+        },
+        {
+          "flag": "--out <file>",
+          "description": "Write the candidate, its analysis and notes as JSON here."
+        },
+        {
+          "flag": "--dry-run",
+          "description": "Say what would be sent to the model, and stop."
+        },
+        {
+          "flag": "--max-strokes <n>",
+          "description": "Lines to keep, longest first: 32 for fewer, 64 as New lesson traces, 96 for more."
+        },
+        {
+          "flag": "--max-colours <n>",
+          "description": "Colours to reduce the file to (default 8)."
+        },
+        {
+          "flag": "--size <units>",
+          "description": "The square canvas the drawing is fitted into (default 1000)."
+        },
+        {
+          "flag": "--min-stroke-length <units>",
+          "description": "Lines shorter than this are texture and are left out (default 16)."
+        },
+        {
+          "flag": "--ink-max-channel <n>",
+          "description": "A fill is ink when no colour channel is above this, 0–255 (default 56)."
+        },
+        {
+          "flag": "--max-outline-width <units>",
+          "description": "Dark areas wider than this are coloured in, not drawn (default 26)."
+        },
+        {
+          "flag": "--max-bend <deg>",
+          "description": "A line carries on through a junction bending less than this, in degrees (default 55)."
+        },
+        {
+          "flag": "--smoothing <n>",
+          "description": "How calm the traced lines are: passes of smoothing, corners kept (default 40; 0 follows every pixel, 100 is very calm)."
+        },
+        {
+          "flag": "--join-gap <units>",
+          "description": "Line ends this close that continue the same way are joined (default 10)."
+        }
+      ]
+    },
+    {
+      "name": "svg to-steps",
+      "usage": "svg to-steps <file>",
+      "summary": "A new lesson from an SVG: the file is traced into exact lines and colours, and a model orders them into steps (or --no-model).",
+      "options": [
+        {
+          "flag": "--id <id>",
+          "description": "The new lesson’s id (lowercase, digits, dashes); also its file name once published. A planned lesson’s id fills that lesson, and lends its title, objective and path."
+        },
+        {
+          "flag": "--title <title>",
+          "description": "The lesson’s title (default: a planned lesson’s own title)."
+        },
+        {
+          "flag": "--objective <objective>",
+          "description": "The one-line objective shown in the path (default: a planned lesson’s own)."
+        },
+        {
+          "flag": "--goal <goal>",
+          "description": "The learning goal the lesson is planned around."
+        },
+        {
+          "flag": "--constraints <constraints>",
+          "description": "Anything the model must respect, in a sentence or two."
+        },
+        {
+          "flag": "--source <source>",
+          "description": "Where the reference image came from."
+        },
+        {
+          "flag": "--license <license>",
+          "description": "The terms the image may be used under."
+        },
+        {
+          "flag": "--path <id>",
+          "description": "The path to put the lesson in."
+        },
+        {
+          "flag": "--position <n>",
+          "description": "Its place in that path, counting from 1 (the end by default)."
+        },
+        {
+          "flag": "--trace <file>",
+          "description": "A trace from `svg trace --out`, instead of tracing the SVG again."
+        },
+        {
+          "flag": "--no-model",
+          "description": "SVG only: build the lesson from the trace without asking a model, a few lines per step."
+        },
+        {
+          "flag": "--plan <file>",
+          "description": "SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids, plus reversedStrokeIds) instead of asking a model."
+        },
+        {
+          "flag": "--no-keep",
+          "description": "Show (and --out) the candidate; keep nothing in the workspace."
+        },
+        {
+          "flag": "--out <file>",
+          "description": "Write the candidate, its analysis and notes as JSON here."
+        },
+        {
+          "flag": "--dry-run",
+          "description": "Say what would be sent to the model, and stop."
+        },
+        {
+          "flag": "--max-strokes <n>",
+          "description": "Lines to keep, longest first: 32 for fewer, 64 as New lesson traces, 96 for more."
+        },
+        {
+          "flag": "--max-colours <n>",
+          "description": "Colours to reduce the file to (default 8)."
+        },
+        {
+          "flag": "--size <units>",
+          "description": "The square canvas the drawing is fitted into (default 1000)."
+        },
+        {
+          "flag": "--min-stroke-length <units>",
+          "description": "Lines shorter than this are texture and are left out (default 16)."
+        },
+        {
+          "flag": "--ink-max-channel <n>",
+          "description": "A fill is ink when no colour channel is above this, 0–255 (default 56)."
+        },
+        {
+          "flag": "--max-outline-width <units>",
+          "description": "Dark areas wider than this are coloured in, not drawn (default 26)."
+        },
+        {
+          "flag": "--max-bend <deg>",
+          "description": "A line carries on through a junction bending less than this, in degrees (default 55)."
+        },
+        {
+          "flag": "--smoothing <n>",
+          "description": "How calm the traced lines are: passes of smoothing, corners kept (default 40; 0 follows every pixel, 100 is very calm)."
+        },
+        {
+          "flag": "--join-gap <units>",
+          "description": "Line ends this close that continue the same way are joined (default 10)."
+        }
+      ]
+    },
+    {
+      "name": "image to-steps",
+      "usage": "image to-steps <file>",
+      "summary": "A new lesson from a photo (JPEG, PNG or WebP): a model draws the steps from the picture.",
+      "options": [
+        {
+          "flag": "--id <id>",
+          "description": "The new lesson’s id (lowercase, digits, dashes); also its file name once published. A planned lesson’s id fills that lesson, and lends its title, objective and path."
+        },
+        {
+          "flag": "--title <title>",
+          "description": "The lesson’s title (default: a planned lesson’s own title)."
+        },
+        {
+          "flag": "--objective <objective>",
+          "description": "The one-line objective shown in the path (default: a planned lesson’s own)."
+        },
+        {
+          "flag": "--goal <goal>",
+          "description": "The learning goal the lesson is planned around."
+        },
+        {
+          "flag": "--constraints <constraints>",
+          "description": "Anything the model must respect, in a sentence or two."
+        },
+        {
+          "flag": "--source <source>",
+          "description": "Where the reference image came from."
+        },
+        {
+          "flag": "--license <license>",
+          "description": "The terms the image may be used under."
+        },
+        {
+          "flag": "--path <id>",
+          "description": "The path to put the lesson in."
+        },
+        {
+          "flag": "--position <n>",
+          "description": "Its place in that path, counting from 1 (the end by default)."
+        },
+        {
+          "flag": "--trace <file>",
+          "description": "A trace from `svg trace --out`, instead of tracing the SVG again."
+        },
+        {
+          "flag": "--no-model",
+          "description": "SVG only: build the lesson from the trace without asking a model, a few lines per step."
+        },
+        {
+          "flag": "--plan <file>",
+          "description": "SVG only: build the lesson from the trace and this plan (outlineSteps and colourSteps over the trace’s ids, plus reversedStrokeIds) instead of asking a model."
+        },
+        {
+          "flag": "--no-keep",
+          "description": "Show (and --out) the candidate; keep nothing in the workspace."
+        },
+        {
+          "flag": "--out <file>",
+          "description": "Write the candidate, its analysis and notes as JSON here."
+        },
+        {
+          "flag": "--dry-run",
+          "description": "Say what would be sent to the model, and stop."
+        },
+        {
+          "flag": "--max-strokes <n>",
+          "description": "Lines to keep, longest first: 32 for fewer, 64 as New lesson traces, 96 for more."
+        },
+        {
+          "flag": "--max-colours <n>",
+          "description": "Colours to reduce the file to (default 8)."
+        },
+        {
+          "flag": "--size <units>",
+          "description": "The square canvas the drawing is fitted into (default 1000)."
+        },
+        {
+          "flag": "--min-stroke-length <units>",
+          "description": "Lines shorter than this are texture and are left out (default 16)."
+        },
+        {
+          "flag": "--ink-max-channel <n>",
+          "description": "A fill is ink when no colour channel is above this, 0–255 (default 56)."
+        },
+        {
+          "flag": "--max-outline-width <units>",
+          "description": "Dark areas wider than this are coloured in, not drawn (default 26)."
+        },
+        {
+          "flag": "--max-bend <deg>",
+          "description": "A line carries on through a junction bending less than this, in degrees (default 55)."
+        },
+        {
+          "flag": "--smoothing <n>",
+          "description": "How calm the traced lines are: passes of smoothing, corners kept (default 40; 0 follows every pixel, 100 is very calm)."
+        },
+        {
+          "flag": "--join-gap <units>",
+          "description": "Line ends this close that continue the same way are joined (default 10)."
+        }
+      ]
+    },
+    {
+      "name": "lessons regenerate",
+      "usage": "lessons regenerate <id>",
+      "summary": "Redo one layer of a lesson: its instructions, steps, order, or the whole drawing.",
+      "options": [
+        {
+          "flag": "--layer <layer>",
+          "description": "What to regenerate: instructions, steps, order or drawing."
+        },
+        {
+          "flag": "--note <note>",
+          "description": "What should be different this time."
+        },
+        {
+          "flag": "--goal <goal>",
+          "description": "The learning goal (default: the one it was generated with, else the objective)."
+        },
+        {
+          "flag": "--constraints <constraints>",
+          "description": "What the model must respect (default: the ones it was generated with)."
+        },
+        {
+          "flag": "--use",
+          "description": "Make the regenerated version the lesson (kept in History like ⌘S). Otherwise it is only recorded."
+        },
+        {
+          "flag": "--out <file>",
+          "description": "Write the regenerated version, its rationale and notes as JSON here."
+        },
+        {
+          "flag": "--dry-run",
+          "description": "Say what would be sent to the model, and stop."
+        },
+        {
+          "flag": "--max-strokes <n>",
+          "description": "Lines to keep, longest first: 32 for fewer, 64 as New lesson traces, 96 for more."
+        },
+        {
+          "flag": "--max-colours <n>",
+          "description": "Colours to reduce the file to (default 8)."
+        },
+        {
+          "flag": "--size <units>",
+          "description": "The square canvas the drawing is fitted into (default 1000)."
+        },
+        {
+          "flag": "--min-stroke-length <units>",
+          "description": "Lines shorter than this are texture and are left out (default 16)."
+        },
+        {
+          "flag": "--ink-max-channel <n>",
+          "description": "A fill is ink when no colour channel is above this, 0–255 (default 56)."
+        },
+        {
+          "flag": "--max-outline-width <units>",
+          "description": "Dark areas wider than this are coloured in, not drawn (default 26)."
+        },
+        {
+          "flag": "--max-bend <deg>",
+          "description": "A line carries on through a junction bending less than this, in degrees (default 55)."
+        },
+        {
+          "flag": "--smoothing <n>",
+          "description": "How calm the traced lines are: passes of smoothing, corners kept (default 40; 0 follows every pixel, 100 is very calm)."
+        },
+        {
+          "flag": "--join-gap <units>",
+          "description": "Line ends this close that continue the same way are joined (default 10)."
+        }
+      ]
+    },
+    {
+      "name": "lessons summary",
+      "usage": "lessons summary <id>",
+      "summary": "The lesson as ids: each step with its lines (s1, s2, …) and colours (f1, f2, …), for writing a plan.",
+      "options": []
+    },
+    {
+      "name": "lessons apply",
+      "usage": "lessons apply <id>",
+      "summary": "Reshape a lesson with a plan written by hand: regroup its steps, reorder them, or reword them.",
+      "options": [
+        {
+          "flag": "--layer <layer>",
+          "description": "What the plan changes: steps (regroup and reword), order (steps, lines within them, reversed lines) or instructions (words only)."
+        },
+        {
+          "flag": "--plan <file>",
+          "description": "The plan JSON: `steps` over the labels `lessons summary` prints, plus `reversedStrokeIds` for --layer order."
+        },
+        {
+          "flag": "--no-checkpoint",
+          "description": "Save like an autosave: do not keep this version in History."
+        }
+      ]
+    },
+    {
+      "name": "svg preview",
+      "usage": "svg preview <file>",
+      "summary": "A picture of a trace with every line and colour labelled by its id, to write a plan from. Takes an SVG, or a trace JSON from `svg trace --out`.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Where to write the picture."
+        },
+        {
+          "flag": "--no-labels",
+          "description": "Leave the ids off."
+        },
+        {
+          "flag": "--size <px>",
+          "description": "Pixels on the longer side of the PNG (default 1536; a sheet's own size for --sheet, so its panels stay legible)."
+        },
+        {
+          "flag": "--svg",
+          "description": "Write the picture as SVG text instead of a PNG; no browser is needed."
+        },
+        {
+          "flag": "--only <ids>",
+          "description": "Label only these ids, a comma list with ranges (s30-s40,f1); the other lines are faded."
+        },
+        {
+          "flag": "--crop <box>",
+          "description": "Show only this part of the canvas, x0,y0,x1,y1 in canvas units; labels scale to it."
+        },
+        {
+          "flag": "--max-strokes <n>",
+          "description": "Lines to keep, longest first: 32 for fewer, 64 as New lesson traces, 96 for more."
+        },
+        {
+          "flag": "--max-colours <n>",
+          "description": "Colours to reduce the file to (default 8)."
+        },
+        {
+          "flag": "--min-stroke-length <units>",
+          "description": "Lines shorter than this are texture and are left out (default 16)."
+        },
+        {
+          "flag": "--ink-max-channel <n>",
+          "description": "A fill is ink when no colour channel is above this, 0–255 (default 56)."
+        },
+        {
+          "flag": "--max-outline-width <units>",
+          "description": "Dark areas wider than this are coloured in, not drawn (default 26)."
+        },
+        {
+          "flag": "--max-bend <deg>",
+          "description": "A line carries on through a junction bending less than this, in degrees (default 55)."
+        },
+        {
+          "flag": "--smoothing <n>",
+          "description": "How calm the traced lines are: passes of smoothing, corners kept (default 40; 0 follows every pixel, 100 is very calm)."
+        },
+        {
+          "flag": "--join-gap <units>",
+          "description": "Line ends this close that continue the same way are joined (default 10)."
+        }
+      ]
+    },
+    {
+      "name": "lessons render",
+      "usage": "lessons render <id>",
+      "summary": "A picture of a lesson: its finished drawing, or with --sheet one panel per step with this step’s lines labelled as `lessons summary` names them.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Where to write the picture."
+        },
+        {
+          "flag": "--no-labels",
+          "description": "Leave the ids off."
+        },
+        {
+          "flag": "--size <px>",
+          "description": "Pixels on the longer side of the PNG (default 1536; a sheet's own size for --sheet, so its panels stay legible)."
+        },
+        {
+          "flag": "--svg",
+          "description": "Write the picture as SVG text instead of a PNG; no browser is needed."
+        },
+        {
+          "flag": "--sheet",
+          "description": "A contact sheet: one panel per step, then the finished drawing."
+        },
+        {
+          "flag": "--columns <n>",
+          "description": "Panels across the sheet (default 3)."
+        }
+      ]
+    },
+    {
+      "name": "lessons video",
+      "usage": "lessons video <id>",
+      "summary": "A vertical draw-along video of a lesson (1080 × 1920) for Shorts, TikTok and Reels: Lina’s opening line over the drawing coming together, every step with her recording, her closing line as stickers of the path’s next lessons land, and Paper Coach with the App Store badge as she says her last words.",
+      "options": [
+        {
+          "flag": "--out <file.mp4>",
+          "description": "Where to write the video (default .studio/videos/<id>.mp4). A caption to post with it goes beside it as .txt."
+        },
+        {
+          "flag": "--intro <words>",
+          "description": "Lina’s opening line (default “Let’s draw a <lesson>. Grab a pencil and draw along with me.”). Spoken through the Studio in her cast voice, and reused once made."
+        },
+        {
+          "flag": "--signoff <words>",
+          "description": "Lina’s last words, after her closing line, as Paper Coach takes her place (default “Draw more with Paper Coach. It’s free on the App Store.”, “free to download” for a Premium lesson). Spoken like the opening line; \"\" for none."
+        },
+        {
+          "flag": "--cta <words>",
+          "description": "The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge)."
+        },
+        {
+          "flag": "--speed",
+          "description": "The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4."
+        },
+        {
+          "flag": "--stills <dir>",
+          "description": "Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, Lina’s closing line, the ending), to check the look in seconds."
+        }
+      ]
+    },
+    {
+      "name": "social pin",
+      "usage": "social pin <id>",
+      "summary": "The step pin of a lesson: every step on one tall image (1000 × 1500) in the path’s color, as Pinterest gets it after the video. Writes it to look at; posts nothing.",
+      "options": [
+        {
+          "flag": "--out <file.png>",
+          "description": "Where to write the PNG (default .studio/videos/<id>-pin.png)."
+        }
+      ]
+    },
+    {
+      "name": "social check",
+      "usage": "social check",
+      "summary": "The Upload-Post key and plan, the accounts on the profile, and the Pinterest boards and Facebook Pages to post to.",
+      "options": []
+    },
+    {
+      "name": "social queue",
+      "usage": "social queue",
+      "summary": "The order lessons are posted in (the up-next list first, then a free lesson and a Premium one by turns), what has been posted, and what comes next.",
+      "options": [
+        {
+          "flag": "--limit <n>",
+          "description": "How many coming lessons to show (default 10)."
+        }
+      ]
+    },
+    {
+      "name": "social post",
+      "usage": "social post <id>",
+      "summary": "Render a lesson’s video and post it to Softroni’s accounts through Upload-Post, with a caption, title and link made for each platform.",
+      "options": [
+        {
+          "flag": "--platforms <list>",
+          "description": "Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x)."
+        },
+        {
+          "flag": "--private",
+          "description": "A test only the account sees: YouTube private, TikTok \"only me\", a Facebook draft. Instagram, Pinterest and X have no private post and are left out."
+        },
+        {
+          "flag": "--at <time>",
+          "description": "Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00)."
+        },
+        {
+          "flag": "--before-launch",
+          "description": "Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store)."
+        },
+        {
+          "flag": "--dry-run",
+          "description": "Show what each platform would be sent, and stop. Needs no key and renders nothing."
+        },
+        {
+          "flag": "--no-wait",
+          "description": "Return once Upload-Post has the video, without waiting for each platform to publish."
+        },
+        {
+          "flag": "--log",
+          "description": "Add a line to the Today page’s log (docs/ops/today.py log) when the post is done."
+        },
+        {
+          "flag": "--no-pin",
+          "description": "Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only)."
+        },
+        {
+          "flag": "--speed",
+          "description": "Post the speed draw (about 20 s, as `lessons video --speed` makes it) instead of the whole lesson. No step pin goes with it."
+        },
+        {
+          "flag": "--video <file.mp4>",
+          "description": "Post this file instead of rendering the lesson now."
+        }
+      ]
+    },
+    {
+      "name": "social next",
+      "usage": "social next",
+      "summary": "Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 12 hours unless --again, so the job can’t post twice in a day.",
+      "options": [
+        {
+          "flag": "--platforms <list>",
+          "description": "Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x)."
+        },
+        {
+          "flag": "--private",
+          "description": "A test only the account sees: YouTube private, TikTok \"only me\", a Facebook draft. Instagram, Pinterest and X have no private post and are left out."
+        },
+        {
+          "flag": "--at <time>",
+          "description": "Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00)."
+        },
+        {
+          "flag": "--before-launch",
+          "description": "Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store)."
+        },
+        {
+          "flag": "--dry-run",
+          "description": "Show what each platform would be sent, and stop. Needs no key and renders nothing."
+        },
+        {
+          "flag": "--no-wait",
+          "description": "Return once Upload-Post has the video, without waiting for each platform to publish."
+        },
+        {
+          "flag": "--log",
+          "description": "Add a line to the Today page’s log (docs/ops/today.py log) when the post is done."
+        },
+        {
+          "flag": "--no-pin",
+          "description": "Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only)."
+        },
+        {
+          "flag": "--again",
+          "description": "Post even though a lesson went out in the last 12 hours."
+        }
+      ]
+    },
+    {
+      "name": "social announce",
+      "usage": "social announce",
+      "summary": "Release news to every platform: the speed draw of a lesson from the release, with words saying what’s new. Only once the version with it is on sale.",
+      "options": [
+        {
+          "flag": "--platforms <list>",
+          "description": "Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x)."
+        },
+        {
+          "flag": "--private",
+          "description": "A test only the account sees: YouTube private, TikTok \"only me\", a Facebook draft. Instagram, Pinterest and X have no private post and are left out."
+        },
+        {
+          "flag": "--at <time>",
+          "description": "Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00)."
+        },
+        {
+          "flag": "--before-launch",
+          "description": "Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store)."
+        },
+        {
+          "flag": "--dry-run",
+          "description": "Show what each platform would be sent, and stop. Needs no key and renders nothing."
+        },
+        {
+          "flag": "--no-wait",
+          "description": "Return once Upload-Post has the video, without waiting for each platform to publish."
+        },
+        {
+          "flag": "--log",
+          "description": "Add a line to the Today page’s log (docs/ops/today.py log) when the post is done."
+        },
+        {
+          "flag": "--lesson <id>",
+          "description": "The lesson whose speed draw carries the news: the best of what’s new. It must be in the version on sale."
+        },
+        {
+          "flag": "--news <words>",
+          "description": "What’s new, in a sentence or two, as people would say it (“10 new lessons: draw your town, from a bus stop to a skyline.”)."
+        },
+        {
+          "flag": "--headline <words>",
+          "description": "A short title for YouTube and Pinterest (“New: draw your town”)."
+        },
+        {
+          "flag": "--intro <words>",
+          "description": "Lina’s opening line over the speed draw (default “Watch a … come together, one line at a time.”)."
+        },
+        {
+          "flag": "--video <file.mp4>",
+          "description": "Post this file instead of rendering the speed draw now."
+        }
+      ]
+    },
+    {
+      "name": "social stats",
+      "usage": "social stats",
+      "summary": "How the posts of the last days are doing: views, likes and comments on each platform, as Upload-Post reads them from the platforms. What the weekly review reads.",
+      "options": [
+        {
+          "flag": "--days <n>",
+          "description": "Posts from this many days back (default 7)."
+        }
+      ]
+    },
+    {
+      "name": "social status",
+      "usage": "social status",
+      "summary": "Where the last posts are: asks Upload-Post about any not yet finished, and lists each platform’s link or error.",
+      "options": [
+        {
+          "flag": "--limit <n>",
+          "description": "How many posts to show (default 5)."
+        },
+        {
+          "flag": "--refresh",
+          "description": "Ask again about every post shown, finished or not."
+        }
+      ]
+    },
+    {
+      "name": "voice status",
+      "usage": "voice status",
+      "summary": "The speech server, the voice cast as Lina, and what has been recorded.",
+      "options": []
+    },
+    {
+      "name": "voice list",
+      "usage": "voice list",
+      "summary": "The candidates for Lina’s voice, and which one is cast.",
+      "options": [
+        {
+          "flag": "--takes",
+          "description": "Also list each voice’s recordings, with the ids `voice freeze --take` wants."
+        }
+      ]
+    },
+    {
+      "name": "voice cast",
+      "usage": "voice cast <id>",
+      "summary": "Cast a voice as Lina. Every lesson is narrated with it from then on.",
+      "options": []
+    },
+    {
+      "name": "voice add",
+      "usage": "voice add",
+      "summary": "Add a candidate voice.",
+      "options": [
+        {
+          "flag": "--name <text>",
+          "description": "What to call it, which also becomes its id."
+        },
+        {
+          "flag": "--engine <id>",
+          "description": "chatterbox, qwen-design or qwen-custom."
+        },
+        {
+          "flag": "--speaker <name>",
+          "description": "For qwen-custom: Vivian, Serena, Ryan, Aiden, Dylan, Eric, Uncle_Fu, Ono_Anna or Sohee."
+        },
+        {
+          "flag": "--instruct <text>",
+          "description": "Who she is (qwen-design) or how she delivers the line (qwen-custom)."
+        },
+        {
+          "flag": "--tagline <text>",
+          "description": "One line about the personality, for the card."
+        }
+      ]
+    },
+    {
+      "name": "voice say",
+      "usage": "voice say <id> <text>",
+      "summary": "Have one voice read a line. The take already made for those words is reused.",
+      "options": [
+        {
+          "flag": "--out <file>",
+          "description": "Write the audio here as a WAV file."
+        },
+        {
+          "flag": "--another",
+          "description": "Make a new take even though one exists."
+        }
+      ]
+    },
+    {
+      "name": "voice freeze",
+      "usage": "voice freeze <id>",
+      "summary": "Upload one take as this voice’s reference, so it stops varying between takes.",
+      "options": [
+        {
+          "flag": "--take <id>",
+          "description": "The take to freeze from (see `voice list --takes`). 5–15 seconds is ideal."
+        }
+      ]
+    },
+    {
+      "name": "voice unfreeze",
+      "usage": "voice unfreeze <id>",
+      "summary": "Let a frozen voice vary again, and take its record out of shared/. The reference stays on the speech server.",
+      "options": []
+    },
+    {
+      "name": "voice narrate",
+      "usage": "voice narrate [lesson]",
+      "summary": "Record every step of a lesson that has no recording or an out-of-date one, or of every lesson with --all.",
+      "options": [
+        {
+          "flag": "--remake",
+          "description": "Record every step again, even the ones that are ready."
+        },
+        {
+          "flag": "--all",
+          "description": "Every lesson in the working library, drafts included, in curriculum order."
+        }
+      ]
+    },
+    {
+      "name": "voice lines set",
+      "usage": "voice lines set <lesson> <step> <text>",
+      "summary": "Write the line a step speaks, instead of its written instruction (at most 240 characters).",
+      "options": []
+    },
+    {
+      "name": "voice lines clear",
+      "usage": "voice lines clear <lesson> <step>",
+      "summary": "Go back to speaking the step’s written instruction.",
+      "options": []
+    },
+    {
+      "name": "voice publish",
+      "usage": "voice publish [lesson]",
+      "summary": "Write a lesson’s narration into shared/Assets/Voice/ as AAC files and a manifest, or every ready lesson with --all.",
+      "options": [
+        {
+          "flag": "--all",
+          "description": "Every published lesson whose narration is complete, and Lina’s own lines; the rest are listed with the reason."
+        }
+      ]
+    },
+    {
+      "name": "voice unpublish",
+      "usage": "voice unpublish <lesson>",
+      "summary": "Remove a lesson’s narration from shared/. The recordings stay in the workspace.",
+      "options": []
+    },
+    {
+      "name": "voice lines list",
+      "usage": "voice lines list <lesson>",
+      "summary": "What Lina says at each step: the written line, or the instruction she falls back to.",
+      "options": []
+    },
+    {
+      "name": "voice lines generate",
+      "usage": "voice lines generate <lesson>",
+      "summary": "Have a model write what Lina says at each step: one or two spoken sentences instead of the written instruction.",
+      "options": [
+        {
+          "flag": "--note <text>",
+          "description": "What to change this time, in a sentence."
+        },
+        {
+          "flag": "--overwrite",
+          "description": "Replace the lines already written, instead of only filling the rest."
+        },
+        {
+          "flag": "--dry-run",
+          "description": "Say what would be sent to the model, and stop."
+        }
+      ]
+    },
+    {
+      "name": "voice lines apply",
+      "usage": "voice lines apply <lesson>",
+      "summary": "Write the spoken lines of a whole lesson from a plan: { \"lines\": { \"<step>\": \"…\" | null } }.",
+      "options": [
+        {
+          "flag": "--plan <file>",
+          "description": "The plan JSON, as `voice lines list --json` prints it."
+        }
+      ]
+    },
+    {
+      "name": "voice reference export",
+      "usage": "voice reference export <id>",
+      "summary": "Keep a frozen voice’s reference recording in shared/Assets/VoiceReference/, so Lina survives a wiped machine.",
+      "options": []
+    },
+    {
+      "name": "voice reference restore",
+      "usage": "voice reference restore <id>",
+      "summary": "Put a frozen voice back from shared/: upload its reference to the speech server and return it to the workspace.",
+      "options": []
+    },
+    {
+      "name": "voice app list",
+      "usage": "voice app list",
+      "summary": "Lina’s own lines: what the app says outside any lesson, and what is recorded for each.",
+      "options": []
+    },
+    {
+      "name": "voice app set",
+      "usage": "voice app set <id> <text>",
+      "summary": "Rewrite one of the app’s lines (at most 240 characters). The id is fixed: hello, lesson-1, lesson-2, lesson-3, lesson-4, path-1, path-2, path-3, path-4, paths-welcome.",
+      "options": []
+    },
+    {
+      "name": "voice app narrate",
+      "usage": "voice app narrate",
+      "summary": "Record every one of Lina’s own lines that has no recording or an out-of-date one.",
+      "options": [
+        {
+          "flag": "--remake",
+          "description": "Record every line again, even the ones that are ready."
+        }
+      ]
+    },
+    {
+      "name": "voice app publish",
+      "usage": "voice app publish",
+      "summary": "Write Lina’s own lines into shared/Assets/Voice/app/ as AAC files and a manifest.",
+      "options": []
+    },
+    {
+      "name": "voice app unpublish",
+      "usage": "voice app unpublish",
+      "summary": "Remove Lina’s own lines from shared/. The recordings stay in the workspace.",
+      "options": []
+    },
+    {
+      "name": "voice script",
+      "usage": "voice script",
+      "summary": "The audition lines every voice reads.",
+      "options": []
+    },
+    {
+      "name": "voice script set",
+      "usage": "voice script set <id> <text>",
+      "summary": "Change one audition line, or add it.",
+      "options": [
+        {
+          "flag": "--label <text>",
+          "description": "What to call the line (default: its id, or what it was called)."
+        }
+      ]
+    }
+  ]
+}

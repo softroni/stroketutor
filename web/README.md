@@ -63,7 +63,7 @@ rather than an imitation of it.
 ## The Studio
 
 Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<lesson>`, `#/import`,
-`#/new?lesson=<lesson>` to fill a planned lesson, and `#/screenshots/<iphone|ipad>/<shot>`.
+`#/new?lesson=<lesson>` to fill a planned lesson, `#/screenshots/<iphone|ipad>/<shot>`, and `#/docs/<tool>`.
 
 - **Paths** lists every path in the working curriculum and the lessons of the selected one
   in unlock order, each with its finished drawing, a lifecycle badge (Planned, Draft, Needs review,
@@ -135,6 +135,12 @@ Hash routes, so every screen can be bookmarked: `#/paths/<path>`, `#/lessons/<le
   `social next` picks them (`server/social/queue.ts`, shared with the command). It reads
   `.studio/social/posts.jsonl` when opened, or on a machine that never posted the repo's copy on `ops-history`,
   and leaves test posts out. Read-only (`GET /api/social/posts`); `STUDIO_SOCIAL_DIR` shows another record.
+- **Docs** lists every command line, script, MCP server and skill the repo uses: what each is for, where it
+  runs, who uses it, and the line to copy, with the everyday jobs first and a search over all of it (`/`
+  focuses it). `#/docs/<tool>` opens one tool, and ⌘K finds each by name. The words are in `studio/docs.ts`;
+  the Studio command line's own commands come from `studio/studioCli.json`, which `cli/reference.test.ts`
+  keeps equal to the command line, so a new or changed command fails the tests until
+  `npx vitest run cli/reference -u` writes the file again. Copy works over the tailnet's plain http too.
 - **⌘K**, or **Jump to…** in the header, opens a palette to jump to any lesson, path or page by typing
   a few letters.
 - **Export video…** (a lesson's header, or the **Video** tab of its drawer) makes a vertical draw-along
@@ -361,7 +367,8 @@ validators and editing operations (`cli/`). `npm run studio -- <command>` runs o
 `npm run studio` alone lists them, and `--help` after any command describes it. For an agent, the
 project skill `.claude/skills/studio-cli/SKILL.md` is the operating manual (every command, selectors, plan
 files, exit codes, gotchas; `reference.md` beside it is every `--help` verbatim), and `author-lesson` the
-drawing method.
+drawing method. For a person, the Studio's **Docs** page lists every command with what it does and its
+options.
 
 ```bash
 npm run studio -- status                                   # paths, lessons, what publishing would change

@@ -6,6 +6,7 @@ import { catalogFiles, type Catalog } from '../catalog/types'
 
 import { adoptShared, saveCatalog } from './api'
 import { CommandPalette } from './CommandPalette'
+import { DocsView } from './DocsView'
 import { LessonWorkspace } from './LessonWorkspace'
 import { buildLibrary, type Library } from './library'
 import { NewLessonView } from './NewLessonView'
@@ -30,6 +31,7 @@ import './voice.css'
 import './screenshots.css'
 import './today.css'
 import './social.css'
+import './docs.css'
 
 /**
  * Paper Coach Studio: the private authoring tool built around the existing
@@ -162,6 +164,9 @@ export function Studio() {
       case 'social':
         screen = <SocialView library={library} />
         break
+      case 'docs':
+        screen = <DocsView section={route.section} />
+        break
     }
   }
 
@@ -229,6 +234,9 @@ export function Studio() {
             <a href={routeHref({ name: 'screenshots', device: 'iphone', shot: null })} aria-current={current('screenshots')}>
               Screenshots
             </a>
+            <a href={routeHref({ name: 'docs', section: null })} aria-current={current('docs')}>
+              Docs
+            </a>
             <a href={routeHref({ name: 'settings' })} aria-current={current('settings')}>
               Settings
             </a>
@@ -258,8 +266,9 @@ function useHashRoute(): Route {
   useEffect(() => {
     const onHashChange = (event: HashChangeEvent) => {
       setHash(window.location.hash)
-      // Opening, stepping through and closing a screenshot keeps the grid where it was.
-      if (!sameScreenshotPage(event.oldURL, event.newURL)) window.scrollTo(0, 0)
+      // Opening, stepping through and closing a screenshot keeps the grid where it was, and the
+      // Docs page scrolls to its own sections.
+      if (!scrollsItself(event.oldURL, event.newURL)) window.scrollTo(0, 0)
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
@@ -267,8 +276,9 @@ function useHashRoute(): Route {
   return useMemo(() => parseRoute(hash), [hash])
 }
 
-function sameScreenshotPage(oldURL: string, newURL: string): boolean {
+function scrollsItself(oldURL: string, newURL: string): boolean {
   const before = parseRoute(new URL(oldURL).hash)
   const after = parseRoute(new URL(newURL).hash)
+  if (before.name === 'docs' && after.name === 'docs') return true
   return before.name === 'screenshots' && after.name === 'screenshots' && before.device === after.device
 }
