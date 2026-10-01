@@ -1,0 +1,88 @@
+{
+  "manifestVersion": 1,
+  "lessonId": "crown",
+  "voiceId": "lina-bright",
+  "voiceName": "Lina, bright",
+  "model": "qwen-base clone of lina-lina-bright-09cf35",
+  "generatedAt": "2026-10-01T21:30:59.728Z",
+  "steps": {
+    "lesson-intro": {
+      "file": "lesson-intro.m4a",
+      "text": "Kings and queens in every fairy tale wear one of these. It's a band of jewels with five points on top, each with a pearl. Watch it take shape, then crown yourself.",
+      "textHash": "9415373f73b88834d7d49caaab557f0e9b74d9e7b5bc53457cc657b8f022cfe1",
+      "durationMs": 10080
+    },
+    "band": {
+      "file": "band.m4a",
+      "text": "The crown sits on a wide band. Draw its top line, then its sides and curved bottom.",
+      "textHash": "ddb23f01093619cc8a7576b08537c6b2c0a4db38fca48faffe910a28924eb12a",
+      "durationMs": 5920
+    },
+    "sides": {
+      "file": "sides.m4a",
+      "text": "Now the two sides. Each rises straight up from a top corner of the band.",
+      "textHash": "fe16882009c2447c155f92406dc1440a5251c75520b670bfa9a91279b0ce2977",
+      "durationMs": 4480
+    },
+    "points": {
+      "file": "points.m4a",
+      "text": "Five points stand between the sides. Zigzag across with four deep dips, tallest in the middle.",
+      "textHash": "560ae4f5205da07456350354dab7e5c014a30e0ee3b71a73538ea283db9acfd7",
+      "durationMs": 6560
+    },
+    "pearls": {
+      "file": "pearls.m4a",
+      "text": "A round pearl sits on the tip of every point, five pearls in all.",
+      "textHash": "fb429310bfd411bfe05ca97f55743f943c1112e9e139ee09af0a14175bb5b402",
+      "durationMs": 4480
+    },
+    "velvet": {
+      "file": "velvet.m4a",
+      "text": "Velvet peeks out between the points. In each dip, draw a gentle curve from side to side.",
+      "textHash": "59de04511b730cb63e0366ba2826ae6caad8c166f3b6f0f3f8c41229f578d98c",
+      "durationMs": 6080
+    },
+    "round-jewels": {
+      "file": "round-jewels.m4a",
+      "text": "Four round jewels sit along the band, spaced out evenly.",
+      "textHash": "996a415bf98cdabb9f5f1ace7ef7c085440b9b633a1594fc3a4f42e9cef2e263",
+      "durationMs": 3840
+    },
+    "diamonds": {
+      "file": "diamonds.m4a",
+      "text": "In each gap, a diamond standing on its corner. That makes seven jewels.",
+      "textHash": "4eec969447d9a854bc304411f233021cd30713c0e9c00e43edf339f10bb8b689",
+      "durationMs": 5040
+    },
+    "gold": {
+      "file": "gold.m4a",
+      "text": "Color the points gold.",
+      "textHash": "74d0914479078d5948c6db37d4cb0340dc5c7e7d541da38e0929864cc4ec4451",
+      "durationMs": 1760
+    },
+    "orange": {
+      "file": "orange.m4a",
+      "text": "Color the band orange.",
+      "textHash": "0ddfe9bbbc4b39cdfee4121c75d179801170283402647e6b7541f80cc92e2be4",
+      "durationMs": 2240
+    },
+    "velvet-color": {
+      "file": "velvet-color.m4a",
+      "text": "The velvet is purple and the pearls are cream.",
+      "textHash": "cc6bdd3cd9440412362d4ee9596e60043d222e3660bf76c14a9e8874cbf805e1",
+      "durationMs": 3040
+    },
+    "jewel-colors": {
+      "file": "jewel-colors.m4a",
+      "text": "Blue for the round jewels, red for the diamonds.",
+      "textHash": "5b88ae50e0094937a8520cfe8a3c8708e537db5e1dc7ed1f1efac76ed6a3d800",
+      "durationMs": 3280
+    },
+    "lesson-outro": {
+      "file": "lesson-outro.m4a",
+      "text": "Your crown is finished, jewels and all. Who in your house gets to wear it first?",
+      "textHash": "c7bb6b6069843b91ad0f2b28cddb6b42dd0a52c32d142d15ce75766912b56020",
+      "durationMs": 4800
+    }
+  }
+}

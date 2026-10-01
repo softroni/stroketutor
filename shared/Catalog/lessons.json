@@ -1012,6 +1012,16 @@
       }
     },
     {
+      "id": "crown",
+      "status": "approved",
+      "objective": "Jeweled crown with five ball-tipped points, a band of seven jewels and a velvet cap",
+      "reference": {
+        "file": "crown.svg",
+        "source": "Codex image tool with the creator's Paper Coach - Advanced plugin (= system prompt style-v5-advanced), prompt docs/curriculum/fantasy-objects-prompts.md plus a size note, generated 2026-10-01, second candidate, white margin added; AI-generated for Paper Coach; owned by Softroni",
+        "license": "AI-generated for Paper Coach; owned by Softroni"
+      }
+    },
+    {
       "id": "potion-bottle",
       "status": "approved",
       "objective": "Round flask of purple potion with five bubbles, a ringed neck and a cork",
