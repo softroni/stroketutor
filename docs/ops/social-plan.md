@@ -5,6 +5,28 @@ How posting works day to day (the tool, settings, the record) is in [README.md](
 social*, and the studio-cli skill, *Posting lesson videos*. This file is the plan and **its build status: any
 session picks up from the checklist at the end**, and ticks it off in the same commit as the work.
 
+## Picking this up
+
+Nothing here needs a session to keep going. On this Mac (`m4-1`):
+
+- **17:00** the launch agent `com.softroni.papercoach-social` posts the day's lesson (`social next --log`); no
+  Claude involved. Installed from [com.softroni.papercoach-social.plist](com.softroni.papercoach-social.plist).
+- **17:45** the Claude routine **Paper Coach: Social** checks it, fixes what failed, and does the Monday numbers,
+  release news and the dates in *Schedule*. Its prompt is [routines/paper-coach-social.md](routines/paper-coach-social.md);
+  the copy the app runs is `~/.claude/scheduled-tasks/paper-coach-social/SKILL.md` (keep the two the same).
+- **00:00** the daily check does the same on a day the social routine didn't log "Social check:".
+- What needs Kevin reaches him as a push notification and under "Needs you" on Today.
+
+To see where things stand: the Studio's **Social** page (`#/social`: every post with its links, and *Coming up*),
+`npm run studio -- social check | queue | status` in `web/`, the Today log, and the checklist below.
+
+Outside the repo, on purpose: `~/.config/upload-post/config` (the Upload-Post key, never committed; the other
+settings in it are the profile `softroni`, the Facebook Page `1323162717550492`, the provider token `128560181`),
+the installed copies of the launch agent and the routine, and `.studio/social/posts.jsonl` (the full record; every
+finished post's links are also on the `ops-history` branch, `social/posts.jsonl`). On a new Mac: put the key and
+those settings back in the config file, copy and load the launch agent (README.md, *Lesson videos on social*),
+recreate the routine from its prompt (daily 5:45 PM, this folder, Bypass permissions), and run `social check`.
+
 ## What we post
 
 Every lesson in the version on sale gives, from the Studio, with no one filming anything:

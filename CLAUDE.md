@@ -14,7 +14,8 @@ follows it. In short:
 - A fix starts from what is on sale (`release/<version>` worktree), never from `main`, so unfinished work never ships.
 - **Tag every build Apple approves** as `<version>(<build>)`, e.g. `1.0(2)`, and push the tag. Only approved builds.
 - Claude also runs the Superwall A/B tests, Apple Ads (budget rule in the runbook), the daily lesson videos on
-  social, review replies, ASO and PostHog,
+  social ([docs/ops/social-plan.md](docs/ops/social-plan.md): the plan, Kevin's decisions, the schedule and a
+  checklist; start there), review replies, ASO and PostHog,
   and after anything worth telling runs `python3 docs/ops/today.py log "…"`, which updates the Studio **Today** page.
 - **Never delete past daily data**: `.studio/ops/history` (branch `ops-history`) and `log.jsonl` only grow.
 
