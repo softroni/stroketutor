@@ -972,7 +972,9 @@ protected tier needs it.
   - **A crown** opens the lesson's card: its drawing with the crown, "Rain Cloud is a Premium lesson", "Premium has
     every lesson on every path", **Save to my wish list** (green until saved, then a white "On my wish list" that
     takes it off again), "Draw Tulip" (the next free lesson, `PremiumAccess.freeLessonInstead`), "Not now" and a
-    small "For grown-ups".
+    small "For grown-ups". From the child's second tap on the same crown (counted per learner,
+    `ProfilePreferences.premiumTaps`), "For grown-ups" is the big second button and the free lesson moves beside
+    "Not now".
   - **The end of the first run**, after "More coming": "For the grown-up who set this up", with the child's first
     drawing and "I'm the grown-up".
   - **Settings › Premium**: "This part is for a grown-up." **The sketchbook**: a small "For grown-ups" under a
@@ -981,7 +983,7 @@ protected tier needs it.
     tapped and the wish list, then a paywall written for the parent, with the child's drawing and wish list.
     "Keep drawing free lessons" leaves at every step.
   - Saved wishes show on Home as **Your wish list** (tiles with a gold star; a tap opens the card again).
-  - Events: `wish_list_changed` (`added`), `parental_check_result` (`passed`, `wrong`, `back`, `left`, with `method`
+  - Events: `premium_lesson_tapped` carries `taps` (this learner's taps on that crown), `wish_list_changed` (`added`), `parental_check_result` (`passed`, `wrong`, `back`, `left`, with `method`
     and `entry`), and `offer_screen_viewed` with `entry` `sketchbook` for the new door.
   The gold "Next" card says only "Premium lesson".
 - **Teens** get the adult flow; an Ask to Buy purchase shows "Waiting for a grown-up to say yes" and unlocks when
@@ -1007,7 +1009,8 @@ protected tier needs it.
   review screenshot); `offer-more-coming` the first step after the first run; `offer-grown-up-paywall` the grown-up's
   paywall for a child with a drawing and a wish; `offer-plans` the plans sheet over the paywall;
   `offer-trial-started` "Your free week has started" with a made-up end seven days out; `offer-wish` and
-  `offer-wish-saved` a crowned lesson's card for a 6-to-9 learner, before and after the save; `offer-grown-up-setup`
+  `offer-wish-saved` a crowned lesson's card for a 6-to-9 learner, before and after the save, and
+  `offer-wish-again`, `offer-wish-again-saved` the same on a second tap, with "For grown-ups" in the free lesson's place; `offer-grown-up-setup`
   the card at the end of a child's first run; `offer-parental-check` the check after a crowned lesson, with another
   lesson on the wish list; `home-wish-list` Home with two wishes; `sketchbook-child` a child's sketchbook with its
   "For grown-ups" door (debug builds only). Prices appear only when StoreKit answers (the `PaperCoach.storekit` configuration).

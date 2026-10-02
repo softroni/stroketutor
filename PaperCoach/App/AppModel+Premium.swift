@@ -67,10 +67,15 @@ extension AppModel {
     /// Tapped on a finished lesson's completion or photo screen (the gold card),
     /// the cover remembers that lesson, so leaving without subscribing ends that
     /// screen the way its own "Not now" would (`finishOffer(_:subscribed:)`).
+    ///
+    /// Every tap is counted per lesson, for this learner (`premiumTapCount(for:)`):
+    /// a child who comes back to the same crown gets "For grown-ups" where the free
+    /// lesson was on its card (the creator's call, 2026-10-02).
     @discardableResult
     func offerPremiumIfNeeded(for lesson: Lesson) -> Bool {
         guard needsPremium(lesson) else { return false }
-        analytics.track(.premiumLessonTapped(lessonId: lesson.id))
+        let taps = preferences.recordPremiumTap(lesson.id)
+        analytics.track(.premiumLessonTapped(lessonId: lesson.id, taps: taps))
         switch cover {
         case let .completion(lessonId), let .capture(lessonId, false):
             offerReturnLessonId = lessonId
@@ -104,6 +109,11 @@ extension AppModel {
     /// The lessons on the child's wish list that still need Premium, oldest first.
     var wishedLessons: [Lesson] {
         preferences.wishList.compactMap { lesson(id: $0) }.filter { needsPremium($0) }
+    }
+
+    /// How many times this learner has tapped the lesson's crown, this tap included.
+    func premiumTapCount(for lesson: Lesson) -> Int {
+        preferences.premiumTaps[lesson.id] ?? 0
     }
 
     /// Whether the lesson is on the wish list of the learner who is drawing.

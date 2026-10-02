@@ -71,6 +71,9 @@ revenue, and judge it by whether it raises profit. Don't propose the products be
   is a Premium lesson", **Save to my wish list** (back from 1.0, where it was in the drawer), the next free lesson,
   "Not now" and a small "For grown-ups". It gives the child the word ("Premium") and a want to show, and tells them
   to ask no one.
+- **A second tap on the same crown** (Kevin, 2026-10-02): "For grown-ups" becomes the big second button and the free
+  lesson moves beside "Not now"; `premium_lesson_tapped` carries `taps`, so the two versions of the card can be told
+  apart in PostHog.
 - **Home's "Your wish list"** shelf, once something is saved.
 - **Setup:** after "More coming", a child's first run now shows "For the grown-up who set this up" with the first
   drawing, instead of "This part is for a grown-up".

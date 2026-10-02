@@ -17,7 +17,12 @@ import UIKit
 ///   the green button until pressed; then it steps back to a white "On my wish
 ///   list" and the free lesson turns green, so the loudest button never takes the
 ///   wish away. A second tap within a moment of the first is a double tap, not a
-///   change of mind, and is ignored.
+///   change of mind, and is ignored. When the child comes back to the same crown
+///   (a second tap on it or later, `AppModel.premiumTapCount(for:)`), the big
+///   second button is "For grown-ups" and the free lesson moves to the small one
+///   beside "Not now": they keep wanting this lesson, so the grown-up's door comes
+///   forward (the creator's call, 2026-10-02). Its words still only say who it is
+///   for.
 /// - **The end of the first run** (`.onboarding`, after "More coming"): a card for
 ///   the grown-up who set the app up — the person who answered the age question
 ///   for a young child is usually the parent holding the phone — with the child's
@@ -69,6 +74,7 @@ struct GrownUpHandoffView: View {
     private func lessonCard(_ lesson: Lesson) -> some View {
         let isWished = app.isWished(lesson)
         let free = app.freeLessonInstead(of: lesson)
+        let cameBack = app.premiumTapCount(for: lesson) >= 2
         return OfferScreenFrame {
             Spacer(minLength: 0)
 
@@ -101,15 +107,35 @@ struct GrownUpHandoffView: View {
             .buttonStyle(TactileButtonStyle(variant: isWished ? .secondary : .primary))
             .accessibilityValue(isWished ? "Saved" : "")
 
-            if let free {
-                Button("Draw \(free.title)") { onDrawInstead(free) }
+            if cameBack {
+                Button("For grown-ups", action: onGrownUp)
                     .buttonStyle(TactileButtonStyle(variant: isWished ? .primary : .secondary))
-            }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 28) { notNow; forGrownUps }
-                VStack(spacing: 0) { notNow; forGrownUps }
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 28) { notNow; drawInstead(free) }
+                    VStack(spacing: 0) { notNow; drawInstead(free) }
+                }
+            } else {
+                if let free {
+                    Button("Draw \(free.title)") { onDrawInstead(free) }
+                        .buttonStyle(TactileButtonStyle(variant: isWished ? .primary : .secondary))
+                }
+
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 28) { notNow; forGrownUps }
+                    VStack(spacing: 0) { notNow; forGrownUps }
+                }
             }
+        }
+    }
+
+    /// The free lesson as a quiet button, beside "Not now", once "For grown-ups"
+    /// has its place.
+    @ViewBuilder
+    private func drawInstead(_ free: Lesson?) -> some View {
+        if let free {
+            Button("Draw \(free.title)") { onDrawInstead(free) }
+                .buttonStyle(.quiet)
         }
     }
 

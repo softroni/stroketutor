@@ -446,14 +446,17 @@ enum DebugScreenHarness {
             app.selectedTab = .settings
             app.cover = .offer(.settings)
 
-        case "offer-wish", "offer-wish-saved":
+        case "offer-wish", "offer-wish-saved", "offer-wish-again", "offer-wish-again-saved":
             // A 6-to-9 learner taps a crowned lesson on the path they are drawing,
             // the first of it drawn: the lesson's card, with "Save to my wish
-            // list" and the next free lesson. For `offer-wish-saved`, after the save.
+            // list" and the next free lesson. `-saved`: after the save. `-again`:
+            // their second tap on that crown, where "For grown-ups" takes the free
+            // lesson's place.
             app.setAgeGroup(app.activeProfile.id, to: .from6To9)
             app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
             if let premiumLesson = firstPremiumLesson(preferring: treePath, in: shipped) {
-                if name == "offer-wish-saved" { app.preferences.toggleWish(premiumLesson.id) }
+                if name.hasSuffix("-saved") { app.preferences.toggleWish(premiumLesson.id) }
+                if name.hasPrefix("offer-wish-again") { app.preferences.premiumTaps[premiumLesson.id] = 2 }
                 app.selectedTab = .path
                 app.cover = .offer(.premiumLesson(lessonId: premiumLesson.id))
             }

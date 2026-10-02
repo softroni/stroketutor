@@ -379,6 +379,36 @@ final class PremiumTests: XCTestCase {
         XCTAssertEqual(changes.map { $0.properties["added"] }, ["true", "true", "false"])
     }
 
+    func testEveryCrownTapIsCountedPerLessonAndSent() throws {
+        let model = makeModel()
+        model.setAgeGroup(model.activeProfile.id, to: .from6To9)
+        let path = try premiumPath(in: model)
+        let first = path.lessons[PremiumAccess.freeLessonsPerPath]
+        let second = path.lessons[PremiumAccess.freeLessonsPerPath + 1]
+
+        for lesson in [first, second, first] {
+            model.offerPremiumIfNeeded(for: lesson)
+            model.finishOffer(.premiumLesson(lessonId: lesson.id), subscribed: false)
+        }
+
+        XCTAssertEqual(model.premiumTapCount(for: first), 2, "The card offers \"For grown-ups\" from here.")
+        XCTAssertEqual(model.premiumTapCount(for: second), 1)
+        let taps = sink.captured.filter { $0.name == "premium_lesson_tapped" }.map { $0.properties["taps"] }
+        XCTAssertEqual(taps, ["1", "1", "2"])
+    }
+
+    func testCrownTapsAreKeptPerLearnerAcrossLaunches() throws {
+        let preferences = ProfilePreferences(directory: base)
+        preferences.recordPremiumTap("mushroom")
+        XCTAssertEqual(preferences.recordPremiumTap("mushroom"), 2)
+
+        XCTAssertEqual(ProfilePreferences(directory: base).premiumTaps, ["mushroom": 2])
+
+        let json = #"{"currentPathId":"plants","wishList":["rose"]}"#
+        let older = try JSONDecoder().decode(ProfilePreferences.Values.self, from: Data(json.utf8))
+        XCTAssertEqual(older.premiumTaps, [:], "A file from before the count reads as no taps.")
+    }
+
     func testAFreeLessonOnTheListIsNeverShownAsAWish() throws {
         let model = makeModel()
         let path = try premiumPath(in: model)

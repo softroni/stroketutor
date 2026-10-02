@@ -22,6 +22,7 @@ final class ProfilePreferences {
         var defaultSpeed = 1.0
         var hasSeenPathsWelcome = false
         var wishList: [String] = []
+        var premiumTaps: [String: Int] = [:]
         var lessonButtonsOnLeft = false
 
         init() {}
@@ -34,6 +35,7 @@ final class ProfilePreferences {
             defaultSpeed = Self.validSpeed(try container.decodeIfPresent(Double.self, forKey: .defaultSpeed))
             hasSeenPathsWelcome = try container.decodeIfPresent(Bool.self, forKey: .hasSeenPathsWelcome) ?? defaults.hasSeenPathsWelcome
             wishList = try container.decodeIfPresent([String].self, forKey: .wishList) ?? defaults.wishList
+            premiumTaps = try container.decodeIfPresent([String: Int].self, forKey: .premiumTaps) ?? defaults.premiumTaps
             lessonButtonsOnLeft = try container.decodeIfPresent(Bool.self, forKey: .lessonButtonsOnLeft) ?? defaults.lessonButtonsOnLeft
         }
 
@@ -68,10 +70,15 @@ final class ProfilePreferences {
     /// welcomed a second time.
     var hasSeenPathsWelcome: Bool { didSet { save() } }
     /// Premium lessons a young learner saved "for later", oldest first, by lesson
-    /// id. The grown-up's paywall shows them, so the grown-up sees what the child is
-    /// asking for. Nothing in the app adds to it now: its button went with the
-    /// Premium lesson drawer (2026-09-27). Wishes saved before then are kept.
+    /// id, from a crowned lesson's card ("Save to my wish list"; in 1.0 the Premium
+    /// lesson drawer, gone from 1.1 to the build after it). Home shows them, and so
+    /// does the grown-up's paywall, so the grown-up sees what the child wanted.
     var wishList: [String] { didSet { save() } }
+    /// How many times each Premium lesson's crown was tapped without Premium, by
+    /// lesson id. From the second tap on the same lesson, a child's card for it
+    /// offers "For grown-ups" where the free lesson was (`GrownUpHandoffView`).
+    /// Kept on the device, like everything here.
+    var premiumTaps: [String: Int] { didSet { save() } }
     /// Which side of an iPad on its side the lesson's panel stands on — the words,
     /// the steps and the buttons (`PlayerStudioPanel`). Right by default; a learner
     /// who reaches with the other hand, or keeps the iPad on the other side of the
@@ -90,6 +97,7 @@ final class ProfilePreferences {
         defaultSpeed = values.defaultSpeed
         hasSeenPathsWelcome = values.hasSeenPathsWelcome
         wishList = values.wishList
+        premiumTaps = values.premiumTaps
         lessonButtonsOnLeft = values.lessonButtonsOnLeft
     }
 
@@ -106,6 +114,7 @@ final class ProfilePreferences {
         values.defaultSpeed = defaultSpeed
         values.hasSeenPathsWelcome = hasSeenPathsWelcome
         values.wishList = wishList
+        values.premiumTaps = premiumTaps
         values.lessonButtonsOnLeft = lessonButtonsOnLeft
         return values
     }
@@ -121,6 +130,7 @@ final class ProfilePreferences {
         defaultSpeed = values.defaultSpeed
         hasSeenPathsWelcome = values.hasSeenPathsWelcome
         wishList = values.wishList
+        premiumTaps = values.premiumTaps
         lessonButtonsOnLeft = values.lessonButtonsOnLeft
     }
 
@@ -131,6 +141,14 @@ final class ProfilePreferences {
         } else {
             wishList.append(lessonId)
         }
+    }
+
+    /// Counts one more tap on a Premium lesson's crown, and returns the count.
+    @discardableResult
+    func recordPremiumTap(_ lessonId: String) -> Int {
+        let count = (premiumTaps[lessonId] ?? 0) + 1
+        premiumTaps[lessonId] = count
+        return count
     }
 
     static func write(_ values: Values, to directory: URL) throws {

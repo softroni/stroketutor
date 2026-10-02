@@ -176,6 +176,7 @@ struct AnalyticsEvent: Equatable {
         static let added = "added"
         static let result = "result"
         static let method = "method"
+        static let taps = "taps"
     }
 
     // MARK: App and acquisition
@@ -291,9 +292,11 @@ struct AnalyticsEvent: Equatable {
         AnalyticsEvent(name: "ob_finished", properties: [Key.startedLesson: startedLesson ? "true" : "false"])
     }
 
-    /// A crowned lesson was tapped without Premium.
-    static func premiumLessonTapped(lessonId: String) -> AnalyticsEvent {
-        AnalyticsEvent(name: "premium_lesson_tapped", properties: [Key.lessonId: lessonId])
+    /// A crowned lesson was tapped without Premium. `taps` is how many times this
+    /// learner has tapped this lesson's crown, this tap included: from 2, a child's
+    /// card for it puts "For grown-ups" where the free lesson was.
+    static func premiumLessonTapped(lessonId: String, taps: Int) -> AnalyticsEvent {
+        AnalyticsEvent(name: "premium_lesson_tapped", properties: [Key.lessonId: lessonId, Key.taps: String(taps)])
     }
 
     /// A Premium lesson went on (`added` true) or came off a learner's wish list,
