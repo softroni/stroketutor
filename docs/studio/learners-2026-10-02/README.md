@@ -13,8 +13,9 @@ for a kept photo, a tap on a locked lesson and a wish.
 
 <img src="day.png" width="900">
 
-Every learner has a letter on the page in their own color (A, B… in the order they first opened the app), the same
-on their session, on the leaderboard and in their history; a learner 13 or over wears a ring.
+Every learner has an animal on the page (🦊 🐼 🐸…, in the order they first opened the app), the same on their
+session, on the leaderboard and in their history. A learner 13 or over keeps theirs from day to day and wears a ring.
+It is the page's name for them, not the avatar they chose in the app, which is never sent.
 
 ## Narrowing it
 
@@ -27,6 +28,11 @@ A tap on a number shows only the learners it counts (here, who saw a price); the
 Sessions shows everyone again. Today's numbers and pictures open the page already narrowed.
 
 <img src="filter-number.png" width="900">
+
+A stage of the journey works the same way: a tap shows the installs who got that far, and "2 stopped" those who got
+that far and no further (here, who stopped after one drawing):
+
+<img src="filter-journey.png" width="900">
 
 ## Top learners
 

@@ -318,11 +318,54 @@
 
 .st-learners__journey li {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+/* A stage of the journey is a way in: it shows the installs who got that far. */
+.st-learners__stage-row {
+  display: grid;
   grid-template-columns: 150px minmax(0, 1fr) 28px;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
-  color: var(--ink);
+  margin: -3px -6px;
+  padding: 3px 6px;
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.st-learners__stage-row:hover {
+  background: var(--surface-hover);
+}
+
+.st-learners__stage-row[aria-current='true'] {
+  background: var(--accent-tint);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* "2 stopped": the installs who got this far and no further. */
+.st-learners__stopped {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.st-learners__stopped:hover {
+  background: var(--amber-tint);
+}
+
+.st-learners__stopped[aria-current='true'] {
+  background: var(--amber-soft);
+  box-shadow: inset 0 0 0 1px var(--amber-line);
 }
 
 .st-learners__bar {
@@ -768,13 +811,12 @@
   display: inline-grid;
   flex: none;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: var(--avatar);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 750;
+  /* The animal on a soft wash of the learner's color, so the emoji stays the thing you see. */
+  background: color-mix(in srgb, var(--avatar) 22%, var(--surface));
+  font-size: 17px;
   line-height: 1;
   vertical-align: middle;
 }
@@ -1120,7 +1162,7 @@ a.st-learners__day-face:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .st-learners__journey li {
+  .st-learners__stage-row {
     grid-template-columns: 110px minmax(0, 1fr) 24px;
   }
 

@@ -228,7 +228,7 @@ export function LearnersView({
         <Picked.Provider value={lesson}>
           <Numbers report={report} only={only} href={(key) => here({ only: key === 'sessions' || key === only ? null : key })} />
           <div className="st-learners__pair">
-            <Journey report={report} />
+            <Journey report={report} only={only} href={(next) => here({ only: next === only ? null : next })} />
             <MostDrawn report={report} library={library} picked={lesson} href={(drawn) => here({ lesson: drawn === lesson ? null : drawn })} />
           </div>
           <Leaders
@@ -317,6 +317,16 @@ const ONLY_WORDS: Record<Only, string> = {
   photos: 'who kept a photo',
   price: 'who saw a price',
   bought: 'who started a trial or bought',
+  'reached-onboarded': 'new installs who finished onboarding',
+  'reached-first': 'new installs who made a first drawing',
+  'reached-second': 'new installs who made a second drawing',
+  'reached-price': 'new installs who saw a price',
+  'reached-bought': 'new installs who started a trial or bought',
+  'stopped-installed': 'new installs who left during onboarding',
+  'stopped-onboarded': 'new installs who finished onboarding but drew nothing',
+  'stopped-first': 'new installs who stopped after one drawing',
+  'stopped-second': 'new installs who drew twice or more but saw no price',
+  'stopped-price': 'new installs who saw a price but did not buy',
 }
 
 /**
@@ -344,7 +354,7 @@ function Numbers({
           before={before}
           href={href(number.key)}
           picked={number.key === only}
-          hint={number.key === 'sessions' || number.key === only ? 'show everyone' : `show only ${ONLY_WORDS[number.key]}`}
+          hint={number.key === 'sessions' || number.key === only ? 'show everyone' : `show only ${ONLY_WORDS[number.key as Only]}`}
         />
       ))}
     </section>
@@ -383,13 +393,15 @@ function NumberTile({
 }
 
 /**
- * Who a session or a leader is, at a glance: their letter on this page in their own
- * color, the same wherever they appear on it. A learner 13 or over, who can be
- * followed from day to day, wears a ring (and their #tag, which never changes).
+ * Who a session or a leader is, at a glance: their animal on a circle of their own
+ * color, the same wherever they appear on the page. A learner 13 or over, who can be
+ * followed from day to day, keeps their animal on every day and wears a ring. The
+ * animal is the page's name for them, not the avatar they chose in the app, which
+ * is never sent.
  */
 function LearnerAvatar({ session }: { session: LearnerSession }) {
   const tag = learnerTag(session)
-  const label = [`Learner ${session.letter ?? ''}`.trim(), tag, ageLabel(session.age)].filter(Boolean).join(', ')
+  const label = [session.animal?.name ?? 'Learner', tag, ageLabel(session.age)].filter(Boolean).join(', ')
   return (
     <span
       className={`st-learners__avatar st-learners__avatar--${session.color ?? 0}${session.child ? '' : ' st-learners__avatar--known'}`}
@@ -397,14 +409,18 @@ function LearnerAvatar({ session }: { session: LearnerSession }) {
       aria-label={label}
       title={label}
     >
-      {session.letter ?? '•'}
+      {session.animal?.emoji ?? '•'}
     </span>
   )
 }
 
 // ---------- The journey ----------
 
-function Journey({ report }: { report: LearnersReport }) {
+/**
+ * The journey of the period's installs, stage by stage. A stage is a way in: a tap shows
+ * the installs who got that far, and "N stopped" those who got that far and no further.
+ */
+function Journey({ report, only, href }: { report: LearnersReport; only: Only | null; href: (only: Only) => string }) {
   const most = Math.max(1, ...report.journey.map((stage) => stage.children + stage.teens))
   const installs = report.journey[0].children + report.journey[0].teens
   const what = report.period === 'day' ? 'the day’s' : report.period === 'week' ? 'the week’s' : 'the month’s'
@@ -425,23 +441,40 @@ function Journey({ report }: { report: LearnersReport }) {
         <ol className="st-learners__journey">
           {report.journey.map((stage) => {
             const total = stage.children + stage.teens
+            const reachedIt: Only = stage.key === 'installed' ? 'installs' : (`reached-${stage.key}` as Only)
+            const stoppedIt = stage.key === 'bought' ? null : (`stopped-${stage.key}` as Only)
             return (
               <li key={stage.key}>
-                <span className="st-learners__stage">{stage.label}</span>
-                <span className="st-learners__bar" aria-hidden="true">
-                  <span
-                    className="st-learners__bar-children"
-                    style={{ width: `${(stage.children / most) * 100}%` }}
-                  />
-                  <span className="st-learners__bar-teens" style={{ width: `${(stage.teens / most) * 100}%` }} />
-                </span>
-                <span
-                  className="st-learners__count"
-                  aria-label={`${total}: ${stage.children} under 13, ${stage.teens} 13 and over`}
-                  title={`${stage.children} under 13, ${stage.teens} 13 and over`}
+                <a
+                  className="st-learners__stage-row"
+                  href={href(reachedIt)}
+                  aria-current={only === reachedIt ? 'true' : undefined}
+                  aria-label={`${stage.label}: ${total}, ${stage.children} under 13, ${stage.teens} 13 and over. ${only === reachedIt ? 'Show everyone' : 'Show only them'}`}
                 >
-                  {total}
-                </span>
+                  <span className="st-learners__stage">{stage.label}</span>
+                  <span className="st-learners__bar" aria-hidden="true">
+                    <span
+                      className="st-learners__bar-children"
+                      style={{ width: `${(stage.children / most) * 100}%` }}
+                    />
+                    <span className="st-learners__bar-teens" style={{ width: `${(stage.teens / most) * 100}%` }} />
+                  </span>
+                  <span className="st-learners__count" title={`${stage.children} under 13, ${stage.teens} 13 and over`}>
+                    {total}
+                  </span>
+                </a>
+                {stoppedIt && stage.stopped > 0 ? (
+                  <a
+                    className="st-learners__stopped"
+                    href={href(stoppedIt)}
+                    aria-current={only === stoppedIt ? 'true' : undefined}
+                    title={`Show only the ${ONLY_WORDS[stoppedIt]}`}
+                  >
+                    {stage.stopped} stopped
+                  </a>
+                ) : (
+                  <span className="st-learners__stopped st-learners__stopped--none" />
+                )}
               </li>
             )
           })}

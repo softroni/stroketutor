@@ -30,11 +30,67 @@ export type Source = 'all' | 'ads' | 'organic'
 
 export const PERIODS: Period[] = ['day', 'week', 'month']
 
-/** A number on the page that narrows it to the learners it counts (Sessions counts everyone, so it has none). */
-export type Only = 'installs' | 'lessons' | 'photos' | 'price' | 'bought'
-export const ONLY: Only[] = ['installs', 'lessons', 'photos', 'price', 'bought']
+/** The journey's stages, in order: what a new install got as far as. */
+export type Stage = 'installed' | 'onboarded' | 'first' | 'second' | 'price' | 'bought'
+export const STAGES: Stage[] = ['installed', 'onboarded', 'first', 'second', 'price', 'bought']
 
-/** Whether a learner is one of those a number counts. */
+/**
+ * What narrows the page to some of its learners: a number (Sessions counts everyone, so it
+ * has none), a stage of the journey reached (`reached-first`: new installs who made a first
+ * drawing; Installed is `installs`), or a stage stopped at (`stopped-first`: who got that far
+ * and no further).
+ */
+export type Only =
+  | 'installs'
+  | 'lessons'
+  | 'photos'
+  | 'price'
+  | 'bought'
+  | `reached-${Exclude<Stage, 'installed'>}`
+  | `stopped-${Exclude<Stage, 'bought'>}`
+export const ONLY: Only[] = [
+  'installs',
+  'lessons',
+  'photos',
+  'price',
+  'bought',
+  'reached-onboarded',
+  'reached-first',
+  'reached-second',
+  'reached-price',
+  'reached-bought',
+  'stopped-installed',
+  'stopped-onboarded',
+  'stopped-first',
+  'stopped-second',
+  'stopped-price',
+]
+
+/** Whether a new install got as far as a stage of the journey. */
+export function reached(session: LearnerSession, stage: Stage): boolean {
+  if (!session.isNew) return false
+  switch (stage) {
+    case 'installed':
+      return true
+    case 'onboarded':
+      return session.items.some((item) => item.kind === 'onboarding')
+    case 'first':
+      return session.finished >= 1
+    case 'second':
+      return session.finished >= 2
+    case 'price':
+      return session.items.some((item) => item.kind === 'price')
+    case 'bought':
+      return session.items.some((item) => item.kind === 'bought')
+  }
+}
+
+/** The stage after this one, or null after the last. */
+function nextStage(stage: Stage): Stage | null {
+  return STAGES[STAGES.indexOf(stage) + 1] ?? null
+}
+
+/** Whether a learner is one of those a number, or a stage of the journey, counts. */
 export function counts(session: LearnerSession, only: Only): boolean {
   switch (only) {
     case 'installs':
@@ -48,6 +104,82 @@ export function counts(session: LearnerSession, only: Only): boolean {
     case 'bought':
       return session.items.some((item) => item.kind === 'bought')
   }
+  const [kind, stage] = only.split('-') as ['reached' | 'stopped', Stage]
+  if (kind === 'reached') return reached(session, stage)
+  const next = nextStage(stage)
+  return reached(session, stage) && (!next || !reached(session, next))
+}
+
+/** A learner's animal on the page: who they are at a glance, wherever they appear on it. */
+export interface Animal {
+  emoji: string
+  name: string
+}
+
+/** Kid-friendly animals that stay distinct at the size of a small circle. */
+export const ANIMALS: Animal[] = [
+  { emoji: '🦊', name: 'Fox' },
+  { emoji: '🐼', name: 'Panda' },
+  { emoji: '🐸', name: 'Frog' },
+  { emoji: '🐙', name: 'Octopus' },
+  { emoji: '🦁', name: 'Lion' },
+  { emoji: '🐨', name: 'Koala' },
+  { emoji: '🐯', name: 'Tiger' },
+  { emoji: '🐰', name: 'Bunny' },
+  { emoji: '🐻', name: 'Bear' },
+  { emoji: '🐷', name: 'Pig' },
+  { emoji: '🐵', name: 'Monkey' },
+  { emoji: '🦉', name: 'Owl' },
+  { emoji: '🐧', name: 'Penguin' },
+  { emoji: '🐢', name: 'Turtle' },
+  { emoji: '🦋', name: 'Butterfly' },
+  { emoji: '🐝', name: 'Bee' },
+  { emoji: '🐞', name: 'Ladybug' },
+  { emoji: '🦄', name: 'Unicorn' },
+  { emoji: '🐳', name: 'Whale' },
+  { emoji: '🦒', name: 'Giraffe' },
+  { emoji: '🐘', name: 'Elephant' },
+  { emoji: '🦔', name: 'Hedgehog' },
+  { emoji: '🐬', name: 'Dolphin' },
+  { emoji: '🦜', name: 'Parrot' },
+]
+
+/**
+ * Every learner's animal, from their order on the page. A learner 13 or over, who can be
+ * followed from day to day, claims the animal their id points at first, so they keep it
+ * on every day (the next free one if another 13+ learner already has it); everyone else
+ * takes the next free animal in order. Past the last animal, they come round again
+ * numbered: "Fox 2".
+ */
+export function animalsFor(learners: { key: string; child: boolean }[]): Map<string, Animal> {
+  const given = new Map<string, Animal>()
+  const taken = new Set<number>()
+  for (const learner of learners) {
+    if (learner.child || taken.size >= ANIMALS.length) continue
+    let hash = 0
+    for (const unit of learner.key) hash = (hash * 31 + unit.charCodeAt(0)) >>> 0
+    let index = hash % ANIMALS.length
+    while (taken.has(index)) index = (index + 1) % ANIMALS.length
+    taken.add(index)
+    given.set(learner.key, ANIMALS[index])
+  }
+  let round = 1
+  let next = 0
+  for (const learner of learners) {
+    if (given.has(learner.key)) continue
+    while (taken.has(next)) {
+      next += 1
+      if (next === ANIMALS.length) {
+        next = 0
+        round += 1
+        taken.clear()
+      }
+    }
+    taken.add(next)
+    const animal = ANIMALS[next]
+    given.set(learner.key, round > 1 ? { emoji: animal.emoji, name: `${animal.name} ${round}` } : animal)
+  }
+  return given
 }
 
 /** One app event, as the Studio server hands it over. Only what the page reads. */
@@ -378,9 +510,9 @@ export interface LearnerSession {
   finished: number
   /** Photos kept. */
   kept: number
-  /** "A", "B"…: who they are on this page, in the order they first opened the app in the period. */
-  letter?: string
-  /** Their avatar's color on this page (0 to AVATAR_COLORS − 1), by their letter, so neighbors differ. */
+  /** Who they are on this page: their animal (`animalsFor`). */
+  animal?: Animal
+  /** Their avatar's color on this page (0 to AVATAR_COLORS − 1), by their order, so neighbors differ. */
   color?: number
   items: SessionItem[]
   end: SessionEnd
@@ -586,12 +718,6 @@ function endOf(items: SessionItem[], events: LearnerEvent[], hereNow: boolean): 
   }
 }
 
-/** "A" … "Z", then "AA", "AB"…: a learner's letter on the page. */
-export function letterOf(index: number): string {
-  const letter = String.fromCharCode(65 + (index % 26))
-  return index < 26 ? letter : `${letterOf(Math.floor(index / 26) - 1)}${letter}`
-}
-
 /** How many avatar colors the page has. */
 export const AVATAR_COLORS = 8
 
@@ -647,10 +773,12 @@ export interface ReportNumber {
 }
 
 export interface JourneyStage {
-  key: 'installed' | 'onboarded' | 'first' | 'second' | 'price' | 'bought'
+  key: Stage
   label: string
   children: number
   teens: number
+  /** Got this far and no further: the drop to the next stage. Zero for the last. */
+  stopped: number
 }
 
 export interface DrawnLesson {
@@ -712,20 +840,19 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
   const { from, to } = periodRange(period, date)
   const before = periodRange(period, stepPeriod(period, date, -1))
   const everybody = stitch(events)
-  // Letters (and colors) in the order learners first opened the app in the period, among
+  // Animals and colors in the order learners first opened the app in the period, among
   // everybody, before any narrowing: a learner keeps theirs whatever the page is narrowed to.
   const firstIn = (learner: Learner) =>
     learner.events.find((event) => {
       const day = dayOf(event.at)
       return day >= from && day < to
     })?.at
-  const place = new Map(
-    everybody
-      .map((learner) => ({ key: learner.key, at: firstIn(learner) }))
-      .filter((entry): entry is { key: string; at: number } => entry.at !== undefined)
-      .sort((a, b) => a.at - b.at)
-      .map((entry, index) => [entry.key, index]),
-  )
+  const inOrder = everybody
+    .map((learner) => ({ key: learner.key, at: firstIn(learner), child: isChildAge(ageOf(learner.events)) }))
+    .filter((entry): entry is { key: string; at: number; child: boolean } => entry.at !== undefined)
+    .sort((a, b) => a.at - b.at)
+  const place = new Map(inOrder.map((entry, index) => [entry.key, index]))
+  const animals = animalsFor(inOrder)
   const learners = everybody.filter((learner) => {
     const age = ageOf(learner.events)
     if (who === 'children' && !isChildAge(age)) return false
@@ -753,7 +880,7 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
   const everySession = everyone.map((entry) => buildSession(entry.learner, entry.events, now))
   for (const session of everySession) {
     const index = place.get(session.key) ?? 0
-    session.letter = letterOf(index)
+    session.animal = animals.get(session.key)
     session.color = index % AVATAR_COLORS
   }
   const previous = inRange(before).map((entry) => buildSession(entry.learner, entry.events, now))
@@ -770,7 +897,8 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
     from,
     to,
     numbers,
-    journey: journeyOf(sessions),
+    // Like the numbers, the journey is a way in, so it stays whole.
+    journey: journeyOf(everySession),
     mostDrawn: mostDrawnOf(current.flatMap((entry) => entry.events)),
     sessions: period === 'day' ? [...sessions].sort((a, b) => b.start - a.start) : [],
     days: period === 'day' ? [] : daysOf(from, to, current),
@@ -916,25 +1044,27 @@ function numbersOf(
   ]
 }
 
+const STAGE_LABELS: Record<Stage, string> = {
+  installed: 'Installed',
+  onboarded: 'Finished onboarding',
+  first: 'First drawing',
+  second: 'Second drawing',
+  price: 'Saw a price',
+  bought: 'Started a trial or bought',
+}
+
 function journeyOf(sessions: LearnerSession[]): JourneyStage[] {
-  const installs = sessions.filter((session) => session.isNew)
-  const stage = (key: JourneyStage['key'], label: string, test: (session: LearnerSession) => boolean): JourneyStage => {
-    const passed = installs.filter(test)
+  return STAGES.map((key) => {
+    const passed = sessions.filter((session) => reached(session, key))
+    const next = nextStage(key)
     return {
       key,
-      label,
+      label: STAGE_LABELS[key],
       children: passed.filter((session) => session.child).length,
       teens: passed.filter((session) => !session.child).length,
+      stopped: next ? passed.filter((session) => !reached(session, next)).length : 0,
     }
-  }
-  return [
-    stage('installed', 'Installed', () => true),
-    stage('onboarded', 'Finished onboarding', (session) => session.items.some((item) => item.kind === 'onboarding')),
-    stage('first', 'First drawing', (session) => session.finished >= 1),
-    stage('second', 'Second drawing', (session) => session.finished >= 2),
-    stage('price', 'Saw a price', (session) => session.items.some((item) => item.kind === 'price')),
-    stage('bought', 'Started a trial or bought', (session) => session.items.some((item) => item.kind === 'bought')),
-  ]
+  })
 }
 
 function mostDrawnOf(events: LearnerEvent[]): DrawnLesson[] {

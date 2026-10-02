@@ -11,8 +11,9 @@ import {
   endLesson,
   endWords,
   lastedFor,
+  ANIMALS,
+  animalsFor,
   learnerTag,
-  letterOf,
   periodLabel,
   periodRange,
   spoken,
@@ -225,27 +226,49 @@ describe('buildReport for Oct 2', () => {
     const price = buildReport(events, { period: 'day', date: '2026-10-02', only: 'price', now: later })
     expect(price.sessions.map((session) => session.key).sort()).toEqual(['u07', 'u09', 'u10'])
     expect(price.numbers).toEqual(report.numbers)
-    expect(price.journey.find((stage) => stage.key === 'installed')).toMatchObject({ children: 1, teens: 2 })
+    expect(price.journey).toEqual(report.journey)
     const photos = buildReport(events, { period: 'day', date: '2026-10-02', only: 'photos', now: later })
     expect(photos.leaders.map((session) => session.key)).toEqual(['u03', 'u04'])
     expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'installs', now: later }).sessions).toHaveLength(6)
     expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'bought', now: later }).sessions).toEqual([])
   })
 
-  it('gives every learner a letter in the order they first opened the app, kept when narrowed', () => {
-    expect(report.leaders.map((session) => session.letter)).toEqual(['B', 'C', 'A', 'E', 'G', 'F'])
-    const price = buildReport(events, { period: 'day', date: '2026-10-02', only: 'price', now: later })
-    expect(price.sessions.map((session) => session.letter)).toEqual(['G', 'F', 'E'])
+  it('gives every learner an animal, the same wherever they appear, whatever the page is narrowed to', () => {
+    const animal = (list: { key: string; animal?: { name: string } }[], key: string) => list.find((session) => session.key === key)?.animal?.name
+    const names = new Set(report.sessions.map((session) => session.animal?.name))
+    expect(names.size).toBe(7)
     const cloud = buildReport(events, { period: 'day', date: '2026-10-02', lesson: 'cloud', now: later })
-    expect(cloud.leaders.map((session) => session.letter)).toEqual(['B', 'C'])
     const teens = buildReport(events, { period: 'day', date: '2026-10-02', who: 'teens', now: later })
-    expect(teens.sessions.map((session) => session.letter)).toEqual(['F', 'E'])
+    expect(animal(cloud.leaders, 'u03')).toBe(animal(report.sessions, 'u03'))
+    expect(animal(teens.sessions, 'u07')).toBe(animal(report.sessions, 'u07'))
+    // Children take the animals in order; the first child to open the app is the Fox.
+    expect(animal(report.sessions, 'u02')).toBe('Fox')
   })
 
-  it('names letters past Z, and colors learners in turn so neighbors differ', () => {
-    expect([0, 25, 26, 27, 51, 52].map(letterOf)).toEqual(['A', 'Z', 'AA', 'AB', 'AZ', 'BA'])
+  it('keeps a 13+ learner’s animal from day to day, and numbers a second round', () => {
+    const today = animalsFor([{ key: 'u07', child: false }, { key: 'kid', child: true }])
+    const another = animalsFor([{ key: 'x', child: true }, { key: 'y', child: true }, { key: 'u07', child: false }])
+    expect(another.get('u07')).toEqual(today.get('u07'))
+    const crowd = animalsFor(Array.from({ length: ANIMALS.length + 1 }, (_, index) => ({ key: `c${index}`, child: true })))
+    expect(crowd.get(`c${ANIMALS.length}`)?.name).toBe('Fox 2')
     const colors = [...report.sessions].sort((a, b) => a.start - b.start).map((session) => session.color)
     expect(colors).toEqual([0, 1, 2, 3, 4, 5, 6])
+  })
+
+  it('follows the journey: who reached a stage, and who stopped there', () => {
+    expect(report.journey.map((stage) => [stage.key, stage.stopped])).toEqual([
+      ['installed', 0],
+      ['onboarded', 1],
+      ['first', 2],
+      ['second', 2],
+      ['price', 3],
+      ['bought', 0],
+    ])
+    const stoppedFirst = buildReport(events, { period: 'day', date: '2026-10-02', only: 'stopped-first', now: later })
+    expect(stoppedFirst.sessions.map((session) => session.key).sort()).toEqual(['u09', 'u10'])
+    const reachedSecond = buildReport(events, { period: 'day', date: '2026-10-02', only: 'reached-second', now: later })
+    expect(reachedSecond.sessions.map((session) => session.key).sort()).toEqual(['u02', 'u03', 'u07'])
+    expect(stoppedFirst.journey).toEqual(report.journey)
   })
 
   it('tags a 13+ learner so they can be told apart across days, and never a child', () => {
