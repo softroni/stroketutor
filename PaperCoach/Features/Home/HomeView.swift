@@ -12,9 +12,12 @@ import SwiftUI
 ///    as tiles scrolling sideways, every one in full color on white paper: done in
 ///    gold, the next in green, what is coming behind a gray edge and a small lock,
 ///    so a learner can see what they will get to draw.
-/// 3. **Your drawings** — once the sketchbook has pages, the latest few photos in a
+/// 3. **Your wish list** — once the learner has saved a Premium lesson from its
+///    card (`GrownUpHandoffView`), those lessons as tiles with a gold star; a tap
+///    opens the card again. Gone when the list is empty or Premium unlocks them.
+/// 4. **Your drawings** — once the sketchbook has pages, the latest few photos in a
 ///    strip; a tap goes to the Sketchbook tab.
-/// 4. **Try something new** — up to four paths not yet started, as picture cards
+/// 5. **Try something new** — up to four paths not yet started, as picture cards
 ///    in their tints (the path's first lesson in color on white paper), and "See
 ///    all 100 lessons", which opens the Lessons tab. Gone once every path is started.
 ///
@@ -66,6 +69,11 @@ struct HomeView: View {
                                   onOpenPath: { app.open(path) },
                                   onOpenLesson: { open($0, in: path) })
                             .padding(.top, 14)
+                    }
+
+                    if !wishes.isEmpty {
+                        wishListShelf
+                            .padding(.top, 34)
                     }
 
                     if !recentPages.isEmpty {
@@ -227,6 +235,11 @@ struct HomeView: View {
                                     day: PathSuggestions.dayNumber(of: .now))
     }
 
+    /// The Premium lessons on the learner's wish list, oldest first.
+    private var wishes: [Lesson] {
+        app.wishedLessons
+    }
+
     private var recentPages: [SketchbookPage] {
         Array(app.sketchbook.pages.prefix(Self.recentPageCount))
     }
@@ -273,6 +286,36 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, Theme.gutter)
                 .padding(.vertical, 2)
+            }
+        }
+    }
+
+    // MARK: - Your wish list
+
+    /// What the learner saved for later, in a row that scrolls sideways: the
+    /// lessons in color with their crown and a gold star. A tap opens the lesson's
+    /// card, as its crown does anywhere, where it can come off the list.
+    private var wishListShelf: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionTitle(text: "Your wish list", showsChevron: false)
+                .padding(.horizontal, Theme.gutter)
+                .accessibilityAddTraits(.isHeader)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: 14) {
+                    ForEach(wishes) { lesson in
+                        LessonTile(lesson: lesson,
+                                   position: app.path(id: lesson.pathId)?.position(of: lesson.id) ?? 1,
+                                   state: .wished,
+                                   isPremium: true) {
+                            app.offerPremiumIfNeeded(for: lesson)
+                        }
+                    }
+                }
+                .padding(.horizontal, Theme.gutter)
+                // Room for the star, which sits on the tile's top edge.
+                .padding(.top, 12)
+                .padding(.bottom, 10)
             }
         }
     }

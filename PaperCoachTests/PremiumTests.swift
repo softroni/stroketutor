@@ -90,6 +90,69 @@ final class PremiumTests: XCTestCase {
         XCTAssertNil(suggestion, "Fruits' next lesson is the fourth, which is Premium")
     }
 
+    // MARK: - The free lesson on a crowned lesson's card
+
+    func testTheCardOffersTheNextFreeLessonOfTheTappedLessonsOwnPath() throws {
+        let plants = try Self.makePath(id: "plants", lessonCount: 10)
+        let fruits = try Self.makePath(id: "fruits", lessonCount: 10)
+        let progress = ProgressStore(baseDirectory: base)
+        // Pine tree drawn, tulip and cactus not; the child taps the crowned mushroom.
+        progress.markCompleted(plants.lessons[0].id, pathId: plants.id)
+
+        let offered = PremiumAccess.freeLessonInstead(of: plants.lessons[3],
+                                                      paths: [plants, fruits],
+                                                      progress: progress)
+
+        XCTAssertEqual(offered?.id, plants.lessons[1].id)
+    }
+
+    func testTheCardLooksToOtherPathsOnceItsOwnFreeLessonsAreDrawn() throws {
+        let plants = try Self.makePath(id: "plants", lessonCount: 10)
+        let fruits = try Self.makePath(id: "fruits", lessonCount: 10)
+        let progress = ProgressStore(baseDirectory: base)
+        for lesson in plants.lessons.prefix(3) { progress.markCompleted(lesson.id, pathId: plants.id) }
+
+        let offered = PremiumAccess.freeLessonInstead(of: plants.lessons[3],
+                                                      paths: [plants, fruits],
+                                                      progress: progress)
+
+        XCTAssertEqual(offered?.id, fruits.lessons[0].id)
+    }
+
+    func testDrawingTheFreeLessonInsteadClosesTheCoverAndOpensItsPreview() throws {
+        let model = makeModel()
+        model.setAgeGroup(model.activeProfile.id, to: .from6To9)
+        let path = try premiumPath(in: model)
+        let crowned = path.lessons[PremiumAccess.freeLessonsPerPath]
+        model.offerPremiumIfNeeded(for: crowned)
+        let free = try XCTUnwrap(model.freeLessonInstead(of: crowned))
+        XCTAssertFalse(model.needsPremium(free))
+
+        model.finishOffer(.premiumLesson(lessonId: crowned.id), subscribed: false, drawingInstead: free)
+
+        XCTAssertNil(model.cover)
+        XCTAssertEqual(model.topRoute(of: model.selectedTab), .lessonPreview(lessonId: free.id))
+        XCTAssertEqual(sink.captured.last { $0.name == "offer_finished" }?.properties["subscribed"], "false")
+    }
+
+    func testDrawingTheFreeLessonInsteadAlsoLeavesAFinishedLessonsScreen() throws {
+        let model = makeModel()
+        model.setAgeGroup(model.activeProfile.id, to: .from6To9)
+        let path = try premiumPath(in: model)
+        let lastFree = path.lessons[PremiumAccess.freeLessonsPerPath - 1]
+        model.presentCompletion(lastFree)
+        let crowned = try XCTUnwrap(model.premiumNextLesson(after: lastFree))
+        model.offerPremiumIfNeeded(for: crowned)
+        XCTAssertEqual(model.offerReturnLessonId, lastFree.id)
+        let free = try XCTUnwrap(model.freeLessonInstead(of: crowned))
+
+        model.finishOffer(.premiumLesson(lessonId: crowned.id), subscribed: false, drawingInstead: free)
+
+        XCTAssertNil(model.cover)
+        XCTAssertNil(model.offerReturnLessonId)
+        XCTAssertEqual(model.topRoute(of: model.selectedTab), .lessonPreview(lessonId: free.id))
+    }
+
     // MARK: - A tap on a Premium lesson
 
     func testATapOnAPremiumLessonOpensThePaywallForTeensAndAdults() throws {
@@ -294,6 +357,37 @@ final class PremiumTests: XCTestCase {
         XCTAssertEqual(ProfilePreferences(directory: base).wishList, ["rose"])
     }
 
+    func testSavingAWishPutsItOnTheListAndSaysSo() throws {
+        let model = makeModel()
+        model.setAgeGroup(model.activeProfile.id, to: .from6To9)
+        let path = try premiumPath(in: model)
+        let first = path.lessons[PremiumAccess.freeLessonsPerPath]
+        let second = path.lessons[PremiumAccess.freeLessonsPerPath + 1]
+
+        model.toggleWish(second)
+        model.toggleWish(first)
+
+        XCTAssertTrue(model.isWished(first))
+        XCTAssertEqual(model.wishedLessons.map(\.id), [second.id, first.id], "Oldest wish first.")
+
+        model.toggleWish(second)
+
+        XCTAssertFalse(model.isWished(second))
+        XCTAssertEqual(model.wishedLessons.map(\.id), [first.id])
+        let changes = sink.captured.filter { $0.name == "wish_list_changed" }
+        XCTAssertEqual(changes.map { $0.properties["lesson_id"] }, [second.id, first.id, second.id])
+        XCTAssertEqual(changes.map { $0.properties["added"] }, ["true", "true", "false"])
+    }
+
+    func testAFreeLessonOnTheListIsNeverShownAsAWish() throws {
+        let model = makeModel()
+        let path = try premiumPath(in: model)
+        model.preferences.toggleWish(path.lessons[0].id)
+        model.preferences.toggleWish("no-such-lesson")
+
+        XCTAssertEqual(model.wishedLessons, [])
+    }
+
     func testPreferencesWrittenBeforeTheWishListReadAsAnEmptyOne() throws {
         let json = #"{"currentPathId":"plants","narrationEnabled":true,"defaultSpeed":1}"#
         let values = try JSONDecoder().decode(ProfilePreferences.Values.self, from: Data(json.utf8))
@@ -308,6 +402,13 @@ final class PremiumTests: XCTestCase {
         XCTAssertEqual(question.answer, 96)
         XCTAssertFalse(question.text.contains("12"))
         XCTAssertFalse(question.text.contains("8"))
+    }
+
+    func testTheParentalChecksResultIsSentWithItsMethodAndEntry() {
+        let event = AnalyticsEvent.parentalCheckResult("wrong", method: "question", entry: OfferEntry.sketchbook.analyticsName)
+
+        XCTAssertEqual(event.name, "parental_check_result")
+        XCTAssertEqual(event.properties, ["result": "wrong", "method": "question", "entry": "sketchbook"])
     }
 
     func testTheParentalQuestionNeverGoesPastTwelve() {

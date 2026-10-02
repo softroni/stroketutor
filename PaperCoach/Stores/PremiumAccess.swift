@@ -44,4 +44,21 @@ enum PremiumAccess {
         }
         return nil
     }
+
+    /// The free lesson a child is offered instead of `lesson` when they tap its
+    /// crown ("Draw Tulip", `GrownUpHandoffView`). A crown can be tapped long before
+    /// its path's free lessons are drawn, so the path the child is on comes first:
+    /// its next lesson, while that is still free. Past them,
+    /// `freeLessonSuggestion(excludingPath:paths:progress:)`.
+    @MainActor
+    static func freeLessonInstead(of lesson: Lesson,
+                                  paths: [PathModel],
+                                  progress: ProgressStore) -> Lesson? {
+        if let path = paths.first(where: { $0.id == lesson.pathId }),
+           let next = progress.nextLesson(in: path),
+           !isPremiumLesson(next, in: path) {
+            return next
+        }
+        return freeLessonSuggestion(excludingPath: lesson.pathId, paths: paths, progress: progress)
+    }
 }

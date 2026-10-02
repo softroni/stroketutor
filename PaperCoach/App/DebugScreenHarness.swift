@@ -292,6 +292,10 @@ enum DebugScreenHarness {
         // The album a learner has a few weeks in (see `seedAlbum`), shown by path —
         // the default — or, for `sketchbook-dates`, by month.
         case "sketchbook-filled":
+            // An 18+ learner's, whatever age the simulator's learner was left at:
+            // under a child's pages the sketchbook adds a "For grown-ups" door,
+            // which the iPad's taller page would show in App Store shot 3.
+            app.setAgeGroup(app.activeProfile.id, to: .adult)
             seedAlbum(in: app, current: treePath, other: carPath)
             UserDefaults.standard.set(SketchbookView.Arrangement.paths.rawValue,
                                       forKey: SketchbookView.arrangementKey)
@@ -442,6 +446,68 @@ enum DebugScreenHarness {
             app.selectedTab = .settings
             app.cover = .offer(.settings)
 
+        case "offer-wish", "offer-wish-saved":
+            // A 6-to-9 learner taps a crowned lesson on the path they are drawing,
+            // the first of it drawn: the lesson's card, with "Save to my wish
+            // list" and the next free lesson. For `offer-wish-saved`, after the save.
+            app.setAgeGroup(app.activeProfile.id, to: .from6To9)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            if let premiumLesson = firstPremiumLesson(preferring: treePath, in: shipped) {
+                if name == "offer-wish-saved" { app.preferences.toggleWish(premiumLesson.id) }
+                app.selectedTab = .path
+                app.cover = .offer(.premiumLesson(lessonId: premiumLesson.id))
+            }
+
+        case "offer-grown-up-setup":
+            // The end of a 6-to-9 learner's first run, past "More coming": the card
+            // for the grown-up who set the app up, with the first drawing.
+            app.setAgeGroup(app.activeProfile.id, to: .from6To9)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            app.markFirstRunStarted(with: treeLesson)
+            app.settings.firstRunStage = .offer
+            pendingOfferStep = .grownUp
+            app.cover = .offer(.onboarding)
+
+        case "offer-parental-check":
+            // The parental check a grown-up meets after "For grown-ups" on a
+            // crowned lesson's card: the lesson that was tapped, and another
+            // already on the 6-to-9 learner's wish list.
+            app.setAgeGroup(app.activeProfile.id, to: .from6To9)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            let crowned = shipped.compactMap { path in
+                path.lessons.first { PremiumAccess.isPremiumLesson($0, in: path) }
+            }
+            if let tapped = crowned.first {
+                if crowned.count > 1 { app.preferences.toggleWish(crowned[1].id) }
+                pendingOfferStep = .parentalCheck
+                app.selectedTab = .path
+                app.cover = .offer(.premiumLesson(lessonId: tapped.id))
+            }
+
+        case "home-wish-list":
+            // Home for a 6-to-9 learner a few lessons in, with two Premium lessons
+            // saved to their wish list.
+            app.setAgeGroup(app.activeProfile.id, to: .from6To9)
+            markFirst(2, of: treePath, in: app)
+            app.select(treePath)
+            let crowned = shipped.compactMap { path in
+                path.lessons.first { PremiumAccess.isPremiumLesson($0, in: path) }
+            }
+            for lesson in crowned.prefix(2) { app.preferences.toggleWish(lesson.id) }
+            for lesson in treePath.lessons.prefix(2) {
+                addPlaceholderPage(to: app, lesson: lesson)
+            }
+
+        case "sketchbook-child":
+            // A 6-to-9 learner's sketchbook by date with one page, short enough
+            // that the "For grown-ups" door shows under it.
+            app.setAgeGroup(app.activeProfile.id, to: .from6To9)
+            addPlaceholderPage(to: app, lesson: treeLesson)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            UserDefaults.standard.set(SketchbookView.Arrangement.dates.rawValue,
+                                      forKey: SketchbookView.arrangementKey)
+            app.selectedTab = .sketchbook
+
         default:
             break // Unknown name: leave the clean, onboarded Home screen showing.
         }
@@ -486,7 +552,8 @@ enum DebugScreenHarness {
     static var pendingLessonsJump: String?
     /// Set by `lessons-search`; `LessonsView` reads it the same way, opens its search field and types these words, since both are its own `@State`.
     static var pendingLessonsSearch: String?
-    /// Set by `offer-grown-up-paywall` and `offer-trial-started`: the step
+    /// Set by `offer-grown-up-paywall`, `offer-grown-up-setup`,
+    /// `offer-parental-check` and `offer-trial-started`: the step
     /// `OfferFlow` opens on instead of its usual first one. Taken (read and
     /// cleared) once, by `takeOfferStep()`, so a later offer opens as usual.
     static var pendingOfferStep: OfferFlow.Step?

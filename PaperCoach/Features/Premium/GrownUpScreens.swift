@@ -3,25 +3,191 @@ import UIKit
 
 // MARK: - Ask a grown-up
 
-/// The gate in front of a child's way to Premium: "This part is for a grown-up."
-/// Reached from a child's tap on a Premium lesson, from "More coming" at the end of
-/// a child's first run, and from Settings on a child's profile. Two ways on:
-/// the grown-up takes it from here, or the child goes back to the free lessons. No
-/// price, no trial, nothing to buy on this screen.
+/// The first screen of a child's way to Premium, before the parental check. Reached
+/// three ways, each with its own words; no price, no trial, nothing to buy on any
+/// of them.
 ///
-/// It tells the child what the screen is and who it is for, never to go and ask for
-/// Premium: an advertisement's "direct appeal to children to … persuade their
-/// parents or other adults to buy advertised products for them" is banned outright
-/// (UK Digital Markets, Competition and Consumers Act 2024, Schedule 20 para 30; EU
-/// Unfair Commercial Practices Directive, Annex I point 28).
+/// - **A crowned lesson** (`OfferEntry.premiumLesson`): the lesson's card. Its
+///   finished drawing, big, with the crown; "Rain Cloud is a Premium lesson";
+///   "Premium has every lesson on every path"; then **Save to my wish list**, a
+///   free lesson to draw instead, "Not now" and a small "For grown-ups". The wish
+///   list is the child's own, Home shows it ("Your wish list"), and the grown-up's
+///   paywall shows it beside their drawing, so a child who wants a lesson has
+///   something to show, and a grown-up who looks sees what was wanted. Saving it is
+///   the green button until pressed; then it steps back to a white "On my wish
+///   list" and the free lesson turns green, so the loudest button never takes the
+///   wish away. A second tap within a moment of the first is a double tap, not a
+///   change of mind, and is ignored.
+/// - **The end of the first run** (`.onboarding`, after "More coming"): a card for
+///   the grown-up who set the app up — the person who answered the age question
+///   for a young child is usually the parent holding the phone — with the child's
+///   first drawing, and "I'm the grown-up" or "Keep drawing free lessons".
+/// - **Settings › Premium** (`.settings`): "This part is for a grown-up."
+///
+/// None of them tells the child to go and ask, or show, a grown-up anything: the
+/// card says what the lesson is and who the next step is for. An advertisement's
+/// "direct appeal to children to … persuade their parents or other adults to buy
+/// advertised products for them" is banned outright (UK Digital Markets,
+/// Competition and Consumers Act 2024, Schedule 20 para 30; EU Unfair Commercial
+/// Practices Directive, Annex I point 28, applied to apps by the CPC Network's
+/// common position on in-app purchases, 2014, and to Star Stable in March 2025),
+/// and in the US "Advertising should not urge Children to ask parents or others to
+/// buy products" (CARU, Self-Regulatory Guidelines for Children's Advertising,
+/// Sales Pressure, read 2026-10-02 at
+/// https://bbbnp-bbbp-stf-use1-01.s3.amazonaws.com/docs/default-source/caru/caru_advertisingguidelines.pdf).
 struct GrownUpHandoffView: View {
     let entry: OfferEntry
     let onGrownUp: () -> Void
     let onKeepDrawing: () -> Void
+    /// "Draw Tulip" on a crowned lesson's card: the free lesson in its place.
+    var onDrawInstead: (Lesson) -> Void = { _ in }
 
     @Environment(AppModel.self) private var app
+    /// When the wish list last changed from this card, to ignore a double tap.
+    @State private var lastWishChange: Date?
 
     var body: some View {
+        Group {
+            switch entry {
+            case let .premiumLesson(lessonId):
+                if let lesson = app.lesson(id: lessonId) {
+                    lessonCard(lesson)
+                } else {
+                    forAGrownUp
+                }
+            case .onboarding:
+                forTheGrownUpWhoSetItUp
+            case .settings, .sketchbook:
+                forAGrownUp
+            }
+        }
+        .onAppear { app.analytics.track(.offerScreenViewed("grown_up", entry: entry.analyticsName)) }
+    }
+
+    // MARK: A crowned lesson
+
+    private func lessonCard(_ lesson: Lesson) -> some View {
+        let isWished = app.isWished(lesson)
+        let free = app.freeLessonInstead(of: lesson)
+        return OfferScreenFrame {
+            Spacer(minLength: 0)
+
+            PremiumLessonPicture(lesson: lesson)
+
+            VStack(spacing: 8) {
+                Text("\(lesson.title) is a Premium lesson.")
+                    .textRole(.title1)
+                    .foregroundStyle(Theme.ink)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+                Text("Premium has every lesson on every path. Save this one to your wish list, and keep drawing the free ones.")
+                    .textRole(.bodyRegular)
+                    .foregroundStyle(Theme.ink55)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.top, 8)
+
+            Spacer(minLength: 0)
+        } footer: {
+            Button {
+                toggleWish(lesson)
+            } label: {
+                Label(isWished ? "On my wish list" : "Save to my wish list",
+                      systemImage: isWished ? "star.fill" : "star")
+            }
+            // Green until saved; then white, and the free lesson below takes the green.
+            .buttonStyle(TactileButtonStyle(variant: isWished ? .secondary : .primary))
+            .accessibilityValue(isWished ? "Saved" : "")
+
+            if let free {
+                Button("Draw \(free.title)") { onDrawInstead(free) }
+                    .buttonStyle(TactileButtonStyle(variant: isWished ? .primary : .secondary))
+            }
+
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 28) { notNow; forGrownUps }
+                VStack(spacing: 0) { notNow; forGrownUps }
+            }
+        }
+    }
+
+    private var notNow: some View {
+        Button("Not now", action: onKeepDrawing)
+            .buttonStyle(.quiet)
+    }
+
+    /// For the grown-up, not the child: small, gray, last. It leads to the parental
+    /// check.
+    private var forGrownUps: some View {
+        Button(action: onGrownUp) {
+            Text("For grown-ups")
+                .scaledFont(15, .bold)
+                .underline()
+                .foregroundStyle(Theme.ink55)
+                .frame(minHeight: Theme.navTapTarget)
+                .padding(.horizontal, 8)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Saves the lesson to the wish list, or takes it off — but not on a second tap
+    /// within a moment of the last change.
+    private func toggleWish(_ lesson: Lesson) {
+        let now = Date()
+        if let lastWishChange, now.timeIntervalSince(lastWishChange) < 1 { return }
+        lastWishChange = now
+        app.toggleWish(lesson)
+    }
+
+    // MARK: The end of the first run
+
+    private var forTheGrownUpWhoSetItUp: some View {
+        OfferScreenFrame {
+            Spacer(minLength: 0)
+
+            ChildLatestDrawing(preferredLesson: app.firstRunLesson)
+                .frame(width: 176, height: 176)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous))
+
+            VStack(spacing: 8) {
+                Chip(text: "For grown-ups", style: .blue)
+                Text("For the grown-up who set this up")
+                    .textRole(.title1)
+                    .foregroundStyle(Theme.ink)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+                Text(setupLine)
+                    .textRole(.bodyRegular)
+                    .foregroundStyle(Theme.ink55)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.top, 8)
+
+            Spacer(minLength: 0)
+        } footer: {
+            Button("I’m the grown-up", action: onGrownUp)
+                .buttonStyle(.primary)
+            Button("Keep drawing free lessons", action: onKeepDrawing)
+                .buttonStyle(.quiet)
+        }
+    }
+
+    /// "They just drew a pine tree, their first drawing. Premium has every lesson
+    /// on every path, and you can see it from here. The free lessons stay theirs
+    /// either way."
+    private var setupLine: String {
+        let first = app.firstRunLesson.map { "They just drew \(LessonBookend.subject(of: $0.title)), their first drawing. " } ?? ""
+        return first + "Premium has every lesson on every path, and you can see it from here. The free lessons stay theirs either way."
+    }
+
+    // MARK: Settings
+
+    private var forAGrownUp: some View {
         OfferScreenFrame {
             Spacer(minLength: 0)
 
@@ -57,7 +223,27 @@ struct GrownUpHandoffView: View {
             Button("Keep drawing free lessons", action: onKeepDrawing)
                 .buttonStyle(.quiet)
         }
-        .onAppear { app.analytics.track(.offerScreenViewed("grown_up", entry: entry.analyticsName)) }
+    }
+}
+
+/// A Premium lesson's finished drawing, big, on white, with its crown: what a child
+/// tapped, as their card shows it.
+private struct PremiumLessonPicture: View {
+    let lesson: Lesson
+
+    var body: some View {
+        DrawingThumbnail(tutorial: lesson.tutorial, strokeColor: nil, showsFills: true)
+            .padding(24)
+            .frame(width: 176, height: 176)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.canvasCornerRadius, style: .continuous)
+                    .fill(Theme.surface)
+            )
+            .overlay(alignment: .bottomTrailing) {
+                CrownBadge(size: 42).offset(x: 10, y: 10)
+            }
+            .accessibilityElement()
+            .accessibilityLabel("The finished drawing of \(LessonBookend.subject(of: lesson.title)). Premium.")
     }
 }
 
@@ -67,6 +253,11 @@ struct GrownUpHandoffView: View {
 /// easy for a grown-up, hard for a young child who cannot read it yet. A new
 /// question every time, and after a wrong answer. It stands in front of every
 /// purchase a child's profile could reach.
+///
+/// Above it, what the child wanted, so a grown-up handed the phone knows what this
+/// is about: the crowned lesson that was tapped, then the rest of their wish list,
+/// up to three. With nothing wanted, the shield. Every answer is counted
+/// (`parental_check_result`): passed, wrong, back or left.
 struct ParentalGateView: View {
     let entry: OfferEntry
     let onPass: () -> Void
@@ -88,7 +279,10 @@ struct ParentalGateView: View {
     var body: some View {
         OfferScreenFrame {
             HStack {
-                Button(action: onBack) {
+                Button {
+                    report("back")
+                    onBack()
+                } label: {
                     Image(systemName: "chevron.left")
                         .scaledFont(20, .bold, design: .default)
                         .foregroundStyle(Theme.ink)
@@ -100,12 +294,16 @@ struct ParentalGateView: View {
                 Spacer()
             }
         } content: {
-            Image(systemName: "checkmark.shield.fill")
-                .font(.system(size: 40, weight: .semibold))
-                .foregroundStyle(Theme.blue)
-                .frame(width: 92, height: 92)
-                .background(Circle().fill(Theme.blueSoft))
-                .accessibilityHidden(true)
+            if wantedLessons.isEmpty {
+                Image(systemName: "checkmark.shield.fill")
+                    .font(.system(size: 40, weight: .semibold))
+                    .foregroundStyle(Theme.blue)
+                    .frame(width: 92, height: 92)
+                    .background(Circle().fill(Theme.blueSoft))
+                    .accessibilityHidden(true)
+            } else {
+                WantedLessons(lessons: wantedLessons, caption: wantedCaption)
+            }
 
             VStack(spacing: 8) {
                 Text("Grown-ups only")
@@ -161,7 +359,10 @@ struct ParentalGateView: View {
         } footer: {
             if usesPIN {
                 Button("Enter the PIN") {
-                    pinRequest = PINGateRequest(reason: "Needed to see Paper Coach Premium.", onApproved: onPass)
+                    pinRequest = PINGateRequest(reason: "Needed to see Paper Coach Premium.") {
+                        report("passed")
+                        onPass()
+                    }
                 }
                 .buttonStyle(.primary)
             } else {
@@ -169,8 +370,11 @@ struct ParentalGateView: View {
                     .buttonStyle(.primary)
                     .disabled(answer.isEmpty)
             }
-            Button("Not a grown-up? Back to drawing", action: onKeepDrawing)
-                .buttonStyle(.quiet)
+            Button("Not a grown-up? Back to drawing") {
+                report("left")
+                onKeepDrawing()
+            }
+            .buttonStyle(.quiet)
         }
         .pinGate($pinRequest)
         .onAppear {
@@ -182,12 +386,93 @@ struct ParentalGateView: View {
         guard !answer.isEmpty else { return }
         if Int(answer.trimmingCharacters(in: .whitespaces)) == question.answer {
             isFocused = false
+            report("passed")
             onPass()
         } else {
+            report("wrong")
             wasWrong = true
             answer = ""
             question = ParentalQuestion.random(excluding: question)
         }
+    }
+
+    private func report(_ result: String) {
+        app.analytics.track(.parentalCheckResult(result,
+                                                 method: usesPIN ? "pin" : "question",
+                                                 entry: entry.analyticsName))
+    }
+
+    /// The crowned lesson that opened the way, if one did, then the wish list.
+    private var wantedLessons: [Lesson] {
+        var lessons: [Lesson] = []
+        if case let .premiumLesson(lessonId) = entry, let tapped = app.lesson(id: lessonId), app.needsPremium(tapped) {
+            lessons.append(tapped)
+        }
+        for wish in app.wishedLessons where !lessons.contains(where: { $0.id == wish.id }) {
+            lessons.append(wish)
+        }
+        return Array(lessons.prefix(3))
+    }
+
+    /// "Mushroom is a Premium lesson. On their wish list: Cherries." — the tapped
+    /// lesson when it is not on the list, then the wished ones shown.
+    private var wantedCaption: String {
+        let wanted = wantedLessons
+        var parts: [String] = []
+        if case let .premiumLesson(lessonId) = entry,
+           let tapped = wanted.first(where: { $0.id == lessonId }),
+           !app.isWished(tapped) {
+            parts.append("\(tapped.title) is a Premium lesson.")
+        }
+        let wished = wanted.filter { app.isWished($0) }.map(\.title)
+        if !wished.isEmpty {
+            parts.append("On their wish list: \(ListFormatter.localizedString(byJoining: wished)).")
+        }
+        return parts.joined(separator: " ")
+    }
+}
+
+/// What the child wanted, above the parental check: up to three lessons in color on
+/// white, each with its crown, or its star when it is on the wish list, and one
+/// line under them.
+private struct WantedLessons: View {
+    let lessons: [Lesson]
+    let caption: String
+
+    @Environment(AppModel.self) private var app
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                ForEach(lessons) { lesson in
+                    DrawingThumbnail(tutorial: lesson.tutorial, strokeColor: nil, showsFills: true)
+                        .padding(10)
+                        .frame(width: 84, height: 84)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.paper)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .strokeBorder(Theme.line, lineWidth: 2)
+                        )
+                        .overlay(alignment: .topTrailing) {
+                            if app.isWished(lesson) {
+                                WishStar(size: 26).offset(x: 8, y: -8)
+                            } else {
+                                CrownBadge(size: 26).offset(x: 8, y: -8)
+                            }
+                        }
+                }
+            }
+            Text(caption)
+                .textRole(.subhead)
+                .foregroundStyle(Theme.ink55)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.top, 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(caption): \(lessons.map(\.title).joined(separator: ", "))")
     }
 }
 
@@ -262,7 +547,7 @@ struct GrownUpPaywallView: View {
     /// a thin line, so they hold their shape on the white page.
     private var childCard: some View {
         HStack(spacing: 14) {
-            latestDrawing
+            ChildLatestDrawing()
                 .frame(width: 100, height: 100)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
@@ -298,12 +583,7 @@ struct GrownUpPaywallView: View {
                                             .strokeBorder(Theme.line, lineWidth: 2)
                                     )
                                     .overlay(alignment: .topTrailing) {
-                                        Image(systemName: "star.fill")
-                                            .font(.system(size: 10, weight: .bold))
-                                            .foregroundStyle(Theme.gold)
-                                            .frame(width: 20, height: 20)
-                                            .background(Circle().fill(Theme.goldSoft))
-                                            .offset(x: 6, y: -6)
+                                        WishStar(size: 20).offset(x: 6, y: -6)
                                     }
                                 // Two lines rather than "Mushro…".
                                 Text(lesson.title)
@@ -325,26 +605,42 @@ struct GrownUpPaywallView: View {
 
     /// The lesson finished most recently.
     private var latestLesson: Lesson? {
-        app.progress.records
-            .filter(\.isCompleted)
-            .max { ($0.completedAt ?? .distantPast) < ($1.completedAt ?? .distantPast) }
-            .flatMap { app.lesson(id: $0.lessonId) }
+        ChildLatestDrawing.latestLesson(in: app)
     }
+}
 
-    @ViewBuilder
-    private var latestDrawing: some View {
+/// The child's latest drawing — their photo if they took one, else the lesson
+/// drawn in color — for the grown-up's screens. `preferredLesson` stands in for
+/// the latest finished one when there is no photo (the first run's lesson).
+struct ChildLatestDrawing: View {
+    var preferredLesson: Lesson?
+
+    @Environment(AppModel.self) private var app
+
+    var body: some View {
         if let page = app.sketchbook.pages.first, let image = app.sketchbook.thumbnail(for: page) {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
                 .accessibilityLabel("Their latest page")
         } else {
-            DrawingThumbnail(tutorial: latestLesson?.tutorial, strokeColor: nil, showsFills: true)
+            DrawingThumbnail(tutorial: (preferredLesson ?? Self.latestLesson(in: app))?.tutorial,
+                             strokeColor: nil,
+                             showsFills: true)
                 .padding(10)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Theme.surface)
                 .accessibilityHidden(true)
         }
+    }
+
+    /// The lesson finished most recently.
+    @MainActor
+    static func latestLesson(in app: AppModel) -> Lesson? {
+        app.progress.records
+            .filter(\.isCompleted)
+            .max { ($0.completedAt ?? .distantPast) < ($1.completedAt ?? .distantPast) }
+            .flatMap { app.lesson(id: $0.lessonId) }
     }
 }
 

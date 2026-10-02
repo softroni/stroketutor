@@ -14,6 +14,9 @@ import SwiftUI
 ///   border and edge, with a small lock and a quieter name: what is coming, shown
 ///   whole so it is something to look forward to.
 ///
+/// * `.wished` — as `.locked`, with the name in ink and a gold star where the lock
+///   would be: a Premium lesson on the learner's wish list (Home's "Your wish list").
+///
 /// A Premium lesson, without Premium, also wears a gold crown in the bottom corner.
 struct LessonTile: View {
 
@@ -21,6 +24,7 @@ struct LessonTile: View {
         case done
         case next
         case locked
+        case wished
     }
 
     let lesson: Lesson
@@ -107,6 +111,9 @@ struct LessonTile: View {
                 .background(Circle().fill(Theme.surface))
                 .overlay(Circle().strokeBorder(Theme.paper, lineWidth: 2))
                 .padding(8)
+        case .wished:
+            WishStar(size: 26)
+                .padding(8)
         case .next:
             EmptyView()
         }
@@ -131,14 +138,14 @@ struct LessonTile: View {
     private var ringColor: Color {
         switch state {
         case .next: return Theme.green
-        case .done, .locked: return Theme.line
+        case .done, .locked, .wished: return Theme.line
         }
     }
 
     private var edgeColor: Color {
         switch state {
         case .next: return Theme.greenDeep
-        case .done, .locked: return Theme.lineStrong
+        case .done, .locked, .wished: return Theme.lineStrong
         }
     }
 
@@ -148,6 +155,7 @@ struct LessonTile: View {
         case .done: status = "drawn"
         case .next: status = "next to draw"
         case .locked: status = "locked"
+        case .wished: status = "on your wish list"
         }
         return "Lesson \(position), \(lesson.title), \(status)\(isPremium ? ", Premium" : "")"
     }

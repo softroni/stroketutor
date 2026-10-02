@@ -5,9 +5,12 @@ import Foundation
 extension AppModel {
 
     /// Whether the learner who is drawing is treated as a child — under 13, or
-    /// never said. A child never sees a price: a crowned lesson, "More coming" and
-    /// Settings › Premium all lead to "This part is for a grown-up" and the parental
-    /// check (`ParentalGateView`) before the grown-up's paywall.
+    /// never said. A child never sees a price: a crowned lesson opens its own card
+    /// (the lesson, "Save to my wish list", a free lesson instead), "More coming"
+    /// the card for the grown-up who set the app up, Settings › Premium "This part
+    /// is for a grown-up", and the sketchbook's "For grown-ups" the parental check
+    /// itself (`GrownUpHandoffView`, `ParentalGateView`) — all before the grown-up's
+    /// paywall.
     var learnerIsChild: Bool {
         activeProfile.privacyTier == .child
     }
@@ -45,11 +48,14 @@ extension AppModel {
     /// Premium lesson drawer and of the child's "is a Premium lesson" note. Where
     /// the cover starts is `OfferRoute`'s: for a learner 13 or over, the paywall
     /// (Superwall's `premium_lesson` placement first, the native paywall in its
-    /// place); for a child, "This part is for a grown-up" and the parental check
-    /// first (`GrownUpHandoffView`), so a child never sees a price or a buy button,
-    /// and nothing appeals to them to get a grown-up to buy (UK Digital Markets,
-    /// Competition and Consumers Act 2024, Schedule 20 para 30; EU Unfair
-    /// Commercial Practices Directive, Annex I point 28).
+    /// place); for a child, the lesson's own card (`GrownUpHandoffView`: "Rain Cloud
+    /// is a Premium lesson", "Save to my wish list", a free lesson instead, and
+    /// "For grown-ups" to the parental check), so a child never sees a price or a
+    /// buy button, and nothing appeals to them to get a grown-up to buy (UK Digital
+    /// Markets, Competition and Consumers Act 2024, Schedule 20 para 30; EU Unfair
+    /// Commercial Practices Directive, Annex I point 28; CARU, Self-Regulatory
+    /// Guidelines for Children's Advertising, Sales Pressure: "Advertising should
+    /// not urge Children to ask parents or others to buy products").
     ///
     /// The paywall keeps an obvious way out, "Continue with free lessons" (Human
     /// Interface Guidelines › Modality,
@@ -100,10 +106,40 @@ extension AppModel {
         preferences.wishList.compactMap { lesson(id: $0) }.filter { needsPremium($0) }
     }
 
+    /// Whether the lesson is on the wish list of the learner who is drawing.
+    func isWished(_ lesson: Lesson) -> Bool {
+        preferences.wishList.contains(lesson.id)
+    }
+
+    /// "Save to my wish list" on a crowned lesson's card, or "On my wish list" to
+    /// take it off again. The list is the learner's own (`ProfilePreferences`), and
+    /// the grown-up's paywall and Home's "Your wish list" show it.
+    func toggleWish(_ lesson: Lesson) {
+        preferences.toggleWish(lesson.id)
+        analytics.track(.wishListChanged(lessonId: lesson.id, added: isWished(lesson)))
+    }
+
+    /// The free lesson a crowned lesson's card offers in its place: the next free
+    /// one on the same path, else one from another path
+    /// (`PremiumAccess.freeLessonInstead(of:paths:progress:)`).
+    func freeLessonInstead(of lesson: Lesson) -> Lesson? {
+        PremiumAccess.freeLessonInstead(of: lesson, paths: paths, progress: progress)
+    }
+
     /// The way to Premium is over. Subscribed or not, the first run ends here; a
     /// Premium lesson that was asked for opens once it is unlocked.
-    func finishOffer(_ entry: OfferEntry, subscribed: Bool) {
+    ///
+    /// `drawingInstead` is the free lesson a child chose on a crowned lesson's card
+    /// ("Draw Tulip"): the cover closes, over a finished lesson's screen too, and
+    /// that lesson's preview opens.
+    func finishOffer(_ entry: OfferEntry, subscribed: Bool, drawingInstead: Lesson? = nil) {
         analytics.track(.offerFinished(entry: entry.analyticsName, subscribed: subscribed))
+        if let drawingInstead, !subscribed {
+            offerReturnLessonId = nil
+            dismissCover()
+            showPreview(of: drawingInstead)
+            return
+        }
         switch entry {
         case .onboarding:
             let firstLesson = firstRunLesson
@@ -129,7 +165,7 @@ extension AppModel {
             } else {
                 dismissCover()
             }
-        case .settings:
+        case .settings, .sketchbook:
             dismissCover()
         }
     }

@@ -19,6 +19,10 @@ import SwiftUI
 /// (`LessonBadge`), so what was taught sits next to what was drawn. Words are kept
 /// to names; the rest is for VoiceOver.
 ///
+/// Under a child's pages, while there is no Premium, a small gray "For grown-ups":
+/// grown-ups look at the drawings, and this is their door to the parental check and
+/// the grown-up's paywall (`OfferEntry.sketchbook`). It asks the child for nothing.
+///
 /// Plan §32: "Allow browsing by path/date without turning it into a social feed."
 /// A gallery, not a feed: no likes, no other people, no counts to chase. The
 /// privacy line for grown-ups lives under the Sketchbook section of Settings.
@@ -76,6 +80,11 @@ struct SketchbookView: View {
                         monthSection(month)
                     }
                 }
+
+                if showsGrownUpDoor {
+                    grownUpDoor
+                        .padding(.top, 8)
+                }
             }
             .padding(.horizontal, Theme.gutter)
             .padding(.top, 6)
@@ -100,6 +109,29 @@ struct SketchbookView: View {
             }
         }
         .padding(.bottom, 4)
+    }
+
+    /// A child's sketchbook, without Premium.
+    private var showsGrownUpDoor: Bool {
+        app.learnerIsChild && !app.premium.isPremium
+    }
+
+    /// For the grown-up looking through the pages, not the child: small, gray, last.
+    private var grownUpDoor: some View {
+        Button {
+            app.presentOffer(.sketchbook)
+        } label: {
+            Text("For grown-ups")
+                .scaledFont(15, .bold)
+                .underline()
+                .foregroundStyle(Theme.ink55)
+                .frame(minHeight: Theme.navTapTarget)
+                .padding(.horizontal, 8)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .accessibilityHint("Premium, after a grown-ups’ check")
     }
 
     private var title: some View {

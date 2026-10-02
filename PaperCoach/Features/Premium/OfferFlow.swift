@@ -9,10 +9,15 @@ import SwiftUI
 /// **From a tap on a Premium lesson, or Settings**: the paywall alone. Every tap on
 /// a crown opens it (`AppModel.offerPremiumIfNeeded(for:)`).
 ///
-/// **For a child** (under 13, or never said) the paywall is behind a grown-up: "This
-/// part is for a grown-up" → the parental check → the grown-up's paywall. A child
-/// never sees a price or a buy button. A child's tap on a Premium lesson comes here
-/// too, every time, and always to the grown-up's gate first.
+/// **For a child** (under 13, or never said) the paywall is behind a grown-up: a
+/// first screen (`GrownUpHandoffView`) → the parental check → the grown-up's
+/// paywall. A child never sees a price or a buy button. The first screen depends on
+/// where the way was opened: a tap on a Premium lesson shows that lesson's card
+/// ("Save to my wish list", a free lesson to draw instead, "For grown-ups"); the
+/// end of the first run, a card for the grown-up who set the app up; Settings,
+/// "This part is for a grown-up". The sketchbook's "For grown-ups" goes straight
+/// to the check. Nothing on any of them tells the child to go and ask a grown-up
+/// for anything.
 ///
 /// **Once a free week has really started** (`PremiumStore.trialEndsAt` is set after
 /// the purchase), from either paywall: "Your free week has started"
@@ -128,12 +133,19 @@ struct OfferFlow: View {
         case .grownUp:
             GrownUpHandoffView(entry: entry,
                                onGrownUp: { go(.parentalCheck) },
-                               onKeepDrawing: { finish(subscribed: false) })
+                               onKeepDrawing: { finish(subscribed: false) },
+                               onDrawInstead: drawInstead)
 
         case .parentalCheck:
             ParentalGateView(entry: entry,
                              onPass: { go(.grownUpPaywall) },
-                             onBack: { go(.grownUp) },
+                             onBack: {
+                                 if let back = OfferRoute.stepBeforeParentalCheck(for: entry) {
+                                     go(back)
+                                 } else {
+                                     finish(subscribed: false)
+                                 }
+                             },
                              onKeepDrawing: { finish(subscribed: false) })
 
         case .grownUpPaywall:
@@ -232,6 +244,14 @@ struct OfferFlow: View {
         isFinishing = true
         app.finishOffer(entry, subscribed: subscribed)
     }
+
+    /// The free lesson a child chose on a crowned lesson's card: the flow ends and
+    /// that lesson's preview opens.
+    private func drawInstead(_ lesson: Lesson) {
+        guard !isFinishing else { return }
+        isFinishing = true
+        app.finishOffer(entry, subscribed: false, drawingInstead: lesson)
+    }
 }
 
 /// Where the way to Premium goes, as plain rules with no view behind them, so the
@@ -241,14 +261,25 @@ enum OfferRoute {
     /// The step the flow opens on: "More coming" after the first run; from a
     /// Premium lesson or Settings, the paywall — Superwall's first when it may be
     /// asked (`usesRemotePaywall`) — or for a child the way to a grown-up, which
-    /// Superwall never sees.
+    /// Superwall never sees. The sketchbook's "For grown-ups" already says who it
+    /// is for, so a child's opens on the parental check itself.
     static func firstStep(for entry: OfferEntry, isChild: Bool, usesRemotePaywall: Bool = false) -> OfferFlow.Step {
         switch entry {
         case .onboarding:
             return .moreComing
         case .premiumLesson, .settings:
             return paywallStep(isChild: isChild, usesRemotePaywall: usesRemotePaywall)
+        case .sketchbook:
+            if isChild { return .parentalCheck }
+            return paywallStep(isChild: false, usesRemotePaywall: usesRemotePaywall)
         }
+    }
+
+    /// Where the parental check's back button goes: the screen before it, or nil
+    /// when the check is the flow's first screen (the sketchbook's door), which
+    /// ends the flow, free.
+    static func stepBeforeParentalCheck(for entry: OfferEntry) -> OfferFlow.Step? {
+        entry == .sketchbook ? nil : .grownUp
     }
 
     /// "More coming"'s Continue: the paywall (Superwall's first when it may be

@@ -173,6 +173,9 @@ struct AnalyticsEvent: Equatable {
         static let saveToPhotosOn = "save_to_photos_on"
         static let finishedDrawings = "finished_drawings"
         static let activity = "activity"
+        static let added = "added"
+        static let result = "result"
+        static let method = "method"
     }
 
     // MARK: App and acquisition
@@ -293,9 +296,30 @@ struct AnalyticsEvent: Equatable {
         AnalyticsEvent(name: "premium_lesson_tapped", properties: [Key.lessonId: lessonId])
     }
 
+    /// A Premium lesson went on (`added` true) or came off a learner's wish list,
+    /// from its card (`GrownUpHandoffView`).
+    static func wishListChanged(lessonId: String, added: Bool) -> AnalyticsEvent {
+        AnalyticsEvent(name: "wish_list_changed",
+                       properties: [Key.lessonId: lessonId, Key.added: added ? "true" : "false"])
+    }
+
+    /// What came of the grown-ups' check before the grown-up's paywall
+    /// (`ParentalGateView`): `passed`, `wrong` (a wrong answer; a new question
+    /// follows) or `left` (back, or "Not a grown-up? Back to drawing"). `method` is
+    /// `question` or `pin`; a wrong PIN stays inside the PIN pad and is not sent.
+    /// `entry` as on `offer_screen_viewed`.
+    static func parentalCheckResult(_ result: String, method: String, entry: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "parental_check_result",
+                       properties: [Key.result: result, Key.method: method, Key.entry: entry])
+    }
+
     /// A screen of the way to Premium came up: `sketchbook_tour`, `more_coming`,
     /// `paywall`, `trial_started`, `grown_up`, `parental_check`, `grown_up_paywall`,
-    /// `pending`. `entry` is where the way was opened from.
+    /// `pending`. `entry` is where the way was opened from: `onboarding`,
+    /// `premium_lesson`, `settings` or `sketchbook`. A child's `grown_up` is the
+    /// crowned lesson's card from `premium_lesson`, the card for the grown-up who
+    /// set the app up from `onboarding`, and "This part is for a grown-up" from
+    /// `settings`.
     static func offerScreenViewed(_ screen: String, entry: String) -> AnalyticsEvent {
         AnalyticsEvent(name: "offer_screen_viewed", properties: [Key.screen: screen, Key.entry: entry])
     }

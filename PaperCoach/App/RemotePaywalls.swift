@@ -62,7 +62,10 @@ enum PaywallPlacement: Equatable {
         switch entry {
         case .onboarding: self = .onboardingOffer
         case let .premiumLesson(lessonId): self = .premiumLesson(lessonId: lessonId)
-        case .settings: self = .settingsPremium
+        // Only a child's sketchbook has this door, and a child's way is never
+        // asked of Superwall; were a 13+ learner ever to reach it, it is the
+        // paywall without a lesson in hand, like Settings'.
+        case .settings, .sketchbook: self = .settingsPremium
         }
     }
 

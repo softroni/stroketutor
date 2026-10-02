@@ -23,6 +23,21 @@ final class OfferRouteTests: XCTestCase {
         XCTAssertEqual(OfferRoute.firstStep(for: .settings, isChild: true), .grownUp)
     }
 
+    func testTheSketchbooksDoorTakesAChildStraightToTheParentalCheck() {
+        XCTAssertEqual(OfferRoute.firstStep(for: .sketchbook, isChild: true), .parentalCheck)
+        // Superwall is never asked for a child.
+        XCTAssertEqual(OfferRoute.firstStep(for: .sketchbook, isChild: true, usesRemotePaywall: true), .parentalCheck)
+        XCTAssertEqual(OfferRoute.firstStep(for: .sketchbook, isChild: false), .paywall)
+        XCTAssertEqual(PaywallPlacement(entry: .sketchbook).name, "settings_premium")
+    }
+
+    func testTheParentalChecksBackGoesToTheScreenBeforeItOrEndsTheFlow() {
+        XCTAssertEqual(OfferRoute.stepBeforeParentalCheck(for: .premiumLesson(lessonId: "mushroom")), .grownUp)
+        XCTAssertEqual(OfferRoute.stepBeforeParentalCheck(for: .onboarding), .grownUp)
+        XCTAssertEqual(OfferRoute.stepBeforeParentalCheck(for: .settings), .grownUp)
+        XCTAssertNil(OfferRoute.stepBeforeParentalCheck(for: .sketchbook), "The check is that flow's first screen.")
+    }
+
     // MARK: - After "More coming"
 
     func testMoreComingLeadsStraightToThePaywall() {

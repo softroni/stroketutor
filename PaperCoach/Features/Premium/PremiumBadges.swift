@@ -20,6 +20,22 @@ struct CrownBadge: View {
     }
 }
 
+/// A gold star on a soft gold disc: the lesson is on the learner's wish list.
+/// Beside `CrownBadge`, the same size and edge.
+struct WishStar: View {
+    var size: CGFloat = 26
+
+    var body: some View {
+        Image(systemName: "star.fill")
+            .font(.system(size: size * 0.46, weight: .bold))
+            .foregroundStyle(Theme.gold)
+            .frame(width: size, height: size)
+            .background(Circle().fill(Theme.goldSoft))
+            .overlay(Circle().strokeBorder(Theme.paper, lineWidth: size > 30 ? 3 : 2))
+            .accessibilityHidden(true)
+    }
+}
+
 /// "Next: Mushroom · Premium" — what the completion and saved screens show in
 /// place of "Next lesson" when the next lesson needs Premium. Gold, like the crown,
 /// with the lesson's drawing and a chevron. A tap opens the way to Premium as a tap

@@ -965,13 +965,25 @@ protected tier needs it.
   "Continue with free lessons", sits right under the buy button. A trial reminder is scheduled two days before the
   free week ends (`TrialReminder`).
 - **Children** (the child privacy tier: under 13, or "prefer not to say") never see a price, and nothing tells them
-  to go and get a grown-up to buy: an advertisement's direct appeal to children to buy, or to persuade their parents
-  to buy for them, is banned (UK DMCC Act 2024 Sch. 20 para 30, in force 6 April 2025; EU UCPD Annex I point 28).
-  Every crown a child taps (since 2026-09-27) opens "This part is for a grown-up" → the parental check (the app's PIN
-  when one is set, else a sum written in words) → a paywall written for the parent, showing the child's drawing and
-  wish list; "Keep drawing free lessons" leaves at every step. The wish list is what children saved from the lesson
-  drawer before 2026-09-27; that drawer (and the "Mushroom is a Premium lesson" note that followed it) is gone, and
-  nothing adds to the list now. The gold "Next" card says only "Premium lesson".
+  to go and get, ask or show a grown-up anything: an advertisement's direct appeal to children to buy, or to persuade
+  their parents to buy for them, is banned (UK DMCC Act 2024 Sch. 20 para 30, in force 6 April 2025; EU UCPD Annex I
+  point 28), and CARU's US guidelines say "Advertising should not urge Children to ask parents or others to buy
+  products". The way to Premium, for the build after 1.1 (2026-10-02; `GrownUpHandoffView`):
+  - **A crown** opens the lesson's card: its drawing with the crown, "Rain Cloud is a Premium lesson", "Premium has
+    every lesson on every path", **Save to my wish list** (green until saved, then a white "On my wish list" that
+    takes it off again), "Draw Tulip" (the next free lesson, `PremiumAccess.freeLessonInstead`), "Not now" and a
+    small "For grown-ups".
+  - **The end of the first run**, after "More coming": "For the grown-up who set this up", with the child's first
+    drawing and "I'm the grown-up".
+  - **Settings › Premium**: "This part is for a grown-up." **The sketchbook**: a small "For grown-ups" under a
+    child's pages goes straight to the check.
+  - Then the parental check (the app's PIN when one is set, else a sum written in words), which shows the lesson
+    tapped and the wish list, then a paywall written for the parent, with the child's drawing and wish list.
+    "Keep drawing free lessons" leaves at every step.
+  - Saved wishes show on Home as **Your wish list** (tiles with a gold star; a tap opens the card again).
+  - Events: `wish_list_changed` (`added`), `parental_check_result` (`passed`, `wrong`, `back`, `left`, with `method`
+    and `entry`), and `offer_screen_viewed` with `entry` `sketchbook` for the new door.
+  The gold "Next" card says only "Premium lesson".
 - **Teens** get the adult flow; an Ask to Buy purchase shows "Waiting for a grown-up to say yes" and unlocks when
   approved (`Transaction.updates`).
 - After lesson 3 of a path, completion and the saved photo show "Next: … · Premium" as a gold card, and a free lesson
@@ -994,7 +1006,11 @@ protected tier needs it.
 - **Harness** (`DebugScreenHarness.swift`): `-STScreen offer-paywall` opens the paywall as an adult (the subscription
   review screenshot); `offer-more-coming` the first step after the first run; `offer-grown-up-paywall` the grown-up's
   paywall for a child with a drawing and a wish; `offer-plans` the plans sheet over the paywall;
-  `offer-trial-started` "Your free week has started" with a made-up end seven days out (debug builds only). Prices appear only when StoreKit answers (the `PaperCoach.storekit` configuration).
+  `offer-trial-started` "Your free week has started" with a made-up end seven days out; `offer-wish` and
+  `offer-wish-saved` a crowned lesson's card for a 6-to-9 learner, before and after the save; `offer-grown-up-setup`
+  the card at the end of a child's first run; `offer-parental-check` the check after a crowned lesson, with another
+  lesson on the wish list; `home-wish-list` Home with two wishes; `sketchbook-child` a child's sketchbook with its
+  "For grown-ups" door (debug builds only). Prices appear only when StoreKit answers (the `PaperCoach.storekit` configuration).
 
 **Superwall, for learners 13 and over (2026-09-25).** Remote paywalls, so their design can be A/B tested without an
 app update. SuperwallKit 4.17 comes in through Swift Package Manager.

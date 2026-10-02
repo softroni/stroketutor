@@ -63,6 +63,21 @@ revenue, and judge it by whether it raises profit. Don't propose the products be
 
 ## 3. The grown-up's door, where a grown-up is likely to be (medium)
 
+**Built 2026-10-02, not shipped:** on `main`, for the build after 1.1. Kevin asked for it after the first child data
+(2026-10-02: children 38 finished lessons and 22 crown taps since launch against 27 and 3 for 13+, but 1 crown tap in
+22 reached "For grown-ups", and 6 parental checks led to 1 grown-up paywall). What was built (README › Premium ›
+*Children*):
+- **A crowned lesson's card for a child** in place of "This part is for a grown-up": the lesson's drawing, "Rain Cloud
+  is a Premium lesson", **Save to my wish list** (back from 1.0, where it was in the drawer), the next free lesson,
+  "Not now" and a small "For grown-ups". It gives the child the word ("Premium") and a want to show, and tells them
+  to ask no one.
+- **Home's "Your wish list"** shelf, once something is saved.
+- **Setup:** after "More coming", a child's first run now shows "For the grown-up who set this up" with the first
+  drawing, instead of "This part is for a grown-up".
+- **The sketchbook:** a small "For grown-ups" under a child's pages, straight to the check (`entry` `sketchbook`).
+- **The check** shows the lesson tapped and the wish list, and `parental_check_result` says whether it was passed,
+  answered wrong, or left, so the leak between the check and the grown-up's paywall can be read.
+
 **Why:** children can't buy; their grown-ups do. Children are probably most learners, and their offer sits behind the
 grown-up gate ("This part is for a grown-up", then the parental check), which no test reaches.
 

@@ -96,12 +96,16 @@ enum OfferEntry: Hashable, Identifiable {
     case premiumLesson(lessonId: String)
     /// The Premium row in Settings.
     case settings
+    /// "For grown-ups" under a child's sketchbook: straight to the parental check,
+    /// since the button already says who it is for (`OfferRoute.firstStep`).
+    case sketchbook
 
     var id: String {
         switch self {
         case .onboarding: return "onboarding"
         case let .premiumLesson(lessonId): return "lesson-\(lessonId)"
         case .settings: return "settings"
+        case .sketchbook: return "sketchbook"
         }
     }
 
@@ -111,6 +115,7 @@ enum OfferEntry: Hashable, Identifiable {
         case .onboarding: return "onboarding"
         case .premiumLesson: return "premium_lesson"
         case .settings: return "settings"
+        case .sketchbook: return "sketchbook"
         }
     }
 }
