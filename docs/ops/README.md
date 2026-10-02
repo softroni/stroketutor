@@ -36,6 +36,8 @@ every scheduled run follows it.
   It refreshes a day every minute while in view (a week or month every 5), asking PostHog for fresh results
   (`refresh: force_blocking`), about 60–120 queries an hour, far under the project's 2,400. Trials and buys are apart,
   with dollars at the plans' US list prices on the day, not Apple's proceeds: for proceeds, App Store Connect.
+  A number that moved since the page last looked flashes and stays highlighted (1 min to 1 hour, picked on the page,
+  5 min at first); what was seen is kept in the browser (`localStorage`), so a closed page catches up on return.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature

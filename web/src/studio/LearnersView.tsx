@@ -8,12 +8,19 @@ import {
   buildReport,
   compared,
   dayOf,
+  DEFAULT_MARK_MS,
   endLesson,
   endWords,
   finishedLessons,
   lastedFor,
   learnerTag,
   LEARNERS_TIME_ZONE_NAME,
+  MARK_CHOICES,
+  markedChanges,
+  markWords,
+  noteNumbers,
+  type NumberChange,
+  type SeenNumbers,
   periodLabel,
   periodRange,
   type LearnerHistory,
@@ -123,6 +130,84 @@ export function useLearnerEvents(period: Period, day: string, available: boolean
   return { ...current, refresh, live: to > dayOf(Date.now()), every }
 }
 
+const SEEN_STORE = 'st-learners-seen'
+const MARK_STORE = 'st-learners-mark'
+const FORGET_VIEWS_MS = 2 * 86_400_000
+
+function readStore<Value>(key: string, fallback: Value): Value {
+  try {
+    const kept = window.localStorage.getItem(key)
+    return kept === null ? fallback : (JSON.parse(kept) as Value)
+  } catch {
+    return fallback
+  }
+}
+
+function writeStore(key: string, value: unknown) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // A full or blocked store only means changes go unmarked.
+  }
+}
+
+/** How long a changed number stays highlighted, as last picked in this browser. */
+export function useMarkFor(): [number, (ms: number) => void] {
+  const [markFor, setMarkFor] = useState(() => {
+    const kept = readStore<number>(MARK_STORE, DEFAULT_MARK_MS)
+    return (MARK_CHOICES as readonly number[]).includes(kept) ? kept : DEFAULT_MARK_MS
+  })
+  const pick = useCallback((ms: number) => {
+    setMarkFor(ms)
+    writeStore(MARK_STORE, ms)
+  }, [])
+  return [markFor, pick]
+}
+
+/**
+ * The numbers of a view that changed since the page last saw them, for `markFor`. What
+ * was seen is kept in the browser, per view (period, day and narrowing), so numbers that
+ * moved while the page was elsewhere or closed are marked when it comes back.
+ */
+export function useNumberChanges(
+  view: string,
+  numbers: readonly { key: string; value: number }[] | null,
+  markFor: number,
+): Record<string, NumberChange> {
+  const [noted, setNoted] = useState<{ view: string; changes: Record<string, NumberChange> } | null>(null)
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    if (!numbers) return
+    const at = Date.now()
+    const seen = readStore<Record<string, SeenNumbers>>(SEEN_STORE, {})
+    const next = noteNumbers(seen[view], numbers, at, markFor)
+    seen[view] = next
+    for (const [key, kept] of Object.entries(seen)) if (at - kept.seenAt > FORGET_VIEWS_MS) delete seen[key]
+    writeStore(SEEN_STORE, seen)
+    setNoted({ view, changes: next.changes })
+    setNow(at)
+  }, [view, numbers, markFor])
+  const changes = noted?.view === view ? markedChanges(noted.changes, now, markFor) : {}
+  const marked = Object.keys(changes).length
+  // While something is marked, look again now and then so the mark goes when its time is up.
+  useEffect(() => {
+    if (!marked) return
+    const timer = window.setInterval(() => setNow(Date.now()), 10_000)
+    return () => window.clearInterval(timer)
+  }, [marked])
+  return changes
+}
+
+/** "+2", "−1". */
+function signed(difference: number): string {
+  return difference > 0 ? `+${difference}` : `−${-difference}`
+}
+
+/** "19 at 3:40 PM, 21 at 3:41 PM". */
+function changeWords(change: NumberChange): string {
+  return `${change.from} at ${timeOf(change.since)}, ${change.to} at ${timeOf(change.at)}`
+}
+
 /**
  * "Updated 40 s ago · every minute · Refresh": how fresh the page is, and the way to ask
  * again now (not more than once every 15 seconds, as the server allows).
@@ -133,12 +218,16 @@ function Freshness({
   live,
   every,
   onRefresh,
+  markFor,
+  onMarkFor,
 }: {
   loadedAt: number | null
   loading: boolean
   live: boolean
   every: number
   onRefresh: () => void
+  markFor: number
+  onMarkFor: (ms: number) => void
 }) {
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -156,6 +245,16 @@ function Freshness({
       <button type="button" onClick={onRefresh} disabled={loading || tooSoon} title={tooSoon ? 'Just updated' : 'Ask PostHog now'}>
         Refresh
       </button>
+      <label className="st-learners__mark-for">
+        <span className="st-learners__muted">Highlight changes</span>
+        <select value={markFor} onChange={(event) => onMarkFor(Number(event.target.value))}>
+          {MARK_CHOICES.map((ms) => (
+            <option key={ms} value={ms}>
+              {markWords(ms)}
+            </option>
+          ))}
+        </select>
+      </label>
     </span>
   )
 }
@@ -199,6 +298,9 @@ export function LearnersView({
         : null,
     [response, period, day, who, source, lesson, only],
   )
+  const [markFor, setMarkFor] = useMarkFor()
+  // The numbers depend on the period, the day and the narrowing, but not on `only`.
+  const changes = useNumberChanges(`${period}|${day}|${who}|${source}|${lesson ?? ''}`, report?.numbers ?? null, markFor)
   /** The same view somewhere else: what is not named stays as it is, the lesson and the number it is narrowed to included. */
   const here = (next: { period?: Period; date?: string | null; lesson?: string | null; only?: Only | null }) => {
     const pickedLesson = next.lesson === undefined ? lesson : next.lesson
@@ -232,7 +334,15 @@ export function LearnersView({
             {response?.source === 'sample' ? <>Sample events (STUDIO_LEARNERS_SAMPLE), not PostHog’s.</> : <>From PostHog.</>}{' '}
             Days in {LEARNERS_TIME_ZONE_NAME}.{' '}
             {response?.configured ? (
-              <Freshness loadedAt={loadedAt} loading={loading} live={live} every={every} onRefresh={refresh} />
+              <Freshness
+                loadedAt={loadedAt}
+                loading={loading}
+                live={live}
+                every={every}
+                onRefresh={refresh}
+                markFor={markFor}
+                onMarkFor={setMarkFor}
+              />
             ) : null}
           </p>
         </div>
@@ -298,7 +408,12 @@ export function LearnersView({
 
       {report ? (
         <Picked.Provider value={lesson}>
-          <Numbers report={report} only={only} href={(key) => here({ only: key === 'sessions' || key === only ? null : key })} />
+          <Numbers
+            report={report}
+            only={only}
+            changes={changes}
+            href={(key) => here({ only: key === 'sessions' || key === only ? null : key })}
+          />
           <div className="st-learners__pair">
             <Journey report={report} only={only} href={(next) => here({ only: next === only ? null : next })} />
             <MostDrawn report={report} library={library} picked={lesson} href={(drawn) => here({ lesson: drawn === lesson ? null : drawn })} />
@@ -411,10 +526,12 @@ const ONLY_WORDS: Record<Only, string> = {
 function Numbers({
   report,
   only,
+  changes,
   href,
 }: {
   report: LearnersReport
   only: Only | null
+  changes: Record<string, NumberChange>
   href: (key: ReportNumber['key']) => string
 }) {
   const before = previousLabel(report.period, report.date)
@@ -427,6 +544,7 @@ function Numbers({
           before={before}
           href={href(number.key)}
           picked={number.key === only}
+          change={changes[number.key]}
           hint={number.key === 'sessions' || number.key === only ? 'show everyone' : `show only ${ONLY_WORDS[number.key as Only]}`}
         />
       ))}
@@ -439,22 +557,34 @@ function NumberTile({
   before,
   href,
   picked,
+  change,
   hint,
 }: {
   number: ReportNumber
   before: string
   href: string
   picked: boolean
+  /** Moved since the page last saw it: flashes once, then stays highlighted a while. */
+  change?: NumberChange
   hint: string
 }) {
   const tone = number.value === number.previous ? 'same' : number.value > number.previous ? 'up' : 'down'
   return (
     <a
-      className="st-learners__stat"
+      className={`st-learners__stat${change ? ' st-learners__stat--changed' : ''}`}
       href={href}
       aria-current={picked ? 'true' : undefined}
-      aria-label={`${number.value} ${number.label.toLowerCase()}${number.amount !== undefined ? `, ${money(number.amount)}` : ''}, ${number.sub}, ${compared(number.value, number.previous, before)}: ${hint}`}
+      aria-label={`${number.value} ${number.label.toLowerCase()}${number.amount !== undefined ? `, ${money(number.amount)}` : ''}, ${number.sub}, ${compared(number.value, number.previous, before)}${change ? `, changed: ${changeWords(change)}` : ''}: ${hint}`}
     >
+      {change ? (
+        <>
+          {/* Keyed by when it moved, so each new move flashes again. */}
+          <span key={change.at} className="st-learners__stat-flash" aria-hidden="true" />
+          <span className="st-learners__stat-new" title={`Changed: ${changeWords(change)}`} aria-hidden="true">
+            {signed(change.to - change.from)}
+          </span>
+        </>
+      ) : null}
       <span className="st-learners__stat-value">{number.value}</span>
       <span className="st-learners__stat-label">{number.label}</span>
       {number.amount !== undefined ? <span className="st-learners__stat-money">{money(number.amount)}</span> : null}
@@ -1195,6 +1325,9 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
     () => (response?.configured ? buildReport(response.events, { period: 'day', date: day, now: Date.now() }) : null),
     [response, day],
   )
+  // The same view as the Learners page's day with nothing narrowed: one memory of what was seen.
+  const [markFor] = useMarkFor()
+  const changes = useNumberChanges(`day|${day}|all|all|`, report?.numbers ?? null, markFor)
   const date = day === dayOf(Date.now()) ? null : day
   const href = routeHref({ name: 'learners', period: 'day', date })
   return (
@@ -1217,11 +1350,15 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
             {report.numbers.map((number) => (
               <a
                 key={number.key}
-                className="st-learners-summary__number"
+                className={`st-learners-summary__number${changes[number.key] ? ' st-learners-summary__number--changed' : ''}`}
                 href={routeHref({ name: 'learners', period: 'day', date, ...(number.key === 'sessions' ? {} : { only: number.key }) })}
+                title={changes[number.key] ? `Changed: ${changeWords(changes[number.key])}` : undefined}
               >
-                <strong>{number.value}</strong> {number.label.toLowerCase()}
+                <strong key={changes[number.key]?.at}>{number.value}</strong> {number.label.toLowerCase()}
                 {number.amount ? ` (${money(number.amount)})` : ''}
+                {changes[number.key] ? (
+                  <span className="st-learners-summary__new">{signed(changes[number.key].to - changes[number.key].from)}</span>
+                ) : null}
               </a>
             ))}
           </div>

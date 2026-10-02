@@ -4,6 +4,10 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
+  DEFAULT_MARK_MS,
+  markedChanges,
+  markWords,
+  noteNumbers,
   buildHistory,
   buildReport,
   compared,
@@ -360,5 +364,61 @@ describe('buildReport for a week', () => {
     expect(report.days.find((day) => day.day === '2026-10-02')).toMatchObject({ installs: 6, lessons: 19, top: 'cloud' })
     // Oct 1's one real install left during onboarding; the rest of that day was test devices.
     expect(report.days.find((day) => day.day === '2026-10-01')).toMatchObject({ installs: 1, lessons: 0, top: null })
+  })
+})
+
+describe('numbers that changed', () => {
+  const at = Date.parse('2026-10-02T21:00:00Z')
+  const numbers = (lessons: number, photos = 2) => [
+    { key: 'lessons', value: lessons },
+    { key: 'photos', value: photos },
+  ]
+
+  it('marks nothing the first time a view is seen, or while nothing moves', () => {
+    const first = noteNumbers(undefined, numbers(19), at)
+    expect(first.changes).toEqual({})
+    expect(noteNumbers(first, numbers(19), at + 60_000).changes).toEqual({})
+  })
+
+  it('marks a number that moved, between the two looks, for five minutes', () => {
+    const first = noteNumbers(undefined, numbers(19), at)
+    const second = noteNumbers(first, numbers(21), at + 60_000)
+    expect(second.changes).toEqual({ lessons: { from: 19, to: 21, since: at, at: at + 60_000 } })
+    // Still marked a minute on, though it has not moved since…
+    const third = noteNumbers(second, numbers(21), at + 120_000)
+    expect(third.changes.lessons).toEqual(second.changes.lessons)
+    expect(markedChanges(third.changes, at + 60_000 + DEFAULT_MARK_MS - 1)).toHaveProperty('lessons')
+    // …and no longer five minutes after it moved.
+    expect(markedChanges(third.changes, at + 60_000 + DEFAULT_MARK_MS)).toEqual({})
+  })
+
+  it('marks for as long as was picked, and remembers a change an hour for a longer pick', () => {
+    const first = noteNumbers(undefined, numbers(19), at)
+    const second = noteNumbers(first, numbers(21), at + 60_000, 60_000)
+    expect(markedChanges(second.changes, at + 90_000, 60_000)).toHaveProperty('lessons')
+    expect(markedChanges(second.changes, at + 120_000, 60_000)).toEqual({})
+    // Ten minutes on, picking half an hour still shows it…
+    const later = noteNumbers(second, numbers(21), at + 11 * 60_000, 60_000)
+    expect(markedChanges(later.changes, at + 11 * 60_000, 30 * 60_000)).toHaveProperty('lessons')
+    // …but a move after the minute starts again from where it was.
+    expect(noteNumbers(later, numbers(22), at + 12 * 60_000, 60_000).changes.lessons).toMatchObject({ from: 21, to: 22 })
+    expect(noteNumbers(later, numbers(21), at + 62 * 60_000).changes).toEqual({})
+    expect([60_000, 5 * 60_000, 60 * 60_000].map(markWords)).toEqual(['1 min', '5 min', '1 hour'])
+  })
+
+  it('keeps where a number started when it moves again, and lets go when it comes back', () => {
+    const first = noteNumbers(undefined, numbers(19), at)
+    const second = noteNumbers(first, numbers(20), at + 60_000)
+    const third = noteNumbers(second, numbers(22, 3), at + 120_000)
+    expect(third.changes).toEqual({
+      lessons: { from: 19, to: 22, since: at, at: at + 120_000 },
+      photos: { from: 2, to: 3, since: at + 60_000, at: at + 120_000 },
+    })
+    expect(noteNumbers(third, numbers(19, 3), at + 180_000).changes).toEqual({ photos: third.changes.photos })
+  })
+
+  it('marks what moved while the page was away, since it last looked', () => {
+    const morning = noteNumbers(undefined, numbers(4), at - 3 * 3_600_000)
+    expect(noteNumbers(morning, numbers(19), at).changes.lessons).toEqual({ from: 4, to: 19, since: at - 3 * 3_600_000, at })
   })
 })

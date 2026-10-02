@@ -14,6 +14,14 @@ minutes, so the page runs about one to three minutes behind the app.
 
 <img src="numbers.png" width="900">
 
+A number that moves flashes when the new value comes in, then stays highlighted with what it moved by ("+2"), for
+as long as "Highlight changes" says: 1, 5 (at first), 15 or 30 minutes, or an hour. Hovering over a tile's tag says
+from what to what, between which two looks ("17 at 5:22 PM, 19 at 5:23 PM"). The browser remembers the numbers last
+seen for each view, so what moved while the page was elsewhere, or closed, is highlighted when it comes back. Today's
+summary marks its numbers the same way.
+
+<img src="changes.png" width="900">
+
 Free trials and Buys are apart: a free week of the yearly plan is a trial, any other plan bought is a buy. Their
 dollars are the plans' US list prices on the day (yearly $29.99, weekly $3.99 from Oct 2; $19.99 and $1.99 before;
 Lifetime $99.99), before Apple's cut: the app's events name the plan, not the price.

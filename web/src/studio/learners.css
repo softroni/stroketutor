@@ -96,6 +96,22 @@
   cursor: default;
 }
 
+.st-learners__mark-for {
+  margin-left: 12px;
+}
+
+.st-learners__mark-for select {
+  margin-left: 6px;
+  padding: 1px 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .st-learners__h2 {
   margin: 0;
   font-size: 15px;
@@ -242,6 +258,9 @@
 }
 
 .st-learners__stat {
+  position: relative;
+  /* Its own layer, so the flash below sits under the words and over the tile. */
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -263,6 +282,56 @@
   border-color: var(--accent);
   background: var(--accent-tint);
   box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* A number that moved: a highlighter's wash that flashes when it arrives, then stays,
+   with what it moved by in the corner, for as long as the creator picked. */
+.st-learners__stat--changed {
+  border-color: var(--amber-line);
+  background: var(--amber-tint);
+}
+
+.st-learners__stat--changed:hover {
+  border-color: var(--amber);
+  background: var(--amber-tint);
+}
+
+.st-learners__stat-flash {
+  position: absolute;
+  z-index: -1;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: st-learners-flash 1.2s ease-out 3;
+}
+
+@keyframes st-learners-flash {
+  0% {
+    background: transparent;
+    box-shadow: 0 0 0 0 var(--amber-line);
+  }
+  25% {
+    background: color-mix(in srgb, var(--amber-soft) 85%, transparent);
+    box-shadow: 0 0 0 4px var(--amber-line);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.st-learners__stat-new {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--amber-soft);
+  box-shadow: inset 0 0 0 1px var(--amber-line);
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .st-learners__stat-value {
@@ -835,7 +904,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .st-learners__live {
+  .st-learners__live,
+  .st-learners__stat-flash,
+  .st-learners-summary__number--changed strong {
     animation: none;
   }
 }
@@ -1336,6 +1407,20 @@ a.st-learners__day-face:hover {
   color: var(--ink);
   font-size: 18px;
   font-variant-numeric: tabular-nums;
+}
+
+.st-learners-summary__number--changed strong {
+  padding: 0 3px;
+  border-radius: 4px;
+  background: var(--amber-soft);
+  animation: st-learners-flash 1.2s ease-out 3;
+}
+
+.st-learners-summary__new {
+  margin-left: 5px;
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 750;
 }
 
 /* ---------- Narrower screens ---------- */

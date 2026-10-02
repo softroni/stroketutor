@@ -844,6 +844,71 @@ export interface ReportNumber {
   amount?: number
 }
 
+/** How long a number that changed stays marked on the page: the creator picks, five minutes at first. */
+export const MARK_CHOICES = [60_000, 5 * 60_000, 15 * 60_000, 30 * 60_000, 60 * 60_000] as const
+export const DEFAULT_MARK_MS = 5 * 60_000
+const LONGEST_MARK_MS = MARK_CHOICES[MARK_CHOICES.length - 1]
+
+/** "1 min", "1 hour". */
+export function markWords(ms: number): string {
+  return ms >= 60 * 60_000 ? `${ms / (60 * 60_000)} hour` : `${ms / 60_000} min`
+}
+
+/** A number that moved: from what, to what, and between which two looks. */
+export interface NumberChange {
+  from: number
+  to: number
+  /** When the page last saw it at `from`. */
+  since: number
+  /** When the page first saw it at `to`. */
+  at: number
+}
+
+/** What the page last saw of one view's numbers, kept in the browser between visits. */
+export interface SeenNumbers {
+  values: Record<string, number>
+  seenAt: number
+  changes: Record<string, NumberChange>
+}
+
+/**
+ * The numbers of a view, noted against what was last seen of it: a number that moved is
+ * marked for `keepFor`, one that moves again in that time keeps where it started, and one
+ * that comes back to where it started is no longer marked. Nothing is marked the first time
+ * a view is seen. A change is remembered for the longest choice, so a longer one picked
+ * later still shows it.
+ */
+export function noteNumbers(
+  seen: SeenNumbers | undefined,
+  numbers: readonly { key: string; value: number }[],
+  now: number,
+  keepFor: number = DEFAULT_MARK_MS,
+): SeenNumbers {
+  const changes: Record<string, NumberChange> = {}
+  for (const { key, value } of numbers) {
+    const kept = seen?.changes[key]
+    const marked = kept && now - kept.at < keepFor ? kept : undefined
+    const remembered = kept && now - kept.at < Math.max(keepFor, LONGEST_MARK_MS) ? kept : undefined
+    const before = seen?.values[key]
+    if (seen === undefined || before === undefined || before === value) {
+      if (remembered) changes[key] = remembered
+      continue
+    }
+    const from = marked ? marked.from : before
+    if (from !== value) changes[key] = { from, to: value, since: marked ? marked.since : seen.seenAt, at: now }
+  }
+  return { values: Object.fromEntries(numbers.map(({ key, value }) => [key, value])), seenAt: now, changes }
+}
+
+/** The changes still marked at `now`. */
+export function markedChanges(
+  changes: Record<string, NumberChange>,
+  now: number,
+  keepFor: number = DEFAULT_MARK_MS,
+): Record<string, NumberChange> {
+  return Object.fromEntries(Object.entries(changes).filter(([, change]) => now - change.at < keepFor))
+}
+
 export interface JourneyStage {
   key: Stage
   label: string
