@@ -1,18 +1,22 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 
-import { readLearners } from './api'
+import { readLearnerHistory, readLearners } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
 import {
   ageLabel,
+  buildHistory,
   buildReport,
   compared,
   dayOf,
   endLesson,
   endWords,
+  finishedLessons,
   lastedFor,
+  learnerTag,
   LEARNERS_TIME_ZONE_NAME,
   periodLabel,
   periodRange,
+  type LearnerHistory,
   PERIODS,
   previousLabel,
   stepPeriod,
@@ -95,6 +99,8 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
   const [who, setWho] = useState<Who>('all')
   const [source, setSource] = useState<Source>('all')
   const [opened, setOpened] = useState<string | null>(null)
+  // A row opened on one day is not open on the next, nor in a week.
+  useEffect(() => setOpened(null), [period, day])
 
   const report = useMemo(
     () =>
@@ -186,6 +192,12 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
             <Journey report={report} />
             <MostDrawn report={report} library={library} />
           </div>
+          <Leaders
+            report={report}
+            library={library}
+            opened={opened}
+            onToggle={(key) => setOpened((current) => (current === key ? null : key))}
+          />
           {period === 'day' ? (
             <Sessions
               sessions={report.sessions}
@@ -469,6 +481,7 @@ function SessionRow({
   const endState: PictureState = ended.kind === 'after' ? 'finished' : ended.kind === 'atLocked' ? 'locked' : 'started'
   const tag = [
     session.isNew ? 'New' : 'Back',
+    learnerTag(session),
     ageLabel(session.age),
     lastedFor(session.activeMs),
     ...session.returns.map((at) => `back at ${timeOf(at)}`),
@@ -498,6 +511,7 @@ function SessionRow({
         <Strip items={session.items} library={library} />
       </button>
       {open ? <Timeline lines={session.timeline} library={library} /> : null}
+      {open && !session.child ? <History session={session} library={library} /> : null}
     </li>
   )
 }
@@ -606,6 +620,157 @@ function Timeline({ lines, library }: { lines: TimelineLine[]; library: Library 
         </li>
       ))}
     </ol>
+  )
+}
+
+// ---------- Who drew most ----------
+
+const leaderKey = (key: string) => `leader:${key}`
+
+/**
+ * The learners who finished most lessons in the period, best first: each with the
+ * lessons they finished as pictures. A learner 13 or over opens into their history;
+ * a child, whose id lasts one launch, into that launch's timeline.
+ */
+function Leaders({
+  report,
+  library,
+  opened,
+  onToggle,
+}: {
+  report: LearnersReport
+  library: Library
+  opened: string | null
+  onToggle: (key: string) => void
+}) {
+  if (!report.leaders.length) return null
+  return (
+    <section className="st-learners__section st-learners__leaders" aria-labelledby="learners-leaders">
+      <div className="st-learners__panel-head">
+        <h2 id="learners-leaders" className="st-learners__h2">
+          Top learners
+        </h2>
+        <span className="st-learners__muted">
+          By lessons finished. A child’s id lasts one launch, so a child can appear once per launch.
+        </span>
+      </div>
+      <ol className="st-learners__board">
+        {report.leaders.map((session, index) => {
+          const open = opened === leaderKey(session.key)
+          const tag = learnerTag(session)
+          const who = [tag, ageLabel(session.age), session.child ? 'one launch' : null, session.isNew ? 'new' : null]
+            .filter(Boolean)
+            .join(' · ')
+          const figures = [
+            `${session.finished} ${session.finished === 1 ? 'lesson' : 'lessons'}`,
+            session.kept ? `${session.kept} ${session.kept === 1 ? 'photo' : 'photos'}` : null,
+            lastedFor(session.activeMs),
+            session.returns.length ? `${session.returns.length + 1} visits` : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')
+          return (
+            <li key={session.key} className={`st-learners__leader${open ? ' st-learners__leader--open' : ''}`}>
+              <button type="button" className="st-learners__leader-face" aria-expanded={open} onClick={() => onToggle(leaderKey(session.key))}>
+                <span className={`st-learners__rank st-learners__rank--${index < 3 ? index + 1 : 'rest'}`}>{index + 1}</span>
+                <span className="st-learners__leader-who">
+                  <span className="st-learners__leader-name">{who}</span>
+                  <span className="st-learners__leader-figures">{figures}</span>
+                </span>
+                <span className="st-learners__leader-pics">
+                  {finishedLessons(session)
+                    .slice(0, 10)
+                    .map((lesson) => (
+                      <LessonPicture key={lesson} library={library} lesson={lesson} />
+                    ))}
+                </span>
+              </button>
+              {open ? (
+                session.child ? (
+                  <Timeline lines={session.timeline} library={library} />
+                ) : (
+                  <History session={session} library={library} />
+                )
+              ) : null}
+            </li>
+          )
+        })}
+      </ol>
+    </section>
+  )
+}
+
+// ---------- One learner over time ----------
+
+const historyDay = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })
+
+/**
+ * Every day a learner 13 or over used the app, newest first, each as its row of
+ * lessons and where it ended: their ids are the same on every launch, so PostHog
+ * can be asked for all of it (a year back).
+ */
+function History({ session, library }: { session: LearnerSession; library: Library }) {
+  const [state, setState] = useState<{ history: LearnerHistory | null; problem: string | null } | null>(null)
+  const ids = session.ids.join(',')
+  useEffect(() => {
+    let live = true
+    readLearnerHistory(ids.split(','))
+      .then((response) => {
+        if (!live) return
+        setState({ history: buildHistory(response.events, Date.now()), problem: response.problem })
+      })
+      .catch((caught: unknown) => {
+        if (live) setState({ history: null, problem: caught instanceof Error ? caught.message : String(caught) })
+      })
+    return () => {
+      live = false
+    }
+  }, [ids])
+
+  const thisDay = dayOf(session.start)
+  if (!state) return <p className="st-learners__history st-learners__muted">Asking PostHog for their other visits…</p>
+  if (!state.history) return <p className="st-learners__history st-learners__muted">{state.problem ?? 'PostHog has nothing more for them.'}</p>
+  const { history } = state
+  const days = history.days.length
+  const summary = [
+    history.installedAt ? `installed ${historyDay.format(new Date(`${dayOf(history.installedAt)}T12:00:00Z`))}` : `first seen ${historyDay.format(new Date(`${dayOf(history.firstSeen)}T12:00:00Z`))}`,
+    `${days} ${days === 1 ? 'day' : 'days'}`,
+    `${history.visits} ${history.visits === 1 ? 'visit' : 'visits'}`,
+    `${history.finished} ${history.finished === 1 ? 'lesson' : 'lessons'} finished`,
+    history.kept ? `${history.kept} ${history.kept === 1 ? 'photo' : 'photos'} kept` : null,
+    history.prices ? `saw a paywall ${history.prices === 1 ? 'once' : `${history.prices} times`}` : 'never saw a paywall',
+    history.bought ? 'bought Premium' : 'not bought',
+  ]
+    .filter(Boolean)
+    .join(' · ')
+  return (
+    <section className="st-learners__history" aria-label={`Every visit of ${learnerTag(session) ?? 'this learner'}`}>
+      <h3 className="st-learners__history-title">
+        Every visit of {learnerTag(session)} <span>{summary}</span>
+      </h3>
+      {days === 1 ? <p className="st-learners__muted">This is their only day so far.</p> : null}
+      <ol className="st-learners__history-days">
+        {history.days.map(({ day, session: visit }) => {
+          const lesson = endLesson(visit.end)
+          return (
+            <li key={day} className={day === thisDay ? 'st-learners__history-day st-learners__history-day--this' : 'st-learners__history-day'}>
+              <a className="st-learners__history-when" href={routeHref({ name: 'learners', period: 'day', date: day })}>
+                <strong>{historyDay.format(new Date(`${day}T12:00:00Z`))}</strong>
+                <span>
+                  {timeOf(visit.start)} · {lastedFor(visit.activeMs)}
+                  {visit.returns.length ? ` · ${visit.returns.length + 1} visits` : ''}
+                </span>
+              </a>
+              <Strip items={visit.items} library={library} />
+              <span className="st-learners__session-end">
+                <span>{endWords(visit.end)}</span>
+                {lesson ? <LessonPicture library={library} lesson={lesson} state={visit.end.kind === 'after' ? 'finished' : 'started'} /> : null}
+              </span>
+            </li>
+          )
+        })}
+      </ol>
+    </section>
   )
 }
 

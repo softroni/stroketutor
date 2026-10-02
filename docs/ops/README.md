@@ -30,7 +30,9 @@ every scheduled run follows it.
 - **The Studio Learners page** (`#/learners`, 2026-10-02): what learners did by day, week or month, read live from
   PostHog with the Studio's own read-only key (`POSTHOG_PERSONAL_API_KEY` in `web/.env.local` on m4-1). Today shows
   the day in brief and links to it. When a number in `notes.json` and the page disagree, the page counts each learner
-  once after joining a 13+ install's two ids, and counts a batch the app sent twice once.
+  once after joining a 13+ install's two ids, counts a batch the app sent twice once, and leaves out test devices
+  (debug builds, and any id with `asa_test_payload`). Top learners ranks the period's learners; a 13+ learner opens
+  into every visit a year back. A child is never followed past one launch: don't try to.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature

@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { forgetLearners, learnersQuery, readLearners, toEvent } from './learners'
+import { forgetLearners, historyQuery, learnersQuery, readLearnerHistory, readLearners, toEvent } from './learners'
 
 const sampleFile = fileURLToPath(new URL('./fixtures/learners-sample.json', import.meta.url))
 const now = Date.parse('2026-10-02T21:00:00Z')
@@ -68,6 +68,20 @@ describe('readLearners', () => {
   })
 })
 
+describe('readLearnerHistory', () => {
+  it('refuses ids that are not ids', async () => {
+    expect((await readLearnerHistory({ sampleFile }, null, now)).problem).toContain('learner ids')
+    expect((await readLearnerHistory({ sampleFile }, "x'); DROP", now)).problem).toContain('learner ids')
+    expect((await readLearnerHistory({ sampleFile }, 'a,b,c,d,e', now)).problem).toContain('learner ids')
+  })
+
+  it('reads a learner’s events from the sample, whatever the day', async () => {
+    const response = await readLearnerHistory({ sampleFile }, 'u06,u07', now)
+    expect(response.source).toBe('sample')
+    expect(new Set(response.events.map((event) => event.id))).toEqual(new Set(['u06', 'u07']))
+  })
+})
+
 describe('the query', () => {
   it('counts days in US Central and asks only for the age question among the onboarding beats', () => {
     const query = learnersQuery('2026-10-01', '2026-10-03')
@@ -75,6 +89,20 @@ describe('the query', () => {
     expect(query).toContain("toDateTime('2026-10-03 00:00:00', 'America/Chicago')")
     expect(query).toContain("'lesson_completed'")
     expect(query).toContain("properties.beat = 'ob-age'")
+  })
+
+  it('leaves out debug builds, and every id that carried Apple Ads’ test payload', () => {
+    const query = learnersQuery('2026-10-01', '2026-10-03')
+    expect(query).toContain("coalesce(properties.build, '') != 'debug'")
+    expect(query).toContain('distinct_id NOT IN (')
+    expect(query).toContain('properties.asa_test_payload = true')
+    expect(historyQuery(['a-1'])).toContain("coalesce(properties.build, '') != 'debug'")
+  })
+
+  it('asks for one learner’s ids, a year back', () => {
+    const query = historyQuery(['33346358-aaaa', '57E6A03D-bbbb'])
+    expect(query).toContain("distinct_id IN ('33346358-aaaa', '57E6A03D-bbbb')")
+    expect(query).toContain('INTERVAL 365 DAY')
   })
 
   it('reads PostHog’s booleans whether they come as booleans or as words', () => {

@@ -19,6 +19,11 @@ import {
  * browser only ever sees the events. With STUDIO_LEARNERS_SAMPLE pointing at a
  * file of events (server/fixtures/learners-sample.json), the page shows those
  * instead and PostHog is never asked: for trying the page without a key.
+ *
+ * Test devices are left out, as the daily check leaves them out: every event of a
+ * debug build (`build` = `debug`, the simulator and Xcode runs), and every id that
+ * carried Apple Ads' test payload (`asa_test_payload`, TestFlight and development
+ * installs), whatever build it came from.
  */
 export interface LearnersOptions {
   apiKey?: string
@@ -41,6 +46,12 @@ const MAX_ROWS = 50_000
 /** How long an answer is kept: a range that reaches today changes, an older one does not. */
 const FRESH_MS = 5 * 60_000
 const SETTLED_MS = 60 * 60_000
+
+/** How far back a learner's history goes. */
+const HISTORY_DAYS = 365
+/** The ids one learner can have: their profile's, and the launch's before the age answer. */
+const MAX_IDS = 4
+const ID = /^[A-Za-z0-9-]{2,64}$/
 
 const cache = new Map<string, { at: number; response: LearnersResponse }>()
 
@@ -87,13 +98,51 @@ export async function readLearners(
     )
   }
 
-  const key = `${from}|${to}`
+  return ask(options, `${from}|${to}`, learnersQuery(from, to), to > dayOf(now), now)
+}
+
+/**
+ * Everything a learner 13 or over did, up to a year back, from their ids (comma
+ * separated: the profile's, and the launch's before the age answer). Read-only,
+ * kept five minutes like the rest.
+ */
+export async function readLearnerHistory(
+  options: LearnersOptions,
+  idsParam: string | null,
+  now = Date.now(),
+): Promise<LearnersResponse> {
+  const ids = (idsParam ?? '').split(',').filter(Boolean)
+  if (!ids.length || ids.length > MAX_IDS || !ids.every((id) => ID.test(id))) {
+    return { configured: true, source: null, problem: `Ask for 1 to ${MAX_IDS} learner ids: ?ids=a,b.`, events: [], fetchedAt: null }
+  }
+  if (options.sampleFile) {
+    const text = await fs.readFile(options.sampleFile, 'utf8').catch(() => null)
+    if (text === null) {
+      return { configured: true, source: null, problem: `STUDIO_LEARNERS_SAMPLE names ${options.sampleFile}, which cannot be read.`, events: [], fetchedAt: null }
+    }
+    const wanted = new Set(ids)
+    const events = ((JSON.parse(text) as { events?: LearnerEvent[] }).events ?? []).filter((event) => wanted.has(event.id))
+    return { configured: true, source: 'sample', problem: null, events, fetchedAt: new Date(now).toISOString() }
+  }
+  if (!options.apiKey) {
+    return { configured: false, source: null, problem: 'The Learners page needs POSTHOG_PERSONAL_API_KEY.', events: [], fetchedAt: null }
+  }
+  return ask(options, `history|${[...ids].sort().join(',')}`, historyQuery(ids), true, now)
+}
+
+/** Asks PostHog, or answers from what it said a moment ago. */
+async function ask(
+  options: LearnersOptions,
+  key: string,
+  query: string,
+  changing: boolean,
+  now: number,
+): Promise<LearnersResponse> {
   const kept = cache.get(key)
-  const reachesToday = to > dayOf(now)
-  if (kept && now - kept.at < (reachesToday ? FRESH_MS : SETTLED_MS)) return kept.response
+  if (kept && now - kept.at < (changing ? FRESH_MS : SETTLED_MS)) return kept.response
 
   try {
-    const events = await queryEvents(options, from, to)
+    const events = await queryEvents(options, query)
     const response: LearnersResponse = {
       configured: true,
       source: 'posthog',
@@ -104,34 +153,71 @@ export async function readLearners(
     cache.set(key, { at: now, response })
     return response
   } catch (error) {
-    return { ...empty(`PostHog did not answer: ${error instanceof Error ? error.message : String(error)}`), source: 'posthog' }
+    return {
+      configured: true,
+      source: 'posthog',
+      problem: `PostHog did not answer: ${error instanceof Error ? error.message : String(error)}`,
+      events: [],
+      fetchedAt: null,
+    }
   }
+}
+
+const COLUMNS = [
+  'SELECT toUnixTimestamp64Milli(timestamp), event, distinct_id, properties.age_group, properties.lesson_id,',
+  '  properties.first_open, properties.screen, properties.entry, properties.outcome, properties.asa_attribution,',
+  '  properties.added',
+  'FROM events',
+]
+
+/** The events the page reads, from release builds only. */
+function eventFilter(): string[] {
+  const names = LEARNER_EVENTS.map((name) => `'${name}'`).join(', ')
+  return [
+    `  AND event IN (${names})`,
+    "  AND (event != 'ob_beat_viewed' OR properties.beat = 'ob-age')",
+    "  AND coalesce(properties.build, '') != 'debug'",
+  ]
 }
 
 /** The HogQL the page asks for. `from` and `to` are checked days, so they cannot break out of the string. */
 export function learnersQuery(from: string, to: string): string {
-  const names = LEARNER_EVENTS.map((name) => `'${name}'`).join(', ')
+  const start = `toDateTime('${from} 00:00:00', '${LEARNERS_TIME_ZONE}')`
+  const end = `toDateTime('${to} 00:00:00', '${LEARNERS_TIME_ZONE}')`
   return [
-    'SELECT toUnixTimestamp64Milli(timestamp), event, distinct_id, properties.age_group, properties.lesson_id,',
-    '  properties.first_open, properties.screen, properties.entry, properties.outcome, properties.asa_attribution,',
-    '  properties.added',
-    'FROM events',
-    `WHERE timestamp >= toDateTime('${from} 00:00:00', '${LEARNERS_TIME_ZONE}')`,
-    `  AND timestamp < toDateTime('${to} 00:00:00', '${LEARNERS_TIME_ZONE}')`,
-    `  AND event IN (${names})`,
-    "  AND (event != 'ob_beat_viewed' OR properties.beat = 'ob-age')",
+    ...COLUMNS,
+    `WHERE timestamp >= ${start}`,
+    `  AND timestamp < ${end}`,
+    ...eventFilter(),
+    '  AND distinct_id NOT IN (',
+    '    SELECT distinct_id FROM events',
+    `    WHERE timestamp >= ${start} AND timestamp < ${end} AND properties.asa_test_payload = true`,
+    '  )',
     'ORDER BY timestamp',
     `LIMIT ${MAX_ROWS}`,
   ].join('\n')
 }
 
-async function queryEvents(options: LearnersOptions, from: string, to: string): Promise<LearnerEvent[]> {
+/** One learner's events, a year back. The ids are checked (letters, digits and dashes), so they cannot break out. */
+export function historyQuery(ids: string[]): string {
+  const list = ids.map((id) => `'${id}'`).join(', ')
+  return [
+    ...COLUMNS,
+    `WHERE distinct_id IN (${list})`,
+    `  AND timestamp >= now() - INTERVAL ${HISTORY_DAYS} DAY`,
+    ...eventFilter(),
+    'ORDER BY timestamp',
+    `LIMIT ${MAX_ROWS}`,
+  ].join('\n')
+}
+
+async function queryEvents(options: LearnersOptions, query: string): Promise<LearnerEvent[]> {
   const host = options.host ?? DEFAULT_POSTHOG_HOST
   const project = options.projectId ?? DEFAULT_POSTHOG_PROJECT
   const response = await (options.fetch ?? fetch)(`${host}/api/projects/${project}/query/`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${options.apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: { kind: 'HogQLQuery', query: learnersQuery(from, to) } }),
+    body: JSON.stringify({ query: { kind: 'HogQLQuery', query } }),
     signal: AbortSignal.timeout(30_000),
   })
   if (!response.ok) {

@@ -12,7 +12,12 @@
  * launch and no person, so one child's day can be several rows; a learner 13 or
  * over keeps one id, the profile's, from the moment they give their age. Their
  * first few seconds, before the age answer, are under the launch's own id: the two
- * are joined here (`stitch`). Nothing names anyone: an age band, times and lessons.
+ * are joined here (`stitch`). So a 13+ learner's visits can be followed over days
+ * (`buildHistory`), and a child's never are. Nothing names anyone: an age band,
+ * times, lessons, and for a 13+ learner a short tag cut from their random id.
+ *
+ * Test devices never reach here: the server leaves out debug builds and any id that
+ * carried Apple Ads' test payload (`web/server/learners.ts`).
  */
 
 export const LEARNERS_TIME_ZONE = 'America/Chicago'
@@ -337,6 +342,8 @@ export interface TimelineLine {
 
 export interface LearnerSession {
   key: string
+  /** Every id the learner's events came under (two for a 13+ install). */
+  ids: string[]
   start: number
   last: number
   age: string | null
@@ -349,6 +356,8 @@ export interface LearnerSession {
   /** Summed over its visits. */
   activeMs: number
   finished: number
+  /** Photos kept. */
+  kept: number
   items: SessionItem[]
   end: SessionEnd
   timeline: TimelineLine[]
@@ -365,6 +374,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
   let visitStart = events[0].at
   let previous = events[0].at
   let finished = 0
+  let kept = 0
   const openLesson = (lesson: string) =>
     [...items].reverse().find((item) => item.kind === 'lesson' && item.lesson === lesson && item.state === 'started') as
       | Extract<SessionItem, { kind: 'lesson' }>
@@ -429,6 +439,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
       }
       case 'drawing_saved': {
         if (!event.lesson) break
+        kept += 1
         const drawn = [...items]
           .reverse()
           .find((item) => item.kind === 'lesson' && item.lesson === event.lesson && item.state === 'finished') as
@@ -504,6 +515,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
   const isNew = events.some((event) => event.event === 'app_opened' && event.firstOpen)
   return {
     key: learner.key,
+    ids: learner.ids,
     start: first.at,
     last: last.at,
     age,
@@ -513,6 +525,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
     returns,
     activeMs,
     finished,
+    kept,
     items,
     end: endOf(items, events, now - last.at < HERE_NOW_MS),
     timeline,
@@ -547,6 +560,11 @@ function endOf(items: SessionItem[], events: LearnerEvent[], hereNow: boolean): 
     case 'onboarding':
       return { kind: 'afterOnboarding' }
   }
+}
+
+/** "#3F2A" for a learner 13 or over, from their profile's random id, so they can be told apart across days. A child has none. */
+export function learnerTag(session: Pick<LearnerSession, 'key' | 'child'>): string | null {
+  return session.child ? null : `#${session.key.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase()}`
 }
 
 /** The words before a session's last picture, or all its words when it ended on no lesson. */
@@ -626,6 +644,8 @@ export interface LearnersReport {
   sessions: LearnerSession[]
   /** One per day of a week or a month; empty for a day. */
   days: DaySummary[]
+  /** Who drew most in the period, best first. */
+  leaders: LearnerSession[]
 }
 
 export interface ReportOptions {
@@ -637,6 +657,7 @@ export interface ReportOptions {
 }
 
 const MOST_DRAWN = 12
+const LEADERS = 10
 
 /**
  * Everything the page shows for one period, from the events of that period and the
@@ -682,6 +703,77 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
     mostDrawn: mostDrawnOf(currentEvents),
     sessions: period === 'day' ? [...sessions].sort((a, b) => b.start - a.start) : [],
     days: period === 'day' ? [] : daysOf(from, to, current),
+    leaders: leadersOf(sessions),
+  }
+}
+
+/** The learners who finished most, then kept most photos, then stayed longest; anyone who finished nothing is left off. */
+export function leadersOf(sessions: LearnerSession[]): LearnerSession[] {
+  return sessions
+    .filter((session) => session.finished > 0)
+    .sort((a, b) => b.finished - a.finished || b.kept - a.kept || b.activeMs - a.activeMs || a.start - b.start)
+    .slice(0, LEADERS)
+}
+
+/** The lessons a session finished, most often first, each once. */
+export function finishedLessons(session: LearnerSession): string[] {
+  const counts = new Map<string, number>()
+  for (const item of session.items) {
+    if (item.kind === 'lesson' && item.state === 'finished') counts.set(item.lesson, (counts.get(item.lesson) ?? 0) + 1)
+  }
+  return [...counts.entries()].sort(([, a], [, b]) => b - a).map(([lesson]) => lesson)
+}
+
+// ---------- One learner over time (13 and over) ----------
+
+export interface LearnerHistory {
+  firstSeen: number
+  /** When the app was first opened, if that falls within what PostHog keeps. */
+  installedAt: number | null
+  /** Every visit: each day's first, and each return after a pause of half an hour. */
+  visits: number
+  finished: number
+  kept: number
+  /** How many times a paywall opened. */
+  prices: number
+  bought: boolean
+  /** One per day they used the app, newest first. */
+  days: { day: string; session: LearnerSession }[]
+}
+
+/**
+ * Every day a learner 13 or over used the app, from the events of their ids (the
+ * server asks PostHog for up to a year of them). Null when there are none.
+ */
+export function buildHistory(events: LearnerEvent[], now: number): LearnerHistory | null {
+  const learners = stitch(events)
+  if (!learners.length) return null
+  const learner: Learner = {
+    key: learners[learners.length - 1].key,
+    ids: learners.flatMap((entry) => entry.ids),
+    events: learners.flatMap((entry) => entry.events).sort((a, b) => a.at - b.at),
+  }
+  const byDay = new Map<string, LearnerEvent[]>()
+  for (const event of learner.events) {
+    const day = dayOf(event.at)
+    const list = byDay.get(day)
+    if (list) list.push(event)
+    else byDay.set(day, [event])
+  }
+  const days = [...byDay.entries()]
+    .map(([day, dayEvents]) => ({ day, session: buildSession(learner, dayEvents, now) }))
+    .sort((a, b) => b.day.localeCompare(a.day))
+  const install = learner.events.find((event) => event.event === 'app_opened' && event.firstOpen)
+  const sessions = days.map((entry) => entry.session)
+  return {
+    firstSeen: learner.events[0].at,
+    installedAt: install?.at ?? null,
+    visits: sessions.reduce((total, session) => total + 1 + session.returns.length, 0),
+    finished: sessions.reduce((total, session) => total + session.finished, 0),
+    kept: sessions.reduce((total, session) => total + session.kept, 0),
+    prices: sessions.reduce((total, session) => total + session.items.filter((item) => item.kind === 'price').length, 0),
+    bought: sessions.some((session) => session.items.some((item) => item.kind === 'bought')),
+    days,
   }
 }
 

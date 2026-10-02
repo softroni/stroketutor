@@ -13,7 +13,7 @@ import { listScreenshots, readScreenshot } from './screenshots'
 import { gitIn, releaseLesson } from './release'
 import { mayPost, postingQueue } from './social/queue'
 import { readSocialPosts } from './socialPosts'
-import { readLearners, type LearnersOptions } from './learners'
+import { readLearnerHistory, readLearners, type LearnersOptions } from './learners'
 import { readToday } from './today'
 import {
   MAX_REFERENCE_BYTES,
@@ -162,6 +162,7 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  *                                         or a past day from its history, with the list of kept days; read-only
  * - `GET  /api/learners?from=&to=`        the app's events for those days (US Central), from PostHog or a sample,
  *                                         for the Learners page and Today's summary of it; read-only
+ * - `GET  /api/learners/history?ids=`     everything one learner 13 or over did, a year back; read-only
  * - `GET  /api/social/posts`              every post sent to social media, by day, with each platform's link
  *                                         (.studio/social/posts.jsonl, or the repo's copy on ops-history), and the
  *                                         lessons the daily job posts next, as `social next` picks them; read-only
@@ -273,6 +274,10 @@ async function handle(
 
     if (resource === 'today' && parts.length === 1 && method === 'GET' && options.opsDir) {
       return send(res, 200, await readToday(options.opsDir, url.searchParams.get('day')))
+    }
+
+    if (resource === 'learners' && name === 'history' && parts.length === 2 && method === 'GET') {
+      return send(res, 200, await readLearnerHistory(options.learners ?? {}, url.searchParams.get('ids')))
     }
 
     if (resource === 'learners' && parts.length === 1 && method === 'GET') {

@@ -4,12 +4,14 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
+  buildHistory,
   buildReport,
   compared,
   dayOf,
   endLesson,
   endWords,
   lastedFor,
+  learnerTag,
   periodLabel,
   periodRange,
   spoken,
@@ -18,7 +20,7 @@ import {
   type LearnerEvent,
 } from './learners'
 
-/** Oct 1 and 2, 2026, as PostHog had them, with the ids relabeled (server/fixtures). */
+/** Oct 1 and 2, 2026, as PostHog had them without test devices, with the ids relabeled (server/fixtures). */
 const sample = JSON.parse(
   readFileSync(fileURLToPath(new URL('../../server/fixtures/learners-sample.json', import.meta.url)), 'utf8'),
 ) as { events: LearnerEvent[] }
@@ -71,17 +73,17 @@ describe('periods', () => {
 describe('stitch', () => {
   it('joins a 13+ install with the id the app moves them to at the age answer', () => {
     const learners = stitch(events)
-    // The 9:05 AM install: its launch id (u18) asked the age question, its profile's (u19) answered.
-    const adult = learners.find((learner) => learner.ids.includes('u19'))
-    expect(adult?.ids.sort()).toEqual(['u18', 'u19'])
+    // The 9:05 AM install: its launch id (u06) asked the age question, its profile's (u07) answered.
+    const adult = learners.find((learner) => learner.ids.includes('u07'))
+    expect(adult?.ids.sort()).toEqual(['u06', 'u07'])
     // The 1:27 PM one too.
-    expect(learners.find((learner) => learner.ids.includes('u21'))?.ids.sort()).toEqual(['u20', 'u21'])
+    expect(learners.find((learner) => learner.ids.includes('u09'))?.ids.sort()).toEqual(['u08', 'u09'])
     // A child keeps one id from the question to the answer: nothing to join.
-    expect(learners.find((learner) => learner.ids.includes('u15'))?.ids).toEqual(['u15'])
+    expect(learners.find((learner) => learner.ids.includes('u03'))?.ids).toEqual(['u03'])
   })
 
   it('counts a batch the app sent twice once', () => {
-    const child = stitch(events).find((learner) => learner.ids.includes('u15'))
+    const child = stitch(events).find((learner) => learner.ids.includes('u03'))
     const saved = child?.events.filter((event) => event.event === 'drawing_saved' && event.lesson === 'lightning-bolt')
     expect(saved).toHaveLength(1)
   })
@@ -92,8 +94,8 @@ describe('buildReport for Oct 2', () => {
   const number = (key: string) => report.numbers.find((entry) => entry.key === key)
 
   it('has the day in numbers, against the day before', () => {
-    expect(number('installs')).toMatchObject({ value: 6, previous: 3, sub: '4 under 13' })
-    expect(number('sessions')).toMatchObject({ value: 8, sub: '2 returning' })
+    expect(number('installs')).toMatchObject({ value: 6, previous: 1, sub: '4 under 13' })
+    expect(number('sessions')).toMatchObject({ value: 7, sub: '1 returning' })
     expect(number('lessons')).toMatchObject({ value: 19, sub: '9 different' })
     expect(number('photos')).toMatchObject({ value: 7, sub: 'in 2 sessions' })
     expect(number('price')).toMatchObject({ value: 3, sub: '1 for a child' })
@@ -122,14 +124,13 @@ describe('buildReport for Oct 2', () => {
   })
 
   it('lists every session newest first, each with where it ended', () => {
-    expect(report.sessions).toHaveLength(8)
+    expect(report.sessions).toHaveLength(7)
     expect(report.days).toEqual([])
     const ends = report.sessions.map((session) => [endWords(session.end), endLesson(session.end)])
     expect(ends).toEqual([
       ['Left at the grown-up’s paywall', null],
       ['Left at the paywall after 2 s', null],
       ['Stopped in', 'cactus'],
-      ['Opened, nothing else', null],
       ['Stopped in', 'hot-air-balloon'],
       ['Left after keeping', 'cloud'],
       ['Stopped in', 'pine-tree'],
@@ -194,9 +195,39 @@ describe('buildReport for Oct 2', () => {
   it('narrows to children or 13+', () => {
     const children = buildReport(events, { period: 'day', date: '2026-10-02', who: 'children', now: later })
     const teens = buildReport(events, { period: 'day', date: '2026-10-02', who: 'teens', now: later })
-    expect(children.sessions).toHaveLength(6)
+    expect(children.sessions).toHaveLength(5)
     expect(teens.sessions).toHaveLength(2)
     expect(teens.numbers.find((entry) => entry.key === 'price')?.sub).toBe('all 13+')
+  })
+
+  it('ranks who drew most: lessons, then photos kept, then time', () => {
+    expect(report.leaders.map((session) => [session.key, session.finished, session.kept])).toEqual([
+      ['u03', 8, 3],
+      ['u04', 4, 4],
+      ['u02', 3, 0],
+      ['u07', 2, 0],
+      ['u10', 1, 0],
+      ['u09', 1, 0],
+    ])
+  })
+
+  it('tags a 13+ learner so they can be told apart across days, and never a child', () => {
+    const adult = report.sessions.find((session) => session.key === 'u07')
+    const child = report.sessions.find((session) => session.key === 'u03')
+    expect(adult && learnerTag(adult)).toBe('#U07')
+    expect(child && learnerTag(child)).toBeNull()
+  })
+})
+
+describe('buildHistory', () => {
+  it('lays out a 13+ learner’s days, from both their ids', () => {
+    const theirs = events.filter((event) => event.id === 'u06' || event.id === 'u07')
+    const history = buildHistory(theirs, later)
+    expect(history).toMatchObject({ visits: 1, finished: 2, kept: 0, prices: 1, bought: false })
+    expect(history?.installedAt).toBe(theirs.find((event) => event.firstOpen)?.at)
+    expect(history?.days.map((entry) => entry.day)).toEqual(['2026-10-02'])
+    expect(history?.days[0].session.ids.sort()).toEqual(['u06', 'u07'])
+    expect(buildHistory([], later)).toBeNull()
   })
 })
 
@@ -214,6 +245,7 @@ describe('buildReport for a week', () => {
       '2026-10-04',
     ])
     expect(report.days.find((day) => day.day === '2026-10-02')).toMatchObject({ installs: 6, lessons: 19, top: 'cloud' })
-    expect(report.days.find((day) => day.day === '2026-10-01')).toMatchObject({ installs: 3 })
+    // Oct 1's one real install left during onboarding; the rest of that day was test devices.
+    expect(report.days.find((day) => day.day === '2026-10-01')).toMatchObject({ installs: 1, lessons: 0, top: null })
   })
 })

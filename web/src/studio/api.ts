@@ -104,6 +104,11 @@ export function readLearners(from: string, to: string) {
   return call<LearnersResponse>(`/api/learners?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
 }
 
+/** Everything one learner 13 or over did, a year back, from their ids (read-only). */
+export function readLearnerHistory(ids: string[]) {
+  return call<LearnersResponse>(`/api/learners/history?ids=${ids.map(encodeURIComponent).join(',')}`)
+}
+
 /** Every post sent to social media, by day, with each platform's link or what stopped it (read-only). */
 export function readSocialPosts() {
   return call<SocialResponse>('/api/social/posts')
