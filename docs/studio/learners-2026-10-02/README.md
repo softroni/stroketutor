@@ -46,6 +46,14 @@ opens in place, as its timeline, without leaving the page:
 
 <img src="leader-history.png" width="900">
 
+## Sessions
+
+Each row: the learner's animal; the time, New or Back, and who they are on one line; what they drew under it, from
+the same edge; where it ended in a pill on the right (green for something done, amber where they stopped, blue at a
+price or a grown-up's screen).
+
+<img src="sessions.png" width="900">
+
 ## One session opened
 
 A tap on a row opens it as a timeline in words, each lesson beside its picture; for a learner 13 or over, their

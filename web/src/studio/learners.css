@@ -481,6 +481,15 @@
   border-radius: 5px;
 }
 
+.st-learners__pic--chip {
+  --pic: 28px;
+}
+
+.st-learners__pic--chip .st-learners__pic-paper {
+  padding: 2px;
+  border-radius: 7px;
+}
+
 .st-learners__pic--medium {
   --pic: 44px;
 }
@@ -574,9 +583,9 @@
 .st-learners__strip-key {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 14px;
-  margin: 0;
-  padding: 0;
+  gap: 6px 18px;
+  margin: 0 0 6px;
+  padding: 0 14px 12px;
   list-style: none;
   color: var(--ink-faint);
   font-size: 12px;
@@ -607,23 +616,30 @@
 .st-learners__sessions {
   margin: 0;
   padding: 0;
+  border-top: 1px solid var(--line);
   list-style: none;
 }
 
-.st-learners__session {
+.st-learners__session + .st-learners__session {
   border-top: 1px solid var(--line);
 }
 
-.st-learners__session:first-child {
-  border-top: 0;
-}
 
+/*
+ * A session: the learner's animal on the left; the time, a New or Back badge and the
+ * rest of who they are on one line, with what they drew under it, both starting at the
+ * same edge; where it ended in a pill on the right, centered on the row.
+ */
 .st-learners__session-face {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  grid-template-areas:
+    'avatar head end'
+    '. strip end';
+  align-items: center;
+  gap: 10px 16px;
   width: 100%;
-  padding: 12px 10px;
+  padding: 16px 14px;
   border: 0;
   border-radius: 12px;
   background: none;
@@ -641,34 +657,137 @@
   background: var(--accent-tint);
 }
 
-.st-learners__session-top {
+.st-learners__session-face > .st-learners__avatar {
+  grid-area: avatar;
+}
+
+.st-learners__session-head {
+  grid-area: head;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
-  width: 100%;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.st-learners__session-face > .st-learners__strip {
+  grid-area: strip;
+}
+
+.st-learners__session-face > .st-learners__end {
+  grid-area: end;
+  justify-self: end;
 }
 
 .st-learners__session-time {
-  min-width: 70px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 750;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
-.st-learners__session-tag {
-  flex: 1;
-  min-width: 0;
+.st-learners__session-meta {
   color: var(--ink-faint);
   font-size: 13px;
 }
 
-.st-learners__session-end {
+/* New or Back: who this session is, before the details. */
+.st-learners__status {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.st-learners__status--new {
+  background: var(--good-tint);
+  color: var(--good);
+}
+
+.st-learners__status--back {
+  background: var(--pill);
+  color: var(--ink-muted);
+}
+
+/* Where it ended: one pill, toned by how. */
+.st-learners__end {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  color: var(--ink);
+  gap: 8px;
+  max-width: 260px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--page);
+  color: var(--ink-muted);
   font-size: 13px;
-  text-align: right;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.st-learners__end--with-pic {
+  padding: 3px 4px 3px 12px;
+}
+
+.st-learners__end--good {
+  border-color: var(--good-line);
+  background: var(--good-tint);
+  color: var(--good);
+}
+
+.st-learners__end--stopped {
+  border-color: var(--amber-line);
+  background: var(--amber-tint);
+  color: var(--amber);
+}
+
+.st-learners__end--price {
+  border-color: var(--accent-soft);
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+/* Still in the app: a small breathing dot. */
+.st-learners__live {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: st-learners-live 1.6s ease-in-out infinite;
+}
+
+@keyframes st-learners-live {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-learners__live {
+    animation: none;
+  }
+}
+
+.st-learners__strip-empty {
+  color: var(--ink-faint);
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* "back 1:47 PM": the pause before a later visit, in words. */
+.st-learners__later {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink-faint);
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 .st-learners__strip {
@@ -717,13 +836,6 @@
   border-radius: 50%;
   background: var(--learners-finished);
   box-shadow: 0 0 0 3px var(--good-line);
-}
-
-.st-learners__mark--later {
-  width: 0;
-  height: 30px;
-  margin: 0 4px;
-  border-left: 1.5px dashed var(--line-strong);
 }
 
 /* An opened session. */
@@ -835,10 +947,6 @@
 .st-learners__avatar--6 { --avatar: #a8700f; }
 .st-learners__avatar--7 { --avatar: #4f5bd5; }
 
-.st-learners__history-title .st-learners__avatar {
-  margin-right: 6px;
-}
-
 /* ---------- Top learners ---------- */
 
 .st-learners__leaders {
@@ -945,14 +1053,18 @@
 }
 
 .st-learners__history-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
   margin: 0 0 8px;
   font-size: 14px;
   color: var(--ink);
 }
 
-.st-learners__history-title span {
-  display: block;
-  margin-top: 2px;
+.st-learners__history-summary {
+  flex-basis: 100%;
+  padding-left: 40px;
   color: var(--ink-faint);
   font-size: 12px;
   font-weight: 400;
@@ -1166,14 +1278,17 @@ a.st-learners__day-face:hover {
     grid-template-columns: 110px minmax(0, 1fr) 24px;
   }
 
-  .st-learners__session-top {
-    flex-wrap: wrap;
+  .st-learners__session-face {
+    grid-template-columns: 30px minmax(0, 1fr);
+    grid-template-areas:
+      'avatar head'
+      '. strip'
+      '. end';
+    padding: 14px 8px;
   }
 
-  .st-learners__session-end {
-    width: 100%;
-    justify-content: flex-start;
-    text-align: left;
+  .st-learners__session-face > .st-learners__end {
+    justify-self: start;
   }
 
   .st-learners__days {

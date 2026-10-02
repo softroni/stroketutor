@@ -554,7 +554,7 @@ export function LessonPicture({
 }: {
   library: Library
   lesson: string
-  size?: 'tiny' | 'small' | 'medium' | 'large'
+  size?: 'tiny' | 'chip' | 'small' | 'medium' | 'large'
   state?: PictureState
   badge?: Badge
 }) {
@@ -622,8 +622,9 @@ function Sessions({
         <h2 id="learners-sessions" className="st-learners__h2">
           {sessions.length} {sessions.length === 1 ? 'session' : 'sessions'}
         </h2>
-        <StripKey />
+        <span className="st-learners__muted">Newest first. Tap one for its timeline.</span>
       </div>
+      <StripKey />
       {sessions.length ? (
         <ol className="st-learners__sessions">
           {sessions.map((session) => (
@@ -654,15 +655,10 @@ function SessionRow({
   open: boolean
   onToggle: () => void
 }) {
-  const lesson = endLesson(session.end)
-  const ended = session.end
-  const endState: PictureState = ended.kind === 'after' ? 'finished' : ended.kind === 'atLocked' ? 'locked' : 'started'
-  const tag = [
-    session.isNew ? 'New' : 'Back',
+  const meta = [
     learnerTag(session),
     ageLabel(session.age),
     lastedFor(session.activeMs),
-    ...session.returns.map((at) => `back at ${timeOf(at)}`),
     session.source === 'ads' ? 'Apple Ads' : null,
   ]
     .filter(Boolean)
@@ -670,24 +666,16 @@ function SessionRow({
   return (
     <li className={`st-learners__session${open ? ' st-learners__session--open' : ''}`}>
       <button type="button" className="st-learners__session-face" aria-expanded={open} onClick={onToggle}>
-        <span className="st-learners__session-top">
-          <LearnerAvatar session={session} />
+        <LearnerAvatar session={session} />
+        <span className="st-learners__session-head">
           <span className="st-learners__session-time">{timeOf(session.start)}</span>
-          <span className="st-learners__session-tag">{tag}</span>
-          <span className="st-learners__session-end">
-            <span>{endWords(ended)}</span>
-            {lesson ? (
-              <LessonPicture
-                library={library}
-                lesson={lesson}
-                size="medium"
-                state={endState}
-                badge={ended.kind === 'after' && ended.kept ? 'kept' : undefined}
-              />
-            ) : null}
+          <span className={`st-learners__status st-learners__status--${session.isNew ? 'new' : 'back'}`}>
+            {session.isNew ? 'New' : 'Back'}
           </span>
+          <span className="st-learners__session-meta">{meta}</span>
         </span>
         <Strip items={session.items} library={library} />
+        <SessionEnd end={session.end} library={library} />
       </button>
       {open ? <Timeline lines={session.timeline} library={library} /> : null}
       {open && !session.child ? <History session={session} library={library} /> : null}
@@ -697,18 +685,62 @@ function SessionRow({
 
 /** A session's steps in order: its lessons as pictures, and small marks for the rest. */
 function Strip({ items, library }: { items: SessionItem[]; library: Library }) {
-  if (!items.length) {
+  // Onboarding is in the timeline, and "New" says it: the strip is for what they did after it.
+  const shown = items.filter((item) => item.kind !== 'onboarding')
+  if (!shown.length) {
     return (
       <span className="st-learners__strip">
-        <span className="st-learners__mark st-learners__mark--opened" title="Opened the app" />
+        <span className="st-learners__strip-empty">Nothing drawn</span>
       </span>
     )
   }
   return (
     <span className="st-learners__strip">
-      {items.map((item, index) => (
+      {shown.map((item, index) => (
         <StripItem key={`${item.kind}-${item.at}-${index}`} item={item} library={library} />
       ))}
+    </span>
+  )
+}
+
+const END_TONES: Record<SessionEndKind, 'good' | 'stopped' | 'price' | 'quiet'> = {
+  drawingNow: 'good',
+  hereNow: 'good',
+  after: 'good',
+  bought: 'good',
+  stopped: 'stopped',
+  atLocked: 'stopped',
+  duringOnboarding: 'stopped',
+  afterOnboarding: 'stopped',
+  atPaywall: 'price',
+  atGrownUpPaywall: 'price',
+  atGrownUp: 'price',
+  openedOnly: 'quiet',
+}
+
+type SessionEndKind = LearnerSession['end']['kind']
+
+/**
+ * Where a session ended, as one pill on the right of its row: green when it ended on
+ * something done, amber where someone stopped, blue at a price or a grown-up's screen.
+ * The lesson it ended on is in it as a small picture.
+ */
+function SessionEnd({ end, library }: { end: LearnerSession['end']; library: Library }) {
+  const lesson = endLesson(end)
+  const state: PictureState = end.kind === 'after' ? 'finished' : end.kind === 'atLocked' ? 'locked' : 'started'
+  return (
+    <span className={`st-learners__end st-learners__end--${END_TONES[end.kind]}${lesson ? ' st-learners__end--with-pic' : ''}`}>
+      {end.kind === 'drawingNow' || end.kind === 'hereNow' ? <span className="st-learners__live" aria-hidden="true" /> : null}
+      <span>{endWords(end)}</span>
+      {lesson ? (
+        <LessonPicture
+          library={library}
+          lesson={lesson}
+          size="chip"
+          state={state}
+          badge={end.kind === 'after' && end.kept ? 'kept' : undefined}
+        />
+      ) : null}
     </span>
   )
 }
@@ -742,7 +774,7 @@ function StripItem({ item, library }: { item: SessionItem; library: Library }) {
     case 'bought':
       return <span className="st-learners__mark st-learners__mark--bought" title="Bought Premium" />
     case 'later':
-      return <span className="st-learners__mark st-learners__mark--later" title={`Came back at ${timeOf(item.at)}`} />
+      return <span className="st-learners__later">back {timeOf(item.at)}</span>
   }
 }
 
@@ -774,7 +806,7 @@ function StripKey() {
         <span className="st-learners__mark st-learners__mark--price" /> saw a price
       </li>
       <li>
-        <span className="st-learners__mark st-learners__mark--onboarding" /> onboarding
+        <span className="st-learners__later">back 1:47 PM</span> came back later
       </li>
     </ul>
   )
@@ -928,12 +960,13 @@ function History({ session, library }: { session: LearnerSession; library: Libra
   return (
     <section className="st-learners__history" aria-label={`Every visit of ${learnerTag(session) ?? 'this learner'}`}>
       <h3 className="st-learners__history-title">
-        <LearnerAvatar session={session} /> Every visit of {learnerTag(session)} <span>{summary}</span>
+        <LearnerAvatar session={session} />
+        <span>Every visit of {learnerTag(session)}</span>
+        <span className="st-learners__history-summary">{summary}</span>
       </h3>
       {days === 1 ? <p className="st-learners__muted">This is their only day so far.</p> : null}
       <ol className="st-learners__history-days">
         {history.days.map(({ day, session: visit }) => {
-          const lesson = endLesson(visit.end)
           return (
             <li
               key={day}
@@ -959,10 +992,7 @@ function History({ session, library }: { session: LearnerSession; library: Libra
                   </span>
                 </span>
                 <Strip items={visit.items} library={library} />
-                <span className="st-learners__session-end">
-                  <span>{endWords(visit.end)}</span>
-                  {lesson ? <LessonPicture library={library} lesson={lesson} state={visit.end.kind === 'after' ? 'finished' : 'started'} /> : null}
-                </span>
+                <SessionEnd end={visit.end} library={library} />
               </button>
               {openDay === day ? (
                 <div className="st-learners__history-open">
