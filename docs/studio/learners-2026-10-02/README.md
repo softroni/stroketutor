@@ -5,9 +5,22 @@ The Learners page (`#/learners`) and its summary on Today, shown with the commit
 builds only, ids relabeled). With `POSTHOG_PERSONAL_API_KEY` set, the same page reads PostHog live. Test devices
 are left out: every debug build, and every id that carried Apple Ads' test payload.
 
+## How fresh it is
+
+A day that reaches today asks again every minute while the page is in view (a week or a month every five minutes),
+and PostHog is asked to work today's numbers out afresh rather than hand back its cached copy. "Refresh" asks at once,
+at most every 15 seconds. The app sends its events every 15 seconds and PostHog makes them queryable within a few
+minutes, so the page runs about one to three minutes behind the app.
+
+<img src="numbers.png" width="900">
+
+Free trials and Buys are apart: a free week of the yearly plan is a trial, any other plan bought is a buy. Their
+dollars are the plans' US list prices on the day (yearly $29.99, weekly $3.99 from Oct 2; $19.99 and $1.99 before;
+Lifetime $99.99), before Apple's cut: the app's events name the plan, not the price.
+
 ## A day
 
-Six numbers against the day before, the journey of the day's installs (children and 13+ apart), the lessons drawn
+Seven numbers against the day before, the journey of the day's installs (children and 13+ apart), the lessons drawn
 most, then every session as the lessons it drew: green-ringed when finished, dashed where they stopped, gold badges
 for a kept photo, a tap on a locked lesson and a wish.
 

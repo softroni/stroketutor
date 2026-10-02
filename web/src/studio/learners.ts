@@ -45,7 +45,8 @@ export type Only =
   | 'lessons'
   | 'photos'
   | 'price'
-  | 'bought'
+  | 'trials'
+  | 'buys'
   | `reached-${Exclude<Stage, 'installed'>}`
   | `stopped-${Exclude<Stage, 'bought'>}`
 export const ONLY: Only[] = [
@@ -53,7 +54,8 @@ export const ONLY: Only[] = [
   'lessons',
   'photos',
   'price',
-  'bought',
+  'trials',
+  'buys',
   'reached-onboarded',
   'reached-first',
   'reached-second',
@@ -101,8 +103,10 @@ export function counts(session: LearnerSession, only: Only): boolean {
       return session.kept > 0
     case 'price':
       return session.items.some((item) => item.kind === 'price')
-    case 'bought':
-      return session.items.some((item) => item.kind === 'bought')
+    case 'trials':
+      return session.items.some((item) => item.kind === 'bought' && item.trial)
+    case 'buys':
+      return session.items.some((item) => item.kind === 'bought' && !item.trial)
   }
   const [kind, stage] = only.split('-') as ['reached' | 'stopped', Stage]
   if (kind === 'reached') return reached(session, stage)
@@ -195,6 +199,8 @@ export interface LearnerEvent {
   screen?: string
   entry?: string
   outcome?: string
+  /** `purchase_attempted`: `yearly`, `weekly`, `lifetime` or `restore`. */
+  plan?: string
   /** `asa_attribution`: Apple Ads brought this install. */
   ads?: boolean
   /** `wish_list_changed`: on (true) or off the list. */
@@ -218,6 +224,7 @@ export const LEARNER_EVENTS = [
   'superwall_paywall_open',
   'superwall_paywall_close',
   'purchase_attempted',
+  'superwall_free_trial_start',
 ] as const
 
 /** What `/api/learners` answers. */
@@ -453,6 +460,34 @@ export function sourceOf(events: LearnerEvent[]): 'ads' | 'organic' {
 
 // ---------- Sessions ----------
 
+/** A purchase and the free week it started arrive within this of each other. */
+const PURCHASE_WINDOW_MS = 10 * 60_000
+
+/**
+ * A plan's US list price on the day it was bought, in dollars: what the App Store shows in
+ * the US, before Apple's cut and before other countries' prices. Paper Coach's events carry
+ * the plan, not the price. From 2026-10-02 the yearly plan is $29.99 and the weekly $3.99
+ * ($19.99 and $1.99 before); Lifetime is $99.99 (from 1.1). Null for a plan it does not know.
+ */
+export function listPrice(plan: string | null, at: number): number | null {
+  const raised = dayOf(at) >= '2026-10-02'
+  switch (plan) {
+    case 'yearly':
+      return raised ? 29.99 : 19.99
+    case 'weekly':
+      return raised ? 3.99 : 1.99
+    case 'lifetime':
+      return 99.99
+    default:
+      return null
+  }
+}
+
+/** "$29.99" · "$1,049.50". */
+export function money(dollars: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(dollars)
+}
+
 /** A pause longer than this starts a new visit within a row ("back at 1:47 PM"). */
 export const VISIT_GAP_MS = 30 * 60_000
 /** A learner whose last event is this recent, today, is shown as still in the app. */
@@ -466,7 +501,8 @@ export type SessionItem =
   | { kind: 'wish'; at: number; lesson: string }
   | { kind: 'grownUp'; at: number }
   | { kind: 'price'; at: number; forGrownUp: boolean; closedAfter: number | null }
-  | { kind: 'bought'; at: number }
+  /** A purchase: a free week of the yearly plan (`trial`), or a plan paid for now, at its list price. */
+  | { kind: 'bought'; at: number; trial: boolean; plan: string | null; price: number | null }
   | { kind: 'later'; at: number }
 
 /** Where a session ended, or where it is now. */
@@ -479,7 +515,7 @@ export type SessionEnd =
   | { kind: 'atPaywall'; closedAfter: number | null }
   | { kind: 'atGrownUpPaywall' }
   | { kind: 'atGrownUp' }
-  | { kind: 'bought' }
+  | { kind: 'bought'; trial: boolean }
   | { kind: 'duringOnboarding' }
   | { kind: 'afterOnboarding' }
   | { kind: 'openedOnly' }
@@ -531,6 +567,24 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
   let previous = events[0].at
   let finished = 0
   let kept = 0
+  const lastPurchase = () =>
+    [...items].reverse().find((item) => item.kind === 'bought') as Extract<SessionItem, { kind: 'bought' }> | undefined
+  /**
+   * The free week started (at `previous`, the event being read): the purchase just made was
+   * its, or its purchase is on its way, and joins it (`purchase_attempted` below).
+   */
+  const markTrial = () => {
+    const recent = lastPurchase()
+    if (recent && previous - recent.at < PURCHASE_WINDOW_MS) {
+      if (!recent.trial) {
+        recent.trial = true
+        recent.plan = recent.plan ?? 'yearly'
+        recent.price = listPrice('yearly', recent.at)
+      }
+      return
+    }
+    items.push({ kind: 'bought', at: previous, trial: true, plan: null, price: listPrice('yearly', previous) })
+  }
   const openLesson = (lesson: string) =>
     [...items].reverse().find((item) => item.kind === 'lesson' && item.lesson === lesson && item.state === 'started') as
       | Extract<SessionItem, { kind: 'lesson' }>
@@ -635,6 +689,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
         } else if (screen === 'more_coming') {
           line('Saw “More coming”')
         } else if (screen === 'trial_started') {
+          markTrial()
           line('Saw “Your free week has started”', 'bought')
         } else if (screen === 'pending') {
           line('Waiting for a grown-up’s approval')
@@ -653,14 +708,29 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
         line(price ? `Closed the paywall after ${spoken(event.at - price.at)}` : 'Closed the paywall', 'price')
         break
       }
-      case 'purchase_attempted':
-        if (event.outcome === 'purchased') {
-          items.push({ kind: 'bought', at: event.at })
-          line('Bought Premium', 'bought')
-        } else if (event.outcome) {
-          line(`Tried to buy Premium: ${event.outcome}`, 'price')
+      case 'superwall_free_trial_start':
+        markTrial()
+        break
+      case 'purchase_attempted': {
+        // `plan` rides on the event as `plan`; restoring is not buying.
+        const plan = event.plan ?? null
+        if (event.outcome === 'purchased' && plan !== 'restore') {
+          const waiting = lastPurchase()
+          if (waiting && waiting.trial && waiting.plan === null && event.at - waiting.at < PURCHASE_WINDOW_MS) {
+            // The free week was announced first; this is its purchase.
+            waiting.plan = plan
+            waiting.price = listPrice(plan, waiting.at)
+          } else {
+            items.push({ kind: 'bought', at: event.at, trial: false, plan, price: listPrice(plan, event.at) })
+          }
+          line(`Bought Premium${plan ? `, ${plan}` : ''}`, 'bought')
+        } else if (event.outcome && plan !== 'restore') {
+          line(`Tried to buy Premium${plan ? `, ${plan}` : ''}: ${event.outcome}`, 'price')
+        } else if (plan === 'restore') {
+          line(`Restored purchases: ${event.outcome ?? 'tried'}`, 'quiet')
         }
         break
+      }
     }
   }
   activeMs += previous - visitStart
@@ -712,7 +782,7 @@ function endOf(items: SessionItem[], events: LearnerEvent[], hereNow: boolean): 
     case 'grownUp':
       return { kind: 'atGrownUp' }
     case 'bought':
-      return { kind: 'bought' }
+      return { kind: 'bought', trial: lastItem.trial }
     case 'onboarding':
       return { kind: 'afterOnboarding' }
   }
@@ -747,7 +817,7 @@ export function endWords(end: SessionEnd): string {
     case 'atGrownUp':
       return 'Left at “for a grown-up”'
     case 'bought':
-      return 'Bought Premium'
+      return end.trial ? 'Started a free week' : 'Bought Premium'
     case 'duringOnboarding':
       return 'Left during onboarding'
     case 'afterOnboarding':
@@ -765,11 +835,13 @@ export function endLesson(end: SessionEnd): string | null {
 // ---------- The report ----------
 
 export interface ReportNumber {
-  key: 'installs' | 'sessions' | 'lessons' | 'photos' | 'price' | 'bought'
+  key: 'installs' | 'sessions' | 'lessons' | 'photos' | 'price' | 'trials' | 'buys'
   label: string
   value: number
   previous: number
   sub: string
+  /** Dollars, for the trials and the buys: at the plans' US list prices. */
+  amount?: number
 }
 
 export interface JourneyStage {
@@ -935,7 +1007,10 @@ export interface LearnerHistory {
   kept: number
   /** How many times a paywall opened. */
   prices: number
+  /** Paid for a plan. */
   bought: boolean
+  /** Started a free week. */
+  trialed: boolean
   /** One per day they used the app, newest first. */
   days: { day: string; session: LearnerSession }[]
 }
@@ -971,7 +1046,8 @@ export function buildHistory(events: LearnerEvent[], now: number): LearnerHistor
     finished: sessions.reduce((total, session) => total + session.finished, 0),
     kept: sessions.reduce((total, session) => total + session.kept, 0),
     prices: sessions.reduce((total, session) => total + session.items.filter((item) => item.kind === 'price').length, 0),
-    bought: sessions.some((session) => session.items.some((item) => item.kind === 'bought')),
+    bought: sessions.some((session) => session.items.some((item) => item.kind === 'bought' && !item.trial)),
+    trialed: sessions.some((session) => session.items.some((item) => item.kind === 'bought' && item.trial)),
     days,
   }
 }
@@ -988,7 +1064,13 @@ function numbersOf(
 ): ReportNumber[] {
   const installs = sessions.filter((session) => session.isNew)
   const sawPrice = sessions.filter((session) => session.items.some((item) => item.kind === 'price'))
-  const bought = sessions.filter((session) => session.items.some((item) => item.kind === 'bought'))
+  const purchases = (list: LearnerSession[], trial: boolean) =>
+    list.flatMap((session) =>
+      session.items.filter((item): item is Extract<SessionItem, { kind: 'bought' }> => item.kind === 'bought' && item.trial === trial),
+    )
+  const trials = purchases(sessions, true)
+  const buys = purchases(sessions, false)
+  const dollars = (list: { price: number | null }[]) => list.reduce((total, item) => total + (item.price ?? 0), 0)
   const lessons = events.filter((event) => event.event === 'lesson_completed')
   const different = new Set(lessons.map((event) => event.lesson)).size
   const photoSessions = sessions.filter((session) =>
@@ -1035,11 +1117,20 @@ function numbersOf(
       sub: sawPrice.length === 0 ? 'nobody yet' : childPrices ? `${childPrices} for a child` : 'all 13+',
     },
     {
-      key: 'bought',
-      label: 'Trials and buys',
-      value: bought.length,
-      previous: previousOf((list) => list.filter((session) => session.items.some((item) => item.kind === 'bought')).length),
-      sub: bought.length ? `of ${sawPrice.length} who saw a price` : 'none yet',
+      key: 'trials',
+      label: 'Free trials',
+      value: trials.length,
+      previous: previousOf((list) => purchases(list, true).length),
+      amount: dollars(trials),
+      sub: 'a year, if kept',
+    },
+    {
+      key: 'buys',
+      label: 'Buys',
+      value: buys.length,
+      previous: previousOf((list) => purchases(list, false).length),
+      amount: dollars(buys),
+      sub: 'at US list price',
     },
   ]
 }

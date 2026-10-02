@@ -43,9 +43,24 @@ export const DEFAULT_POSTHOG_HOST = 'https://us.posthog.com'
 const MAX_DAYS = 70
 /** PostHog's own ceiling on the rows one query returns. */
 const MAX_ROWS = 50_000
-/** How long an answer is kept: a range that reaches today changes, an older one does not. */
-const FRESH_MS = 5 * 60_000
-const SETTLED_MS = 60 * 60_000
+/**
+ * How long an answer is kept. A day (with the day before it, for the comparison) that
+ * reaches today: a minute, which is about as fresh as PostHog gets, since the app sends
+ * its events every 15 seconds and PostHog makes them queryable within a few minutes
+ * (https://posthog.com/docs/product-analytics/capture-events#event-ingestion, read
+ * 2026-10-02). A week or a month that reaches today pulls many more rows, and PostHog's
+ * query endpoint is not meant for pulling raw events over and over
+ * (https://posthog.com/docs/api/queries), so five minutes. Days that are over don't
+ * change: an hour. Even a minute stays far under the project's 240 queries a minute
+ * and 2,400 an hour (https://posthog.com/docs/api/queries#rate-limits).
+ */
+export const TODAY_MS = 60_000
+export const LONG_TODAY_MS = 5 * 60_000
+export const SETTLED_MS = 60 * 60_000
+/** "Refresh" asks PostHog again at once, but not more than once every 15 seconds per range. */
+export const FORCE_FLOOR_MS = 15_000
+/** A range this many days long or shorter is a day and the day before it. */
+const DAY_SPAN = 2
 
 /** How far back a learner's history goes. */
 const HISTORY_DAYS = 365
@@ -65,6 +80,8 @@ export async function readLearners(
   from: string | null,
   to: string | null,
   now = Date.now(),
+  /** The page's Refresh: past the server's copy, at most every 15 seconds. */
+  force = false,
 ): Promise<LearnersResponse> {
   const empty = (problem: string, configured = true): LearnersResponse => ({
     configured,
@@ -98,7 +115,10 @@ export async function readLearners(
     )
   }
 
-  return ask(options, `${from}|${to}`, learnersQuery(from, to), to > dayOf(now), now)
+  const reachesToday = to > dayOf(now)
+  const span = (Date.parse(to) - Date.parse(from)) / 86_400_000
+  const keep = !reachesToday ? SETTLED_MS : span <= DAY_SPAN ? TODAY_MS : LONG_TODAY_MS
+  return ask(options, `${from}|${to}`, learnersQuery(from, to), { keep, fresh: reachesToday, force, now })
 }
 
 /**
@@ -127,22 +147,31 @@ export async function readLearnerHistory(
   if (!options.apiKey) {
     return { configured: false, source: null, problem: 'The Learners page needs POSTHOG_PERSONAL_API_KEY.', events: [], fetchedAt: null }
   }
-  return ask(options, `history|${[...ids].sort().join(',')}`, historyQuery(ids), true, now)
+  return ask(options, `history|${[...ids].sort().join(',')}`, historyQuery(ids), {
+    keep: LONG_TODAY_MS,
+    fresh: true,
+    force: false,
+    now,
+  })
 }
 
-/** Asks PostHog, or answers from what it said a moment ago. */
+/**
+ * Asks PostHog, or answers from what it said less than `keep` ago (`force`: from what it
+ * said less than 15 seconds ago). `fresh` tells PostHog to run the query rather than hand
+ * back its own cached result, which it otherwise does by default
+ * (https://posthog.com/docs/api/queries#caching-and-execution-modes).
+ */
 async function ask(
   options: LearnersOptions,
   key: string,
   query: string,
-  changing: boolean,
-  now: number,
+  { keep, fresh, force, now }: { keep: number; fresh: boolean; force: boolean; now: number },
 ): Promise<LearnersResponse> {
   const kept = cache.get(key)
-  if (kept && now - kept.at < (changing ? FRESH_MS : SETTLED_MS)) return kept.response
+  if (kept && now - kept.at < (force ? FORCE_FLOOR_MS : keep)) return kept.response
 
   try {
-    const events = await queryEvents(options, query)
+    const events = await queryEvents(options, query, fresh ? 'force_blocking' : 'blocking')
     const response: LearnersResponse = {
       configured: true,
       source: 'posthog',
@@ -166,7 +195,7 @@ async function ask(
 const COLUMNS = [
   'SELECT toUnixTimestamp64Milli(timestamp), event, distinct_id, properties.age_group, properties.lesson_id,',
   '  properties.first_open, properties.screen, properties.entry, properties.outcome, properties.asa_attribution,',
-  '  properties.added',
+  '  properties.added, properties.plan',
   'FROM events',
 ]
 
@@ -211,13 +240,17 @@ export function historyQuery(ids: string[]): string {
   ].join('\n')
 }
 
-async function queryEvents(options: LearnersOptions, query: string): Promise<LearnerEvent[]> {
+async function queryEvents(
+  options: LearnersOptions,
+  query: string,
+  refresh: 'blocking' | 'force_blocking',
+): Promise<LearnerEvent[]> {
   const host = options.host ?? DEFAULT_POSTHOG_HOST
   const project = options.projectId ?? DEFAULT_POSTHOG_PROJECT
   const response = await (options.fetch ?? fetch)(`${host}/api/projects/${project}/query/`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${options.apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: { kind: 'HogQLQuery', query } }),
+    body: JSON.stringify({ query: { kind: 'HogQLQuery', query }, refresh, name: 'studio-learners' }),
     signal: AbortSignal.timeout(30_000),
   })
   if (!response.ok) {
@@ -233,7 +266,7 @@ async function queryEvents(options: LearnersOptions, query: string): Promise<Lea
 
 /** One row of the query, in the column order above, as an event; null when it has no time, name or id. */
 export function toEvent(row: unknown[]): LearnerEvent | null {
-  const [at, event, id, age, lesson, firstOpen, screen, entry, outcome, ads, added] = row
+  const [at, event, id, age, lesson, firstOpen, screen, entry, outcome, ads, added, plan] = row
   if (typeof event !== 'string' || typeof id !== 'string') return null
   const time = typeof at === 'number' ? at : typeof at === 'string' && at !== '' ? Number(at) : Number.NaN
   if (!Number.isFinite(time)) return null
@@ -247,6 +280,7 @@ export function toEvent(row: unknown[]): LearnerEvent | null {
   if (text(screen)) result.screen = text(screen)
   if (text(entry)) result.entry = text(entry)
   if (text(outcome)) result.outcome = text(outcome)
+  if (text(plan)) result.plan = text(plan)
   if (flag(ads) !== undefined) result.ads = flag(ads)
   if (flag(added) !== undefined) result.added = flag(added)
   return result

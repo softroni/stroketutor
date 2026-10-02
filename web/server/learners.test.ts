@@ -2,7 +2,16 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { forgetLearners, historyQuery, learnersQuery, readLearnerHistory, readLearners, toEvent } from './learners'
+import {
+  FORCE_FLOOR_MS,
+  forgetLearners,
+  historyQuery,
+  learnersQuery,
+  readLearnerHistory,
+  readLearners,
+  TODAY_MS,
+  toEvent,
+} from './learners'
 
 const sampleFile = fileURLToPath(new URL('./fixtures/learners-sample.json', import.meta.url))
 const now = Date.parse('2026-10-02T21:00:00Z')
@@ -30,7 +39,7 @@ describe('readLearners', () => {
     expect(response.events.every((event) => event.at >= Date.parse('2026-10-02T05:00:00Z'))).toBe(true)
   })
 
-  it('asks PostHog once, with the key, and keeps the answer a few minutes', async () => {
+  it('asks PostHog once, with the key, and keeps a day that reaches today a minute', async () => {
     const calls: { url: string; init: RequestInit }[] = []
     const fake = (async (url: string, init: RequestInit) => {
       calls.push({ url, init })
@@ -47,17 +56,53 @@ describe('readLearners', () => {
     const options = { apiKey: 'phx_test', fetch: fake }
 
     const first = await readLearners(options, '2026-10-02', '2026-10-03', now)
-    const second = await readLearners(options, '2026-10-02', '2026-10-03', now + 60_000)
+    const second = await readLearners(options, '2026-10-02', '2026-10-03', now + 30_000)
 
     expect(calls).toHaveLength(1)
     expect(calls[0].url).toBe('https://us.posthog.com/api/projects/629055/query/')
     expect((calls[0].init.headers as Record<string, string>).Authorization).toBe('Bearer phx_test')
+    // Today's events are always worked out afresh, never PostHog's cached copy.
+    expect(JSON.parse(String(calls[0].init.body)).refresh).toBe('force_blocking')
     expect(first).toMatchObject({ configured: true, source: 'posthog', problem: null })
     expect(first.events).toEqual([
       { at: 1790949956518, event: 'ob_age_answered', id: 'abc', age: '18plus' },
       { at: 1790949975257, event: 'lesson_started', id: 'abc', age: '18plus', lesson: 'pine-tree', ads: false },
     ])
     expect(second).toBe(first)
+  })
+
+  it('asks again after a minute for today, at once on Refresh, but not twice in 15 seconds', async () => {
+    let calls = 0
+    const fake = (async () => {
+      calls += 1
+      return new Response(JSON.stringify({ results: [] }), { status: 200 })
+    }) as unknown as typeof fetch
+    const options = { apiKey: 'phx_test', fetch: fake }
+
+    await readLearners(options, '2026-10-01', '2026-10-03', now)
+    await readLearners(options, '2026-10-01', '2026-10-03', now + TODAY_MS + 1)
+    expect(calls).toBe(2)
+    await readLearners(options, '2026-10-01', '2026-10-03', now + TODAY_MS + 5_000, true)
+    expect(calls).toBe(2)
+    await readLearners(options, '2026-10-01', '2026-10-03', now + TODAY_MS + FORCE_FLOOR_MS + 2, true)
+    expect(calls).toBe(3)
+  })
+
+  it('keeps a week reaching today five minutes, and days that are over an hour, from PostHog’s cache', async () => {
+    const bodies: { refresh: string }[] = []
+    const fake = (async (_url: string, init: RequestInit) => {
+      bodies.push(JSON.parse(String(init.body)) as { refresh: string })
+      return new Response(JSON.stringify({ results: [] }), { status: 200 })
+    }) as unknown as typeof fetch
+    const options = { apiKey: 'phx_test', fetch: fake }
+
+    await readLearners(options, '2026-09-21', '2026-10-05', now)
+    await readLearners(options, '2026-09-21', '2026-10-05', now + 4 * 60_000)
+    expect(bodies).toHaveLength(1)
+    await readLearners(options, '2026-09-28', '2026-09-30', now)
+    await readLearners(options, '2026-09-28', '2026-09-30', now + 50 * 60_000)
+    expect(bodies).toHaveLength(2)
+    expect(bodies[1].refresh).toBe('blocking')
   })
 
   it('says what PostHog answered when it refuses', async () => {

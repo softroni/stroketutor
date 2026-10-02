@@ -18,6 +18,7 @@ import {
   periodRange,
   type LearnerHistory,
   PERIODS,
+  money,
   type Only,
   previousLabel,
   stepPeriod,
@@ -37,52 +38,126 @@ import {
 import type { Library } from './library'
 import { routeHref } from './route'
 
-/** How often a period that reaches today asks again. The server keeps PostHog's answer five minutes. */
-const REFRESH_MS = 120_000
+/**
+ * How often a period that reaches today asks again, while the page is in view: a day every
+ * minute, a week or a month every five (they pull far more rows). The server keeps PostHog's
+ * answer just as long (`web/server/learners.ts`), and a tab in the background asks nothing.
+ */
+const DAY_REFRESH_MS = 60_000
+const LONG_REFRESH_MS = 5 * 60_000
+/** Refresh asks the server past its copy, which it allows once every 15 seconds. */
+const REFRESH_FLOOR_MS = 15_000
 
 const PERIOD_NAMES: Record<Period, string> = { day: 'Day', week: 'Week', month: 'Month' }
 const WHO_NAMES: Record<Who, string> = { all: 'Everyone', children: 'Children', teens: '13+' }
 const SOURCE_NAMES: Record<Source, string> = { all: 'All sources', ads: 'Apple Ads', organic: 'Organic' }
 
-/** The events of a period and the one before it, asked for again while the period reaches today. */
+interface EventsState {
+  range: string
+  response: LearnersResponse | null
+  error: string | null
+  /** When the browser last had an answer, for "Updated 40 s ago". */
+  loadedAt: number | null
+  loading: boolean
+}
+
+/**
+ * The events of a period and the one before it. While the period reaches today and the
+ * page is in view, they are asked for again every minute (a week or a month: every five
+ * minutes), and at once when the page comes back into view after that long. `refresh`
+ * asks PostHog straight away.
+ */
 export function useLearnerEvents(period: Period, day: string, available: boolean) {
   const from = periodRange(period, stepPeriod(period, day, -1)).from
   const to = periodRange(period, day).to
   const range = `${from}|${to}`
-  const [state, setState] = useState<{ range: string; response: LearnersResponse | null; error: string | null }>({
-    range,
-    response: null,
-    error: null,
-  })
+  const every = period === 'day' ? DAY_REFRESH_MS : LONG_REFRESH_MS
+  const [state, setState] = useState<EventsState>({ range, response: null, error: null, loadedAt: null, loading: false })
 
-  const load = useCallback(async () => {
-    try {
-      const response = await readLearners(from, to)
-      setState({ range, response, error: null })
-    } catch (caught) {
-      setState((previous) => ({
-        range,
-        response: previous.range === range ? previous.response : null,
-        error: caught instanceof Error ? caught.message : String(caught),
-      }))
-    }
-  }, [from, to, range])
+  const load = useCallback(
+    async (fresh = false) => {
+      setState((previous) => ({ ...previous, loading: true }))
+      try {
+        const response = await readLearners(from, to, fresh)
+        setState({ range, response, error: null, loadedAt: Date.now(), loading: false })
+      } catch (caught) {
+        setState((previous) => ({
+          range,
+          response: previous.range === range ? previous.response : null,
+          error: caught instanceof Error ? caught.message : String(caught),
+          loadedAt: previous.range === range ? previous.loadedAt : null,
+          loading: false,
+        }))
+      }
+    },
+    [from, to, range],
+  )
 
   useEffect(() => {
     if (!available) return
     void load()
     if (to <= dayOf(Date.now())) return
-    const timer = window.setInterval(() => void load(), REFRESH_MS)
-    const onFocus = () => void load()
-    window.addEventListener('focus', onFocus)
+    let last = Date.now()
+    const tick = () => {
+      if (document.visibilityState !== 'visible') return
+      last = Date.now()
+      void load()
+    }
+    const timer = window.setInterval(tick, every)
+    // Back from the background, or another app: catch up at once if a turn was missed.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && Date.now() - last >= every) tick()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', onVisible)
     return () => {
       window.clearInterval(timer)
-      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', onVisible)
     }
-  }, [available, load, to])
+  }, [available, load, to, every])
 
+  const refresh = useCallback(() => void load(true), [load])
   // What was asked for another range is not this one's.
-  return state.range === range ? state : { range, response: null, error: null }
+  const current = state.range === range ? state : { range, response: null, error: null, loadedAt: null, loading: false }
+  return { ...current, refresh, live: to > dayOf(Date.now()), every }
+}
+
+/**
+ * "Updated 40 s ago · every minute · Refresh": how fresh the page is, and the way to ask
+ * again now (not more than once every 15 seconds, as the server allows).
+ */
+function Freshness({
+  loadedAt,
+  loading,
+  live,
+  every,
+  onRefresh,
+}: {
+  loadedAt: number | null
+  loading: boolean
+  live: boolean
+  every: number
+  onRefresh: () => void
+}) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 5_000)
+    return () => window.clearInterval(timer)
+  }, [])
+  const age = loadedAt === null ? null : Math.max(0, now - loadedAt)
+  const ago = age === null ? '' : age < 10_000 ? 'just now' : age < 60_000 ? `${Math.floor(age / 1000)} s ago` : `${Math.floor(age / 60_000)} min ago`
+  const tooSoon = age !== null && age < REFRESH_FLOOR_MS
+  return (
+    <span className="st-learners__freshness">
+      {/* The minute's update runs quietly: only the first load says so. */}
+      {age === null ? (loading ? 'Updating…' : null) : `Updated ${ago}`}
+      {live ? <span className="st-learners__muted"> · every {every === DAY_REFRESH_MS ? 'minute' : '5 minutes'}</span> : null}{' '}
+      <button type="button" onClick={onRefresh} disabled={loading || tooSoon} title={tooSoon ? 'Just updated' : 'Ask PostHog now'}>
+        Refresh
+      </button>
+    </span>
+  )
 }
 
 /**
@@ -110,7 +185,7 @@ export function LearnersView({
 }) {
   const today = dayOf(Date.now())
   const day = date ?? today
-  const { response, error } = useLearnerEvents(period, day, library.writable)
+  const { response, error, loadedAt, loading, live, every, refresh } = useLearnerEvents(period, day, library.writable)
   const [who, setWho] = useState<Who>('all')
   const [source, setSource] = useState<Source>('all')
   const [opened, setOpened] = useState<string | null>(null)
@@ -154,14 +229,11 @@ export function LearnersView({
         <div className="st-learners__heading">
           <h1 className="st-learners__title">Learners</h1>
           <p className="st-learners__byline">
-            {response?.source === 'sample' ? (
-              <>Sample events (STUDIO_LEARNERS_SAMPLE), not PostHog’s.</>
-            ) : response?.fetchedAt ? (
-              <>From PostHog, as of {timeOf(Date.parse(response.fetchedAt))}.</>
-            ) : (
-              <>From PostHog.</>
-            )}{' '}
-            Days in {LEARNERS_TIME_ZONE_NAME}.
+            {response?.source === 'sample' ? <>Sample events (STUDIO_LEARNERS_SAMPLE), not PostHog’s.</> : <>From PostHog.</>}{' '}
+            Days in {LEARNERS_TIME_ZONE_NAME}.{' '}
+            {response?.configured ? (
+              <Freshness loadedAt={loadedAt} loading={loading} live={live} every={every} onRefresh={refresh} />
+            ) : null}
           </p>
         </div>
         <nav className="st-learners__period" aria-label="Period">
@@ -316,7 +388,8 @@ const ONLY_WORDS: Record<Only, string> = {
   lessons: 'who finished a lesson',
   photos: 'who kept a photo',
   price: 'who saw a price',
-  bought: 'who started a trial or bought',
+  trials: 'who started a free trial',
+  buys: 'who bought a plan',
   'reached-onboarded': 'new installs who finished onboarding',
   'reached-first': 'new installs who made a first drawing',
   'reached-second': 'new installs who made a second drawing',
@@ -380,10 +453,11 @@ function NumberTile({
       className="st-learners__stat"
       href={href}
       aria-current={picked ? 'true' : undefined}
-      aria-label={`${number.value} ${number.label.toLowerCase()}, ${number.sub}, ${compared(number.value, number.previous, before)}: ${hint}`}
+      aria-label={`${number.value} ${number.label.toLowerCase()}${number.amount !== undefined ? `, ${money(number.amount)}` : ''}, ${number.sub}, ${compared(number.value, number.previous, before)}: ${hint}`}
     >
       <span className="st-learners__stat-value">{number.value}</span>
       <span className="st-learners__stat-label">{number.label}</span>
+      {number.amount !== undefined ? <span className="st-learners__stat-money">{money(number.amount)}</span> : null}
       <span className="st-learners__stat-sub">{number.sub}</span>
       <span className={`st-learners__stat-delta st-learners__stat-delta--${tone}`}>
         {compared(number.value, number.previous, before)}
@@ -772,7 +846,14 @@ function StripItem({ item, library }: { item: SessionItem; library: Library }) {
         />
       )
     case 'bought':
-      return <span className="st-learners__mark st-learners__mark--bought" title="Bought Premium" />
+      return (
+        <span
+          className={`st-learners__purchase st-learners__purchase--${item.trial ? 'trial' : 'paid'}`}
+          title={item.trial ? 'Started a free week' : `Bought ${item.plan ?? 'Premium'}`}
+        >
+          {item.trial ? 'Free week' : item.price !== null ? money(item.price) : 'Bought'}
+        </span>
+      )
     case 'later':
       return <span className="st-learners__later">back {timeOf(item.at)}</span>
   }
@@ -953,7 +1034,7 @@ function History({ session, library }: { session: LearnerSession; library: Libra
     `${history.finished} ${history.finished === 1 ? 'lesson' : 'lessons'} finished`,
     history.kept ? `${history.kept} ${history.kept === 1 ? 'photo' : 'photos'} kept` : null,
     history.prices ? `saw a paywall ${history.prices === 1 ? 'once' : `${history.prices} times`}` : 'never saw a paywall',
-    history.bought ? 'bought Premium' : 'not bought',
+    history.bought ? 'bought a plan' : history.trialed ? 'started a free week' : 'not bought',
   ]
     .filter(Boolean)
     .join(' · ')
@@ -1140,6 +1221,7 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
                 href={routeHref({ name: 'learners', period: 'day', date, ...(number.key === 'sessions' ? {} : { only: number.key }) })}
               >
                 <strong>{number.value}</strong> {number.label.toLowerCase()}
+                {number.amount ? ` (${money(number.amount)})` : ''}
               </a>
             ))}
           </div>

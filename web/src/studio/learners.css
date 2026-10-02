@@ -48,6 +48,11 @@
   margin-bottom: 18px;
 }
 
+.st-learners__heading {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
 .st-learners__title {
   margin: 0;
   font-size: 34px;
@@ -61,6 +66,34 @@
   margin: 4px 0 0;
   color: var(--ink-faint);
   font-size: 13px;
+}
+
+/* "Updated 40 s ago · every minute · Refresh" */
+.st-learners__freshness {
+  white-space: nowrap;
+}
+
+.st-learners__freshness button {
+  margin-left: 6px;
+  padding: 1px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.st-learners__freshness button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.st-learners__freshness button:disabled {
+  color: var(--ink-faint);
+  cursor: default;
 }
 
 .st-learners__h2 {
@@ -197,7 +230,7 @@
 
 .st-learners__numbers {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 18px;
 }
@@ -237,6 +270,13 @@
   color: var(--ink);
   font-size: 13px;
   font-weight: 600;
+}
+
+.st-learners__stat-money {
+  color: var(--good);
+  font-size: 15px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .st-learners__stat-sub {
@@ -830,12 +870,27 @@
   background: var(--learners-price);
 }
 
-.st-learners__mark--bought {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+/* A purchase in a session's strip: "Free week", or what it cost. */
+.st-learners__purchase {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.st-learners__purchase--trial {
+  border: 1.5px solid var(--learners-finished);
+  color: var(--learners-finished);
+}
+
+.st-learners__purchase--paid {
   background: var(--learners-finished);
-  box-shadow: 0 0 0 3px var(--good-line);
+  color: #fff;
 }
 
 /* An opened session. */
@@ -1257,7 +1312,7 @@ a.st-learners__day-face:hover {
 
 @media (max-width: 1000px) {
   .st-learners__numbers {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .st-learners__pair {

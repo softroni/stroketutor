@@ -14,6 +14,8 @@ import {
   ANIMALS,
   animalsFor,
   learnerTag,
+  listPrice,
+  money,
   periodLabel,
   periodRange,
   spoken,
@@ -101,7 +103,8 @@ describe('buildReport for Oct 2', () => {
     expect(number('lessons')).toMatchObject({ value: 19, sub: '9 different' })
     expect(number('photos')).toMatchObject({ value: 7, sub: 'in 2 sessions' })
     expect(number('price')).toMatchObject({ value: 3, sub: '1 for a child' })
-    expect(number('bought')).toMatchObject({ value: 0, sub: 'none yet' })
+    expect(number('trials')).toMatchObject({ value: 0, amount: 0 })
+    expect(number('buys')).toMatchObject({ value: 0, amount: 0 })
   })
 
   it('follows the day’s installs through the journey, children and 13+ apart', () => {
@@ -230,7 +233,7 @@ describe('buildReport for Oct 2', () => {
     const photos = buildReport(events, { period: 'day', date: '2026-10-02', only: 'photos', now: later })
     expect(photos.leaders.map((session) => session.key)).toEqual(['u03', 'u04'])
     expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'installs', now: later }).sessions).toHaveLength(6)
-    expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'bought', now: later }).sessions).toEqual([])
+    expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'buys', now: later }).sessions).toEqual([])
   })
 
   it('gives every learner an animal, the same wherever they appear, whatever the page is narrowed to', () => {
@@ -276,6 +279,56 @@ describe('buildReport for Oct 2', () => {
     const child = report.sessions.find((session) => session.key === 'u03')
     expect(adult && learnerTag(adult)).toBe('#U07')
     expect(child && learnerTag(child)).toBeNull()
+  })
+})
+
+describe('purchases', () => {
+  // A 13+ learner on Oct 3: a free week of the yearly plan, then, a day later, someone else buys a week.
+  const at = Date.parse('2026-10-03T15:00:00Z')
+  const learner = (id: string, start: number): LearnerEvent[] => [
+    { at: start, event: 'app_opened', id, firstOpen: true },
+    { at: start + 1_000, event: 'ob_age_answered', id, age: '18plus' },
+  ]
+  const bought: LearnerEvent[] = [
+    ...learner('trialer', at),
+    { at: at + 60_000, event: 'superwall_paywall_open', id: 'trialer', age: '18plus' },
+    { at: at + 70_000, event: 'purchase_attempted', id: 'trialer', age: '18plus', plan: 'yearly', outcome: 'purchased' },
+    { at: at + 71_000, event: 'offer_screen_viewed', id: 'trialer', age: '18plus', screen: 'trial_started' },
+    ...learner('payer', at + 3_600_000),
+    { at: at + 3_660_000, event: 'purchase_attempted', id: 'payer', age: '18plus', plan: 'weekly', outcome: 'purchased' },
+    ...learner('restorer', at + 7_200_000),
+    { at: at + 7_260_000, event: 'purchase_attempted', id: 'restorer', age: '18plus', plan: 'restore', outcome: 'restored' },
+  ]
+  const report = buildReport(bought, { period: 'day', date: '2026-10-03', now: at + 86_400_000 })
+  const number = (key: string) => report.numbers.find((entry) => entry.key === key)
+
+  it('tells a free week from a plan paid for, at the day’s list price, and never counts a restore', () => {
+    expect(number('trials')).toMatchObject({ value: 1, amount: 29.99, sub: 'a year, if kept' })
+    expect(number('buys')).toMatchObject({ value: 1, amount: 3.99, sub: 'at US list price' })
+    const trialer = report.sessions.find((session) => session.key === 'trialer')
+    expect(trialer?.end).toEqual({ kind: 'bought', trial: true })
+    expect(endWords(trialer!.end)).toBe('Started a free week')
+    expect(report.journey.find((stage) => stage.key === 'bought')).toMatchObject({ teens: 2 })
+  })
+
+  it('joins a free week announced before its purchase', () => {
+    const early: LearnerEvent[] = [
+      ...learner('quick', at),
+      { at: at + 10_000, event: 'superwall_free_trial_start', id: 'quick', age: '18plus' },
+      { at: at + 11_000, event: 'purchase_attempted', id: 'quick', age: '18plus', plan: 'yearly', outcome: 'purchased' },
+    ]
+    const quick = buildReport(early, { period: 'day', date: '2026-10-03', now: at + 86_400_000 })
+    expect(quick.numbers.find((entry) => entry.key === 'trials')?.value).toBe(1)
+    expect(quick.numbers.find((entry) => entry.key === 'buys')?.value).toBe(0)
+  })
+
+  it('prices plans as they were on the day', () => {
+    expect(listPrice('yearly', Date.parse('2026-10-01T15:00:00Z'))).toBe(19.99)
+    expect(listPrice('yearly', at)).toBe(29.99)
+    expect(listPrice('weekly', at)).toBe(3.99)
+    expect(listPrice('lifetime', at)).toBe(99.99)
+    expect(listPrice('com.example.other', at)).toBeNull()
+    expect(money(1049.5)).toBe('$1,049.50')
   })
 })
 

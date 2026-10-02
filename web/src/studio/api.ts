@@ -100,8 +100,10 @@ export function readToday(day: string | null = null) {
 }
 
 /** The app's events for a range of days (US Central), for the Learners page (read-only). */
-export function readLearners(from: string, to: string) {
-  return call<LearnersResponse>(`/api/learners?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
+export function readLearners(from: string, to: string, fresh = false) {
+  return call<LearnersResponse>(
+    `/api/learners?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${fresh ? '&fresh=1' : ''}`,
+  )
 }
 
 /** Everything one learner 13 or over did, a year back, from their ids (read-only). */

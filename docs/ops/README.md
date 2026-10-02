@@ -33,6 +33,9 @@ every scheduled run follows it.
   once after joining a 13+ install's two ids, counts a batch the app sent twice once, and leaves out test devices
   (debug builds, and any id with `asa_test_payload`). Top learners ranks the period's learners; a 13+ learner opens
   into every visit a year back. A child is never followed past one launch: don't try to.
+  It refreshes a day every minute while in view (a week or month every 5), asking PostHog for fresh results
+  (`refresh: force_blocking`), about 60–120 queries an hour, far under the project's 2,400. Trials and buys are apart,
+  with dollars at the plans' US list prices on the day, not Apple's proceeds: for proceeds, App Store Connect.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature

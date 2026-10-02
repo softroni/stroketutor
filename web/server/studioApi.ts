@@ -160,8 +160,9 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `GET  /api/screenshots/:device/:file` one of them (PNG); read-only, like the list
  * - `GET  /api/today[?day=YYYY-MM-DD]`    how the app stands and what Claude is doing (.studio/ops/status.json),
  *                                         or a past day from its history, with the list of kept days; read-only
- * - `GET  /api/learners?from=&to=`        the app's events for those days (US Central), from PostHog or a sample,
- *                                         for the Learners page and Today's summary of it; read-only
+ * - `GET  /api/learners?from=&to=[&fresh=1]`  the app's events for those days (US Central), from PostHog or a
+ *                                         sample, for the Learners page and Today's summary of it; `fresh` skips the
+ *                                         server's copy (at most every 15 s); read-only
  * - `GET  /api/learners/history?ids=`     everything one learner 13 or over did, a year back; read-only
  * - `GET  /api/social/posts`              every post sent to social media, by day, with each platform's link
  *                                         (.studio/social/posts.jsonl, or the repo's copy on ops-history), and the
@@ -281,7 +282,13 @@ async function handle(
     }
 
     if (resource === 'learners' && parts.length === 1 && method === 'GET') {
-      const learners = await readLearners(options.learners ?? {}, url.searchParams.get('from'), url.searchParams.get('to'))
+      const learners = await readLearners(
+        options.learners ?? {},
+        url.searchParams.get('from'),
+        url.searchParams.get('to'),
+        Date.now(),
+        url.searchParams.get('fresh') === '1',
+      )
       return send(res, 200, learners)
     }
 
