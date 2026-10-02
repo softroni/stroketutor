@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-02T10:34:52-05:00",
+  "updated": "2026-10-02T17:04:48-05:00",
   "headline": "1.1 has waited two days for Apple's review; nothing is broken. One new learner came on Oct 1 and left at the age question, and the ads bids went up again because they still win few auctions.",
   "app": {
     "live": {
@@ -348,6 +348,10 @@
   ],
   "log": [
     {
+      "at": "2026-10-02T17:04:47-05:00",
+      "text": "Social: “Mushroom” posted on youtube, facebook, x, pinterest, instagram, threads, tiktok."
+    },
+    {
       "at": "2026-10-02T10:34:51-05:00",
       "text": "Superwall: its Ad Spend chart only reads Meta, so Apple Ads spend can't show there; asked Superwall to add Apple Ads"
     },
@@ -519,10 +523,6 @@
     {
       "at": "2026-09-30T14:50:22-05:00",
       "text": "Built next-builds item 5 on main (a69946e): Premium Lifetime ($99.99 non-consumable, counted as Premium bought, family-shared or from a code) as the third row of View more plans, and Settings > Premium > Redeem a code (grown-ups' check for a child). Events offer_code_sheet_opened and premium_from_code. 1.1's boxes are all ticked. The simulator asks the App Store sandbox, so the Lifetime row shows there only once App Store Connect serves the product (availability still to set)."
-    },
-    {
-      "at": "2026-09-30T14:49:15-05:00",
-      "text": "1.1 prep: store text drafted (listing.md), Lifetime product checked, iPad Paths and Home screenshots show Urban. Waiting on Lifetime in the app"
     }
   ],
   "experiments": [
