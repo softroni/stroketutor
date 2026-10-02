@@ -707,10 +707,12 @@ const historyDay = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: '
 /**
  * Every day a learner 13 or over used the app, newest first, each as its row of
  * lessons and where it ended: their ids are the same on every launch, so PostHog
- * can be asked for all of it (a year back).
+ * can be asked for all of it (a year back). A day opens in place, as its timeline
+ * in words, without leaving the page.
  */
 function History({ session, library }: { session: LearnerSession; library: Library }) {
   const [state, setState] = useState<{ history: LearnerHistory | null; problem: string | null } | null>(null)
+  const [openDay, setOpenDay] = useState<string | null>(null)
   const ids = session.ids.join(',')
   useEffect(() => {
     let live = true
@@ -753,19 +755,45 @@ function History({ session, library }: { session: LearnerSession; library: Libra
         {history.days.map(({ day, session: visit }) => {
           const lesson = endLesson(visit.end)
           return (
-            <li key={day} className={day === thisDay ? 'st-learners__history-day st-learners__history-day--this' : 'st-learners__history-day'}>
-              <a className="st-learners__history-when" href={routeHref({ name: 'learners', period: 'day', date: day })}>
-                <strong>{historyDay.format(new Date(`${day}T12:00:00Z`))}</strong>
-                <span>
-                  {timeOf(visit.start)} · {lastedFor(visit.activeMs)}
-                  {visit.returns.length ? ` · ${visit.returns.length + 1} visits` : ''}
+            <li
+              key={day}
+              className={[
+                'st-learners__history-day',
+                day === thisDay ? 'st-learners__history-day--this' : null,
+                openDay === day ? 'st-learners__history-day--open' : null,
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <button
+                type="button"
+                className="st-learners__history-face"
+                aria-expanded={openDay === day}
+                onClick={() => setOpenDay((current) => (current === day ? null : day))}
+              >
+                <span className="st-learners__history-when">
+                  <strong>{historyDay.format(new Date(`${day}T12:00:00Z`))}</strong>
+                  <span>
+                    {timeOf(visit.start)} · {lastedFor(visit.activeMs)}
+                    {visit.returns.length ? ` · ${visit.returns.length + 1} visits` : ''}
+                  </span>
                 </span>
-              </a>
-              <Strip items={visit.items} library={library} />
-              <span className="st-learners__session-end">
-                <span>{endWords(visit.end)}</span>
-                {lesson ? <LessonPicture library={library} lesson={lesson} state={visit.end.kind === 'after' ? 'finished' : 'started'} /> : null}
-              </span>
+                <Strip items={visit.items} library={library} />
+                <span className="st-learners__session-end">
+                  <span>{endWords(visit.end)}</span>
+                  {lesson ? <LessonPicture library={library} lesson={lesson} state={visit.end.kind === 'after' ? 'finished' : 'started'} /> : null}
+                </span>
+              </button>
+              {openDay === day ? (
+                <div className="st-learners__history-open">
+                  <Timeline lines={visit.timeline} library={library} />
+                  {day === thisDay ? null : (
+                    <a className="st-learners__history-link" href={routeHref({ name: 'learners', period: 'day', date: day })}>
+                      Everyone on {historyDay.format(new Date(`${day}T12:00:00Z`))} ›
+                    </a>
+                  )}
+                </div>
+              ) : null}
             </li>
           )
         })}

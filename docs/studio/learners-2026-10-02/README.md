@@ -20,7 +20,8 @@ can appear once per launch; a learner 13 or over carries a short tag (`#3F2A`) c
 
 <img src="leaders.png" width="900">
 
-A learner 13 or over opens into every visit they made, up to a year back (here, their only day so far):
+A learner 13 or over opens into every visit they made, up to a year back (here, their only day so far). A day
+opens in place, as its timeline, without leaving the page:
 
 <img src="leader-history.png" width="900">
 

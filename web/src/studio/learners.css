@@ -814,11 +814,6 @@
 }
 
 .st-learners__history-day {
-  display: grid;
-  grid-template-columns: 150px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px;
-  padding: 8px 6px;
   border-top: 1px solid var(--line);
 }
 
@@ -826,8 +821,32 @@
   border-top: 0;
 }
 
-.st-learners__history-day--this {
+/* A day of their history: a button that opens it in place. */
+.st-learners__history-face {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 8px 6px;
+  border: 0;
   border-radius: 10px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.st-learners__history-face:hover {
+  background: var(--surface-hover);
+}
+
+.st-learners__history-day--this .st-learners__history-face {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.st-learners__history-day--open .st-learners__history-face {
   background: var(--accent-tint);
 }
 
@@ -836,7 +855,6 @@
   flex-direction: column;
   color: var(--ink);
   font-size: 13px;
-  text-decoration: none;
 }
 
 .st-learners__history-when span {
@@ -844,8 +862,20 @@
   font-size: 12px;
 }
 
-.st-learners__history-when:hover strong {
-  text-decoration: underline;
+.st-learners__history-open {
+  padding: 4px 0 10px;
+}
+
+.st-learners__history-open .st-learners__timeline {
+  margin: 0 6px 6px;
+}
+
+.st-learners__history-link {
+  margin-left: 6px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 /* ---------- A week or a month, day by day ---------- */
@@ -998,7 +1028,7 @@ a.st-learners__day-face:hover {
     grid-column: 2;
   }
 
-  .st-learners__history-day {
+  .st-learners__history-face {
     grid-template-columns: minmax(0, 1fr);
   }
 
