@@ -229,10 +229,16 @@
 /* ---------- The numbers ---------- */
 
 .st-learners__numbers {
+  /* Always one row: the tiles narrow with the page, and below seven of their least
+     width the row scrolls sideways rather than wrapping. */
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(92px, 1fr);
   gap: 10px;
   margin-bottom: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  container-type: inline-size;
 }
 
 .st-learners__stat {
@@ -296,6 +302,30 @@
 
 .st-learners__stat-delta--down {
   color: var(--amber);
+}
+
+@container (max-width: 1000px) {
+  .st-learners__stat {
+    padding: 11px 12px;
+    scroll-snap-align: start;
+  }
+
+  .st-learners__stat-value {
+    font-size: 24px;
+  }
+
+  .st-learners__stat-label {
+    font-size: 12px;
+  }
+
+  .st-learners__stat-money {
+    font-size: 14px;
+  }
+
+  .st-learners__stat-sub,
+  .st-learners__stat-delta {
+    font-size: 11px;
+  }
 }
 
 /* ---------- Journey and most drawn, side by side ---------- */
@@ -1311,10 +1341,6 @@ a.st-learners__day-face:hover {
 /* ---------- Narrower screens ---------- */
 
 @media (max-width: 1000px) {
-  .st-learners__numbers {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
   .st-learners__pair {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1325,8 +1351,9 @@ a.st-learners__day-face:hover {
     padding: 20px 14px 56px;
   }
 
+  /* The row scrolls here anyway, so the tiles keep room for their words. */
   .st-learners__numbers {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-columns: minmax(122px, 1fr);
   }
 
   .st-learners__stage-row {
