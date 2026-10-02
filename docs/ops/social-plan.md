@@ -88,6 +88,15 @@ bursts of views, but a download there takes bio → link → App Store.
 
 ## Decisions
 
+- **2026-10-01, Kevin: every version that adds something gets a "what's new" video, made and posted by Claude on
+  its own.** A 16:9 video of at least 2 minutes showing what the version adds, working in the app on an iPhone, an
+  iPad, or both where a feature needs both, posted to all seven platforms the day the version goes on sale, without
+  asking first. It is that release's announcement. How: *What's new videos*. It follows the 1.0 overview Kevin
+  liked (`.studio/overview-1.0`, posted everywhere 2026-10-01).
+- **2026-10-01, Kevin: Pixabay's images, illustrations and videos may be used in any video we make**, wherever
+  they help: a background, a desk with paper and pencils behind the device, a scene for a lesson's subject. The
+  key and its rules are in `~/.claude/CLAUDE.md` (*Pixabay API*): download what is used rather than hotlinking,
+  never print or commit the key, and no recognizable person who would seem to endorse the app.
 - **2026-09-30, Kevin: Premium lessons are posted too, not only the free ones.** The most eye-catching drawings
   (pirate ship, solar system, bonsai, ramen bowl, monster truck, volcano, waterfall) are Premium, while the free
   lessons, the first three of each path, are the simplest (cube, cone, sun, cloud). Watching a lesson isn't what
@@ -125,7 +134,8 @@ up" on the Today page and does what each says on the day.
 | 2026-10-21 | Seasonal pin numbers to Kevin, for the Christmas-lessons question | Claude |
 | 2026-11-05 | October's monthly report from App Store Connect: the first downloads per platform (`acquisition.py`) | Claude |
 | 2026-11-12 | Six-week wrap-up of *Growth*, written under *Log* | Claude |
-| The day 1.1 goes on sale | `social announce` with the best Around Town lesson; its ten lessons join the queue | daily check |
+| While 1.1 is in review | 1.1's what's-new video, made from `release/1.1` (*What's new videos*) | social check |
+| The day 1.1 goes on sale | 1.1's what's-new video to every platform; Around Town's ten lessons join the queue | social check |
 | 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log*. October's monthly report comes only on Nov 5, so the weekly ones: `acquisition.py --granularity WEEKLY --days 28` | daily check |
 | 2026-10-30 | Upload-Post renews monthly ($24) | automatic |
 | 2026-11-23 | The two-month write-up under *Log*, and "monthly → yearly, or stop?" under Needs you | daily check |
@@ -143,13 +153,52 @@ Social page (*Coming up*) show it as it stands.
 Lessons are the everyday posts; news is for moments worth telling, **at most two or three a month**:
 
 - **A version goes on sale with something people would want** (new lessons, a new path, a new way to draw): the
-  day it is live, one announcement to every platform: the speed draw of the best new lesson, with a caption that
-  says what's new ("10 new lessons: draw your town, from a bus stop to a skyline"). `social announce`.
+  day it is live, its what's-new video goes to every platform (*What's new videos*, below), with a caption that
+  says what's new ("10 new lessons: draw your town, from a bus stop to a skyline"). That replaces the speed-draw
+  announcement for a release; `social announce` without `--wide` stays for news that isn't a version.
 - **A new path's lessons** join the daily queue by themselves once their version is on sale (the queue reads the
   catalog of the tagged build on sale).
 - **Seasonal:** October, December and summer lessons (a pumpkin, a snowman, an ice-cream stand) would give timely
   posts that get searched a lot. That is new content, so it is Kevin's call; Claude suggests it under "Needs you".
 - **Not news:** bug-fix releases, prices, sales numbers. Never announce a version before it is on sale.
+
+## What's new videos
+
+Kevin's decision of 2026-10-01 (*Decisions*): one for every version that adds something people would use (a
+feature, new lessons or a path, a new way to draw), never for a fix-only release. Claude makes it and posts it
+without asking.
+
+- **When.** Made while the version is in review (`pending` in `.studio/ops/state.json`), from the build in review:
+  its `release/<version>` branch in a worktree, never `main`, so it shows only what ships. Posted the day the
+  version goes on sale (live in `.studio/ops/facts.json` and tagged `<version>(<build>)`); if it isn't ready by
+  then, it is made that day. Never posted before the version is on sale. A version rejected and changed has its
+  video checked against the new build before it goes out.
+- **What it shows.** What's new first, each feature working in the app, in the order people would care about;
+  then a short "how Paper Coach works" for viewers who have never seen it (watch a line, draw it on paper, color
+  it, keep it in the sketchbook); then the end card with the App Store badge. What the release notes in
+  `docs/releases/<version>.md` say is new is the list to show.
+- **Device.** An iPhone, an iPad, or both when a feature differs between them (1.1: every screen turns sideways on
+  iPad, and the teacher sits beside the paper). The device stands upright in the 16:9 frame, as in the 1.0
+  overview, except where the feature is the device turned sideways.
+- **Length.** At least 2 minutes; aim for 2:00 to 2:20, since X takes at most 2 min 20 s (a longer video sends X
+  a cut of 2:20 or less). No stretch over about 3 seconds without Lina speaking.
+- **Voice and words.** Lina in her cast voice (`node cli/studio.mjs voice say lina-bright "…" --out <file>`), and
+  her own in-app recordings wherever the app speaks. Every line is checked with Whisper against the script before
+  the render, and a take heard wrong is made again. Her words appear word by word on screen, and go to YouTube as
+  an SRT. Titles and captions say "step by step" or "for beginners", never "for kids".
+- **Pictures.** The app's own screens first; Pixabay where it helps (*Decisions*), downloaded into the video's
+  folder.
+- **How.** Copy the 1.0 overview's project (`.studio/overview-1.0`; its README says how it was recorded, voiced,
+  edited in Remotion and rendered) to `.studio/whats-new-<version>`. Record on scratch simulators made for it and
+  deleted afterwards, never the "PC Shots" or "PC Review" ones. Screens that need no tapping open straight from a
+  launch argument (`-STScreen <name>`, `-onboardingBeat <beat>`, debug builds only); a flow that needs taps is
+  tapped through while `xcrun simctl io <device> recordVideo` runs. Before posting, look at a frame sheet of the
+  whole render (a frame every 2 seconds) and check the sound (about −16 LUFS, no long silence).
+- **Posting.** From `web/`: `node cli/studio.mjs social announce --wide --video <file.mp4> --lesson <the best new
+  lesson, or one the video shows> --news "<what's new, in a sentence or two>" --headline "<title>" --campaign
+  whats-new-<version, dots as dashes> --thumbnail <PNG or JPEG, at most 2 MB> --subtitles <file.srt> --log`. All
+  seven platforms; each link says its platform and the version (`youtube-whats-new-1-1`…), and the post is kept
+  out of the Shorts' medians.
 
 ## Knowing what works
 
@@ -380,6 +429,8 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - [ ] Captions that open with the search phrase, 5 tags, the YouTube line, the Facebook link check. (Board names
   stay: renaming one in code would make a second board, since `boardFor` matches by name.)
 - [ ] E1, the new opening, default from Oct 5.
+- [ ] What's new videos (*What's new videos*): the first is 1.1's, made while it is in review and posted the day it
+  is on sale. Both copies of the social routine's prompt say so (step 7), since 2026-10-01.
 - [ ] E5, long videos (*Long videos*), before Oct 10:
   - [ ] A 16:9 layout for the video renderer (1920 × 1080; today `FRAME` in `web/server/video/page.ts` is
     vertical only), as an option of `lessons video`.
@@ -420,3 +471,6 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
   frame (`.studio/overview-1.0`, 79 s), and to post it everywhere: all seven platforms, `ct=<platform>-overview`,
   YouTube as a normal video with a thumbnail and English captions, Facebook as a feed video. Not one of E5's six,
   and kept out of the scorecard's medians. A "what's new in 1.1" one follows once 1.1 is approved.
+- 2026-10-01: Kevin's standing rule: every version that adds something gets a 2-minute-plus 16:9 what's-new video,
+  on an iPhone, an iPad or both, posted to every platform the day it is on sale, by Claude without asking; and
+  Pixabay may be used in any video (*Decisions*, *What's new videos*).

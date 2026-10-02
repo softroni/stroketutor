@@ -295,8 +295,10 @@ that day; if it did, it only reports its result. The steps, in `web/`:
    platform go in `notes.json`'s numbers ("Social views, 7 days", "Profile-link taps, 7 days"). A breakout moves its
    path's next lesson one place up in `docs/ops/social-up-next.txt`, keeping free and Premium by turns (commit only
    that file, and only if `git status` shows nothing else).
-5. The day a version with news goes on sale (once it is tagged): `social announce` with its best new lesson
-   (social-plan.md, *Release news*). Its new lessons join the queue by themselves.
+5. A version that adds something: while it is in review, make its what's-new video from its release branch; the
+   day it goes on sale (once it is tagged), post it to every platform with `social announce --wide` (social-plan.md,
+   *What's new videos*, Kevin's rule of 2026-10-01: Claude does both without asking). Its new lessons join the
+   queue by themselves.
 6. Keep the social dates in "dates coming up" (social-plan.md, *Schedule*), and on those days do what it says. On
    a *Growth* date the run gathers the numbers; the decision, and any change to code or tests, is made by the
    session the run wakes (Paper Coach Social Monitor).
