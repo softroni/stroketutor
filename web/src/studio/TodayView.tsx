@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 
 import { readToday } from './api'
+import { dayOf } from './learners'
+import { LearnersSummary } from './LearnersView'
+import type { Library } from './library'
 import { routeHref } from './route'
 import {
   ago,
@@ -74,7 +77,7 @@ function dollars(value: number): string {
  * (docs/ops/today.py); this page only reads it, and picks up a new one by itself.
  * Every past day is kept (`day`, #/today/YYYY-MM-DD), as it stood at its end.
  */
-export function TodayView({ day, available }: { day: string | null; available: boolean }) {
+export function TodayView({ day, available, library }: { day: string | null; available: boolean; library?: Library }) {
   const [response, setResponse] = useState<TodayResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -118,6 +121,8 @@ export function TodayView({ day, available }: { day: string | null; available: b
   const status = response?.status ?? null
   const days = response?.days ?? []
   const title = day ? fmt(longDay, localDay(day)) : status ? fmt(longDay, status.updated) : 'Today'
+  // What learners did that day, from PostHog, in brief: the Learners page has the rest.
+  const summary = library ? <LearnersSummary day={day ?? dayOf(now)} library={library} /> : null
   return (
     <div className="st-today">
       <header className="st-today__masthead">
@@ -137,7 +142,11 @@ export function TodayView({ day, available }: { day: string | null; available: b
         </p>
       ) : null}
 
-      {status ? <Status status={status} past={Boolean(day)} now={now} /> : null}
+      {status ? (
+        <Status status={status} past={Boolean(day)} now={now} learners={summary} />
+      ) : (
+        summary
+      )}
     </div>
   )
 }
@@ -264,7 +273,17 @@ function DayStrip({ day, days, activity, now }: { day: string | null; days: stri
   )
 }
 
-function Status({ status, past, now }: { status: TodayStatus; past: boolean; now: Date }) {
+function Status({
+  status,
+  past,
+  now,
+  learners,
+}: {
+  status: TodayStatus
+  past: boolean
+  now: Date
+  learners: ReactNode
+}) {
   // What is coming belongs to the live page; a past day's plans have come and gone.
   const events = past ? [] : comingUp(status, now)
   // How long things had waited, on a past day, is counted to when it was last written, not to now.
@@ -281,6 +300,8 @@ function Status({ status, past, now }: { status: TodayStatus; past: boolean; now
       </div>
 
       {status.numbers.length || status.funnel ? <Numbers numbers={status.numbers} funnel={status.funnel} /> : null}
+
+      {learners}
 
       <WorkBoard items={status.working} />
 

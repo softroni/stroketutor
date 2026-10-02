@@ -13,6 +13,7 @@ import { listScreenshots, readScreenshot } from './screenshots'
 import { gitIn, releaseLesson } from './release'
 import { mayPost, postingQueue } from './social/queue'
 import { readSocialPosts } from './socialPosts'
+import { readLearners, type LearnersOptions } from './learners'
 import { readToday } from './today'
 import {
   MAX_REFERENCE_BYTES,
@@ -94,6 +95,8 @@ export interface StudioApiOptions {
   socialDir?: string
   /** .studio/videos, where the Video tab's lesson videos are made. */
   videosDir?: string
+  /** PostHog, for the Learners page: the key from POSTHOG_PERSONAL_API_KEY, or a sample file. */
+  learners?: LearnersOptions
 }
 
 /** Where Lina's voice is made when nothing says otherwise: the creator's Mac, on their tailnet. */
@@ -157,6 +160,8 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `GET  /api/screenshots/:device/:file` one of them (PNG); read-only, like the list
  * - `GET  /api/today[?day=YYYY-MM-DD]`    how the app stands and what Claude is doing (.studio/ops/status.json),
  *                                         or a past day from its history, with the list of kept days; read-only
+ * - `GET  /api/learners?from=&to=`        the app's events for those days (US Central), from PostHog or a sample,
+ *                                         for the Learners page and Today's summary of it; read-only
  * - `GET  /api/social/posts`              every post sent to social media, by day, with each platform's link
  *                                         (.studio/social/posts.jsonl, or the repo's copy on ops-history), and the
  *                                         lessons the daily job posts next, as `social next` picks them; read-only
@@ -268,6 +273,11 @@ async function handle(
 
     if (resource === 'today' && parts.length === 1 && method === 'GET' && options.opsDir) {
       return send(res, 200, await readToday(options.opsDir, url.searchParams.get('day')))
+    }
+
+    if (resource === 'learners' && parts.length === 1 && method === 'GET') {
+      const learners = await readLearners(options.learners ?? {}, url.searchParams.get('from'), url.searchParams.get('to'))
+      return send(res, 200, learners)
     }
 
     const { workspace, writer } = await studioFor(server)

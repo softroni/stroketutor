@@ -69,6 +69,13 @@ export function CommandPalette({ library, onClose }: { library: Library; onClose
       },
       { id: 'page:today', kind: 'Page', label: 'Today: how the app stands', href: routeHref({ name: 'today', day: null }) },
       {
+        id: 'page:learners',
+        kind: 'Page',
+        label: 'Learners',
+        detail: 'what people did, from PostHog',
+        href: routeHref({ name: 'learners', period: 'day', date: null }),
+      },
+      {
         id: 'page:social',
         kind: 'Page',
         label: 'Social',

@@ -7,6 +7,7 @@ import { catalogFiles, type Catalog } from '../catalog/types'
 import { adoptShared, saveCatalog } from './api'
 import { CommandPalette } from './CommandPalette'
 import { DocsView } from './DocsView'
+import { LearnersView } from './LearnersView'
 import { LessonWorkspace } from './LessonWorkspace'
 import { buildLibrary, type Library } from './library'
 import { NewLessonView } from './NewLessonView'
@@ -31,6 +32,7 @@ import './forms.css'
 import './voice.css'
 import './screenshots.css'
 import './today.css'
+import './learners.css'
 import './social.css'
 import './docs.css'
 
@@ -160,7 +162,10 @@ export function Studio() {
         screen = <ScreenshotsView device={route.device} shotId={route.shot} available={library.writable} />
         break
       case 'today':
-        screen = <TodayView day={route.day} available={library.writable} />
+        screen = <TodayView day={route.day} available={library.writable} library={library} />
+        break
+      case 'learners':
+        screen = <LearnersView period={route.period} date={route.date} library={library} />
         break
       case 'social':
         screen = <SocialView library={library} />
@@ -204,6 +209,9 @@ export function Studio() {
           <nav className="st-studio__nav" aria-label="Studio">
             <a href={routeHref({ name: 'today', day: null })} aria-current={current('today')}>
               Today
+            </a>
+            <a href={routeHref({ name: 'learners', period: 'day', date: null })} aria-current={current('learners')}>
+              Learners
             </a>
             <a href={routeHref({ name: 'social' })} aria-current={current('social')}>
               Social

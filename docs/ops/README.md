@@ -27,6 +27,10 @@ every scheduled run follows it.
   `device_region`, the Region set in the phone's Settings ("US", "GB"): break down by it to read any chart
   by country. PostHog has no `$geoip_*` for this app (off on purpose), so it is the only country there.
 - **The Studio Today page** and the daily summary.
+- **The Studio Learners page** (`#/learners`, 2026-10-02): what learners did by day, week or month, read live from
+  PostHog with the Studio's own read-only key (`POSTHOG_PERSONAL_API_KEY` in `web/.env.local` on m4-1). Today shows
+  the day in brief and links to it. When a number in `notes.json` and the page disagree, the page counts each learner
+  once after joining a 13+ install's two ids, and counts a batch the app sent twice once.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature

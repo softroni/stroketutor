@@ -46,6 +46,14 @@ export default defineConfig(({ mode }) => {
         socialDir: env.STUDIO_SOCIAL_DIR || `${studioDir}/social`,
         // Lesson videos from the Video tab; outside git, like the rest of .studio.
         videosDir: `${studioDir}/videos`,
+        // The Learners page reads PostHog with a personal API key (read access to queries), kept
+        // in this process like the OpenRouter key. STUDIO_LEARNERS_SAMPLE shows a file of events
+        // instead (server/fixtures/learners-sample.json), and PostHog is never asked.
+        learners: {
+          apiKey: env.POSTHOG_PERSONAL_API_KEY || undefined,
+          projectId: env.POSTHOG_PROJECT_ID || undefined,
+          sampleFile: env.STUDIO_LEARNERS_SAMPLE || undefined,
+        },
       }),
     ],
     resolve: {

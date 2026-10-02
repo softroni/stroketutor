@@ -163,6 +163,7 @@ export function studioCliGroups(reference: CommandLineReference = studioCli): Do
 
 const studioPages = {
   today: routeHref({ name: 'today', day: null }),
+  learners: routeHref({ name: 'learners', period: 'day', date: null }),
   social: routeHref({ name: 'social' }),
   voice: routeHref({ name: 'voice' }),
   screenshots: routeHref({ name: 'screenshots', device: 'iphone', shot: null }),
@@ -180,7 +181,10 @@ export const DOC_TOOLS: DocTool[] = [
       'This web app. It runs by itself on the Mac m4-1, so open it rather than start it: http://m4-1.tail958ea4.ts.net:5173 from any device on the tailnet.',
     where: '`web/`',
     usedBy: 'You and Claude',
-    needs: ['Node 22.13 or later, and `npm install` once', 'Keys in `web/.env.local` (git ignores it): `OPENROUTER_API_KEY` to generate lessons'],
+    needs: [
+      'Node 22.13 or later, and `npm install` once',
+      'Keys in `web/.env.local` (git ignores it): `OPENROUTER_API_KEY` to generate lessons, `POSTHOG_PERSONAL_API_KEY` (read access to Query) for the Learners page',
+    ],
     tips: ['On m4-1, don’t start a second Studio: the command line and the running one share the workspace safely.'],
     see: [{ label: 'Settings', href: studioPages.settings }],
     more: [repo('web/README.md')],
@@ -195,6 +199,10 @@ export const DOC_TOOLS: DocTool[] = [
           {
             run: 'STUDIO_OPS_DIR=<folder> npm run dev',
             does: 'Shows the Today page from another folder (a sample, or a past day from `ops-history`), leaving `.studio/ops` alone.',
+          },
+          {
+            run: 'STUDIO_LEARNERS_SAMPLE=server/fixtures/learners-sample.json npm run dev',
+            does: 'Shows the Learners page from a file of events (Oct 1 and 2, 2026) instead of asking PostHog: for trying it without a key.',
           },
         ],
       },
@@ -513,15 +521,18 @@ export const DOC_TOOLS: DocTool[] = [
     kind: 'mcp',
     name: 'PostHog',
     about:
-      'The app’s analytics: what learners do, the onboarding funnel, paywall steps, crashes and hangs. Claude reads it every night for the daily check.',
-    where: 'claude.ai connector · project 629055',
-    usedBy: 'Claude',
+      'The app’s analytics: what learners do, the onboarding funnel, paywall steps, crashes and hangs. Claude reads it every night for the daily check, and the Studio’s Learners page reads it live, with its own read-only key.',
+    where: 'claude.ai connector · project 629055 · the Studio, with `POSTHOG_PERSONAL_API_KEY`',
+    usedBy: 'Claude, and the Learners page',
     tips: [
       'Ask in plain words: “How did Paper Coach do yesterday?” or “Any crashes in the player this week?”',
       'Events from test builds don’t count: leave out `build = debug` and `asa_test_payload`.',
       'Worth knowing: `app_crashed`, `app_hung`, `lesson_completed`, `purchase_attempted`, `install_attributed`, `drawing_shared`.',
     ],
-    see: [{ label: 'The daily dashboard', href: 'https://us.posthog.com/project/629055/dashboard/2140277' }],
+    see: [
+      { label: 'The daily dashboard', href: 'https://us.posthog.com/project/629055/dashboard/2140277' },
+      { label: 'Learners', href: studioPages.learners },
+    ],
     more: [repo('docs/ops/README.md', 'The daily check, in the ops runbook')],
     groups: [
       {

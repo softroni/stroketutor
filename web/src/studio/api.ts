@@ -6,6 +6,7 @@ import type { TracedDrawing } from '../trace/traceSvg'
 import type { VideoJob, VideoLessonState } from '../video/types'
 import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
+import type { LearnersResponse } from './learners'
 import type { ScreenshotList } from './screenshots'
 import type { SocialResponse } from './social'
 import type { TodayResponse } from './today'
@@ -96,6 +97,11 @@ export function listScreenshots() {
 /** How the app stands and what Claude is doing, or how it stood at the end of a past day (read-only). */
 export function readToday(day: string | null = null) {
   return call<TodayResponse>(day ? `/api/today?day=${encodeURIComponent(day)}` : '/api/today')
+}
+
+/** The app's events for a range of days (US Central), for the Learners page (read-only). */
+export function readLearners(from: string, to: string) {
+  return call<LearnersResponse>(`/api/learners?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
 }
 
 /** Every post sent to social media, by day, with each platform's link or what stopped it (read-only). */
