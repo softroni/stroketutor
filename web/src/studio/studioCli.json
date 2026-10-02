@@ -1536,6 +1536,22 @@
         {
           "flag": "--video <file.mp4>",
           "description": "Post this file instead of rendering the speed draw now."
+        },
+        {
+          "flag": "--wide",
+          "description": "The --video is 16:9 (an app overview, a long video): a normal YouTube video rather than a Short, a feed video on Facebook rather than a Reel, and kept out of the Shorts’ numbers."
+        },
+        {
+          "flag": "--campaign <name>",
+          "description": "What the App Store links say after the platform’s name (default news: youtube-news, facebook-news…), so App Store Connect counts this post apart."
+        },
+        {
+          "flag": "--thumbnail <file>",
+          "description": "YouTube’s thumbnail (PNG or JPEG, at most 2 MB); X takes it too."
+        },
+        {
+          "flag": "--subtitles <file>",
+          "description": "English captions for YouTube (SRT or VTT)."
         }
       ]
     },

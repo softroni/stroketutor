@@ -276,6 +276,12 @@ describe('the scorecard', () => {
     expect(scorecard({ records: lines, posts: [posted('a', 100, ['tiktok'])], now: NOW, days: 7 }).platforms[0].views).toEqual({ ageHours: 72, median: 400, posts: 1, tooYoung: 0 })
   })
 
+  it('leaves a 16:9 video out of the vertical videos’ medians', () => {
+    const lines: MetricsRecord[] = [reading('a', 'youtube', 200, 168, { views: 40 }), { ...reading('wide', 'youtube', 190, 168, { views: 900 }), media: 'wide' }]
+    const posts = [posted('a', 200, ['youtube']), { ...posted('wide', 190, ['youtube']), media: 'wide' as const }]
+    expect(scorecard({ records: lines, posts, now: NOW, days: 7 }).platforms[0].views).toMatchObject({ median: 40, posts: 1 })
+  })
+
   /** A period of the acquisition pull, as `.studio/ops/acquisition.json` keeps it. */
   const period = (date: string, end: string, extra: Record<string, unknown> = {}) => ({
     date,

@@ -291,6 +291,15 @@ describe('release news', () => {
     expect(news.x).not.toContain('http')
     expect(news.threads).toContain('ct=threads-news')
   })
+
+  it('makes a 16:9 video a normal YouTube video, with the campaign asked for', () => {
+    const wide = announcementTexts('Meet Paper Coach.', 'Learn to draw on real paper', '123456', { wide: true, campaign: 'overview' })
+    expect(wide.youtubeTitle).toBe('Learn to draw on real paper')
+    expect(wide.youtubeDescription).toContain('ct=youtube-overview')
+    expect(wide.facebookDescription).toContain('ct=facebook-overview')
+    expect(wide.pinterestLink).toContain('ct=pinterest-overview')
+    expect(wide.threads).toContain('ct=threads-overview')
+  })
 })
 
 describe('campaign links', () => {

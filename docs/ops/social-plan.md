@@ -385,10 +385,13 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
     vertical only), as an option of `lessons video`.
   - [ ] The path episode: every lesson of a path in one video, with chapter times for the description.
   - [ ] The slow draw-along: a pause with a countdown after each step.
-  - [ ] A thumbnail from the Studio; check whether Upload-Post can set it on YouTube.
+  - [ ] A thumbnail from the Studio. Upload-Post sets it on YouTube (`thumbnail`, at most 2 MB; X too): done
+    for a file given with `social announce --thumbnail`.
   - [ ] Posting: YouTube as a normal video (no `#shorts`, chapters, `ct=youtube-long`), Facebook as a feed video
     (not `REELS`, `ct=facebook-long`); kept apart from the Shorts in `posts.jsonl`, `metrics.jsonl` and the
-    scorecard. The Docs page row for any new command.
+    scorecard. The Docs page row for any new command. Built for a finished file on 2026-10-01 as
+    `social announce --wide --video … --campaign … --thumbnail … --subtitles …` (media `wide`, out of the
+    scorecard's medians); still to do: the same for `social post` of a lesson, and chapters.
   - [ ] The social check posts it on Saturdays (both copies of its prompt).
 
 ## Log
@@ -413,3 +416,7 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - 2026-10-01: E5 agreed with Kevin: one long 16:9 video a week on YouTube and Facebook, Saturdays from Oct 10,
   path episodes and slow draw-alongs by turns, Core and Advanced paths only; read Nov 23. The wide layout comes
   first.
+- 2026-10-01: Kevin asked for an app overview with Lina's voice, 1.0 features only, the iPad upright on a 16:9
+  frame (`.studio/overview-1.0`, 79 s), and to post it everywhere: all seven platforms, `ct=<platform>-overview`,
+  YouTube as a normal video with a thumbnail and English captions, Facebook as a feed video. Not one of E5's six,
+  and kept out of the scorecard's medians. A "what's new in 1.1" one follows once 1.1 is approved.

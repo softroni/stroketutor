@@ -54,7 +54,8 @@ export interface UploadPostClient {
   accounts(profile: string): Promise<Account[]>
   pinterestBoards(profile: string): Promise<{ id: string; name: string }[]>
   facebookPages(profile: string): Promise<{ id: string; name: string }[]>
-  upload(fields: [string, string][], videoFile: string, requestId: string): Promise<UploadAccepted>
+  /** `files` go with the video: a YouTube thumbnail (`thumbnail`), a subtitle file (`youtube_subtitle_file`). */
+  upload(fields: [string, string][], videoFile: string, requestId: string, files?: { field: string; file: string; type: string }[]): Promise<UploadAccepted>
   /** An image post (a Pinterest pin, say): the same fields, the pictures as `photos[]`. */
   uploadPhotos(fields: [string, string][], imageFiles: string[], requestId: string): Promise<UploadAccepted>
   createPinterestBoard(profile: string, name: string, description: string): Promise<{ id: string; name: string }>
@@ -149,10 +150,11 @@ export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch
       return ((body.pages ?? []) as { id: unknown; name: unknown }[]).map((page) => ({ id: String(page.id), name: String(page.name) }))
     },
 
-    async upload(fields, videoFile, requestId) {
+    async upload(fields, videoFile, requestId, files = []) {
       const form = new FormData()
       for (const [name, value] of fields) form.append(name, value)
       form.append('video', await openAsBlob(videoFile, { type: 'video/mp4' }), path.basename(videoFile))
+      for (const extra of files) form.append(extra.field, await openAsBlob(extra.file, { type: extra.type }), path.basename(extra.file))
       // The same key on a retry returns the job already made instead of posting twice.
       return accepted(await call('POST', '/api/upload', { body: form, headers: { 'Idempotency-Key': requestId } }), requestId)
     },

@@ -794,6 +794,10 @@ export const DOC_TASKS: DocTask[] = [
       { run: 'npm run studio -- social status --refresh', does: 'Where the last posts reached' },
       { run: 'npm run studio -- social scorecard', does: 'How each platform did this week' },
       { run: 'npm run studio -- social post <id> --platforms <platform> --no-pin', does: 'Post a lesson again, to one platform' },
+      {
+        run: 'npm run studio -- social announce --wide --video <file.mp4> --lesson <id> --news "<words>" --headline "<title>" --campaign <name> --thumbnail <png> --subtitles <srt>',
+        does: 'Post a 16:9 video: a normal YouTube video with its thumbnail and captions, a Facebook feed video, kept out of the Shorts’ numbers',
+      },
     ],
   },
   {

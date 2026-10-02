@@ -254,19 +254,25 @@ export function boardDescription(pathTitle: string, pathDescription: string | un
  * lesson's, so it is posted the same way: `news` is what's new, in a sentence
  * or two ("10 new lessons: draw your town…"), `headline` a short title.
  */
-export function announcementTexts(news: string, headline: string, providerToken: string | null = null): SocialTexts {
+export function announcementTexts(
+  news: string,
+  headline: string,
+  providerToken: string | null = null,
+  { wide = false, campaign = 'news' }: { wide?: boolean; campaign?: string } = {},
+): SocialTexts {
   const tags = ['#papercoach', '#howtodraw', '#drawing', '#learntodraw'].join(' ')
-  const withLink = (campaign: string) => [news, '', APP_LINE, `Free on the App Store: ${appStoreLink(campaign, providerToken)}`, '', tags].join('\n')
+  const withLink = (platform: string) => [news, '', APP_LINE, `Free on the App Store: ${appStoreLink(`${platform}-${campaign}`, providerToken)}`, '', tags].join('\n')
   return {
     caption: [news, '', `${APP_LINE} Free on the App Store, link in bio.`, '', tags].join('\n'),
-    youtubeTitle: fit(`${headline} #shorts`, 100, headline),
-    youtubeDescription: withLink('youtube-news'),
-    facebookDescription: withLink('facebook-news'),
+    // A 16:9 video is a normal YouTube video, which "#shorts" would only confuse.
+    youtubeTitle: wide ? fit(headline, 100, headline) : fit(`${headline} #shorts`, 100, headline),
+    youtubeDescription: withLink('youtube'),
+    facebookDescription: withLink('facebook'),
     pinterestTitle: fit(headline, 100, headline),
     pinterestDescription: fit([news, '', `${APP_LINE} Free on the App Store.`, '', tags].join('\n'), 500, news),
-    pinterestLink: appStoreLink('pinterest-news', providerToken),
+    pinterestLink: appStoreLink(`pinterest-${campaign}`, providerToken),
     x: fit([news, '', 'Paper Coach, free on the App Store.'].join('\n'), 280, news),
-    threads: fit([news, '', `Free on the App Store: ${appStoreLink('threads-news', providerToken)}`].join('\n'), 500, news),
+    threads: fit([news, '', `Free on the App Store: ${appStoreLink(`threads-${campaign}`, providerToken)}`].join('\n'), 500, news),
   }
 }
 
@@ -294,6 +300,10 @@ export interface PostRequest {
   /** ISO-8601 with an offset; posts at once when absent. */
   scheduledAt?: string | null
   altText: string
+  /** A 16:9 video: a feed video on Facebook, not a Reel. */
+  wide?: boolean
+  /** A subtitle file goes with the upload, for YouTube. */
+  youtubeSubtitles?: boolean
 }
 
 /** The multipart fields of one upload, except the video itself. Order is kept, and `platform[]` repeats. */
@@ -320,6 +330,7 @@ export function uploadFields(request: PostRequest): [string, string][] {
       ['defaultLanguage', 'en'],
       ['defaultAudioLanguage', 'en'],
     )
+    if (request.youtubeSubtitles) fields.push(['youtube_subtitle_language', 'en'], ['youtube_subtitle_name', 'English'])
   }
   if (has('tiktok')) {
     fields.push(
@@ -334,7 +345,7 @@ export function uploadFields(request: PostRequest): [string, string][] {
     fields.push(['instagram_title', texts.caption], ['media_type', 'REELS'], ['share_to_feed', 'true'])
   }
   if (has('facebook')) {
-    fields.push(['facebook_title', texts.youtubeTitle.replace(/\s*#shorts$/, '')], ['facebook_description', texts.facebookDescription], ['facebook_media_type', 'REELS'])
+    fields.push(['facebook_title', texts.youtubeTitle.replace(/\s*#shorts$/, '')], ['facebook_description', texts.facebookDescription], ['facebook_media_type', request.wide ? 'VIDEO' : 'REELS'])
     if (settings.facebookPage) fields.push(['facebook_page_id', settings.facebookPage])
     if (request.private) fields.push(['video_state', 'DRAFT'])
   }
@@ -428,7 +439,7 @@ export type SocialRecord =
       jobId?: string | null
       scheduledAt?: string | null
       /** What went out: the lesson's whole video (the default, and every record before the others), its speed draw, or its step pin. */
-      media?: 'video' | 'speed' | 'pin'
+      media?: 'video' | 'speed' | 'pin' | 'wide'
       /** A lesson in the queue (the default), or release news, which never counts the lesson as posted. */
       purpose?: 'lesson' | 'announce'
       /** `sent`: Upload-Post took it. `refused`: it said no, and nothing was posted. */
@@ -496,7 +507,7 @@ export interface PostEntry {
   lessonId: string
   /** The lesson's title when known, so the record reads without the catalog. */
   title?: string
-  media: 'video' | 'speed' | 'pin'
+  media: 'video' | 'speed' | 'pin' | 'wide'
   purpose: 'lesson' | 'announce'
   private: boolean
   /** `scheduled` and `processing` until every platform has answered; then `completed`, `partial` or `failed`. */

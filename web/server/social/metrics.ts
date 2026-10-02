@@ -10,7 +10,7 @@ import { dayOf, FINAL_STATUSES, POSTING_TIME_ZONE, postStates, type SocialRecord
 
 const HOUR = 3_600_000
 
-export type Media = 'video' | 'speed' | 'pin'
+export type Media = 'video' | 'speed' | 'pin' | 'wide'
 
 /** One line of `.studio/social/metrics.jsonl`, which only grows. */
 export type MetricsRecord = PostMetricsRecord | AccountMetricsRecord
@@ -264,10 +264,13 @@ export interface Scorecard {
 export const SCORECARD_ORDER = ['pinterest', 'tiktok', 'youtube', 'instagram', 'facebook', 'threads', 'x']
 
 export function scorecard(input: { records: MetricsRecord[]; posts: PublishedPost[]; now: number; days: number; acquisition?: unknown }): Scorecard {
-  const { records, posts, now, days } = input
+  const { records, now, days } = input
   const start = now - days * 24 * HOUR
   const inWindow = (time: number) => time >= start && time <= now
-  const postRecords = records.filter((record): record is PostMetricsRecord => record.kind === 'post' && Date.parse(record.at) <= now)
+  // A 16:9 video is judged on its own (social-plan.md *Long videos*), never in the medians of the vertical ones.
+  const wide = new Set([...input.posts, ...records.filter((record): record is PostMetricsRecord => record.kind === 'post')].filter((post) => post.media === 'wide').map((post) => post.requestId))
+  const posts = input.posts.filter((post) => !wide.has(post.requestId))
+  const postRecords = records.filter((record): record is PostMetricsRecord => record.kind === 'post' && Date.parse(record.at) <= now && !wide.has(record.requestId))
   const accountRecords = records.filter((record): record is AccountMetricsRecord => record.kind === 'account' && Date.parse(record.at) <= now)
 
   // When each post went out: the record of posts, else worked out from a reading's age.

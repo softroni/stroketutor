@@ -12,7 +12,7 @@ let t: TestStudio
 let tts: FakeTts
 let plan: string
 /** Every request the fake Upload-Post was sent: method, path and, for an upload, its fields. */
-let calls: { method: string; route: string; fields?: Record<string, string[]>; video?: string; photos?: string[]; json?: Record<string, unknown> }[]
+let calls: { method: string; route: string; fields?: Record<string, string[]>; video?: string; extras?: string[]; photos?: string[]; json?: Record<string, unknown> }[]
 /** The Pinterest boards the fake account has; a board made through the API joins them. */
 let boards: { id: string; name: string }[]
 let statusAnswers: Record<string, unknown>[]
@@ -31,7 +31,7 @@ const fakeUploadPost = (async (url: string, init: RequestInit) => {
       if (typeof value === 'string') (fields[name] ??= []).push(value)
       else files.push((value as File).name)
     }
-    calls.push({ method: 'POST', route, fields, ...(pathname === '/api/upload' ? { video: files[0] } : { photos: files }) })
+    calls.push({ method: 'POST', route, fields, ...(pathname === '/api/upload' ? { video: files[0], extras: files.slice(1) } : { photos: files }) })
     if (fields.scheduled_date) return json({ success: true, job_id: `job-${calls.length}`, scheduled_date: fields.scheduled_date[0] }, 202)
     return json({ success: true, message: 'Upload initiated successfully in background.', request_id: fields.request_id[0], total_platforms: fields['platform[]'].length })
   }
@@ -350,6 +350,33 @@ describe('social announce', () => {
     expect(calls.some((call) => call.route === '/api/upload_photos')).toBe(false)
     expect((await records())[0]).toMatchObject({ kind: 'post', purpose: 'announce', media: 'speed' })
     expect((await t.json<{ posted: string[] }>('social queue')).posted).toEqual([])
+  })
+
+  it('posts a 16:9 video as a normal YouTube video and a Facebook feed video, with a thumbnail and captions, kept apart from the Shorts', async () => {
+    await onSale(true)
+    await writeFile(path.join(t.root, 'thumb.png'), 'png')
+    await writeFile(path.join(t.root, 'captions.srt'), '1\n00:00:00,000 --> 00:00:01,000\nHi\n')
+    const outcome = await t.studio([
+      'social', 'announce', '--lesson', 'simple-house', '--news', 'Meet Paper Coach.', '--headline', 'Learn to draw on real paper', '--wide', '--campaign', 'overview',
+      '--thumbnail', path.join(t.root, 'thumb.png'), '--subtitles', path.join(t.root, 'captions.srt'),
+      '--video', path.join(t.root, 'clip.mp4'), '--no-wait', '--platforms', 'youtube,facebook,tiktok',
+    ])
+    expect(outcome.code).toBe(0)
+    expect(outcome.stdout).toContain('Posted the 16:9 video “Learn to draw on real paper”')
+    const upload = calls.find((call) => call.route === '/api/upload')!
+    expect(upload.fields!.youtube_title).toEqual(['Learn to draw on real paper'])
+    expect(upload.fields!.facebook_media_type).toEqual(['VIDEO'])
+    expect(upload.fields!.youtube_subtitle_language).toEqual(['en'])
+    expect(upload.fields!.external_id).toEqual(['paper-coach/simple-house/wide'])
+    expect(upload.video).toBe('clip.mp4')
+    expect(upload.extras).toEqual(['thumb.png', 'captions.srt'])
+    expect((await records())[0]).toMatchObject({ kind: 'post', purpose: 'announce', media: 'wide' })
+  })
+
+  it('posts a wide video only from a file', async () => {
+    const outcome = await t.studio(['social', 'announce', '--lesson', 'simple-house', '--news', 'Meet Paper Coach.', '--headline', 'Learn to draw', '--wide', '--dry-run'])
+    expect(outcome.code).toBe(1)
+    expect(outcome.stderr).toContain('pass it with --video')
   })
 
   it('needs the lesson, the news and a headline', async () => {

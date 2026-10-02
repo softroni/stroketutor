@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
-import { existsSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 import { appendFile, mkdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { promisify } from 'node:util'
@@ -286,13 +286,25 @@ interface Announcement {
   news: string
   headline: string
   intro: string | null
+  /** A 16:9 video given with --video instead of the speed draw: a normal YouTube video, a Facebook feed video. */
+  wide?: boolean
+  /** What the App Store links say after the platform's name (`youtube-<campaign>`); "news" when absent. */
+  campaign?: string | null
+  /** YouTube's thumbnail, and a subtitle file for YouTube. */
+  thumbnail?: string | null
+  subtitles?: string | null
 }
+
+/** YouTube takes a thumbnail of at most 2 MB. */
+const THUMBNAIL_MAX_BYTES = 2 * 1024 * 1024
 
 interface PostOutcome {
   lessonId: string
   title: string
   purpose: 'lesson' | 'announce'
   speed: boolean
+  /** A 16:9 video (announce --wide). */
+  wide: boolean
   platforms: Platform[]
   private: boolean
   dryRun: boolean
@@ -313,8 +325,20 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   const settings = await loadSettings(ctx)
   const isPrivate = values.private === true
   const dryRun = values['dry-run'] === true
-  const speed = news !== undefined || values.speed === true
+  const wide = news?.wide === true
+  const speed = (news !== undefined && !wide) || values.speed === true
   const purpose: PostOutcome['purpose'] = news ? 'announce' : 'lesson'
+  if (wide && !stringValue(values, 'video')) throw new CliError('A wide video is posted from a file: pass it with --video. The Studio renders vertical videos only.')
+  const extras: { field: string; file: string; type: string }[] = []
+  if (news?.thumbnail) {
+    if (!existsSync(news.thumbnail)) throw new CliError(`There is no file ${news.thumbnail}.`)
+    if (statSync(news.thumbnail).size > THUMBNAIL_MAX_BYTES) throw new CliError(`${news.thumbnail} is over 2 MB, more than YouTube takes for a thumbnail.`)
+    extras.push({ field: 'thumbnail', file: news.thumbnail, type: /\.png$/i.test(news.thumbnail) ? 'image/png' : 'image/jpeg' })
+  }
+  if (news?.subtitles) {
+    if (!existsSync(news.subtitles)) throw new CliError(`There is no file ${news.subtitles}.`)
+    extras.push({ field: 'youtube_subtitle_file', file: news.subtitles, type: 'text/plain' })
+  }
   const warnings: string[] = []
   const warn = (text: string) => {
     warnings.push(text)
@@ -348,7 +372,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   if (at && (Number.isNaN(Date.parse(at)) || Date.parse(at) <= Date.now())) throw new CliError(`--at ${at} isn’t a time in the future.`)
 
   const texts = news
-    ? announcementTexts(news.news, news.headline, settings.providerToken)
+    ? announcementTexts(news.news, news.headline, settings.providerToken, { wide, campaign: news.campaign ?? undefined })
     : socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken, accessOf(lessons, lessonId))
   // A lesson's full video brings its step pin to Pinterest a few hours later; news and speed draws don't.
   const wantsPin = purpose === 'lesson' && !speed && !isPrivate && values['no-pin'] !== true && platforms.includes('pinterest')
@@ -359,16 +383,21 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     texts,
     settings,
     private: isPrivate,
-    externalId: `paper-coach/${lessonId}${news ? '/news' : speed ? '/speed' : ''}`,
+    externalId: `paper-coach/${lessonId}${wide ? '/wide' : news ? '/news' : speed ? '/speed' : ''}`,
     requestId,
     scheduledAt: at,
-    altText: `A step-by-step drawing lesson: ${lesson.tutorial.title}, drawn one line at a time.`,
+    altText: wide
+      ? 'Paper Coach on an iPad: a drawing lesson shown one line at a time, with Lina speaking each step.'
+      : `A step-by-step drawing lesson: ${lesson.tutorial.title}, drawn one line at a time.`,
+    wide,
+    youtubeSubtitles: Boolean(news?.subtitles) && platforms.includes('youtube'),
   }
   const outcome: PostOutcome = {
     lessonId,
-    title: lesson.tutorial.title,
+    title: wide ? news!.headline : lesson.tutorial.title,
     purpose,
     speed,
+    wide,
     platforms,
     private: isPrivate,
     dryRun,
@@ -419,6 +448,9 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   if (platforms.length === 0) throw new CliError('Nothing left to post to.')
   request.platforms = platforms
   outcome.platforms = platforms
+  request.youtubeSubtitles = Boolean(news?.subtitles) && platforms.includes('youtube')
+  // The thumbnail is for YouTube (X takes one too); the subtitles only for YouTube.
+  const files = extras.filter((extra) => (extra.field === 'thumbnail' ? platforms.includes('youtube') || platforms.includes('x') : platforms.includes('youtube')))
 
   let video = stringValue(values, 'video') ?? null
   if (video) {
@@ -433,10 +465,10 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   outcome.video = video
 
   ctx.out.note(`Sending ${shown(video)} to Upload-Post for ${platforms.join(', ')}…`)
-  const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms, private: isPrivate, requestId, scheduledAt: at, media: speed ? ('speed' as const) : ('video' as const), purpose }
+  const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms, private: isPrivate, requestId, scheduledAt: at, media: wide ? ('wide' as const) : speed ? ('speed' as const) : ('video' as const), purpose }
   let accepted
   try {
-    accepted = await client.upload(uploadFields(request), video, requestId)
+    accepted = await client.upload(uploadFields(request), video, requestId, files)
   } catch (error) {
     if (error instanceof UploadPostError) {
       await addRecord(ctx, { ...base, at: new Date().toISOString(), outcome: 'refused', message: error.message })
@@ -555,6 +587,7 @@ function resultLines(results: Record<string, PlatformResult>, platforms: string[
 
 /** What went out, in a few words: "the “Rocket” video", "the “Rocket” speed draw", "the news with the “Rocket” speed draw". */
 function whatWent(outcome: PostOutcome): string {
+  if (outcome.wide) return `the 16:9 video “${outcome.title}”`
   if (outcome.purpose === 'announce') return `the news with the “${outcome.title}” speed draw`
   return `the “${outcome.title}” ${outcome.speed ? 'speed draw' : 'video'}`
 }
@@ -585,7 +618,7 @@ function describePost(outcome: PostOutcome): string[] {
 function logLine(outcome: PostOutcome): string {
   const done = Object.entries(outcome.results).filter(([, result]) => result.success).map(([platform]) => platform)
   const failed = Object.entries(outcome.results).filter(([, result]) => !result.success).map(([platform]) => platform)
-  const what = outcome.purpose === 'announce' ? `News (“${outcome.title}”)` : `“${outcome.title}”${outcome.speed ? ' speed draw' : ''}`
+  const what = outcome.wide ? `16:9 video (“${outcome.title}”)` : outcome.purpose === 'announce' ? `News (“${outcome.title}”)` : `“${outcome.title}”${outcome.speed ? ' speed draw' : ''}`
   if (outcome.scheduledAt) return `Social: ${what} scheduled for ${outcome.scheduledAt.slice(0, 16).replace('T', ' ')}.`
   const where = done.length ? ` on ${done.join(', ')}` : ''
   const problems = failed.length ? `; failed on ${failed.join(', ')}` : outcome.status !== 'completed' ? ` (${outcome.status})` : ''
@@ -743,13 +776,27 @@ export const socialCommands: Command[] = [
       headline: { type: 'string', description: 'A short title for YouTube and Pinterest (“New: draw your town”).', placeholder: 'words' },
       intro: { type: 'string', description: 'Lina’s opening line over the speed draw (default “Watch a … come together, one line at a time.”).', placeholder: 'words' },
       video: { type: 'string', description: 'Post this file instead of rendering the speed draw now.', placeholder: 'file.mp4' },
+      wide: { type: 'boolean', description: 'The --video is 16:9 (an app overview, a long video): a normal YouTube video rather than a Short, a feed video on Facebook rather than a Reel, and kept out of the Shorts’ numbers.' },
+      campaign: { type: 'string', description: 'What the App Store links say after the platform’s name (default news: youtube-news, facebook-news…), so App Store Connect counts this post apart.', placeholder: 'name' },
+      thumbnail: { type: 'string', description: 'YouTube’s thumbnail (PNG or JPEG, at most 2 MB); X takes it too.', placeholder: 'file' },
+      subtitles: { type: 'string', description: 'English captions for YouTube (SRT or VTT).', placeholder: 'file' },
     },
     async (ctx, args) => {
       const lessonId = stringValue(args.values, 'lesson')
       const newsText = stringValue(args.values, 'news')?.trim()
       const headline = stringValue(args.values, 'headline')?.trim()
       if (!lessonId || !newsText || !headline) throw new CliError('Release news needs --lesson, --news and --headline.')
-      const outcome = await postLesson(ctx, lessonId, args.values, undefined, { news: newsText, headline, intro: stringValue(args.values, 'intro') ?? null })
+      const campaign = stringValue(args.values, 'campaign')?.trim() || null
+      if (campaign && !/^[a-z0-9-]+$/.test(campaign)) throw new CliError('--campaign is lowercase letters, digits and dashes (“overview”).')
+      const outcome = await postLesson(ctx, lessonId, args.values, undefined, {
+        news: newsText,
+        headline,
+        intro: stringValue(args.values, 'intro') ?? null,
+        wide: args.values.wide === true,
+        campaign,
+        thumbnail: stringValue(args.values, 'thumbnail') ?? null,
+        subtitles: stringValue(args.values, 'subtitles') ?? null,
+      })
       if (args.values.log === true && !outcome.dryRun) await logToToday(ctx, logLine(outcome))
       ctx.out.result(outcome, describePost)
     },
