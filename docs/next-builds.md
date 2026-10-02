@@ -63,7 +63,7 @@ revenue, and judge it by whether it raises profit. Don't propose the products be
 
 ## 3. The grown-up's door, where a grown-up is likely to be (medium)
 
-**Built 2026-10-02, not shipped:** on `main`, for the build after 1.1. Kevin asked for it after the first child data
+**Built 2026-10-02, not shipped:** on `main` in `1977f45`, for the build after 1.1. Kevin asked for it after the first child data
 (2026-10-02: children 38 finished lessons and 22 crown taps since launch against 27 and 3 for 13+, but 1 crown tap in
 22 reached "For grown-ups", and 6 parental checks led to 1 grown-up paywall). What was built (README › Premium ›
 *Children*):
