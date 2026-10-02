@@ -30,6 +30,26 @@ export type Source = 'all' | 'ads' | 'organic'
 
 export const PERIODS: Period[] = ['day', 'week', 'month']
 
+/** A number on the page that narrows it to the learners it counts (Sessions counts everyone, so it has none). */
+export type Only = 'installs' | 'lessons' | 'photos' | 'price' | 'bought'
+export const ONLY: Only[] = ['installs', 'lessons', 'photos', 'price', 'bought']
+
+/** Whether a learner is one of those a number counts. */
+export function counts(session: LearnerSession, only: Only): boolean {
+  switch (only) {
+    case 'installs':
+      return session.isNew
+    case 'lessons':
+      return session.finished > 0
+    case 'photos':
+      return session.kept > 0
+    case 'price':
+      return session.items.some((item) => item.kind === 'price')
+    case 'bought':
+      return session.items.some((item) => item.kind === 'bought')
+  }
+}
+
 /** One app event, as the Studio server hands it over. Only what the page reads. */
 export interface LearnerEvent {
   /** Milliseconds since 1970. */
@@ -358,6 +378,10 @@ export interface LearnerSession {
   finished: number
   /** Photos kept. */
   kept: number
+  /** "A", "B"…: who they are on this page, in the order they first opened the app in the period. */
+  letter?: string
+  /** Their avatar's color on this page (0 to AVATAR_COLORS − 1), by their letter, so neighbors differ. */
+  color?: number
   items: SessionItem[]
   end: SessionEnd
   timeline: TimelineLine[]
@@ -562,6 +586,16 @@ function endOf(items: SessionItem[], events: LearnerEvent[], hereNow: boolean): 
   }
 }
 
+/** "A" … "Z", then "AA", "AB"…: a learner's letter on the page. */
+export function letterOf(index: number): string {
+  const letter = String.fromCharCode(65 + (index % 26))
+  return index < 26 ? letter : `${letterOf(Math.floor(index / 26) - 1)}${letter}`
+}
+
+/** How many avatar colors the page has. */
+export const AVATAR_COLORS = 8
+
+
 /** "#3F2A" for a learner 13 or over, from their profile's random id, so they can be told apart across days. A child has none. */
 export function learnerTag(session: Pick<LearnerSession, 'key' | 'child'>): string | null {
   return session.child ? null : `#${session.key.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase()}`
@@ -653,6 +687,14 @@ export interface ReportOptions {
   date: string
   who?: Who
   source?: Source
+  /** Only the learners who finished this lesson in the period (and, for the comparison, in the one before). */
+  lesson?: string | null
+  /**
+   * Only the learners one of the numbers counts: the journey, the lessons drawn most, the
+   * leaders and the sessions narrow, and the numbers stay as they are, so each still says
+   * how many there are of its kind.
+   */
+  only?: Only | null
   now?: number
 }
 
@@ -662,13 +704,29 @@ const LEADERS = 10
 /**
  * Everything the page shows for one period, from the events of that period and the
  * one before it (for the numbers' comparison). `who` and `source` narrow it to
- * children or 13+, and to Apple Ads or the rest.
+ * children or 13+, and to Apple Ads or the rest; `lesson` to those who finished it;
+ * `only` to those one number counts.
  */
 export function buildReport(events: LearnerEvent[], options: ReportOptions): LearnersReport {
-  const { period, date, who = 'all', source = 'all', now = Date.now() } = options
+  const { period, date, who = 'all', source = 'all', lesson = null, only = null, now = Date.now() } = options
   const { from, to } = periodRange(period, date)
   const before = periodRange(period, stepPeriod(period, date, -1))
-  const learners = stitch(events).filter((learner) => {
+  const everybody = stitch(events)
+  // Letters (and colors) in the order learners first opened the app in the period, among
+  // everybody, before any narrowing: a learner keeps theirs whatever the page is narrowed to.
+  const firstIn = (learner: Learner) =>
+    learner.events.find((event) => {
+      const day = dayOf(event.at)
+      return day >= from && day < to
+    })?.at
+  const place = new Map(
+    everybody
+      .map((learner) => ({ key: learner.key, at: firstIn(learner) }))
+      .filter((entry): entry is { key: string; at: number } => entry.at !== undefined)
+      .sort((a, b) => a.at - b.at)
+      .map((entry, index) => [entry.key, index]),
+  )
+  const learners = everybody.filter((learner) => {
     const age = ageOf(learner.events)
     if (who === 'children' && !isChildAge(age)) return false
     if (who === 'teens' && isChildAge(age)) return false
@@ -686,21 +744,34 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
         }),
       }))
       .filter((entry) => entry.events.length > 0)
+      .filter(
+        (entry) =>
+          !lesson || entry.events.some((event) => event.event === 'lesson_completed' && event.lesson === lesson),
+      )
 
-  const current = inRange({ from, to })
-  const sessions = current.map((entry) => buildSession(entry.learner, entry.events, now))
+  const everyone = inRange({ from, to })
+  const everySession = everyone.map((entry) => buildSession(entry.learner, entry.events, now))
+  for (const session of everySession) {
+    const index = place.get(session.key) ?? 0
+    session.letter = letterOf(index)
+    session.color = index % AVATAR_COLORS
+  }
   const previous = inRange(before).map((entry) => buildSession(entry.learner, entry.events, now))
-  const currentEvents = current.flatMap((entry) => entry.events)
   const previousEvents = inRange(before).flatMap((entry) => entry.events)
+  const numbers = numbersOf(everySession, everyone.flatMap((entry) => entry.events), previous, previousEvents)
+
+  const kept = everySession.map((session) => !only || counts(session, only))
+  const sessions = everySession.filter((_, index) => kept[index])
+  const current = everyone.filter((_, index) => kept[index])
 
   return {
     period,
     date,
     from,
     to,
-    numbers: numbersOf(sessions, currentEvents, previous, previousEvents),
+    numbers,
     journey: journeyOf(sessions),
-    mostDrawn: mostDrawnOf(currentEvents),
+    mostDrawn: mostDrawnOf(current.flatMap((entry) => entry.events)),
     sessions: period === 'day' ? [...sessions].sort((a, b) => b.start - a.start) : [],
     days: period === 'day' ? [] : daysOf(from, to, current),
     leaders: leadersOf(sessions),

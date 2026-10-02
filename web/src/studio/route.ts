@@ -4,7 +4,8 @@
  *
  * `#/paths/<pathId>` · `#/unfiled` · `#/lessons/<lessonId>` · `#/new/<pathId>` ·
  * `#/new?lesson=<lessonId>` · `#/publish` · `#/voice` · `#/trash` · `#/settings` · `#/import` ·
- * `#/screenshots[/<device>[/<shot>]]` · `#/today[/<YYYY-MM-DD>]` · `#/learners[/<day|week|month>[/<YYYY-MM-DD>]]` ·
+ * `#/screenshots[/<device>[/<shot>]]` · `#/today[/<YYYY-MM-DD>]` ·
+ * `#/learners[/<day|week|month>[/<YYYY-MM-DD>]][?lesson=<lessonId>&only=<number>]` ·
  * `#/social` · `#/docs[/<tool>]`
  *
  * Today is the Studio's front page: no hash, or one it does not know, opens it.
@@ -13,7 +14,7 @@
  * opened to fill a planned lesson, which is a way of arriving at the screen
  * rather than another screen, so it reads as a query.
  */
-import type { Period } from './learners'
+import { ONLY, type Only, type Period } from './learners'
 import type { ScreenshotDevice } from './screenshots'
 
 export type Route =
@@ -30,8 +31,11 @@ export type Route =
   | { name: 'screenshots'; device: ScreenshotDevice; shot: string | null }
   /** How the app stands and what Claude is doing, written by Claude every morning; `day` shows a past one. */
   | { name: 'today'; day: string | null }
-  /** What learners did, read from PostHog: a day, a week or a month; `date` null for the current one. */
-  | { name: 'learners'; period: Period; date: string | null }
+  /**
+   * What learners did, read from PostHog: a day, a week or a month; `date` null for the current one,
+   * `lesson` narrowing it to the learners who finished that lesson, and `only` to those one number counts.
+   */
+  | { name: 'learners'; period: Period; date: string | null; lesson?: string; only?: Only }
   /** Every post on social media, day by day, with a link to each on each platform. */
   | { name: 'social' }
   /** Every command line and MCP server the repo uses; `section` scrolls to one tool. */
@@ -68,7 +72,10 @@ export function parseRoute(hash: string): Route {
       return { name: 'today', day: parts[1] && /^\d{4}-\d{2}-\d{2}$/.test(parts[1]) ? parts[1] : null }
     case 'learners': {
       const period: Period = parts[1] === 'week' || parts[1] === 'month' ? parts[1] : 'day'
-      return { name: 'learners', period, date: parts[2] && /^\d{4}-\d{2}-\d{2}$/.test(parts[2]) ? parts[2] : null }
+      const date = parts[2] && /^\d{4}-\d{2}-\d{2}$/.test(parts[2]) ? parts[2] : null
+      const lesson = params.get('lesson')
+      const only = ONLY.find((candidate) => candidate === params.get('only'))
+      return { name: 'learners', period, date, ...(lesson ? { lesson } : {}), ...(only ? { only } : {}) }
     }
     case 'social':
       return { name: 'social' }
@@ -106,9 +113,14 @@ export function routeHref(route: Route): string {
       return route.device === 'iphone' ? '#/screenshots' : `#/screenshots/${route.device}`
     case 'today':
       return route.day ? `#/today/${route.day}` : '#/today'
-    case 'learners':
-      if (route.date) return `#/learners/${route.period}/${route.date}`
-      return route.period === 'day' ? '#/learners' : `#/learners/${route.period}`
+    case 'learners': {
+      const params = new URLSearchParams()
+      if (route.lesson) params.set('lesson', route.lesson)
+      if (route.only) params.set('only', route.only)
+      const query = params.size ? `?${params.toString()}` : ''
+      if (route.date) return `#/learners/${route.period}/${route.date}${query}`
+      return `${route.period === 'day' ? '#/learners' : `#/learners/${route.period}`}${query}`
+    }
     case 'social':
       return '#/social'
     case 'docs':

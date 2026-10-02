@@ -32,6 +32,14 @@ describe('parseRoute', () => {
     expect(parseRoute('#/learners/week')).toEqual({ name: 'learners', period: 'week', date: null })
     expect(parseRoute('#/learners/month/2026-10-02')).toEqual({ name: 'learners', period: 'month', date: '2026-10-02' })
     expect(parseRoute('#/learners/day/yesterday')).toEqual({ name: 'learners', period: 'day', date: null })
+    expect(parseRoute('#/learners/week/2026-10-02?lesson=cloud')).toEqual({
+      name: 'learners',
+      period: 'week',
+      date: '2026-10-02',
+      lesson: 'cloud',
+    })
+    expect(parseRoute('#/learners?only=price')).toEqual({ name: 'learners', period: 'day', date: null, only: 'price' })
+    expect(parseRoute('#/learners?only=nonsense')).toEqual({ name: 'learners', period: 'day', date: null })
     expect(parseRoute('#/screenshots/watch')).toEqual({ name: 'screenshots', device: 'iphone', shot: null })
     expect(parseRoute('#/today')).toEqual({ name: 'today', day: null })
     expect(parseRoute('#/today/2026-09-27')).toEqual({ name: 'today', day: '2026-09-27' })
@@ -73,6 +81,10 @@ describe('parseRoute', () => {
       { name: 'learners', period: 'day', date: null },
       { name: 'learners', period: 'week', date: null },
       { name: 'learners', period: 'month', date: '2026-10-02' },
+      { name: 'learners', period: 'day', date: null, lesson: 'watermelon-slice' },
+      { name: 'learners', period: 'day', date: '2026-10-02', lesson: 'cloud' },
+      { name: 'learners', period: 'week', date: null, only: 'price' },
+      { name: 'learners', period: 'day', date: '2026-10-02', lesson: 'cloud', only: 'photos' },
       { name: 'social' },
       { name: 'docs', section: null },
       { name: 'docs', section: 'posthog' },

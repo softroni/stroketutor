@@ -210,6 +210,20 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+/* A number is a way in: it narrows the page to the learners it counts. */
+.st-learners__stat:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-hover);
+}
+
+.st-learners__stat[aria-current='true'] {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 .st-learners__stat-value {
@@ -353,6 +367,50 @@
   margin-top: 12px;
 }
 
+/* A picture in Most drawn: the way to who drew it. */
+.st-learners__drawn-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.st-learners__drawn-pick:hover {
+  background: var(--surface-hover);
+}
+
+.st-learners__drawn-pick[aria-current='true'] {
+  background: var(--accent-tint);
+}
+
+/* "Drew [picture] Cloud ✕": the lesson the page is narrowed to, and the way back to everyone. */
+.st-learners__drew {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 12px 3px 10px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--accent-tint);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.st-learners__drew span[aria-hidden] {
+  margin-left: 2px;
+  color: var(--ink-faint);
+}
+
+.st-learners__drew .st-learners__pic--picked .st-learners__pic-paper {
+  box-shadow: none;
+}
+
 .st-learners__times {
   font-size: 12px;
   font-weight: 700;
@@ -368,6 +426,16 @@
   --pic: 34px;
   width: var(--pic);
   height: var(--pic);
+}
+
+.st-learners__pic--tiny {
+  --pic: 22px;
+}
+
+.st-learners__pic--tiny .st-learners__pic-paper {
+  padding: 1px;
+  border-width: 1.5px;
+  border-radius: 5px;
 }
 
 .st-learners__pic--medium {
@@ -398,6 +466,11 @@
 .st-learners__pic--started .st-learners__pic-paper > *,
 .st-learners__pic--locked .st-learners__pic-paper > * {
   opacity: 0.45;
+}
+
+/* The lesson the page is narrowed to, wherever it is drawn. */
+.st-learners__pic--picked .st-learners__pic-paper {
+  box-shadow: 0 0 0 3px var(--accent);
 }
 
 .st-learners__pic-missing {
@@ -688,6 +761,42 @@
   font-weight: 700;
 }
 
+/* ---------- Who a learner is: a letter in their own color ---------- */
+
+.st-learners__avatar {
+  --avatar: #2a78d6;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--avatar);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* 13 and over: followed from day to day, so a ring. */
+.st-learners__avatar--known {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--avatar);
+}
+
+.st-learners__avatar--0 { --avatar: #2a78d6; }
+.st-learners__avatar--1 { --avatar: #e0612b; }
+.st-learners__avatar--2 { --avatar: #16956a; }
+.st-learners__avatar--3 { --avatar: #7c4dd9; }
+.st-learners__avatar--4 { --avatar: #cf3f6c; }
+.st-learners__avatar--5 { --avatar: #0b8a96; }
+.st-learners__avatar--6 { --avatar: #a8700f; }
+.st-learners__avatar--7 { --avatar: #4f5bd5; }
+
+.st-learners__history-title .st-learners__avatar {
+  margin-right: 6px;
+}
+
 /* ---------- Top learners ---------- */
 
 .st-learners__leaders {
@@ -710,7 +819,7 @@
 
 .st-learners__leader-face {
   display: grid;
-  grid-template-columns: 34px minmax(170px, 0.8fr) minmax(0, 2fr);
+  grid-template-columns: 34px 30px minmax(170px, 0.8fr) minmax(0, 2fr);
   align-items: center;
   gap: 14px;
   width: 100%;
@@ -975,6 +1084,15 @@ a.st-learners__day-face:hover {
   font-size: 14px;
 }
 
+.st-learners-summary__number {
+  color: inherit;
+  text-decoration: none;
+}
+
+.st-learners-summary__number:hover strong {
+  text-decoration: underline;
+}
+
 .st-learners-summary__number strong {
   color: var(--ink);
   font-size: 18px;
@@ -1021,11 +1139,11 @@ a.st-learners__day-face:hover {
   }
 
   .st-learners__leader-face {
-    grid-template-columns: 30px minmax(0, 1fr);
+    grid-template-columns: 30px 30px minmax(0, 1fr);
   }
 
   .st-learners__leader-pics {
-    grid-column: 2;
+    grid-column: 3;
   }
 
   .st-learners__history-face {

@@ -12,6 +12,7 @@ import {
   endWords,
   lastedFor,
   learnerTag,
+  letterOf,
   periodLabel,
   periodRange,
   spoken,
@@ -209,6 +210,42 @@ describe('buildReport for Oct 2', () => {
       ['u10', 1, 0],
       ['u09', 1, 0],
     ])
+  })
+
+  it('narrows to the learners who finished one lesson', () => {
+    const cloud = buildReport(events, { period: 'day', date: '2026-10-02', lesson: 'cloud', now: later })
+    expect(cloud.sessions.map((session) => session.key).sort()).toEqual(['u03', 'u04'])
+    expect(cloud.leaders.map((session) => session.key)).toEqual(['u03', 'u04'])
+    expect(cloud.numbers.find((entry) => entry.key === 'installs')?.value).toBe(1)
+    expect(cloud.mostDrawn.find((drawn) => drawn.lesson === 'cloud')?.count).toBe(4)
+    expect(buildReport(events, { period: 'day', date: '2026-10-02', lesson: 'rocket', now: later }).sessions).toEqual([])
+  })
+
+  it('narrows to those a number counts, and keeps the numbers as they are', () => {
+    const price = buildReport(events, { period: 'day', date: '2026-10-02', only: 'price', now: later })
+    expect(price.sessions.map((session) => session.key).sort()).toEqual(['u07', 'u09', 'u10'])
+    expect(price.numbers).toEqual(report.numbers)
+    expect(price.journey.find((stage) => stage.key === 'installed')).toMatchObject({ children: 1, teens: 2 })
+    const photos = buildReport(events, { period: 'day', date: '2026-10-02', only: 'photos', now: later })
+    expect(photos.leaders.map((session) => session.key)).toEqual(['u03', 'u04'])
+    expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'installs', now: later }).sessions).toHaveLength(6)
+    expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'bought', now: later }).sessions).toEqual([])
+  })
+
+  it('gives every learner a letter in the order they first opened the app, kept when narrowed', () => {
+    expect(report.leaders.map((session) => session.letter)).toEqual(['B', 'C', 'A', 'E', 'G', 'F'])
+    const price = buildReport(events, { period: 'day', date: '2026-10-02', only: 'price', now: later })
+    expect(price.sessions.map((session) => session.letter)).toEqual(['G', 'F', 'E'])
+    const cloud = buildReport(events, { period: 'day', date: '2026-10-02', lesson: 'cloud', now: later })
+    expect(cloud.leaders.map((session) => session.letter)).toEqual(['B', 'C'])
+    const teens = buildReport(events, { period: 'day', date: '2026-10-02', who: 'teens', now: later })
+    expect(teens.sessions.map((session) => session.letter)).toEqual(['F', 'E'])
+  })
+
+  it('names letters past Z, and colors learners in turn so neighbors differ', () => {
+    expect([0, 25, 26, 27, 51, 52].map(letterOf)).toEqual(['A', 'Z', 'AA', 'AB', 'AZ', 'BA'])
+    const colors = [...report.sessions].sort((a, b) => a.start - b.start).map((session) => session.color)
+    expect(colors).toEqual([0, 1, 2, 3, 4, 5, 6])
   })
 
   it('tags a 13+ learner so they can be told apart across days, and never a child', () => {

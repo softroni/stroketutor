@@ -13,6 +13,21 @@ for a kept photo, a tap on a locked lesson and a wish.
 
 <img src="day.png" width="900">
 
+Every learner has a letter on the page in their own color (A, B… in the order they first opened the app), the same
+on their session, on the leaderboard and in their history; a learner 13 or over wears a ring.
+
+## Narrowing it
+
+A tap on a picture in Most drawn shows only the learners who finished that lesson, and picks it out wherever it was
+drawn ("Drew Cloud ✕" undoes it):
+
+<img src="filter-lesson.png" width="900">
+
+A tap on a number shows only the learners it counts (here, who saw a price); the numbers stay as they are, and
+Sessions shows everyone again. Today's numbers and pictures open the page already narrowed.
+
+<img src="filter-number.png" width="900">
+
 ## Top learners
 
 Who finished most lessons in the period, with the lessons as pictures. A child's id lasts one launch, so a child

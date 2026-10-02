@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 
 import { readLearnerHistory, readLearners } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
@@ -18,6 +18,7 @@ import {
   periodRange,
   type LearnerHistory,
   PERIODS,
+  type Only,
   previousLabel,
   stepPeriod,
   timeOf,
@@ -92,7 +93,21 @@ export function useLearnerEvents(period: Period, day: string, available: boolean
  * opens into a timeline in words. Children stay anonymous: an age band, times and
  * lessons, nothing else.
  */
-export function LearnersView({ period, date, library }: { period: Period; date: string | null; library: Library }) {
+export function LearnersView({
+  period,
+  date,
+  lesson = null,
+  only = null,
+  library,
+}: {
+  period: Period
+  date: string | null
+  /** From the address (`?lesson=`): only the learners who finished it. */
+  lesson?: string | null
+  /** From the address (`?only=`): only the learners one number counts. */
+  only?: Only | null
+  library: Library
+}) {
   const today = dayOf(Date.now())
   const day = date ?? today
   const { response, error } = useLearnerEvents(period, day, library.writable)
@@ -105,10 +120,22 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
   const report = useMemo(
     () =>
       response?.configured && response.events
-        ? buildReport(response.events, { period, date: day, who, source, now: Date.now() })
+        ? buildReport(response.events, { period, date: day, who, source, lesson, only, now: Date.now() })
         : null,
-    [response, period, day, who, source],
+    [response, period, day, who, source, lesson, only],
   )
+  /** The same view somewhere else: what is not named stays as it is, the lesson and the number it is narrowed to included. */
+  const here = (next: { period?: Period; date?: string | null; lesson?: string | null; only?: Only | null }) => {
+    const pickedLesson = next.lesson === undefined ? lesson : next.lesson
+    const pickedOnly = next.only === undefined ? only : next.only
+    return routeHref({
+      name: 'learners',
+      period: next.period ?? period,
+      date: next.date === undefined ? date : next.date,
+      ...(pickedLesson ? { lesson: pickedLesson } : {}),
+      ...(pickedOnly ? { only: pickedOnly } : {}),
+    })
+  }
 
   if (!library.writable) {
     return (
@@ -142,7 +169,7 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
             {PERIODS.map((candidate) => (
               <a
                 key={candidate}
-                href={routeHref({ name: 'learners', period: candidate, date })}
+                href={here({ period: candidate })}
                 aria-current={candidate === period ? 'page' : undefined}
               >
                 {PERIOD_NAMES[candidate]}
@@ -151,7 +178,7 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
           </div>
           <div className="st-learners__stepper">
             <a
-              href={routeHref({ name: 'learners', period, date: stepPeriod(period, day, -1) })}
+              href={here({ date: stepPeriod(period, day, -1) })}
               aria-label={`The ${period} before`}
             >
               ‹
@@ -162,12 +189,12 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
                 ›
               </span>
             ) : (
-              <a href={routeHref({ name: 'learners', period, date: next > today ? null : next })} aria-label={`The ${period} after`}>
+              <a href={here({ date: next > today ? null : next })} aria-label={`The ${period} after`}>
                 ›
               </a>
             )}
             {reachesToday ? null : (
-              <a className="st-learners__now" href={routeHref({ name: 'learners', period, date: null })}>
+              <a className="st-learners__now" href={here({ date: null })}>
                 {period === 'day' ? 'Today' : period === 'week' ? 'This week' : 'This month'}
               </a>
             )}
@@ -178,6 +205,18 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
       <div className="st-learners__filters">
         <Chips label="Who" value={who} names={WHO_NAMES} onChange={setWho} />
         <Chips label="Source" value={source} names={SOURCE_NAMES} onChange={setSource} />
+        {lesson ? (
+          <a className="st-learners__drew" href={here({ lesson: null })} aria-label={`Stop showing only who drew ${titleOf(library, lesson)}`}>
+            Drew <LessonPicture library={library} lesson={lesson} size="tiny" /> {titleOf(library, lesson)}
+            <span aria-hidden="true">✕</span>
+          </a>
+        ) : null}
+        {only ? (
+          <a className="st-learners__drew" href={here({ only: null })} aria-label={`Stop showing only ${ONLY_WORDS[only]}`}>
+            Only {ONLY_WORDS[only]}
+            <span aria-hidden="true">✕</span>
+          </a>
+        ) : null}
       </div>
 
       {error ? <p className="st-notice">The Studio server did not answer: {error}</p> : null}
@@ -186,11 +225,11 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
       {!response && !error ? <p className="st-learners__muted">Asking PostHog…</p> : null}
 
       {report ? (
-        <>
-          <Numbers report={report} />
+        <Picked.Provider value={lesson}>
+          <Numbers report={report} only={only} href={(key) => here({ only: key === 'sessions' || key === only ? null : key })} />
           <div className="st-learners__pair">
             <Journey report={report} />
-            <MostDrawn report={report} library={library} />
+            <MostDrawn report={report} library={library} picked={lesson} href={(drawn) => here({ lesson: drawn === lesson ? null : drawn })} />
           </div>
           <Leaders
             report={report}
@@ -204,11 +243,12 @@ export function LearnersView({ period, date, library }: { period: Period; date: 
               library={library}
               opened={opened}
               onToggle={(key) => setOpened((current) => (current === key ? null : key))}
+              empty={lesson || only ? 'Nobody like that on this day.' : 'Nobody opened the app on this day.'}
             />
           ) : (
-            <Days report={report} library={library} today={today} />
+            <Days report={report} library={library} today={today} dayHref={(candidate) => here({ period: 'day', date: candidate })} />
           )}
-        </>
+        </Picked.Provider>
       ) : null}
     </div>
   )
@@ -270,28 +310,95 @@ function ConnectPostHog({ problem }: { problem: string | null }) {
 
 // ---------- The numbers ----------
 
-function Numbers({ report }: { report: LearnersReport }) {
+/** What the page says it is showing, once a number has narrowed it. */
+const ONLY_WORDS: Record<Only, string> = {
+  installs: 'new installs',
+  lessons: 'who finished a lesson',
+  photos: 'who kept a photo',
+  price: 'who saw a price',
+  bought: 'who started a trial or bought',
+}
+
+/**
+ * The period in six numbers, each against the one before. A number is also a way in:
+ * a tap narrows everything under it to the learners it counts (Sessions, which counts
+ * everyone, shows everyone again), and a second tap undoes it. The numbers themselves
+ * stay put, so each keeps saying how many there are of its kind.
+ */
+function Numbers({
+  report,
+  only,
+  href,
+}: {
+  report: LearnersReport
+  only: Only | null
+  href: (key: ReportNumber['key']) => string
+}) {
   const before = previousLabel(report.period, report.date)
   return (
     <section className="st-learners__numbers" aria-label="Numbers">
       {report.numbers.map((number) => (
-        <NumberTile key={number.key} number={number} before={before} />
+        <NumberTile
+          key={number.key}
+          number={number}
+          before={before}
+          href={href(number.key)}
+          picked={number.key === only}
+          hint={number.key === 'sessions' || number.key === only ? 'show everyone' : `show only ${ONLY_WORDS[number.key]}`}
+        />
       ))}
     </section>
   )
 }
 
-function NumberTile({ number, before }: { number: ReportNumber; before: string }) {
+function NumberTile({
+  number,
+  before,
+  href,
+  picked,
+  hint,
+}: {
+  number: ReportNumber
+  before: string
+  href: string
+  picked: boolean
+  hint: string
+}) {
   const tone = number.value === number.previous ? 'same' : number.value > number.previous ? 'up' : 'down'
   return (
-    <div className="st-learners__stat">
+    <a
+      className="st-learners__stat"
+      href={href}
+      aria-current={picked ? 'true' : undefined}
+      aria-label={`${number.value} ${number.label.toLowerCase()}, ${number.sub}, ${compared(number.value, number.previous, before)}: ${hint}`}
+    >
       <span className="st-learners__stat-value">{number.value}</span>
       <span className="st-learners__stat-label">{number.label}</span>
       <span className="st-learners__stat-sub">{number.sub}</span>
       <span className={`st-learners__stat-delta st-learners__stat-delta--${tone}`}>
         {compared(number.value, number.previous, before)}
       </span>
-    </div>
+    </a>
+  )
+}
+
+/**
+ * Who a session or a leader is, at a glance: their letter on this page in their own
+ * color, the same wherever they appear on it. A learner 13 or over, who can be
+ * followed from day to day, wears a ring (and their #tag, which never changes).
+ */
+function LearnerAvatar({ session }: { session: LearnerSession }) {
+  const tag = learnerTag(session)
+  const label = [`Learner ${session.letter ?? ''}`.trim(), tag, ageLabel(session.age)].filter(Boolean).join(', ')
+  return (
+    <span
+      className={`st-learners__avatar st-learners__avatar--${session.color ?? 0}${session.child ? '' : ' st-learners__avatar--known'}`}
+      role="img"
+      aria-label={label}
+      title={label}
+    >
+      {session.letter ?? '•'}
+    </span>
   )
 }
 
@@ -346,20 +453,41 @@ function Journey({ report }: { report: LearnersReport }) {
 
 // ---------- Most drawn ----------
 
-function MostDrawn({ report, library }: { report: LearnersReport; library: Library }) {
+/** The lessons finished most, as pictures; a tap shows only the learners who finished that one, and a second tap everyone again. */
+function MostDrawn({
+  report,
+  library,
+  picked,
+  href,
+}: {
+  report: LearnersReport
+  library: Library
+  picked: string | null
+  href: (lesson: string) => string
+}) {
   return (
     <section className="st-learners__panel" aria-labelledby="learners-drawn">
       <div className="st-learners__panel-head">
         <h2 id="learners-drawn" className="st-learners__h2">
           Most drawn
         </h2>
+        <span className="st-learners__muted">
+          {picked ? `By those who drew ${titleOf(library, picked)}. Tap it again for everyone.` : 'Tap one to see who drew it.'}
+        </span>
       </div>
       {report.mostDrawn.length ? (
         <ul className="st-learners__drawn">
           {report.mostDrawn.map((drawn) => (
             <li key={drawn.lesson}>
-              <LessonPicture library={library} lesson={drawn.lesson} size="large" />
-              <span className="st-learners__times">×{drawn.count}</span>
+              <a
+                className="st-learners__drawn-pick"
+                href={href(drawn.lesson)}
+                aria-current={drawn.lesson === picked ? 'true' : undefined}
+                aria-label={`${titleOf(library, drawn.lesson)}, finished ${drawn.count} ${drawn.count === 1 ? 'time' : 'times'}: ${drawn.lesson === picked ? 'show everyone' : 'show who drew it'}`}
+              >
+                <LessonPicture library={library} lesson={drawn.lesson} size="large" />
+                <span className="st-learners__times">×{drawn.count}</span>
+              </a>
             </li>
           ))}
         </ul>
@@ -375,6 +503,14 @@ function MostDrawn({ report, library }: { report: LearnersReport; library: Libra
 type PictureState = 'finished' | 'started' | 'locked'
 type Badge = 'kept' | 'crown' | 'wish'
 
+/** The lesson the page is narrowed to, picked out wherever it is drawn. */
+const Picked = createContext<string | null>(null)
+
+/** A lesson's title, or its id when the library has no such lesson. */
+function titleOf(library: Library, lesson: string): string {
+  return library.tutorials.get(lesson)?.tutorial.title ?? lesson
+}
+
 /** A lesson as the app draws it, on white paper; dashed and faded when it was not finished. */
 export function LessonPicture({
   library,
@@ -385,17 +521,23 @@ export function LessonPicture({
 }: {
   library: Library
   lesson: string
-  size?: 'small' | 'medium' | 'large'
+  size?: 'tiny' | 'small' | 'medium' | 'large'
   state?: PictureState
   badge?: Badge
 }) {
+  const picked = useContext(Picked) === lesson
   const entry = library.tutorials.get(lesson)
   const title = entry?.tutorial.title ?? lesson
   const label = [title, state === 'started' ? 'not finished' : state === 'locked' ? 'locked' : null, badge ? BADGE_WORDS[badge] : null]
     .filter(Boolean)
     .join(', ')
   return (
-    <span className={`st-learners__pic st-learners__pic--${size} st-learners__pic--${state}`} role="img" aria-label={label} title={label}>
+    <span
+      className={`st-learners__pic st-learners__pic--${size} st-learners__pic--${state}${picked ? ' st-learners__pic--picked' : ''}`}
+      role="img"
+      aria-label={label}
+      title={label}
+    >
       <span className="st-learners__pic-paper">
         {entry ? <FinishedDrawing tutorial={entry.tutorial} /> : <span className="st-learners__pic-missing">{title}</span>}
       </span>
@@ -432,11 +574,14 @@ function Sessions({
   library,
   opened,
   onToggle,
+  empty,
 }: {
   sessions: LearnerSession[]
   library: Library
   opened: string | null
   onToggle: (key: string) => void
+  /** What to say when there is nobody. */
+  empty: string
 }) {
   return (
     <section className="st-learners__section" aria-labelledby="learners-sessions">
@@ -459,7 +604,7 @@ function Sessions({
           ))}
         </ol>
       ) : (
-        <p className="st-learners__muted">Nobody opened the app on this day.</p>
+        <p className="st-learners__muted">{empty}</p>
       )}
     </section>
   )
@@ -493,6 +638,7 @@ function SessionRow({
     <li className={`st-learners__session${open ? ' st-learners__session--open' : ''}`}>
       <button type="button" className="st-learners__session-face" aria-expanded={open} onClick={onToggle}>
         <span className="st-learners__session-top">
+          <LearnerAvatar session={session} />
           <span className="st-learners__session-time">{timeOf(session.start)}</span>
           <span className="st-learners__session-tag">{tag}</span>
           <span className="st-learners__session-end">
@@ -673,6 +819,7 @@ function Leaders({
             <li key={session.key} className={`st-learners__leader${open ? ' st-learners__leader--open' : ''}`}>
               <button type="button" className="st-learners__leader-face" aria-expanded={open} onClick={() => onToggle(leaderKey(session.key))}>
                 <span className={`st-learners__rank st-learners__rank--${index < 3 ? index + 1 : 'rest'}`}>{index + 1}</span>
+                <LearnerAvatar session={session} />
                 <span className="st-learners__leader-who">
                   <span className="st-learners__leader-name">{who}</span>
                   <span className="st-learners__leader-figures">{figures}</span>
@@ -748,7 +895,7 @@ function History({ session, library }: { session: LearnerSession; library: Libra
   return (
     <section className="st-learners__history" aria-label={`Every visit of ${learnerTag(session) ?? 'this learner'}`}>
       <h3 className="st-learners__history-title">
-        Every visit of {learnerTag(session)} <span>{summary}</span>
+        <LearnerAvatar session={session} /> Every visit of {learnerTag(session)} <span>{summary}</span>
       </h3>
       {days === 1 ? <p className="st-learners__muted">This is their only day so far.</p> : null}
       <ol className="st-learners__history-days">
@@ -806,7 +953,17 @@ function History({ session, library }: { session: LearnerSession; library: Libra
 
 const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'UTC' })
 
-function Days({ report, library, today }: { report: LearnersReport; library: Library; today: string }) {
+function Days({
+  report,
+  library,
+  today,
+  dayHref,
+}: {
+  report: LearnersReport
+  library: Library
+  today: string
+  dayHref: (day: string) => string
+}) {
   const most = Math.max(1, ...report.days.map((day) => day.lessons))
   // A month starts in its weekday's column, so the grid reads like a calendar.
   const lead = report.period === 'month' ? (new Date(`${report.from}T12:00:00Z`).getUTCDay() + 6) % 7 : 0
@@ -820,7 +977,15 @@ function Days({ report, library, today }: { report: LearnersReport; library: Lib
       </div>
       <ol className="st-learners__days" style={{ '--lead': lead } as CSSProperties}>
         {report.days.map((day, index) => (
-          <DayCell key={day.day} day={day} most={most} library={library} future={day.day > today} first={index === 0} />
+          <DayCell
+            key={day.day}
+            day={day}
+            most={most}
+            library={library}
+            future={day.day > today}
+            first={index === 0}
+            href={dayHref(day.day)}
+          />
         ))}
       </ol>
     </section>
@@ -833,12 +998,14 @@ function DayCell({
   library,
   future,
   first,
+  href,
 }: {
   day: DaySummary
   most: number
   library: Library
   future: boolean
   first: boolean
+  href: string
 }) {
   const date = new Date(`${day.day}T12:00:00Z`)
   const face = (
@@ -864,7 +1031,7 @@ function DayCell({
       {future ? (
         <span className="st-learners__day-face st-learners__day-face--future">{face}</span>
       ) : (
-        <a className="st-learners__day-face" href={routeHref({ name: 'learners', period: 'day', date: day.day })}>
+        <a className="st-learners__day-face" href={href}>
           {face}
         </a>
       )}
@@ -884,7 +1051,8 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
     () => (response?.configured ? buildReport(response.events, { period: 'day', date: day, now: Date.now() }) : null),
     [response, day],
   )
-  const href = routeHref({ name: 'learners', period: 'day', date: day === dayOf(Date.now()) ? null : day })
+  const date = day === dayOf(Date.now()) ? null : day
+  const href = routeHref({ name: 'learners', period: 'day', date })
   return (
     <section className="st-today__section st-learners-summary" aria-labelledby="today-learners">
       <div className="st-learners-summary__head">
@@ -903,17 +1071,27 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
         <>
           <div className="st-learners-summary__numbers">
             {report.numbers.map((number) => (
-              <span key={number.key} className="st-learners-summary__number">
+              <a
+                key={number.key}
+                className="st-learners-summary__number"
+                href={routeHref({ name: 'learners', period: 'day', date, ...(number.key === 'sessions' ? {} : { only: number.key }) })}
+              >
                 <strong>{number.value}</strong> {number.label.toLowerCase()}
-              </span>
+              </a>
             ))}
           </div>
           {report.mostDrawn.length ? (
             <ul className="st-learners__drawn st-learners__drawn--compact" aria-label="Drawn most">
               {report.mostDrawn.slice(0, 10).map((drawn) => (
                 <li key={drawn.lesson}>
-                  <LessonPicture library={library} lesson={drawn.lesson} size="medium" />
-                  <span className="st-learners__times">×{drawn.count}</span>
+                  <a
+                    className="st-learners__drawn-pick"
+                    href={routeHref({ name: 'learners', period: 'day', date, lesson: drawn.lesson })}
+                    aria-label={`${titleOf(library, drawn.lesson)}, finished ${drawn.count} ${drawn.count === 1 ? 'time' : 'times'}: see who drew it`}
+                  >
+                    <LessonPicture library={library} lesson={drawn.lesson} size="medium" />
+                    <span className="st-learners__times">×{drawn.count}</span>
+                  </a>
                 </li>
               ))}
             </ul>

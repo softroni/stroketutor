@@ -165,7 +165,15 @@ export function Studio() {
         screen = <TodayView day={route.day} available={library.writable} library={library} />
         break
       case 'learners':
-        screen = <LearnersView period={route.period} date={route.date} library={library} />
+        screen = (
+          <LearnersView
+            period={route.period}
+            date={route.date}
+            lesson={route.lesson ?? null}
+            only={route.only ?? null}
+            library={library}
+          />
+        )
         break
       case 'social':
         screen = <SocialView library={library} />
