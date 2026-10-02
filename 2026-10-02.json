@@ -1,6 +1,6 @@
 {
-  "updated": "2026-10-01T23:34:55-05:00",
-  "headline": "1.1 is still waiting for Apple's review. Claude is now running ads and sales: the ad bids were too low to win any auction, so they went up today inside the $150 learning budget, and the paywall copy gets fixed before 1.1 goes live.",
+  "updated": "2026-10-02T00:07:56-05:00",
+  "headline": "1.1 has waited two days for Apple's review; nothing is broken. One new learner came on Oct 1 and left at the age question, and the ads bids went up again because they still win few auctions.",
   "app": {
     "live": {
       "version": "1.0",
@@ -28,13 +28,9 @@
     {
       "label": "Installs",
       "value": "0",
-      "period": "Sep 30",
-      "detail": "14 days: 0",
+      "period": "Oct 1",
+      "detail": "14 days: 2",
       "series": [
-        {
-          "day": "2026-09-17",
-          "value": 0
-        },
         {
           "day": "2026-09-18",
           "value": 0
@@ -85,6 +81,10 @@
         },
         {
           "day": "2026-09-30",
+          "value": 2
+        },
+        {
+          "day": "2026-10-01",
           "value": 0
         }
       ],
@@ -93,78 +93,9 @@
     {
       "label": "Proceeds",
       "value": "$0.00",
-      "period": "Sep 30",
-      "detail": "14 days: $0.00",
-      "series": [
-        {
-          "day": "2026-09-17",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-18",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-19",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-20",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-21",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-22",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-23",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-24",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-25",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-26",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-27",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-28",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-29",
-          "value": 0.0
-        },
-        {
-          "day": "2026-09-30",
-          "value": 0.0
-        }
-      ],
-      "source": "App Store"
-    },
-    {
-      "label": "Ad spend",
-      "value": "$0.00",
       "period": "Oct 1",
       "detail": "14 days: $0.00",
       "series": [
-        {
-          "day": "2026-09-17",
-          "value": 0.0
-        },
         {
           "day": "2026-09-18",
           "value": 0.0
@@ -222,20 +153,89 @@
           "value": 0.0
         }
       ],
+      "source": "App Store"
+    },
+    {
+      "label": "Ad spend",
+      "value": "$0.00",
+      "period": "Oct 2",
+      "detail": "14 days: $1.88",
+      "series": [
+        {
+          "day": "2026-09-18",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-19",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-20",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-21",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-22",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-23",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-24",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-25",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-26",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-27",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-28",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-29",
+          "value": 0.0
+        },
+        {
+          "day": "2026-09-30",
+          "value": 0.0
+        },
+        {
+          "day": "2026-10-01",
+          "value": 1.88
+        },
+        {
+          "day": "2026-10-02",
+          "value": 0.0
+        }
+      ],
       "source": "Apple Ads"
     },
     {
       "label": "First opens",
-      "value": "3",
+      "value": "4",
       "period": "since 30 Sep",
-      "detail": "real learners on 1.0, release builds; 2 more opens were 1.1 test builds",
+      "detail": "real learners on 1.0, release builds; 1 on Oct 1, who left at the age question",
       "source": "PostHog"
     },
     {
       "label": "Drawings finished",
       "value": "3",
       "period": "since 30 Sep",
-      "detail": "Pine Tree, School Bus, Watermelon Slice; a Donut was started and left",
+      "detail": "Pine Tree, School Bus, Watermelon Slice, all on Sep 30",
       "source": "PostHog"
     },
     {
@@ -258,7 +258,7 @@
     "steps": [
       {
         "label": "First open",
-        "value": 3
+        "value": 4
       },
       {
         "label": "Age answered",
@@ -298,7 +298,7 @@
     {
       "title": "1.1 release",
       "state": "waiting",
-      "detail": "Submitted 2026-09-30 4:16 PM with Premium Lifetime; still waiting for review at midnight. Phased release after approval."
+      "detail": "Submitted 2026-09-30 4:16 PM with Premium Lifetime; still waiting for review at midnight Oct 2 (about 51 hours). Phased release after approval."
     },
     {
       "title": "Remind Kevin the moment 1.1 is on sale",
@@ -308,17 +308,17 @@
     {
       "title": "Apple Ads: the $150 learning budget",
       "state": "running",
-      "detail": "Oct 1: exact keywords had 0 impressions at $0.50-1.00, so Category bids went to $1.20-2.25, Discovery broad to $0.90, three adult terms added, Competitors paused; $13 a day. Goal: cost per install and per paywall reached by keyword. Stop at $140; plan for more to Kevin at $100 or Oct 9."
+      "detail": "$1.88 spent so far: 2 taps (how to draw at $1.59, a junk search in Discovery), no installs. Oct 2: exact bids up $0.25 by the ladder (learn to draw $2.50, how to draw $2.25), 3 junk searches excluded. Stop at $140; plan to Kevin at $100 or Oct 9."
     },
     {
       "title": "First real learners",
       "state": "running",
-      "detail": "3 first opens on 1.0 on launch day; all 3 finished onboarding and a drawing (Pine Tree, School Bus, Watermelon Slice). One learner 13+ saw the onboarding offer and left at the yearly plan. No crashes."
+      "detail": "4 first opens on 1.0 since launch: the 3 on Sep 30 each finished a drawing; the one on Oct 1 went back and forth through the intro for two minutes and left at the age question. No crashes, no purchases."
     },
     {
       "title": "Lesson videos on social",
       "state": "running",
-      "detail": "Pine Tree is up on all seven platforms; its step pin goes to Pinterest at 3 AM. Every account connected. Daily 5 PM posts start today with Watermelon Slice, then Pirate Ship (Premium) on Oct 2."
+      "detail": "Watermelon Slice went to all seven platforms on Oct 1 (Pinterest on a second try), and the 16:9 overview of 1.0 too. Pirate Ship, the first Premium lesson, goes out at 5 PM on Oct 2."
     },
     {
       "title": "Onboarding funnel tile",
@@ -347,6 +347,21 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-10-02T00:07:55-05:00",
+      "text": "Daily check: 1.1 still waiting for review; 1 new learner on Oct 1, left at the age question; no crashes",
+      "kind": "check"
+    },
+    {
+      "at": "2026-10-02T00:07:55-05:00",
+      "text": "Apple Ads: excluded the junk searches dwelo, s.mple and pantograph from Discovery",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-02T00:07:55-05:00",
+      "text": "Apple Ads: exact bids up $0.25 by the ladder (learn to draw $2.50, how to draw $2.25); kids terms at their cap",
+      "kind": "ads"
+    },
     {
       "at": "2026-10-01T23:34:54-05:00",
       "text": "Social: 16:9 video (“Learn to draw step by step, on real paper: Paper Coach”) posted on 7 platforms."
@@ -508,18 +523,6 @@
     {
       "at": "2026-09-30T14:40:33-05:00",
       "text": "Built next-builds item 4 on main (6ae5669): learners 13 and over are asked for an App Store rating two seconds after a finished drawing, from their third on, never in their first session, at most once per version per device; never a child, the first run, screenshots or tests. rating_prompt_requested goes to PostHog. Ships with 1.1; 1.1's third box is ticked."
-    },
-    {
-      "at": "2026-09-30T14:37:09-05:00",
-      "text": "Built next-builds item 1 on main (508ec63): any product in Premium's subscription group 22413930 now unlocks Premium, purchase_attempted reports a product's plan by its period, and 'Your free week has started' names the price of the product the week began on. Ships with 1.1; 1.1's second box is ticked. Until 1.1 is on sale, no new product may go on a paywall."
-    },
-    {
-      "at": "2026-09-30T14:31:28-05:00",
-      "text": "Prices: $29.99/year and $3.99/week for new subscribers from Oct 2 (set by Kevin, all 175 storefronts, existing subscribers keep theirs); repo updated"
-    },
-    {
-      "at": "2026-09-30T14:09:25-05:00",
-      "text": "Kevin added Crash Data and Performance Data to App Privacy. 1.0.1 dropped: 1.1 carries it, with Urban, the photo modes and next-builds items 1 and 4 (docs/releases/1.1.md)"
     }
   ],
   "experiments": [
@@ -567,15 +570,15 @@
   ],
   "ads": {
     "state": "running",
-    "note": "Learning budget: $150 in all until Kevin approves more; Claude stops at $140. Oct 1: bids raised to $1.20-2.25 (they won no auctions at $0.50-1.00), Competitors paused, $13 a day. Plan for more at $100 or Oct 9.",
+    "note": "Learning budget: $150 in all until Kevin approves more; Claude stops at $140. $1.88 spent, 2 taps, no installs yet. Oct 2: exact bids up $0.25 (ladder), junk searches excluded in Discovery. Plan for more at $100 or Oct 9.",
     "dailyCap": 13,
-    "spentToDate": 0,
+    "spentToDate": 1.88,
     "earnedToDate": 0,
     "spendCeiling": 150,
     "campaigns": [
       {
         "name": "PC - US - Competitors",
-        "status": "running",
+        "status": "paused",
         "spend": 0.0,
         "installs": 0,
         "costPerInstall": null
@@ -583,7 +586,7 @@
       {
         "name": "PC - US - Category",
         "status": "running",
-        "spend": 0.0,
+        "spend": 1.59,
         "installs": 0,
         "costPerInstall": null
       },
@@ -597,7 +600,7 @@
       {
         "name": "PC - US - Discovery",
         "status": "running",
-        "spend": 0.0,
+        "spend": 0.29,
         "installs": 0,
         "costPerInstall": null
       }
@@ -627,14 +630,10 @@
     }
   ],
   "next": {
-    "at": "2026-10-02T00:00:00-05:00",
+    "at": "2026-10-03T00:00:00-05:00",
     "what": "Daily check and summary"
   },
   "upcoming": [
-    {
-      "at": "2026-10-01T17:00:00-05:00",
-      "what": "First daily lesson video: Watermelon Slice, to all seven platforms"
-    },
     {
       "at": "2026-10-02",
       "what": "Prices rise to $29.99 a year and $3.99 a week for new subscribers"
