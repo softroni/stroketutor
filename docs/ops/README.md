@@ -232,6 +232,14 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 - Through Superwall's proxy: `superwall asa … --app 54792` (GeoBlitz's connection reaches the
   Softroni LLC org, 20605790, pay as you go). Paper Coach is adam id `6816231257`; Apple Ads can't see
   it until it is on sale.
+- **Never to children (Kevin, 2026-10-03).** Apple Ads serves no ads to Apple Accounts registered to children
+  under 13, or to Managed Apple Accounts, whatever the settings, and it lets no one target under-18s (age
+  targeting starts at 18 in the US) ([Apple Ads and privacy](https://ads.apple.com/app-store/help/advanced/0029-apple-search-ads-and-privacy)).
+  So the ads stay where that holds: **Apple Ads in the App Store only.** Paper Coach's ad groups set no age
+  targeting on purpose: adding any (even 18+) also drops everyone with Personalized Ads off, most of the reach,
+  and changes nothing for under-13s. Keywords for kids ("kids drawing") are bought for the adults and teens who
+  search them. Ads anywhere else (social, web, other networks) would be new spending, so Kevin's decision, and
+  must exclude under-13s there too.
 - **Start:** US only, **$10 a day** across the campaigns, the day 1.0 is approved, as
   [apple-ads-plan.md](apple-ads-plan.md) lays out.
 - **Budget rule (Kevin, 2026-10-01):** total ad spend stays at or below **$150** until Kevin approves more.
