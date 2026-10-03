@@ -522,7 +522,7 @@ export const DOC_TOOLS: DocTool[] = [
     kind: 'mcp',
     name: 'PostHog',
     about:
-      'The app’s analytics: what learners do, the onboarding funnel, paywall steps, crashes and hangs. Claude reads it every night for the daily check, and the Studio’s Learners page reads it live, with its own read-only key.',
+      'The app’s analytics: what learners do, the onboarding funnel, paywall steps, crashes and hangs, and the taps on the social profile links (softroni.com/…/papercoach). Claude reads it every night for the daily check, and the Studio’s Learners page reads it live, with its own read-only key.',
     where: 'claude.ai connector · project 629055 · the Studio, with `POSTHOG_PERSONAL_API_KEY`',
     usedBy: 'Claude, and the Learners page',
     tips: [

@@ -425,7 +425,8 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - [x] App Store Connect acquisition pull: daily totals by source, weekly and monthly per campaign (`acquisition.py`,
   2026-10-01).
 - [x] Tap counter on the seven profile links, with the privacy policy's "Our website" wording (Kevin's yes,
-  2026-10-01): each tap is a PostHog `social_link_opened` event, cookie-less and anonymous.
+  2026-10-01): each tap is a PostHog `social_link_opened` event, cookie-less and anonymous. The Studio's Learners
+  page shows them by platform under *Where from* (2026-10-02).
 - [ ] Captions that open with the search phrase, 5 tags, the YouTube line, the Facebook link check. (Board names
   stay: renaming one in code would make a second board, since `boardFor` matches by name.)
 - [ ] E1, the new opening, default from Oct 5.

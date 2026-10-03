@@ -44,7 +44,10 @@ every scheduled run follows it.
   bought) and the children's way through the grown-ups' check; the test is still judged in Superwall.
   *Ages* charts the learners by age band (`?age=`), and the Who chips have 18+.
   Where from also shows Apple Ads' spend, taps and installs per keyword (`superwall asa reports`, kept 15 min while
-  the day runs) and the cost per learner, per paywall reached and per buyer.
+  the day runs) and the cost per learner, per paywall reached and per buyer. Under it, *Social profile links*: the
+  period's taps on softroni.com/…/papercoach by platform and the app each opened in (PostHog `social_link_opened`,
+  people only; bots and `#test` taps are left out and counted). A tap is not a learner, so nothing narrows it, and
+  links inside posts go straight to the App Store, so they are not in it.
   *Before buying* compares what buyers, buy-tappers, those who left at a price and those who never saw one had done
   before the first price.
   A lesson finished faster than it can be drawn (its animation, or 3 s a step) with no photo kept is "tapped through"

@@ -338,6 +338,26 @@ export interface AdSpendResponse {
   problem: string | null
 }
 
+/** Taps on Softroni's social profile links over some days, counted by what each tap's page saw. */
+export interface SocialTapRow {
+  /** The profile's platform, from its campaign: `tiktok`, `instagram`, `threads`, `x`, `facebook`, `youtube`, `pinterest`. */
+  platform: string
+  /** The App Store campaign the link carries: `tiktok-bio`… */
+  campaign: string
+  /** `human`; `bot` (a crawler or a link preview); `test` (a link opened with `#test`). */
+  traffic: string
+  /** The app whose browser opened the link (`tiktok`, `instagram`…), `webview` for another app's, or `browser`. */
+  inApp: string
+  taps: number
+}
+
+/** `/api/learners/social-taps?from=&to=`: the profile links' taps for those days (US Central), from PostHog. */
+export interface SocialTapsResponse {
+  rows: SocialTapRow[]
+  source: 'posthog' | 'sample' | null
+  problem: string | null
+}
+
 /** The names behind Superwall's ids, from `/api/learners/paywalls` (`web/server/paywallNames.ts`). */
 export interface PaywallNames {
   /** By paywall identifier: "Flow 1". */
@@ -1689,6 +1709,43 @@ export function adsTotal(rows: AdRowWithSpend[]) {
     total.bought += row.bought
   }
   total.spend = Math.round(total.spend * 100) / 100
+  return total
+}
+
+/** The profile links' taps in a period: people's, by platform, and what was left out. */
+export interface SocialTaps {
+  /** People's taps, most first, each with the apps the link was opened in, most first. */
+  platforms: { platform: string; taps: number; openedIn: { app: string; taps: number }[] }[]
+  /** People's taps in all. */
+  taps: number
+  /** Left out: crawlers and link previews, and tests (a link opened with `#test`). */
+  bots: number
+  tests: number
+}
+
+/** Adds up the profile links' taps: only `human` traffic counts as a person's tap. */
+export function socialTapsOf(rows: SocialTapRow[]): SocialTaps {
+  const platforms = new Map<string, { taps: number; apps: Map<string, number> }>()
+  const total: SocialTaps = { platforms: [], taps: 0, bots: 0, tests: 0 }
+  for (const row of rows) {
+    if (row.traffic === 'test') total.tests += row.taps
+    else if (row.traffic !== 'human') total.bots += row.taps
+    else {
+      total.taps += row.taps
+      const into = platforms.get(row.platform) ?? { taps: 0, apps: new Map<string, number>() }
+      into.taps += row.taps
+      into.apps.set(row.inApp, (into.apps.get(row.inApp) ?? 0) + row.taps)
+      platforms.set(row.platform, into)
+    }
+  }
+  const most = <Row extends { taps: number }>(a: Row, b: Row) => b.taps - a.taps
+  total.platforms = [...platforms]
+    .map(([platform, { taps, apps }]) => ({
+      platform,
+      taps,
+      openedIn: [...apps].map(([app, count]) => ({ app, taps: count })).sort(most),
+    }))
+    .sort(most)
   return total
 }
 

@@ -1,0 +1,15 @@
+{
+ "note": "Taps on the social profile links, day by day (US Central), as server/socialTaps.ts reads them from PostHog; for the sample events. Oct 1's test tap is PostHog's own; Oct 2's taps are made up, to show the rows.",
+ "days": {
+  "2026-10-01": [
+   { "platform": "tiktok", "campaign": "tiktok-bio", "traffic": "test", "inApp": "browser", "taps": 1 }
+  ],
+  "2026-10-02": [
+   { "platform": "tiktok", "campaign": "tiktok-bio", "traffic": "human", "inApp": "tiktok", "taps": 3 },
+   { "platform": "tiktok", "campaign": "tiktok-bio", "traffic": "human", "inApp": "browser", "taps": 1 },
+   { "platform": "instagram", "campaign": "instagram-bio", "traffic": "human", "inApp": "instagram", "taps": 2 },
+   { "platform": "threads", "campaign": "threads-bio", "traffic": "human", "inApp": "threads", "taps": 1 },
+   { "platform": "facebook", "campaign": "facebook-page", "traffic": "bot", "inApp": "browser", "taps": 2 }
+  ]
+ }
+}

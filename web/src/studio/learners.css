@@ -781,6 +781,19 @@
   font-size: 12px;
 }
 
+/* Social profile links: taps, not learners, so the rows are not links. */
+.st-learners__taps {
+  margin-top: 16px;
+}
+
+.st-learners__where-row--still:hover {
+  background: none;
+}
+
+.st-learners__taps-none {
+  margin-top: 0;
+}
+
 /* ---------- At the paywall ---------- */
 
 .st-learners__paywalls {

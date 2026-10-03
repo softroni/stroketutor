@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 
-import { readAdNames, readAdSpend, readLearnerHistory, readLearners, readPaywallNames } from './api'
+import { readAdNames, readAdSpend, readLearnerHistory, readLearners, readPaywallNames, readSocialTaps } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
 import {
   adKey,
@@ -53,6 +53,8 @@ import {
   type Period,
   type ReportNumber,
   type SessionItem,
+  type SocialTaps,
+  socialTapsOf,
   type Source,
   type TimelineLine,
   type Where,
@@ -261,6 +263,28 @@ function useAdSpend(period: Period, day: string, available: boolean, loadedAt: n
   return state.range === `${from}|${to}` ? state : { rows: [], problem: null }
 }
 
+const NO_TAPS: SocialTaps = { platforms: [], taps: 0, bots: 0, tests: 0 }
+
+/**
+ * Taps on the social profile links in the period, from PostHog; asked again whenever the
+ * events are (the server keeps the answer a minute while the day runs, as it does the events).
+ */
+function useSocialTaps(period: Period, day: string, available: boolean, loadedAt: number | null) {
+  const { from, to } = periodRange(period, day)
+  const [state, setState] = useState<{ range: string; taps: SocialTaps; problem: string | null }>({ range: '', taps: NO_TAPS, problem: null })
+  useEffect(() => {
+    if (!available) return
+    let live = true
+    readSocialTaps(from, to)
+      .then((response) => live && setState({ range: `${from}|${to}`, taps: socialTapsOf(response.rows), problem: response.problem }))
+      .catch((error: unknown) => live && setState({ range: `${from}|${to}`, taps: NO_TAPS, problem: error instanceof Error ? error.message : String(error) }))
+    return () => {
+      live = false
+    }
+  }, [available, from, to, loadedAt])
+  return state.range === `${from}|${to}` ? state : null
+}
+
 const NO_PAYWALL_NAMES: PaywallNames = { paywalls: {}, variants: {}, placements: {} }
 /** The names behind Superwall's paywall and test-version ids, asked for once per visit to the page. */
 const PaywallNamesContext = createContext<PaywallNames>(NO_PAYWALL_NAMES)
@@ -461,6 +485,7 @@ export function LearnersView({
   )
   const ads = useAdNames(library.writable)
   const spend = useAdSpend(period, day, library.writable, loadedAt)
+  const socialTaps = useSocialTaps(period, day, library.writable, loadedAt)
   const paywallNames = usePaywallNames(library.writable)
   const [markFor, setMarkFor] = useMarkFor()
   // The numbers depend on the period, the day and the narrowing, but not on `only`.
@@ -628,7 +653,9 @@ export function LearnersView({
               picked={where}
               problem={ads.problem ?? spend.problem}
               href={(next) => here({ where: next === where ? null : next })}
-            />
+            >
+              <ProfileLinkTaps taps={socialTaps?.taps ?? null} problem={socialTaps?.problem ?? null} />
+            </WhereFromPanel>
           </div>
           <Leaders
             report={report}
@@ -968,7 +995,8 @@ function Ages({
 /**
  * Where the period's learners came from: Apple Ads keyword by keyword (or campaign, for
  * Search Match) against the rest, their countries and their app versions. A row narrows
- * the page to its learners; tapped again, it shows everyone.
+ * the page to its learners; tapped again, it shows everyone. Below Came from, the social
+ * profile links' taps (`children`).
  */
 function WhereFromPanel({
   whereFrom,
@@ -977,6 +1005,7 @@ function WhereFromPanel({
   picked,
   problem,
   href,
+  children,
 }: {
   whereFrom: WhereFrom
   /** Apple's report for the period: what each keyword spent and got. */
@@ -986,6 +1015,8 @@ function WhereFromPanel({
   picked: Where | null
   problem: string | null
   href: (where: Where) => string
+  /** Below Came from: the profile links' taps, which are not learners. */
+  children?: ReactNode
 }) {
   const names = useContext(AdNamesContext)
   const adRows = withSpend(whereFrom.ads, spend)
@@ -1055,6 +1086,7 @@ function WhereFromPanel({
             {whereFrom.organic.learners ? row(whereFrom.organic, 'Not from Apple Ads', 'Not from Apple Ads', 'the App Store, a link, a friend') : null}
           </ul>
           {problem ? <p className="st-learners__muted st-learners__where-note">Ads’ names are missing: {problem}</p> : null}
+          {children}
         </div>
         <div>
           <h3 className="st-learners__where-title">Country</h3>
@@ -1082,6 +1114,72 @@ function WhereFromPanel({
         </div>
       </div>
     </section>
+  )
+}
+
+const PLATFORM_WORDS: Record<string, string> = {
+  tiktok: 'TikTok',
+  instagram: 'Instagram',
+  threads: 'Threads',
+  x: 'X',
+  facebook: 'Facebook',
+  youtube: 'YouTube',
+  pinterest: 'Pinterest',
+}
+const OPENED_IN_WORDS: Record<string, string> = {
+  ...PLATFORM_WORDS,
+  snapchat: 'Snapchat',
+  linkedin: 'LinkedIn',
+  webview: 'another app',
+  browser: 'a browser',
+}
+const platformWords = (platform: string) => PLATFORM_WORDS[platform] ?? platform
+const openedInWords = (app: string) => OPENED_IN_WORDS[app] ?? app
+
+/**
+ * Taps on the social profile links (softroni.com/t/papercoach…) in the period, by platform,
+ * each with the app it was opened in. A tap is on its way to the App Store, not a learner, so
+ * the rows narrow nothing and the page's narrowing leaves them whole. Links inside posts go
+ * straight to the App Store and are not counted.
+ */
+function ProfileLinkTaps({ taps, problem }: { taps: SocialTaps | null; problem: string | null }) {
+  const leftOut = [
+    taps?.bots ? `${taps.bots} from ${taps.bots === 1 ? 'a bot or a link preview' : 'bots and link previews'}` : null,
+    taps?.tests ? `${taps.tests} ${taps.tests === 1 ? 'test' : 'tests'}` : null,
+  ].filter(Boolean)
+  return (
+    <div className="st-learners__taps">
+      <h3 className="st-learners__where-title">Social profile links</h3>
+      {taps?.platforms.length ? (
+        <ul className="st-learners__where-list">
+          {taps.platforms.map((row) => (
+            <li key={row.platform}>
+              <div
+                className="st-learners__where-row st-learners__where-row--still"
+                aria-label={`${platformWords(row.platform)}: ${row.taps} ${row.taps === 1 ? 'tap' : 'taps'} on the profile link`}
+              >
+                <span className="st-learners__where-label">{platformWords(row.platform)}</span>
+                <span className="st-learners__where-count">{row.taps}</span>
+                <span className="st-learners__where-did">
+                  {row.taps === 1 ? 'tap' : 'taps'} ·{' '}
+                  {row.openedIn.length === 1
+                    ? `opened in ${openedInWords(row.openedIn[0].app)}`
+                    : row.openedIn.map((opened) => `${opened.taps} in ${openedInWords(opened.app)}`).join(' · ')}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : taps ? (
+        <p className="st-learners__muted st-learners__where-note st-learners__taps-none">No taps in this period.</p>
+      ) : null}
+      <p className="st-learners__muted st-learners__where-note">
+        Taps on softroni.com/…/papercoach on the way to the App Store, from PostHog: not learners, and never narrowed. Links
+        inside posts go straight to the App Store and are not counted.
+        {leftOut.length ? ` Left out: ${leftOut.join(', ')}.` : ''}
+      </p>
+      {problem ? <p className="st-learners__muted st-learners__where-note">The taps are missing: {problem}</p> : null}
+    </div>
   )
 }
 

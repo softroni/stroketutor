@@ -6,7 +6,7 @@ import type { TracedDrawing } from '../trace/traceSvg'
 import type { VideoJob, VideoLessonState } from '../video/types'
 import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
-import type { AdNamesResponse, AdSpendResponse, LearnersResponse, PaywallNamesResponse } from './learners'
+import type { AdNamesResponse, AdSpendResponse, LearnersResponse, PaywallNamesResponse, SocialTapsResponse } from './learners'
 import type { ScreenshotList } from './screenshots'
 import type { SocialResponse } from './social'
 import type { TodayResponse } from './today'
@@ -119,6 +119,11 @@ export function readAdNames() {
 /** What Apple Ads spent and got, keyword by keyword, for those days (read-only). */
 export function readAdSpend(from: string, to: string) {
   return call<AdSpendResponse>(`/api/learners/ad-spend?from=${from}&to=${to}`)
+}
+
+/** Taps on the social profile links (softroni.com/…/papercoach) for those days, from PostHog (read-only). */
+export function readSocialTaps(from: string, to: string) {
+  return call<SocialTapsResponse>(`/api/learners/social-taps?from=${from}&to=${to}`)
 }
 
 /** The names behind Superwall's paywall and test-version ids (read-only). */
