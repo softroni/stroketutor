@@ -1,0 +1,28 @@
+i1	Okay, so this is Paper Coach Studio! It's the private web app where Zak and Claude make, ship, and run a whole drawing app.
+i2	Paper Coach teaches you to draw on real paper, one line at a time. Let me show you around.
+p1	First up, Paths. This is the whole curriculum: twelve paths, a hundred and twenty lessons.
+p2	Open one up, and check this out. Every single stroke is timed, and coloured by step, in the order a real person would draw it.
+p3	And here's the cool part: Claude plans all of that from a drawing. What goes first, what Lina says at each step, all of it.
+p4	Zak tweaks whatever he wants, previews it just like the app plays it, and publishes it for the next release.
+v1	Speaking of Lina, she's the teacher's voice in the app. And she was cast right here, in Voice.
+v2	You describe a person in a sentence, and the voice server invents her. Every voice reads the same lines, so you can hear them side by side.
+v3	Pick one, freeze it, and every step of every lesson gets narrated in that exact voice. And all of it runs on Zak's own Mac. No cloud, no bill per word.
+l1	Okay. Now this is the one that gets me. Learners!
+l2	It's live, straight from PostHog, refreshing every minute. Installs, sessions, lessons drawn, free trials, sales.
+l3	And it makes sounds! A little blip for an install, a chime for a free trial, and, yep, a cash register for a sale.
+l4	Here's the journey of everyone who installed today: onboarding, their first drawing, their first price. Kids and grown-ups, split out.
+l5	You see what people love to draw, and how each paywall test is doing, version against version. And for kids, there's a grown-up check before a price ever shows up.
+l6	Where people come from: what each Apple Ads search term cost per learner, and even which YouTube video brought taps.
+l7	And then, every session, as a little row of drawings. What they drew, where they stopped, where they saw a price, when they came back. Tap one, and you get the whole story.
+l8	No names, no emails, and a kid's I-D lasts just one launch. But you still know exactly what's working, by the day, the week, or the month.
+s1	Next, Social. This is basically the marketing team.
+s2	Every day at five, a lesson goes out to seven platforms, free and Premium taking turns.
+s3	And the video makes itself, from the lesson's own strokes and Lina's voice.
+s4	And the longer videos, like the app's tour? Claude made those too.
+d1	Docs is every command, script, and tool in one place. Two hundred and nine commands, each one ready to copy.
+t1	And last, Today. Claude writes this page.
+t2	Where each release is with Apple, what needs Zak's call, what's coming up, and what Claude's working on right now.
+t3	Claude runs the daily check, replies to reviews, ships fixes for real bugs, and runs the ads, with a hard stop on spending. Zak makes the big calls.
+o1	So yeah. One developer, one Claude, and a studio that runs a whole app. That's Paper Coach Studio. Pretty cool, right?
+k1	Like this one. A thirteen to fifteen year old draws three pictures, opens Premium in Settings, and starts a free trial. Twenty-six seconds, start to finish!
+k2	Draws three more. Comes back three hours later, and a minute in, turns off the renewal. Ha! Classic. Studio pulls that straight from Superwall. And then? Seven more drawings, on the free week.

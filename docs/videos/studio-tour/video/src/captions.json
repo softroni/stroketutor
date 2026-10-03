@@ -1,0 +1,3186 @@
+{
+ "i1": {
+  "text": "Okay, so this is Paper Coach Studio! It's the private web app where Zak and Claude make, ship, and run a whole drawing app.",
+  "duration": 6.96,
+  "words": [
+   {
+    "text": "Okay,",
+    "start": 0,
+    "end": 0.5
+   },
+   {
+    "text": "so",
+    "start": 0.56,
+    "end": 0.7
+   },
+   {
+    "text": "this",
+    "start": 0.7,
+    "end": 0.86
+   },
+   {
+    "text": "is",
+    "start": 0.86,
+    "end": 1.04
+   },
+   {
+    "text": "Paper",
+    "start": 1.04,
+    "end": 1.26
+   },
+   {
+    "text": "Coach",
+    "start": 1.26,
+    "end": 1.52
+   },
+   {
+    "text": "Studio!",
+    "start": 1.52,
+    "end": 1.88
+   },
+   {
+    "text": "It's",
+    "start": 2.66,
+    "end": 2.76
+   },
+   {
+    "text": "the",
+    "start": 2.76,
+    "end": 2.88
+   },
+   {
+    "text": "private",
+    "start": 2.88,
+    "end": 3.22
+   },
+   {
+    "text": "web",
+    "start": 3.22,
+    "end": 3.46
+   },
+   {
+    "text": "app",
+    "start": 3.46,
+    "end": 3.66
+   },
+   {
+    "text": "where",
+    "start": 3.66,
+    "end": 3.86
+   },
+   {
+    "text": "Zak",
+    "start": 3.86,
+    "end": 4.14
+   },
+   {
+    "text": "and",
+    "start": 4.14,
+    "end": 4.34
+   },
+   {
+    "text": "Claude",
+    "start": 4.34,
+    "end": 4.56
+   },
+   {
+    "text": "make,",
+    "start": 4.56,
+    "end": 4.88
+   },
+   {
+    "text": "ship,",
+    "start": 5.2,
+    "end": 5.46
+   },
+   {
+    "text": "and",
+    "start": 5.6,
+    "end": 5.64
+   },
+   {
+    "text": "run",
+    "start": 5.64,
+    "end": 5.84
+   },
+   {
+    "text": "a",
+    "start": 5.84,
+    "end": 6.0
+   },
+   {
+    "text": "whole",
+    "start": 6.0,
+    "end": 6.24
+   },
+   {
+    "text": "drawing",
+    "start": 6.24,
+    "end": 6.56
+   },
+   {
+    "text": "app.",
+    "start": 6.56,
+    "end": 6.82
+   }
+  ]
+ },
+ "i2": {
+  "text": "Paper Coach teaches you to draw on real paper, one line at a time. Let me show you around.",
+  "duration": 5.56,
+  "words": [
+   {
+    "text": "Paper",
+    "start": 0,
+    "end": 0.54
+   },
+   {
+    "text": "Coach",
+    "start": 0.54,
+    "end": 0.72
+   },
+   {
+    "text": "teaches",
+    "start": 0.72,
+    "end": 1.04
+   },
+   {
+    "text": "you",
+    "start": 1.04,
+    "end": 1.32
+   },
+   {
+    "text": "to",
+    "start": 1.32,
+    "end": 1.46
+   },
+   {
+    "text": "draw",
+    "start": 1.46,
+    "end": 1.7
+   },
+   {
+    "text": "on",
+    "start": 1.7,
+    "end": 1.92
+   },
+   {
+    "text": "real",
+    "start": 1.92,
+    "end": 2.18
+   },
+   {
+    "text": "paper,",
+    "start": 2.18,
+    "end": 2.58
+   },
+   {
+    "text": "one",
+    "start": 2.9,
+    "end": 3.16
+   },
+   {
+    "text": "line",
+    "start": 3.16,
+    "end": 3.38
+   },
+   {
+    "text": "at",
+    "start": 3.38,
+    "end": 3.54
+   },
+   {
+    "text": "a",
+    "start": 3.54,
+    "end": 3.64
+   },
+   {
+    "text": "time.",
+    "start": 3.64,
+    "end": 3.92
+   },
+   {
+    "text": "Let",
+    "start": 4.46,
+    "end": 4.62
+   },
+   {
+    "text": "me",
+    "start": 4.62,
+    "end": 4.74
+   },
+   {
+    "text": "show",
+    "start": 4.74,
+    "end": 4.92
+   },
+   {
+    "text": "you",
+    "start": 4.92,
+    "end": 5.04
+   },
+   {
+    "text": "around.",
+    "start": 5.04,
+    "end": 5.34
+   }
+  ]
+ },
+ "p1": {
+  "text": "First up, Paths. This is the whole curriculum: twelve paths, a hundred and twenty lessons.",
+  "duration": 6.64,
+  "words": [
+   {
+    "text": "First",
+    "start": 0,
+    "end": 0.56
+   },
+   {
+    "text": "up,",
+    "start": 0.56,
+    "end": 0.86
+   },
+   {
+    "text": "Paths.",
+    "start": 0.86,
+    "end": 1.68
+   },
+   {
+    "text": "This",
+    "start": 2.12,
+    "end": 2.62
+   },
+   {
+    "text": "is",
+    "start": 2.62,
+    "end": 2.74
+   },
+   {
+    "text": "the",
+    "start": 2.74,
+    "end": 2.86
+   },
+   {
+    "text": "whole",
+    "start": 2.86,
+    "end": 3.04
+   },
+   {
+    "text": "curriculum:",
+    "start": 3.04,
+    "end": 3.52
+   },
+   {
+    "text": "twelve",
+    "start": 3.52,
+    "end": 4.3
+   },
+   {
+    "text": "paths,",
+    "start": 4.3,
+    "end": 4.84
+   },
+   {
+    "text": "a",
+    "start": 4.84,
+    "end": 5.68
+   },
+   {
+    "text": "hundred",
+    "start": 4.84,
+    "end": 5.68
+   },
+   {
+    "text": "and",
+    "start": 4.84,
+    "end": 5.68
+   },
+   {
+    "text": "twenty",
+    "start": 4.84,
+    "end": 5.68
+   },
+   {
+    "text": "lessons.",
+    "start": 5.68,
+    "end": 6.42
+   }
+  ]
+ },
+ "p2": {
+  "text": "Open one up, and check this out. Every single stroke is timed, and coloured by step, in the order a real person would draw it.",
+  "duration": 7.6,
+  "words": [
+   {
+    "text": "Open",
+    "start": 0,
+    "end": 0.52
+   },
+   {
+    "text": "one",
+    "start": 0.52,
+    "end": 0.72
+   },
+   {
+    "text": "up,",
+    "start": 0.72,
+    "end": 0.88
+   },
+   {
+    "text": "and",
+    "start": 0.88,
+    "end": 1.12
+   },
+   {
+    "text": "check",
+    "start": 1.12,
+    "end": 1.34
+   },
+   {
+    "text": "this",
+    "start": 1.34,
+    "end": 1.54
+   },
+   {
+    "text": "out.",
+    "start": 1.54,
+    "end": 1.9
+   },
+   {
+    "text": "Every",
+    "start": 2.5,
+    "end": 2.68
+   },
+   {
+    "text": "single",
+    "start": 2.68,
+    "end": 2.92
+   },
+   {
+    "text": "stroke",
+    "start": 2.92,
+    "end": 3.24
+   },
+   {
+    "text": "is",
+    "start": 3.24,
+    "end": 3.42
+   },
+   {
+    "text": "timed,",
+    "start": 3.42,
+    "end": 3.8
+   },
+   {
+    "text": "and",
+    "start": 3.8,
+    "end": 4.36
+   },
+   {
+    "text": "coloured",
+    "start": 4.36,
+    "end": 4.68
+   },
+   {
+    "text": "by",
+    "start": 4.68,
+    "end": 4.92
+   },
+   {
+    "text": "step,",
+    "start": 4.92,
+    "end": 5.26
+   },
+   {
+    "text": "in",
+    "start": 5.26,
+    "end": 5.72
+   },
+   {
+    "text": "the",
+    "start": 5.72,
+    "end": 5.82
+   },
+   {
+    "text": "order",
+    "start": 5.82,
+    "end": 6.06
+   },
+   {
+    "text": "a",
+    "start": 6.06,
+    "end": 6.26
+   },
+   {
+    "text": "real",
+    "start": 6.26,
+    "end": 6.5
+   },
+   {
+    "text": "person",
+    "start": 6.5,
+    "end": 6.8
+   },
+   {
+    "text": "would",
+    "start": 6.8,
+    "end": 7.06
+   },
+   {
+    "text": "draw",
+    "start": 7.06,
+    "end": 7.32
+   },
+   {
+    "text": "it.",
+    "start": 7.32,
+    "end": 7.48
+   }
+  ]
+ },
+ "p3": {
+  "text": "And here's the cool part: Claude plans all of that from a drawing. What goes first, what Lina says at each step, all of it.",
+  "duration": 7.28,
+  "words": [
+   {
+    "text": "And",
+    "start": 0,
+    "end": 0.4
+   },
+   {
+    "text": "here's",
+    "start": 0.4,
+    "end": 0.66
+   },
+   {
+    "text": "the",
+    "start": 0.66,
+    "end": 0.78
+   },
+   {
+    "text": "cool",
+    "start": 0.78,
+    "end": 0.98
+   },
+   {
+    "text": "part:",
+    "start": 0.98,
+    "end": 1.3
+   },
+   {
+    "text": "Claude",
+    "start": 1.84,
+    "end": 1.86
+   },
+   {
+    "text": "plans",
+    "start": 1.86,
+    "end": 2.22
+   },
+   {
+    "text": "all",
+    "start": 2.22,
+    "end": 2.48
+   },
+   {
+    "text": "of",
+    "start": 2.48,
+    "end": 2.6
+   },
+   {
+    "text": "that",
+    "start": 2.6,
+    "end": 2.74
+   },
+   {
+    "text": "from",
+    "start": 2.74,
+    "end": 2.92
+   },
+   {
+    "text": "a",
+    "start": 2.92,
+    "end": 3.06
+   },
+   {
+    "text": "drawing.",
+    "start": 3.06,
+    "end": 3.32
+   },
+   {
+    "text": "What",
+    "start": 4.02,
+    "end": 4.14
+   },
+   {
+    "text": "goes",
+    "start": 4.14,
+    "end": 4.3
+   },
+   {
+    "text": "first,",
+    "start": 4.3,
+    "end": 4.68
+   },
+   {
+    "text": "what",
+    "start": 5.14,
+    "end": 5.26
+   },
+   {
+    "text": "Lina",
+    "start": 5.26,
+    "end": 5.46
+   },
+   {
+    "text": "says",
+    "start": 5.46,
+    "end": 5.76
+   },
+   {
+    "text": "at",
+    "start": 5.76,
+    "end": 5.92
+   },
+   {
+    "text": "each",
+    "start": 5.92,
+    "end": 6.04
+   },
+   {
+    "text": "step,",
+    "start": 6.04,
+    "end": 6.36
+   },
+   {
+    "text": "all",
+    "start": 6.84,
+    "end": 6.96
+   },
+   {
+    "text": "of",
+    "start": 6.96,
+    "end": 7.08
+   },
+   {
+    "text": "it.",
+    "start": 7.08,
+    "end": 7.2
+   }
+  ]
+ },
+ "p4": {
+  "text": "Zak tweaks whatever he wants, previews it just like the app plays it, and publishes it for the next release.",
+  "duration": 6.1,
+  "words": [
+   {
+    "text": "Zak",
+    "start": 0,
+    "end": 0.52
+   },
+   {
+    "text": "tweaks",
+    "start": 0.52,
+    "end": 0.84
+   },
+   {
+    "text": "whatever",
+    "start": 0.84,
+    "end": 1.14
+   },
+   {
+    "text": "he",
+    "start": 1.14,
+    "end": 1.38
+   },
+   {
+    "text": "wants,",
+    "start": 1.38,
+    "end": 1.8
+   },
+   {
+    "text": "previews",
+    "start": 2.3,
+    "end": 2.46
+   },
+   {
+    "text": "it",
+    "start": 2.46,
+    "end": 2.78
+   },
+   {
+    "text": "just",
+    "start": 2.78,
+    "end": 3.04
+   },
+   {
+    "text": "like",
+    "start": 3.04,
+    "end": 3.22
+   },
+   {
+    "text": "the",
+    "start": 3.22,
+    "end": 3.38
+   },
+   {
+    "text": "app",
+    "start": 3.38,
+    "end": 3.56
+   },
+   {
+    "text": "plays",
+    "start": 3.56,
+    "end": 3.8
+   },
+   {
+    "text": "it,",
+    "start": 3.8,
+    "end": 4.06
+   },
+   {
+    "text": "and",
+    "start": 4.36,
+    "end": 4.5
+   },
+   {
+    "text": "publishes",
+    "start": 4.5,
+    "end": 4.82
+   },
+   {
+    "text": "it",
+    "start": 4.82,
+    "end": 5.1
+   },
+   {
+    "text": "for",
+    "start": 5.1,
+    "end": 5.22
+   },
+   {
+    "text": "the",
+    "start": 5.22,
+    "end": 5.34
+   },
+   {
+    "text": "next",
+    "start": 5.34,
+    "end": 5.56
+   },
+   {
+    "text": "release.",
+    "start": 5.56,
+    "end": 5.88
+   }
+  ]
+ },
+ "v1": {
+  "text": "Speaking of Lina, she's the teacher's voice in the app. And she was cast right here, in Voice.",
+  "duration": 5.68,
+  "words": [
+   {
+    "text": "Speaking",
+    "start": 0,
+    "end": 0.58
+   },
+   {
+    "text": "of",
+    "start": 0.58,
+    "end": 0.82
+   },
+   {
+    "text": "Lina,",
+    "start": 0.82,
+    "end": 1.72
+   },
+   {
+    "text": "she's",
+    "start": 1.72,
+    "end": 1.9
+   },
+   {
+    "text": "the",
+    "start": 1.9,
+    "end": 2.04
+   },
+   {
+    "text": "teacher's",
+    "start": 2.04,
+    "end": 2.5
+   },
+   {
+    "text": "voice",
+    "start": 2.5,
+    "end": 2.68
+   },
+   {
+    "text": "in",
+    "start": 2.68,
+    "end": 2.9
+   },
+   {
+    "text": "the",
+    "start": 2.9,
+    "end": 2.98
+   },
+   {
+    "text": "app.",
+    "start": 2.98,
+    "end": 3.22
+   },
+   {
+    "text": "And",
+    "start": 3.22,
+    "end": 3.66
+   },
+   {
+    "text": "she",
+    "start": 3.66,
+    "end": 3.9
+   },
+   {
+    "text": "was",
+    "start": 3.9,
+    "end": 4.04
+   },
+   {
+    "text": "cast",
+    "start": 4.04,
+    "end": 4.36
+   },
+   {
+    "text": "right",
+    "start": 4.36,
+    "end": 4.68
+   },
+   {
+    "text": "here,",
+    "start": 4.68,
+    "end": 5.0
+   },
+   {
+    "text": "in",
+    "start": 5.0,
+    "end": 5.26
+   },
+   {
+    "text": "Voice.",
+    "start": 5.26,
+    "end": 5.46
+   }
+  ]
+ },
+ "v2": {
+  "text": "You describe a person in a sentence, and the voice server invents her. Every voice reads the same lines, so you can hear them side by side.",
+  "duration": 8.26,
+  "words": [
+   {
+    "text": "You",
+    "start": 0,
+    "end": 0.44
+   },
+   {
+    "text": "describe",
+    "start": 0.44,
+    "end": 0.78
+   },
+   {
+    "text": "a",
+    "start": 0.78,
+    "end": 0.98
+   },
+   {
+    "text": "person",
+    "start": 0.98,
+    "end": 1.2
+   },
+   {
+    "text": "in",
+    "start": 1.2,
+    "end": 1.42
+   },
+   {
+    "text": "a",
+    "start": 1.42,
+    "end": 1.56
+   },
+   {
+    "text": "sentence,",
+    "start": 1.56,
+    "end": 1.84
+   },
+   {
+    "text": "and",
+    "start": 1.84,
+    "end": 2.48
+   },
+   {
+    "text": "the",
+    "start": 2.48,
+    "end": 2.6
+   },
+   {
+    "text": "voice",
+    "start": 2.6,
+    "end": 2.8
+   },
+   {
+    "text": "server",
+    "start": 2.8,
+    "end": 3.14
+   },
+   {
+    "text": "invents",
+    "start": 3.14,
+    "end": 3.5
+   },
+   {
+    "text": "her.",
+    "start": 3.5,
+    "end": 4.0
+   },
+   {
+    "text": "Every",
+    "start": 4.34,
+    "end": 4.58
+   },
+   {
+    "text": "voice",
+    "start": 4.58,
+    "end": 4.86
+   },
+   {
+    "text": "reads",
+    "start": 4.86,
+    "end": 5.12
+   },
+   {
+    "text": "the",
+    "start": 5.12,
+    "end": 5.36
+   },
+   {
+    "text": "same",
+    "start": 5.36,
+    "end": 5.56
+   },
+   {
+    "text": "lines,",
+    "start": 5.56,
+    "end": 5.96
+   },
+   {
+    "text": "so",
+    "start": 6.28,
+    "end": 6.6
+   },
+   {
+    "text": "you",
+    "start": 6.6,
+    "end": 6.74
+   },
+   {
+    "text": "can",
+    "start": 6.74,
+    "end": 6.88
+   },
+   {
+    "text": "hear",
+    "start": 6.88,
+    "end": 7.08
+   },
+   {
+    "text": "them",
+    "start": 7.08,
+    "end": 7.3
+   },
+   {
+    "text": "side",
+    "start": 7.3,
+    "end": 7.54
+   },
+   {
+    "text": "by",
+    "start": 7.54,
+    "end": 7.7
+   },
+   {
+    "text": "side.",
+    "start": 7.7,
+    "end": 8.04
+   }
+  ]
+ },
+ "v3": {
+  "text": "Pick one, freeze it, and every step of every lesson gets narrated in that exact voice. And all of it runs on Zak's own Mac. No cloud, no bill per word.",
+  "duration": 10.72,
+  "words": [
+   {
+    "text": "Pick",
+    "start": 0,
+    "end": 0.44
+   },
+   {
+    "text": "one,",
+    "start": 0.44,
+    "end": 0.7
+   },
+   {
+    "text": "freeze",
+    "start": 1.06,
+    "end": 1.34
+   },
+   {
+    "text": "it,",
+    "start": 1.34,
+    "end": 1.62
+   },
+   {
+    "text": "and",
+    "start": 1.88,
+    "end": 2.02
+   },
+   {
+    "text": "every",
+    "start": 2.02,
+    "end": 2.38
+   },
+   {
+    "text": "step",
+    "start": 2.38,
+    "end": 2.62
+   },
+   {
+    "text": "of",
+    "start": 2.62,
+    "end": 2.78
+   },
+   {
+    "text": "every",
+    "start": 2.78,
+    "end": 3.16
+   },
+   {
+    "text": "lesson",
+    "start": 3.16,
+    "end": 3.5
+   },
+   {
+    "text": "gets",
+    "start": 3.5,
+    "end": 3.7
+   },
+   {
+    "text": "narrated",
+    "start": 3.7,
+    "end": 4.16
+   },
+   {
+    "text": "in",
+    "start": 4.16,
+    "end": 4.4
+   },
+   {
+    "text": "that",
+    "start": 4.4,
+    "end": 4.54
+   },
+   {
+    "text": "exact",
+    "start": 4.54,
+    "end": 4.96
+   },
+   {
+    "text": "voice.",
+    "start": 4.96,
+    "end": 5.4
+   },
+   {
+    "text": "And",
+    "start": 6.14,
+    "end": 6.26
+   },
+   {
+    "text": "all",
+    "start": 6.26,
+    "end": 6.52
+   },
+   {
+    "text": "of",
+    "start": 6.52,
+    "end": 6.64
+   },
+   {
+    "text": "it",
+    "start": 6.64,
+    "end": 6.76
+   },
+   {
+    "text": "runs",
+    "start": 6.76,
+    "end": 6.98
+   },
+   {
+    "text": "on",
+    "start": 6.98,
+    "end": 7.22
+   },
+   {
+    "text": "Zak's",
+    "start": 7.22,
+    "end": 7.6
+   },
+   {
+    "text": "own",
+    "start": 7.6,
+    "end": 7.76
+   },
+   {
+    "text": "Mac.",
+    "start": 7.76,
+    "end": 8.08
+   },
+   {
+    "text": "No",
+    "start": 8.68,
+    "end": 8.84
+   },
+   {
+    "text": "cloud,",
+    "start": 8.84,
+    "end": 9.14
+   },
+   {
+    "text": "no",
+    "start": 9.62,
+    "end": 9.76
+   },
+   {
+    "text": "bill",
+    "start": 9.76,
+    "end": 9.98
+   },
+   {
+    "text": "per",
+    "start": 9.98,
+    "end": 10.22
+   },
+   {
+    "text": "word.",
+    "start": 10.22,
+    "end": 10.5
+   }
+  ]
+ },
+ "l1": {
+  "text": "Okay. Now this is the one that gets me. Learners!",
+  "duration": 3.68,
+  "words": [
+   {
+    "text": "Okay.",
+    "start": 0,
+    "end": 0.58
+   },
+   {
+    "text": "Now",
+    "start": 1.08,
+    "end": 1.4
+   },
+   {
+    "text": "this",
+    "start": 1.4,
+    "end": 1.62
+   },
+   {
+    "text": "is",
+    "start": 1.62,
+    "end": 1.76
+   },
+   {
+    "text": "the",
+    "start": 1.76,
+    "end": 1.9
+   },
+   {
+    "text": "one",
+    "start": 1.9,
+    "end": 2.08
+   },
+   {
+    "text": "that",
+    "start": 2.08,
+    "end": 2.26
+   },
+   {
+    "text": "gets",
+    "start": 2.26,
+    "end": 2.4
+   },
+   {
+    "text": "me.",
+    "start": 2.4,
+    "end": 2.84
+   },
+   {
+    "text": "Learners!",
+    "start": 3.2,
+    "end": 3.5
+   }
+  ]
+ },
+ "l2": {
+  "text": "It's live, straight from PostHog, refreshing every minute. Installs, sessions, lessons drawn, free trials, sales.",
+  "duration": 8.56,
+  "words": [
+   {
+    "text": "It's",
+    "start": 0,
+    "end": 0.56
+   },
+   {
+    "text": "live,",
+    "start": 0.56,
+    "end": 0.84
+   },
+   {
+    "text": "straight",
+    "start": 1.1,
+    "end": 1.42
+   },
+   {
+    "text": "from",
+    "start": 1.42,
+    "end": 1.66
+   },
+   {
+    "text": "PostHog,",
+    "start": 1.66,
+    "end": 2.84
+   },
+   {
+    "text": "refreshing",
+    "start": 2.84,
+    "end": 2.92
+   },
+   {
+    "text": "every",
+    "start": 2.92,
+    "end": 3.34
+   },
+   {
+    "text": "minute.",
+    "start": 3.34,
+    "end": 3.72
+   },
+   {
+    "text": "Installs,",
+    "start": 4.42,
+    "end": 4.84
+   },
+   {
+    "text": "sessions,",
+    "start": 5.18,
+    "end": 5.54
+   },
+   {
+    "text": "lessons",
+    "start": 6.18,
+    "end": 6.38
+   },
+   {
+    "text": "drawn,",
+    "start": 6.38,
+    "end": 6.76
+   },
+   {
+    "text": "free",
+    "start": 7.2,
+    "end": 7.38
+   },
+   {
+    "text": "trials,",
+    "start": 7.38,
+    "end": 7.88
+   },
+   {
+    "text": "sales.",
+    "start": 8.36,
+    "end": 8.42
+   }
+  ]
+ },
+ "l3": {
+  "text": "And it makes sounds! A little blip for an install, a chime for a free trial, and, yep, a cash register for a sale.",
+  "duration": 7.46,
+  "words": [
+   {
+    "text": "And",
+    "start": 0,
+    "end": 0.64
+   },
+   {
+    "text": "it",
+    "start": 0.64,
+    "end": 0.74
+   },
+   {
+    "text": "makes",
+    "start": 0.74,
+    "end": 0.94
+   },
+   {
+    "text": "sounds!",
+    "start": 0.94,
+    "end": 1.38
+   },
+   {
+    "text": "A",
+    "start": 1.96,
+    "end": 2.08
+   },
+   {
+    "text": "little",
+    "start": 2.08,
+    "end": 2.26
+   },
+   {
+    "text": "blip",
+    "start": 2.26,
+    "end": 2.54
+   },
+   {
+    "text": "for",
+    "start": 2.54,
+    "end": 2.7
+   },
+   {
+    "text": "an",
+    "start": 2.7,
+    "end": 2.8
+   },
+   {
+    "text": "install,",
+    "start": 2.8,
+    "end": 3.16
+   },
+   {
+    "text": "a",
+    "start": 3.76,
+    "end": 3.78
+   },
+   {
+    "text": "chime",
+    "start": 3.78,
+    "end": 4.08
+   },
+   {
+    "text": "for",
+    "start": 4.08,
+    "end": 4.28
+   },
+   {
+    "text": "a",
+    "start": 4.28,
+    "end": 4.4
+   },
+   {
+    "text": "free",
+    "start": 4.4,
+    "end": 4.6
+   },
+   {
+    "text": "trial,",
+    "start": 4.6,
+    "end": 4.98
+   },
+   {
+    "text": "and,",
+    "start": 5.36,
+    "end": 5.46
+   },
+   {
+    "text": "yep,",
+    "start": 5.46,
+    "end": 5.72
+   },
+   {
+    "text": "a",
+    "start": 6.04,
+    "end": 6.08
+   },
+   {
+    "text": "cash",
+    "start": 6.08,
+    "end": 6.3
+   },
+   {
+    "text": "register",
+    "start": 6.3,
+    "end": 6.66
+   },
+   {
+    "text": "for",
+    "start": 6.66,
+    "end": 6.92
+   },
+   {
+    "text": "a",
+    "start": 6.92,
+    "end": 7.06
+   },
+   {
+    "text": "sale.",
+    "start": 7.06,
+    "end": 7.24
+   }
+  ]
+ },
+ "l4": {
+  "text": "Here's the journey of everyone who installed today: onboarding, their first drawing, their first price. Kids and grown-ups, split out.",
+  "duration": 8.08,
+  "words": [
+   {
+    "text": "Here's",
+    "start": 0,
+    "end": 0.58
+   },
+   {
+    "text": "the",
+    "start": 0.58,
+    "end": 0.7
+   },
+   {
+    "text": "journey",
+    "start": 0.7,
+    "end": 0.94
+   },
+   {
+    "text": "of",
+    "start": 0.94,
+    "end": 1.14
+   },
+   {
+    "text": "everyone",
+    "start": 1.14,
+    "end": 1.5
+   },
+   {
+    "text": "who",
+    "start": 1.5,
+    "end": 1.72
+   },
+   {
+    "text": "installed",
+    "start": 1.72,
+    "end": 2.04
+   },
+   {
+    "text": "today:",
+    "start": 2.04,
+    "end": 2.46
+   },
+   {
+    "text": "onboarding,",
+    "start": 2.46,
+    "end": 3.52
+   },
+   {
+    "text": "their",
+    "start": 3.52,
+    "end": 3.92
+   },
+   {
+    "text": "first",
+    "start": 3.92,
+    "end": 4.2
+   },
+   {
+    "text": "drawing,",
+    "start": 4.2,
+    "end": 4.62
+   },
+   {
+    "text": "their",
+    "start": 4.62,
+    "end": 4.84
+   },
+   {
+    "text": "first",
+    "start": 4.84,
+    "end": 5.08
+   },
+   {
+    "text": "price.",
+    "start": 5.08,
+    "end": 5.42
+   },
+   {
+    "text": "Kids",
+    "start": 5.42,
+    "end": 6.24
+   },
+   {
+    "text": "and",
+    "start": 6.24,
+    "end": 6.42
+   },
+   {
+    "text": "grown-ups,",
+    "start": 6.42,
+    "end": 6.64
+   },
+   {
+    "text": "split",
+    "start": 6.92,
+    "end": 7.66
+   },
+   {
+    "text": "out.",
+    "start": 7.66,
+    "end": 8.0
+   }
+  ]
+ },
+ "l5": {
+  "text": "You see what people love to draw, and how each paywall test is doing, version against version. And for kids, there's a grown-up check before a price ever shows up.",
+  "duration": 9.42,
+  "words": [
+   {
+    "text": "You",
+    "start": 0,
+    "end": 0.38
+   },
+   {
+    "text": "see",
+    "start": 0.38,
+    "end": 0.56
+   },
+   {
+    "text": "what",
+    "start": 0.56,
+    "end": 0.72
+   },
+   {
+    "text": "people",
+    "start": 0.72,
+    "end": 0.94
+   },
+   {
+    "text": "love",
+    "start": 0.94,
+    "end": 1.16
+   },
+   {
+    "text": "to",
+    "start": 1.16,
+    "end": 1.34
+   },
+   {
+    "text": "draw,",
+    "start": 1.34,
+    "end": 1.66
+   },
+   {
+    "text": "and",
+    "start": 2.16,
+    "end": 2.26
+   },
+   {
+    "text": "how",
+    "start": 2.26,
+    "end": 2.42
+   },
+   {
+    "text": "each",
+    "start": 2.42,
+    "end": 2.7
+   },
+   {
+    "text": "paywall",
+    "start": 2.7,
+    "end": 3.18
+   },
+   {
+    "text": "test",
+    "start": 3.18,
+    "end": 3.4
+   },
+   {
+    "text": "is",
+    "start": 3.4,
+    "end": 3.62
+   },
+   {
+    "text": "doing,",
+    "start": 3.62,
+    "end": 3.9
+   },
+   {
+    "text": "version",
+    "start": 4.36,
+    "end": 4.54
+   },
+   {
+    "text": "against",
+    "start": 4.54,
+    "end": 4.82
+   },
+   {
+    "text": "version.",
+    "start": 4.82,
+    "end": 5.28
+   },
+   {
+    "text": "And",
+    "start": 5.92,
+    "end": 6.08
+   },
+   {
+    "text": "for",
+    "start": 6.08,
+    "end": 6.22
+   },
+   {
+    "text": "kids,",
+    "start": 6.22,
+    "end": 6.56
+   },
+   {
+    "text": "there's",
+    "start": 6.96,
+    "end": 7.08
+   },
+   {
+    "text": "a",
+    "start": 7.08,
+    "end": 7.2
+   },
+   {
+    "text": "grown-up",
+    "start": 7.2,
+    "end": 7.36
+   },
+   {
+    "text": "check",
+    "start": 7.52,
+    "end": 7.74
+   },
+   {
+    "text": "before",
+    "start": 7.74,
+    "end": 8.06
+   },
+   {
+    "text": "a",
+    "start": 8.06,
+    "end": 8.2
+   },
+   {
+    "text": "price",
+    "start": 8.2,
+    "end": 8.42
+   },
+   {
+    "text": "ever",
+    "start": 8.42,
+    "end": 8.7
+   },
+   {
+    "text": "shows",
+    "start": 8.7,
+    "end": 8.94
+   },
+   {
+    "text": "up.",
+    "start": 8.94,
+    "end": 9.2
+   }
+  ]
+ },
+ "l6": {
+  "text": "Where people come from: what each Apple Ads search term cost per learner, and even which YouTube video brought taps.",
+  "duration": 6.86,
+  "words": [
+   {
+    "text": "Where",
+    "start": 0,
+    "end": 0.42
+   },
+   {
+    "text": "people",
+    "start": 0.42,
+    "end": 0.68
+   },
+   {
+    "text": "come",
+    "start": 0.68,
+    "end": 1.0
+   },
+   {
+    "text": "from:",
+    "start": 1.0,
+    "end": 1.4
+   },
+   {
+    "text": "what",
+    "start": 1.78,
+    "end": 1.96
+   },
+   {
+    "text": "each",
+    "start": 1.96,
+    "end": 2.22
+   },
+   {
+    "text": "Apple",
+    "start": 2.22,
+    "end": 2.54
+   },
+   {
+    "text": "Ads",
+    "start": 2.54,
+    "end": 2.78
+   },
+   {
+    "text": "search",
+    "start": 2.78,
+    "end": 3.02
+   },
+   {
+    "text": "term",
+    "start": 3.02,
+    "end": 3.36
+   },
+   {
+    "text": "cost",
+    "start": 3.36,
+    "end": 3.64
+   },
+   {
+    "text": "per",
+    "start": 3.64,
+    "end": 3.88
+   },
+   {
+    "text": "learner,",
+    "start": 3.88,
+    "end": 4.32
+   },
+   {
+    "text": "and",
+    "start": 4.6,
+    "end": 4.78
+   },
+   {
+    "text": "even",
+    "start": 4.78,
+    "end": 5.02
+   },
+   {
+    "text": "which",
+    "start": 5.02,
+    "end": 5.3
+   },
+   {
+    "text": "YouTube",
+    "start": 5.3,
+    "end": 5.6
+   },
+   {
+    "text": "video",
+    "start": 5.6,
+    "end": 5.98
+   },
+   {
+    "text": "brought",
+    "start": 5.98,
+    "end": 6.28
+   },
+   {
+    "text": "taps.",
+    "start": 6.28,
+    "end": 6.64
+   }
+  ]
+ },
+ "l7": {
+  "text": "And then, every session, as a little row of drawings. What they drew, where they stopped, where they saw a price, when they came back. Tap one, and you get the whole story.",
+  "duration": 10.54,
+  "words": [
+   {
+    "text": "And",
+    "start": 0,
+    "end": 0.38
+   },
+   {
+    "text": "then,",
+    "start": 0.38,
+    "end": 0.62
+   },
+   {
+    "text": "every",
+    "start": 0.72,
+    "end": 1.14
+   },
+   {
+    "text": "session,",
+    "start": 1.14,
+    "end": 1.52
+   },
+   {
+    "text": "as",
+    "start": 2.04,
+    "end": 2.26
+   },
+   {
+    "text": "a",
+    "start": 2.26,
+    "end": 2.4
+   },
+   {
+    "text": "little",
+    "start": 2.4,
+    "end": 2.56
+   },
+   {
+    "text": "row",
+    "start": 2.56,
+    "end": 2.78
+   },
+   {
+    "text": "of",
+    "start": 2.78,
+    "end": 2.94
+   },
+   {
+    "text": "drawings.",
+    "start": 2.94,
+    "end": 3.26
+   },
+   {
+    "text": "What",
+    "start": 3.94,
+    "end": 4.06
+   },
+   {
+    "text": "they",
+    "start": 4.06,
+    "end": 4.22
+   },
+   {
+    "text": "drew,",
+    "start": 4.22,
+    "end": 4.46
+   },
+   {
+    "text": "where",
+    "start": 4.94,
+    "end": 5.06
+   },
+   {
+    "text": "they",
+    "start": 5.06,
+    "end": 5.2
+   },
+   {
+    "text": "stopped,",
+    "start": 5.2,
+    "end": 5.54
+   },
+   {
+    "text": "where",
+    "start": 6.14,
+    "end": 6.26
+   },
+   {
+    "text": "they",
+    "start": 6.26,
+    "end": 6.36
+   },
+   {
+    "text": "saw",
+    "start": 6.36,
+    "end": 6.54
+   },
+   {
+    "text": "a",
+    "start": 6.54,
+    "end": 6.7
+   },
+   {
+    "text": "price,",
+    "start": 6.7,
+    "end": 6.9
+   },
+   {
+    "text": "when",
+    "start": 7.44,
+    "end": 7.6
+   },
+   {
+    "text": "they",
+    "start": 7.6,
+    "end": 7.72
+   },
+   {
+    "text": "came",
+    "start": 7.72,
+    "end": 7.86
+   },
+   {
+    "text": "back.",
+    "start": 7.86,
+    "end": 8.16
+   },
+   {
+    "text": "Tap",
+    "start": 8.72,
+    "end": 8.9
+   },
+   {
+    "text": "one,",
+    "start": 8.9,
+    "end": 9.18
+   },
+   {
+    "text": "and",
+    "start": 9.52,
+    "end": 9.62
+   },
+   {
+    "text": "you",
+    "start": 9.62,
+    "end": 9.68
+   },
+   {
+    "text": "get",
+    "start": 9.68,
+    "end": 9.8
+   },
+   {
+    "text": "the",
+    "start": 9.8,
+    "end": 9.9
+   },
+   {
+    "text": "whole",
+    "start": 9.9,
+    "end": 10.06
+   },
+   {
+    "text": "story.",
+    "start": 10.06,
+    "end": 10.32
+   }
+  ]
+ },
+ "l8": {
+  "text": "No names, no emails, and a kid's I-D lasts just one launch. But you still know exactly what's working, by the day, the week, or the month.",
+  "duration": 9.62,
+  "words": [
+   {
+    "text": "No",
+    "start": 0,
+    "end": 0.64
+   },
+   {
+    "text": "names,",
+    "start": 0.64,
+    "end": 0.98
+   },
+   {
+    "text": "no",
+    "start": 1.3,
+    "end": 1.46
+   },
+   {
+    "text": "emails,",
+    "start": 1.46,
+    "end": 1.88
+   },
+   {
+    "text": "and",
+    "start": 2.4,
+    "end": 2.5
+   },
+   {
+    "text": "a",
+    "start": 2.5,
+    "end": 2.6
+   },
+   {
+    "text": "kid's",
+    "start": 2.6,
+    "end": 3.0
+   },
+   {
+    "text": "I-D",
+    "start": 3.0,
+    "end": 3.24
+   },
+   {
+    "text": "lasts",
+    "start": 3.24,
+    "end": 3.56
+   },
+   {
+    "text": "just",
+    "start": 3.56,
+    "end": 3.88
+   },
+   {
+    "text": "one",
+    "start": 3.88,
+    "end": 4.16
+   },
+   {
+    "text": "launch.",
+    "start": 4.16,
+    "end": 4.54
+   },
+   {
+    "text": "But",
+    "start": 5.02,
+    "end": 5.16
+   },
+   {
+    "text": "you",
+    "start": 5.16,
+    "end": 5.28
+   },
+   {
+    "text": "still",
+    "start": 5.28,
+    "end": 5.54
+   },
+   {
+    "text": "know",
+    "start": 5.54,
+    "end": 5.8
+   },
+   {
+    "text": "exactly",
+    "start": 5.8,
+    "end": 6.16
+   },
+   {
+    "text": "what's",
+    "start": 6.16,
+    "end": 6.54
+   },
+   {
+    "text": "working,",
+    "start": 6.54,
+    "end": 6.9
+   },
+   {
+    "text": "by",
+    "start": 6.9,
+    "end": 7.36
+   },
+   {
+    "text": "the",
+    "start": 7.36,
+    "end": 7.52
+   },
+   {
+    "text": "day,",
+    "start": 7.52,
+    "end": 7.78
+   },
+   {
+    "text": "the",
+    "start": 8.18,
+    "end": 8.26
+   },
+   {
+    "text": "week,",
+    "start": 8.26,
+    "end": 8.52
+   },
+   {
+    "text": "or",
+    "start": 8.92,
+    "end": 9.1
+   },
+   {
+    "text": "the",
+    "start": 9.1,
+    "end": 9.24
+   },
+   {
+    "text": "month.",
+    "start": 9.24,
+    "end": 9.4
+   }
+  ]
+ },
+ "s1": {
+  "text": "Next, Social. This is basically the marketing team.",
+  "duration": 3.9,
+  "words": [
+   {
+    "text": "Next,",
+    "start": 0,
+    "end": 0.66
+   },
+   {
+    "text": "Social.",
+    "start": 1.2,
+    "end": 1.42
+   },
+   {
+    "text": "This",
+    "start": 2.22,
+    "end": 2.32
+   },
+   {
+    "text": "is",
+    "start": 2.32,
+    "end": 2.46
+   },
+   {
+    "text": "basically",
+    "start": 2.46,
+    "end": 2.78
+   },
+   {
+    "text": "the",
+    "start": 2.78,
+    "end": 3.04
+   },
+   {
+    "text": "marketing",
+    "start": 3.04,
+    "end": 3.32
+   },
+   {
+    "text": "team.",
+    "start": 3.32,
+    "end": 3.68
+   }
+  ]
+ },
+ "s2": {
+  "text": "Every day at five, a lesson goes out to seven platforms, free and Premium taking turns.",
+  "duration": 6.06,
+  "words": [
+   {
+    "text": "Every",
+    "start": 0,
+    "end": 0.78
+   },
+   {
+    "text": "day",
+    "start": 0.78,
+    "end": 1.0
+   },
+   {
+    "text": "at",
+    "start": 1.0,
+    "end": 1.14
+   },
+   {
+    "text": "five,",
+    "start": 1.14,
+    "end": 1.52
+   },
+   {
+    "text": "a",
+    "start": 2.1,
+    "end": 2.1
+   },
+   {
+    "text": "lesson",
+    "start": 2.1,
+    "end": 2.3
+   },
+   {
+    "text": "goes",
+    "start": 2.3,
+    "end": 2.54
+   },
+   {
+    "text": "out",
+    "start": 2.54,
+    "end": 2.74
+   },
+   {
+    "text": "to",
+    "start": 2.74,
+    "end": 2.86
+   },
+   {
+    "text": "seven",
+    "start": 2.86,
+    "end": 3.18
+   },
+   {
+    "text": "platforms,",
+    "start": 3.18,
+    "end": 3.76
+   },
+   {
+    "text": "free",
+    "start": 4.48,
+    "end": 4.5
+   },
+   {
+    "text": "and",
+    "start": 4.5,
+    "end": 4.74
+   },
+   {
+    "text": "Premium",
+    "start": 4.74,
+    "end": 5.14
+   },
+   {
+    "text": "taking",
+    "start": 5.14,
+    "end": 5.46
+   },
+   {
+    "text": "turns.",
+    "start": 5.46,
+    "end": 5.84
+   }
+  ]
+ },
+ "s3": {
+  "text": "And the video makes itself, from the lesson's own strokes and Lina's voice.",
+  "duration": 3.88,
+  "words": [
+   {
+    "text": "And",
+    "start": 0,
+    "end": 0.42
+   },
+   {
+    "text": "the",
+    "start": 0.42,
+    "end": 0.5
+   },
+   {
+    "text": "video",
+    "start": 0.5,
+    "end": 0.74
+   },
+   {
+    "text": "makes",
+    "start": 0.74,
+    "end": 1.02
+   },
+   {
+    "text": "itself,",
+    "start": 1.02,
+    "end": 1.46
+   },
+   {
+    "text": "from",
+    "start": 1.46,
+    "end": 1.74
+   },
+   {
+    "text": "the",
+    "start": 1.74,
+    "end": 1.9
+   },
+   {
+    "text": "lesson's",
+    "start": 1.9,
+    "end": 2.3
+   },
+   {
+    "text": "own",
+    "start": 2.3,
+    "end": 2.5
+   },
+   {
+    "text": "strokes",
+    "start": 2.5,
+    "end": 2.9
+   },
+   {
+    "text": "and",
+    "start": 2.9,
+    "end": 3.2
+   },
+   {
+    "text": "Lina's",
+    "start": 3.2,
+    "end": 3.5
+   },
+   {
+    "text": "voice.",
+    "start": 3.5,
+    "end": 3.66
+   }
+  ]
+ },
+ "s4": {
+  "text": "And the longer videos, like the app's tour? Claude made those too.",
+  "duration": 3.98,
+  "words": [
+   {
+    "text": "And",
+    "start": 0,
+    "end": 0.34
+   },
+   {
+    "text": "the",
+    "start": 0.34,
+    "end": 0.46
+   },
+   {
+    "text": "longer",
+    "start": 0.46,
+    "end": 0.7
+   },
+   {
+    "text": "videos,",
+    "start": 0.7,
+    "end": 1.16
+   },
+   {
+    "text": "like",
+    "start": 1.16,
+    "end": 1.48
+   },
+   {
+    "text": "the",
+    "start": 1.48,
+    "end": 1.62
+   },
+   {
+    "text": "app's",
+    "start": 1.62,
+    "end": 1.86
+   },
+   {
+    "text": "tour?",
+    "start": 1.86,
+    "end": 2.22
+   },
+   {
+    "text": "Claude",
+    "start": 3.0,
+    "end": 3.0
+   },
+   {
+    "text": "made",
+    "start": 3.0,
+    "end": 3.22
+   },
+   {
+    "text": "those",
+    "start": 3.22,
+    "end": 3.46
+   },
+   {
+    "text": "too.",
+    "start": 3.46,
+    "end": 3.76
+   }
+  ]
+ },
+ "d1": {
+  "text": "Docs is every command, script, and tool in one place. Two hundred and nine commands, each one ready to copy.",
+  "duration": 7.22,
+  "words": [
+   {
+    "text": "Docs",
+    "start": 0,
+    "end": 0.78
+   },
+   {
+    "text": "is",
+    "start": 0.78,
+    "end": 0.98
+   },
+   {
+    "text": "every",
+    "start": 0.98,
+    "end": 1.32
+   },
+   {
+    "text": "command,",
+    "start": 1.32,
+    "end": 1.72
+   },
+   {
+    "text": "script,",
+    "start": 1.98,
+    "end": 2.12
+   },
+   {
+    "text": "and",
+    "start": 2.4,
+    "end": 2.52
+   },
+   {
+    "text": "tool",
+    "start": 2.52,
+    "end": 2.82
+   },
+   {
+    "text": "in",
+    "start": 2.82,
+    "end": 3.1
+   },
+   {
+    "text": "one",
+    "start": 3.1,
+    "end": 3.34
+   },
+   {
+    "text": "place.",
+    "start": 3.34,
+    "end": 3.76
+   },
+   {
+    "text": "Two",
+    "start": 4.54,
+    "end": 4.86
+   },
+   {
+    "text": "hundred",
+    "start": 4.54,
+    "end": 4.86
+   },
+   {
+    "text": "and",
+    "start": 4.54,
+    "end": 4.86
+   },
+   {
+    "text": "nine",
+    "start": 4.54,
+    "end": 4.86
+   },
+   {
+    "text": "commands,",
+    "start": 4.86,
+    "end": 5.64
+   },
+   {
+    "text": "each",
+    "start": 5.96,
+    "end": 6.1
+   },
+   {
+    "text": "one",
+    "start": 6.1,
+    "end": 6.4
+   },
+   {
+    "text": "ready",
+    "start": 6.4,
+    "end": 6.54
+   },
+   {
+    "text": "to",
+    "start": 6.54,
+    "end": 6.74
+   },
+   {
+    "text": "copy.",
+    "start": 6.74,
+    "end": 7.0
+   }
+  ]
+ },
+ "t1": {
+  "text": "And last, Today. Claude writes this page.",
+  "duration": 3.8,
+  "words": [
+   {
+    "text": "And",
+    "start": 0,
+    "end": 0.44
+   },
+   {
+    "text": "last,",
+    "start": 0.44,
+    "end": 0.74
+   },
+   {
+    "text": "Today.",
+    "start": 1.84,
+    "end": 1.84
+   },
+   {
+    "text": "Claude",
+    "start": 2.7,
+    "end": 2.76
+   },
+   {
+    "text": "writes",
+    "start": 2.76,
+    "end": 3.04
+   },
+   {
+    "text": "this",
+    "start": 3.04,
+    "end": 3.28
+   },
+   {
+    "text": "page.",
+    "start": 3.28,
+    "end": 3.58
+   }
+  ]
+ },
+ "t2": {
+  "text": "Where each release is with Apple, what needs Zak's call, what's coming up, and what Claude's working on right now.",
+  "duration": 6.7,
+  "words": [
+   {
+    "text": "Where",
+    "start": 0,
+    "end": 0.46
+   },
+   {
+    "text": "each",
+    "start": 0.46,
+    "end": 0.74
+   },
+   {
+    "text": "release",
+    "start": 0.74,
+    "end": 1.16
+   },
+   {
+    "text": "is",
+    "start": 1.16,
+    "end": 1.16
+   },
+   {
+    "text": "with",
+    "start": 1.16,
+    "end": 1.42
+   },
+   {
+    "text": "Apple,",
+    "start": 1.42,
+    "end": 1.78
+   },
+   {
+    "text": "what",
+    "start": 2.32,
+    "end": 2.38
+   },
+   {
+    "text": "needs",
+    "start": 2.38,
+    "end": 2.66
+   },
+   {
+    "text": "Zak's",
+    "start": 2.66,
+    "end": 3.1
+   },
+   {
+    "text": "call,",
+    "start": 3.1,
+    "end": 3.34
+   },
+   {
+    "text": "what's",
+    "start": 3.78,
+    "end": 4.08
+   },
+   {
+    "text": "coming",
+    "start": 4.08,
+    "end": 4.26
+   },
+   {
+    "text": "up,",
+    "start": 4.26,
+    "end": 4.54
+   },
+   {
+    "text": "and",
+    "start": 4.82,
+    "end": 4.98
+   },
+   {
+    "text": "what",
+    "start": 4.98,
+    "end": 5.16
+   },
+   {
+    "text": "Claude's",
+    "start": 5.16,
+    "end": 5.56
+   },
+   {
+    "text": "working",
+    "start": 5.56,
+    "end": 5.78
+   },
+   {
+    "text": "on",
+    "start": 5.78,
+    "end": 6.0
+   },
+   {
+    "text": "right",
+    "start": 6.0,
+    "end": 6.2
+   },
+   {
+    "text": "now.",
+    "start": 6.2,
+    "end": 6.48
+   }
+  ]
+ },
+ "t3": {
+  "text": "Claude runs the daily check, replies to reviews, ships fixes for real bugs, and runs the ads, with a hard stop on spending. Zak makes the big calls.",
+  "duration": 9.76,
+  "words": [
+   {
+    "text": "Claude",
+    "start": 0,
+    "end": 0.54
+   },
+   {
+    "text": "runs",
+    "start": 0.54,
+    "end": 0.84
+   },
+   {
+    "text": "the",
+    "start": 0.84,
+    "end": 1.04
+   },
+   {
+    "text": "daily",
+    "start": 1.04,
+    "end": 1.28
+   },
+   {
+    "text": "check,",
+    "start": 1.28,
+    "end": 1.66
+   },
+   {
+    "text": "replies",
+    "start": 1.66,
+    "end": 2.42
+   },
+   {
+    "text": "to",
+    "start": 2.42,
+    "end": 2.7
+   },
+   {
+    "text": "reviews,",
+    "start": 2.7,
+    "end": 3.2
+   },
+   {
+    "text": "ships",
+    "start": 3.2,
+    "end": 3.72
+   },
+   {
+    "text": "fixes",
+    "start": 3.72,
+    "end": 4.12
+   },
+   {
+    "text": "for",
+    "start": 4.12,
+    "end": 4.38
+   },
+   {
+    "text": "real",
+    "start": 4.38,
+    "end": 4.6
+   },
+   {
+    "text": "bugs,",
+    "start": 4.6,
+    "end": 4.94
+   },
+   {
+    "text": "and",
+    "start": 4.94,
+    "end": 5.42
+   },
+   {
+    "text": "runs",
+    "start": 5.42,
+    "end": 5.62
+   },
+   {
+    "text": "the",
+    "start": 5.62,
+    "end": 5.8
+   },
+   {
+    "text": "ads,",
+    "start": 5.8,
+    "end": 6.1
+   },
+   {
+    "text": "with",
+    "start": 6.1,
+    "end": 6.56
+   },
+   {
+    "text": "a",
+    "start": 6.56,
+    "end": 6.68
+   },
+   {
+    "text": "hard",
+    "start": 6.68,
+    "end": 6.94
+   },
+   {
+    "text": "stop",
+    "start": 6.94,
+    "end": 7.18
+   },
+   {
+    "text": "on",
+    "start": 7.18,
+    "end": 7.38
+   },
+   {
+    "text": "spending.",
+    "start": 7.38,
+    "end": 7.78
+   },
+   {
+    "text": "Zak",
+    "start": 7.78,
+    "end": 8.64
+   },
+   {
+    "text": "makes",
+    "start": 8.64,
+    "end": 8.9
+   },
+   {
+    "text": "the",
+    "start": 8.9,
+    "end": 9.06
+   },
+   {
+    "text": "big",
+    "start": 9.06,
+    "end": 9.22
+   },
+   {
+    "text": "calls.",
+    "start": 9.22,
+    "end": 9.62
+   }
+  ]
+ },
+ "o1": {
+  "text": "So yeah. One developer, one Claude, and a studio that runs a whole app. That's Paper Coach Studio. Pretty cool, right?",
+  "duration": 8.02,
+  "words": [
+   {
+    "text": "So",
+    "start": 0,
+    "end": 0.48
+   },
+   {
+    "text": "yeah.",
+    "start": 0.48,
+    "end": 0.74
+   },
+   {
+    "text": "One",
+    "start": 1.26,
+    "end": 1.38
+   },
+   {
+    "text": "developer,",
+    "start": 1.38,
+    "end": 1.84
+   },
+   {
+    "text": "one",
+    "start": 2.28,
+    "end": 2.46
+   },
+   {
+    "text": "Claude,",
+    "start": 2.46,
+    "end": 2.76
+   },
+   {
+    "text": "and",
+    "start": 3.16,
+    "end": 3.3
+   },
+   {
+    "text": "a",
+    "start": 3.3,
+    "end": 3.4
+   },
+   {
+    "text": "studio",
+    "start": 3.4,
+    "end": 3.7
+   },
+   {
+    "text": "that",
+    "start": 3.7,
+    "end": 3.94
+   },
+   {
+    "text": "runs",
+    "start": 3.94,
+    "end": 4.14
+   },
+   {
+    "text": "a",
+    "start": 4.14,
+    "end": 4.32
+   },
+   {
+    "text": "whole",
+    "start": 4.32,
+    "end": 4.54
+   },
+   {
+    "text": "app.",
+    "start": 4.54,
+    "end": 4.86
+   },
+   {
+    "text": "That's",
+    "start": 5.4,
+    "end": 5.64
+   },
+   {
+    "text": "Paper",
+    "start": 5.64,
+    "end": 5.84
+   },
+   {
+    "text": "Coach",
+    "start": 5.84,
+    "end": 6.08
+   },
+   {
+    "text": "Studio.",
+    "start": 6.08,
+    "end": 6.46
+   },
+   {
+    "text": "Pretty",
+    "start": 7.1,
+    "end": 7.28
+   },
+   {
+    "text": "cool,",
+    "start": 7.28,
+    "end": 7.52
+   },
+   {
+    "text": "right?",
+    "start": 7.6,
+    "end": 7.8
+   }
+  ]
+ },
+ "k1": {
+  "text": "Like this one. A thirteen to fifteen year old draws three pictures, opens Premium in Settings, and starts a free trial. Twenty-six seconds, start to finish!",
+  "duration": 9.48,
+  "words": [
+   {
+    "text": "Like",
+    "start": 0,
+    "end": 0.46
+   },
+   {
+    "text": "this",
+    "start": 0.46,
+    "end": 0.66
+   },
+   {
+    "text": "one.",
+    "start": 0.66,
+    "end": 1.1
+   },
+   {
+    "text": "A",
+    "start": 1.56,
+    "end": 1.78
+   },
+   {
+    "text": "thirteen",
+    "start": 1.78,
+    "end": 2.16
+   },
+   {
+    "text": "to",
+    "start": 2.16,
+    "end": 2.3
+   },
+   {
+    "text": "fifteen",
+    "start": 2.3,
+    "end": 2.64
+   },
+   {
+    "text": "year",
+    "start": 2.64,
+    "end": 2.78
+   },
+   {
+    "text": "old",
+    "start": 2.78,
+    "end": 2.94
+   },
+   {
+    "text": "draws",
+    "start": 2.94,
+    "end": 3.26
+   },
+   {
+    "text": "three",
+    "start": 3.26,
+    "end": 3.6
+   },
+   {
+    "text": "pictures,",
+    "start": 3.6,
+    "end": 4.04
+   },
+   {
+    "text": "opens",
+    "start": 4.36,
+    "end": 4.66
+   },
+   {
+    "text": "Premium",
+    "start": 4.66,
+    "end": 5.1
+   },
+   {
+    "text": "in",
+    "start": 5.1,
+    "end": 5.28
+   },
+   {
+    "text": "Settings,",
+    "start": 5.28,
+    "end": 5.6
+   },
+   {
+    "text": "and",
+    "start": 5.6,
+    "end": 5.9
+   },
+   {
+    "text": "starts",
+    "start": 5.9,
+    "end": 6.18
+   },
+   {
+    "text": "a",
+    "start": 6.18,
+    "end": 6.34
+   },
+   {
+    "text": "free",
+    "start": 6.34,
+    "end": 6.5
+   },
+   {
+    "text": "trial.",
+    "start": 6.5,
+    "end": 6.9
+   },
+   {
+    "text": "Twenty-six",
+    "start": 7.74,
+    "end": 7.94
+   },
+   {
+    "text": "seconds,",
+    "start": 7.94,
+    "end": 8.46
+   },
+   {
+    "text": "start",
+    "start": 8.46,
+    "end": 8.9
+   },
+   {
+    "text": "to",
+    "start": 8.9,
+    "end": 9.08
+   },
+   {
+    "text": "finish!",
+    "start": 9.08,
+    "end": 9.26
+   }
+  ]
+ },
+ "k2": {
+  "text": "Draws three more. Comes back three hours later, and a minute in, turns off the renewal. Ha! Classic. Studio pulls that straight from Superwall. And then? Seven more drawings, on the free week.",
+  "duration": 12.0,
+  "words": [
+   {
+    "text": "Draws",
+    "start": 0,
+    "end": 0.62
+   },
+   {
+    "text": "three",
+    "start": 0.62,
+    "end": 0.86
+   },
+   {
+    "text": "more.",
+    "start": 0.86,
+    "end": 1.18
+   },
+   {
+    "text": "Comes",
+    "start": 1.52,
+    "end": 1.82
+   },
+   {
+    "text": "back",
+    "start": 1.82,
+    "end": 2.12
+   },
+   {
+    "text": "three",
+    "start": 2.12,
+    "end": 2.48
+   },
+   {
+    "text": "hours",
+    "start": 2.48,
+    "end": 2.74
+   },
+   {
+    "text": "later,",
+    "start": 2.74,
+    "end": 3.1
+   },
+   {
+    "text": "and",
+    "start": 3.36,
+    "end": 3.44
+   },
+   {
+    "text": "a",
+    "start": 3.44,
+    "end": 3.58
+   },
+   {
+    "text": "minute",
+    "start": 3.58,
+    "end": 3.7
+   },
+   {
+    "text": "in,",
+    "start": 3.7,
+    "end": 4.04
+   },
+   {
+    "text": "turns",
+    "start": 4.32,
+    "end": 4.6
+   },
+   {
+    "text": "off",
+    "start": 4.6,
+    "end": 4.84
+   },
+   {
+    "text": "the",
+    "start": 4.84,
+    "end": 5.0
+   },
+   {
+    "text": "renewal.",
+    "start": 5.0,
+    "end": 5.28
+   },
+   {
+    "text": "Ha!",
+    "start": 6.18,
+    "end": 6.2
+   },
+   {
+    "text": "Classic.",
+    "start": 7.06,
+    "end": 7.06
+   },
+   {
+    "text": "Studio",
+    "start": 7.06,
+    "end": 7.42
+   },
+   {
+    "text": "pulls",
+    "start": 7.42,
+    "end": 7.76
+   },
+   {
+    "text": "that",
+    "start": 7.76,
+    "end": 7.98
+   },
+   {
+    "text": "straight",
+    "start": 7.98,
+    "end": 8.26
+   },
+   {
+    "text": "from",
+    "start": 8.26,
+    "end": 8.46
+   },
+   {
+    "text": "Superwall.",
+    "start": 8.46,
+    "end": 8.94
+   },
+   {
+    "text": "And",
+    "start": 9.48,
+    "end": 9.62
+   },
+   {
+    "text": "then?",
+    "start": 9.62,
+    "end": 9.88
+   },
+   {
+    "text": "Seven",
+    "start": 10.34,
+    "end": 10.5
+   },
+   {
+    "text": "more",
+    "start": 10.5,
+    "end": 10.76
+   },
+   {
+    "text": "drawings,",
+    "start": 10.76,
+    "end": 11.1
+   },
+   {
+    "text": "on",
+    "start": 11.1,
+    "end": 11.32
+   },
+   {
+    "text": "the",
+    "start": 11.32,
+    "end": 11.42
+   },
+   {
+    "text": "free",
+    "start": 11.42,
+    "end": 11.6
+   },
+   {
+    "text": "week.",
+    "start": 11.6,
+    "end": 11.82
+   }
+  ]
+ },
+ "lina-wobble": {
+  "text": "Don't worry if it wobbles. A wobbly line is just a hand learning something new.",
+  "duration": 5.6,
+  "words": [
+   {
+    "text": "Don't",
+    "start": 0,
+    "end": 0.48
+   },
+   {
+    "text": "worry",
+    "start": 0.48,
+    "end": 0.66
+   },
+   {
+    "text": "if",
+    "start": 0.66,
+    "end": 0.94
+   },
+   {
+    "text": "it",
+    "start": 0.94,
+    "end": 1.08
+   },
+   {
+    "text": "wobbles.",
+    "start": 1.08,
+    "end": 1.56
+   },
+   {
+    "text": "A",
+    "start": 1.92,
+    "end": 2.08
+   },
+   {
+    "text": "wobbly",
+    "start": 2.08,
+    "end": 2.48
+   },
+   {
+    "text": "line",
+    "start": 2.48,
+    "end": 2.84
+   },
+   {
+    "text": "is",
+    "start": 2.84,
+    "end": 3.1
+   },
+   {
+    "text": "just",
+    "start": 3.1,
+    "end": 3.3
+   },
+   {
+    "text": "a",
+    "start": 3.3,
+    "end": 3.46
+   },
+   {
+    "text": "hand",
+    "start": 3.46,
+    "end": 3.84
+   },
+   {
+    "text": "learning",
+    "start": 3.84,
+    "end": 4.36
+   },
+   {
+    "text": "something",
+    "start": 4.36,
+    "end": 4.8
+   },
+   {
+    "text": "new.",
+    "start": 4.8,
+    "end": 5.32
+   }
+  ]
+ }
+}

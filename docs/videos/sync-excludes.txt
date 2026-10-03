@@ -30,3 +30,16 @@ driver/dd/
 driver/*.log
 driver/*.log.full
 driver/PCDriver.xcodeproj/
+voice/takes/
+voice/samples/
+voice/ref/
+rec/frames-*/
+assets/
+sheets/
+grid/
+check/
+video/public/sfx/
+video/public/lesson/
+music/*.png
+music/sample30.*
+video/tools/meta.mjs

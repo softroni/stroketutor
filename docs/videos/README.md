@@ -9,6 +9,7 @@ or changed.**
 | [`overview-1.0`](overview-1.0) | What Paper Coach 1.0 does, on an upright iPad | 1:19 | 2026-10-01 | Posted everywhere 2026-10-01 ([YouTube](https://www.youtube.com/watch?v=IFf4_f78Y9k)) |
 | [`whats-new-1.1`](whats-new-1.1) | What's new in 1.1: Around Town, iPad sideways, Bright and Scan… | 2:07 | 2026-10-02 | The day 1.1 is on sale |
 | [`overview-1.1`](overview-1.1) | The tour, for people new to Paper Coach: how it works, 110 lessons, free and Premium, iPhone and iPad, tips; soft music. A 2:16 cut for X | 3:59 | 2026-10-03 | The day after 1.1's what's-new video |
+| [`studio-tour`](studio-tour) | The Studio itself, for Kevin's friends: Paths, Voice, Learners, Social, Docs, Today, and Claude running it; British narrator, upbeat music, light theme | 3:54 | 2026-10-03 | YouTube, unlisted, shared by hand; never on the schedule |
 
 Each folder's own README says how that video was recorded, voiced, edited and rendered, and how it is posted. The
 plan behind them is `docs/ops/social-plan.md` (*What's new videos*, *The tour video*).
