@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-03T00:08:11-05:00",
+  "updated": "2026-10-03T10:01:20-05:00",
   "headline": "1.1 has waited about 56 hours for Apple's review; nothing is broken and there are no reviews yet. Oct 2 was the best day so far: 7 new learners, all through onboarding, the first Apple Ads install, but no purchase yet.",
   "app": {
     "live": {
@@ -341,17 +341,65 @@
       "detail": "Done in the editors on Oct 1: '100+ lessons' in all four designs; Paywall 2 and Flow 2 now name the billing date and the reminder 2 days before. Waiting for Kevin to publish Paywall 2 and Flow 2. Paywall 1 and Flow 1 stay drafts until 1.0 is gated out (Lifetime)."
     },
     {
-      "title": "Ads spend guard",
-      "state": "next",
-      "detail": "Apple refuses lifetime budgets on this account, so a small agent that needs no Claude will pause every Paper Coach campaign at $140. Needed before spend passes $100."
-    },
-    {
       "title": "Measure ads and paywalls",
       "state": "next",
       "detail": "PostHog tiles for the paid funnel by keyword (tap install, 13+, paywall reached, trial) and per paywall design, leaving out App Review and test installs."
     }
   ],
   "log": [
+    {
+      "at": "2026-10-03T10:01:19-05:00",
+      "text": "Trial cancelled: the 13–15 learner turned off renewal 3 hours in, still drawing; Premium until Oct 10",
+      "kind": "money"
+    },
+    {
+      "at": "2026-10-03T09:46:59-05:00",
+      "text": "Apple Ads: excluded origami searches from Discovery",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-03T09:46:59-05:00",
+      "text": "Apple Ads: Kevin handed daily optimization to Claude; an automatic stop pauses them at $140",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-03T09:43:48-05:00",
+      "text": "First trial: a 13–15 learner, Settings › Premium, Paywall 1, not from an ad",
+      "kind": "money"
+    },
+    {
+      "at": "2026-10-03T09:37:12-05:00",
+      "text": "Apple Ads: confirmed no ads reach under-13s (Apple's rule); the checks keep it so",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-03T09:36:20-05:00",
+      "text": "Social: captions now open with \"How to draw…\" and carry 5 search tags, from tonight's Sun",
+      "kind": "social"
+    },
+    {
+      "at": "2026-10-03T09:26:19-05:00",
+      "text": "Social: evening review was missed Oct 1–2 (no notices); new opening merged for Oct 5; check-in job set",
+      "kind": "social"
+    },
+    {
+      "at": "2026-10-03T09:23:17-05:00",
+      "text": "Apple Ads: bids now follow Astro's search popularity; rare searches stop climbing",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-03T09:23:16-05:00",
+      "text": "Apple Ads: added how to draw step by step and kids drawing, Astro's most searched missing terms",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-03T00:41:31-05:00",
+      "text": "Promotion videos' source now kept in git (docs/videos): the 1.0 overview, 1.1 what's-new and the tour."
+    },
+    {
+      "at": "2026-10-03T00:36:30-05:00",
+      "text": "Made the 4-minute Paper Coach tour from 1.1 (and a 2:16 cut for X); it posts the day after 1.1's what's-new video."
+    },
     {
       "at": "2026-10-03T00:08:10-05:00",
       "text": "Daily check: 1.1 still waiting for review; 7 new learners on Oct 2, all through onboarding; no crashes",
@@ -485,55 +533,6 @@
       "at": "2026-10-01T11:51:21-05:00",
       "text": "Midnight check now leaves social to the 5:45 PM social check when that ran the evening before",
       "kind": "check"
-    },
-    {
-      "at": "2026-10-01T01:21:57-05:00",
-      "text": "In-app App Store links get a campaign per place (app-share-*); Edit moved to the top bar (5a8e3d6)"
-    },
-    {
-      "at": "2026-10-01T01:15:21-05:00",
-      "text": "Built drawing sharing on main (1622c66), Kevin's call, for the build after 1.1: Share leads the sketchbook page and sits under the saved page; the card carries the app's name, the link is tagged ct=drawing-share; a child's share asks a grown-up first"
-    },
-    {
-      "at": "2026-10-01T00:17:02-05:00",
-      "text": "Apple Ads: excluded 文墨天机, an unrelated app's name, from Discovery; bids left as they are (Kevin)",
-      "kind": "ads"
-    },
-    {
-      "at": "2026-10-01T00:06:41-05:00",
-      "text": "Daily check: 1.1 still waiting for review; 3 learners on 1.0, all finished a drawing; no crashes or reviews",
-      "kind": "check"
-    },
-    {
-      "at": "2026-10-01T00:06:41-05:00",
-      "text": "Social check: Pine Tree is up on all seven platforms; every account connected",
-      "kind": "social"
-    },
-    {
-      "at": "2026-10-01T00:06:41-05:00",
-      "text": "Apple Ads: Apple has categorized the app; all 4 campaigns are now serving, nothing spent yet",
-      "kind": "ads"
-    },
-    {
-      "at": "2026-09-30T23:13:51-05:00",
-      "text": "Social: “Pine Tree” posted on youtube, facebook, x, pinterest, threads, tiktok, instagram."
-    },
-    {
-      "at": "2026-09-30T23:09:20-05:00",
-      "text": "Social: daily 5 pm posting is on from Oct 1; TikTok and Threads connected; the 8 am check watches it."
-    },
-    {
-      "at": "2026-09-30T23:04:07-05:00",
-      "text": "Daily check moved to midnight Central; heartbeats now at 8 AM, noon, 4 PM and 8 PM"
-    },
-    {
-      "at": "2026-09-30T18:15:44-05:00",
-      "text": "Social: Upload-Post monthly for two months, then yearly if it brings downloads (decide about Nov 30)",
-      "kind": "social"
-    },
-    {
-      "at": "2026-09-30T17:42:17-05:00",
-      "text": "Social: plan agreed (docs/ops/social-plan.md); built step pins, a Pinterest board per path, speed draws and release news. Posting waits on the paid plan and TikTok."
     }
   ],
   "experiments": [

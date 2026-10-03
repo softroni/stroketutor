@@ -75,3 +75,14 @@
 {"at": "2026-10-03T00:08:10-05:00", "text": "Apple Ads: excluded the junk search packdraw from Discovery", "kind": "ads"}
 {"at": "2026-10-03T00:08:10-05:00", "text": "Apple Ads: first install, from how to draw app at $1.90; the 16–17 learner saw the offer, no buy", "kind": "ads"}
 {"at": "2026-10-03T00:08:10-05:00", "text": "Daily check: 1.1 still waiting for review; 7 new learners on Oct 2, all through onboarding; no crashes", "kind": "check"}
+{"at": "2026-10-03T00:36:30-05:00", "text": "Made the 4-minute Paper Coach tour from 1.1 (and a 2:16 cut for X); it posts the day after 1.1's what's-new video."}
+{"at": "2026-10-03T00:41:31-05:00", "text": "Promotion videos' source now kept in git (docs/videos): the 1.0 overview, 1.1 what's-new and the tour."}
+{"at": "2026-10-03T09:23:16-05:00", "text": "Apple Ads: added how to draw step by step and kids drawing, Astro's most searched missing terms", "kind": "ads"}
+{"at": "2026-10-03T09:23:17-05:00", "text": "Apple Ads: bids now follow Astro's search popularity; rare searches stop climbing", "kind": "ads"}
+{"at": "2026-10-03T09:26:19-05:00", "text": "Social: evening review was missed Oct 1–2 (no notices); new opening merged for Oct 5; check-in job set", "kind": "social"}
+{"at": "2026-10-03T09:36:20-05:00", "text": "Social: captions now open with \"How to draw…\" and carry 5 search tags, from tonight's Sun", "kind": "social"}
+{"at": "2026-10-03T09:37:12-05:00", "text": "Apple Ads: confirmed no ads reach under-13s (Apple's rule); the checks keep it so", "kind": "ads"}
+{"at": "2026-10-03T09:43:48-05:00", "text": "First trial: a 13–15 learner, Settings › Premium, Paywall 1, not from an ad", "kind": "money"}
+{"at": "2026-10-03T09:46:59-05:00", "text": "Apple Ads: Kevin handed daily optimization to Claude; an automatic stop pauses them at $140", "kind": "ads"}
+{"at": "2026-10-03T09:46:59-05:00", "text": "Apple Ads: excluded origami searches from Discovery", "kind": "ads"}
+{"at": "2026-10-03T10:01:19-05:00", "text": "Trial cancelled: the 13–15 learner turned off renewal 3 hours in, still drawing; Premium until Oct 10", "kind": "money"}
