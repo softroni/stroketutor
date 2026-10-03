@@ -354,6 +354,49 @@ export interface PaywallNamesResponse {
   problem: string | null
 }
 
+/** A version of the app as App Store Connect has it. */
+export interface AppVersion {
+  version: string
+  /** App Store Connect's state ("READY_FOR_SALE", "WAITING_FOR_REVIEW"…). */
+  state: string
+  /** On sale now, or once was. */
+  released: boolean
+  /** The day its phased release began (YYYY-MM-DD), when it had one. */
+  since: string | null
+}
+
+/** Events of a version the page left out, and why. */
+export interface LeftOut {
+  version: string
+  why: 'not on sale' | 'before its release'
+  state: string
+  events: number
+}
+
+/**
+ * Leaves out what test devices sent from builds that were not on the App Store: every event
+ * of a version never on sale (TestFlight and App Review installs), and a version's events
+ * before its phased release began. Events with no version, or of a version App Store Connect
+ * does not know, stay; so does everything when there are no versions to go by.
+ */
+export function leaveOutTestVersions(events: LearnerEvent[], versions: AppVersion[]): { events: LearnerEvent[]; leftOut: LeftOut[] } {
+  if (!versions.length) return { events, leftOut: [] }
+  const byVersion = new Map(versions.map((entry) => [entry.version, entry]))
+  const leftOut = new Map<string, LeftOut>()
+  const kept = events.filter((event) => {
+    const entry = event.version ? byVersion.get(event.version) : undefined
+    if (!entry) return true
+    const why = !entry.released ? 'not on sale' : entry.since && dayOf(event.at) < entry.since ? 'before its release' : null
+    if (!why) return true
+    const key = `${entry.version}|${why}`
+    const counted = leftOut.get(key) ?? { version: entry.version, why, state: entry.state, events: 0 }
+    counted.events += 1
+    leftOut.set(key, counted)
+    return false
+  })
+  return { events: kept, leftOut: [...leftOut.values()] }
+}
+
 /** What `/api/learners` answers. */
 export interface LearnersResponse {
   /** False until a PostHog key is set; `problem` says how. */
@@ -364,6 +407,10 @@ export interface LearnersResponse {
   events: LearnerEvent[]
   /** When PostHog was asked (ISO). */
   fetchedAt: string | null
+  /** What test builds sent that was left out (`leaveOutTestVersions`). */
+  leftOut?: LeftOut[]
+  /** Why versions could not be checked, when they could not. */
+  versionsProblem?: string | null
 }
 
 // ---------- Days ----------

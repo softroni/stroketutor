@@ -49,6 +49,8 @@ every scheduled run follows it.
   before the first price.
   A lesson finished faster than it can be drawn (its animation, or 3 s a step) with no photo kept is "tapped through"
   and left out of every count of lessons drawn.
+  Versions never on sale (TestFlight, App Review) and a version's events before its phased release are left out,
+  from App Store Connect (`superwall asc get …/appStoreVersions`, kept an hour); the header says what.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature

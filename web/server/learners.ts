@@ -1,7 +1,10 @@
 import { promises as fs } from 'node:fs'
 
+import { readAppVersions, type AppVersionsOptions } from './appVersions'
+
 import {
   DAY,
+  leaveOutTestVersions,
   LEARNER_EVENTS,
   LEARNERS_TIME_ZONE,
   dayOf,
@@ -32,6 +35,11 @@ export interface LearnersOptions {
   /** PostHog's private API, not the capture host the app sends to. */
   host?: string
   sampleFile?: string
+  /**
+   * App Store Connect's versions, to leave out what TestFlight and App Review devices sent
+   * (`leaveOutTestVersions`); without it, every version counts.
+   */
+  versions?: AppVersionsOptions
   /** For the tests. */
   fetch?: typeof fetch
 }
@@ -76,6 +84,29 @@ export function forgetLearners() {
 }
 
 export async function readLearners(
+  options: LearnersOptions,
+  from: string | null,
+  to: string | null,
+  now = Date.now(),
+  force = false,
+): Promise<LearnersResponse> {
+  return withoutTestVersions(await readAllLearners(options, from, to, now, force), options, now)
+}
+
+/** One learner's events, as `readLearners` leaves them. */
+export async function readLearnerHistory(options: LearnersOptions, idsParam: string | null, now = Date.now()): Promise<LearnersResponse> {
+  return withoutTestVersions(await readWholeHistory(options, idsParam, now), options, now)
+}
+
+/** The answer without what test builds sent, and a word on what was left out. Kept answers stay whole. */
+async function withoutTestVersions(response: LearnersResponse, options: LearnersOptions, now: number): Promise<LearnersResponse> {
+  if (!options.versions || !response.configured || !response.events.length) return response
+  const known = await readAppVersions(options.versions, now)
+  const { events, leftOut } = leaveOutTestVersions(response.events, known.versions)
+  return { ...response, events, leftOut, versionsProblem: known.problem }
+}
+
+async function readAllLearners(
   options: LearnersOptions,
   from: string | null,
   to: string | null,
@@ -126,7 +157,7 @@ export async function readLearners(
  * separated: the profile's, and the launch's before the age answer). Read-only,
  * kept five minutes like the rest.
  */
-export async function readLearnerHistory(
+async function readWholeHistory(
   options: LearnersOptions,
   idsParam: string | null,
   now = Date.now(),

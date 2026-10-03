@@ -53,6 +53,11 @@ export default defineConfig(({ mode }) => {
           apiKey: env.POSTHOG_PERSONAL_API_KEY || undefined,
           projectId: env.POSTHOG_PROJECT_ID || undefined,
           sampleFile: env.STUDIO_LEARNERS_SAMPLE || undefined,
+          // App Store Connect's versions, to leave out TestFlight and App Review devices; the
+          // sample's are beside it.
+          versions: {
+            sampleFile: env.STUDIO_LEARNERS_SAMPLE ? env.STUDIO_LEARNERS_SAMPLE.replace(/[^/]*$/, 'app-versions.json') : undefined,
+          },
         },
       }),
     ],

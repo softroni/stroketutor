@@ -217,6 +217,11 @@ export function useNumberChanges(
   return changes
 }
 
+/** "waiting for review", from App Store Connect's "WAITING_FOR_REVIEW". */
+function stateWords(state: string): string {
+  return state.toLowerCase().replace(/_/g, ' ')
+}
+
 const NO_NAMES: AdNames = { campaigns: {}, adGroups: {}, keywords: {} }
 /** The names behind Apple Ads' ids, asked for once per visit to the page. */
 const AdNamesContext = createContext<AdNames>(NO_NAMES)
@@ -505,6 +510,12 @@ export function LearnersView({
           <p className="st-learners__byline">
             {response?.source === 'sample' ? <>Sample events (STUDIO_LEARNERS_SAMPLE), not PostHog’s.</> : <>From PostHog.</>}{' '}
             Days in {LEARNERS_TIME_ZONE_NAME}.{' '}
+            {response?.leftOut?.length ? (
+              <span title="Builds that were not on the App Store: TestFlight and App Review devices">
+                Left out: {response.leftOut.map((entry) => `${entry.version} ${entry.why === 'not on sale' ? `(${stateWords(entry.state)})` : '(before its release)'}, ${entry.events} events`).join('; ')}.{' '}
+              </span>
+            ) : null}
+            {response?.versionsProblem ? <span title={response.versionsProblem}>App versions not checked. </span> : null}
             {response?.configured ? (
               <Freshness
                 loadedAt={loadedAt}

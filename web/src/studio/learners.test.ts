@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import type { Tutorial } from '../schema/types'
 
 import {
+  leaveOutTestVersions,
   DEFAULT_LESSON_FLOOR_MS,
   markTappedThrough,
   lessonFloorMs,
@@ -697,5 +698,33 @@ describe('tapped through', () => {
     expect(report.sessions[0].timeline.map((line) => line.text)).toContain('Tapped through it in 5 s: too fast to have drawn it')
     expect(report.mostDrawn).toEqual([])
     expect(report.numbers.find((number) => number.key === 'lessons')).toMatchObject({ value: 0, sub: '0 different · 1 tapped through' })
+  })
+})
+
+describe('test builds', () => {
+  const at = Date.parse('2026-10-05T15:00:00Z')
+  const versions = [
+    { version: '1.2', state: 'WAITING_FOR_REVIEW', released: false, since: null },
+    { version: '1.1', state: 'READY_FOR_SALE', released: true, since: '2026-10-05' },
+    { version: '1.0', state: 'REPLACED_WITH_NEW_VERSION', released: true, since: null },
+  ]
+  const events: LearnerEvent[] = [
+    { at, event: 'app_opened', id: 'reviewer', version: '1.2' },
+    { at: at + 1, event: 'lesson_started', id: 'reviewer', version: '1.2', lesson: 'cloud' },
+    { at: at - 2 * 86_400_000, event: 'app_opened', id: 'tester', version: '1.1' },
+    { at, event: 'app_opened', id: 'learner', version: '1.1' },
+    { at, event: 'app_opened', id: 'older', version: '1.0' },
+    { at, event: 'app_opened', id: 'nobody-knows', version: '0.9' },
+    { at, event: 'app_opened', id: 'unsaid' },
+  ]
+
+  it('leaves out a version never on sale, and a version’s events before its phased release began', () => {
+    const { events: kept, leftOut } = leaveOutTestVersions(events, versions)
+    expect(kept.map((event) => event.id)).toEqual(['learner', 'older', 'nobody-knows', 'unsaid'])
+    expect(leftOut).toEqual([
+      { version: '1.2', why: 'not on sale', state: 'WAITING_FOR_REVIEW', events: 2 },
+      { version: '1.1', why: 'before its release', state: 'READY_FOR_SALE', events: 1 },
+    ])
+    expect(leaveOutTestVersions(events, [])).toEqual({ events, leftOut: [] })
   })
 })

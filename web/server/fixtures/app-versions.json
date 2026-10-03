@@ -1,0 +1,7 @@
+{
+  "note": "Paper Coach's versions in App Store Connect on 2026-10-02, as server/appVersions.ts reads them: 1.0 on sale, 1.1 waiting for review; for the sample events.",
+  "versions": [
+    { "version": "1.1", "state": "WAITING_FOR_REVIEW", "released": false, "since": null },
+    { "version": "1.0", "state": "READY_FOR_SALE", "released": true, "since": null }
+  ]
+}

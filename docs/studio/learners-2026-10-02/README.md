@@ -3,7 +3,10 @@
 The Learners page (`#/learners`) and its summary on Today, shown with the committed sample
 (`STUDIO_LEARNERS_SAMPLE=server/fixtures/learners-sample.json`: PostHog's events for Oct 1, and Oct 2 until 6:30 PM,
 2026, release builds only, ids relabeled). With `POSTHOG_PERSONAL_API_KEY` set, the same page reads PostHog live. Test devices
-are left out: every debug build, and every id that carried Apple Ads' test payload.
+are left out: every debug build, every id that carried Apple Ads' test payload, and (from App Store Connect, through
+`superwall asc`) every event of a version never on sale, and of a version before its phased release began: what
+TestFlight and App Review devices sent. The header says what was left out ("Left out: 1.1 (waiting for review),
+6 events").
 
 ## How fresh it is
 
