@@ -537,3 +537,7 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - 2026-10-03: the tour went on YouTube unlisted for Kevin's friends (https://www.youtube.com/watch?v=3fnwFxENMSk); it
   turns public the day it goes out everywhere. From now on every post's links carry its source through softroni.com
   (`?v=` and `?c=`), so PostHog counts taps by post; the Learners page lists them under *Links in posts*.
+- 2026-10-03: Kevin: **YouTube verified the channel** too, so custom thumbnails (the tour's, E5's long videos from
+  Oct 10) and links in descriptions are allowed now; TikTok's business verification and bio link were already in
+  on Oct 1. Nothing has been sent with a thumbnail yet, so the first one shows whether Upload-Post's `thumbnail`
+  lands on YouTube.
