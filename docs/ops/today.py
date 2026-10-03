@@ -2,11 +2,12 @@
 """Paper Coach operations: what Claude reads every day, and what the Studio's Today page shows.
 
     python3 docs/ops/today.py check      # cheap: review state and new App Store reviews since last time
-    python3 docs/ops/today.py collect    # everything: App Store Connect, sales, Apple Ads, Superwall
+    python3 docs/ops/today.py collect    # everything: App Store Connect, sales, Apple Ads, Superwall, Astro keywords
     python3 docs/ops/today.py publish    # facts.json + notes.json + the log -> status.json (the Today page)
     python3 docs/ops/today.py log "Resubmitted 1.0.1 (4) after the 2.1 rejection"
     python3 docs/ops/today.py log --kind release "Apple approved 1.1 (4); tagged and merged"
     python3 docs/ops/today.py show       # the status as it stands, for a session to read
+    python3 docs/ops/today.py astro get_keyword_suggestions '{"appId": "6816231257", "store": "us"}'   # any Astro tool
     python3 docs/ops/today.py archive    # commit and push the day's history (branch ops-history)
 
 Everything lives in .studio/ops/ of the main checkout (gitignored, on this Mac), whichever
@@ -50,6 +51,7 @@ APP_SKU = "papercouch"  # its SKU (App Store Connect cannot change one); sales r
 SUPERWALL_APP = "56531"  # Paper Coach in Superwall
 ASA_VIA_APP = "54792"  # the Superwall app whose Apple Ads connection reaches the Softroni LLC org
 POSTHOG_DASHBOARD = "https://us.posthog.com/project/629055/dashboard/2140277"
+ASTRO_MCP = "http://127.0.0.1:8089/mcp"  # the Astro app's local MCP server (keyword ranks and popularity); only while Astro is open
 LOCAL_TZ = ZoneInfo("America/Chicago")  # the creator's clock (Central: -05:00 in summer, -06:00 in winter)
 
 # App Store Connect states, as a person would say them, and how they should feel.
@@ -374,6 +376,54 @@ def experiments() -> list[dict]:
     return found
 
 
+# ---------------------------------------------------------------- keywords (the Astro app, on this Mac)
+
+
+def astro(tool: str, arguments: dict) -> str:
+    """One tool call to Astro's MCP server: initialize, then call. Raises if the Astro app isn't open."""
+
+    def post(body: dict, session: str | None = None):
+        headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+        if session:
+            headers["Mcp-Session-Id"] = session
+        request = urllib.request.Request(ASTRO_MCP, data=json.dumps(body).encode(), headers=headers)
+        with urllib.request.urlopen(request, timeout=120) as response:
+            text = response.read().decode()
+            # A reply may come as server-sent events: the JSON is on the "data:" line.
+            payload = next((line[5:] for line in text.splitlines() if line.startswith("data:")), text)
+            return response.headers.get("Mcp-Session-Id"), json.loads(payload) if payload.strip() else None
+
+    hello = {"protocolVersion": "2025-03-26", "capabilities": {}, "clientInfo": {"name": "paper-coach-today", "version": "1"}}
+    try:
+        session, _ = post({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": hello})
+    except urllib.error.URLError as error:
+        raise RuntimeError(f"Astro isn't open on this Mac ({error.reason})") from error
+    post({"jsonrpc": "2.0", "method": "notifications/initialized"}, session)
+    _, reply = post({"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": tool, "arguments": arguments}}, session)
+    if reply.get("error"):
+        raise RuntimeError(f"Astro {tool}: {reply['error']}")
+    return "".join(part.get("text", "") for part in reply["result"].get("content", []))
+
+
+def keywords(store: str = "us") -> dict:
+    """Paper Coach's keywords tracked in Astro: Apple's search popularity (5 is the floor: almost nobody
+    searches it), difficulty, and where the app ranks (None when it isn't in the results)."""
+    found = json.loads(astro("get_app_keywords", {"appId": APP_ID, "store": store, "platform": "iphone"}))
+    rows = [
+        {
+            "keyword": row["keyword"],
+            "popularity": row.get("popularity"),
+            "difficulty": row.get("difficulty"),
+            "rank": row["currentRanking"] if (row.get("currentRanking") or 1000) < 1000 else None,
+            "change": row.get("rankingChange") or 0,
+            "updated": row.get("lastUpdate"),
+        }
+        for row in found.get("keywords", [])
+    ]
+    rows.sort(key=lambda row: (-(row["popularity"] or 0), row["keyword"]))
+    return {"store": store, "tracked": len(rows), "keywords": rows}
+
+
 # ---------------------------------------------------------------- commands
 
 
@@ -394,6 +444,7 @@ def collect() -> dict:
     attempt("sales", sales_days)
     attempt("ads", apple_ads)
     attempt("experiments", experiments)
+    attempt("keywords", keywords)
     write_json("facts.json", facts)
     return facts
 
@@ -698,6 +749,11 @@ def main(argv: list[str]) -> int:
         show()
     elif command == "archive":
         print(archive())
+    elif command == "astro":
+        if len(argv) < 3:
+            print("usage: today.py astro <tool> ['{json arguments}']   (tools: Astro's MCP list, e.g. get_keyword_suggestions)", file=sys.stderr)
+            return 2
+        print(astro(argv[2], json.loads(argv[3]) if len(argv) > 3 else {}))
     else:
         print(__doc__)
         return 2

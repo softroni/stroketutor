@@ -248,10 +248,25 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
     campaign budgets on this account (`LIFETIME_BUDGET_NOT_SUPPORTED`), so the stop is ours: from $100 spent, the
     daily caps add up to at most half of what is left to $140, so one missed check can't break it.
   - **The plan for more goes to Kevin at $100 spent or on Oct 9**, whichever comes first.
-  - **Bid ladder:** a keyword with no impressions (or under 20 a day) rises $0.25 a day, up to $2.75 for "learn
-    to draw" and "how to draw", $2.00 for the step-by-step and adult terms, $1.75 for the easy and tutorial terms,
-    $1.20 for the kids terms and broad match. A keyword winning at well under its bid comes down to about 1.2 times
-    its average cost per tap.
+  - **Search popularity decides where money goes** (Apple's own 5–100 score, read from the Astro app; `collect`
+    puts Paper Coach's tracked keywords in `facts.json` › `keywords`, US). 5 is Apple's floor: almost nobody
+    searches it. Since 2026-10-03 (Kevin's idea):
+    - **Bid ladder:** a keyword with no impressions (or under 20 a day) rises $0.25 a day, but only up to the
+      ceiling its popularity earns: **20 or more: $2.75; 10–19: $2.00; 6–9: $1.50; 5: it doesn't climb** (its bid
+      stays put, and goes back to $1.00 after a week with no impressions). Kids terms stop at $1.40 whatever their
+      popularity (their learners meet the grown-up paywall, which no test reaches). A keyword winning at well under
+      its bid comes down to about 1.2 times its average cost per tap. A keyword that has brought installs keeps its
+      bid whatever its popularity.
+    - **Missing searches go in:** a tracked keyword with popularity 15 or more that fits Paper Coach and isn't in
+      the ads becomes an exact keyword in Category, at its ceiling's tier, with an exact excluded keyword in
+      Discovery.
+    - **Mondays, research:** in Astro (`today.py astro <tool> '<json>'`, which calls its local MCP server), `extract_competitors_keywords`
+      for the three most popular terms and `get_keyword_suggestions` for Paper Coach; track new fitting terms
+      with popularity 10 or more (`add_keywords`, US and the other tracked stores) and apply the rule above.
+      Never `remove_keywords`: Astro marks it destructive and it needs Kevin's yes. Astro only answers while its
+      app is open on this Mac; when it isn't, `facts.json` says so in `errors` and the ladder holds for the day.
+    - **ASO:** Paper Coach ranks only for its own name so far. Rank changes (`rank`, `change`) show whether a
+      release's keyword field worked; they feed the next version's keywords (*Who does what* › ASO).
   - Judge keywords on **tap installs** only (view-through installs inflate them). Until trials are numerous,
     **cost per paywall reached** steers the money; trials and purchases confirm it.
   - Every night during the first $150: junk search terms with 5 or more impressions become exact excluded
