@@ -235,9 +235,9 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 - **Never to children (Kevin, 2026-10-03).** Apple Ads serves no ads to Apple Accounts registered to children
   under 13, or to Managed Apple Accounts, whatever the settings, and it lets no one target under-18s (age
   targeting starts at 18 in the US) ([Apple Ads and privacy](https://ads.apple.com/app-store/help/advanced/0029-apple-search-ads-and-privacy)).
-  So the ads stay where that holds: **Apple Ads in the App Store only.** Paper Coach's ad groups set no age
-  targeting on purpose: adding any (even 18+) also drops everyone with Personalized Ads off, most of the reach,
-  and changes nothing for under-13s. Keywords for kids ("kids drawing") are bought for the adults and teens who
+  So the ads stay where that holds: **Apple Ads in the App Store only.** An ad group never narrows to an age
+  range on its own: that also drops everyone with Personalized Ads off, most of the reach, and changes nothing
+  for under-13s. Age targeting is used only as *Who buys, and who the ads bring* below allows. Keywords for kids ("kids drawing") are bought for the adults and teens who
   search them. Ads anywhere else (social, web, other networks) would be new spending, so Kevin's decision, and
   must exclude under-13s there too.
 - **Start:** US only, **$10 a day** across the campaigns, the day 1.0 is approved, as
@@ -286,6 +286,35 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
   itself.
 - PostHog: `install_attributed` and the `asa_*` keys on onboarding, trial and purchase events join
   installs to keywords (filter out `asa_test_payload`).
+
+## Who buys, and who the ads bring
+
+Kevin, 2026-10-03, after the first trial (a 13–15 learner, Settings › Premium, Paywall 1, not from an ad) came in
+six hours after the daily check: **know every trial and purchase the day it happens, and decide from them daily.**
+
+- **Within hours:** `today.py check` reports each new trial or purchase as a change of kind `money`: the learner's
+  age, the way in (onboarding, a crowned lesson, Settings), the paywall (the Superwall design and test arm, or the
+  app's own), the plan, and the Apple Ads keyword that brought them or none. The heartbeat logs it and puts it on
+  the first line of its summary, and the relay pushes that to Kevin's phone.
+- **Every night:** `collect` writes the last 14 days of them to `facts.json` › `purchases`, and who the ads bring
+  to `facts.json` › `adsByAge`: by the age each learner gave in the app, keyword by keyword (`byLearnerAge`:
+  onboarded, offers finished, bought, cancelled at Apple's sheet), and by Apple's own age range of the Apple Account,
+  ad group by ad group (`byAppleAge`; Apple knows it only for people with Personalized Ads on, so mostly "unknown").
+  Both read PostHog with the Studio's read-only key (`POSTHOG_PERSONAL_API_KEY` in `web/.env.local`), test installs
+  left out.
+- **Ads, by the learner's age** (the app's own question, so it covers everyone): a keyword whose learners start
+  trials or buy gets more money, up to its popularity ceiling (*Apple Ads*); a keyword that brings mostly children
+  is judged by their grown-ups' purchases on the grown-up paywall; one whose learners never reach an offer comes
+  down. Act on a keyword once it has brought 5 or more learners; before that, only note it.
+- **Ads, by the Apple Account's age** (18+ ranges only): when one range has 30 or more taps and clearly converts
+  better (twice the installs per tap, or more trials), add a second ad group in that campaign that targets just
+  that range, with the same keywords at about 25% higher bids, and keep the untargeted ad group running, so people
+  with Personalized Ads off still see the ads. Remove it when the difference fades. Never narrow the only ad group
+  to an age range, and never target under 18 (Apple doesn't allow it, and under-13s never see ads).
+- **Paywalls, by age and way in:** the A/B rules still decide the splits (purchases per open, 300 opens), so a
+  single trial moves nothing. Which ages buy, and from where, goes in the daily summary and the Today page's
+  numbers; a pattern that would need the app to change (where the offer appears for 13–15, say) goes to Kevin as a
+  suggestion.
 
 ## Lesson videos on social
 

@@ -376,6 +376,148 @@ def experiments() -> list[dict]:
     return found
 
 
+# ---------------------------------------------------------------- PostHog: who buys, and who the ads bring
+
+POSTHOG_PROJECT = "629055"
+POSTHOG_API = "https://us.posthog.com"  # the private API (the app sends to the capture host instead)
+# Test installs, left out everywhere as the daily check leaves them out: debug builds, and every id that
+# carried Apple Ads' test payload (TestFlight and development installs).
+NOT_A_TEST = (
+    "coalesce(properties.build, '') != 'debug' AND distinct_id NOT IN "
+    "(SELECT DISTINCT distinct_id FROM events WHERE properties.asa_test_payload = true)"
+)
+AGE_LABELS = {
+    "under6": "under 6", "6to9": "6–9", "10to12": "10–12", "13to15": "13–15", "16to17": "16–17",
+    "18plus": "18+", "preferNotToSay": "prefer not to say", "unanswered": "no answer",
+}
+CHILD_AGES = {"under6", "6to9", "10to12", "preferNotToSay", "unanswered"}  # the child tier: the grown-up paywall
+PLACES = {"onboarding_offer": "onboarding", "premium_lesson": "a crowned lesson", "settings_premium": "Settings › Premium"}
+
+
+def posthog_sql(query: str) -> list[dict]:
+    """Rows of a HogQL query, with the Studio's read-only key (POSTHOG_PERSONAL_API_KEY, from the
+    environment or web/.env.local, which git ignores). The key is never printed."""
+    key = os.environ.get("POSTHOG_PERSONAL_API_KEY")
+    if not key:
+        env = main_checkout() / "web" / ".env.local"
+        for line in env.read_text().splitlines() if env.exists() else []:
+            name, _, value = line.partition("=")
+            if name.strip() == "POSTHOG_PERSONAL_API_KEY":
+                key = value.strip().strip("'\"")
+    if not key:
+        raise RuntimeError("no PostHog key: POSTHOG_PERSONAL_API_KEY in web/.env.local")
+    request = urllib.request.Request(
+        f"{POSTHOG_API}/api/projects/{POSTHOG_PROJECT}/query/",
+        data=json.dumps({"query": {"kind": "HogQLQuery", "query": query}}).encode(),
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            reply = json.load(response)
+    except urllib.error.HTTPError as error:
+        raise RuntimeError(f"PostHog {error.code}: {error.read().decode()[:200]}") from error
+    columns = reply.get("columns") or []
+    return [dict(zip(columns, row)) for row in reply.get("results") or []]
+
+
+def sales_by_learner(days: int = 14) -> list[dict]:
+    """Every trial and purchase of the last `days`, one row each: when, the learner's age, the plan, the
+    way in (onboarding, a crowned lesson, Settings; the Superwall design and test arm, or the app's own
+    paywall), and whether an Apple Ads keyword brought them. A trial is a purchase of the yearly plan
+    that Superwall or the app's own "Your free week has started" counts as one."""
+    window = f"timestamp >= now() - INTERVAL {int(days)} DAY AND {NOT_A_TEST}"
+    bought = posthog_sql(
+        "SELECT uuid, timestamp, distinct_id, properties.age_group AS age, properties.plan AS plan, "
+        "properties.asa_attribution AS from_ads, properties.asa_keyword_id AS keyword_id, "
+        "properties.asa_ad_group_id AS ad_group_id, properties.$app_version AS version "
+        f"FROM events WHERE event = 'purchase_attempted' AND properties.outcome = 'purchased' AND {window} "
+        "ORDER BY timestamp"
+    )
+    if not bought:
+        return []
+    around = posthog_sql(
+        "SELECT event, timestamp, distinct_id, properties.placement AS placement, properties.variant_id AS variant, "
+        "properties.entry AS entry, properties.screen AS screen FROM events WHERE event IN "
+        "('superwall_transaction_complete', 'superwall_free_trial_start', 'offer_finished', 'offer_screen_viewed') "
+        f"AND {window}"
+    )
+
+    def near(row, sale, seconds):
+        delta = (dt.datetime.fromisoformat(row["timestamp"]) - dt.datetime.fromisoformat(sale["timestamp"])).total_seconds()
+        return row["distinct_id"] == sale["distinct_id"] and -seconds <= delta <= seconds
+
+    sales = []
+    for sale in bought:
+        superwall_done = next((r for r in around if r["event"] == "superwall_transaction_complete" and near(r, sale, 120)), None)
+        trial = any(
+            near(r, sale, 600)
+            and (r["event"] == "superwall_free_trial_start" or (r["event"] == "offer_screen_viewed" and r["screen"] == "trial_started"))
+            for r in around
+        )
+        entry = next((r["entry"] for r in around if r["event"] == "offer_finished" and near(r, sale, 600) and r["entry"]), None)
+        age = sale["age"] or "unanswered"
+        sales.append(
+            {
+                "id": sale["uuid"],
+                "at": sale["timestamp"],
+                "kind": "trial" if trial else "purchase",
+                "plan": sale["plan"],
+                "age": age,
+                "ageLabel": AGE_LABELS.get(age, age),
+                "tier": "child" if age in CHILD_AGES else "13+",
+                "place": PLACES.get((superwall_done or {}).get("placement"), entry or "unknown"),
+                "paywall": "superwall" if superwall_done else "the app's own",
+                "variantId": (superwall_done or {}).get("variant"),
+                "fromAds": bool(sale["from_ads"]),
+                "keywordId": sale["keyword_id"],
+                "adGroupId": sale["ad_group_id"],
+                "version": sale["version"],
+            }
+        )
+    return sales
+
+
+def ads_by_age() -> dict:
+    """Who the ads bring, by the age each learner gave (the app's own question, so it covers everyone),
+    keyword by keyword, and how far they get; and Apple's own age ranges of the paying Apple Account by
+    ad group, which Apple knows only for people with Personalized Ads on."""
+    learners = posthog_sql(
+        "SELECT properties.asa_ad_group_id AS ad_group_id, properties.asa_keyword_id AS keyword_id, "
+        "coalesce(properties.age_group, 'unanswered') AS age, "
+        "countIf(event = 'ob_finished') AS onboarded, countIf(event = 'offer_finished') AS offers_finished, "
+        "countIf(event = 'purchase_attempted' AND properties.outcome = 'purchased') AS bought, "
+        "countIf(event = 'purchase_attempted' AND properties.outcome = 'cancelled') AS cancelled_at_apple "
+        "FROM events WHERE timestamp >= toDateTime('2026-09-30 12:00:00') AND properties.asa_attribution = true "
+        f"AND properties.asa_claim_type = 'Click' AND {NOT_A_TEST} "
+        "AND event IN ('ob_finished', 'offer_finished', 'purchase_attempted') "
+        "GROUP BY ad_group_id, keyword_id, age ORDER BY onboarded DESC"
+    )
+    for row in learners:
+        row["ageLabel"] = AGE_LABELS.get(row["age"], row["age"])
+        row["tier"] = "child" if row["age"] in CHILD_AGES else "13+"
+    apple = []
+    for campaign in superwall("asa", "campaigns", "list", "--app", ASA_VIA_APP)["data"]:
+        if str(campaign.get("adamId")) != APP_ID or campaign.get("deleted"):
+            continue
+        body = {
+            "startTime": "2026-09-30", "endTime": now().date().isoformat(), "timeZone": "ORTZ", "groupBy": ["ageRange"],
+            "returnRowTotals": True, "returnRecordsWithNoMetrics": False,
+            "selector": {"orderBy": [{"field": "impressions", "sortOrder": "DESCENDING"}], "pagination": {"offset": 0, "limit": 100}},
+        }
+        report = superwall("asa", "post", f"/reports/campaigns/{campaign['id']}/adgroups", "--app", ASA_VIA_APP, "--body", json.dumps(body))
+        for row in (report.get("data") or report)["reportingDataResponse"]["row"]:
+            meta, total = row["metadata"], row.get("total", {})
+            apple.append(
+                {
+                    "campaign": campaign["name"], "adGroup": meta.get("adGroupName"), "adGroupId": meta.get("adGroupId"),
+                    "ageRange": meta.get("ageRange") or "unknown", "impressions": total.get("impressions", 0),
+                    "taps": total.get("taps", 0), "tapInstalls": total.get("tapInstalls", 0),
+                    "spend": round(float((total.get("localSpend") or {}).get("amount") or 0), 2),
+                }
+            )
+    return {"byLearnerAge": learners, "byAppleAge": apple}
+
+
 # ---------------------------------------------------------------- keywords (the Astro app, on this Mac)
 
 
@@ -445,12 +587,15 @@ def collect() -> dict:
     attempt("ads", apple_ads)
     attempt("experiments", experiments)
     attempt("keywords", keywords)
+    attempt("purchases", sales_by_learner)  # "sales" above is App Store Connect's report; this is PostHog's, per learner
+    attempt("adsByAge", ads_by_age)
     write_json("facts.json", facts)
     return facts
 
 
 def check() -> list[dict]:
-    """What changed since the last check: the version's state, and reviews not seen before."""
+    """What changed since the last check: the version's state, reviews not seen before, and new trials
+    and purchases (kind "money")."""
     state = read_json("state.json", {})
     changes = []
     versions = app_versions()
@@ -470,6 +615,17 @@ def check() -> list[dict]:
             changes.append({"kind": "review", **review})
             known.add(review["id"])
     state["reviews"] = sorted(known)
+    # Trials and purchases (PostHog), so the heartbeat hears of each within hours, not at the next midnight.
+    try:
+        names = {variant["variantId"]: variant["name"] for test in experiments() for variant in test["variants"]}
+        sold = set(state.get("purchases", []))
+        for sale in sales_by_learner(days=3):
+            if sale["id"] not in sold:
+                changes.append({"kind": "money", **sale, "design": names.get(sale["variantId"], sale["paywall"])})
+                sold.add(sale["id"])
+        state["purchases"] = sorted(sold)
+    except Exception as error:  # PostHog or Superwall down: the rest of the check still counts, and the daily check sees it
+        print(f"today.py: trials and purchases not checked ({error})", file=sys.stderr)
     state["checked"] = now().isoformat()
     write_json("state.json", state)
     return changes

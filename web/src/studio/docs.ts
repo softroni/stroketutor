@@ -256,6 +256,7 @@ export const DOC_TOOLS: DocTool[] = [
       'App Store Connect keys in `~/.appstoreconnect/config`',
       'The `superwall` CLI signed in, for Apple Ads and the tests',
       'The Astro app open on this Mac, for keywords',
+      'The Studio’s PostHog key (`POSTHOG_PERSONAL_API_KEY` in `web/.env.local`), for trials, purchases and ages',
     ],
     tips: [
       'A log line is one short sentence under 120 characters, in plain words: “Apple approved 1.1 (4); tagged and merged”.',
@@ -269,11 +270,11 @@ export const DOC_TOOLS: DocTool[] = [
         commands: [
           {
             run: 'python3 docs/ops/today.py check',
-            does: 'Quick: has the App Store review state changed, and are there new reviews? Prints “no changes” when nothing moved.',
+            does: 'Quick: has the App Store review state changed, are there new reviews, and any new trial or purchase? Prints “no changes” when nothing moved.',
           },
           {
             run: 'python3 docs/ops/today.py collect',
-            does: 'Everything: versions and review, reviews, rating, sales, Apple Ads, the Superwall tests and the keywords Astro tracks (popularity, rank), into `.studio/ops/facts.json`.',
+            does: 'Everything: versions and review, reviews, rating, sales, Apple Ads, the Superwall tests, the keywords Astro tracks (popularity, rank), every trial and purchase with the learner’s age and way in, and which ages each ad keyword brings, into `.studio/ops/facts.json`.',
           },
           { run: 'python3 docs/ops/today.py publish', does: 'Rebuilds the Today page from the facts, Claude’s notes and the log.' },
           {
