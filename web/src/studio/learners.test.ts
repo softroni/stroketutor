@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
+  adsTotal,
+  withSpend,
   ageBandOf,
   isAgeBand,
   ordinal,
@@ -584,5 +586,23 @@ describe('ages', () => {
   it('follows a keyword: the ages it brought', () => {
     const keyword = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'keyword-2339019453', now: later })
     expect(keyword.ages.filter((row) => row.learners).map((row) => [row.age, row.learners])).toEqual([['16to17', 1]])
+  })
+})
+
+describe('Apple Ads spend beside its learners', () => {
+  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+  const spend = [
+    { key: 'keyword-2339019453', campaign: '2144789293', adGroup: '2151492291', keyword: '2339019453', spend: 2.44, impressions: 11, taps: 1, installs: 1 },
+    { key: 'keyword-2334871441', campaign: '2144789293', adGroup: '2151492291', keyword: '2334871441', spend: 1.9, impressions: 9, taps: 2, installs: 0 },
+    { key: 'keyword-1', campaign: '2144789293', adGroup: '2151492291', keyword: '1', spend: 0, impressions: 30, taps: 0, installs: 0 },
+  ]
+
+  it('puts each keyword’s spend beside the learners it brought, then the keywords that brought nobody', () => {
+    const rows = withSpend(evening.whereFrom.ads, spend)
+    expect(rows.map((row) => [row.key, row.learners, row.spend?.spend])).toEqual([
+      ['keyword-2339019453', 1, 2.44],
+      ['keyword-2334871441', 0, 1.9],
+    ])
+    expect(adsTotal(rows)).toEqual({ spend: 4.34, taps: 3, installs: 1, learners: 1, sawPrice: 1, bought: 0 })
   })
 })

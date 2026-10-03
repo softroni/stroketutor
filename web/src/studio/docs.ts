@@ -426,7 +426,7 @@ export const DOC_TOOLS: DocTool[] = [
     kind: 'terminal',
     name: 'Superwall CLI',
     about:
-      'The paywalls, campaigns and A/B tests in Superwall, and Apple Ads through Superwall’s proxy. `today.py` calls it for the tests and the ads, and the Studio’s Learners page for the names of the Apple Ads campaigns and keywords that brought each learner and of the paywall versions they saw.',
+      'The paywalls, campaigns and A/B tests in Superwall, and Apple Ads through Superwall’s proxy. `today.py` calls it for the tests and the ads, and the Studio’s Learners page for the names of the Apple Ads campaigns and keywords that brought each learner, what each keyword spent, and the names of the paywall versions they saw.',
     where: 'anywhere',
     usedBy: 'Claude, for the tests and the ads; the Studio’s Learners page',
     needs: ['`superwall login` once per machine'],

@@ -263,6 +263,28 @@ export interface AdNamesResponse {
   problem: string | null
 }
 
+/** What Apple Ads spent and got, for a keyword (or a campaign's Search Match) over some days. */
+export interface AdSpendRow {
+  /** `keyword-<id>`, or `campaign-<id>` for what a campaign spent outside its keywords (Search Match). */
+  key: Where
+  campaign: string
+  adGroup: string | null
+  keyword: string | null
+  /** US dollars. */
+  spend: number
+  impressions: number
+  taps: number
+  /** Apple's count: installs after a tap or a view. */
+  installs: number
+}
+
+/** `/api/learners/ad-spend?from=&to=`: Apple Ads' report for those days (US Central, as the ads account counts them). */
+export interface AdSpendResponse {
+  rows: AdSpendRow[]
+  source: 'apple-ads' | 'sample' | null
+  problem: string | null
+}
+
 /** The names behind Superwall's ids, from `/api/learners/paywalls` (`web/server/paywallNames.ts`). */
 export interface PaywallNames {
   /** By paywall identifier: "Flow 1". */
@@ -1405,6 +1427,46 @@ export function agesOf(sessions: LearnerSession[]): (WhereRow & { age: AgeBand }
   const rows = AGE_BANDS.map((age) => ({ ...emptyRow(age), age }))
   for (const session of sessions) addTo(rows[AGE_BANDS.indexOf(session.age && isAgeBand(session.age) ? session.age : 'none')], session)
   return rows.filter((row) => row.learners > 0 || (row.age !== 'preferNotToSay' && row.age !== 'none'))
+}
+
+/** An Apple Ads row of Where from, with what Apple says its keyword spent and got. */
+export interface AdRowWithSpend extends WhereRow {
+  ad: AdSource
+  spend: AdSpendRow | null
+}
+
+/**
+ * Where from's Apple Ads rows with Apple's report beside them: each keyword that brought
+ * learners, then each that spent money (or got a tap or an install) and brought nobody here.
+ */
+export function withSpend(ads: WhereFrom['ads'], spend: AdSpendRow[]): AdRowWithSpend[] {
+  const byKey = new Map(spend.map((row) => [row.key, row]))
+  const rows: AdRowWithSpend[] = ads.map((row) => ({ ...row, spend: byKey.get(row.key) ?? null }))
+  for (const row of spend) {
+    if (ads.some((ad) => ad.key === row.key)) continue
+    if (row.spend <= 0 && !row.taps && !row.installs) continue
+    rows.push({
+      ...emptyRow(row.key),
+      ad: { campaign: row.campaign, adGroup: row.adGroup, keyword: row.keyword },
+      spend: row,
+    })
+  }
+  return rows
+}
+
+/** Apple Ads in all: what it spent and got, and the learners it brought here and what they did. */
+export function adsTotal(rows: AdRowWithSpend[]) {
+  const total = { spend: 0, taps: 0, installs: 0, learners: 0, sawPrice: 0, bought: 0 }
+  for (const row of rows) {
+    total.spend += row.spend?.spend ?? 0
+    total.taps += row.spend?.taps ?? 0
+    total.installs += row.spend?.installs ?? 0
+    total.learners += row.learners
+    total.sawPrice += row.sawPrice
+    total.bought += row.bought
+  }
+  total.spend = Math.round(total.spend * 100) / 100
+  return total
 }
 
 /** Where from: learners counted by ad keyword, organic, country and app version. */

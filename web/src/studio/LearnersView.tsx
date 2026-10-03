@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 
-import { readAdNames, readLearnerHistory, readLearners, readPaywallNames } from './api'
+import { readAdNames, readAdSpend, readLearnerHistory, readLearners, readPaywallNames } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
 import {
   adKey,
+  adsTotal,
   ageLabel,
   buildHistory,
   isChildAge,
@@ -36,6 +37,7 @@ import {
   timeWithSeconds,
   type AdNames,
   type AdSource,
+  type AdSpendRow,
   type AgeBand,
   type DaySummary,
   type PaywallNames,
@@ -54,6 +56,7 @@ import {
   type WhereFrom,
   type WhereRow,
   type Who,
+  withSpend,
 } from './learners'
 import type { Library } from './library'
 import { routeHref } from './route'
@@ -228,6 +231,26 @@ function useAdNames(available: boolean): { names: AdNames; problem: string | nul
     }
   }, [available])
   return state
+}
+
+/**
+ * What Apple Ads spent and got in the period, keyword by keyword; asked again whenever the
+ * events are (the server keeps Apple's report a quarter of an hour while the day runs).
+ */
+function useAdSpend(period: Period, day: string, available: boolean, loadedAt: number | null) {
+  const { from, to } = periodRange(period, day)
+  const [state, setState] = useState<{ range: string; rows: AdSpendRow[]; problem: string | null }>({ range: '', rows: [], problem: null })
+  useEffect(() => {
+    if (!available) return
+    let live = true
+    readAdSpend(from, to)
+      .then((response) => live && setState({ range: `${from}|${to}`, rows: response.rows, problem: response.problem }))
+      .catch((error: unknown) => live && setState({ range: `${from}|${to}`, rows: [], problem: error instanceof Error ? error.message : String(error) }))
+    return () => {
+      live = false
+    }
+  }, [available, from, to, loadedAt])
+  return state.range === `${from}|${to}` ? state : { rows: [], problem: null }
 }
 
 const NO_PAYWALL_NAMES: PaywallNames = { paywalls: {}, variants: {}, placements: {} }
@@ -427,6 +450,7 @@ export function LearnersView({
     [response, period, day, who, source, lesson, only, where, age],
   )
   const ads = useAdNames(library.writable)
+  const spend = useAdSpend(period, day, library.writable, loadedAt)
   const paywallNames = usePaywallNames(library.writable)
   const [markFor, setMarkFor] = useMarkFor()
   // The numbers depend on the period, the day and the narrowing, but not on `only`.
@@ -582,8 +606,10 @@ export function LearnersView({
             <Ages ages={report.ages} picked={age} href={(next) => here({ age: next === age ? null : next })} />
             <WhereFromPanel
               whereFrom={report.whereFrom}
+              spend={spend.rows}
+              narrowed={who !== 'all' || source !== 'all' || Boolean(lesson || age)}
               picked={where}
-              problem={ads.problem}
+              problem={ads.problem ?? spend.problem}
               href={(next) => here({ where: next === where ? null : next })}
             />
           </div>
@@ -824,17 +850,26 @@ function Ages({
  */
 function WhereFromPanel({
   whereFrom,
+  spend,
+  narrowed,
   picked,
   problem,
   href,
 }: {
   whereFrom: WhereFrom
+  /** Apple's report for the period: what each keyword spent and got. */
+  spend: AdSpendRow[]
+  /** The page is narrowed (who, source, a lesson, an age): learners follow, Apple's spend does not. */
+  narrowed: boolean
   picked: Where | null
   problem: string | null
   href: (where: Where) => string
 }) {
   const names = useContext(AdNamesContext)
-  const row = (data: WhereRow, label: ReactNode, words: string, detail?: ReactNode) => (
+  const adRows = withSpend(whereFrom.ads, spend)
+  const total = adsTotal(adRows)
+  const per = (count: number, what: string) => (count ? `${money(total.spend / count)} per ${what}` : `no ${what} yet`)
+  const row = (data: WhereRow, label: ReactNode, words: string, detail?: ReactNode, cost?: AdSpendRow | null) => (
     <li key={data.key}>
       <a
         className="st-learners__where-row"
@@ -846,9 +881,20 @@ function WhereFromPanel({
         <span className="st-learners__where-count">{data.learners}</span>
         <span className="st-learners__where-did">
           {detail ? <>{detail} · </> : null}
-          {data.finished} {data.finished === 1 ? 'lesson' : 'lessons'}
-          {data.sawPrice ? ` · ${data.sawPrice} saw a price` : ''}
-          {data.bought ? ` · ${data.bought} bought` : ''}
+          {cost ? (
+            <span className="st-learners__where-spend">
+              {money(cost.spend)}, {cost.taps} {cost.taps === 1 ? 'tap' : 'taps'}
+              {cost.installs ? `, ${cost.installs} ${cost.installs === 1 ? 'install' : 'installs'}` : ''}
+              {data.learners ? ' · ' : ''}
+            </span>
+          ) : null}
+          {data.learners || !cost ? (
+            <>
+              {data.finished} {data.finished === 1 ? 'lesson' : 'lessons'}
+              {data.sawPrice ? ` · ${data.sawPrice} saw a price` : ''}
+              {data.bought ? ` · ${data.bought} bought` : ''}
+            </>
+          ) : null}
         </span>
       </a>
     </li>
@@ -864,9 +910,25 @@ function WhereFromPanel({
       <div className="st-learners__where-columns">
         <div>
           <h3 className="st-learners__where-title">Came from</h3>
+          {total.spend > 0 || total.taps > 0 ? (
+            <p className="st-learners__ads-total">
+              <strong>{money(total.spend)}</strong> on Apple Ads · {total.taps} {total.taps === 1 ? 'tap' : 'taps'} · {total.installs}{' '}
+              {total.installs === 1 ? 'install' : 'installs'} by Apple’s count
+              <span>
+                {per(total.learners, 'learner')} · {per(total.sawPrice, 'paywall reached')} · {per(total.bought, 'buyer')}
+                {narrowed ? ' (learners as narrowed; the spend is everyone’s)' : ''}
+              </span>
+            </p>
+          ) : null}
           <ul className="st-learners__where-list">
-            {whereFrom.ads.map((ad) =>
-              row(ad, <>Apple Ads {keywordWords(names, ad.ad)}</>, `Apple Ads, ${keywordWords(names, ad.ad)}`, campaignWords(names, ad.ad.campaign)),
+            {adRows.map((ad) =>
+              row(
+                ad,
+                <>Apple Ads {keywordWords(names, ad.ad)}</>,
+                `Apple Ads, ${keywordWords(names, ad.ad)}${ad.spend ? `, ${money(ad.spend.spend)} spent, ${ad.spend.taps} taps` : ''}`,
+                campaignWords(names, ad.ad.campaign),
+                ad.spend,
+              ),
             )}
             {whereFrom.organic.learners ? row(whereFrom.organic, 'Not from Apple Ads', 'Not from Apple Ads', 'the App Store, a link, a friend') : null}
           </ul>

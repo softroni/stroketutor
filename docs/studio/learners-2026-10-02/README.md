@@ -86,6 +86,12 @@ country and their app version. Apple tells the app which campaign, ad group and 
 app sends their ids; the Studio names them through `superwall asa` (the CLI signed in on its machine; without it,
 the ids). A row shows only its learners and stays put, so the next one is a tap away.
 
+Above the keywords, Apple Ads in all for the period: what it spent, its taps and installs (Apple's count), and what
+each learner, paywall reached and buyer cost. Each keyword shows what it spent and got beside the learners it brought,
+and a keyword that spent money but brought nobody here has its row too (0). Apple's keyword reports, through
+`superwall asa reports … --time-zone ORTZ` (the ads account counts days in US Central, as the page does); what a
+campaign spent outside its keywords is its Search Match.
+
 <img src="where.png" width="900">
 
 The country is the phone's Region (`device_region`), which the app sends from the release after 1.1; until then

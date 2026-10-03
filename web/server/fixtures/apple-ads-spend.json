@@ -1,0 +1,139 @@
+{
+ "note": "What Paper Coach's Apple Ads spent and got on Oct 1, and Oct 2 until the evening, 2026 (US Central), keyword by keyword, as server/adSpend.ts reads it through superwall asa reports; for the sample events.",
+ "days": {
+  "2026-10-01": [
+   {
+    "key": "keyword-2334873742",
+    "campaign": "2144789293",
+    "adGroup": "2151492291",
+    "keyword": "2334873742",
+    "spend": 1.59,
+    "impressions": 4,
+    "taps": 1,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2334867485",
+    "campaign": "2144787624",
+    "adGroup": "2151492887",
+    "keyword": "2334867485",
+    "spend": 0.29,
+    "impressions": 56,
+    "taps": 1,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2334871441",
+    "campaign": "2144789293",
+    "adGroup": "2151492291",
+    "keyword": "2334871441",
+    "spend": 0.0,
+    "impressions": 6,
+    "taps": 0,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2339019453",
+    "campaign": "2144789293",
+    "adGroup": "2151492291",
+    "keyword": "2339019453",
+    "spend": 0.0,
+    "impressions": 1,
+    "taps": 0,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2334867486",
+    "campaign": "2144787624",
+    "adGroup": "2151492887",
+    "keyword": "2334867486",
+    "spend": 0.0,
+    "impressions": 57,
+    "taps": 0,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2334867487",
+    "campaign": "2144787624",
+    "adGroup": "2151492887",
+    "keyword": "2334867487",
+    "spend": 0.0,
+    "impressions": 45,
+    "taps": 0,
+    "installs": 0
+   }
+  ],
+  "2026-10-02": [
+   {
+    "key": "keyword-2334871441",
+    "campaign": "2144789293",
+    "adGroup": "2151492291",
+    "keyword": "2334871441",
+    "spend": 2.44,
+    "impressions": 11,
+    "taps": 1,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2339019453",
+    "campaign": "2144789293",
+    "adGroup": "2151492291",
+    "keyword": "2339019453",
+    "spend": 1.9,
+    "impressions": 30,
+    "taps": 1,
+    "installs": 1
+   },
+   {
+    "key": "keyword-2334867486",
+    "campaign": "2144787624",
+    "adGroup": "2151492887",
+    "keyword": "2334867486",
+    "spend": 0.9,
+    "impressions": 5,
+    "taps": 1,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2334873742",
+    "campaign": "2144789293",
+    "adGroup": "2151492291",
+    "keyword": "2334873742",
+    "spend": 0.0,
+    "impressions": 4,
+    "taps": 0,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2334873743",
+    "campaign": "2144789293",
+    "adGroup": "2151492291",
+    "keyword": "2334873743",
+    "spend": 0.0,
+    "impressions": 2,
+    "taps": 0,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2334867485",
+    "campaign": "2144787624",
+    "adGroup": "2151492887",
+    "keyword": "2334867485",
+    "spend": 0.0,
+    "impressions": 7,
+    "taps": 0,
+    "installs": 0
+   },
+   {
+    "key": "keyword-2334867487",
+    "campaign": "2144787624",
+    "adGroup": "2151492887",
+    "keyword": "2334867487",
+    "spend": 0.0,
+    "impressions": 10,
+    "taps": 0,
+    "installs": 0
+   }
+  ]
+ }
+}

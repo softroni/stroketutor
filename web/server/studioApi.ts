@@ -13,6 +13,7 @@ import { listScreenshots, readScreenshot } from './screenshots'
 import { gitIn, releaseLesson } from './release'
 import { mayPost, postingQueue } from './social/queue'
 import { readSocialPosts } from './socialPosts'
+import { readAdSpend } from './adSpend'
 import { readAdNames } from './appleAds'
 import { readLearnerHistory, readLearners, type LearnersOptions } from './learners'
 import { readPaywallNames } from './paywallNames'
@@ -168,6 +169,8 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `GET  /api/learners/history?ids=`     everything one learner 13 or over did, a year back; read-only
  * - `GET  /api/learners/ads`              the names of Paper Coach's Apple Ads campaigns, ad groups and keywords,
  *                                         through `superwall asa` (or beside the sample); read-only
+ * - `GET  /api/learners/ad-spend?from=&to=`  what Apple Ads spent and got, keyword by keyword, for those days
+ *                                         (`superwall asa reports`, or beside the sample); read-only
  * - `GET  /api/learners/paywalls`         the names of Superwall's paywalls and test versions (or beside the
  *                                         sample); read-only
  * - `GET  /api/social/posts`              every post sent to social media, by day, with each platform's link
@@ -291,6 +294,19 @@ async function handle(
       // The sample's names sit beside its events (server/fixtures/apple-ads-names.json).
       const sample = options.learners?.sampleFile
       return send(res, 200, await readAdNames({ sampleFile: sample ? path.join(path.dirname(sample), 'apple-ads-names.json') : undefined }))
+    }
+
+    if (resource === 'learners' && name === 'ad-spend' && parts.length === 2 && method === 'GET') {
+      const sample = options.learners?.sampleFile
+      return send(
+        res,
+        200,
+        await readAdSpend(
+          { sampleFile: sample ? path.join(path.dirname(sample), 'apple-ads-spend.json') : undefined },
+          url.searchParams.get('from'),
+          url.searchParams.get('to'),
+        ),
+      )
     }
 
     if (resource === 'learners' && name === 'paywalls' && parts.length === 2 && method === 'GET') {

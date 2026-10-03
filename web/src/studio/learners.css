@@ -753,6 +753,29 @@
   font-size: 12px;
 }
 
+/* Apple Ads in all: what it cost, and what each learner, paywall reached and buyer cost. */
+.st-learners__ads-total {
+  margin: 0 10px 8px;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+.st-learners__ads-total strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.st-learners__ads-total span {
+  display: block;
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.st-learners__where-spend {
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
 .st-learners__where-note {
   margin: 8px 10px 0;
   font-size: 12px;
