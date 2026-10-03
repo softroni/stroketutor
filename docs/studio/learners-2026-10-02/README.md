@@ -41,7 +41,7 @@ Lifetime $99.99), before Apple's cut: the app's events name the plan, not the pr
 
 ## In the app now
 
-While the page shows today, the first chip says how many are in the app now ("2 in the app now"), and a tap shows
+While the page shows today, a chip at the right end of the filters says how many are in the app now ("2 in the app now"), and a tap shows
 only them, each with "Drawing now" or "In the app now" where their session ends; a second tap shows everyone. In the
 app now means their last event came in the last 10 minutes: the app sends nothing when it is closed, and a child
 drawing on paper can go minutes without a tap. It follows the page's minute refresh, so someone who left drops off

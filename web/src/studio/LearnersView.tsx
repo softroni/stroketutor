@@ -744,18 +744,6 @@ export function LearnersView({
       </header>
 
       <div className="st-learners__filters">
-        {reachesToday && report ? (
-          <a
-            className={`st-learners__now-chip${report.hereNow ? '' : ' st-learners__now-chip--none'}`}
-            href={here({ only: only === 'now' ? null : 'now' })}
-            aria-current={only === 'now' ? 'true' : undefined}
-            title={`Whose last event came in the last ${HERE_NOW_MS / 60_000} minutes. The app sends nothing when it is closed, and a child drawing on paper can go minutes without a tap.${only === 'now' ? ' Tap again for everyone.' : ''}`}
-          >
-            {report.hereNow ? <span className="st-learners__live" aria-hidden="true" /> : null}
-            {report.hereNow ? `${report.hereNow} in the app now` : 'No one in the app now'}
-            {only === 'now' ? <span aria-hidden="true">✕</span> : null}
-          </a>
-        ) : null}
         <Chips label="Who" value={who} names={WHO_NAMES} onChange={setWho} />
         <Chips label="Source" value={source} names={SOURCE_NAMES} onChange={setSource} />
         {lesson ? (
@@ -780,6 +768,19 @@ export function LearnersView({
           <a className="st-learners__drew" href={here({ where: null })} aria-label={`Stop showing only learners ${whereWords(ads.names, where)}`}>
             Only {whereWords(ads.names, where)}
             <span aria-hidden="true">✕</span>
+          </a>
+        ) : null}
+        {/* Last, and pushed to the far right: who is in the app now. */}
+        {reachesToday && report ? (
+          <a
+            className={`st-learners__now-chip${report.hereNow ? '' : ' st-learners__now-chip--none'}`}
+            href={here({ only: only === 'now' ? null : 'now' })}
+            aria-current={only === 'now' ? 'true' : undefined}
+            title={`Whose last event came in the last ${HERE_NOW_MS / 60_000} minutes. The app sends nothing when it is closed, and a child drawing on paper can go minutes without a tap.${only === 'now' ? ' Tap again for everyone.' : ''}`}
+          >
+            {report.hereNow ? <span className="st-learners__live" aria-hidden="true" /> : null}
+            {report.hereNow ? `${report.hereNow} in the app now` : 'No one in the app now'}
+            {only === 'now' ? <span aria-hidden="true">✕</span> : null}
           </a>
         ) : null}
       </div>

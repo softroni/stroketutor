@@ -573,6 +573,7 @@
 /* "2 in the app now": who is in the app as the page last heard, and a way to see only them. */
 .st-learners__now-chip {
   display: inline-flex;
+  margin-left: auto;
   align-items: center;
   gap: 7px;
   padding: 3px 12px;
