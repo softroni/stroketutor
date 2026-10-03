@@ -77,11 +77,15 @@ and icon, and anything that changes what Premium includes.
 | whenever something happens | a log line, the page republished | `today.py log "…"` in a session; a scheduled run adds to `addLog` in `notes.json` instead |
 
 The tasks run on this Mac (`m4-1`, which never sleeps) while the Claude app is open; a run that was
-due while it was closed happens on the next launch. Each run decides and acts on its own, by its prompt,
-and sends anything that needs Kevin to his phone itself. When the daily check or the heartbeat finishes,
-it also wakes the pinned session **Paper Coach Monitor**, which created them and reads the run. The
-social check wakes the pinned session **Paper Coach Social Monitor** (social-plan.md, *Picking this up*),
-and the next midnight check reports its result too.
+due while it was closed happens on the next launch. Each run decides and acts on its own, by its prompt.
+The daily check and the heartbeat are set to notify the pinned session **Paper Coach: Ads Manager** when
+they finish, but those notifications have never arrived, and a run's own push may not reach Kevin's phone
+(its session isn't on Remote Control). So that session runs a **relay**: a job at 00:17, 08:17, 12:17, 16:17
+and 20:17 that reads each finished run and pushes the daily summary, and anything urgent, to Kevin's phone
+(`.studio/ops/relay.json` lists the runs already handled). The job lives only in that session: a restart of
+the session or the app drops it, so whoever resumes the session recreates it (`CronList` empty means it's
+gone; it dropped silently from Oct 1 to Oct 3). The social check wakes the pinned session **Paper Coach
+Social Monitor** (social-plan.md, *Picking this up*), and the next midnight check reports its result too.
 
 **The daily check:**
 
