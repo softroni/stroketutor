@@ -39,6 +39,16 @@ Free trials and Buys are apart: a free week of the yearly plan is a trial, any o
 dollars are the plans' US list prices on the day (yearly $29.99, weekly $3.99 from Oct 2; $19.99 and $1.99 before;
 Lifetime $99.99), before Apple's cut: the app's events name the plan, not the price.
 
+## In the app now
+
+While the page shows today, the first chip says how many are in the app now ("2 in the app now"), and a tap shows
+only them, each with "Drawing now" or "In the app now" where their session ends; a second tap shows everyone. In the
+app now means their last event came in the last 10 minutes: the app sends nothing when it is closed, and a child
+drawing on paper can go minutes without a tap. It follows the page's minute refresh, so someone who left drops off
+about 10 minutes later. Today's summary leads with the same count.
+
+<img src="now-chip.png" width="900">
+
 ## A day
 
 Seven numbers against the day before, the journey of the day's installs (children and 13+ apart), the lessons drawn

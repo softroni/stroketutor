@@ -8,6 +8,7 @@ import type { Tutorial } from '../schema/types'
 import {
   arrivalsOf,
   changesSince,
+  isHereNow,
   joinChanges,
   numbersAt,
   newArrivals,
@@ -812,5 +813,20 @@ describe('test builds', () => {
       { version: '1.1', why: 'before its release', state: 'READY_FOR_SALE', events: 1 },
     ])
     expect(leaveOutTestVersions(events, [])).toEqual({ events, leftOut: [] })
+  })
+})
+
+describe('in the app now', () => {
+  it('counts who sent something in the last 10 minutes, and narrows to them', () => {
+    // 6:31 PM on Oct 2: the 6–9 learner who started the pine tree at 6:30:55 PM is drawing now.
+    const now = Date.parse('2026-10-02T23:31:30Z')
+    const report = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', now })
+    const here = report.sessions.filter(isHereNow)
+    expect(report.hereNow).toBe(here.length)
+    expect(here.map((session) => session.end)).toContainEqual({ kind: 'drawingNow', lesson: 'pine-tree' })
+    const only = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', only: 'now', now })
+    expect(only.sessions.map((session) => session.key)).toEqual(here.map((session) => session.key))
+    // An hour on, nobody.
+    expect(buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', now: now + 3_600_000 }).hereNow).toBe(0)
   })
 })

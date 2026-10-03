@@ -40,6 +40,7 @@ describe('parseRoute', () => {
     })
     expect(parseRoute('#/learners?only=price')).toEqual({ name: 'learners', period: 'day', date: null, only: 'price' })
     expect(parseRoute('#/learners?only=nonsense')).toEqual({ name: 'learners', period: 'day', date: null })
+    expect(parseRoute('#/learners?only=now')).toEqual({ name: 'learners', period: 'day', date: null, only: 'now' })
     expect(parseRoute('#/learners?where=keyword-2339019453')).toEqual({ name: 'learners', period: 'day', date: null, where: 'keyword-2339019453' })
     expect(parseRoute('#/learners?where=somewhere')).toEqual({ name: 'learners', period: 'day', date: null })
     expect(parseRoute('#/learners?age=6to9')).toEqual({ name: 'learners', period: 'day', date: null, age: '6to9' })

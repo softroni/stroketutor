@@ -57,6 +57,7 @@ every scheduled run follows it.
   and left out of every count of lessons drawn.
   Versions never on sale (TestFlight, App Review) and a version's events before its phased release are left out,
   from App Store Connect (`superwall asc get …/appStoreVersions`, kept an hour); the header says what.
+  "N in the app now" (last event within 10 minutes) narrows the page to them (`?only=now`).
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature

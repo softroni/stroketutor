@@ -23,6 +23,7 @@ import {
   joinChanges,
   lastedFor,
   learnerTag,
+  HERE_NOW_MS,
   lessonFloorMs,
   LEARNERS_TIME_ZONE_NAME,
   MARK_CHOICES,
@@ -743,6 +744,18 @@ export function LearnersView({
       </header>
 
       <div className="st-learners__filters">
+        {reachesToday && report ? (
+          <a
+            className={`st-learners__now-chip${report.hereNow ? '' : ' st-learners__now-chip--none'}`}
+            href={here({ only: only === 'now' ? null : 'now' })}
+            aria-current={only === 'now' ? 'true' : undefined}
+            title={`Whose last event came in the last ${HERE_NOW_MS / 60_000} minutes. The app sends nothing when it is closed, and a child drawing on paper can go minutes without a tap.${only === 'now' ? ' Tap again for everyone.' : ''}`}
+          >
+            {report.hereNow ? <span className="st-learners__live" aria-hidden="true" /> : null}
+            {report.hereNow ? `${report.hereNow} in the app now` : 'No one in the app now'}
+            {only === 'now' ? <span aria-hidden="true">✕</span> : null}
+          </a>
+        ) : null}
         <Chips label="Who" value={who} names={WHO_NAMES} onChange={setWho} />
         <Chips label="Source" value={source} names={SOURCE_NAMES} onChange={setSource} />
         {lesson ? (
@@ -751,7 +764,7 @@ export function LearnersView({
             <span aria-hidden="true">✕</span>
           </a>
         ) : null}
-        {only ? (
+        {only && only !== 'now' ? (
           <a className="st-learners__drew" href={here({ only: null })} aria-label={`Stop showing only ${ONLY_WORDS[only]}`}>
             Only {ONLY_WORDS[only]}
             <span aria-hidden="true">✕</span>
@@ -1431,6 +1444,7 @@ const ONLY_WORDS: Record<Only, string> = {
   price: 'who saw a price',
   trials: 'who started a free trial',
   buys: 'who bought a plan',
+  now: 'who are in the app now',
   'reached-onboarded': 'new installs who finished onboarding',
   'reached-first': 'new installs who made a first drawing',
   'reached-second': 'new installs who made a second drawing',
@@ -2330,6 +2344,11 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
       {report ? (
         <>
           <div className="st-learners-summary__numbers">
+            {date === null && report.hereNow ? (
+              <a className="st-learners-summary__number st-learners-summary__now" href={routeHref({ name: 'learners', period: 'day', date, only: 'now' })}>
+                <span className="st-learners__live" aria-hidden="true" /> <strong>{report.hereNow}</strong> in the app now
+              </a>
+            ) : null}
             {report.numbers.map((number) => (
               <a
                 key={number.key}

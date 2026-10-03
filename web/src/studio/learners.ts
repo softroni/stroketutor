@@ -49,6 +49,8 @@ export type Only =
   | 'price'
   | 'trials'
   | 'buys'
+  /** In the app now: their last event came within `HERE_NOW_MS`. */
+  | 'now'
   | `reached-${Exclude<Stage, 'installed'>}`
   | `stopped-${Exclude<Stage, 'bought'>}`
 export const ONLY: Only[] = [
@@ -58,6 +60,7 @@ export const ONLY: Only[] = [
   'price',
   'trials',
   'buys',
+  'now',
   'reached-onboarded',
   'reached-first',
   'reached-second',
@@ -95,8 +98,15 @@ function nextStage(stage: Stage): Stage | null {
 }
 
 /** Whether a learner is one of those a number, or a stage of the journey, counts. */
+/** In the app now: drawing, or anywhere else in it, by their last event (`HERE_NOW_MS`). */
+export function isHereNow(session: LearnerSession): boolean {
+  return session.end.kind === 'drawingNow' || session.end.kind === 'hereNow'
+}
+
 export function counts(session: LearnerSession, only: Only): boolean {
   switch (only) {
+    case 'now':
+      return isHereNow(session)
     case 'installs':
       return session.isNew
     case 'lessons':
@@ -1423,6 +1433,8 @@ export interface LearnersReport {
   days: DaySummary[]
   /** Who drew most in the period, best first. */
   leaders: LearnerSession[]
+  /** How many are in the app now, of everyone the page is narrowed to before `only`. */
+  hereNow: number
   /** Where the period's learners came from, before `where` narrows them, so each row stays a way in. */
   whereFrom: WhereFrom
   /** The period's learners by age band, before `age` narrows them: the six bands always, the rest when there are any. */
@@ -1620,6 +1632,7 @@ export function buildReport(allEvents: LearnerEvent[], options: ReportOptions): 
     sessions: period === 'day' ? [...sessions].sort((a, b) => b.start - a.start) : [],
     days: period === 'day' ? [] : daysOf(from, to, current),
     leaders: leadersOf(sessions),
+    hereNow: everySession.filter(isHereNow).length,
     paywalls: paywallsOf(everySession),
     beforeBuying: beforeBuyingOf(everySession),
     // Each way in stays whole on its own narrowing and follows the other: ages from one keyword, keywords of one age.

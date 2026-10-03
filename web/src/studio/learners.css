@@ -570,6 +570,53 @@
 }
 
 /* "Drew [picture] Cloud ✕": the lesson the page is narrowed to, and the way back to everyone. */
+/* "2 in the app now": who is in the app as the page last heard, and a way to see only them. */
+.st-learners__now-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 12px;
+  border: 1px solid var(--good-line);
+  border-radius: 999px;
+  background: var(--good-tint);
+  color: var(--good);
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.st-learners__now-chip:hover {
+  border-color: var(--good);
+}
+
+.st-learners__now-chip[aria-current='true'] {
+  border-color: var(--good);
+  box-shadow: inset 0 0 0 1px var(--good);
+}
+
+.st-learners__now-chip--none {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.st-learners__now-chip span[aria-hidden]:last-child:not(.st-learners__live) {
+  color: var(--ink-faint);
+}
+
+.st-learners-summary__number.st-learners-summary__now {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--good);
+}
+
+.st-learners-summary__number.st-learners-summary__now strong {
+  color: var(--good);
+}
+
 .st-learners__drew {
   display: inline-flex;
   align-items: center;
