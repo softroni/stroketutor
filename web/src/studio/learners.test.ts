@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
+  ageBandOf,
+  isAgeBand,
   ordinal,
   paywallsOf,
   QUICK_CLOSE_MS,
@@ -553,5 +555,34 @@ describe('at the paywall', () => {
     expect(opened.map((line) => line.text)).toContain('Tapped buy: Apple’s payment sheet came up')
     expect(paywallsOf([]).rows).toEqual([])
     expect([1, 2, 3, 4, 11, 12, 13, 21, 22].map(ordinal)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '22nd'])
+  })
+})
+
+describe('ages', () => {
+  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+
+  it('counts the day’s learners by age band, the six bands always, the rest when someone is in them', () => {
+    expect(evening.ages.map((row) => row.age)).toEqual(['under6', '6to9', '10to12', '13to15', '16to17', '18plus'])
+    expect(evening.ages.reduce((sum, row) => sum + row.learners, 0)).toBe(evening.sessions.length)
+    expect(evening.ages.find((row) => row.age === '16to17')).toMatchObject({ learners: 2, sawPrice: 2 })
+    expect(ageBandOf([{ at: 1, event: 'ob_age_answered', id: 'x', age: 'unanswered' }])).toBe('none')
+    expect(isAgeBand('18plus') && !isAgeBand('adult')).toBe(true)
+  })
+
+  it('narrows to 18 and over, and to one band', () => {
+    const adults = buildReport(everything, { period: 'day', date: '2026-10-02', who: 'adults', now: later })
+    expect(adults.sessions.every((session) => session.age === '18plus')).toBe(true)
+    expect(adults.sessions).toHaveLength(evening.ages.find((row) => row.age === '18plus')!.learners)
+    const sixToNine = buildReport(everything, { period: 'day', date: '2026-10-02', age: '6to9', now: later })
+    expect(sixToNine.sessions.every((session) => session.age === '6to9')).toBe(true)
+    expect(sixToNine.numbers.find((number) => number.key === 'sessions')!.value).toBe(sixToNine.sessions.length)
+    // The chart stays whole, so another band is a tap away; Where from follows the band.
+    expect(sixToNine.ages).toEqual(evening.ages)
+    expect(sixToNine.whereFrom.organic.learners).toBe(sixToNine.sessions.length)
+  })
+
+  it('follows a keyword: the ages it brought', () => {
+    const keyword = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'keyword-2339019453', now: later })
+    expect(keyword.ages.filter((row) => row.learners).map((row) => [row.age, row.learners])).toEqual([['16to17', 1]])
   })
 })

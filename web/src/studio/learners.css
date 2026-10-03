@@ -599,10 +599,91 @@
   color: var(--ink);
 }
 
-/* ---------- Where from ---------- */
+/* ---------- Ages, and where from ---------- */
 
-.st-learners__where {
-  margin-bottom: 18px;
+.st-learners__pair--who {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 2fr);
+}
+
+.st-learners__age-chart {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  height: 168px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-learners__age-chart li {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.st-learners__age-bar {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: 4px;
+  height: 100%;
+  padding: 4px 2px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.st-learners__age-bar:hover {
+  background: var(--surface-hover);
+}
+
+.st-learners__age-bar[aria-current='true'] {
+  background: var(--accent-tint);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.st-learners__age-count {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-learners__age-column {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+}
+
+.st-learners__age-column span {
+  display: block;
+  width: min(28px, 80%);
+  min-height: 3px;
+  border-radius: 6px 6px 2px 2px;
+}
+
+.st-learners__age-bar--children .st-learners__age-column span {
+  background: var(--learners-children);
+}
+
+.st-learners__age-bar--teens .st-learners__age-column span {
+  background: var(--learners-teens);
+}
+
+.st-learners__age-bar--quiet .st-learners__age-column span {
+  background: var(--line-strong);
+}
+
+.st-learners__age-label {
+  color: var(--ink-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.st-learners__age-note {
+  margin: 10px 0 0;
+  font-size: 12px;
 }
 
 .st-learners__where-columns {
@@ -658,12 +739,6 @@
   font-weight: 600;
 }
 
-.st-learners__where-detail {
-  margin-left: 8px;
-  color: var(--ink-faint);
-  font-size: 12px;
-  font-weight: 500;
-}
 
 .st-learners__where-count {
   grid-area: count;
@@ -1681,6 +1756,7 @@ a.st-learners__day-face:hover {
 
 @media (max-width: 1000px) {
   .st-learners__pair,
+  .st-learners__pair--who,
   .st-learners__where-columns,
   .st-learners__paywall-columns {
     grid-template-columns: minmax(0, 1fr);

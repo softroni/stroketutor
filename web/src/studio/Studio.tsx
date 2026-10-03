@@ -172,6 +172,7 @@ export function Studio() {
             lesson={route.lesson ?? null}
             only={route.only ?? null}
             where={route.where ?? null}
+            age={route.age ?? null}
             library={library}
           />
         )

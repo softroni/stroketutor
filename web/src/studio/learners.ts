@@ -25,7 +25,7 @@ export const LEARNERS_TIME_ZONE = 'America/Chicago'
 export const LEARNERS_TIME_ZONE_NAME = 'US Central'
 
 export type Period = 'day' | 'week' | 'month'
-export type Who = 'all' | 'children' | 'teens'
+export type Who = 'all' | 'children' | 'teens' | 'adults'
 export type Source = 'all' | 'ads' | 'organic'
 
 export const PERIODS: Period[] = ['day', 'week', 'month']
@@ -421,6 +421,20 @@ const AGE_LABELS: Record<string, string> = {
 }
 
 const TEEN_AND_OVER = new Set(['13to15', '16to17', '18plus'])
+
+/** The age bands the app asks for, youngest first; then "age not said", and `none` for no answer (left before it). */
+export const AGE_BANDS = ['under6', '6to9', '10to12', '13to15', '16to17', '18plus', 'preferNotToSay', 'none'] as const
+export type AgeBand = (typeof AGE_BANDS)[number]
+
+export function isAgeBand(value: string): value is AgeBand {
+  return (AGE_BANDS as readonly string[]).includes(value)
+}
+
+/** A learner's band: the age they gave, or `none`. */
+export function ageBandOf(events: LearnerEvent[]): AgeBand {
+  const age = ageOf(events)
+  return age && isAgeBand(age) ? age : 'none'
+}
 
 /** "6–9" · "18+" · "no age", for a learner's age group. */
 export function ageLabel(age: string | null): string {
@@ -1130,6 +1144,8 @@ export interface LearnersReport {
   leaders: LearnerSession[]
   /** Where the period's learners came from, before `where` narrows them, so each row stays a way in. */
   whereFrom: WhereFrom
+  /** The period's learners by age band, before `age` narrows them: the six bands always, the rest when there are any. */
+  ages: (WhereRow & { age: AgeBand })[]
   /** What happened at the paywalls: Superwall's, version by version, and the children's way to the grown-ups'. */
   paywalls: PaywallReport
 }
@@ -1212,6 +1228,8 @@ export interface ReportOptions {
   only?: Only | null
   /** Only the learners from one place (`Where`); like `lesson`, the numbers narrow with it. */
   where?: Where | null
+  /** Only the learners of one age band; the numbers narrow with it too. */
+  age?: AgeBand | null
   now?: number
 }
 
@@ -1225,7 +1243,7 @@ const LEADERS = 10
  * `only` to those one number counts.
  */
 export function buildReport(events: LearnerEvent[], options: ReportOptions): LearnersReport {
-  const { period, date, who = 'all', source = 'all', lesson = null, only = null, where = null, now = Date.now() } = options
+  const { period, date, who = 'all', source = 'all', lesson = null, only = null, where = null, age = null, now = Date.now() } = options
   const { from, to } = periodRange(period, date)
   const before = periodRange(period, stepPeriod(period, date, -1))
   const everybody = stitch(events)
@@ -1246,11 +1264,13 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
     const age = ageOf(learner.events)
     if (who === 'children' && !isChildAge(age)) return false
     if (who === 'teens' && isChildAge(age)) return false
+    if (who === 'adults' && age !== '18plus') return false
     if (source !== 'all' && sourceOf(learner.events) !== source) return false
     return true
   })
 
-  const inRange = (range: { from: string; to: string }, narrow = true) =>
+  /** The learners of a range, narrowed; `whole` leaves one narrowing out, for the panel that is its way in. */
+  const inRange = (range: { from: string; to: string }, whole: 'where' | 'age' | null = null) =>
     learners
       .map((learner) => ({
         learner,
@@ -1264,7 +1284,8 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
         (entry) =>
           !lesson || entry.events.some((event) => event.event === 'lesson_completed' && event.lesson === lesson),
       )
-      .filter((entry) => !narrow || !where || matchesWhere(entry.learner.events, entry.events, where))
+      .filter((entry) => whole === 'where' || !where || matchesWhere(entry.learner.events, entry.events, where))
+      .filter((entry) => whole === 'age' || !age || ageBandOf(entry.learner.events) === age)
 
   const everyone = inRange({ from, to })
   const everySession = everyone.map((entry) => buildSession(entry.learner, entry.events, now))
@@ -1294,7 +1315,9 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
     days: period === 'day' ? [] : daysOf(from, to, current),
     leaders: leadersOf(sessions),
     paywalls: paywallsOf(everySession),
-    whereFrom: whereFromOf(where ? inRange({ from, to }, false).map((entry) => buildSession(entry.learner, entry.events, now)) : everySession),
+    // Each way in stays whole on its own narrowing and follows the other: ages from one keyword, keywords of one age.
+    whereFrom: whereFromOf(where ? inRange({ from, to }, 'where').map((entry) => buildSession(entry.learner, entry.events, now)) : everySession),
+    ages: agesOf(age ? inRange({ from, to }, 'age').map((entry) => buildSession(entry.learner, entry.events, now)) : everySession),
   }
 }
 
@@ -1367,15 +1390,27 @@ function median(values: number[]): number | null {
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2
 }
 
+const emptyRow = (key: string): WhereRow => ({ key, learners: 0, finished: 0, sawPrice: 0, bought: 0 })
+
+/** Counts a session into a row of Where from or Ages. */
+function addTo(into: WhereRow, session: LearnerSession) {
+  into.learners += 1
+  into.finished += session.finished
+  if (session.items.some((item) => item.kind === 'price')) into.sawPrice += 1
+  if (session.items.some((item) => item.kind === 'bought')) into.bought += 1
+}
+
+/** Learners by age band, youngest first; "age not said" and no answer only when someone is in them. */
+export function agesOf(sessions: LearnerSession[]): (WhereRow & { age: AgeBand })[] {
+  const rows = AGE_BANDS.map((age) => ({ ...emptyRow(age), age }))
+  for (const session of sessions) addTo(rows[AGE_BANDS.indexOf(session.age && isAgeBand(session.age) ? session.age : 'none')], session)
+  return rows.filter((row) => row.learners > 0 || (row.age !== 'preferNotToSay' && row.age !== 'none'))
+}
+
 /** Where from: learners counted by ad keyword, organic, country and app version. */
 export function whereFromOf(sessions: LearnerSession[]): WhereFrom {
-  const row = (key: Where): WhereRow => ({ key, learners: 0, finished: 0, sawPrice: 0, bought: 0 })
-  const add = (into: WhereRow, session: LearnerSession) => {
-    into.learners += 1
-    into.finished += session.finished
-    if (session.items.some((item) => item.kind === 'price')) into.sawPrice += 1
-    if (session.items.some((item) => item.kind === 'bought')) into.bought += 1
-  }
+  const row = emptyRow
+  const add = addTo
   const ads = new Map<Where, WhereRow & { ad: AdSource }>()
   const countries = new Map<string, WhereRow & { country: string | null }>()
   const versions = new Map<string, WhereRow & { version: string | null }>()

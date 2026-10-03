@@ -42,6 +42,8 @@ describe('parseRoute', () => {
     expect(parseRoute('#/learners?only=nonsense')).toEqual({ name: 'learners', period: 'day', date: null })
     expect(parseRoute('#/learners?where=keyword-2339019453')).toEqual({ name: 'learners', period: 'day', date: null, where: 'keyword-2339019453' })
     expect(parseRoute('#/learners?where=somewhere')).toEqual({ name: 'learners', period: 'day', date: null })
+    expect(parseRoute('#/learners?age=6to9')).toEqual({ name: 'learners', period: 'day', date: null, age: '6to9' })
+    expect(parseRoute('#/learners?age=adult')).toEqual({ name: 'learners', period: 'day', date: null })
     expect(parseRoute('#/screenshots/watch')).toEqual({ name: 'screenshots', device: 'iphone', shot: null })
     expect(parseRoute('#/today')).toEqual({ name: 'today', day: null })
     expect(parseRoute('#/today/2026-09-27')).toEqual({ name: 'today', day: '2026-09-27' })
@@ -88,6 +90,7 @@ describe('parseRoute', () => {
       { name: 'learners', period: 'week', date: null, only: 'price' },
       { name: 'learners', period: 'day', date: '2026-10-02', lesson: 'cloud', only: 'photos' },
       { name: 'learners', period: 'week', date: null, where: 'country-US' },
+      { name: 'learners', period: 'day', date: '2026-10-02', where: 'organic', age: '18plus' },
       { name: 'social' },
       { name: 'docs', section: null },
       { name: 'docs', section: 'posthog' },

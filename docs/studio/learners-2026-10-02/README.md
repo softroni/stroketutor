@@ -68,6 +68,17 @@ test, 33%)").
 
 <img src="paywalls.png" width="900">
 
+## Ages
+
+The period's learners by the age band they gave (children blue, 13 and over orange; "not said" and "no answer" in
+gray when anyone is in them). A bar shows only that band, and the rest of the page follows: here, ages 6–9. The
+chart stays whole, so another band is a tap away, and it follows the other narrowings, so with a keyword picked it
+shows the ages that keyword brought. Beside 13+, the Who chips have **18+**.
+
+<img src="ages.png" width="900">
+
+<img src="filter-age.png" width="900">
+
 ## Where from
 
 Where the period's learners came from, and what they did: Apple Ads keyword by keyword against the rest, their

@@ -6,6 +6,7 @@ import {
   adKey,
   ageLabel,
   buildHistory,
+  isChildAge,
   buildReport,
   compared,
   dayOf,
@@ -35,6 +36,7 @@ import {
   timeWithSeconds,
   type AdNames,
   type AdSource,
+  type AgeBand,
   type DaySummary,
   type PaywallNames,
   type PaywallReport,
@@ -67,7 +69,7 @@ const LONG_REFRESH_MS = 5 * 60_000
 const REFRESH_FLOOR_MS = 15_000
 
 const PERIOD_NAMES: Record<Period, string> = { day: 'Day', week: 'Week', month: 'Month' }
-const WHO_NAMES: Record<Who, string> = { all: 'Everyone', children: 'Children', teens: '13+' }
+const WHO_NAMES: Record<Who, string> = { all: 'Everyone', children: 'Children', teens: '13+', adults: '18+' }
 const SOURCE_NAMES: Record<Source, string> = { all: 'All sources', ads: 'Apple Ads', organic: 'Organic' }
 
 interface EventsState {
@@ -393,6 +395,7 @@ export function LearnersView({
   lesson = null,
   only = null,
   where = null,
+  age = null,
   library,
 }: {
   period: Period
@@ -403,6 +406,8 @@ export function LearnersView({
   only?: Only | null
   /** From the address (`?where=`): only the learners from one ad keyword, country or app version. */
   where?: Where | null
+  /** From the address (`?age=`): only the learners of one age band. */
+  age?: AgeBand | null
   library: Library
 }) {
   const today = dayOf(Date.now())
@@ -417,16 +422,16 @@ export function LearnersView({
   const report = useMemo(
     () =>
       response?.configured && response.events
-        ? buildReport(response.events, { period, date: day, who, source, lesson, only, where, now: Date.now() })
+        ? buildReport(response.events, { period, date: day, who, source, lesson, only, where, age, now: Date.now() })
         : null,
-    [response, period, day, who, source, lesson, only, where],
+    [response, period, day, who, source, lesson, only, where, age],
   )
   const ads = useAdNames(library.writable)
   const paywallNames = usePaywallNames(library.writable)
   const [markFor, setMarkFor] = useMarkFor()
   // The numbers depend on the period, the day and the narrowing, but not on `only`.
   const changes = useNumberChanges(
-    `${period}|${day}|${who}|${source}|${lesson ?? ''}${where ? `|${where}` : ''}`,
+    `${period}|${day}|${who}|${source}|${lesson ?? ''}${where ? `|${where}` : ''}${age ? `|age-${age}` : ''}`,
     report?.numbers ?? null,
     markFor,
   )
@@ -437,10 +442,12 @@ export function LearnersView({
     lesson?: string | null
     only?: Only | null
     where?: Where | null
+    age?: AgeBand | null
   }) => {
     const pickedLesson = next.lesson === undefined ? lesson : next.lesson
     const pickedOnly = next.only === undefined ? only : next.only
     const pickedWhere = next.where === undefined ? where : next.where
+    const pickedAge = next.age === undefined ? age : next.age
     return routeHref({
       name: 'learners',
       period: next.period ?? period,
@@ -448,6 +455,7 @@ export function LearnersView({
       ...(pickedLesson ? { lesson: pickedLesson } : {}),
       ...(pickedOnly ? { only: pickedOnly } : {}),
       ...(pickedWhere ? { where: pickedWhere } : {}),
+      ...(pickedAge ? { age: pickedAge } : {}),
     })
   }
 
@@ -536,6 +544,12 @@ export function LearnersView({
             <span aria-hidden="true">✕</span>
           </a>
         ) : null}
+        {age ? (
+          <a className="st-learners__drew" href={here({ age: null })} aria-label={`Stop showing only ${bandWords(age)}`}>
+            Only {bandWords(age)}
+            <span aria-hidden="true">✕</span>
+          </a>
+        ) : null}
         {where ? (
           <a className="st-learners__drew" href={here({ where: null })} aria-label={`Stop showing only learners ${whereWords(ads.names, where)}`}>
             Only {whereWords(ads.names, where)}
@@ -564,12 +578,15 @@ export function LearnersView({
             <MostDrawn report={report} library={library} picked={lesson} href={(drawn) => here({ lesson: drawn === lesson ? null : drawn })} />
           </div>
           <AtThePaywall paywalls={report.paywalls} problem={paywallNames.problem} />
-          <WhereFromPanel
-            whereFrom={report.whereFrom}
-            picked={where}
-            problem={ads.problem}
-            href={(next) => here({ where: next === where ? null : next })}
-          />
+          <div className="st-learners__pair st-learners__pair--who">
+            <Ages ages={report.ages} picked={age} href={(next) => here({ age: next === age ? null : next })} />
+            <WhereFromPanel
+              whereFrom={report.whereFrom}
+              picked={where}
+              problem={ads.problem}
+              href={(next) => here({ where: next === where ? null : next })}
+            />
+          </div>
           <Leaders
             report={report}
             library={library}
@@ -582,7 +599,7 @@ export function LearnersView({
               library={library}
               opened={opened}
               onToggle={(key) => setOpened((current) => (current === key ? null : key))}
-              empty={lesson || only || where ? 'Nobody like that on this day.' : 'Nobody opened the app on this day.'}
+              empty={lesson || only || where || age ? 'Nobody like that on this day.' : 'Nobody opened the app on this day.'}
               whereHref={(next) => here({ where: next })}
             />
           ) : (
@@ -716,6 +733,90 @@ function AtThePaywall({ paywalls, problem }: { paywalls: PaywallReport; problem:
   )
 }
 
+/** "ages 6–9", "18 and over", "learners who did not say their age". */
+function bandWords(age: AgeBand): string {
+  switch (age) {
+    case '18plus':
+      return '18 and over'
+    case 'under6':
+      return 'under 6'
+    case 'preferNotToSay':
+      return 'who did not say their age'
+    case 'none':
+      return 'who left before the age question'
+    default:
+      return `ages ${ageLabel(age)}`
+  }
+}
+
+const BAND_SHORT: Record<AgeBand, string> = {
+  under6: '<6',
+  '6to9': '6–9',
+  '10to12': '10–12',
+  '13to15': '13–15',
+  '16to17': '16–17',
+  '18plus': '18+',
+  preferNotToSay: 'Not said',
+  none: 'No answer',
+}
+
+/**
+ * The period's learners by age band, as bars (children blue, 13 and over orange, the
+ * rest gray), with what each band did beneath. A bar narrows the page to that band;
+ * tapped again, it shows everyone. It follows the other narrowings, so with a keyword
+ * picked it shows the ages that keyword brought.
+ */
+function Ages({
+  ages,
+  picked,
+  href,
+}: {
+  ages: LearnersReport['ages']
+  picked: AgeBand | null
+  href: (age: AgeBand) => string
+}) {
+  const most = Math.max(1, ...ages.map((row) => row.learners))
+  const shown = ages.find((row) => row.age === picked)
+  const total = ages.reduce((sum, row) => sum + row.learners, 0)
+  const teens = ages.filter((row) => !isChildAge(row.age === 'none' ? null : row.age)).reduce((sum, row) => sum + row.learners, 0)
+  return (
+    <section className="st-learners__panel st-learners__ages" aria-labelledby="learners-ages">
+      <div className="st-learners__panel-head">
+        <h2 id="learners-ages" className="st-learners__h2">
+          Ages
+        </h2>
+        <span className="st-learners__muted">{picked ? 'Tap it again for everyone.' : 'Tap a bar for only them.'}</span>
+      </div>
+      <ol className="st-learners__age-chart">
+        {ages.map((row) => {
+          const tone = row.age === 'preferNotToSay' || row.age === 'none' ? 'quiet' : isChildAge(row.age) ? 'children' : 'teens'
+          return (
+            <li key={row.age}>
+              <a
+                className={`st-learners__age-bar st-learners__age-bar--${tone}`}
+                href={href(row.age)}
+                aria-current={row.age === picked ? 'true' : undefined}
+                aria-label={`${bandWords(row.age)}: ${row.learners} ${row.learners === 1 ? 'learner' : 'learners'}, ${row.finished} lessons done, ${row.sawPrice} saw a price, ${row.bought} bought: ${row.age === picked ? 'show everyone' : 'show only them'}`}
+              >
+                <span className="st-learners__age-count">{row.learners}</span>
+                <span className="st-learners__age-column" aria-hidden="true">
+                  <span style={{ height: `${(row.learners / most) * 100}%` }} />
+                </span>
+                <span className="st-learners__age-label">{BAND_SHORT[row.age]}</span>
+              </a>
+            </li>
+          )
+        })}
+      </ol>
+      <p className="st-learners__muted st-learners__age-note">
+        {shown
+          ? `${bandWords(shown.age)[0].toUpperCase()}${bandWords(shown.age).slice(1)}: ${shown.learners} ${shown.learners === 1 ? 'learner' : 'learners'}, ${shown.finished} ${shown.finished === 1 ? 'lesson' : 'lessons'} done, ${shown.sawPrice} saw a price, ${shown.bought} bought.`
+          : `${total - teens} children and ${teens} learners 13 or over.`}
+      </p>
+    </section>
+  )
+}
+
 /**
  * Where the period's learners came from: Apple Ads keyword by keyword (or campaign, for
  * Search Match) against the rest, their countries and their app versions. A row narrows
@@ -741,12 +842,10 @@ function WhereFromPanel({
         aria-current={data.key === picked ? 'true' : undefined}
         aria-label={`${words}: ${data.learners} ${data.learners === 1 ? 'learner' : 'learners'}, ${data.finished} lessons done, ${data.sawPrice} saw a price, ${data.bought} bought: ${data.key === picked ? 'show everyone' : 'show only them'}`}
       >
-        <span className="st-learners__where-label">
-          {label}
-          {detail ? <span className="st-learners__where-detail">{detail}</span> : null}
-        </span>
+        <span className="st-learners__where-label">{label}</span>
         <span className="st-learners__where-count">{data.learners}</span>
         <span className="st-learners__where-did">
+          {detail ? <>{detail} · </> : null}
           {data.finished} {data.finished === 1 ? 'lesson' : 'lessons'}
           {data.sawPrice ? ` · ${data.sawPrice} saw a price` : ''}
           {data.bought ? ` · ${data.bought} bought` : ''}
