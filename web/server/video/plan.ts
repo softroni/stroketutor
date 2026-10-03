@@ -415,18 +415,30 @@ export function stickerLessons(paths: { lessonIds: string[] }[], lessonId: strin
   return [...new Set([...after, ...firsts])].filter((id) => id && id !== lessonId && hasSticker(id)).slice(0, MAX_STICKERS)
 }
 
-/** A caption to post with the video: what it is, what the app does, and a few tags. */
-export function postCaption(tutorial: Tutorial, place: VideoInput['place']): string {
+/**
+ * A post's first line, in the words people search: "How to draw a mushroom: 8 easy steps, then color it in."
+ * (It said "Let's draw…" until 2026-10-03; social-plan.md, *Growth*.)
+ */
+export function captionOpening(tutorial: Tutorial): string {
   const { article, subject } = subjectOf(tutorial.title)
   const lines = lineSteps(tutorial)
-  const tags = ['#howtodraw', '#easydrawing', '#drawwithme', '#drawingtutorial', '#stepbystep', `#${tutorial.id.replace(/-/g, '')}`, '#papercoach']
+  return `How to draw ${article ? `${article} ` : ''}${subject}: ${lines} easy ${lines === 1 ? 'step' : 'steps'}, then color it in.`
+}
+
+/** Five tags, all Instagram counts: what people search, then the subject's own ("#mushroomdrawing"). */
+export function captionTags(tutorial: Tutorial): string {
+  return ['#howtodraw', '#easydrawing', '#drawingtutorial', `#${tutorial.id.replace(/-/g, '')}drawing`, '#drawingforbeginners'].join(' ')
+}
+
+/** A caption to post with the video: what it is, what the app does, and a few tags. */
+export function postCaption(tutorial: Tutorial, place: VideoInput['place']): string {
   return [
-    `Let’s draw ${article ? `${article} ` : ''}${subject}: ${lines} easy ${lines === 1 ? 'step' : 'steps'}, then color it in.`,
+    captionOpening(tutorial),
     place ? `Lesson ${place.number} of the ${place.pathTitle} path in Paper Coach.` : null,
     '',
     'Paper Coach shows one line at a time and waits while you draw it on real paper. Free on the App Store, link in bio.',
     '',
-    tags.join(' '),
+    captionTags(tutorial),
   ]
     .filter((line) => line !== null)
     .join('\n')

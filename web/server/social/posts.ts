@@ -1,5 +1,5 @@
 import type { Tutorial } from '../../src/schema/types'
-import { lineSteps, subjectOf, type Opening, type VideoInput } from '../video/plan'
+import { captionOpening, captionTags, subjectOf, type Opening, type VideoInput } from '../video/plan'
 
 /**
  * Posting lesson videos to Softroni's social accounts through Upload-Post
@@ -111,8 +111,6 @@ export function socialSettings(values: Record<string, string | undefined>): Soci
 // ---------- What each platform is sent ----------
 
 const APP_LINE = 'Paper Coach shows one line at a time and waits while you draw it on real paper.'
-const TAGS = ['#howtodraw', '#easydrawing', '#drawwithme', '#drawingtutorial', '#stepbystep']
-
 export interface SocialTexts {
   /** TikTok and Instagram: the caption the video export writes beside the file ("link in bio"). */
   caption: string
@@ -145,8 +143,7 @@ const FREE_LESSON: Access = { premium: false, freeLessons: 0 }
 export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], providerToken: string | null = null, access: Access = FREE_LESSON): SocialTexts {
   const { article, subject } = subjectOf(tutorial.title)
   const what = `${article ? `${article} ` : ''}${subject}`
-  const steps = lineSteps(tutorial)
-  const opening = `Let’s draw ${what}: ${steps} easy ${steps === 1 ? 'step' : 'steps'}, then color it in.`
+  const opening = captionOpening(tutorial)
   const { premium } = access
   const placeLine = place
     ? `Lesson ${place.number} of the ${place.pathTitle} path${premium ? ', in Paper Coach Premium.' : ' in Paper Coach.'}`
@@ -154,7 +151,7 @@ export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], prov
       ? 'A lesson in Paper Coach Premium.'
       : null
   const offer = premium ? `The app is free to download, with ${access.freeLessons} free lessons` : 'Free on the App Store'
-  const tags = [...TAGS, `#${tutorial.id.replace(/-/g, '')}`, '#papercoach'].join(' ')
+  const tags = captionTags(tutorial)
   const withLink = (campaign: string) =>
     [opening, placeLine, '', APP_LINE, `${offer}: ${appStoreLink(campaign, providerToken)}`, '', tags]
       .filter((line) => line !== null)
@@ -162,7 +159,8 @@ export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], prov
   return {
     caption: [opening, placeLine, '', `${APP_LINE} ${offer}, link in bio.`, '', tags].filter((line) => line !== null).join('\n'),
     youtubeTitle: fit(`How to draw ${what} step by step #shorts`, 100, `How to draw ${what} #shorts`),
-    youtubeDescription: withLink('youtube'),
+    // Links in a Short's description can't be tapped (since 2023), so it points to the channel's link instead.
+    youtubeDescription: [opening, placeLine, '', APP_LINE, `${offer}. The app’s link is on our channel.`, '', tags].filter((line) => line !== null).join('\n'),
     facebookDescription: withLink('facebook'),
     pinterestTitle: fit(`How to draw ${what}: easy step-by-step drawing`, 100, `How to draw ${what}`),
     pinterestDescription: fit(
@@ -201,7 +199,7 @@ export function pinTexts(tutorial: Tutorial, providerToken: string | null = null
   const what = `${article ? `${article} ` : ''}${subject}`
   const count = tutorial.steps.length
   const stepList = tutorial.steps.map((step, index) => `${index + 1}. ${step.title}`).join('\n')
-  const tags = [...TAGS, `#${tutorial.id.replace(/-/g, '')}drawing`, '#papercoach'].join(' ')
+  const tags = captionTags(tutorial)
   const head = `How to draw ${what} in ${count} easy steps, one line at a time.`
   const tail = access.premium
     ? `This lesson is in Paper Coach Premium. ${APP_LINE} The app is free to download, with ${access.freeLessons} free lessons.`
@@ -266,7 +264,8 @@ export function announcementTexts(
     caption: [news, '', `${APP_LINE} Free on the App Store, link in bio.`, '', tags].join('\n'),
     // A 16:9 video is a normal YouTube video, which "#shorts" would only confuse.
     youtubeTitle: wide ? fit(headline, 100, headline) : fit(`${headline} #shorts`, 100, headline),
-    youtubeDescription: withLink('youtube'),
+    // A Short's description links can't be tapped; a 16:9 video's can.
+    youtubeDescription: wide ? withLink('youtube') : [news, '', APP_LINE, 'Free on the App Store. The app’s link is on our channel.', '', tags].join('\n'),
     facebookDescription: withLink('facebook'),
     pinterestTitle: fit(headline, 100, headline),
     pinterestDescription: fit([news, '', `${APP_LINE} Free on the App Store.`, '', tags].join('\n'), 500, news),

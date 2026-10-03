@@ -298,11 +298,12 @@ Pinterest 0 (a personal account, which gets no numbers). On TikTok 40% were stil
 Changes made without a test:
 - **2026-10-01:** TikTok and Instagram get our caption. Until then Upload-Post gave them the YouTube title: no
   "link in bio", no tags, no Premium line.
-- **From 2026-10-02 to 04:**
-  - Captions open with what people search ("How to draw a mushroom: 6 easy steps"), with 5 tags (Instagram counts
-    only 5).
-  - YouTube Shorts say "The app's link is on our channel" instead of a link nobody can tap.
-  - Facebook: check whether a Reel's description link can be tapped; if not, the link goes in a first comment.
+- **2026-10-03** (first post: Sun): captions open with what people search ("How to draw a sun: 5 easy steps, then
+  color it in.") and carry 5 tags, `#howtodraw #easydrawing #drawingtutorial #<subject>drawing #drawingforbeginners`
+  (Instagram counts only 5; `#papercoach` and `#drawwithme` went). YouTube Shorts say "The app's link is on our
+  channel" instead of a link nobody can tap. The video export's caption is the same (`captionOpening`, `captionTags`).
+- **Still to do:** check whether a Facebook Reel's description link can be tapped; if not, the link goes in a
+  first comment.
 
 Tests:
 
@@ -461,7 +462,8 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - [x] Tap counter on the seven profile links, with the privacy policy's "Our website" wording (Kevin's yes,
   2026-10-01): each tap is a PostHog `social_link_opened` event, cookie-less and anonymous. The Studio's Learners
   page shows them by platform under *Where from* (2026-10-02).
-- [ ] Captions that open with the search phrase, 5 tags, the YouTube line, the Facebook link check. (Board names
+- [x] Captions that open with the search phrase, 5 tags, the YouTube line (2026-10-03).
+- [ ] The Facebook link check. (Board names
   stay: renaming one in code would make a second board, since `boardFor` matches by name.)
 - [ ] E1, the new opening, default from Oct 5.
 - [ ] What's new videos (*What's new videos*): the first is 1.1's, made while it is in review and posted the day it

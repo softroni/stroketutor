@@ -355,8 +355,8 @@ describe('subjectOf and defaultIntro', () => {
 describe('postCaption', () => {
   it('says what the video is, where the lesson is, and tags it', () => {
     const caption = postCaption(tutorial, { pathTitle: 'Food & Treats', number: 2, count: 10 })
-    expect(caption).toContain('fish & <chips>: 1 easy step, then color it in.')
+    expect(caption.startsWith('How to draw a fish & <chips>: 1 easy step, then color it in.')).toBe(true)
     expect(caption).toContain('Lesson 2 of the Food & Treats path in Paper Coach.')
-    expect(caption).toMatch(/#howtodraw .* #fishchips #papercoach$/)
+    expect(caption.endsWith('#howtodraw #easydrawing #drawingtutorial #fishchipsdrawing #drawingforbeginners')).toBe(true)
   })
 })

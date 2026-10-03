@@ -93,15 +93,23 @@ describe('the settings file', () => {
 describe('socialTexts', () => {
   it('names the lesson, its steps and its place, and links where a link works', () => {
     expect(texts.youtubeTitle).toBe('How to draw a hot air balloon step by step #shorts')
-    expect(texts.caption).toContain('Let’s draw a hot air balloon: 2 easy steps, then color it in.')
+    expect(texts.caption.startsWith('How to draw a hot air balloon: 2 easy steps, then color it in.')).toBe(true)
     expect(texts.caption).toContain('link in bio')
     expect(texts.youtubeDescription).toContain('Lesson 1 of the In the Air path in Paper Coach.')
-    expect(texts.youtubeDescription).toContain(APP_STORE_URL)
+    // A Short's description link can't be tapped: it sends people to the channel's.
+    expect(texts.youtubeDescription).not.toContain('http')
+    expect(texts.youtubeDescription).toContain('The app’s link is on our channel.')
     expect(texts.facebookDescription).toContain(APP_STORE_URL)
     // Upload-Post strips links from X posts, and X charges more for them.
     expect(texts.x).not.toContain('http')
     // A link in a Threads post can be tapped.
     expect(texts.threads).toContain(APP_STORE_URL)
+  })
+
+  it('carries five tags, the most Instagram counts, searches first and the subject’s own', () => {
+    for (const text of [texts.caption, texts.youtubeDescription, texts.facebookDescription, texts.pinterestDescription, pinTexts(tutorial).description]) {
+      expect(text.match(/#\w+/g)).toEqual(['#howtodraw', '#easydrawing', '#drawingtutorial', '#hotairballoondrawing', '#drawingforbeginners'])
+    }
   })
 
   it('reads for a free lesson as the video export’s caption does', () => {
@@ -112,7 +120,8 @@ describe('socialTexts', () => {
     const premium = socialTexts(tutorial, { pathTitle: 'On the Water', number: 7, count: 10 }, null, { premium: true, freeLessons: 30 })
     expect(premium.caption).toContain('Lesson 7 of the On the Water path, in Paper Coach Premium.')
     expect(premium.caption).toContain('The app is free to download, with 30 free lessons, link in bio.')
-    expect(premium.youtubeDescription).toContain('The app is free to download, with 30 free lessons: https://apps.apple.com/')
+    expect(premium.youtubeDescription).toContain('The app is free to download, with 30 free lessons. The app’s link is on our channel.')
+    expect(premium.facebookDescription).toContain('The app is free to download, with 30 free lessons: https://apps.apple.com/')
     expect(premium.facebookDescription).toContain('in Paper Coach Premium.')
     expect(premium.pinterestDescription).toContain('This lesson is in Paper Coach Premium.')
     expect(premium.x).toContain('In Paper Coach Premium. The app is free to download, with 30 free lessons.')
@@ -296,7 +305,7 @@ describe('release news', () => {
     expect(news.youtubeTitle).toBe('New: draw your town #shorts')
     expect(news.caption.startsWith('10 new lessons')).toBe(true)
     expect(news.caption).toContain('link in bio')
-    expect(news.youtubeDescription).toContain('ct=youtube-news')
+    expect(news.youtubeDescription).not.toContain('http')
     expect(news.pinterestLink).toContain('ct=pinterest-news')
     expect(news.x).not.toContain('http')
     expect(news.threads).toContain('ct=threads-news')
@@ -318,7 +327,7 @@ describe('campaign links', () => {
     expect(appStoreLink('pinterest', '123456')).toBe('https://apps.apple.com/app/apple-store/id6816231257?pt=123456&ct=pinterest&mt=8')
     const tagged = socialTexts(tutorial, null, '123456')
     expect(tagged.pinterestLink).toContain('ct=pinterest')
-    expect(tagged.youtubeDescription).toContain('ct=youtube')
+    expect(tagged.youtubeDescription).not.toContain('ct=')
     expect(tagged.facebookDescription).toContain('ct=facebook')
     expect(fieldsOf(uploadFields(request({ texts: tagged }))).pinterest_link).toEqual([tagged.pinterestLink])
   })
