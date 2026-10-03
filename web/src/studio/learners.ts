@@ -1310,6 +1310,46 @@ export function markedChanges(
   return Object.fromEntries(Object.entries(changes).filter(([, change]) => now - change.at < keepFor))
 }
 
+/** A view's numbers as they stood at `at`, from only the events up to then. */
+export function numbersAt(allEvents: LearnerEvent[], options: ReportOptions, at: number): ReportNumber[] {
+  return buildReport(
+    allEvents.filter((event) => event.at <= at),
+    { ...options, only: null, now: at },
+  ).numbers
+}
+
+/**
+ * The numbers that differ from what they were at `since` (`before`, from `numbersAt`), by
+ * the events' own times. Unlike `noteNumbers` it needs no earlier look, so a browser that
+ * opens the page sees at once what moved in the time picked.
+ */
+export function changesSince(
+  before: readonly { key: string; value: number }[],
+  numbers: readonly { key: string; value: number }[],
+  since: number,
+  now: number,
+): Record<string, NumberChange> {
+  const then = new Map(before.map(({ key, value }) => [key, value]))
+  const changes: Record<string, NumberChange> = {}
+  for (const { key, value } of numbers) {
+    const from = then.get(key)
+    if (from !== undefined && from !== value) changes[key] = { from, to: value, since, at: now }
+  }
+  return changes
+}
+
+/** Two sets of changes as one: for a number in both, the one that reaches further back. */
+export function joinChanges(
+  one: Record<string, NumberChange>,
+  other: Record<string, NumberChange>,
+): Record<string, NumberChange> {
+  const joined = { ...one }
+  for (const [key, change] of Object.entries(other)) {
+    if (!joined[key] || change.since < joined[key].since) joined[key] = change
+  }
+  return joined
+}
+
 /** What the page has a sound for: an install, a free trial started, a plan bought. */
 export type Arrival = 'install' | 'trial' | 'buy'
 /** Loudest first: an update that brings several plays the first of them not muted. */

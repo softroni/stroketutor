@@ -7,6 +7,9 @@ import type { Tutorial } from '../schema/types'
 
 import {
   arrivalsOf,
+  changesSince,
+  joinChanges,
+  numbersAt,
   newArrivals,
   leaveOutTestVersions,
   DEFAULT_LESSON_FLOOR_MS,
@@ -499,6 +502,32 @@ describe('numbers that changed', () => {
       '2 hours',
       '12 hours',
     ])
+  })
+
+  it('finds by the events’ own times what moved in the time picked, with no earlier look', () => {
+    const cut = Date.parse('2026-10-02T20:07:00.580Z')
+    const options = { period: 'day' as const, date: '2026-10-02', floorOf }
+    const then = numbersAt(everything, options, cut)
+    // The numbers at 3:07 PM are the ones the page had at 3:07 PM.
+    expect(then).toEqual(buildReport(events, { ...options, now: cut }).numbers)
+    const evening = buildReport(everything, { ...options, now: later }).numbers
+    const moved = changesSince(then, evening, cut, later)
+    const installs = (list: typeof then) => list.find((number) => number.key === 'installs')!.value
+    expect(moved.installs).toEqual({ from: installs(then), to: installs(evening), since: cut, at: later })
+    expect(installs(evening)).toBeGreaterThan(installs(then))
+    // Nothing moved after the last event.
+    expect(changesSince(numbersAt(everything, options, later), evening, later, later)).toEqual({})
+  })
+
+  it('joins what the browser saw with what the events say, keeping the change that reaches further back', () => {
+    const seen = { lessons: { from: 10, to: 15, since: at, at: at + 4 * 3_600_000 } }
+    const events = {
+      lessons: { from: 14, to: 15, since: at + 3 * 3_600_000, at: at + 4 * 3_600_000 },
+      installs: { from: 2, to: 3, since: at + 3 * 3_600_000, at: at + 4 * 3_600_000 },
+    }
+    expect(joinChanges(seen, events)).toEqual({ lessons: seen.lessons, installs: events.installs })
+    const earlier = { lessons: { ...events.lessons, from: 8, since: at - 1 } }
+    expect(joinChanges(seen, earlier).lessons).toBe(earlier.lessons)
   })
 
   it('keeps where a number started when it moves again, and lets go when it comes back', () => {

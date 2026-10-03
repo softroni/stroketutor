@@ -36,8 +36,9 @@ every scheduled run follows it.
   It refreshes a day every minute while in view (a week or month every 5), asking PostHog for fresh results
   (`refresh: force_blocking`), about 60–120 queries an hour, far under the project's 2,400. Trials and buys are apart,
   with dollars at the plans' US list prices on the day, not Apple's proceeds: for proceeds, App Store Connect.
-  A number that moved since the page last looked flashes and stays highlighted (1 min to 12 hours, picked on the page,
-  5 min at first); what was seen is kept in the browser (`localStorage`), so a closed page catches up on return.
+  A number that moved in the time picked on the page (1 min to 12 hours, 5 min at first) flashes and stays
+  highlighted: worked out from the events' times, so any device sees it at once, and also from what the browser last
+  saw (`localStorage`), so a late event or a closed page still catches up on return.
   An update that brings an install, a free trial or a buy plays a sound (light, medium, a cash register's bell),
   each muted on its own by its icon in the header.
   *Where from* counts learners by Apple Ads keyword, country and app version; each session names its keyword (names

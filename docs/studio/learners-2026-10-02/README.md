@@ -19,9 +19,12 @@ minutes, so the page runs about one to three minutes behind the app.
 
 A number that moves flashes when the new value comes in, then stays highlighted with what it moved by ("+2"), for
 as long as "Highlight changes" says: 1, 5 (at first), 15 or 30 minutes, or 1, 2, 4, 8 or 12 hours. Hovering over a tile's tag says
-from what to what, between which two looks ("17 at 5:22 PM, 19 at 5:23 PM"). The browser remembers the numbers last
-seen for each view, so what moved while the page was elsewhere, or closed, is highlighted when it comes back. Today's
-summary marks its numbers the same way.
+from what to what ("17 at 5:22 PM, 19 at 5:23 PM"). What moved in the time picked is worked out from the events' own
+times, so any browser, a phone that never had the page open included, sees it at once: with 12 hours picked, each
+number that differs from 12 hours ago. The browser also remembers the numbers last seen for each view, so an event
+that arrives a few minutes late still marks its number, and what moved while the page was elsewhere, or closed, is
+highlighted when it comes back (a number both mark shows the change that reaches further back). Today's summary marks
+its numbers the same way.
 
 <img src="changes.png" width="900">
 

@@ -13,12 +13,14 @@ import {
   buildHistory,
   isChildAge,
   buildReport,
+  changesSince,
   compared,
   dayOf,
   DEFAULT_MARK_MS,
   endLesson,
   endWords,
   finishedLessons,
+  joinChanges,
   lastedFor,
   learnerTag,
   lessonFloorMs,
@@ -35,6 +37,7 @@ import {
   PERIODS,
   money,
   newArrivals,
+  numbersAt,
   type Only,
   previousLabel,
   spoken,
@@ -191,15 +194,26 @@ export function useMarkFor(): [number, (ms: number) => void] {
   return [markFor, pick]
 }
 
+/** A view's numbers as they stood at `since`, from the events, and when the page had them (`at`). */
+export interface NumbersBefore {
+  numbers: readonly { key: string; value: number }[]
+  since: number
+  at: number
+}
+
 /**
- * The numbers of a view that changed since the page last saw them, for `markFor`. What
- * was seen is kept in the browser, per view (period, day and narrowing), so numbers that
- * moved while the page was elsewhere or closed are marked when it comes back.
+ * The numbers of a view that changed in the last `markFor`, two ways together. By the
+ * events' own times, against `before` (the numbers as they stood `markFor` earlier), so
+ * any browser sees them at once. And as this browser saw them move between its looks,
+ * kept per view (period, day and narrowing), so an event that arrives late still marks
+ * its number, and what moved while the page was elsewhere or closed is marked when it
+ * comes back. A number both mark shows the change that reaches further back.
  */
 export function useNumberChanges(
   view: string,
   numbers: readonly { key: string; value: number }[] | null,
   markFor: number,
+  before: NumbersBefore | null,
 ): Record<string, NumberChange> {
   const [noted, setNoted] = useState<{ view: string; changes: Record<string, NumberChange> } | null>(null)
   const [now, setNow] = useState(() => Date.now())
@@ -214,15 +228,15 @@ export function useNumberChanges(
     setNoted({ view, changes: next.changes })
     setNow(at)
   }, [view, numbers, markFor])
-  const changes = noted?.view === view ? markedChanges(noted.changes, now, markFor) : {}
-  const marked = Object.keys(changes).length
+  const seen = noted?.view === view ? markedChanges(noted.changes, now, markFor) : {}
+  const marked = Object.keys(seen).length
   // While something is marked, look again now and then so the mark goes when its time is up.
   useEffect(() => {
     if (!marked) return
     const timer = window.setInterval(() => setNow(Date.now()), 10_000)
     return () => window.clearInterval(timer)
   }, [marked])
-  return changes
+  return numbers && before ? joinChanges(seen, changesSince(before.numbers, numbers, before.since, before.at)) : seen
 }
 
 const SOUNDS_STORE = 'st-learners-sounds'
@@ -611,10 +625,17 @@ export function LearnersView({
   )
   useArrivalSounds(`${period}|${day}`, arrivals, sounds)
   // The numbers depend on the period, the day and the narrowing, but not on `only`.
+  const before = useMemo<NumbersBefore | null>(() => {
+    if (!response?.configured || !response.events || loadedAt === null) return null
+    const since = loadedAt - markFor
+    const options = { period, date: day, who, source, lesson, where, age, floorOf: lessonFloors(library) }
+    return { numbers: numbersAt(response.events, options, since), since, at: loadedAt }
+  }, [response, loadedAt, markFor, period, day, who, source, lesson, where, age, library])
   const changes = useNumberChanges(
     `${period}|${day}|${who}|${source}|${lesson ?? ''}${where ? `|${where}` : ''}${age ? `|age-${age}` : ''}`,
     report?.numbers ?? null,
     markFor,
+    before,
   )
   /** The same view somewhere else: what is not named stays as it is, the lesson and the number it is narrowed to included. */
   const here = (next: {
@@ -1483,8 +1504,8 @@ function NumberTile({
     >
       {change ? (
         <>
-          {/* Keyed by when it moved, so each new move flashes again. */}
-          <span key={change.at} className="st-learners__stat-flash" aria-hidden="true" />
+          {/* Keyed by what it moved to, so each new move flashes again. */}
+          <span key={change.to} className="st-learners__stat-flash" aria-hidden="true" />
           <span className="st-learners__stat-new" title={`Changed: ${changeWords(change)}`} aria-hidden="true">
             {signed(change.to - change.from)}
           </span>
@@ -2274,7 +2295,7 @@ function DayCell({
  * most, and the way to every session. The same day as the Today page shows.
  */
 export function LearnersSummary({ day, library }: { day: string; library: Library }) {
-  const { response, error } = useLearnerEvents('day', day, library.writable)
+  const { response, error, loadedAt } = useLearnerEvents('day', day, library.writable)
   const report = useMemo(
     () =>
       response?.configured
@@ -2284,7 +2305,12 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
   )
   // The same view as the Learners page's day with nothing narrowed: one memory of what was seen.
   const [markFor] = useMarkFor()
-  const changes = useNumberChanges(`day|${day}|all|all|`, report?.numbers ?? null, markFor)
+  const before = useMemo<NumbersBefore | null>(() => {
+    if (!response?.configured || loadedAt === null) return null
+    const since = loadedAt - markFor
+    return { numbers: numbersAt(response.events, { period: 'day', date: day, floorOf: lessonFloors(library) }, since), since, at: loadedAt }
+  }, [response, loadedAt, markFor, day, library])
+  const changes = useNumberChanges(`day|${day}|all|all|`, report?.numbers ?? null, markFor, before)
   const date = day === dayOf(Date.now()) ? null : day
   const href = routeHref({ name: 'learners', period: 'day', date })
   return (
@@ -2311,7 +2337,7 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
                 href={routeHref({ name: 'learners', period: 'day', date, ...(number.key === 'sessions' ? {} : { only: number.key }) })}
                 title={changes[number.key] ? `Changed: ${changeWords(changes[number.key])}` : undefined}
               >
-                <strong key={changes[number.key]?.at}>{number.value}</strong> {number.label.toLowerCase()}
+                <strong key={changes[number.key]?.to}>{number.value}</strong> {number.label.toLowerCase()}
                 {number.amount ? ` (${money(number.amount)})` : ''}
                 {changes[number.key] ? (
                   <span className="st-learners-summary__new">{signed(changes[number.key].to - changes[number.key].from)}</span>
