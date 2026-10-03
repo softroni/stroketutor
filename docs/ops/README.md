@@ -84,8 +84,10 @@ they finish, but those notifications have never arrived, and a run's own push ma
 and 20:17 that reads each finished run and pushes the daily summary, and anything urgent, to Kevin's phone
 (`.studio/ops/relay.json` lists the runs already handled). The job lives only in that session: a restart of
 the session or the app drops it, so whoever resumes the session recreates it (`CronList` empty means it's
-gone; it dropped silently from Oct 1 to Oct 3). The social check wakes the pinned session **Paper Coach
-Social Monitor** (social-plan.md, *Picking this up*), and the next midnight check reports its result too.
+gone; it dropped silently from Oct 1 to Oct 3). The social check is set to notify the pinned session
+**Paper Coach: Social Manager**, and its notices don't arrive either; that session runs its own check-in job at
+18:23 and 21:23 instead (social-plan.md, *Picking this up*; the job's prompt is
+[routines/social-checkin.md](routines/social-checkin.md)), and the next midnight check reports the result too.
 
 **The daily check:**
 
@@ -357,7 +359,7 @@ that day; if it did, it only reports its result. The steps, in `web/`:
    queue by themselves.
 6. Keep the social dates in "dates coming up" (social-plan.md, *Schedule*), and on those days do what it says. On
    a *Growth* date the run gathers the numbers; the decision, and any change to code or tests, is made by the
-   session the run wakes (Paper Coach Social Monitor).
+   session that reviews each run in the evening (Paper Coach: Social Manager).
 
 **Setting it up** (once): make the Upload-Post account and connect the Softroni accounts to one profile, put
 the key in the settings file, run `npm run studio -- social check` in `web/` and set the board and Page ids it

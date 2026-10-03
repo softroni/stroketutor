@@ -14,17 +14,18 @@ Nothing here needs a session to keep going. On this Mac (`m4-1`):
 - **17:45** the Claude routine **Paper Coach: Social** checks it, fixes what failed, and does the Monday numbers,
   release news and the dates in *Schedule*. Its prompt is [routines/paper-coach-social.md](routines/paper-coach-social.md);
   the copy the app runs is `~/.claude/scheduled-tasks/paper-coach-social/SKILL.md` (keep the two the same).
-- **When that check finishes** it wakes the pinned session **Paper Coach Social Monitor** (Kevin's wish, 2026-10-01).
-  That session reads the run (its summary, and its transcript when something failed or looks off) and settles what
-  the run couldn't:
+- **After that check**, the pinned session **Paper Coach: Social Manager** reviews the run (its summary, and its
+  transcript when something failed or looks off) and settles what the run couldn't:
   - **A failed or missing run:** the cause, if it is ours (the routine's prompt, in both copies, or the Studio's
     social code). It doesn't redo the run's steps, since the midnight check covers a day the run missed.
   - **A platform that keeps failing:** the cause, fixed or reported.
   - **Captions or the order:** changed when the numbers say so.
 
   It tells Kevin only what is new and needs him, never what the run already sent; on a quiet evening it says so in
-  one line. A routine notifies one session; to move this to another, that session calls `update_scheduled_task`
-  for `paper-coach-social` with `notifyOnCompletion: true`.
+  one line. The routine is set to notify that session when it finishes, but the notices never arrive (Oct 1–3), so
+  the session runs its own check-in job at 18:23 and 21:23. The job lives only in that session and dies with a
+  restart: whoever resumes it runs `CronList` and, if it's gone, makes it again from
+  [routines/social-checkin.md](routines/social-checkin.md).
 - **00:00** the daily check does the same on a day the social routine didn't log "Social check:".
 - What needs Kevin reaches him as a push notification and under "Needs you" on Today.
 
