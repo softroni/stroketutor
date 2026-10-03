@@ -36,6 +36,8 @@ import {
   periodRange,
   type LearnerHistory,
   PERIODS,
+  hasEvents,
+  keepThroughFailure,
   money,
   newArrivals,
   numbersAt,
@@ -94,7 +96,7 @@ interface EventsState {
   range: string
   response: LearnersResponse | null
   error: string | null
-  /** When the browser last had an answer, for "Updated 40 s ago". */
+  /** When the browser last had an answer, for "Updated 40 s ago"; while PostHog fails, when it last answered. */
   loadedAt: number | null
   loading: boolean
 }
@@ -116,8 +118,12 @@ export function useLearnerEvents(period: Period, day: string, available: boolean
     async (fresh = false) => {
       setState((previous) => ({ ...previous, loading: true }))
       try {
-        const response = await readLearners(from, to, fresh)
-        setState({ range, response, error: null, loadedAt: Date.now(), loading: false })
+        const answer = await readLearners(from, to, fresh)
+        setState((previous) => {
+          const response = keepThroughFailure(previous.range === range ? previous.response : null, answer)
+          const loadedAt = !response.failed ? Date.now() : response.fetchedAt ? Date.parse(response.fetchedAt) : null
+          return { range, response, error: null, loadedAt, loading: false }
+        })
       } catch (caught) {
         setState((previous) => ({
           range,
@@ -608,7 +614,7 @@ export function LearnersView({
 
   const report = useMemo(
     () =>
-      response?.configured && response.events
+      hasEvents(response)
         ? buildReport(response.events, { period, date: day, who, source, lesson, only, where, age, floorOf: lessonFloors(library), now: Date.now() })
         : null,
     [response, period, day, who, source, lesson, only, where, age, library],
@@ -621,13 +627,13 @@ export function LearnersView({
   const { sounds, toggle: toggleSound, blocked: soundsBlocked } = useSounds()
   // Everybody's, whatever the page is narrowed to: a sale is a sale.
   const arrivals = useMemo(
-    () => (response?.configured && response.events ? arrivalsOf(response.events, period, day) : null),
+    () => (hasEvents(response) ? arrivalsOf(response.events, period, day) : null),
     [response, period, day],
   )
   useArrivalSounds(`${period}|${day}`, arrivals, sounds)
   // The numbers depend on the period, the day and the narrowing, but not on `only`.
   const before = useMemo<NumbersBefore | null>(() => {
-    if (!response?.configured || !response.events || loadedAt === null) return null
+    if (!hasEvents(response) || loadedAt === null) return null
     const since = loadedAt - markFor
     const options = { period, date: day, who, source, lesson, where, age, floorOf: lessonFloors(library) }
     return { numbers: numbersAt(response.events, options, since), since, at: loadedAt }
@@ -787,7 +793,12 @@ export function LearnersView({
 
       {error ? <p className="st-notice">The Studio server did not answer: {error}</p> : null}
       {response && !response.configured ? <ConnectPostHog problem={response.problem} /> : null}
-      {response?.configured && response.problem ? <p className="st-notice">{response.problem}</p> : null}
+      {response?.configured && response.problem ? (
+        <p className="st-notice">
+          {response.problem}
+          {response.failed && response.fetchedAt ? ` The numbers are PostHog’s last answer, from ${timeOf(Date.parse(response.fetchedAt))}.` : null}
+        </p>
+      ) : null}
       {!response && !error ? <p className="st-learners__muted">Asking PostHog…</p> : null}
 
       {report ? (
@@ -2313,7 +2324,7 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
   const { response, error, loadedAt } = useLearnerEvents('day', day, library.writable)
   const report = useMemo(
     () =>
-      response?.configured
+      hasEvents(response)
         ? buildReport(response.events, { period: 'day', date: day, floorOf: lessonFloors(library), now: Date.now() })
         : null,
     [response, day, library],
@@ -2321,7 +2332,7 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
   // The same view as the Learners page's day with nothing narrowed: one memory of what was seen.
   const [markFor] = useMarkFor()
   const before = useMemo<NumbersBefore | null>(() => {
-    if (!response?.configured || loadedAt === null) return null
+    if (!hasEvents(response) || loadedAt === null) return null
     const since = loadedAt - markFor
     return { numbers: numbersAt(response.events, { period: 'day', date: day, floorOf: lessonFloors(library) }, since), since, at: loadedAt }
   }, [response, loadedAt, markFor, day, library])
@@ -2337,6 +2348,11 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
         <a href={href}>Every session ›</a>
       </div>
       {error ? <p className="st-learners__muted">The Studio server did not answer: {error}</p> : null}
+      {response?.failed ? (
+        <p className="st-learners__muted">
+          PostHog did not answer just now{response.fetchedAt ? `: these are its numbers from ${timeOf(Date.parse(response.fetchedAt))}` : ''}.
+        </p>
+      ) : null}
       {response && !response.configured ? (
         <p className="st-learners__muted">
           Connect PostHog to see who drew what: the <a href={href}>Learners page</a> says how.

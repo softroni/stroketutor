@@ -213,13 +213,10 @@ async function ask(
     cache.set(key, { at: now, response })
     return response
   } catch (error) {
-    return {
-      configured: true,
-      source: 'posthog',
-      problem: `PostHog did not answer: ${error instanceof Error ? error.message : String(error)}`,
-      events: [],
-      fetchedAt: null,
-    }
+    const problem = `PostHog did not answer: ${error instanceof Error ? error.message : String(error)}`
+    // Its last answer, however old, rather than none: `fetchedAt` says when it was.
+    if (kept) return { ...kept.response, problem, failed: true }
+    return { configured: true, source: 'posthog', problem, events: [], fetchedAt: null, failed: true }
   }
 }
 
@@ -287,8 +284,16 @@ async function queryEvents(
     signal: AbortSignal.timeout(30_000),
   })
   if (!response.ok) {
-    const detail = await response.text().catch(() => '')
-    throw new Error(`${response.status} ${response.statusText}${detail ? `: ${detail.slice(0, 200)}` : ''}`)
+    const text = await response.text().catch(() => '')
+    // PostHog's errors are JSON with the words in `detail`.
+    let detail = text
+    try {
+      const parsed = JSON.parse(text) as { detail?: unknown }
+      if (typeof parsed.detail === 'string') detail = parsed.detail
+    } catch {
+      // Not JSON: the text as it came.
+    }
+    throw new Error(`${response.status} ${response.statusText}${detail ? `: ${detail.slice(0, 300)}` : ''}`)
   }
   const body = (await response.json()) as { results?: unknown[][] }
   return (body.results ?? []).flatMap((row) => {

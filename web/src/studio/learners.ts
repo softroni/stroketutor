@@ -441,6 +441,26 @@ export interface LearnersResponse {
   leftOut?: LeftOut[]
   /** Why versions could not be checked, when they could not. */
   versionsProblem?: string | null
+  /**
+   * PostHog did not answer this time, and `problem` says why. `events` are then its last
+   * answer, from `fetchedAt`, or none when it has not answered since the Studio started.
+   */
+  failed?: boolean
+}
+
+/**
+ * What the page shows after an answer for the range it shows: the answer, unless PostHog
+ * failed and the server kept nothing (a Studio that restarted) while the page still has
+ * numbers. Then those, with the reason. A failed ask never reads as a day that fell to zero.
+ */
+export function keepThroughFailure(shown: LearnersResponse | null, answer: LearnersResponse): LearnersResponse {
+  if (!answer.failed || answer.fetchedAt || !shown?.fetchedAt) return answer
+  return { ...shown, problem: answer.problem, failed: true }
+}
+
+/** Whether there are events to count: not before PostHog has answered once. */
+export function hasEvents(response: LearnersResponse | null): response is LearnersResponse {
+  return !!response?.configured && !(response.failed && !response.fetchedAt)
 }
 
 // ---------- Days ----------

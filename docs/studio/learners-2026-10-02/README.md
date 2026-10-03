@@ -13,7 +13,9 @@ TestFlight and App Review devices sent. The header says what was left out ("Left
 A day that reaches today asks again every minute while the page is in view (a week or a month every five minutes),
 and PostHog is asked to work today's numbers out afresh rather than hand back its cached copy. "Refresh" asks at once,
 at most every 15 seconds. The app sends its events every 15 seconds and PostHog makes them queryable within a few
-minutes, so the page runs about one to three minutes behind the app.
+minutes, so the page runs about one to three minutes behind the app. When PostHog does not answer (now and then a
+query runs out of time, and after three failures in a row PostHog refuses the same query for a minute), the page keeps
+its last numbers and says why and from what time, rather than showing a day that fell to zero.
 
 <img src="numbers.png" width="900">
 

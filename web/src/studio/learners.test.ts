@@ -8,6 +8,8 @@ import type { Tutorial } from '../schema/types'
 import {
   arrivalsOf,
   changesSince,
+  hasEvents,
+  keepThroughFailure,
   isHereNow,
   joinChanges,
   numbersAt,
@@ -828,5 +830,33 @@ describe('in the app now', () => {
     expect(only.sessions.map((session) => session.key)).toEqual(here.map((session) => session.key))
     // An hour on, nobody.
     expect(buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', now: now + 3_600_000 }).hereNow).toBe(0)
+  })
+})
+
+describe('when PostHog does not answer', () => {
+  const event = { at: Date.parse('2026-10-02T15:00:00Z'), event: 'app_opened', id: 'abc', firstOpen: true }
+  const shown = {
+    configured: true,
+    source: 'posthog' as const,
+    problem: null,
+    events: [event],
+    fetchedAt: '2026-10-02T15:01:00.000Z',
+  }
+  const failedEmpty = { configured: true, source: 'posthog' as const, problem: 'PostHog did not answer: 504', events: [], fetchedAt: null, failed: true }
+
+  it('keeps the numbers the page has, with the reason, when the server kept none', () => {
+    expect(keepThroughFailure(shown, failedEmpty)).toEqual({ ...shown, problem: 'PostHog did not answer: 504', failed: true })
+  })
+
+  it('takes the server’s kept answer, a real one, and nothing before PostHog has answered', () => {
+    const kept = { ...shown, problem: 'PostHog did not answer: 504', failed: true }
+    expect(keepThroughFailure(null, kept)).toBe(kept)
+    expect(keepThroughFailure(shown, { ...shown, fetchedAt: '2026-10-02T15:02:00.000Z' }).fetchedAt).toBe('2026-10-02T15:02:00.000Z')
+    expect(keepThroughFailure(null, failedEmpty)).toBe(failedEmpty)
+    // Nothing to count, so no zeros, no highlights and no sounds.
+    expect(hasEvents(failedEmpty)).toBe(false)
+    expect(hasEvents(kept)).toBe(true)
+    expect(hasEvents(shown)).toBe(true)
+    expect(hasEvents(null)).toBe(false)
   })
 })

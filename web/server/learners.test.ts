@@ -111,6 +111,39 @@ describe('readLearners', () => {
     expect(response.problem).toContain('401 Unauthorized')
     expect(response.events).toEqual([])
   })
+
+  it('keeps PostHog’s last answer when it fails, says why, and asks again next time', async () => {
+    let fail = false
+    let calls = 0
+    const fake = (async () => {
+      calls += 1
+      if (fail) {
+        const body = '{"type":"server_error","code":"error","detail":"Query has hit the max execution time before completing."}'
+        return new Response(body, { status: 504, statusText: 'Gateway Timeout' })
+      }
+      return new Response(JSON.stringify({ results: [[1790949956518, 'app_opened', 'abc']] }), { status: 200 })
+    }) as unknown as typeof fetch
+    const options = { apiKey: 'phx_test', fetch: fake }
+
+    const good = await readLearners(options, '2026-10-01', '2026-10-03', now)
+    fail = true
+    const failed = await readLearners(options, '2026-10-01', '2026-10-03', now + TODAY_MS + 1)
+    expect(failed).toMatchObject({ failed: true, events: good.events, fetchedAt: good.fetchedAt })
+    // PostHog's own words, not its JSON.
+    expect(failed.problem).toBe('PostHog did not answer: 504 Gateway Timeout: Query has hit the max execution time before completing.')
+
+    fail = false
+    const back = await readLearners(options, '2026-10-01', '2026-10-03', now + TODAY_MS + 2)
+    expect(calls).toBe(3)
+    expect(back).toMatchObject({ problem: null, fetchedAt: new Date(now + TODAY_MS + 2).toISOString() })
+    expect(back.failed).toBeUndefined()
+  })
+
+  it('says it failed, with no events, when PostHog has not answered before', async () => {
+    const fake = (async () => new Response('', { status: 504, statusText: 'Gateway Timeout' })) as unknown as typeof fetch
+    const response = await readLearners({ apiKey: 'phx_test', fetch: fake }, '2026-10-01', '2026-10-03', now)
+    expect(response).toMatchObject({ failed: true, events: [], fetchedAt: null, problem: 'PostHog did not answer: 504 Gateway Timeout' })
+  })
 })
 
 describe('readLearnerHistory', () => {
