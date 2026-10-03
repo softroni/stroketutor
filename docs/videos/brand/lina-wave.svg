@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+<!-- Lina waving: #lina-neutral + #lina-wave from docs/ios-design/src/symbols.svg.html -->
+<path d="M62 236 C62 182 84 164 100 164 C116 164 138 182 138 236 Z" fill="#C4653A"/>
+<path d="M88 142 h24 v30 a12 12 0 0 1 -24 0 z" fill="#EFC9AE"/>
+<path d="M50 122 C42 60 70 30 100 30 C130 30 158 60 150 122 L148 156 L52 156 Z" fill="#2B2B2B"/>
+<ellipse cx="100" cy="102" rx="42" ry="48" fill="#EFC9AE"/>
+<path d="M57 94 C60 52 88 40 114 46 C136 51 148 72 146 94 C130 80 118 72 100 76 C84 79 70 84 57 94 Z" fill="#2B2B2B"/>
+<path d="M46 66 C52 28 150 20 160 60 C132 44 76 46 46 66 Z" fill="#2178D9"/>
+<circle cx="82" cy="106" r="13" fill="none" stroke="#2B2B2B" stroke-width="3"/>
+<circle cx="118" cy="106" r="13" fill="none" stroke="#2B2B2B" stroke-width="3"/>
+<path d="M95 106 L105 106" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+<circle cx="83" cy="107" r="3.2" fill="#2B2B2B"/><circle cx="119" cy="107" r="3.2" fill="#2B2B2B"/>
+<path d="M88 130 Q100 140 112 130" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+<circle cx="70" cy="124" r="5" fill="#E9A28E" opacity=".6"/><circle cx="130" cy="124" r="5" fill="#E9A28E" opacity=".6"/>
+<path d="M136 200 C160 190 176 150 172 120" fill="none" stroke="#C4653A" stroke-width="20" stroke-linecap="round"/>
+<circle cx="172" cy="114" r="13" fill="#EFC9AE"/>
+<path d="M186 96 l6 -8 M190 108 l10 -4 M180 90 l2 -10" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+</svg>

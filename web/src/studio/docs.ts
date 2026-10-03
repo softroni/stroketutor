@@ -371,6 +371,41 @@ export const DOC_TOOLS: DocTool[] = [
     ],
   },
   {
+    id: 'videos',
+    kind: 'terminal',
+    name: 'Promotion videos',
+    about:
+      'The 16:9 videos posted with `social announce --wide`: the overviews, a version’s what’s-new video, the tour. Each is made in `.studio/<folder>` beside its recordings, voices, music and renders, and its source is kept in git under `docs/videos`.',
+    where: 'repo root',
+    usedBy: 'Claude',
+    needs: [
+      'Node, and `npm ci` in the video’s `video/` folder (Remotion)',
+      'The local voice server for Lina, Whisper and ffmpeg; ACE-Step 1.5 in `~/dev/tools` for music',
+      'Scratch simulators of its own and the release build, for the recordings',
+    ],
+    more: [repo('docs/videos/README.md', 'The videos, and how to make the next one')],
+    groups: [
+      {
+        title: 'Keep the source',
+        commands: [
+          {
+            run: 'docs/videos/sync.sh <folder>',
+            does: 'Copies a video’s source from `.studio/<folder>` into `docs/videos/<folder>`, leaving the media behind. Commit it after.',
+            note: 'Run it whenever a video is made or changed (Kevin, 2026-10-03).',
+          },
+        ],
+      },
+      {
+        title: 'Make and render',
+        about: 'In `.studio/<folder>/video`.',
+        commands: [
+          { run: 'npx remotion studio', does: 'The edit in a browser, to scrub and check.' },
+          { run: 'npx remotion render <composition> ../out/<name>.mp4 --codec=h264 --crf=18', does: 'Renders a video; its README names the compositions and the sound steps after.' },
+        ],
+      },
+    ],
+  },
+  {
     id: 'ios',
     kind: 'terminal',
     name: 'The iOS app: Xcode and git',

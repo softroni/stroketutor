@@ -1,0 +1,189 @@
+[
+{
+"id": "plants",
+"title": "Plants",
+"color": "leaf",
+"lessons": [
+"pine-tree",
+"tulip",
+"cactus",
+"mushroom",
+"big-oak",
+"sunflower",
+"palm-tree",
+"rose",
+"bonsai",
+"windowsill-garden"
+]
+},
+{
+"id": "fruits",
+"title": "Fruits",
+"color": "peach",
+"lessons": [
+"watermelon-slice",
+"apple",
+"pear",
+"cherries",
+"banana",
+"strawberry",
+"orange-half",
+"grapes",
+"pineapple",
+"fruit-bowl"
+]
+},
+{
+"id": "sky-weather",
+"title": "Sky & Weather",
+"color": "sky",
+"lessons": [
+"sun",
+"cloud",
+"lightning-bolt",
+"rain-cloud",
+"mountains",
+"wave",
+"volcano",
+"tornado",
+"snowflake",
+"mountain-storm"
+]
+},
+{
+"id": "food-treats",
+"title": "Food & Treats",
+"color": "pink",
+"lessons": [
+"donut",
+"popsicle",
+"burger",
+"boba-tea",
+"ice-cream-cone",
+"pizza-slice",
+"cupcake",
+"fries",
+"ramen-bowl",
+"snack-tray"
+]
+},
+{
+"id": "forms",
+"title": "Forms",
+"color": "lavender",
+"lessons": [
+"cube",
+"cylinder",
+"cone",
+"sphere",
+"dice",
+"gift-box",
+"soda-can",
+"mug",
+"stack-of-books",
+"still-life"
+]
+},
+{
+"id": "wheels",
+"title": "Wheels",
+"color": "butter",
+"lessons": [
+"school-bus",
+"car",
+"dump-truck",
+"monster-truck",
+"train",
+"bicycle",
+"excavator",
+"motorcycle",
+"ambulance",
+"race-car"
+]
+},
+{
+"id": "on-the-water",
+"title": "On the Water",
+"color": "aqua",
+"lessons": [
+"sailboat",
+"canoe",
+"tugboat",
+"speedboat",
+"fishing-boat",
+"submarine",
+"pirate-ship",
+"cruise-ship",
+"longship",
+"harbour"
+]
+},
+{
+"id": "in-the-air",
+"title": "In the Air",
+"color": "orchid",
+"lessons": [
+"hot-air-balloon",
+"paper-airplane",
+"parachute-crate",
+"blimp",
+"airplane",
+"glider",
+"helicopter",
+"drone",
+"jet",
+"balloon-over-the-hill"
+]
+},
+{
+"id": "space",
+"title": "Space",
+"color": "indigo",
+"lessons": [
+"rocket",
+"crescent-moon",
+"star",
+"comet",
+"planet-with-rings",
+"ufo",
+"satellite",
+"mars-rover",
+"space-shuttle",
+"solar-system"
+]
+},
+{
+"id": "landscape",
+"title": "Landscape",
+"color": "sand",
+"lessons": [
+"rolling-hills",
+"winding-river",
+"lake-reflection",
+"desert-dunes",
+"mountain-range",
+"sea-cliffs",
+"waterfall",
+"forest-path",
+"country-road",
+"mountain-valley"
+]
+},
+{
+"id": "urban",
+"title": "Around Town",
+"color": "butter",
+"lessons": [
+"fire-hydrant",
+"shop-front",
+"balcony",
+"brick-window",
+"phone-box",
+"street-corner",
+"canal-bridge",
+"rooftops",
+"fountain",
+"cafe"
+]
+}
+]

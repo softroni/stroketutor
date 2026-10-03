@@ -1,0 +1,1004 @@
+{
+ "v01-hook": {
+  "text": "Have you ever looked at something and wanted to draw it?",
+  "duration": 2.48,
+  "words": [
+   {
+    "text": "Have",
+    "start": 0.0,
+    "end": 0.36
+   },
+   {
+    "text": "you",
+    "start": 0.36,
+    "end": 0.46
+   },
+   {
+    "text": "ever",
+    "start": 0.46,
+    "end": 0.64
+   },
+   {
+    "text": "looked",
+    "start": 0.64,
+    "end": 0.9
+   },
+   {
+    "text": "at",
+    "start": 0.9,
+    "end": 1.02
+   },
+   {
+    "text": "something",
+    "start": 1.02,
+    "end": 1.26
+   },
+   {
+    "text": "and",
+    "start": 1.26,
+    "end": 1.52
+   },
+   {
+    "text": "wanted",
+    "start": 1.52,
+    "end": 1.72
+   },
+   {
+    "text": "to",
+    "start": 1.72,
+    "end": 1.94
+   },
+   {
+    "text": "draw",
+    "start": 1.94,
+    "end": 2.14
+   },
+   {
+    "text": "it?",
+    "start": 2.14,
+    "end": 2.32
+   }
+  ]
+ },
+ "v02-lina": {
+  "text": "I'm Lina, your drawing coach. I draw one small step. You copy it onto your paper. Nothing moves until you say so.",
+  "duration": 8.24,
+  "words": [
+   {
+    "text": "I'm",
+    "start": 0.0,
+    "end": 0.52
+   },
+   {
+    "text": "Lina,",
+    "start": 0.52,
+    "end": 0.8
+   },
+   {
+    "text": "your",
+    "start": 1.2,
+    "end": 1.28
+   },
+   {
+    "text": "drawing",
+    "start": 1.28,
+    "end": 1.58
+   },
+   {
+    "text": "coach.",
+    "start": 1.58,
+    "end": 1.9
+   },
+   {
+    "text": "I",
+    "start": 2.66,
+    "end": 2.74
+   },
+   {
+    "text": "draw",
+    "start": 2.74,
+    "end": 2.92
+   },
+   {
+    "text": "one",
+    "start": 2.92,
+    "end": 3.22
+   },
+   {
+    "text": "small",
+    "start": 3.22,
+    "end": 3.54
+   },
+   {
+    "text": "step.",
+    "start": 3.54,
+    "end": 3.94
+   },
+   {
+    "text": "You",
+    "start": 4.32,
+    "end": 4.42
+   },
+   {
+    "text": "copy",
+    "start": 4.42,
+    "end": 4.7
+   },
+   {
+    "text": "it",
+    "start": 4.7,
+    "end": 4.94
+   },
+   {
+    "text": "onto",
+    "start": 4.94,
+    "end": 5.06
+   },
+   {
+    "text": "your",
+    "start": 5.06,
+    "end": 5.32
+   },
+   {
+    "text": "paper.",
+    "start": 5.32,
+    "end": 5.64
+   },
+   {
+    "text": "Nothing",
+    "start": 6.12,
+    "end": 6.48
+   },
+   {
+    "text": "moves",
+    "start": 6.48,
+    "end": 6.82
+   },
+   {
+    "text": "until",
+    "start": 6.82,
+    "end": 7.24
+   },
+   {
+    "text": "you",
+    "start": 7.24,
+    "end": 7.48
+   },
+   {
+    "text": "say",
+    "start": 7.48,
+    "end": 7.68
+   },
+   {
+    "text": "so.",
+    "start": 7.68,
+    "end": 8.0
+   }
+  ]
+ },
+ "v03-pick": {
+  "text": "Tell me how much you've drawn before, pick something you'd like to draw, and your first lesson is ready.",
+  "duration": 5.28,
+  "words": [
+   {
+    "text": "Tell",
+    "start": 0.0,
+    "end": 0.42
+   },
+   {
+    "text": "me",
+    "start": 0.42,
+    "end": 0.56
+   },
+   {
+    "text": "how",
+    "start": 0.56,
+    "end": 0.7
+   },
+   {
+    "text": "much",
+    "start": 0.7,
+    "end": 0.86
+   },
+   {
+    "text": "you've",
+    "start": 0.86,
+    "end": 1.08
+   },
+   {
+    "text": "drawn",
+    "start": 1.08,
+    "end": 1.26
+   },
+   {
+    "text": "before,",
+    "start": 1.26,
+    "end": 1.56
+   },
+   {
+    "text": "pick",
+    "start": 2.26,
+    "end": 2.26
+   },
+   {
+    "text": "something",
+    "start": 2.26,
+    "end": 2.54
+   },
+   {
+    "text": "you'd",
+    "start": 2.54,
+    "end": 2.8
+   },
+   {
+    "text": "like",
+    "start": 2.8,
+    "end": 2.98
+   },
+   {
+    "text": "to",
+    "start": 2.98,
+    "end": 3.12
+   },
+   {
+    "text": "draw,",
+    "start": 3.12,
+    "end": 3.38
+   },
+   {
+    "text": "and",
+    "start": 3.74,
+    "end": 3.92
+   },
+   {
+    "text": "your",
+    "start": 3.92,
+    "end": 4.04
+   },
+   {
+    "text": "first",
+    "start": 4.04,
+    "end": 4.22
+   },
+   {
+    "text": "lesson",
+    "start": 4.22,
+    "end": 4.6
+   },
+   {
+    "text": "is",
+    "start": 4.6,
+    "end": 4.74
+   },
+   {
+    "text": "ready.",
+    "start": 4.74,
+    "end": 4.96
+   }
+  ]
+ },
+ "deck": {
+  "text": "Every boat here starts with its deck. Draw a long line that lifts at the right, to the bow.",
+  "duration": 5.928,
+  "words": [
+   {
+    "text": "Every",
+    "start": 0.0,
+    "end": 0.52
+   },
+   {
+    "text": "boat",
+    "start": 0.52,
+    "end": 0.78
+   },
+   {
+    "text": "here",
+    "start": 0.78,
+    "end": 1.04
+   },
+   {
+    "text": "starts",
+    "start": 1.04,
+    "end": 1.4
+   },
+   {
+    "text": "with",
+    "start": 1.4,
+    "end": 1.66
+   },
+   {
+    "text": "its",
+    "start": 1.66,
+    "end": 1.82
+   },
+   {
+    "text": "deck.",
+    "start": 1.82,
+    "end": 2.04
+   },
+   {
+    "text": "Draw",
+    "start": 2.78,
+    "end": 2.78
+   },
+   {
+    "text": "a",
+    "start": 2.78,
+    "end": 2.98
+   },
+   {
+    "text": "long",
+    "start": 2.98,
+    "end": 3.16
+   },
+   {
+    "text": "line",
+    "start": 3.16,
+    "end": 3.58
+   },
+   {
+    "text": "that",
+    "start": 3.58,
+    "end": 3.76
+   },
+   {
+    "text": "lifts",
+    "start": 3.76,
+    "end": 3.94
+   },
+   {
+    "text": "at",
+    "start": 3.94,
+    "end": 4.16
+   },
+   {
+    "text": "the",
+    "start": 4.16,
+    "end": 4.26
+   },
+   {
+    "text": "right,",
+    "start": 4.26,
+    "end": 4.5
+   },
+   {
+    "text": "to",
+    "start": 4.5,
+    "end": 5.22
+   },
+   {
+    "text": "the",
+    "start": 5.22,
+    "end": 5.34
+   },
+   {
+    "text": "bow.",
+    "start": 5.34,
+    "end": 5.54
+   }
+  ]
+ },
+ "hull": {
+  "text": "Now the hull. From the left end, swing down and along. Rise to the bow's tip.",
+  "duration": 6.184,
+  "words": [
+   {
+    "text": "Now",
+    "start": 0.0,
+    "end": 0.54
+   },
+   {
+    "text": "the",
+    "start": 0.54,
+    "end": 0.76
+   },
+   {
+    "text": "hull.",
+    "start": 0.76,
+    "end": 1.0
+   },
+   {
+    "text": "From",
+    "start": 1.0,
+    "end": 1.62
+   },
+   {
+    "text": "the",
+    "start": 1.62,
+    "end": 1.74
+   },
+   {
+    "text": "left",
+    "start": 1.74,
+    "end": 1.96
+   },
+   {
+    "text": "end,",
+    "start": 1.96,
+    "end": 2.38
+   },
+   {
+    "text": "swing",
+    "start": 2.38,
+    "end": 2.92
+   },
+   {
+    "text": "down",
+    "start": 2.92,
+    "end": 3.34
+   },
+   {
+    "text": "and",
+    "start": 3.34,
+    "end": 3.62
+   },
+   {
+    "text": "along.",
+    "start": 3.62,
+    "end": 3.92
+   },
+   {
+    "text": "Rise",
+    "start": 3.92,
+    "end": 4.58
+   },
+   {
+    "text": "to",
+    "start": 4.58,
+    "end": 4.98
+   },
+   {
+    "text": "the",
+    "start": 4.98,
+    "end": 5.06
+   },
+   {
+    "text": "bow's",
+    "start": 5.06,
+    "end": 5.28
+   },
+   {
+    "text": "tip.",
+    "start": 5.28,
+    "end": 5.76
+   }
+  ]
+ },
+ "v06-pace": {
+  "text": "No timer. No countdown. The pace is yours.",
+  "duration": 4.0,
+  "words": [
+   {
+    "text": "No",
+    "start": 0.0,
+    "end": 0.46
+   },
+   {
+    "text": "timer.",
+    "start": 0.46,
+    "end": 0.76
+   },
+   {
+    "text": "No",
+    "start": 1.2,
+    "end": 1.44
+   },
+   {
+    "text": "countdown.",
+    "start": 1.44,
+    "end": 1.74
+   },
+   {
+    "text": "The",
+    "start": 2.66,
+    "end": 2.72
+   },
+   {
+    "text": "pace",
+    "start": 2.72,
+    "end": 2.92
+   },
+   {
+    "text": "is",
+    "start": 2.92,
+    "end": 3.24
+   },
+   {
+    "text": "yours.",
+    "start": 3.24,
+    "end": 3.54
+   }
+  ]
+ },
+ "v07-color": {
+  "text": "Then a little color, and it's finished. A real picture, on your own paper, in your own hand.",
+  "duration": 6.16,
+  "words": [
+   {
+    "text": "Then",
+    "start": 0.0,
+    "end": 0.48
+   },
+   {
+    "text": "a",
+    "start": 0.48,
+    "end": 0.74
+   },
+   {
+    "text": "little",
+    "start": 0.74,
+    "end": 0.94
+   },
+   {
+    "text": "color,",
+    "start": 0.94,
+    "end": 1.2
+   },
+   {
+    "text": "and",
+    "start": 1.2,
+    "end": 1.78
+   },
+   {
+    "text": "it's",
+    "start": 1.78,
+    "end": 2.0
+   },
+   {
+    "text": "finished.",
+    "start": 2.0,
+    "end": 2.3
+   },
+   {
+    "text": "A",
+    "start": 2.3,
+    "end": 3.04
+   },
+   {
+    "text": "real",
+    "start": 3.04,
+    "end": 3.24
+   },
+   {
+    "text": "picture,",
+    "start": 3.24,
+    "end": 3.7
+   },
+   {
+    "text": "on",
+    "start": 3.7,
+    "end": 4.12
+   },
+   {
+    "text": "your",
+    "start": 4.12,
+    "end": 4.26
+   },
+   {
+    "text": "own",
+    "start": 4.26,
+    "end": 4.44
+   },
+   {
+    "text": "paper,",
+    "start": 4.44,
+    "end": 4.78
+   },
+   {
+    "text": "in",
+    "start": 4.78,
+    "end": 5.24
+   },
+   {
+    "text": "your",
+    "start": 5.24,
+    "end": 5.38
+   },
+   {
+    "text": "own",
+    "start": 5.38,
+    "end": 5.56
+   },
+   {
+    "text": "hand.",
+    "start": 5.56,
+    "end": 5.86
+   }
+  ]
+ },
+ "v08-keep": {
+  "text": "Take a photo of your page, and it goes in your sketchbook. It stays on your iPad.",
+  "duration": 4.72,
+  "words": [
+   {
+    "text": "Take",
+    "start": 0.0,
+    "end": 0.44
+   },
+   {
+    "text": "a",
+    "start": 0.44,
+    "end": 0.54
+   },
+   {
+    "text": "photo",
+    "start": 0.54,
+    "end": 0.78
+   },
+   {
+    "text": "of",
+    "start": 0.78,
+    "end": 1.0
+   },
+   {
+    "text": "your",
+    "start": 1.0,
+    "end": 1.08
+   },
+   {
+    "text": "page,",
+    "start": 1.08,
+    "end": 1.34
+   },
+   {
+    "text": "and",
+    "start": 1.34,
+    "end": 1.86
+   },
+   {
+    "text": "it",
+    "start": 1.86,
+    "end": 1.98
+   },
+   {
+    "text": "goes",
+    "start": 1.98,
+    "end": 2.14
+   },
+   {
+    "text": "in",
+    "start": 2.14,
+    "end": 2.36
+   },
+   {
+    "text": "your",
+    "start": 2.36,
+    "end": 2.48
+   },
+   {
+    "text": "sketchbook.",
+    "start": 2.48,
+    "end": 2.96
+   },
+   {
+    "text": "It",
+    "start": 3.34,
+    "end": 3.4
+   },
+   {
+    "text": "stays",
+    "start": 3.4,
+    "end": 3.66
+   },
+   {
+    "text": "on",
+    "start": 3.66,
+    "end": 3.92
+   },
+   {
+    "text": "your",
+    "start": 3.92,
+    "end": 4.04
+   },
+   {
+    "text": "iPad.",
+    "start": 4.04,
+    "end": 4.32
+   }
+  ]
+ },
+ "v09-more": {
+  "text": "There are a hundred lessons on ten paths, from simple shapes to whole landscapes. Each one is a small step up.",
+  "duration": 6.96,
+  "words": [
+   {
+    "text": "There",
+    "start": 0.0,
+    "end": 0.44
+   },
+   {
+    "text": "are",
+    "start": 0.44,
+    "end": 0.6
+   },
+   {
+    "text": "a",
+    "start": 0.6,
+    "end": 0.76
+   },
+   {
+    "text": "hundred",
+    "start": 0.76,
+    "end": 1.12
+   },
+   {
+    "text": "lessons",
+    "start": 1.12,
+    "end": 1.42
+   },
+   {
+    "text": "on",
+    "start": 1.42,
+    "end": 1.82
+   },
+   {
+    "text": "ten",
+    "start": 1.82,
+    "end": 2.04
+   },
+   {
+    "text": "paths,",
+    "start": 2.04,
+    "end": 2.38
+   },
+   {
+    "text": "from",
+    "start": 2.38,
+    "end": 2.96
+   },
+   {
+    "text": "simple",
+    "start": 2.96,
+    "end": 3.22
+   },
+   {
+    "text": "shapes",
+    "start": 3.22,
+    "end": 3.62
+   },
+   {
+    "text": "to",
+    "start": 3.62,
+    "end": 3.88
+   },
+   {
+    "text": "whole",
+    "start": 3.88,
+    "end": 4.04
+   },
+   {
+    "text": "landscapes.",
+    "start": 4.04,
+    "end": 4.52
+   },
+   {
+    "text": "Each",
+    "start": 5.24,
+    "end": 5.32
+   },
+   {
+    "text": "one",
+    "start": 5.32,
+    "end": 5.6
+   },
+   {
+    "text": "is",
+    "start": 5.6,
+    "end": 5.74
+   },
+   {
+    "text": "a",
+    "start": 5.74,
+    "end": 5.84
+   },
+   {
+    "text": "small",
+    "start": 5.84,
+    "end": 6.14
+   },
+   {
+    "text": "step",
+    "start": 6.14,
+    "end": 6.5
+   },
+   {
+    "text": "up.",
+    "start": 6.5,
+    "end": 6.7
+   }
+  ]
+ },
+ "v10-family": {
+  "text": "Everyone at home can have their own profile, and their own sketchbook.",
+  "duration": 4.24,
+  "words": [
+   {
+    "text": "Everyone",
+    "start": 0.0,
+    "end": 0.56
+   },
+   {
+    "text": "at",
+    "start": 0.56,
+    "end": 0.84
+   },
+   {
+    "text": "home",
+    "start": 0.84,
+    "end": 1.02
+   },
+   {
+    "text": "can",
+    "start": 1.02,
+    "end": 1.26
+   },
+   {
+    "text": "have",
+    "start": 1.26,
+    "end": 1.46
+   },
+   {
+    "text": "their",
+    "start": 1.46,
+    "end": 1.62
+   },
+   {
+    "text": "own",
+    "start": 1.62,
+    "end": 1.8
+   },
+   {
+    "text": "profile,",
+    "start": 1.8,
+    "end": 2.24
+   },
+   {
+    "text": "and",
+    "start": 2.24,
+    "end": 2.86
+   },
+   {
+    "text": "their",
+    "start": 2.86,
+    "end": 3.0
+   },
+   {
+    "text": "own",
+    "start": 3.0,
+    "end": 3.3
+   },
+   {
+    "text": "sketchbook.",
+    "start": 3.3,
+    "end": 3.94
+   }
+  ]
+ },
+ "v11-end": {
+  "text": "All you need is a pen, some paper, and five minutes. Paper Coach is free on the App Store.",
+  "duration": 6.16,
+  "words": [
+   {
+    "text": "All",
+    "start": 0.0,
+    "end": 0.52
+   },
+   {
+    "text": "you",
+    "start": 0.52,
+    "end": 0.68
+   },
+   {
+    "text": "need",
+    "start": 0.68,
+    "end": 0.86
+   },
+   {
+    "text": "is",
+    "start": 0.86,
+    "end": 1.0
+   },
+   {
+    "text": "a",
+    "start": 1.0,
+    "end": 1.1
+   },
+   {
+    "text": "pen,",
+    "start": 1.1,
+    "end": 1.28
+   },
+   {
+    "text": "some",
+    "start": 1.7,
+    "end": 1.76
+   },
+   {
+    "text": "paper,",
+    "start": 1.76,
+    "end": 2.06
+   },
+   {
+    "text": "and",
+    "start": 2.4,
+    "end": 2.54
+   },
+   {
+    "text": "five",
+    "start": 2.54,
+    "end": 2.82
+   },
+   {
+    "text": "minutes.",
+    "start": 2.82,
+    "end": 3.14
+   },
+   {
+    "text": "Paper",
+    "start": 4.04,
+    "end": 4.04
+   },
+   {
+    "text": "Coach",
+    "start": 4.04,
+    "end": 4.36
+   },
+   {
+    "text": "is",
+    "start": 4.36,
+    "end": 4.62
+   },
+   {
+    "text": "free",
+    "start": 4.62,
+    "end": 4.84
+   },
+   {
+    "text": "on",
+    "start": 4.84,
+    "end": 5.16
+   },
+   {
+    "text": "the",
+    "start": 5.16,
+    "end": 5.28
+   },
+   {
+    "text": "App",
+    "start": 5.28,
+    "end": 5.46
+   },
+   {
+    "text": "Store.",
+    "start": 5.46,
+    "end": 5.74
+   }
+  ]
+ },
+ "color-hull": {
+  "text": "Color the hull blue.",
+  "duration": 1.96,
+  "words": [
+   {
+    "text": "Color",
+    "start": 0.0,
+    "end": 0.52
+   },
+   {
+    "text": "the",
+    "start": 0.52,
+    "end": 0.72
+   },
+   {
+    "text": "hull",
+    "start": 0.72,
+    "end": 0.92
+   },
+   {
+    "text": "blue.",
+    "start": 0.92,
+    "end": 1.36
+   }
+  ]
+ }
+}

@@ -1,0 +1,39 @@
+name: PCDriver
+options:
+  bundleIdPrefix: com.softroni.pcdriver
+  deploymentTarget:
+    iOS: "26.0"
+settings:
+  base:
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    GENERATE_INFOPLIST_FILE: YES
+    SWIFT_VERSION: "5.0"
+targets:
+  Host:
+    type: application
+    platform: iOS
+    sources: [Host]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.softroni.pcdriver.host
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+  DriverUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [DriverUITests]
+    dependencies:
+      - target: Host
+    settings:
+      base:
+        TEST_TARGET_NAME: Host
+        PRODUCT_BUNDLE_IDENTIFIER: com.softroni.pcdriver.uitests
+schemes:
+  DriverUITests:
+    build:
+      targets:
+        Host: all
+        DriverUITests: [test]
+    test:
+      targets: [DriverUITests]

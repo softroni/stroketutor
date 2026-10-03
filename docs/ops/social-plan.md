@@ -194,12 +194,16 @@ without asking.
   an SRT. Titles and captions say "step by step" or "for beginners", never "for kids".
 - **Pictures.** The app's own screens first; Pixabay where it helps (*Decisions*), downloaded into the video's
   folder.
-- **How.** Copy the 1.0 overview's project (`.studio/overview-1.0`; its README says how it was recorded, voiced,
-  edited in Remotion and rendered) to `.studio/whats-new-<version>`. Record on scratch simulators made for it and
+- **How.** Start from the closest video in `docs/videos` (`whats-new-1.1` for a what's-new video; its README says
+  how it was recorded, voiced, edited in Remotion and rendered, and `docs/videos/README.md` how to set one up) in
+  `.studio/whats-new-<version>`. Record on scratch simulators made for it and
   deleted afterwards, never the "PC Shots" or "PC Review" ones. Screens that need no tapping open straight from a
   launch argument (`-STScreen <name>`, `-onboardingBeat <beat>`, debug builds only); a flow that needs taps is
   tapped through while `xcrun simctl io <device> recordVideo` runs. Before posting, look at a frame sheet of the
   whole render (a frame every 2 seconds) and check the sound (about −16 LUFS, no long silence).
+- **Keep its source** (Kevin, 2026-10-03, for every promotion video): once it is made, and after any change,
+  `docs/videos/sync.sh whats-new-<version>` and commit `docs/videos/whats-new-<version>`. The recordings and renders
+  stay in `.studio`.
 - **Posting.** From `web/`: `node cli/studio.mjs social announce --wide --video <file.mp4> --lesson <the best new
   lesson, or one the video shows> --news "<what's new, in a sentence or two>" --headline "<title>" --campaign
   whats-new-<version, dots as dashes> --thumbnail <PNG or JPEG, at most 2 MB> --subtitles <file.srt> --log`. All
@@ -209,8 +213,8 @@ without asking.
 ## The tour video
 
 Kevin's decision of 2026-10-03 (*Decisions*): a 3:59 introduction for people who have never heard of Paper Coach,
-not a release's news. Made from 1.1 (`.studio/overview-1.1`, its README says how it was recorded, voiced, scored and
-rendered); its music was made on this Mac with ACE-Step 1.5 (MIT licence), so no rights to clear.
+not a release's news. Made from 1.1 in `.studio/overview-1.1`, its source in `docs/videos/overview-1.1` (the README says how it was
+recorded, voiced, scored and rendered); its music was made on this Mac with ACE-Step 1.5 (MIT licence), so no rights to clear.
 
 - **When.** The day after 1.1's what's-new video went out, so the day after 1.1 goes on sale. It counts as one of
   the month's news posts (*Release news*: two or three a month).
@@ -503,3 +507,5 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - 2026-10-03: Kevin asked for a longer tour of the app for newcomers, made from 1.1 and posted the day after 1.1's
   what's-new video. Made the same day (`.studio/overview-1.1`, 3:59, and a 2:16 cut for X), with soft music made
   locally (ACE-Step 1.5); the social check posts it (*The tour video*).
+- 2026-10-03: Kevin's rule: every promotion video's source is kept in git, `docs/videos/<folder>` (`sync.sh`), as
+  soon as it is made or changed; the 1.0 overview, the 1.1 what's-new video and the tour are there.

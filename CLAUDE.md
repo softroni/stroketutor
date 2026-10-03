@@ -29,6 +29,13 @@ this repo uses, and how to run each. Its words are in `web/src/studio/docs.ts`: 
 alters a command, a script or an MCP tool the repo relies on updates its row in the same work.** The Studio command
 line's own list is generated and checked by `web/cli/reference.test.ts` (`npx vitest run cli/reference -u` in `web/`).
 
+## Promotion videos
+
+A standing instruction from the creator (2026-10-03): **keep the source of every promotion video in git.** A video
+is made in `.studio/<folder>` (git ignores it) beside its recordings and renders; as soon as one is made or changed,
+run `docs/videos/sync.sh <folder>` and commit `docs/videos/<folder>` in the same work. A new one starts from the
+closest folder there: [docs/videos/README.md](docs/videos/README.md) lists them and says how.
+
 ## App Store screenshots
 
 A standing instruction from the creator, for every session: keep the App Store screenshots in step with the app, and
