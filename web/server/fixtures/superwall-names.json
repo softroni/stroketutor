@@ -1,0 +1,51 @@
+{
+  "note": "Paper Coach's Superwall paywalls and test versions on 2026-10-02, as server/paywallNames.ts reads them; the names for the sample events.",
+  "paywalls": {
+    "new-paywall-222e-2026-09-26": "Paywall 1",
+    "new-flow-7f9d-2026-09-26": "Flow 1",
+    "new-paywall-7899-2026-09-26": "Paywall 2",
+    "new-flow-8256-2026-09-26": "Flow 2"
+  },
+  "variants": {
+    "643125": {
+      "paywall": "Paywall 1",
+      "campaign": "Onboarding offer",
+      "share": 34
+    },
+    "643126": {
+      "paywall": "Flow 1",
+      "campaign": "Onboarding offer",
+      "share": 33
+    },
+    "643128": {
+      "paywall": "Holdout",
+      "campaign": "Onboarding offer",
+      "share": 0
+    },
+    "643129": {
+      "paywall": "Flow 2",
+      "campaign": "Onboarding offer",
+      "share": 33
+    },
+    "643045": {
+      "paywall": "Holdout",
+      "campaign": "In-app Premium",
+      "share": 0
+    },
+    "643130": {
+      "paywall": "Paywall 1",
+      "campaign": "In-app Premium",
+      "share": 50
+    },
+    "643131": {
+      "paywall": "Paywall 2",
+      "campaign": "In-app Premium",
+      "share": 50
+    }
+  },
+  "placements": {
+    "onboarding_offer": "Onboarding offer",
+    "premium_lesson": "In-app Premium",
+    "settings_premium": "In-app Premium"
+  }
+}

@@ -55,6 +55,19 @@ that far and no further (here, who stopped after one drawing):
 
 <img src="filter-journey.png" width="900">
 
+## At the paywall
+
+What learners did when a price came up. For 13 and over, Superwall's paywall, test by test and version by version
+(with its share of the traffic): how often it was shown, the middle time it stayed open, how often it was closed
+within 5 seconds (amber: dismissed, not read), how often buy was tapped (Apple's payment sheet came up, and how often
+it was cancelled there), and purchases. For children, the way to a grown-up: "This part is for a grown-up", the
+grown-ups' check (and who tried it again), the grown-ups' paywall, a purchase. Names come from Superwall
+(`superwall … --project 42098`). The A/B test is still judged in Superwall, by purchases per open; this shows the way
+there, and an opened session names the version it saw ("Paywall opened: Flow 1, after onboarding (Onboarding offer
+test, 33%)").
+
+<img src="paywalls.png" width="900">
+
 ## Where from
 
 Where the period's learners came from, and what they did: Apple Ads keyword by keyword against the rest, their

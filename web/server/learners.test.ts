@@ -161,7 +161,7 @@ describe('the query', () => {
     expect(toEvent([null, 'app_opened', 'x'])).toBeNull()
     // Apple Ads' ids, the phone's Region, the ad's storefront and the app version.
     expect(
-      toEvent([2, 'install_attributed', 'y', null, null, null, null, null, null, 'True', null, null, 2144789293, '2151492291', 2339019453, 'GB', 'US', '1.0']),
+      toEvent([2, 'install_attributed', 'y', null, null, null, null, null, null, 'True', null, null, 2144789293, '2151492291', 2339019453, 'GB', 'US', '1.0', null, null, null]),
     ).toEqual({
       at: 2,
       event: 'install_attributed',
@@ -174,5 +174,9 @@ describe('the query', () => {
       adsRegion: 'US',
       version: '1.0',
     })
+    // Superwall's: where the paywall was asked for, which paywall, which test version.
+    expect(
+      toEvent([3, 'superwall_paywall_open', 'z', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'onboarding_offer', 'new-flow-7f9d-2026-09-26', 643126]),
+    ).toEqual({ at: 3, event: 'superwall_paywall_open', id: 'z', placement: 'onboarding_offer', paywall: 'new-flow-7f9d-2026-09-26', variant: '643126' })
   })
 })

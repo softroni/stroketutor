@@ -95,7 +95,8 @@ function message(error: unknown): string {
   return (error instanceof Error ? error.message : String(error)).slice(0, 300)
 }
 
-function superwall(args: string[]): Promise<unknown> {
+/** Runs the `superwall` CLI with `--json` and answers its parsed output. */
+export function superwall(args: string[]): Promise<unknown> {
   return new Promise((resolve, reject) => {
     execFile('superwall', [...args, '--json'], { timeout: 60_000, maxBuffer: 20 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) return reject(new Error(stderr.trim() || error.message))

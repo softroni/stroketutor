@@ -215,6 +215,12 @@ export interface LearnerEvent {
   adsRegion?: string
   /** `$app_version`: "1.0". */
   version?: string
+  /** Superwall's events: where the paywall was asked for (`onboarding_offer`, `premium_lesson`, `settings_premium`). */
+  placement?: string
+  /** Superwall's events: the paywall's identifier (`new-flow-7f9d-2026-09-26`). */
+  paywall?: string
+  /** Superwall's events: the test version (variant) shown. */
+  variant?: string
 }
 
 /** The events the server asks PostHog for. `ob_beat_viewed` only for the age question (`ob-age`). */
@@ -237,6 +243,11 @@ export const LEARNER_EVENTS = [
   'superwall_free_trial_start',
   // Apple's answer about the install, often the only event of a first launch that names the ad.
   'install_attributed',
+  // A buy tapped on Superwall's paywall, and how it ended.
+  'superwall_transaction_start',
+  'superwall_transaction_abandon',
+  'superwall_transaction_complete',
+  'superwall_transaction_fail',
 ] as const
 
 /** The names behind Apple Ads' ids, from `/api/learners/ads` (`web/server/appleAds.ts`). */
@@ -249,6 +260,22 @@ export interface AdNames {
 export interface AdNamesResponse {
   names: AdNames
   source: 'apple-ads' | 'sample' | null
+  problem: string | null
+}
+
+/** The names behind Superwall's ids, from `/api/learners/paywalls` (`web/server/paywallNames.ts`). */
+export interface PaywallNames {
+  /** By paywall identifier: "Flow 1". */
+  paywalls: Record<string, string>
+  /** By test version (variant id): its paywall, its campaign ("Onboarding offer") and its share of the traffic. */
+  variants: Record<string, { paywall: string; campaign: string; share: number }>
+  /** By placement: the campaign it belongs to. */
+  placements: Record<string, string>
+}
+
+export interface PaywallNamesResponse {
+  names: PaywallNames
+  source: 'superwall' | 'sample' | null
   problem: string | null
 }
 
@@ -540,6 +567,13 @@ function matchesWhere(learnerEvents: LearnerEvent[], periodEvents: LearnerEvent[
 
 // ---------- Sessions ----------
 
+/** "2nd", "3rd", "11th". */
+export function ordinal(count: number): string {
+  const tens = count % 100
+  const suffix = tens >= 11 && tens <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[count % 10] ?? 'th'
+  return `${count}${suffix}`
+}
+
 /** A purchase and the free week it started arrive within this of each other. */
 const PURCHASE_WINDOW_MS = 10 * 60_000
 
@@ -580,10 +614,33 @@ export type SessionItem =
   | { kind: 'crown'; at: number; lesson: string }
   | { kind: 'wish'; at: number; lesson: string }
   | { kind: 'grownUp'; at: number }
-  | { kind: 'price'; at: number; forGrownUp: boolean; closedAfter: number | null }
+  | { kind: 'price'; at: number; forGrownUp: boolean; closedAfter: number | null; shown: PaywallShown | null }
   /** A purchase: a free week of the yearly plan (`trial`), or a plan paid for now, at its list price. */
   | { kind: 'bought'; at: number; trial: boolean; plan: string | null; price: number | null }
   | { kind: 'later'; at: number }
+
+/** Superwall's paywall, as shown once: which test version, where it was asked for, and what came of it. */
+export interface PaywallShown {
+  placement: string | null
+  paywall: string | null
+  variant: string | null
+  /** Buy was tapped, and Apple's payment sheet came up. */
+  tappedBuy: boolean
+  /** Apple's sheet was closed without paying. */
+  cancelled: boolean
+}
+
+/** A child's way to the grown-ups' paywall in one session. */
+export interface GrownUpWay {
+  /** "This part is for a grown-up", seen. */
+  views: number
+  /** The grown-ups' check, opened. */
+  checks: number
+  /** It was passed: the grown-up's paywall came up. */
+  passed: boolean
+  /** Where they met it (`onboarding`, `premium_lesson`, `settings`…), in order, each once. */
+  entries: string[]
+}
 
 /** Where a session ended, or where it is now. */
 export type SessionEnd =
@@ -606,6 +663,8 @@ export interface TimelineLine {
   text: string
   lesson: string | null
   mark: 'quiet' | 'started' | 'finished' | 'price' | 'grownUp' | 'kept' | 'crown' | 'wish' | 'bought'
+  /** Superwall's paywall, for its name beside the line. */
+  shown?: PaywallShown
 }
 
 export interface LearnerSession {
@@ -623,6 +682,8 @@ export interface LearnerSession {
   country: string | null
   /** The app version they used in the period. */
   version: string | null
+  /** A child's way to the grown-ups' paywall, when they met "This part is for a grown-up". */
+  grownUp: GrownUpWay | null
   /** Installed in this period. */
   isNew: boolean
   /** The times later visits began, after a pause of half an hour or more. */
@@ -653,6 +714,10 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
   let previous = events[0].at
   let finished = 0
   let kept = 0
+  let grownUp: GrownUpWay | null = null
+  const lastShown = () =>
+    ([...items].reverse().find((item) => item.kind === 'price' && item.shown) as Extract<SessionItem, { kind: 'price' }> | undefined)
+      ?.shown
   const lastPurchase = () =>
     [...items].reverse().find((item) => item.kind === 'bought') as Extract<SessionItem, { kind: 'bought' }> | undefined
   /**
@@ -763,12 +828,21 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
         const screen = event.screen ?? ''
         if (screen === 'grown_up') {
           if (items[items.length - 1]?.kind !== 'grownUp') items.push({ kind: 'grownUp', at: event.at })
+          grownUp ??= { views: 0, checks: 0, passed: false, entries: [] }
+          grownUp.views += 1
+          if (event.entry && !grownUp.entries.includes(event.entry)) grownUp.entries.push(event.entry)
           line('Saw “This part is for a grown-up”', 'grownUp')
         } else if (screen === 'parental_check') {
-          line('Saw the grown-ups’ check', 'grownUp')
+          grownUp ??= { views: 0, checks: 0, passed: false, entries: [] }
+          grownUp.checks += 1
+          line(grownUp.checks > 1 ? `Saw the grown-ups’ check again (${ordinal(grownUp.checks)} time)` : 'Saw the grown-ups’ check', 'grownUp')
         } else if (ENDS_ON_PRICE.has(screen)) {
           const forGrownUp = screen === 'grown_up_paywall'
-          items.push({ kind: 'price', at: event.at, forGrownUp, closedAfter: null })
+          if (forGrownUp) {
+            grownUp ??= { views: 0, checks: 0, passed: false, entries: [] }
+            grownUp.passed = true
+          }
+          items.push({ kind: 'price', at: event.at, forGrownUp, closedAfter: null, shown: null })
           line(forGrownUp ? 'Passed the check: the grown-up’s paywall' : 'Saw the paywall', 'price')
         } else if (screen === 'sketchbook_tour') {
           line('Saw the sketchbook tour')
@@ -782,10 +856,29 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
         }
         break
       }
-      case 'superwall_paywall_open':
-        items.push({ kind: 'price', at: event.at, forGrownUp: false, closedAfter: null })
-        line('Paywall opened', 'price')
+      case 'superwall_paywall_open': {
+        const shown: PaywallShown = {
+          placement: event.placement ?? null,
+          paywall: event.paywall ?? null,
+          variant: event.variant ?? null,
+          tappedBuy: false,
+          cancelled: false,
+        }
+        items.push({ kind: 'price', at: event.at, forGrownUp: false, closedAfter: null, shown })
+        timeline.push({ at: event.at, text: 'Paywall opened', lesson: null, mark: 'price', shown })
         break
+      }
+      case 'superwall_transaction_start': {
+        const shown = lastShown()
+        if (shown) shown.tappedBuy = true
+        line('Tapped buy: Apple’s payment sheet came up', 'price')
+        break
+      }
+      case 'superwall_transaction_abandon': {
+        const shown = lastShown()
+        if (shown) shown.cancelled = true
+        break
+      }
       case 'superwall_paywall_close': {
         const price = [...items].reverse().find((item) => item.kind === 'price') as
           | Extract<SessionItem, { kind: 'price' }>
@@ -836,6 +929,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
     ad: adOf(learner.events),
     country: countryOf(learner.events),
     version: versionOf(events),
+    grownUp,
     isNew,
     returns,
     activeMs,
@@ -1036,7 +1130,52 @@ export interface LearnersReport {
   leaders: LearnerSession[]
   /** Where the period's learners came from, before `where` narrows them, so each row stays a way in. */
   whereFrom: WhereFrom
+  /** What happened at the paywalls: Superwall's, version by version, and the children's way to the grown-ups'. */
+  paywalls: PaywallReport
 }
+
+/** One test version of Superwall's paywall, where it was asked for: how it was met. */
+export interface PaywallRow {
+  key: string
+  placement: string | null
+  variant: string | null
+  paywall: string | null
+  opens: number
+  learners: number
+  /** The middle time from open to close, of those closed. */
+  medianLookMs: number | null
+  /** Closed within `QUICK_CLOSE_MS`. */
+  quickCloses: number
+  /** Buy tapped: Apple's payment sheet came up. */
+  tappedBuy: number
+  /** Closed Apple's sheet without paying. */
+  cancelled: number
+  /** Started a free week or bought, from it. */
+  bought: number
+}
+
+export interface GrownUpReport {
+  /** Learners who met "This part is for a grown-up". */
+  met: number
+  /** Who opened the grown-ups' check. */
+  triedCheck: number
+  /** Opened more than once. */
+  triedAgain: number
+  /** Who passed it: the grown-up's paywall came up. */
+  passed: number
+  /** Who then started a free week or bought. */
+  bought: number
+  /** Where they met it, most first. */
+  entries: { entry: string; learners: number }[]
+}
+
+export interface PaywallReport {
+  rows: PaywallRow[]
+  grownUps: GrownUpReport
+}
+
+/** A paywall closed this fast was dismissed, not read. */
+export const QUICK_CLOSE_MS = 5_000
 
 /** A row of Where from: how many learners, and what they did. */
 export interface WhereRow {
@@ -1154,8 +1293,78 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
     sessions: period === 'day' ? [...sessions].sort((a, b) => b.start - a.start) : [],
     days: period === 'day' ? [] : daysOf(from, to, current),
     leaders: leadersOf(sessions),
+    paywalls: paywallsOf(everySession),
     whereFrom: whereFromOf(where ? inRange({ from, to }, false).map((entry) => buildSession(entry.learner, entry.events, now)) : everySession),
   }
+}
+
+/** What happened at the paywalls in these sessions. */
+export function paywallsOf(sessions: LearnerSession[]): PaywallReport {
+  const rows = new Map<string, PaywallRow & { looks: number[]; who: Set<string> }>()
+  const grownUps: GrownUpReport = { met: 0, triedCheck: 0, triedAgain: 0, passed: 0, bought: 0, entries: [] }
+  const entries = new Map<string, number>()
+  for (const session of sessions) {
+    session.items.forEach((item, index) => {
+      if (item.kind !== 'price' || !item.shown) return
+      const { placement, variant, paywall } = item.shown
+      const key = `${placement ?? ''}|${variant ?? paywall ?? ''}`
+      if (!rows.has(key)) {
+        rows.set(key, {
+          key,
+          placement,
+          variant,
+          paywall,
+          opens: 0,
+          learners: 0,
+          medianLookMs: null,
+          quickCloses: 0,
+          tappedBuy: 0,
+          cancelled: 0,
+          bought: 0,
+          looks: [],
+          who: new Set(),
+        })
+      }
+      const row = rows.get(key)!
+      row.opens += 1
+      row.who.add(session.key)
+      if (item.closedAfter !== null) {
+        row.looks.push(item.closedAfter)
+        if (item.closedAfter < QUICK_CLOSE_MS) row.quickCloses += 1
+      }
+      if (item.shown.tappedBuy) row.tappedBuy += 1
+      if (item.shown.cancelled) row.cancelled += 1
+      // A purchase counts for the last paywall before it.
+      const next = session.items.slice(index + 1).find((later) => later.kind === 'price' || later.kind === 'bought')
+      if (next?.kind === 'bought') row.bought += 1
+    })
+    const way = session.grownUp
+    if (way) {
+      grownUps.met += 1
+      if (way.checks > 0) grownUps.triedCheck += 1
+      if (way.checks > 1) grownUps.triedAgain += 1
+      if (way.passed) grownUps.passed += 1
+      if (way.passed && session.items.some((item) => item.kind === 'bought')) grownUps.bought += 1
+      for (const entry of way.entries) entries.set(entry, (entries.get(entry) ?? 0) + 1)
+    }
+  }
+  grownUps.entries = [...entries.entries()].map(([entry, learners]) => ({ entry, learners })).sort((a, b) => b.learners - a.learners)
+  return {
+    rows: [...rows.values()]
+      .map(({ looks, who, ...row }) => ({ ...row, learners: who.size, medianLookMs: median(looks) }))
+      .sort(
+        (a, b) =>
+          (a.placement ?? '').localeCompare(b.placement ?? '') || b.opens - a.opens || (a.variant ?? '').localeCompare(b.variant ?? ''),
+      ),
+    grownUps,
+  }
+}
+
+function median(values: number[]): number | null {
+  if (!values.length) return null
+  const sorted = [...values].sort((a, b) => a - b)
+  const middle = Math.floor(sorted.length / 2)
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2
 }
 
 /** Where from: learners counted by ad keyword, organic, country and app version. */

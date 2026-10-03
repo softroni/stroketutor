@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 
-import { readAdNames, readLearnerHistory, readLearners } from './api'
+import { readAdNames, readLearnerHistory, readLearners, readPaywallNames } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
 import {
   adKey,
@@ -29,12 +29,17 @@ import {
   money,
   type Only,
   previousLabel,
+  spoken,
   stepPeriod,
   timeOf,
   timeWithSeconds,
   type AdNames,
   type AdSource,
   type DaySummary,
+  type PaywallNames,
+  type PaywallReport,
+  type PaywallShown,
+  QUICK_CLOSE_MS,
   type LearnersReport,
   type LearnersResponse,
   type LearnerSession,
@@ -223,6 +228,51 @@ function useAdNames(available: boolean): { names: AdNames; problem: string | nul
   return state
 }
 
+const NO_PAYWALL_NAMES: PaywallNames = { paywalls: {}, variants: {}, placements: {} }
+/** The names behind Superwall's paywall and test-version ids, asked for once per visit to the page. */
+const PaywallNamesContext = createContext<PaywallNames>(NO_PAYWALL_NAMES)
+
+function usePaywallNames(available: boolean): { names: PaywallNames; problem: string | null } {
+  const [state, setState] = useState<{ names: PaywallNames; problem: string | null }>({ names: NO_PAYWALL_NAMES, problem: null })
+  useEffect(() => {
+    if (!available) return
+    let live = true
+    readPaywallNames()
+      .then((response) => live && setState({ names: response.names, problem: response.problem }))
+      .catch((error: unknown) => live && setState({ names: NO_PAYWALL_NAMES, problem: error instanceof Error ? error.message : String(error) }))
+    return () => {
+      live = false
+    }
+  }, [available])
+  return state
+}
+
+const PLACEMENT_WORDS: Record<string, string> = {
+  onboarding_offer: 'after onboarding',
+  premium_lesson: 'a locked lesson',
+  settings_premium: 'Settings',
+}
+
+const ENTRY_WORDS: Record<string, string> = {
+  onboarding: 'after onboarding',
+  premium_lesson: 'a locked lesson',
+  settings: 'Settings',
+  wish_list: 'the wish list',
+  sketchbook: 'the sketchbook',
+}
+
+/** "Flow 1", or the identifier when Superwall's names are missing. */
+function paywallWords(names: PaywallNames, shown: { variant: string | null; paywall: string | null }): string {
+  return (shown.variant && names.variants[shown.variant]?.paywall) || (shown.paywall && names.paywalls[shown.paywall]) || shown.paywall || 'a paywall'
+}
+
+/** "Flow 1, after onboarding (Onboarding offer test, 33%)". */
+function shownWords(names: PaywallNames, shown: PaywallShown): string {
+  const version = shown.variant ? names.variants[shown.variant] : undefined
+  const where = shown.placement ? PLACEMENT_WORDS[shown.placement] ?? shown.placement : null
+  return `${paywallWords(names, shown)}${where ? `, ${where}` : ''}${version ? ` (${version.campaign} test, ${version.share}%)` : ''}`
+}
+
 /** A campaign's name without Paper Coach's own prefix: "PC - US - Category" → "US - Category". */
 function campaignWords(names: AdNames, campaign: string): string {
   const name = names.campaigns[campaign]
@@ -372,6 +422,7 @@ export function LearnersView({
     [response, period, day, who, source, lesson, only, where],
   )
   const ads = useAdNames(library.writable)
+  const paywallNames = usePaywallNames(library.writable)
   const [markFor, setMarkFor] = useMarkFor()
   // The numbers depend on the period, the day and the narrowing, but not on `only`.
   const changes = useNumberChanges(
@@ -500,6 +551,7 @@ export function LearnersView({
 
       {report ? (
         <AdNamesContext.Provider value={ads.names}>
+        <PaywallNamesContext.Provider value={paywallNames.names}>
         <Picked.Provider value={lesson}>
           <Numbers
             report={report}
@@ -511,6 +563,7 @@ export function LearnersView({
             <Journey report={report} only={only} href={(next) => here({ only: next === only ? null : next })} />
             <MostDrawn report={report} library={library} picked={lesson} href={(drawn) => here({ lesson: drawn === lesson ? null : drawn })} />
           </div>
+          <AtThePaywall paywalls={report.paywalls} problem={paywallNames.problem} />
           <WhereFromPanel
             whereFrom={report.whereFrom}
             picked={where}
@@ -536,9 +589,130 @@ export function LearnersView({
             <Days report={report} library={library} today={today} dayHref={(candidate) => here({ period: 'day', date: candidate })} />
           )}
         </Picked.Provider>
+        </PaywallNamesContext.Provider>
         </AdNamesContext.Provider>
       ) : null}
     </div>
+  )
+}
+
+/**
+ * What happened at the paywalls: Superwall's (13 and over), test version by test version and
+ * where it was asked for, with how long it was looked at and who tapped buy; and the
+ * children's way to the grown-ups' paywall, through "This part is for a grown-up" and the
+ * grown-ups' check. The A/B test is judged in Superwall by purchases per open; this is for
+ * seeing what happens on the way.
+ */
+function AtThePaywall({ paywalls, problem }: { paywalls: PaywallReport; problem: string | null }) {
+  const names = useContext(PaywallNamesContext)
+  const groups = new Map<string, PaywallReport['rows']>()
+  for (const row of paywalls.rows) {
+    const campaign = (row.placement && names.placements[row.placement]) || (row.variant && names.variants[row.variant]?.campaign) || 'Superwall'
+    groups.set(campaign, [...(groups.get(campaign) ?? []), row])
+  }
+  const way = paywalls.grownUps
+  const steps = [
+    { label: 'Met “This part is for a grown-up”', count: way.met },
+    { label: 'Opened the grown-ups’ check', count: way.triedCheck, note: way.triedAgain ? `${way.triedAgain} tried again` : null },
+    { label: 'Passed: the grown-ups’ paywall', count: way.passed },
+    { label: 'Started a trial or bought', count: way.bought },
+  ]
+  const most = Math.max(1, way.met)
+  return (
+    <section className="st-learners__panel st-learners__paywalls" aria-labelledby="learners-paywalls">
+      <div className="st-learners__panel-head">
+        <h2 id="learners-paywalls" className="st-learners__h2">
+          At the paywall
+        </h2>
+        <span className="st-learners__muted">What learners did when a price came up.</span>
+      </div>
+      <div className="st-learners__paywall-columns">
+        <div>
+          <h3 className="st-learners__where-title">13 and over: Superwall’s paywall</h3>
+          {paywalls.rows.length ? (
+            <table className="st-learners__paywall-table">
+              <thead>
+                <tr>
+                  <th scope="col">Version</th>
+                  <th scope="col">Shown</th>
+                  <th scope="col" title="The middle time from open to close">
+                    Looked
+                  </th>
+                  <th scope="col" title={`Closed within ${QUICK_CLOSE_MS / 1000} seconds`}>
+                    Closed fast
+                  </th>
+                  <th scope="col" title="Apple’s payment sheet came up">
+                    Tapped buy
+                  </th>
+                  <th scope="col">Bought</th>
+                </tr>
+              </thead>
+              {[...groups.entries()].map(([campaign, rows]) => (
+                <tbody key={campaign}>
+                  <tr className="st-learners__paywall-group">
+                    <th scope="rowgroup" colSpan={6}>
+                      {campaign} test
+                      <span>
+                        {[...new Set(rows.map((row) => (row.placement ? PLACEMENT_WORDS[row.placement] ?? row.placement : null)).filter(Boolean))].join(', ')}
+                      </span>
+                    </th>
+                  </tr>
+                  {rows.map((row) => {
+                    const version = row.variant ? names.variants[row.variant] : undefined
+                    return (
+                      <tr key={row.key}>
+                        <th scope="row">
+                          {paywallWords(names, row)}
+                          {version ? <span className="st-learners__paywall-share">{version.share}%</span> : null}
+                        </th>
+                        <td>
+                          {row.opens}
+                          {row.learners !== row.opens ? <span className="st-learners__muted"> by {row.learners}</span> : null}
+                        </td>
+                        <td>{row.medianLookMs === null ? '–' : spoken(row.medianLookMs)}</td>
+                        <td className={row.quickCloses ? 'st-learners__paywall-warn' : undefined}>{row.quickCloses}</td>
+                        <td>
+                          {row.tappedBuy}
+                          {row.cancelled ? <span className="st-learners__muted"> ({row.cancelled} cancelled)</span> : null}
+                        </td>
+                        <td className={row.bought ? 'st-learners__paywall-good' : undefined}>{row.bought}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              ))}
+            </table>
+          ) : (
+            <p className="st-learners__muted">Nobody 13 or over saw it in this period.</p>
+          )}
+          {problem ? <p className="st-learners__muted st-learners__where-note">Paywall names are missing: {problem}</p> : null}
+        </div>
+        <div>
+          <h3 className="st-learners__where-title">Under 13: the way to a grown-up</h3>
+          {way.met ? (
+            <>
+              <ol className="st-learners__way">
+                {steps.map((step) => (
+                  <li key={step.label}>
+                    <span className="st-learners__way-label">{step.label}</span>
+                    <span className="st-learners__way-bar" aria-hidden="true">
+                      <span style={{ width: `${(step.count / most) * 100}%` }} />
+                    </span>
+                    <span className="st-learners__way-count">{step.count}</span>
+                    {step.note ? <span className="st-learners__way-note">{step.note}</span> : null}
+                  </li>
+                ))}
+              </ol>
+              <p className="st-learners__muted st-learners__where-note">
+                Met it {way.entries.map((entry) => `${ENTRY_WORDS[entry.entry] ?? entry.entry} (${entry.learners})`).join(', ')}.
+              </p>
+            </>
+          ) : (
+            <p className="st-learners__muted">No child met it in this period.</p>
+          )}
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -1260,6 +1434,12 @@ function StripKey() {
 }
 
 /** An opened session: every step in words, with the lesson's picture beside it. */
+/** ": Flow 1, after onboarding (Onboarding offer test, 33%)", beside "Paywall opened". */
+function ShownName({ shown }: { shown: PaywallShown }) {
+  const names = useContext(PaywallNamesContext)
+  return <span className="st-learners__line-shown">: {shownWords(names, shown)}</span>
+}
+
 function Timeline({ lines, library }: { lines: TimelineLine[]; library: Library }) {
   return (
     <ol className="st-learners__timeline">
@@ -1274,7 +1454,10 @@ function Timeline({ lines, library }: { lines: TimelineLine[]; library: Library 
               state={line.mark === 'started' ? 'started' : line.mark === 'crown' || line.mark === 'wish' ? 'locked' : 'finished'}
             />
           ) : null}
-          <span className="st-learners__line-text">{line.text}</span>
+          <span className="st-learners__line-text">
+            {line.text}
+            {line.shown ? <ShownName shown={line.shown} /> : null}
+          </span>
         </li>
       ))}
     </ol>

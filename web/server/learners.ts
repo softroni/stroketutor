@@ -196,7 +196,8 @@ const COLUMNS = [
   'SELECT toUnixTimestamp64Milli(timestamp), event, distinct_id, properties.age_group, properties.lesson_id,',
   '  properties.first_open, properties.screen, properties.entry, properties.outcome, properties.asa_attribution,',
   '  properties.added, properties.plan, properties.asa_campaign_id, properties.asa_ad_group_id,',
-  '  properties.asa_keyword_id, properties.device_region, properties.asa_country_or_region, properties.$app_version',
+  '  properties.asa_keyword_id, properties.device_region, properties.asa_country_or_region, properties.$app_version,',
+  '  properties.placement, properties.paywall_id, properties.variant_id',
   'FROM events',
 ]
 
@@ -268,7 +269,7 @@ async function queryEvents(
 /** One row of the query, in the column order above, as an event; null when it has no time, name or id. */
 export function toEvent(row: unknown[]): LearnerEvent | null {
   const [at, event, id, age, lesson, firstOpen, screen, entry, outcome, ads, added, plan, ...more] = row
-  const [campaign, adGroup, keyword, region, adsRegion, version] = more
+  const [campaign, adGroup, keyword, region, adsRegion, version, placement, paywall, variant] = more
   if (typeof event !== 'string' || typeof id !== 'string') return null
   const time = typeof at === 'number' ? at : typeof at === 'string' && at !== '' ? Number(at) : Number.NaN
   if (!Number.isFinite(time)) return null
@@ -291,6 +292,9 @@ export function toEvent(row: unknown[]): LearnerEvent | null {
   if (text(region)) result.region = text(region)
   if (text(adsRegion)) result.adsRegion = text(adsRegion)
   if (text(version)) result.version = text(version)
+  if (text(placement)) result.placement = text(placement)
+  if (text(paywall)) result.paywall = text(paywall)
+  if (idOf(variant)) result.variant = idOf(variant)
   if (flag(ads) !== undefined) result.ads = flag(ads)
   if (flag(added) !== undefined) result.added = flag(added)
   return result

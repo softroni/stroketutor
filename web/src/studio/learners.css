@@ -683,6 +683,144 @@
   font-size: 12px;
 }
 
+/* ---------- At the paywall ---------- */
+
+.st-learners__paywalls {
+  margin-bottom: 18px;
+}
+
+.st-learners__paywall-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 18px 28px;
+}
+
+.st-learners__paywall-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-learners__paywall-table th,
+.st-learners__paywall-table td {
+  padding: 6px 8px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.st-learners__paywall-table thead th {
+  color: var(--ink-faint);
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--line);
+}
+
+.st-learners__paywall-table tbody th[scope='row'],
+.st-learners__paywall-table thead th:first-child {
+  text-align: left;
+}
+
+.st-learners__paywall-table tbody th[scope='row'] {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.st-learners__paywall-table td {
+  color: var(--ink);
+}
+
+.st-learners__paywall-group th {
+  padding-top: 12px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.st-learners__paywall-group span {
+  margin-left: 8px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.st-learners__paywall-share {
+  margin-left: 6px;
+  color: var(--ink-faint);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Closed within seconds: it was dismissed, not read. */
+.st-learners__paywall-warn {
+  color: var(--amber) !important;
+  font-weight: 700;
+}
+
+.st-learners__paywall-good {
+  color: var(--good) !important;
+  font-weight: 700;
+}
+
+.st-learners__way {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-learners__way li {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.3fr) minmax(60px, 1fr) 28px;
+  grid-template-areas:
+    'label bar count'
+    'label note note';
+  align-items: center;
+  gap: 2px 10px;
+  font-size: 13px;
+}
+
+.st-learners__way-label {
+  grid-area: label;
+  color: var(--ink);
+}
+
+.st-learners__way-bar {
+  grid-area: bar;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+
+.st-learners__way-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--learners-children);
+}
+
+.st-learners__way-count {
+  grid-area: count;
+  color: var(--ink);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-learners__way-note {
+  grid-area: note;
+  color: var(--amber);
+  font-size: 12px;
+}
+
+/* "Paywall opened: Flow 1, after onboarding (Onboarding offer test, 33%)". */
+.st-learners__line-shown {
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
 /* ---------- A lesson as its picture ---------- */
 
 .st-learners__pic {
@@ -1543,7 +1681,8 @@ a.st-learners__day-face:hover {
 
 @media (max-width: 1000px) {
   .st-learners__pair,
-  .st-learners__where-columns {
+  .st-learners__where-columns,
+  .st-learners__paywall-columns {
     grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -6,7 +6,7 @@ import type { TracedDrawing } from '../trace/traceSvg'
 import type { VideoJob, VideoLessonState } from '../video/types'
 import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
-import type { AdNamesResponse, LearnersResponse } from './learners'
+import type { AdNamesResponse, LearnersResponse, PaywallNamesResponse } from './learners'
 import type { ScreenshotList } from './screenshots'
 import type { SocialResponse } from './social'
 import type { TodayResponse } from './today'
@@ -114,6 +114,11 @@ export function readLearnerHistory(ids: string[]) {
 /** The names behind Apple Ads' campaign, ad group and keyword ids (read-only). */
 export function readAdNames() {
   return call<AdNamesResponse>('/api/learners/ads')
+}
+
+/** The names behind Superwall's paywall and test-version ids (read-only). */
+export function readPaywallNames() {
+  return call<PaywallNamesResponse>('/api/learners/paywalls')
 }
 
 /** Every post sent to social media, by day, with each platform's link or what stopped it (read-only). */

@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
+  ordinal,
+  paywallsOf,
+  QUICK_CLOSE_MS,
   adKey,
   adOf,
   countryOf,
@@ -493,5 +496,62 @@ describe('where learners came from', () => {
       expect(isWhere(good)).toBe(true)
     }
     for (const bad of ['keyword-', 'keyword-abc', 'country-usa', 'version-1.0.0.0.0', "organic'"]) expect(isWhere(bad)).toBe(false)
+  })
+})
+
+describe('at the paywall', () => {
+  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+
+  it('counts Superwall’s paywall by test version and where it was asked for', () => {
+    expect(evening.paywalls.rows.map((row) => [row.placement, row.variant, row.opens, row.quickCloses, row.tappedBuy, row.bought])).toEqual([
+      ['onboarding_offer', '643125', 1, 1, 0, 0],
+      ['onboarding_offer', '643126', 1, 0, 0, 0],
+      ['onboarding_offer', '643129', 1, 1, 0, 0],
+      ['settings_premium', '643130', 1, 0, 0, 0],
+    ])
+    // Paywall 1 after onboarding was closed in 2.9 s; Flow 1 was still open when the sample ends.
+    expect(evening.paywalls.rows[0].medianLookMs).toBeLessThan(QUICK_CLOSE_MS)
+    expect(evening.paywalls.rows[1].medianLookMs).toBeNull()
+  })
+
+  it('follows the children’s way to the grown-ups’ paywall', () => {
+    expect(evening.paywalls.grownUps).toMatchObject({ met: 3, triedCheck: 3, passed: 1, bought: 0 })
+    expect(evening.paywalls.grownUps.triedAgain).toBeGreaterThanOrEqual(2)
+    expect(evening.paywalls.grownUps.entries[0]).toEqual({ entry: 'onboarding', learners: 3 })
+    const tries = evening.sessions.flatMap((session) => session.timeline).filter((line) => line.text.startsWith('Saw the grown-ups’ check again'))
+    expect(tries.map((line) => line.text)).toContain('Saw the grown-ups’ check again (3rd time)')
+  })
+
+  it('marks a buy tapped and cancelled on the paywall it came from, and a purchase on the last one before it', () => {
+    const at = Date.parse('2026-10-03T15:00:00Z')
+    const paywall = { placement: 'onboarding_offer', paywall: 'new-flow-7f9d-2026-09-26', variant: '643126' }
+    const learner = (id: string, rest: Omit<LearnerEvent, 'id' | 'at'>[]): LearnerEvent[] =>
+      rest.map((event, index) => ({ ...event, id, at: at + index * 1_000, age: '18plus' }))
+    const events = [
+      ...learner('a', [
+        { event: 'app_opened', firstOpen: true },
+        { event: 'superwall_paywall_open', ...paywall },
+        { event: 'superwall_transaction_start', ...paywall },
+        { event: 'purchase_attempted', plan: 'yearly', outcome: 'cancelled' },
+        { event: 'superwall_transaction_abandon', ...paywall },
+        { event: 'superwall_paywall_close', ...paywall },
+      ]),
+      ...learner('b', [
+        { event: 'app_opened', firstOpen: true },
+        { event: 'superwall_paywall_open', ...paywall },
+        { event: 'superwall_transaction_start', ...paywall },
+        { event: 'purchase_attempted', plan: 'weekly', outcome: 'purchased' },
+        { event: 'superwall_transaction_complete', ...paywall },
+      ]),
+    ]
+    const report = buildReport(events, { period: 'day', date: '2026-10-03', now: at + 3_600_000 })
+    expect(report.paywalls.rows).toEqual([
+      expect.objectContaining({ variant: '643126', opens: 2, learners: 2, tappedBuy: 2, cancelled: 1, bought: 1, quickCloses: 1 }),
+    ])
+    const opened = report.sessions.find((session) => session.key === 'a')!.timeline
+    expect(opened.find((line) => line.text === 'Paywall opened')?.shown).toMatchObject({ variant: '643126', tappedBuy: true, cancelled: true })
+    expect(opened.map((line) => line.text)).toContain('Tapped buy: Apple’s payment sheet came up')
+    expect(paywallsOf([]).rows).toEqual([])
+    expect([1, 2, 3, 4, 11, 12, 13, 21, 22].map(ordinal)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '22nd'])
   })
 })

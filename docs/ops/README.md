@@ -40,6 +40,8 @@ every scheduled run follows it.
   5 min at first); what was seen is kept in the browser (`localStorage`), so a closed page catches up on return.
   *Where from* counts learners by Apple Ads keyword, country and app version; each session names its keyword (names
   through `superwall asa`, kept half an hour). The country is `device_region`, sent from the release after 1.1.
+  *At the paywall* shows Superwall's test versions (shown, time open, closed within 5 s, buy tapped, cancelled,
+  bought) and the children's way through the grown-ups' check; the test is still judged in Superwall.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature
