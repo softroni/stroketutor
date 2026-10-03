@@ -1,6 +1,6 @@
 {
-  "updated": "2026-10-02T22:29:11-05:00",
-  "headline": "1.1 has waited two days for Apple's review; nothing is broken. One new learner came on Oct 1 and left at the age question, and the ads bids went up again because they still win few auctions.",
+  "updated": "2026-10-03T00:08:11-05:00",
+  "headline": "1.1 has waited about 56 hours for Apple's review; nothing is broken and there are no reviews yet. Oct 2 was the best day so far: 7 new learners, all through onboarding, the first Apple Ads install, but no purchase yet.",
   "app": {
     "live": {
       "version": "1.0",
@@ -28,13 +28,9 @@
     {
       "label": "Installs",
       "value": "0",
-      "period": "Oct 1",
-      "detail": "14 days: 2",
+      "period": "Oct 2",
+      "detail": "14 days: 9",
       "series": [
-        {
-          "day": "2026-09-18",
-          "value": 0
-        },
         {
           "day": "2026-09-19",
           "value": 0
@@ -85,6 +81,10 @@
         },
         {
           "day": "2026-10-01",
+          "value": 7
+        },
+        {
+          "day": "2026-10-02",
           "value": 0
         }
       ],
@@ -93,13 +93,9 @@
     {
       "label": "Proceeds",
       "value": "$0.00",
-      "period": "Oct 1",
+      "period": "Oct 2",
       "detail": "14 days: $0.00",
       "series": [
-        {
-          "day": "2026-09-18",
-          "value": 0.0
-        },
         {
           "day": "2026-09-19",
           "value": 0.0
@@ -151,6 +147,10 @@
         {
           "day": "2026-10-01",
           "value": 0.0
+        },
+        {
+          "day": "2026-10-02",
+          "value": 0.0
         }
       ],
       "source": "App Store"
@@ -158,13 +158,9 @@
     {
       "label": "Ad spend",
       "value": "$0.00",
-      "period": "Oct 2",
-      "detail": "14 days: $1.88",
+      "period": "Oct 3",
+      "detail": "14 days: $7.11",
       "series": [
-        {
-          "day": "2026-09-18",
-          "value": 0.0
-        },
         {
           "day": "2026-09-19",
           "value": 0.0
@@ -219,6 +215,10 @@
         },
         {
           "day": "2026-10-02",
+          "value": 5.23
+        },
+        {
+          "day": "2026-10-03",
           "value": 0.0
         }
       ],
@@ -226,23 +226,23 @@
     },
     {
       "label": "First opens",
-      "value": "4",
+      "value": "11",
       "period": "since 30 Sep",
-      "detail": "real learners on 1.0, release builds; 1 on Oct 1, who left at the age question",
+      "detail": "real learners on 1.0, release builds; 7 on Oct 2 (4 children, 3 aged 13+, 1 from Apple Ads)",
       "source": "PostHog"
     },
     {
       "label": "Drawings finished",
-      "value": "3",
+      "value": "about 24",
       "period": "since 30 Sep",
-      "detail": "Pine Tree, School Bus, Watermelon Slice, all on Sep 30",
+      "detail": "those that took over a minute; 64 were finished on Oct 2, most tapped through by two young children",
       "source": "PostHog"
     },
     {
       "label": "Purchases",
       "value": "0",
       "period": "since 30 Sep",
-      "detail": "1 onboarding offer seen (Flow 1); the yearly plan was tapped, then cancelled",
+      "detail": "4 onboarding offers seen by learners 13+, all closed (two within 2 s); 1 Settings › Premium open",
       "source": "PostHog"
     },
     {
@@ -258,23 +258,23 @@
     "steps": [
       {
         "label": "First open",
-        "value": 4
+        "value": 11
       },
       {
         "label": "Age answered",
-        "value": 3
+        "value": 10
       },
       {
         "label": "Onboarding finished",
-        "value": 3
+        "value": 10
       },
       {
         "label": "First drawing finished",
-        "value": 3
+        "value": 9
       },
       {
         "label": "Paywall seen (13+)",
-        "value": 1
+        "value": 4
       },
       {
         "label": "Purchase",
@@ -290,7 +290,7 @@
     },
     {
       "title": "TikTok bio link, once TikTok verifies the business",
-      "detail": "Verification was submitted Sep 30 (up to three days). Then Edit profile › Links: https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=tiktok-bio&mt=8",
+      "detail": "Verification was submitted Sep 30 (up to three days, so about now). Then Edit profile › Links: https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=tiktok-bio&mt=8",
       "since": "2026-09-30"
     }
   ],
@@ -298,7 +298,7 @@
     {
       "title": "1.1 release",
       "state": "waiting",
-      "detail": "Submitted 2026-09-30 4:16 PM with Premium Lifetime; still waiting for review at midnight Oct 2 (about 51 hours). Phased release after approval."
+      "detail": "Submitted 2026-09-30 4:16 PM with Premium Lifetime; still waiting for review at midnight Oct 3 (about 56 hours). Phased release after approval."
     },
     {
       "title": "Remind Kevin the moment 1.1 is on sale",
@@ -308,17 +308,22 @@
     {
       "title": "Apple Ads: the $150 learning budget",
       "state": "running",
-      "detail": "$1.88 spent so far: 2 taps (how to draw at $1.59, a junk search in Discovery), no installs. Oct 2: exact bids up $0.25 by the ladder (learn to draw $2.50, how to draw $2.25), 3 junk searches excluded. Stop at $140; plan to Kevin at $100 or Oct 9."
+      "detail": "$7.11 spent since Sep 30: 7 taps, 1 tap install (how to draw app, $1.90, a 16–17 learner who reached the offer). Oct 3: bids up by the ladder (learn to draw $2.75, how to draw $2.50, adult terms $2.00, easy terms $1.75, broad $1.15); packdraw excluded. Stop at $140; plan to Kevin at $100 or Oct 9."
     },
     {
       "title": "First real learners",
       "state": "running",
-      "detail": "4 first opens on 1.0 since launch: the 3 on Sep 30 each finished a drawing; the one on Oct 1 went back and forth through the intro for two minutes and left at the age question. No crashes, no purchases."
+      "detail": "11 first opens on 1.0 since launch, 7 of them on Oct 2: 4 children and 3 aged 13+, all through onboarding, 6 finished a drawing. A 6–9 learner drew 10 lessons of about 8 minutes each and kept every photo. No crashes, no purchases."
     },
     {
       "title": "Lesson videos on social",
       "state": "running",
-      "detail": "Watermelon Slice went to all seven platforms on Oct 1 (Pinterest on a second try), and the 16:9 overview of 1.0 too. Pirate Ship, the first Premium lesson, goes out at 5 PM on Oct 2."
+      "detail": "Mushroom went to all seven platforms on Oct 2, its step pin too. Sun is next at 5 PM Oct 3. 1.1's what's-new video is made and posts the day 1.1 is on sale."
+    },
+    {
+      "title": "Suggestion for Kevin: Restore's message",
+      "state": "next",
+      "detail": "Restore said 'failed' twice on Oct 2 (Settings › Premium and the children's offer): the App Store sync didn't finish, as when its sign-in sheet is closed, and the learner reads that the App Store can't be reached. Same code in 1.1. Nobody had bought, so nothing was lost; worth a gentler message in a later build."
     },
     {
       "title": "Onboarding funnel tile",
@@ -347,6 +352,26 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-10-03T00:08:10-05:00",
+      "text": "Daily check: 1.1 still waiting for review; 7 new learners on Oct 2, all through onboarding; no crashes",
+      "kind": "check"
+    },
+    {
+      "at": "2026-10-03T00:08:10-05:00",
+      "text": "Apple Ads: first install, from how to draw app at $1.90; the 16–17 learner saw the offer, no buy",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-03T00:08:10-05:00",
+      "text": "Apple Ads: excluded the junk search packdraw from Discovery",
+      "kind": "ads"
+    },
+    {
+      "at": "2026-10-03T00:08:10-05:00",
+      "text": "Apple Ads: bids up by the ladder (learn to draw $2.75, how to draw $2.50, adult $2.00, easy $1.75, broad $1.15)",
+      "kind": "ads"
+    },
     {
       "at": "2026-10-02T22:29:10-05:00",
       "text": "Social check: Mushroom is up on all seven platforms, its step pin too; numbers saved.",
@@ -509,30 +534,14 @@
     {
       "at": "2026-09-30T17:42:17-05:00",
       "text": "Social: plan agreed (docs/ops/social-plan.md); built step pins, a Pinterest board per path, speed draws and release news. Posting waits on the paid plan and TikTok."
-    },
-    {
-      "at": "2026-09-30T16:29:16-05:00",
-      "text": "Reminder set: when 1.1 is on sale, Kevin publishes Paywall 1 and Flow 1 in Superwall and creates the Friends & Family Lifetime codes"
-    },
-    {
-      "at": "2026-09-30T16:16:30-05:00",
-      "text": "Submitted 1.1 (4) with Premium Lifetime (Kevin's go-ahead): both Waiting for Review, phased release after approval"
-    },
-    {
-      "at": "2026-09-30T16:13:41-05:00",
-      "text": "1.1 (4) ready to submit: 393 iOS and 758 web tests pass, walkthrough done, build uploaded (VALID) and attached, text and 16 screenshots in App Store Connect (shot 4 now the finished fire hydrant), Lifetime Ready to Submit. Waiting for Kevin's Submit"
-    },
-    {
-      "at": "2026-09-30T15:38:52-05:00",
-      "text": "1.1 in App Store Connect (Prepare for Submission): text, keywords, review notes, phased release, 16 screenshots uploaded; Lifetime availability saved (175). Waiting on the plans-sheet subtitle fix, then build and QA"
     }
   ],
   "experiments": [
     {
       "name": "Onboarding offer",
       "placement": "onboarding_offer",
-      "status": "running, 1 open",
-      "note": "3 designs for learners 13+; Flow 1 had the first open, no purchase. Down to 2 once each has about 150 opens.",
+      "status": "running, 4 opens",
+      "note": "Flow 1 2, Flow 2 1, Paywall 1 1; no purchase. Down to 2 designs once each has about 150 opens.",
       "variants": [
         {
           "name": "Paywall 1",
@@ -554,8 +563,8 @@
     {
       "name": "In-app Premium",
       "placement": "premium_lesson, settings_premium",
-      "status": "running, no opens yet",
-      "note": "Crowned lessons and Settings › Premium, 13+.",
+      "status": "running, 1 open",
+      "note": "Paywall 1 from Settings › Premium, Oct 2; Restore tapped, no purchase.",
       "variants": [
         {
           "name": "Paywall 1",
@@ -572,9 +581,9 @@
   ],
   "ads": {
     "state": "running",
-    "note": "Learning budget: $150 in all until Kevin approves more; Claude stops at $140. $1.88 spent, 2 taps, no installs yet. Oct 2: exact bids up $0.25 (ladder), junk searches excluded in Discovery. Plan for more at $100 or Oct 9.",
+    "note": "Learning budget: $150 in all until Kevin approves more; Claude stops at $140. $7.11 spent, 7 taps, 1 tap install ($7.11 per paywall reached). Oct 3: bids up by the ladder, packdraw excluded in Discovery. Plan for more at $100 or Oct 9.",
     "dailyCap": 13,
-    "spentToDate": 1.88,
+    "spentToDate": 7.11,
     "earnedToDate": 0,
     "spendCeiling": 150,
     "campaigns": [
@@ -588,9 +597,9 @@
       {
         "name": "PC - US - Category",
         "status": "running",
-        "spend": 1.59,
-        "installs": 0,
-        "costPerInstall": null
+        "spend": 5.92,
+        "installs": 1,
+        "costPerInstall": 5.92
       },
       {
         "name": "PC - US - Brand",
@@ -602,7 +611,7 @@
       {
         "name": "PC - US - Discovery",
         "status": "running",
-        "spend": 0.29,
+        "spend": 1.18,
         "installs": 0,
         "costPerInstall": null
       }
@@ -632,21 +641,21 @@
     }
   ],
   "next": {
-    "at": "2026-10-03T00:00:00-05:00",
+    "at": "2026-10-04T00:00:00-05:00",
     "what": "Daily check and summary"
   },
   "upcoming": [
     {
-      "at": "2026-10-02",
-      "what": "Prices rise to $29.99 a year and $3.99 a week for new subscribers"
-    },
-    {
-      "at": "2026-10-02",
-      "what": "Social: Premium lessons start, by turns with free ones (Pirate Ship first)"
+      "at": "2026-10-03T17:00:00-05:00",
+      "what": "Social: Sun, a free lesson, at 5 PM"
     },
     {
       "at": "2026-10-05",
       "what": "Social: first Monday numbers, views per platform"
+    },
+    {
+      "at": "2026-10-09",
+      "what": "Apple Ads: the plan for spending past $150 goes to Kevin (sooner at $100 spent)"
     },
     {
       "at": "2026-10-28",
