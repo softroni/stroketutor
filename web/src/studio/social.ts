@@ -78,8 +78,9 @@ export function platformName(platform: string): string {
   return PLATFORM_NAMES[platform] ?? `${platform.charAt(0).toUpperCase()}${platform.slice(1)}`
 }
 
-/** What went out: a lesson's whole video, its speed draw or its step pin, or release news over a speed draw. */
-export function postKind(post: Pick<SocialPost, 'media' | 'purpose'>): string {
+/** What went out: a lesson's whole video, its speed draw or its step pin, release news, or a video still unlisted on YouTube. */
+export function postKind(post: Pick<SocialPost, 'media' | 'purpose' | 'unlisted'>): string {
+  if (post.unlisted) return 'Unlisted video'
   if (post.purpose === 'announce') return 'Release news'
   if (post.media === 'speed') return 'Speed draw'
   if (post.media === 'pin') return 'Step pin'

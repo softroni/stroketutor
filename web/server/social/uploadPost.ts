@@ -70,6 +70,8 @@ export interface UploadPostClient {
   accountMetrics(profile: string, platforms: string[], options?: { pageId?: string | null; days?: number }): Promise<Record<string, Record<string, unknown>>>
   /** TikTok's audience over whole days (`YYYY-MM-DD`): bio-link taps, followers by day, when followers are online. */
   tiktokAudience(profile: string, range: { start: string; end: string }): Promise<Record<string, unknown>>
+  /** Changes a live YouTube video (POST /api/uploadposts/posts/edit): its `privacyStatus`, title, description… */
+  editYouTube(profile: string, videoId: string, changes: Record<string, string>): Promise<Record<string, unknown>>
 }
 
 export interface PostMetrics {
@@ -210,6 +212,13 @@ export function uploadPostClient(apiKey: string, fetchImpl: typeof fetch = fetch
       // The 25 benchmark categories it always lists are a picker's choices, not numbers.
       for (const key of ['success', 'platform', 'benchmark_categories']) delete numbers[key]
       return numbers
+    },
+
+    async editYouTube(profile, videoId, changes) {
+      return call('POST', '/api/uploadposts/posts/edit', {
+        body: JSON.stringify({ platform: 'youtube', user: profile, post_id: videoId, ...changes }),
+        headers: { 'Content-Type': 'application/json' },
+      })
     },
 
     async status({ requestId, jobId }) {

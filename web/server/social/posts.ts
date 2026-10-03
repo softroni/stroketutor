@@ -23,6 +23,26 @@ export function appStoreLink(campaign: string, providerToken: string | null): st
 export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook', 'threads', 'pinterest', 'x'] as const
 export type Platform = (typeof PLATFORMS)[number]
 
+/** Each platform's link on softroni.com (`softroni.com/<letters>/papercoach`, docs/ops/social-plan.md *Checklist*). */
+export const PROFILE_LINK_LETTERS: Record<Platform, string> = { youtube: 'y', tiktok: 't', instagram: 'i', facebook: 'f', threads: 'th', pinterest: 'p', x: 'x' }
+
+/** What a post's source may be on softroni.com's links: lowercase letters, digits and dashes, at most 30. */
+export const SOURCE_PATTERN = /^[a-z0-9][a-z0-9-]{0,29}$/
+
+/**
+ * The link a post gives (Kevin, 2026-10-03: every post keeps track of its source): the platform's softroni.com
+ * link with the post's source (`v`: the lesson, its speed draw, its pin, a video) and its App Store campaign (`c`).
+ * The page counts the tap in PostHog by source, then opens the App Store under that campaign, so App Store Connect
+ * still counts downloads by platform rather than by lesson, where it would hide nearly every one under five. A
+ * source the page wouldn't take, or a campaign too long for App Store Connect, gets the App Store's own link.
+ */
+export function postLink(platform: Platform, campaign: string, source: string | null, providerToken: string | null): string {
+  if (!source || !SOURCE_PATTERN.test(source) || campaign.length > 40 || !(campaign === platform || campaign.startsWith(`${platform}-`))) {
+    return appStoreLink(campaign, providerToken)
+  }
+  return `https://softroni.com/${PROFILE_LINK_LETTERS[platform]}/papercoach?v=${source}&c=${encodeURIComponent(campaign)}`
+}
+
 /** What Upload-Post calls each platform in `platform[]` and in its results. Its docs say "twitter" for X, but the API refuses that ("Invalid platforms: ['twitter']") and wants "x". */
 export const API_PLATFORM: Record<Platform, string> = {
   youtube: 'youtube',
@@ -140,7 +160,13 @@ export interface Access {
 
 const FREE_LESSON: Access = { premium: false, freeLessons: 0 }
 
-export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], providerToken: string | null = null, access: Access = FREE_LESSON): SocialTexts {
+export function socialTexts(
+  tutorial: Tutorial,
+  place: VideoInput['place'],
+  providerToken: string | null = null,
+  access: Access = FREE_LESSON,
+  source: string | null = null,
+): SocialTexts {
   const { article, subject } = subjectOf(tutorial.title)
   const what = `${article ? `${article} ` : ''}${subject}`
   const opening = captionOpening(tutorial)
@@ -152,8 +178,8 @@ export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], prov
       : null
   const offer = premium ? `The app is free to download, with ${access.freeLessons} free lessons` : 'Free on the App Store'
   const tags = captionTags(tutorial)
-  const withLink = (campaign: string) =>
-    [opening, placeLine, '', APP_LINE, `${offer}: ${appStoreLink(campaign, providerToken)}`, '', tags]
+  const withLink = (platform: Platform) =>
+    [opening, placeLine, '', APP_LINE, `${offer}: ${postLink(platform, platform, source, providerToken)}`, '', tags]
       .filter((line) => line !== null)
       .join('\n')
   return {
@@ -168,7 +194,7 @@ export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], prov
       500,
       [opening, `${offer}.`].join('\n'),
     ),
-    pinterestLink: appStoreLink('pinterest', providerToken),
+    pinterestLink: postLink('pinterest', 'pinterest', source, providerToken),
     x: fit(
       premium
         ? [`${opening} ✏️`, '', `In Paper Coach Premium. ${offer}.`, '', '#howtodraw #drawingtutorial'].join('\n')
@@ -177,9 +203,9 @@ export function socialTexts(tutorial: Tutorial, place: VideoInput['place'], prov
       `${opening} ✏️\n\n${premium ? 'In Paper Coach Premium; the app is free.' : 'Free on the App Store: Paper Coach.'}`,
     ),
     threads: fit(
-      [`${opening} ✏️`, '', ...(premium ? ['This lesson is in Paper Coach Premium.'] : []), APP_LINE, `${offer}: ${appStoreLink('threads', providerToken)}`].join('\n'),
+      [`${opening} ✏️`, '', ...(premium ? ['This lesson is in Paper Coach Premium.'] : []), APP_LINE, `${offer}: ${postLink('threads', 'threads', source, providerToken)}`].join('\n'),
       500,
-      `${opening}\n\n${offer}: ${appStoreLink('threads', providerToken)}`,
+      `${opening}\n\n${offer}: ${postLink('threads', 'threads', source, providerToken)}`,
     ),
   }
 }
@@ -194,7 +220,7 @@ export interface PinTexts {
 }
 
 /** A step pin's words: a title people search for, the steps by name, and the App Store link on the pin. */
-export function pinTexts(tutorial: Tutorial, providerToken: string | null = null, access: Access = FREE_LESSON): PinTexts {
+export function pinTexts(tutorial: Tutorial, providerToken: string | null = null, access: Access = FREE_LESSON, source: string | null = null): PinTexts {
   const { article, subject } = subjectOf(tutorial.title)
   const what = `${article ? `${article} ` : ''}${subject}`
   const count = tutorial.steps.length
@@ -207,7 +233,7 @@ export function pinTexts(tutorial: Tutorial, providerToken: string | null = null
   return {
     title: fit(`${capitalised(subject)} drawing: ${count} easy steps for beginners`, 100, `How to draw ${what}`),
     description: fit([head, '', stepList, '', tail, '', tags].join('\n'), 500, [head, '', tail, '', tags].join('\n')),
-    link: appStoreLink('pinterest-steps', providerToken),
+    link: postLink('pinterest', 'pinterest-steps', source, providerToken),
     altText: fit(`${count} numbered pictures showing how to draw ${what} step by step, from the first line to the finished drawing in color.`, 500, `How to draw ${what}, step by step.`),
   }
 }
@@ -250,28 +276,31 @@ export function boardDescription(pathTitle: string, pathDescription: string | un
 /**
  * An announcement's words for every platform, in the same shape as a
  * lesson's, so it is posted the same way: `news` is what's new, in a sentence
- * or two ("10 new lessons: draw your town…"), `headline` a short title.
+ * or two ("10 new lessons: draw your town…"), `headline` a short title. Its links count under
+ * `<platform>-<campaign>` and, given a `source`, carry it through softroni.com (`postLink`).
  */
 export function announcementTexts(
   news: string,
   headline: string,
   providerToken: string | null = null,
-  { wide = false, campaign = 'news' }: { wide?: boolean; campaign?: string } = {},
+  { wide = false, campaign = 'news', source = null }: { wide?: boolean; campaign?: string; source?: string | null } = {},
 ): SocialTexts {
   const tags = ['#papercoach', '#howtodraw', '#drawing', '#learntodraw'].join(' ')
-  const withLink = (platform: string) => [news, '', APP_LINE, `Free on the App Store: ${appStoreLink(`${platform}-${campaign}`, providerToken)}`, '', tags].join('\n')
+  const link = (platform: Platform) => postLink(platform, `${platform}-${campaign}`, source, providerToken)
+  const withLink = (platform: Platform) => [news, '', APP_LINE, `Free on the App Store: ${link(platform)}`, '', tags].join('\n')
   return {
     caption: [news, '', `${APP_LINE} Free on the App Store, link in bio.`, '', tags].join('\n'),
     // A 16:9 video is a normal YouTube video, which "#shorts" would only confuse.
     youtubeTitle: wide ? fit(headline, 100, headline) : fit(`${headline} #shorts`, 100, headline),
-    // A Short's description links can't be tapped; a 16:9 video's can.
-    youtubeDescription: wide ? withLink('youtube') : [news, '', APP_LINE, 'Free on the App Store. The app’s link is on our channel.', '', tags].join('\n'),
+    // A Short's description links can't be tapped; a 16:9 video's can, and its first line shows above the fold, so the
+    // link opens it (Kevin, 2026-10-03).
+    youtubeDescription: wide ? [`Get Paper Coach free: ${link('youtube')}`, '', news, '', APP_LINE, '', tags].join('\n') : [news, '', APP_LINE, 'Free on the App Store. The app’s link is on our channel.', '', tags].join('\n'),
     facebookDescription: withLink('facebook'),
     pinterestTitle: fit(headline, 100, headline),
     pinterestDescription: fit([news, '', `${APP_LINE} Free on the App Store.`, '', tags].join('\n'), 500, news),
-    pinterestLink: appStoreLink(`pinterest-${campaign}`, providerToken),
+    pinterestLink: link('pinterest'),
     x: fit([news, '', 'Paper Coach, free on the App Store.'].join('\n'), 280, news),
-    threads: fit([news, '', `Free on the App Store: ${appStoreLink(`threads-${campaign}`, providerToken)}`].join('\n'), 500, news),
+    threads: fit([news, '', `Free on the App Store: ${link('threads')}`].join('\n'), 500, news),
   }
 }
 
@@ -293,6 +322,8 @@ export interface PostRequest {
   settings: Pick<SocialSettings, 'pinterestBoard' | 'facebookPage' | 'aiLabel' | 'youtubeMadeForKids'>
   /** A test: private where the platform allows it (the caller keeps it to PRIVATE_PLATFORMS). */
   private: boolean
+  /** YouTube only: unlisted, seen by whoever has its link, to share by hand before it goes out (`social public`). */
+  unlisted?: boolean
   /** Our own id for the post, echoed back in Upload-Post's status and history. */
   externalId: string
   requestId: string
@@ -324,7 +355,7 @@ export function uploadFields(request: PostRequest): [string, string][] {
       ['youtube_title', texts.youtubeTitle],
       ['youtube_description', texts.youtubeDescription],
       ['categoryId', '26'], // Howto & Style
-      ['privacyStatus', request.private ? 'private' : 'public'],
+      ['privacyStatus', request.private ? 'private' : request.unlisted ? 'unlisted' : 'public'],
       ['selfDeclaredMadeForKids', String(settings.youtubeMadeForKids)],
       ['defaultLanguage', 'en'],
       ['defaultAudioLanguage', 'en'],
@@ -443,6 +474,10 @@ export type SocialRecord =
       purpose?: 'lesson' | 'announce'
       /** The file sent, when it was given (`--video`) rather than rendered for the post: what the Social page's "Made, not posted yet" matches. From 2026-10-03. */
       video?: string
+      /** The source its links carry to softroni.com (`postLink`): the lesson, `<lesson>-speed`, `<lesson>-pin`, or a video's campaign. From 2026-10-03. */
+      source?: string
+      /** A YouTube video uploaded unlisted, to share by hand: it counts as gone out only once a `visibility` record makes it public. */
+      unlisted?: boolean
       /** How a video or speed draw opens (plan.ts, `Opening`); absent on a step pin, a 16:9 video, and on the videos posted before openings were recorded, all classic. */
       opening?: Opening
       /** The tests it was part of and its arm in each (docs/ops/social-experiments.json), so the scorecard can split by arm: `{ E1: 'hook' }`. */
@@ -450,6 +485,14 @@ export type SocialRecord =
       /** `sent`: Upload-Post took it. `refused`: it said no, and nothing was posted. */
       outcome: 'sent' | 'refused'
       message?: string | null
+    }
+  | {
+      /** An unlisted YouTube video made public (`social public`), so from then on it counts as a post that went out. */
+      kind: 'visibility'
+      at: string
+      requestId: string
+      platform: 'youtube'
+      privacy: 'public'
     }
   | {
       kind: 'status'
@@ -490,10 +533,14 @@ export interface PostState {
 /** Every post that was sent, newest first, with the last status seen for each. */
 export function postStates(records: SocialRecord[]): PostState[] {
   const statuses = new Map<string, Extract<SocialRecord, { kind: 'status' }>>()
-  for (const record of records) if (record.kind === 'status') statuses.set(record.requestId, record)
+  const madePublic = new Set<string>()
+  for (const record of records) {
+    if (record.kind === 'status') statuses.set(record.requestId, record)
+    if (record.kind === 'visibility' && record.privacy === 'public') madePublic.add(record.requestId)
+  }
   return records
     .filter((record): record is Extract<SocialRecord, { kind: 'post' }> => record.kind === 'post' && record.outcome === 'sent')
-    .map((post) => ({ post, status: statuses.get(post.requestId) ?? null }))
+    .map((post) => ({ post: post.unlisted && madePublic.has(post.requestId) ? { ...post, unlisted: false } : post, status: statuses.get(post.requestId) ?? null }))
     .reverse()
 }
 
@@ -523,6 +570,8 @@ export interface PostEntry {
   opening?: Opening
   experiments?: Record<string, string>
   private: boolean
+  /** A YouTube video still unlisted (`social announce --unlisted`), not yet made public. */
+  unlisted?: boolean
   /** `scheduled` and `processing` until every platform has answered; then `completed`, `partial` or `failed`. */
   status: string
   platforms: { platform: string; ok: boolean | null; url: string | null; inbox?: boolean; error: string | null }[]
@@ -542,6 +591,7 @@ export function postEntry({ post, status }: PostState, title?: string, now = Dat
     ...(post.opening ? { opening: post.opening } : {}),
     ...(post.experiments ? { experiments: post.experiments } : {}),
     private: post.private,
+    ...(post.unlisted ? { unlisted: true } : {}),
     status: status?.status ?? (post.scheduledAt && Date.parse(post.scheduledAt) > now ? 'scheduled' : 'processing'),
     platforms: post.platforms.map((platform) => {
       const result = results[platform]

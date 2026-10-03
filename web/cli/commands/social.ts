@@ -20,6 +20,7 @@ import {
   PLATFORMS,
   PRIVATE_PLATFORMS,
   SETTINGS_KEYS,
+  SOURCE_PATTERN,
   normaliseResults,
   parseConfig,
   postStates,
@@ -299,6 +300,10 @@ interface Announcement {
   /** YouTube's thumbnail, and a subtitle file for YouTube. */
   thumbnail?: string | null
   subtitles?: string | null
+  /** The source its links carry to softroni.com (`postLink`); the campaign when absent. */
+  source?: string | null
+  /** YouTube only, unlisted: to share by hand until `social public` makes it public. */
+  unlisted?: boolean
 }
 
 /** YouTube takes a thumbnail of at most 2 MB. */
@@ -317,6 +322,7 @@ interface PostOutcome {
   experiments: Record<string, string> | null
   platforms: Platform[]
   private: boolean
+  unlisted: boolean
   dryRun: boolean
   requestId: string | null
   jobId: string | null
@@ -378,6 +384,7 @@ async function postOpening(
 async function postLesson(ctx: Context, lessonId: string, values: Parsed['values'], known?: Curriculum, news?: Announcement): Promise<PostOutcome> {
   const settings = await loadSettings(ctx)
   const isPrivate = values.private === true
+  const unlisted = news?.unlisted === true
   const dryRun = values['dry-run'] === true
   const wide = news?.wide === true
   const speed = (news !== undefined && !wide) || values.speed === true
@@ -406,6 +413,9 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     if (dropped.length > 0) ctx.out.note(`A private post leaves out ${dropped.join(', ')}: they have no private post.`)
   }
   if (platforms.length === 0) throw new CliError('No platform to post to.')
+  if (unlisted && (isPrivate || platforms.join() !== 'youtube')) {
+    throw new CliError('An unlisted video goes to YouTube alone, and isn’t private: pass --platforms youtube, without --private.')
+  }
 
   const lessons = known ?? (await curriculum(ctx))
   const lesson = lessons.tutorials.get(lessonId)
@@ -432,9 +442,11 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     ? { opening: 'classic' as Opening, experiments: null }
     : await postOpening(ctx, { lessonId, media, purpose, at, video: given, asked: openingValue(values) })
 
+  // What the post's links carry to softroni.com, so PostHog counts its taps by post (`postLink`).
+  const source = news ? (news.source ?? news.campaign ?? `${lessonId}-news`) : speed ? `${lessonId}-speed` : lessonId
   const texts = news
-    ? announcementTexts(news.news, news.headline, settings.providerToken, { wide, campaign: news.campaign ?? undefined })
-    : socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken, accessOf(lessons, lessonId))
+    ? announcementTexts(news.news, news.headline, settings.providerToken, { wide, campaign: news.campaign ?? undefined, source })
+    : socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken, accessOf(lessons, lessonId), source)
   // A lesson's full video brings its step pin to Pinterest a few hours later; news and speed draws don't.
   const wantsPin = purpose === 'lesson' && !speed && !isPrivate && values['no-pin'] !== true && platforms.includes('pinterest')
   const requestId = randomUUID()
@@ -444,6 +456,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     texts,
     settings,
     private: isPrivate,
+    unlisted,
     externalId: `paper-coach/${lessonId}${wide ? '/wide' : news ? '/news' : speed ? '/speed' : ''}`,
     requestId,
     scheduledAt: at,
@@ -463,6 +476,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     experiments,
     platforms,
     private: isPrivate,
+    unlisted,
     dryRun,
     requestId: null,
     jobId: null,
@@ -471,7 +485,7 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     results: {},
     fields: null,
     video: null,
-    pin: wantsPin ? { texts: pinTexts(lesson.tutorial, settings.providerToken, accessOf(lessons, lessonId)), scheduledAt: null, jobId: null } : null,
+    pin: wantsPin ? { texts: pinTexts(lesson.tutorial, settings.providerToken, accessOf(lessons, lessonId), `${lessonId}-pin`), scheduledAt: null, jobId: null } : null,
     usage: null,
     warnings,
   }
@@ -534,10 +548,12 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     profile: settings.profile,
     platforms,
     private: isPrivate,
+    ...(unlisted ? { unlisted: true } : {}),
     requestId,
     scheduledAt: at,
     media: wide ? ('wide' as const) : media,
     purpose,
+    source,
     ...(wide ? {} : { opening }),
     ...(experiments ? { experiments } : {}),
     // A file made beforehand (a what's-new video), so the Social page knows it has gone out.
@@ -618,10 +634,10 @@ async function schedulePin(
   videoAt: string | null,
 ): Promise<PostOutcome['pin']> {
   const tutorial = lessons.tutorials.get(lessonId)!.tutorial
-  const texts = pinTexts(tutorial, settings.providerToken, accessOf(lessons, lessonId))
+  const texts = pinTexts(tutorial, settings.providerToken, accessOf(lessons, lessonId), `${lessonId}-pin`)
   const scheduledAt = new Date((videoAt ? Date.parse(videoAt) : Date.now()) + PIN_DELAY_HOURS * 3600_000).toISOString()
   const requestId = randomUUID()
-  const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms: ['pinterest'] as Platform[], private: false, requestId, scheduledAt, media: 'pin' as const, purpose: 'lesson' as const }
+  const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms: ['pinterest'] as Platform[], private: false, requestId, scheduledAt, media: 'pin' as const, purpose: 'lesson' as const, source: `${lessonId}-pin` }
   try {
     const file = await makePin(ctx, lessons, lessonId)
     const accepted = await client.uploadPhotos(pinFields({ profile: settings.profile, texts, board, externalId: `paper-coach/${lessonId}/pin`, requestId, scheduledAt }), [file], requestId)
@@ -678,7 +694,7 @@ function openingWords(outcome: PostOutcome): string {
 
 function describePost(outcome: PostOutcome): string[] {
   if (outcome.dryRun) {
-    const lines = [`Would post ${whatWent(outcome)} ${openingWords(outcome)} to ${outcome.platforms.join(', ')}${outcome.private ? ' (private)' : ''}. The fields, as sent:`]
+    const lines = [`Would post ${whatWent(outcome)} ${openingWords(outcome)} to ${outcome.platforms.join(', ')}${outcome.private ? ' (private)' : outcome.unlisted ? ' (unlisted)' : ''}. The fields, as sent:`]
     for (const [name, values] of Object.entries(outcome.fields ?? {})) {
       for (const value of values) lines.push(`  ${name}: ${indented(value)}`)
     }
@@ -690,7 +706,7 @@ function describePost(outcome: PostOutcome): string[] {
   }
   const head = outcome.scheduledAt
     ? `Scheduled ${whatWent(outcome)} ${openingWords(outcome)} for ${outcome.scheduledAt} on ${outcome.platforms.join(', ')} (job ${outcome.jobId}).`
-    : `Posted ${whatWent(outcome)} ${openingWords(outcome)}${outcome.private ? ' privately' : ''}: ${outcome.status}.`
+    : `Posted ${whatWent(outcome)} ${openingWords(outcome)}${outcome.private ? ' privately' : outcome.unlisted ? ' unlisted' : ''}: ${outcome.status}.`
   const pin = outcome.pin?.scheduledAt ? [`The step pin goes to Pinterest at ${outcome.pin.scheduledAt}.`] : []
   const usage = outcome.usage ? [`Upload-Post uploads this month: ${outcome.usage.count} of ${outcome.usage.limit}.`] : []
   return [head, ...(outcome.scheduledAt ? [] : resultLines(outcome.results, outcome.platforms)), ...pin, ...usage]
@@ -868,6 +884,15 @@ export const socialCommands: Command[] = [
       campaign: { type: 'string', description: 'What the App Store links say after the platform’s name (default news: youtube-news, facebook-news…), so App Store Connect counts this post apart.', placeholder: 'name' },
       thumbnail: { type: 'string', description: 'YouTube’s thumbnail (PNG or JPEG, at most 2 MB); X takes it too.', placeholder: 'file' },
       subtitles: { type: 'string', description: 'English captions for YouTube (SRT or VTT).', placeholder: 'file' },
+      source: {
+        type: 'string',
+        description: 'What the links say the post is, so PostHog counts its taps by post: softroni.com/<platform>/papercoach?v=<source> (default the campaign, else <lesson>-news). Lowercase letters, digits and dashes, at most 30.',
+        placeholder: 'id',
+      },
+      unlisted: {
+        type: 'boolean',
+        description: 'YouTube alone, unlisted: seen only by whoever has its link, to share by hand. It doesn’t count as gone out until `social public` makes it public.',
+      },
     },
     async (ctx, args) => {
       const lessonId = stringValue(args.values, 'lesson')
@@ -876,6 +901,8 @@ export const socialCommands: Command[] = [
       if (!lessonId || !newsText || !headline) throw new CliError('Release news needs --lesson, --news and --headline.')
       const campaign = stringValue(args.values, 'campaign')?.trim() || null
       if (campaign && !/^[a-z0-9-]+$/.test(campaign)) throw new CliError('--campaign is lowercase letters, digits and dashes (“overview”).')
+      const source = stringValue(args.values, 'source')?.trim() || null
+      if (source && !SOURCE_PATTERN.test(source)) throw new CliError('--source is lowercase letters, digits and dashes, at most 30 (“tour-1-1”).')
       const outcome = await postLesson(ctx, lessonId, args.values, undefined, {
         news: newsText,
         headline,
@@ -884,9 +911,42 @@ export const socialCommands: Command[] = [
         campaign,
         thumbnail: stringValue(args.values, 'thumbnail') ?? null,
         subtitles: stringValue(args.values, 'subtitles') ?? null,
+        source,
+        unlisted: args.values.unlisted === true,
       })
       if (args.values.log === true && !outcome.dryRun) await logToToday(ctx, logLine(outcome))
       ctx.out.result(outcome, describePost)
+    },
+  ),
+
+  command(
+    'social public',
+    'Make an unlisted YouTube video (`social announce --unlisted`) public: the one shared by hand before it goes out everywhere becomes the public one, with its views and link.',
+    ['<video>'],
+    {
+      'dry-run': { type: 'boolean', description: 'Say which video it would make public, and stop.' },
+      log: { type: 'boolean', description: 'Add a line to the Today page’s log (docs/ops/today.py log) when it is done.' },
+    },
+    async (ctx, args) => {
+      const given = args.positionals[0]
+      if (!given) throw new CliError('Which video: the file it was posted from, or the post’s request id.')
+      const file = existsSync(given) ? path.resolve(given) : null
+      const records = await readRecords(ctx)
+      const state = postStates(records).find(({ post }) => post.unlisted && (post.requestId === given || (file !== null && post.video === file)))
+      if (!state) throw new CliError(`No unlisted YouTube video is ${file ? `posted from ${given}` : `the post ${given}`}, or it is public already.`)
+      const settings = await loadSettings(ctx)
+      const client = clientOf(ctx, settings)
+      let videoId = state.status ? (normaliseResults(state.status.results).youtube?.postId ?? null) : null
+      if (!videoId) videoId = normaliseResults((await client.status({ requestId: state.post.requestId, jobId: state.post.jobId ?? undefined })).results).youtube?.postId ?? null
+      if (!videoId) throw new CliError('YouTube hasn’t given the video an id yet: try again once `social status --refresh` shows its link.')
+      const link = `https://www.youtube.com/watch?v=${videoId}`
+      const outcome = { requestId: state.post.requestId, videoId, link, dryRun: args.values['dry-run'] === true }
+      if (!outcome.dryRun) {
+        await client.editYouTube(settings.profile, videoId, { privacyStatus: 'public' })
+        await addRecord(ctx, { kind: 'visibility', at: new Date().toISOString(), requestId: state.post.requestId, platform: 'youtube', privacy: 'public' })
+        if (args.values.log === true) await logToToday(ctx, `YouTube: the unlisted video is public now (${link}).`)
+      }
+      ctx.out.result(outcome, () => [outcome.dryRun ? `Would make ${link} public.` : `Public now: ${link}`])
     },
   ),
 

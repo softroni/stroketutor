@@ -343,7 +343,7 @@ function useAdSpend(period: Period, day: string, available: boolean, loadedAt: n
   return state.range === `${from}|${to}` ? state : { rows: [], problem: null }
 }
 
-const NO_TAPS: SocialTaps = { platforms: [], taps: 0, bots: 0, tests: 0 }
+const NO_TAPS: SocialTaps = { platforms: [], taps: 0, posts: [], postTaps: 0, bots: 0, tests: 0 }
 
 /**
  * Taps on the social profile links in the period, from PostHog; asked again whenever the
@@ -1346,9 +1346,30 @@ function ProfileLinkTaps({ taps, problem }: { taps: SocialTaps | null; problem: 
       ) : taps ? (
         <p className="st-learners__muted st-learners__where-note st-learners__taps-none">No taps in this period.</p>
       ) : null}
+      {taps?.posts.length ? (
+        <>
+          <h3 className="st-learners__where-title">Links in posts</h3>
+          <ul className="st-learners__where-list">
+            {taps.posts.map((row) => (
+              <li key={row.source}>
+                <div
+                  className="st-learners__where-row st-learners__where-row--still"
+                  aria-label={`${row.source}: ${row.taps} ${row.taps === 1 ? 'tap' : 'taps'} on its link, from ${row.platforms.map(platformWords).join(' and ')}`}
+                >
+                  <span className="st-learners__where-label">{row.source}</span>
+                  <span className="st-learners__where-count">{row.taps}</span>
+                  <span className="st-learners__where-did">
+                    {row.taps === 1 ? 'tap' : 'taps'} · from {row.platforms.map(platformWords).join(', ')}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
       <p className="st-learners__muted st-learners__where-note">
-        Taps on softroni.com/…/papercoach on the way to the App Store, from PostHog: not learners, and never narrowed. Links
-        inside posts go straight to the App Store and are not counted.
+        Taps on softroni.com/…/papercoach on the way to the App Store, from PostHog: not learners, and never narrowed. A
+        post’s link says which post it is (its lesson, pin or video), since Oct 3.
         {leftOut.length ? ` Left out: ${leftOut.join(', ')}.` : ''}
       </p>
       {problem ? <p className="st-learners__muted st-learners__where-note">The taps are missing: {problem}</p> : null}

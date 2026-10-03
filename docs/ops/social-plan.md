@@ -90,6 +90,17 @@ bursts of views, but a download there takes bio → link → App Store.
 
 ## Decisions
 
+- **2026-10-03, Kevin: every post keeps track of its source.** Every link in a post goes through the platform's
+  softroni.com link with the post's source and its App Store campaign
+  (`softroni.com/f/papercoach?v=donut&c=facebook`): PostHog counts the tap by source (`social_link_opened`,
+  `link` "post", `source`), and App Store Connect still counts the download under the platform's campaign, not one
+  campaign per lesson, which it would hide under five. Sources: the lesson (`donut`), its speed draw
+  (`donut-speed`), its pin (`donut-pin`), news by its campaign (`tour-1-1`). Built 2026-10-03 (`postLink` in
+  web/server/social/posts.ts; the pages in ~/dev/softroni.com). TikTok and Instagram captions can't hold a link and
+  X's carry none, so theirs still come only through the profiles.
+- **2026-10-03, Kevin: the tour is on YouTube unlisted now, to share with friends**
+  (https://www.youtube.com/watch?v=3fnwFxENMSk), and **made public the day it goes out everywhere** (`social public`),
+  so it is one video with all its views.
 - **2026-10-03, Kevin: a longer 16:9 tour of the app for people who have never heard of it**, made from 1.1 and
   posted the day after 1.1's what's-new video: what Paper Coach is, how a lesson works on real paper, free and
   Premium lessons, iPhone and iPad, how to get started, with soft background music. Made by Claude the same day
@@ -142,7 +153,7 @@ up" on the Today page and does what each says on the day.
 | 2026-11-12 | Six-week wrap-up of *Growth*, written under *Log* | Claude |
 | While 1.1 is in review | 1.1's what's-new video, made from `release/1.1` (*What's new videos*) | social check |
 | The day 1.1 goes on sale | 1.1's what's-new video to every platform; Around Town's ten lessons join the queue | social check |
-| The day after 1.1's what's-new video | The tour (`.studio/overview-1.1`): YouTube with chapters, X its 2:16 cut, the five others as it is (*The tour video*) | social check |
+| The day after 1.1's what's-new video | The tour (`.studio/overview-1.1`): its unlisted YouTube video made public, X its 2:16 cut, the five others as it is (*The tour video*) | social check |
 | 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log*. October's monthly report comes only on Nov 5, so the weekly ones: `acquisition.py --granularity WEEKLY --days 28` | daily check |
 | 2026-10-30 | Upload-Post renews monthly ($24) | automatic |
 | 2026-11-23 | The two-month write-up under *Log*, and "monthly → yearly, or stop?" under Needs you | daily check |
@@ -219,15 +230,22 @@ recorded, voiced, scored and rendered); its music was made on this Mac with ACE-
 
 - **When.** The day after 1.1's what's-new video went out, so the day after 1.1 goes on sale. It counts as one of
   the month's news posts (*Release news*: two or three a month).
-- **Where.** Every platform, in three posts with the same words (the README's *Posting*): YouTube with the
-  chapters in its description, as a normal video with the thumbnail and English captions; X its 2:16 cut (X takes
-  at most 2:20); TikTok, Instagram, Facebook, Threads and Pinterest the whole video. Links say `<platform>-tour-1-1`.
+- **Where.** Every platform (the README's *Posting*). YouTube has it already, unlisted since 2026-10-03 for Kevin
+  to share, with the chapters and the thumbnail and English captions, its link first in the description:
+  `social public` makes that same video public. X gets its 2:16 cut (X takes at most 2:20); TikTok, Instagram,
+  Facebook, Threads and Pinterest the whole video. Links count under `<platform>-tour-1-1`, source `tour-1-1`.
 - **After.** It is a long video, so its numbers stay out of the Shorts' medians (`media` `wide`); read its YouTube
   watch time and the `tour-1-1` downloads at the 2026-10-28 review. Whether later versions get a tour of their own
   is Kevin's call.
 
 ## Knowing what works
 
+- **Taps by post** (Kevin, 2026-10-03): a post's link names its source (*Decisions*), so PostHog shows which posts
+  bring people: `SELECT properties.source AS source, properties.platform AS platform, count() AS taps FROM events
+  WHERE event = 'social_link_opened' AND properties.link = 'post' AND properties.traffic = 'human' AND timestamp >=
+  now() - INTERVAL 7 DAY GROUP BY source, platform ORDER BY taps DESC`, and the Studio's Learners page lists them under
+  *Links in posts*. A link's first taps can be the platform checking it (the tour's three "human" taps within seconds
+  of its upload were YouTube's), so read a source's taps over days, not its first minutes.
 - **A campaign on every link** (`…?pt=<provider token>&ct=pinterest`), so App Store Connect → Analytics → Sources
   shows where downloads came from. The provider token is `APP_STORE_PROVIDER_TOKEN` in `~/.config/upload-post/config`.
   Posts carry the platform's name (the step pin `pinterest-steps`, release news `<platform>-news`), and each profile
@@ -516,3 +534,6 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
   locally (ACE-Step 1.5); the social check posts it (*The tour video*).
 - 2026-10-03: Kevin's rule: every promotion video's source is kept in git, `docs/videos/<folder>` (`sync.sh`), as
   soon as it is made or changed; the 1.0 overview, the 1.1 what's-new video and the tour are there.
+- 2026-10-03: the tour went on YouTube unlisted for Kevin's friends (https://www.youtube.com/watch?v=3fnwFxENMSk); it
+  turns public the day it goes out everywhere. From now on every post's links carry its source through softroni.com
+  (`?v=` and `?c=`), so PostHog counts taps by post; the Learners page lists them under *Links in posts*.

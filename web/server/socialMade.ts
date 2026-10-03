@@ -25,7 +25,8 @@ const LESSON_VIDEOS = 'videos'
  *   goes out.
  *
  * A test post, a refused one, or one that failed on every platform posted
- * nothing. A folder that can't be read is no videos, not an error.
+ * nothing, and an unlisted YouTube video hasn't gone out until it is made
+ * public. A folder that can't be read is no videos, not an error.
  */
 export async function readMadeVideos(
   studioDir: string,
@@ -33,7 +34,7 @@ export async function readMadeVideos(
   title: (lessonId: string) => string | undefined = () => undefined,
 ): Promise<MadeVideo[]> {
   const went = postStates(records)
-    .filter(({ post }) => !post.private && post.outcome !== 'refused')
+    .filter(({ post }) => !post.private && !post.unlisted && post.outcome !== 'refused')
     .filter(({ status }) => !(status && FINAL_STATUSES.has(status.status) && !Object.values(status.results).some((result) => result.success)))
     .map(({ post }) => post)
   const lessons = postedLessons(records)

@@ -359,6 +359,9 @@ export interface SocialTapRow {
   /** The app whose browser opened the link (`tiktok`, `instagram`…), `webview` for another app's, or `browser`. */
   inApp: string
   taps: number
+  /** A link in a post rather than the profile (from 2026-10-03), and the post's source: `donut`, `donut-pin`, `tour-1-1`. */
+  link?: 'post'
+  source?: string
 }
 
 /** `/api/learners/social-taps?from=&to=`: the profile links' taps for those days (US Central), from PostHog. */
@@ -1833,25 +1836,35 @@ export function adsTotal(rows: AdRowWithSpend[]) {
   return total
 }
 
-/** The profile links' taps in a period: people's, by platform, and what was left out. */
+/** The social links' taps in a period: people's on the profiles, by platform, and on posts, by source; and what was left out. */
 export interface SocialTaps {
-  /** People's taps, most first, each with the apps the link was opened in, most first. */
+  /** People's taps on the profile links, most first, each with the apps the link was opened in, most first. */
   platforms: { platform: string; taps: number; openedIn: { app: string; taps: number }[] }[]
-  /** People's taps in all. */
+  /** People's taps on the profile links in all. */
   taps: number
+  /** People's taps on the links in posts, by the post's source, most first, with the platforms they came from. */
+  posts: { source: string; taps: number; platforms: string[] }[]
+  postTaps: number
   /** Left out: crawlers and link previews, and tests (a link opened with `#test`). */
   bots: number
   tests: number
 }
 
-/** Adds up the profile links' taps: only `human` traffic counts as a person's tap. */
+/** Adds up the social links' taps: only `human` traffic counts as a person's tap. */
 export function socialTapsOf(rows: SocialTapRow[]): SocialTaps {
   const platforms = new Map<string, { taps: number; apps: Map<string, number> }>()
-  const total: SocialTaps = { platforms: [], taps: 0, bots: 0, tests: 0 }
+  const posts = new Map<string, { taps: number; platforms: Set<string> }>()
+  const total: SocialTaps = { platforms: [], taps: 0, posts: [], postTaps: 0, bots: 0, tests: 0 }
   for (const row of rows) {
     if (row.traffic === 'test') total.tests += row.taps
     else if (row.traffic !== 'human') total.bots += row.taps
-    else {
+    else if (row.link === 'post') {
+      total.postTaps += row.taps
+      const into = posts.get(row.source ?? 'none') ?? { taps: 0, platforms: new Set<string>() }
+      into.taps += row.taps
+      into.platforms.add(row.platform)
+      posts.set(row.source ?? 'none', into)
+    } else {
       total.taps += row.taps
       const into = platforms.get(row.platform) ?? { taps: 0, apps: new Map<string, number>() }
       into.taps += row.taps
@@ -1867,6 +1880,7 @@ export function socialTapsOf(rows: SocialTapRow[]): SocialTaps {
       openedIn: [...apps].map(([app, count]) => ({ app, taps: count })).sort(most),
     }))
     .sort(most)
+  total.posts = [...posts].map(([source, { taps, platforms: from }]) => ({ source, taps, platforms: [...from].sort() })).sort(most)
   return total
 }
 

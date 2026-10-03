@@ -36,6 +36,10 @@ const fakeUploadPost = (async (url: string, init: RequestInit) => {
     if (fields.scheduled_date) return json({ success: true, job_id: `job-${calls.length}`, scheduled_date: fields.scheduled_date[0] }, 202)
     return json({ success: true, message: 'Upload initiated successfully in background.', request_id: fields.request_id[0], total_platforms: fields['platform[]'].length })
   }
+  if (init.method === 'POST' && pathname === '/api/uploadposts/posts/edit') {
+    calls.push({ method: 'POST', route, json: JSON.parse(String(init.body)) as Record<string, unknown> })
+    return json({ success: true })
+  }
   if (init.method === 'POST' && pathname === '/api/uploadposts/pinterest/boards') {
     const body = JSON.parse(String(init.body)) as { name: string }
     calls.push({ method: 'POST', route, json: body })
@@ -215,6 +219,7 @@ describe('social post', () => {
     expect(pin.fields!['platform[]']).toEqual(['pinterest'])
     expect(pin.fields!.pinterest_board_id).toEqual(['99'])
     expect(pin.fields!.pinterest_title[0]).toMatch(/drawing: \d+ easy steps for beginners$/)
+    expect(pin.fields!.pinterest_link).toEqual(['https://softroni.com/p/papercoach?v=simple-house-pin&c=pinterest-steps'])
     const inHours = (Date.parse(pin.fields!.scheduled_date[0]) - Date.now()) / 3600_000
     expect(inHours).toBeGreaterThan(3.9)
     expect(inHours).toBeLessThan(4.1)
@@ -274,6 +279,10 @@ describe('social post', () => {
     const outcome = await t.json<{ fields: Record<string, string[]>; dryRun: boolean }>('social post simple-house --dry-run')
     expect(outcome.dryRun).toBe(true)
     expect(outcome.fields.youtube_title[0]).toMatch(/^How to draw a /)
+    // Every link says which post it is (the lesson), and counts under the platform's campaign as before.
+    expect(outcome.fields.facebook_description[0]).toContain('https://softroni.com/f/papercoach?v=simple-house&c=facebook')
+    expect(outcome.fields.threads_title[0]).toContain('https://softroni.com/th/papercoach?v=simple-house&c=threads')
+    expect(outcome.fields.pinterest_link).toEqual(['https://softroni.com/p/papercoach?v=simple-house&c=pinterest'])
     expect(calls).toEqual([])
   })
 
@@ -505,6 +514,37 @@ describe('social announce', () => {
     // Made beforehand: no opening of ours, and no part in a test of openings.
     expect(record).not.toHaveProperty('opening')
     expect(record).not.toHaveProperty('experiments')
+  })
+
+  it('uploads a 16:9 video unlisted to YouTube alone, its tracked link first, and makes it public later', async () => {
+    await onSale(true)
+    const file = path.join(t.root, 'clip.mp4')
+    const announce = ['social', 'announce', '--lesson', 'simple-house', '--news', 'Meet Paper Coach.', '--headline', 'Learn to draw', '--wide', '--unlisted', '--campaign', 'tour-1-1', '--video', file]
+    const elsewhere = await t.studio([...announce, '--platforms', 'youtube,facebook', '--dry-run'])
+    expect(elsewhere.code).toBe(1)
+    expect(elsewhere.stderr).toContain('YouTube alone')
+    const outcome = await t.studio([...announce, '--platforms', 'youtube', '--no-wait'])
+    expect(outcome.code).toBe(0)
+    expect(outcome.stdout).toContain('unlisted')
+    const upload = calls.find((call) => call.route === '/api/upload')!
+    expect(upload.fields!.privacyStatus).toEqual(['unlisted'])
+    expect(upload.fields!.youtube_description[0].split('\n')[0]).toBe('Get Paper Coach free: https://softroni.com/y/papercoach?v=tour-1-1&c=youtube-tour-1-1')
+    expect((await records())[0]).toMatchObject({ kind: 'post', unlisted: true, source: 'tour-1-1', video: file })
+
+    statusAnswers = [{ status: 'completed', results: [{ platform: 'youtube', success: true, platform_post_id: 'VID123', post_url: 'https://www.youtube.com/watch?v=VID123' }] }]
+    const made = await t.studio(['social', 'public', file])
+    expect(made.code).toBe(0)
+    expect(made.stdout).toContain('Public now: https://www.youtube.com/watch?v=VID123')
+    expect(calls.find((call) => call.route === '/api/uploadposts/posts/edit')?.json).toEqual({ platform: 'youtube', user: 'softroni', post_id: 'VID123', privacyStatus: 'public' })
+    expect((await records()).slice(-1)[0]).toMatchObject({ kind: 'visibility', platform: 'youtube', privacy: 'public' })
+    // Public once: there is no unlisted video left to make public.
+    expect((await t.studio(['social', 'public', file])).code).toBe(1)
+  })
+
+  it('takes a source only the links can carry', async () => {
+    const outcome = await t.studio(['social', 'announce', '--lesson', 'simple-house', '--news', 'Hi.', '--headline', 'Hi', '--source', 'Tour 1.1', '--dry-run'])
+    expect(outcome.code).toBe(1)
+    expect(outcome.stderr).toContain('--source is lowercase')
   })
 
   it('posts a wide video only from a file', async () => {

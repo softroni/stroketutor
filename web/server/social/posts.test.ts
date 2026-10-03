@@ -13,6 +13,8 @@ import {
   entriesByDay,
   FINAL_STATUSES,
   platformLink,
+  postLink,
+  postStates,
   postsByDay,
   pinFields,
   pinTexts,
@@ -178,6 +180,11 @@ describe('uploadFields', () => {
     expect(fields.privacy_level).toEqual(['SELF_ONLY'])
     expect(fields.video_state).toEqual(['DRAFT'])
     expect(fields.instagram_title).toBeUndefined()
+  })
+
+  it('uploads to YouTube unlisted when asked, to share by hand', () => {
+    expect(fieldsOf(uploadFields(request({ platforms: ['youtube'], unlisted: true }))).privacyStatus).toEqual(['unlisted'])
+    expect(fieldsOf(uploadFields(request({ platforms: ['youtube'] }))).privacyStatus).toEqual(['public'])
   })
 
   it('schedules instead of posting at once, and labels every platform when asked', () => {
@@ -441,5 +448,45 @@ describe('the record of posts', () => {
     // A platform that never answers can't hold the post back: retryable is final as it stands.
     expect(settledStatus('retryable', { youtube: results.youtube }, ['youtube', 'pinterest'])).toBe('retryable')
     expect(FINAL_STATUSES.has('retryable')).toBe(true)
+  })
+})
+
+describe('post links', () => {
+  it('go through the platform’s softroni.com link with the post’s source and its App Store campaign', () => {
+    expect(postLink('youtube', 'youtube-tour-1-1', 'tour-1-1', '1')).toBe('https://softroni.com/y/papercoach?v=tour-1-1&c=youtube-tour-1-1')
+    expect(postLink('threads', 'threads', 'donut', null)).toBe('https://softroni.com/th/papercoach?v=donut&c=threads')
+    expect(postLink('pinterest', 'pinterest-steps', 'donut-pin', '1')).toBe('https://softroni.com/p/papercoach?v=donut-pin&c=pinterest-steps')
+  })
+
+  it('fall back to the App Store’s own link for a post with no source, or one the page wouldn’t take', () => {
+    expect(postLink('facebook', 'facebook', null, '1')).toBe(appStoreLink('facebook', '1'))
+    expect(postLink('facebook', 'facebook', 'Not A Source', '1')).toBe(appStoreLink('facebook', '1'))
+    expect(postLink('facebook', 'facebook', 'x'.repeat(31), '1')).toBe(appStoreLink('facebook', '1'))
+    // A campaign of another platform would count the download there: never.
+    expect(postLink('facebook', 'youtube', 'donut', '1')).toBe(appStoreLink('youtube', '1'))
+  })
+
+  it('carry a lesson’s source in every text with a link, and a 16:9 video’s first on YouTube', () => {
+    const texts = socialTexts(tutorial, null, '1', undefined, 'simple-house')
+    expect(texts.facebookDescription).toContain('https://softroni.com/f/papercoach?v=simple-house&c=facebook')
+    expect(texts.threads).toContain('https://softroni.com/th/papercoach?v=simple-house&c=threads')
+    expect(texts.pinterestLink).toBe('https://softroni.com/p/papercoach?v=simple-house&c=pinterest')
+    expect(pinTexts(tutorial, '1', undefined, 'simple-house-pin').link).toBe('https://softroni.com/p/papercoach?v=simple-house-pin&c=pinterest-steps')
+    const wide = announcementTexts('Meet Paper Coach.', 'The tour', '1', { wide: true, campaign: 'tour-1-1', source: 'tour-1-1' })
+    expect(wide.youtubeDescription.split('\n')[0]).toBe('Get Paper Coach free: https://softroni.com/y/papercoach?v=tour-1-1&c=youtube-tour-1-1')
+    expect(wide.youtubeDescription.match(/https:/g)).toHaveLength(1)
+  })
+})
+
+describe('an unlisted video', () => {
+  const unlisted: SocialRecord = {
+    kind: 'post', at: '2026-10-03T15:00:00Z', lessonId: 'simple-house', profile: 'softroni', platforms: ['youtube'], private: false,
+    requestId: 'tour', media: 'wide', purpose: 'announce', unlisted: true, outcome: 'sent',
+  }
+
+  it('stays unlisted until a visibility record makes it public', () => {
+    expect(postStates([unlisted])[0].post.unlisted).toBe(true)
+    const madePublic: SocialRecord = { kind: 'visibility', at: '2026-10-05T23:00:00Z', requestId: 'tour', platform: 'youtube', privacy: 'public' }
+    expect(postStates([unlisted, madePublic])[0].post.unlisted).toBe(false)
   })
 })

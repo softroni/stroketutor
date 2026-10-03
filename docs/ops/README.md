@@ -49,8 +49,9 @@ every scheduled run follows it.
   Where from also shows Apple Ads' spend, taps and installs per keyword (`superwall asa reports`, kept 15 min while
   the day runs) and the cost per learner, per paywall reached and per buyer. Under it, *Social profile links*: the
   period's taps on softroni.com/…/papercoach by platform and the app each opened in (PostHog `social_link_opened`,
-  people only; bots and `#test` taps are left out and counted). A tap is not a learner, so nothing narrows it, and
-  links inside posts go straight to the App Store, so they are not in it.
+  people only; bots and `#test` taps are left out and counted). A tap is not a learner, so nothing narrows it.
+  *Links in posts* under it: since 2026-10-03 every post's link goes through the same pages with the post's source
+  (`?v=donut`, `donut-pin`, `tour-1-1`; social-plan.md, *Knowing what works*), so those taps are counted by source.
   *Before buying* compares what buyers, buy-tappers, those who left at a price and those who never saw one had done
   before the first price.
   A lesson finished faster than it can be drawn (its animation, or 3 s a step) with no photo kept is "tapped through"
@@ -408,7 +409,8 @@ that day; if it did, it only reports its result. The steps, in `web/`:
    account, appended to `.studio/social/metrics.jsonl` and its `ops-history` copy. That file only grows. When the
    midnight check catches up a missed Monday, add `--all` (it is Tuesday by then).
 4. Mondays: `node cli/studio.mjs social scorecard --days 7`, and the week's profile-link taps from PostHog
-   (`social_link_opened` with `traffic = 'human'`, by `platform`; social-plan.md, *Growth*). Views and taps per
+   (`social_link_opened` with `traffic = 'human'`, by `platform`; social-plan.md, *Growth*), and its taps on posts'
+   links by `source` (`properties.link = 'post'`): which lessons, pins and videos bring people. Views and taps per
    platform go in `notes.json`'s numbers ("Social views, 7 days", "Profile-link taps, 7 days"). A breakout moves its
    path's next lesson one place up in `docs/ops/social-up-next.txt`, keeping free and Premium by turns (commit only
    that file, and only if `git status` shows nothing else).

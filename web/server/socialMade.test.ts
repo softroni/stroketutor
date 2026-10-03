@@ -69,6 +69,13 @@ describe('the videos made and not posted yet', () => {
     ])
   })
 
+  it('leaves a video unlisted on YouTube showing until it is made public', async () => {
+    const file = make('overview-1.1/out/tour.mp4', '2026-10-03T03:20:00Z')
+    const unlisted = post({ media: 'wide', purpose: 'announce', platforms: ['youtube'], at: '2026-10-03T15:00:00Z', video: file, unlisted: true, requestId: 'tour' })
+    expect(await ids([unlisted])).toEqual(['overview-1.1/out/tour.mp4'])
+    expect(await ids([unlisted, { kind: 'visibility', at: '2026-10-05T23:00:00Z', requestId: 'tour', platform: 'youtube', privacy: 'public' }])).toEqual([])
+  })
+
   it('counts a 16:9 video as posted once a post names its file', async () => {
     const file = make('whats-new-1.1/out/whats-new.mp4', '2026-10-03T03:20:00Z')
     make('long-landscape/out/landscape.mp4', '2026-10-03T03:00:00Z')

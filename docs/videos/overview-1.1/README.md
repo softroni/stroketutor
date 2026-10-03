@@ -3,9 +3,10 @@
 A 3:59 tour of Paper Coach for people who have never heard of it, made 2026-10-03 at Kevin's request: what it is,
 how a lesson works on real paper, the 110 lessons, free and Premium, iPhone and iPad, profiles and reminders, a few
 tips, and the end card with the App Store badge. Lina's voice over soft lo-fi music made on this Mac. It goes out
-**the day after 1.1's what's-new video** (Kevin, 2026-10-03), so the day after 1.1 goes on sale. Not posted yet.
+**the day after 1.1's what's-new video** (Kevin, 2026-10-03), so the day after 1.1 goes on sale. On YouTube already,
+unlisted, for Kevin to share with friends; it turns public that day (*Posting*).
 
-Chapters (also in the YouTube description, see *Posting*):
+Chapters (in the YouTube description):
 
     0:00 Learn to draw with Paper Coach
     0:28 How it works
@@ -65,19 +66,24 @@ her words exactly over it.
 
 ## Posting
 
-The day after 1.1's what's-new video went out (social-plan.md, *The tour video*), from `web/`, three posts with the
-same words: YouTube with the chapters in its description, X with the short cut, the five others as it is.
+**YouTube, unlisted, 2026-10-03** (Kevin, to share with friends): https://www.youtube.com/watch?v=3fnwFxENMSk, its
+description opening with `https://softroni.com/y/papercoach?v=tour-1-1&c=youtube-tour-1-1`, then the chapters.
+Made with `social announce --wide --unlisted --platforms youtube … --campaign tour-1-1` (the source of its links is
+the campaign). Its first taps in PostHog, three "human" and one bot within seconds of 10:23 that day, were YouTube's
+own checks of the new link, not people.
+
+**The day after 1.1's what's-new video went out** (social-plan.md, *The tour video*), from `web/`: that same YouTube
+video becomes public, X gets the short cut, the five others the whole video. Each announce links through
+softroni.com with source `tour-1-1` (its campaign).
 
     T=../.studio/overview-1.1/out
     NEWS="New to drawing? Paper Coach teaches you one line at a time, on real paper: watch a line, draw it, color it, keep it in your sketchbook. 110 lessons on 11 paths, the first three of every path free, on iPhone and iPad."
-    CHAPTERS=$(sed -n '/^Chapters/,/^## /p' ../.studio/overview-1.1/README.md | grep -E '^    [0-9]+:' | sed 's/^    //')
     HEAD="Learn to Draw Step by Step on Real Paper: the Paper Coach Tour"
-    node cli/studio.mjs social announce --wide --platforms youtube --video $T/paper-coach-tour-1.1.mp4 --lesson hot-air-balloon \
-      --news "$NEWS"$'\n\n'"$CHAPTERS" --headline "$HEAD" --campaign tour-1-1 --thumbnail $T/thumbnail.jpg --subtitles $T/paper-coach-tour-1.1.en.srt --log
+    node cli/studio.mjs social public $T/paper-coach-tour-1.1.mp4 --log
     node cli/studio.mjs social announce --wide --platforms tiktok,instagram,facebook,threads,pinterest --video $T/paper-coach-tour-1.1.mp4 \
       --lesson hot-air-balloon --news "$NEWS" --headline "$HEAD" --campaign tour-1-1 --thumbnail $T/thumbnail.jpg --log
     node cli/studio.mjs social announce --wide --platforms x --video $T/paper-coach-tour-1.1-x.mp4 --lesson hot-air-balloon \
       --news "$NEWS" --headline "$HEAD" --campaign tour-1-1 --thumbnail $T/thumbnail.jpg --log
 
-Try each with `--dry-run` first. If Apple rejects 1.1 and the build changes, check the video against the new build
-before it goes out.
+Try `social public` and each announce with `--dry-run` first. If Apple rejects 1.1 and the build changes, check
+the video against the new build before it goes out.

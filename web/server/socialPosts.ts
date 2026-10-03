@@ -129,6 +129,7 @@ function isRecord(value: unknown): value is SocialRecord {
   const line = value as Record<string, unknown>
   if (typeof line.requestId !== 'string') return false
   if (line.kind === 'status') return typeof line.status === 'string' && typeof line.results === 'object' && line.results !== null
+  if (line.kind === 'visibility') return line.privacy === 'public' && isTime(line.at)
   return (
     line.kind === 'post' &&
     isTime(line.at) &&

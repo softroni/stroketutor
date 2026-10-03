@@ -4,13 +4,14 @@ import { DAY, dayOf, LEARNERS_TIME_ZONE, type SocialTapRow, type SocialTapsRespo
 import { DEFAULT_POSTHOG_HOST, DEFAULT_POSTHOG_PROJECT, type LearnersOptions } from './learners'
 
 /**
- * Taps on Softroni's social profile links (softroni.com/t/papercoach, /i/, /th/…) for the
- * Learners page's days. Each link's page sends PostHog one `social_link_opened` event, then
- * opens the App Store (~/dev/softroni.com; docs/ops/social-plan.md, *Growth*). A tap keeps no
- * id, so it is never a learner: the page shows the taps beside where learners came from.
- * Links inside posts go straight to the App Store and are not counted here.
+ * Taps on Softroni's social links (softroni.com/t/papercoach, /i/, /th/…) for the Learners
+ * page's days. Each link's page sends PostHog one `social_link_opened` event, then opens the
+ * App Store (~/dev/softroni.com; docs/ops/social-plan.md, *Growth*). A tap keeps no id, so it is
+ * never a learner: the page shows the taps beside where learners came from. Since 2026-10-03 the
+ * links in posts go through the same pages with the post's source (`?v=`, `link` "post").
  *
- * Asked as counts by platform, campaign, kind of traffic and the app the link opened in, from
+ * Asked as counts by platform, campaign, kind of traffic, the app the link opened in, and for a
+ * post's link its source, from
  * the same PostHog project and key as the events. Read-only. A range that reaches today is
  * kept a minute, as the events are; days that are over, an hour. With STUDIO_LEARNERS_SAMPLE,
  * from a file of days beside the sample (server/fixtures/social-taps.json).
@@ -71,12 +72,12 @@ export async function readSocialTaps(
 export function socialTapsQuery(from: string, to: string): string {
   return [
     'SELECT properties.platform AS platform, properties.campaign AS campaign, properties.traffic AS traffic,',
-    '  properties.in_app AS in_app, count() AS taps',
+    '  properties.in_app AS in_app, count() AS taps, properties.link AS link, properties.source AS source',
     'FROM events',
     "WHERE event = 'social_link_opened'",
     `  AND timestamp >= toDateTime('${from} 00:00:00', '${LEARNERS_TIME_ZONE}')`,
     `  AND timestamp < toDateTime('${to} 00:00:00', '${LEARNERS_TIME_ZONE}')`,
-    'GROUP BY platform, campaign, traffic, in_app',
+    'GROUP BY platform, campaign, traffic, in_app, link, source',
     'ORDER BY taps DESC',
     `LIMIT ${MAX_ROWS}`,
   ].join('\n')
@@ -103,9 +104,9 @@ async function askPostHog(options: SocialTapsOptions, query: string, fresh: bool
   })
 }
 
-/** One row of the query, in its column order; null without a count. */
+/** One row of the query, in its column order; null without a count. A post's link carries its source. */
 export function toTapRow(row: unknown[]): SocialTapRow | null {
-  const [platform, campaign, traffic, inApp, taps] = row
+  const [platform, campaign, traffic, inApp, taps, link, source] = row
   const count = typeof taps === 'number' ? taps : typeof taps === 'string' ? Number(taps) : Number.NaN
   if (!Number.isFinite(count) || count <= 0) return null
   const text = (value: unknown, otherwise: string) => (typeof value === 'string' && value !== '' ? value : otherwise)
@@ -115,6 +116,7 @@ export function toTapRow(row: unknown[]): SocialTapRow | null {
     traffic: text(traffic, 'unknown'),
     inApp: text(inApp, 'unknown'),
     taps: count,
+    ...(link === 'post' ? { link: 'post' as const, source: text(source, 'none') } : {}),
   }
 }
 
@@ -125,7 +127,7 @@ async function readSample(file: string, from: string, to: string): Promise<Socia
     for (const [day, dayRows] of Object.entries(sample.days)) {
       if (day < from || day >= to) continue
       for (const row of dayRows) {
-        const key = `${row.platform}|${row.campaign}|${row.traffic}|${row.inApp}`
+        const key = `${row.platform}|${row.campaign}|${row.traffic}|${row.inApp}|${row.source ?? ''}`
         const into = rows.get(key)
         if (into) into.taps += row.taps
         else rows.set(key, { ...row })

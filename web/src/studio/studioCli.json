@@ -1568,6 +1568,29 @@
         {
           "flag": "--subtitles <file>",
           "description": "English captions for YouTube (SRT or VTT)."
+        },
+        {
+          "flag": "--source <id>",
+          "description": "What the links say the post is, so PostHog counts its taps by post: softroni.com/<platform>/papercoach?v=<source> (default the campaign, else <lesson>-news). Lowercase letters, digits and dashes, at most 30."
+        },
+        {
+          "flag": "--unlisted",
+          "description": "YouTube alone, unlisted: seen only by whoever has its link, to share by hand. It doesn’t count as gone out until `social public` makes it public."
+        }
+      ]
+    },
+    {
+      "name": "social public",
+      "usage": "social public <video>",
+      "summary": "Make an unlisted YouTube video (`social announce --unlisted`) public: the one shared by hand before it goes out everywhere becomes the public one, with its views and link.",
+      "options": [
+        {
+          "flag": "--dry-run",
+          "description": "Say which video it would make public, and stop."
+        },
+        {
+          "flag": "--log",
+          "description": "Add a line to the Today page’s log (docs/ops/today.py log) when it is done."
         }
       ]
     },
