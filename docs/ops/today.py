@@ -7,6 +7,7 @@
     python3 docs/ops/today.py log "Resubmitted 1.0.1 (4) after the 2.1 rejection"
     python3 docs/ops/today.py log --kind release "Apple approved 1.1 (4); tagged and merged"
     python3 docs/ops/today.py show       # the status as it stands, for a session to read
+    python3 docs/ops/today.py ads-guard  # pauses the ads once spend reaches the stop ($140); a launch agent runs it
     python3 docs/ops/today.py astro get_keyword_suggestions '{"appId": "6816231257", "store": "us"}'   # any Astro tool
     python3 docs/ops/today.py archive    # commit and push the day's history (branch ops-history)
 
@@ -342,6 +343,58 @@ def apple_ads(days: int = 14) -> dict:
             }
         )
     return {"campaigns": out, "days": [by_day[key] for key in sorted(by_day)]}
+
+
+SPEND_STOP = 140.0  # where the ads stop: $10 under Kevin's $150, for Apple's late reporting (README › Apple Ads)
+
+
+def ads_spend_since_launch() -> tuple[float, list[dict]]:
+    """Every dollar Paper Coach's campaigns have spent since they started (Sep 30), in the org's own days,
+    and the campaigns themselves."""
+    campaigns = [
+        campaign
+        for campaign in superwall("asa", "campaigns", "list", "--app", ASA_VIA_APP)["data"]
+        if str(campaign.get("adamId")) == APP_ID and not campaign.get("deleted")
+    ]
+    ids = {campaign["id"] for campaign in campaigns}
+    report = superwall(
+        "asa", "reports", "campaigns", "--app", ASA_VIA_APP, "--start", "2026-09-30", "--end",
+        now().date().isoformat(), "--granularity", "DAILY", "--time-zone", "ORTZ",
+    )
+    spent = sum(
+        float(day.get("localSpend", {}).get("amount") or 0)
+        for row in report["data"]["reportingDataResponse"]["row"]
+        if row.get("metadata", {}).get("campaignId") in ids
+        for day in row.get("granularity", [])
+    )
+    return round(spent, 2), campaigns
+
+
+def ads_guard() -> str:
+    """Pause every Paper Coach campaign once spend reaches the stop. Run by a launch agent every two hours
+    (docs/ops/com.softroni.papercoach-ads-guard.plist), so the $150 holds even when no Claude run does:
+    Apple refuses lifetime budgets on this account. A higher stop is Kevin's yes, kept in
+    .studio/ops/ads-budget.json as {"stop": <dollars>, "why": "..."}."""
+    stop = float((read_json("ads-budget.json", {}) or {}).get("stop", SPEND_STOP))
+    spent, campaigns = ads_spend_since_launch()
+    running = [campaign for campaign in campaigns if campaign.get("status") == "ENABLED"]
+    if spent < stop or not running:
+        return f"{now().isoformat()} ads guard: ${spent:.2f} of the ${stop:.0f} stop, {len(running)} campaigns running"
+    for campaign in running:
+        superwall("asa", "campaigns", "update", str(campaign["id"]), "--status", "PAUSED", "--app", ASA_VIA_APP)
+    append_log(f"Apple Ads paused: ${spent:.2f} spent reached the ${stop:.0f} stop; more needs Kevin's yes", "ads")
+    notes = read_json("notes.json", {})
+    title = "Apple Ads are paused at the spending stop"
+    if notes and not any(item.get("title") == title for item in notes.get("needsYou", [])):
+        notes.setdefault("needsYou", []).insert(0, {
+            "title": title,
+            "detail": f"${spent:.2f} spent since Sep 30 reached the ${stop:.0f} stop. They stay off until you approve more.",
+            "since": now().date().isoformat(),
+        })
+        write_json("notes.json", notes)
+    if (OPS / "status.json").exists():
+        publish()
+    return f"{now().isoformat()} ads guard: PAUSED {len(running)} campaigns at ${spent:.2f} (stop ${stop:.0f})"
 
 
 def experiments() -> list[dict]:
@@ -905,6 +958,8 @@ def main(argv: list[str]) -> int:
         show()
     elif command == "archive":
         print(archive())
+    elif command == "ads-guard":
+        print(ads_guard())
     elif command == "astro":
         if len(argv) < 3:
             print("usage: today.py astro <tool> ['{json arguments}']   (tools: Astro's MCP list, e.g. get_keyword_suggestions)", file=sys.stderr)

@@ -295,6 +295,15 @@ export const DOC_TOOLS: DocTool[] = [
         ],
       },
       {
+        title: 'Ads spending',
+        commands: [
+          {
+            run: 'python3 docs/ops/today.py ads-guard',
+            does: 'Adds up what the ads have spent since Sep 30 and pauses every campaign at $140. The launch agent `com.softroni.papercoach-ads-guard` runs it every two hours.',
+          },
+        ],
+      },
+      {
         title: 'Keywords',
         commands: [
           {

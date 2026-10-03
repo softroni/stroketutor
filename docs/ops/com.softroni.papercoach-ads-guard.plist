@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  The Apple Ads spending stop (docs/ops/README.md, "Apple Ads"). Every two hours, and at login, it adds up what
+  Paper Coach's campaigns have spent since Sep 30 and pauses them all once that reaches the stop ($140, $10 under
+  Kevin's $150; a higher stop only with his yes, in .studio/ops/ads-budget.json). It needs no Claude run: Apple
+  refuses lifetime budgets on this account, so this is what holds the ceiling if a check is missed.
+    cp docs/ops/com.softroni.papercoach-ads-guard.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.softroni.papercoach-ads-guard.plist
+  To stop it: launchctl bootout gui/$(id -u)/com.softroni.papercoach-ads-guard
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.softroni.papercoach-ads-guard</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>docs/ops/today.py</string>
+    <string>ads-guard</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/kevin/dev/stroketutor</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/kevin/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>StartInterval</key>
+  <integer>7200</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/kevin/dev/stroketutor/.studio/logs/ads-guard.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/kevin/dev/stroketutor/.studio/logs/ads-guard.log</string>
+</dict>
+</plist>

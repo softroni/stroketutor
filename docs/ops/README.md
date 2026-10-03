@@ -229,6 +229,16 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
 
 ## Apple Ads
 
+**Claude optimizes the ads every day as it judges best, from the data (Kevin, 2026-10-03: "Do whatever you
+think best to optimize ads based on data daily").** The rules below are its starting points, not a script: it
+changes bids, keywords, match types, ad groups, campaign structure and how the money is split whenever the
+numbers say so, and writes each change and its reason in the log. Only these are fixed, and need Kevin to change:
+the $150 ceiling (stop at $140, a plan for more at $100 or Oct 9), never to children (Apple Ads only, no ad group
+narrowed to an age range on its own), no spending anywhere but Apple Ads, and prices, trials and products, which
+stay his. What it judges by, in order: paying learners and trials per dollar, then learners reaching an offer
+per dollar, then cost per install, then cost per tap; and how the money is spread so the $150 also learns.
+
+
 - Through Superwall's proxy: `superwall asa … --app 54792` (GeoBlitz's connection reaches the
   Softroni LLC org, 20605790, pay as you go). Paper Coach is adam id `6816231257`; Apple Ads can't see
   it until it is on sale.
@@ -255,8 +265,10 @@ atos -arch arm64 -o "$DSYM/Contents/Resources/DWARF/PaperCoach" -l 0x100000000 0
   keyword, early enough that the first trials reach day 7 inside it.
   - Spend counts from 2026-09-30, in the org's time zone (`--time-zone ORTZ`), Paper Coach's campaigns only.
   - **Stop at $140**, keeping $10 for Apple's late reporting and a day's overspend. Apple refuses lifetime
-    campaign budgets on this account (`LIFETIME_BUDGET_NOT_SUPPORTED`), so the stop is ours: from $100 spent, the
-    daily caps add up to at most half of what is left to $140, so one missed check can't break it.
+    campaign budgets on this account (`LIFETIME_BUDGET_NOT_SUPPORTED`), so the stop is ours: the launch agent
+    `com.softroni.papercoach-ads-guard` runs `today.py ads-guard` every two hours, with no Claude needed, and pauses
+    every Paper Coach campaign at $140 (log in `.studio/logs/ads-guard.log`). A higher stop is Kevin's yes, kept in
+    `.studio/ops/ads-budget.json`. From $100 spent, the daily caps also add up to at most half of what is left.
   - **The plan for more goes to Kevin at $100 spent or on Oct 9**, whichever comes first.
   - **Search popularity decides where money goes** (Apple's own 5–100 score, read from the Astro app; `collect`
     puts Paper Coach's tracked keywords in `facts.json` › `keywords`, US). 5 is Apple's floor: almost nobody
