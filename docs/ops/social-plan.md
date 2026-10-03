@@ -89,6 +89,10 @@ bursts of views, but a download there takes bio → link → App Store.
 
 ## Decisions
 
+- **2026-10-03, Kevin: a longer 16:9 tour of the app for people who have never heard of it**, made from 1.1 and
+  posted the day after 1.1's what's-new video: what Paper Coach is, how a lesson works on real paper, free and
+  Premium lessons, iPhone and iPad, how to get started, with soft background music. Made by Claude the same day
+  (`.studio/overview-1.1`, 3:59); posted by the social check without asking. How: *The tour video*.
 - **2026-10-01, Kevin: every version that adds something gets a "what's new" video, made and posted by Claude on
   its own.** A 16:9 video of at least 2 minutes showing what the version adds, working in the app on an iPhone, an
   iPad, or both where a feature needs both, posted to all seven platforms the day the version goes on sale, without
@@ -137,6 +141,7 @@ up" on the Today page and does what each says on the day.
 | 2026-11-12 | Six-week wrap-up of *Growth*, written under *Log* | Claude |
 | While 1.1 is in review | 1.1's what's-new video, made from `release/1.1` (*What's new videos*) | social check |
 | The day 1.1 goes on sale | 1.1's what's-new video to every platform; Around Town's ten lessons join the queue | social check |
+| The day after 1.1's what's-new video | The tour (`.studio/overview-1.1`): YouTube with chapters, X its 2:16 cut, the five others as it is (*The tour video*) | social check |
 | 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log*. October's monthly report comes only on Nov 5, so the weekly ones: `acquisition.py --granularity WEEKLY --days 28` | daily check |
 | 2026-10-30 | Upload-Post renews monthly ($24) | automatic |
 | 2026-11-23 | The two-month write-up under *Log*, and "monthly → yearly, or stop?" under Needs you | daily check |
@@ -200,6 +205,21 @@ without asking.
   whats-new-<version, dots as dashes> --thumbnail <PNG or JPEG, at most 2 MB> --subtitles <file.srt> --log`. All
   seven platforms; each link says its platform and the version (`youtube-whats-new-1-1`…), and the post is kept
   out of the Shorts' medians.
+
+## The tour video
+
+Kevin's decision of 2026-10-03 (*Decisions*): a 3:59 introduction for people who have never heard of Paper Coach,
+not a release's news. Made from 1.1 (`.studio/overview-1.1`, its README says how it was recorded, voiced, scored and
+rendered); its music was made on this Mac with ACE-Step 1.5 (MIT licence), so no rights to clear.
+
+- **When.** The day after 1.1's what's-new video went out, so the day after 1.1 goes on sale. It counts as one of
+  the month's news posts (*Release news*: two or three a month).
+- **Where.** Every platform, in three posts with the same words (the README's *Posting*): YouTube with the
+  chapters in its description, as a normal video with the thumbnail and English captions; X its 2:16 cut (X takes
+  at most 2:20); TikTok, Instagram, Facebook, Threads and Pinterest the whole video. Links say `<platform>-tour-1-1`.
+- **After.** It is a long video, so its numbers stay out of the Shorts' medians (`media` `wide`); read its YouTube
+  watch time and the `tour-1-1` downloads at the 2026-10-28 review. Whether later versions get a tour of their own
+  is Kevin's call.
 
 ## Knowing what works
 
@@ -480,3 +500,6 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - 2026-10-01: Kevin's standing rule: every version that adds something gets a 2-minute-plus 16:9 what's-new video,
   on an iPhone, an iPad or both, posted to every platform the day it is on sale, by Claude without asking; and
   Pixabay may be used in any video (*Decisions*, *What's new videos*).
+- 2026-10-03: Kevin asked for a longer tour of the app for newcomers, made from 1.1 and posted the day after 1.1's
+  what's-new video. Made the same day (`.studio/overview-1.1`, 3:59, and a 2:16 cut for X), with soft music made
+  locally (ACE-Step 1.5); the social check posts it (*The tour video*).
