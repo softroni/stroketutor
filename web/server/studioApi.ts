@@ -19,6 +19,7 @@ import { readAdNames } from './appleAds'
 import { readLearnerHistory, readLearners, type LearnersOptions } from './learners'
 import { readPaywallNames } from './paywallNames'
 import { readSocialTaps } from './socialTaps'
+import { readSubscriptions } from './subscriptions'
 import { readToday } from './today'
 import {
   MAX_REFERENCE_BYTES,
@@ -180,6 +181,9 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  *                                         those days, by platform, from PostHog (or beside the sample); read-only
  * - `GET  /api/learners/paywalls`         the names of Superwall's paywalls and test versions (or beside the
  *                                         sample); read-only
+ * - `GET  /api/learners/subscriptions`    what became of each purchase (renewal turned off or on, paid, renewed,
+ *                                         refunded, ended) from Apple's notifications in Superwall, each tied to its
+ *                                         learner by their purchase event in PostHog (or beside the sample); read-only
  * - `GET  /api/social/posts`              every post sent to social media, by day, with each platform's link
  *                                         (.studio/social/posts.jsonl, or the repo's copy on ops-history), and the
  *                                         lessons the daily job posts next, as `social next` picks them; read-only
@@ -334,6 +338,18 @@ async function handle(
     if (resource === 'learners' && name === 'paywalls' && parts.length === 2 && method === 'GET') {
       const sample = options.learners?.sampleFile
       return send(res, 200, await readPaywallNames({ sampleFile: sample ? path.join(path.dirname(sample), 'superwall-names.json') : undefined }))
+    }
+
+    if (resource === 'learners' && name === 'subscriptions' && parts.length === 2 && method === 'GET') {
+      const sample = options.learners?.sampleFile
+      return send(
+        res,
+        200,
+        await readSubscriptions({
+          learners: options.learners,
+          sampleFile: sample ? path.join(path.dirname(sample), 'superwall-subscriptions.json') : undefined,
+        }),
+      )
     }
 
     if (resource === 'learners' && parts.length === 1 && method === 'GET') {

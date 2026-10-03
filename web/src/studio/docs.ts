@@ -184,7 +184,7 @@ export const DOC_TOOLS: DocTool[] = [
     needs: [
       'Node 22.13 or later, and `npm install` once',
       'Keys in `web/.env.local` (git ignores it): `OPENROUTER_API_KEY` to generate lessons, `POSTHOG_PERSONAL_API_KEY` (read access to Query) for the Learners page',
-      'The `superwall` CLI signed in, for the Learners page: Apple Ads keyword names and spend, paywall version names, and which app versions are on sale (without it, ids, no spend, every version counted)',
+      'The `superwall` CLI signed in, for the Learners page: Apple Ads keyword names and spend, paywall version names, which app versions are on sale, and what became of each purchase (a free week’s renewal turned off, paid, refunded) (without it, ids, no spend, every version counted, no cancellations)',
     ],
     tips: ['On m4-1, don’t start a second Studio: the command line and the running one share the workspace safely.'],
     see: [{ label: 'Settings', href: studioPages.settings }],
@@ -484,7 +484,7 @@ export const DOC_TOOLS: DocTool[] = [
     kind: 'terminal',
     name: 'Superwall CLI',
     about:
-      'The paywalls, campaigns and A/B tests in Superwall, and Apple Ads through Superwall’s proxy. `today.py` calls it for the tests and the ads, and the Studio’s Learners page for the names of the Apple Ads campaigns and keywords that brought each learner, what each keyword spent, the names of the paywall versions they saw, and which app versions are on sale (to leave out TestFlight and App Review devices).',
+      'The paywalls, campaigns and A/B tests in Superwall, and Apple Ads through Superwall’s proxy. `today.py` calls it for the tests and the ads, and the Studio’s Learners page for the names of the Apple Ads campaigns and keywords that brought each learner, what each keyword spent, the names of the paywall versions they saw, which app versions are on sale (to leave out TestFlight and App Review devices), and what became of each purchase afterwards, from Apple’s notifications (a free week’s renewal turned off or back on, paid, renewed, refunded), each tied to the learner who bought it.',
     where: 'anywhere',
     usedBy: 'Claude, for the tests and the ads; the Studio’s Learners page',
     needs: ['`superwall login` once per machine'],

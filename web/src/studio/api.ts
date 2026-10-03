@@ -6,7 +6,7 @@ import type { TracedDrawing } from '../trace/traceSvg'
 import type { VideoJob, VideoLessonState } from '../video/types'
 import type { AppNarration, LessonNarration, ScriptLine, Take, Voice, VoiceInput, VoiceState } from '../voice/types'
 
-import type { AdNamesResponse, AdSpendResponse, LearnersResponse, PaywallNamesResponse, SocialTapsResponse } from './learners'
+import type { AdNamesResponse, AdSpendResponse, LearnersResponse, PaywallNamesResponse, SocialTapsResponse, SubscriptionsResponse } from './learners'
 import type { ScreenshotList } from './screenshots'
 import type { SocialResponse } from './social'
 import type { TodayResponse } from './today'
@@ -129,6 +129,11 @@ export function readSocialTaps(from: string, to: string) {
 /** The names behind Superwall's paywall and test-version ids (read-only). */
 export function readPaywallNames() {
   return call<PaywallNamesResponse>('/api/learners/paywalls')
+}
+
+/** What became of each purchase after it was made, from Superwall, tied to learners (read-only). */
+export function readSubscriptions() {
+  return call<SubscriptionsResponse>('/api/learners/subscriptions')
 }
 
 /** Every post sent to social media, by day, with each platform's link or what stopped it (read-only). */

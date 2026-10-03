@@ -270,6 +270,23 @@ export function historyQuery(ids: string[]): string {
   ].join('\n')
 }
 
+/**
+ * The app's own purchase events, `days` back, for tying Superwall's subscriptions to learners
+ * (`subscriptions.ts`): the moment each was made, its test version and plan. Release builds only.
+ */
+export async function readPurchaseEvents(options: LearnersOptions, days: number): Promise<LearnerEvent[]> {
+  if (options.sampleFile || !options.apiKey) return []
+  const query = [
+    ...COLUMNS,
+    `WHERE timestamp >= now() - INTERVAL ${Math.round(days)} DAY`,
+    "  AND event IN ('superwall_transaction_complete', 'purchase_attempted')",
+    "  AND coalesce(properties.build, '') != 'debug'",
+    'ORDER BY timestamp',
+    `LIMIT ${MAX_ROWS}`,
+  ].join('\n')
+  return queryEvents(options, query, 'blocking')
+}
+
 async function queryEvents(
   options: LearnersOptions,
   query: string,

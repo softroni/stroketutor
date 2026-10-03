@@ -45,6 +45,10 @@ every scheduled run follows it.
   through `superwall asa`, kept half an hour). The country is `device_region`, sent from the release after 1.1.
   *At the paywall* shows Superwall's test versions (shown, time open, closed within 5 s, buy tapped, cancelled,
   bought) and the children's way through the grown-ups' check; the test is still judged in Superwall.
+  What became of each purchase afterwards comes from Superwall too (Apple's notifications, kept 5 min), tied to the
+  learner by their own purchase event in the same seconds: a free week whose renewal was turned off shows "renewal
+  off" on its chip and a line in the timeline at the moment, and the Free trials tile counts only those still set to
+  renew in its dollars (Today's summary too). It is never a visit: renewals are turned off in iOS Settings as often.
   *Ages* charts the learners by age band (`?age=`), and the Who chips have 18+.
   Where from also shows Apple Ads' spend, taps and installs per keyword (`superwall asa reports`, kept 15 min while
   the day runs) and the cost per learner, per paywall reached and per buyer. Under it, *Social profile links*: the

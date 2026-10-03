@@ -52,7 +52,10 @@ import {
   spoken,
   stepPeriod,
   stitch,
+  afterPurchaseWords,
+  renewalIsOff,
   type LearnerEvent,
+  type Subscription,
 } from './learners'
 
 /** Oct 1 and 2, 2026, as PostHog had them without test devices, with the ids relabeled (server/fixtures). */
@@ -370,6 +373,44 @@ describe('purchases', () => {
     const quick = buildReport(early, { period: 'day', date: '2026-10-03', now: at + 86_400_000 })
     expect(quick.numbers.find((entry) => entry.key === 'trials')?.value).toBe(1)
     expect(quick.numbers.find((entry) => entry.key === 'buys')?.value).toBe(0)
+  })
+
+  it('shows a free week whose renewal was turned off since, from Superwall, without counting it as a visit', () => {
+    const until = Date.parse('2026-10-10T15:01:10Z')
+    const subscription: Subscription = {
+      id: '590002859181736',
+      learner: 'trialer',
+      boughtAt: at + 69_000,
+      trial: true,
+      plan: 'yearly',
+      events: [{ at: at + 3 * 3_600_000, kind: 'renewalOff', name: 'cancellation', trial: true, until }],
+    }
+    const options = { period: 'day' as const, date: '2026-10-03', subscriptions: [subscription], now: at + 86_400_000 }
+    const withIt = buildReport(bought, options)
+    const trials = withIt.numbers.find((entry) => entry.key === 'trials')
+    expect(trials).toMatchObject({ value: 1, amount: 0, sub: 'a year, if kept · 1 renewal off', note: '1 renewal off' })
+    const trialer = withIt.sessions.find((session) => session.key === 'trialer')!
+    expect(trialer.items.find((item) => item.kind === 'bought')).toMatchObject({ trial: true, renewalOff: true })
+    const line = trialer.timeline[trialer.timeline.length - 1]
+    expect(line).toMatchObject({ at: at + 3 * 3_600_000, mark: 'cancelled', text: 'Turned off the free week’s renewal: Premium until Oct 10 (Apple, through Superwall)' })
+    expect(trialer.returns).toEqual([])
+    expect(trialer.activeMs).toBe(report.sessions.find((session) => session.key === 'trialer')!.activeMs)
+    // Before it was turned off, the free week still counts at its price.
+    expect(buildReport(bought, { ...options, now: at + 3_600_000 }).numbers.find((entry) => entry.key === 'trials')).toMatchObject({ amount: 29.99 })
+    // Another day's page does not show the line.
+    const next = buildReport(bought, { ...options, date: '2026-10-04' })
+    expect(next.sessions.flatMap((session) => session.timeline).some((entry) => entry.mark === 'cancelled')).toBe(false)
+  })
+
+  it('follows renewal turned off and back on, and says what each event was', () => {
+    const base = { id: 'x', learner: 'a', boughtAt: 0, trial: true, plan: 'yearly' }
+    const off = { at: 10, kind: 'renewalOff' as const, name: 'cancellation', trial: true, until: null }
+    const on = { at: 20, kind: 'renewalOn' as const, name: 'uncancellation', trial: true, until: null }
+    expect(renewalIsOff({ ...base, events: [off] }, 15)).toBe(true)
+    expect(renewalIsOff({ ...base, events: [off, on] }, 25)).toBe(false)
+    expect(renewalIsOff({ ...base, events: [off, on] }, 5)).toBe(false)
+    expect(afterPurchaseWords({ ...on, kind: 'paid' })).toBe('The free week turned paid (Apple, through Superwall)')
+    expect(afterPurchaseWords({ ...off, trial: false })).toBe('Turned off Premium’s renewal (Apple, through Superwall)')
   })
 
   it('prices plans as they were on the day', () => {

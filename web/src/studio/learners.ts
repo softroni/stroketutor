@@ -387,6 +387,44 @@ export interface PaywallNamesResponse {
   problem: string | null
 }
 
+/** What became of a purchase afterwards, from Apple's server notifications as Superwall records them. */
+export interface AfterPurchase {
+  at: number
+  /**
+   * Renewal turned off (Apple's cancellation: Premium lasts until `until`) or back on, a free
+   * week turned paid, a renewal, a refund, the end, a payment Apple could not take.
+   */
+  kind: 'renewalOff' | 'renewalOn' | 'paid' | 'renewed' | 'refunded' | 'expired' | 'billingIssue' | 'other'
+  /** Superwall's own name for it (`cancellation`). */
+  name: string
+  /** It happened during the free week. */
+  trial: boolean
+  /** When Premium ends, when Apple says. */
+  until: number | null
+}
+
+/** A purchase Superwall knows, tied to the learner who made it (`web/server/subscriptions.ts`). */
+export interface Subscription {
+  /** Apple's original transaction id. */
+  id: string
+  /** The PostHog id the purchase was made under. */
+  learner: string
+  boughtAt: number
+  trial: boolean
+  plan: string | null
+  /** Oldest first. */
+  events: AfterPurchase[]
+}
+
+/** What `/api/learners/subscriptions` answers. */
+export interface SubscriptionsResponse {
+  subscriptions: Subscription[]
+  /** Purchases no learner's purchase event matched. */
+  unmatched: number
+  source: 'superwall' | 'sample' | null
+  problem: string | null
+}
+
 /** A version of the app as App Store Connect has it. */
 export interface AppVersion {
   version: string
@@ -805,8 +843,11 @@ export type SessionItem =
   | { kind: 'wish'; at: number; lesson: string }
   | { kind: 'grownUp'; at: number }
   | { kind: 'price'; at: number; forGrownUp: boolean; closedAfter: number | null; shown: PaywallShown | null }
-  /** A purchase: a free week of the yearly plan (`trial`), or a plan paid for now, at its list price. */
-  | { kind: 'bought'; at: number; trial: boolean; plan: string | null; price: number | null }
+  /**
+   * A purchase: a free week of the yearly plan (`trial`), or a plan paid for now, at its list price.
+   * `renewalOff`: the learner has since turned off its renewal, as Superwall heard from Apple.
+   */
+  | { kind: 'bought'; at: number; trial: boolean; plan: string | null; price: number | null; renewalOff?: boolean }
   | { kind: 'later'; at: number }
 
 /** Superwall's paywall, as shown once: which test version, where it was asked for, and what came of it. */
@@ -868,7 +909,7 @@ export interface TimelineLine {
   at: number
   text: string
   lesson: string | null
-  mark: 'quiet' | 'started' | 'finished' | 'skimmed' | 'price' | 'grownUp' | 'kept' | 'crown' | 'wish' | 'bought'
+  mark: 'quiet' | 'started' | 'finished' | 'skimmed' | 'price' | 'grownUp' | 'kept' | 'crown' | 'wish' | 'bought' | 'cancelled'
   /** Superwall's paywall, for its name beside the line. */
   shown?: PaywallShown
 }
@@ -1211,6 +1252,82 @@ function endOf(items: SessionItem[], events: LearnerEvent[], hereNow: boolean): 
   }
 }
 
+// ---------- After the purchase ----------
+
+const monthDay = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: LEARNERS_TIME_ZONE })
+
+/** Whether a purchase's renewal stood turned off at `at`: the last word about it, off or on, was off. */
+export function renewalIsOff(subscription: Subscription, at: number): boolean {
+  let off = false
+  for (const event of subscription.events) {
+    if (event.at > at) break
+    if (event.kind === 'renewalOff') off = true
+    else if (event.kind === 'renewalOn' || event.kind === 'paid' || event.kind === 'renewed') off = false
+  }
+  return off
+}
+
+/** "Turned off the free week’s renewal: Premium until Oct 10 (Apple, through Superwall)". */
+export function afterPurchaseWords(event: AfterPurchase): string {
+  const until = event.until !== null ? `: Premium until ${monthDay.format(event.until)}` : ''
+  const said = (words: string) => `${words} (Apple, through Superwall)`
+  switch (event.kind) {
+    case 'renewalOff':
+      return said(event.trial ? `Turned off the free week’s renewal${until}` : `Turned off Premium’s renewal${until}`)
+    case 'renewalOn':
+      return said('Turned renewal back on')
+    case 'paid':
+      return said('The free week turned paid')
+    case 'renewed':
+      return said('Premium renewed')
+    case 'refunded':
+      return said('Refunded')
+    case 'expired':
+      return said('Premium ended')
+    case 'billingIssue':
+      return said('Apple could not take the payment')
+    case 'other':
+      return said(event.name.replace(/_/g, ' '))
+  }
+}
+
+const ENDS_BADLY = new Set<AfterPurchase['kind']>(['renewalOff', 'refunded', 'expired', 'billingIssue'])
+
+/**
+ * What became of each purchase, put into its learner's sessions: a purchase's chip says whether
+ * its renewal stood turned off at `now`, and the timeline gets a line for each of Superwall's
+ * events within `range`, by its time. None of it counts as a visit or as time in the app: a
+ * renewal is turned off in the App Store's settings as often as anywhere.
+ */
+export function attachSubscriptions(
+  sessions: LearnerSession[],
+  subscriptions: readonly Subscription[],
+  range: { from: string; to: string },
+  now: number,
+) {
+  if (!subscriptions.length) return
+  for (const session of sessions) {
+    const mine = subscriptions.filter((subscription) => session.ids.includes(subscription.learner))
+    if (!mine.length) continue
+    for (const item of session.items) {
+      if (item.kind !== 'bought') continue
+      const near = mine
+        .filter((subscription) => Math.abs(subscription.boughtAt - item.at) < PURCHASE_WINDOW_MS)
+        .sort((a, b) => Math.abs(a.boughtAt - item.at) - Math.abs(b.boughtAt - item.at))[0]
+      if (near) item.renewalOff = renewalIsOff(near, now)
+    }
+    const before = session.timeline.length
+    for (const subscription of mine) {
+      for (const event of subscription.events) {
+        const day = dayOf(event.at)
+        if (event.at > now || day < range.from || day >= range.to) continue
+        session.timeline.push({ at: event.at, text: afterPurchaseWords(event), lesson: null, mark: ENDS_BADLY.has(event.kind) ? 'cancelled' : 'bought' })
+      }
+    }
+    if (session.timeline.length > before) session.timeline.sort((a, b) => a.at - b.at)
+  }
+}
+
 /** How many avatar colors the page has. */
 export const AVATAR_COLORS = 8
 
@@ -1265,6 +1382,8 @@ export interface ReportNumber {
   sub: string
   /** Dollars, for the trials and the buys: at the plans' US list prices. */
   amount?: number
+  /** The free weeks: how many had their renewal turned off since ("1 renewal off"). */
+  note?: string
 }
 
 /** How long a number that changed stays marked on the page: the creator picks, five minutes at first. */
@@ -1570,6 +1689,8 @@ export interface ReportOptions {
   age?: AgeBand | null
   /** The least time each lesson can be drawn in (`markTappedThrough`); 20 seconds when it says nothing. */
   floorOf?: (lesson: string) => number | null
+  /** What became of the purchases (`attachSubscriptions`), from Superwall. */
+  subscriptions?: readonly Subscription[]
   now?: number
 }
 
@@ -1635,7 +1756,10 @@ export function buildReport(allEvents: LearnerEvent[], options: ReportOptions): 
     session.animal = animals.get(session.key)
     session.color = index % AVATAR_COLORS
   }
+  const subscriptions = options.subscriptions ?? []
+  attachSubscriptions(everySession, subscriptions, { from, to }, now)
   const previous = inRange(before).map((entry) => buildSession(entry.learner, entry.events, now))
+  attachSubscriptions(previous, subscriptions, before, now)
   const previousEvents = inRange(before).flatMap((entry) => entry.events)
   const numbers = numbersOf(everySession, everyone.flatMap((entry) => entry.events), previous, previousEvents)
 
@@ -1956,6 +2080,7 @@ export function buildHistory(
   allEvents: LearnerEvent[],
   now: number,
   floorOf?: (lesson: string) => number | null,
+  subscriptions: readonly Subscription[] = [],
 ): LearnerHistory | null {
   const learners = stitch(markTappedThrough(allEvents, floorOf))
   if (!learners.length) return null
@@ -1972,7 +2097,11 @@ export function buildHistory(
     else byDay.set(day, [event])
   }
   const days = [...byDay.entries()]
-    .map(([day, dayEvents]) => ({ day, session: buildSession(learner, dayEvents, now) }))
+    .map(([day, dayEvents]) => {
+      const session = buildSession(learner, dayEvents, now)
+      attachSubscriptions([session], subscriptions, { from: day, to: addDays(day, 1) }, now)
+      return { day, session }
+    })
     .sort((a, b) => b.day.localeCompare(a.day))
   const install = learner.events.find((event) => event.event === 'app_opened' && event.firstOpen)
   const sessions = days.map((entry) => entry.session)
@@ -2007,6 +2136,9 @@ function numbersOf(
     )
   const trials = purchases(sessions, true)
   const buys = purchases(sessions, false)
+  // A free week whose renewal is off is worth nothing a year from now.
+  const renewing = (list: Extract<SessionItem, { kind: 'bought' }>[]) => list.filter((item) => !item.renewalOff)
+  const renewalOff = trials.length - renewing(trials).length
   const dollars = (list: { price: number | null }[]) => list.reduce((total, item) => total + (item.price ?? 0), 0)
   const lessons = events.filter((event) => event.event === 'lesson_completed' && !event.quick)
   const skimmed = events.filter((event) => event.event === 'lesson_completed' && event.quick).length
@@ -2059,8 +2191,9 @@ function numbersOf(
       label: 'Free trials',
       value: trials.length,
       previous: previousOf((list) => purchases(list, true).length),
-      amount: dollars(trials),
-      sub: 'a year, if kept',
+      amount: dollars(renewing(trials)),
+      sub: renewalOff ? `a year, if kept · ${renewalOff} renewal off` : 'a year, if kept',
+      ...(renewalOff ? { note: `${renewalOff} renewal off` } : {}),
     },
     {
       key: 'buys',

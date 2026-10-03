@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 
-import { readAdNames, readAdSpend, readLearnerHistory, readLearners, readPaywallNames, readSocialTaps } from './api'
+import { readAdNames, readAdSpend, readLearnerHistory, readLearners, readPaywallNames, readSocialTaps, readSubscriptions } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
 import {
   adKey,
@@ -55,6 +55,7 @@ import {
   type BeforeGroupKey,
   type DaySummary,
   type PaywallNames,
+  type Subscription,
   type PaywallReport,
   type PaywallShown,
   QUICK_CLOSE_MS,
@@ -365,6 +366,25 @@ function useSocialTaps(period: Period, day: string, available: boolean, loadedAt
   return state.range === `${from}|${to}` ? state : null
 }
 
+const NO_SUBSCRIPTIONS: Subscription[] = []
+/** What became of each purchase (Superwall), for the sessions' timelines and the free weeks; asked again with the events. */
+const SubscriptionsContext = createContext<Subscription[]>(NO_SUBSCRIPTIONS)
+
+function useSubscriptions(available: boolean, loadedAt: number | null): { subscriptions: Subscription[]; problem: string | null } {
+  const [state, setState] = useState<{ subscriptions: Subscription[]; problem: string | null }>({ subscriptions: NO_SUBSCRIPTIONS, problem: null })
+  useEffect(() => {
+    if (!available) return
+    let live = true
+    readSubscriptions()
+      .then((response) => live && setState((shown) => ({ subscriptions: response.problem && !response.subscriptions.length ? shown.subscriptions : response.subscriptions, problem: response.problem })))
+      .catch((error: unknown) => live && setState((shown) => ({ subscriptions: shown.subscriptions, problem: error instanceof Error ? error.message : String(error) })))
+    return () => {
+      live = false
+    }
+  }, [available, loadedAt])
+  return state
+}
+
 const NO_PAYWALL_NAMES: PaywallNames = { paywalls: {}, variants: {}, placements: {} }
 /** The names behind Superwall's paywall and test-version ids, asked for once per visit to the page. */
 const PaywallNamesContext = createContext<PaywallNames>(NO_PAYWALL_NAMES)
@@ -612,12 +632,13 @@ export function LearnersView({
   // A row opened on one day is not open on the next, nor in a week.
   useEffect(() => setOpened(null), [period, day])
 
+  const { subscriptions, problem: subscriptionsProblem } = useSubscriptions(library.writable, loadedAt)
   const report = useMemo(
     () =>
       hasEvents(response)
-        ? buildReport(response.events, { period, date: day, who, source, lesson, only, where, age, floorOf: lessonFloors(library), now: Date.now() })
+        ? buildReport(response.events, { period, date: day, who, source, lesson, only, where, age, floorOf: lessonFloors(library), subscriptions, now: Date.now() })
         : null,
-    [response, period, day, who, source, lesson, only, where, age, library],
+    [response, period, day, who, source, lesson, only, where, age, library, subscriptions],
   )
   const ads = useAdNames(library.writable)
   const spend = useAdSpend(period, day, library.writable, loadedAt)
@@ -635,9 +656,9 @@ export function LearnersView({
   const before = useMemo<NumbersBefore | null>(() => {
     if (!hasEvents(response) || loadedAt === null) return null
     const since = loadedAt - markFor
-    const options = { period, date: day, who, source, lesson, where, age, floorOf: lessonFloors(library) }
+    const options = { period, date: day, who, source, lesson, where, age, floorOf: lessonFloors(library), subscriptions }
     return { numbers: numbersAt(response.events, options, since), since, at: loadedAt }
-  }, [response, loadedAt, markFor, period, day, who, source, lesson, where, age, library])
+  }, [response, loadedAt, markFor, period, day, who, source, lesson, where, age, library, subscriptions])
   const changes = useNumberChanges(
     `${period}|${day}|${who}|${source}|${lesson ?? ''}${where ? `|${where}` : ''}${age ? `|age-${age}` : ''}`,
     report?.numbers ?? null,
@@ -693,6 +714,7 @@ export function LearnersView({
               </span>
             ) : null}
             {response?.versionsProblem ? <span title={response.versionsProblem}>App versions not checked. </span> : null}
+            {subscriptionsProblem ? <span title={subscriptionsProblem}>Cancellations not checked (Superwall). </span> : null}
             {response?.configured ? (
               <Freshness
                 loadedAt={loadedAt}
@@ -803,6 +825,7 @@ export function LearnersView({
 
       {report ? (
         <AdNamesContext.Provider value={ads.names}>
+        <SubscriptionsContext.Provider value={subscriptions}>
         <PaywallNamesContext.Provider value={paywallNames.names}>
         <Picked.Provider value={lesson}>
           <Numbers
@@ -850,6 +873,7 @@ export function LearnersView({
           )}
         </Picked.Provider>
         </PaywallNamesContext.Provider>
+        </SubscriptionsContext.Provider>
         </AdNamesContext.Provider>
       ) : null}
     </div>
@@ -1976,10 +2000,14 @@ function StripItem({ item, library }: { item: SessionItem; library: Library }) {
     case 'bought':
       return (
         <span
-          className={`st-learners__purchase st-learners__purchase--${item.trial ? 'trial' : 'paid'}`}
-          title={item.trial ? 'Started a free week' : `Bought ${item.plan ?? 'Premium'}`}
+          className={`st-learners__purchase st-learners__purchase--${item.trial ? 'trial' : 'paid'}${item.renewalOff ? ' st-learners__purchase--off' : ''}`}
+          title={
+            (item.trial ? 'Started a free week' : `Bought ${item.plan ?? 'Premium'}`) +
+            (item.renewalOff ? ', then turned off its renewal (Apple, through Superwall)' : '')
+          }
         >
           {item.trial ? 'Free week' : item.price !== null ? money(item.price) : 'Bought'}
+          {item.renewalOff ? <span className="st-learners__purchase-off">renewal off</span> : null}
         </span>
       )
     case 'later':
@@ -2154,13 +2182,14 @@ const historyDay = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: '
 function History({ session, library }: { session: LearnerSession; library: Library }) {
   const [state, setState] = useState<{ history: LearnerHistory | null; problem: string | null } | null>(null)
   const [openDay, setOpenDay] = useState<string | null>(null)
+  const subscriptions = useContext(SubscriptionsContext)
   const ids = session.ids.join(',')
   useEffect(() => {
     let live = true
     readLearnerHistory(ids.split(','))
       .then((response) => {
         if (!live) return
-        setState({ history: buildHistory(response.events, Date.now(), lessonFloors(library)), problem: response.problem })
+        setState({ history: buildHistory(response.events, Date.now(), lessonFloors(library), subscriptions), problem: response.problem })
       })
       .catch((caught: unknown) => {
         if (live) setState({ history: null, problem: caught instanceof Error ? caught.message : String(caught) })
@@ -2168,7 +2197,7 @@ function History({ session, library }: { session: LearnerSession; library: Libra
     return () => {
       live = false
     }
-  }, [ids, library])
+  }, [ids, library, subscriptions])
 
   const thisDay = dayOf(session.start)
   if (!state) return <p className="st-learners__history st-learners__muted">Asking PostHog for their other visits…</p>
@@ -2343,20 +2372,21 @@ function DayCell({
  */
 export function LearnersSummary({ day, library }: { day: string; library: Library }) {
   const { response, error, loadedAt } = useLearnerEvents('day', day, library.writable)
+  const { subscriptions } = useSubscriptions(library.writable, loadedAt)
   const report = useMemo(
     () =>
       hasEvents(response)
-        ? buildReport(response.events, { period: 'day', date: day, floorOf: lessonFloors(library), now: Date.now() })
+        ? buildReport(response.events, { period: 'day', date: day, floorOf: lessonFloors(library), subscriptions, now: Date.now() })
         : null,
-    [response, day, library],
+    [response, day, library, subscriptions],
   )
   // The same view as the Learners page's day with nothing narrowed: one memory of what was seen.
   const [markFor] = useMarkFor()
   const before = useMemo<NumbersBefore | null>(() => {
     if (!hasEvents(response) || loadedAt === null) return null
     const since = loadedAt - markFor
-    return { numbers: numbersAt(response.events, { period: 'day', date: day, floorOf: lessonFloors(library) }, since), since, at: loadedAt }
-  }, [response, loadedAt, markFor, day, library])
+    return { numbers: numbersAt(response.events, { period: 'day', date: day, floorOf: lessonFloors(library), subscriptions }, since), since, at: loadedAt }
+  }, [response, loadedAt, markFor, day, library, subscriptions])
   const changes = useNumberChanges(`day|${day}|all|all|`, report?.numbers ?? null, markFor, before)
   const date = day === dayOf(Date.now()) ? null : day
   const href = routeHref({ name: 'learners', period: 'day', date })
@@ -2395,7 +2425,7 @@ export function LearnersSummary({ day, library }: { day: string; library: Librar
                 title={changes[number.key] ? `Changed: ${changeWords(changes[number.key])}` : undefined}
               >
                 <strong key={changes[number.key]?.to}>{number.value}</strong> {number.label.toLowerCase()}
-                {number.amount ? ` (${money(number.amount)})` : ''}
+                {number.amount || number.note ? ` (${[number.amount ? money(number.amount) : null, number.note].filter(Boolean).join(', ')})` : ''}
                 {changes[number.key] ? (
                   <span className="st-learners-summary__new">{signed(changes[number.key].to - changes[number.key].from)}</span>
                 ) : null}

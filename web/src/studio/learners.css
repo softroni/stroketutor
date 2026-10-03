@@ -2242,3 +2242,23 @@ a.st-learners__day-face:hover {
     margin-left: 0;
   }
 }
+
+/* A purchase whose renewal was turned off since (Apple, through Superwall). */
+.st-learners__purchase--off {
+  gap: 6px;
+  border-style: dashed;
+}
+
+.st-learners__purchase-off {
+  font-weight: 600;
+  color: var(--amber);
+}
+
+.st-learners__purchase--paid .st-learners__purchase-off {
+  color: #fff;
+  opacity: 0.85;
+}
+
+.st-learners__line--cancelled .st-learners__line-mark {
+  background: var(--amber);
+}
