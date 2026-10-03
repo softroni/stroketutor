@@ -346,6 +346,10 @@ size, and with Shorts at 2 views there was little to protect.
   call). Not planned: hour-long "relaxing drawing" loops (views without downloads) and behind-the-scenes videos
   (they reach developers, not buyers).
 
+Which day is which arm is in `docs/ops/social-experiments.json` (E1: the classic opening on Oct 7, 8, 11 and 12, the
+hook on every other day from Oct 5). `social next` reads it, and every post's record carries its `opening` and
+`experiments` arm (a re-post keeps its first post's), so the E1 read can split the posts by arm.
+
 **Later, if the numbers call for them:**
 - a pinned first comment on TikTok
 - step carousels (TikTok photo mode, Instagram)

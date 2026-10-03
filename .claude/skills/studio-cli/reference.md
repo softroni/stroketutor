@@ -304,12 +304,13 @@ Usage: studio lessons video <id>
 A vertical draw-along video of a lesson (1080 × 1920) for Shorts, TikTok and Reels: Lina’s opening line over the drawing coming together, every step with her recording, her closing line as stickers of the path’s next lessons land, and Paper Coach with the App Store badge as she says her last words.
 
 Options:
-      --out <file.mp4>   Where to write the video (default .studio/videos/<id>.mp4). A caption to post with it goes beside it as .txt.
-      --intro <words>    Lina’s opening line (default “Let’s draw a <lesson>. Grab a pencil and draw along with me.”). Spoken through the Studio in her cast voice, and reused once made.
-      --signoff <words>  Lina’s last words, after her closing line, as Paper Coach takes her place (default “Draw more with Paper Coach. It’s free on the App Store.”, “free to download” for a Premium lesson). Spoken like the opening line; "" for none.
-      --cta <words>      The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge).
-      --speed            The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4.
-      --stills <dir>     Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, Lina’s closing line, the ending), to check the look in seconds.
+      --out <file.mp4>          Where to write the video (default .studio/videos/<id>.mp4, <id>-hook.mp4 with the hook opening). A caption to post with it goes beside it as .txt.
+      --intro <words>           Lina’s opening line (default “Let’s draw a <lesson>. Grab a pencil and draw along with me.”). Spoken through the Studio in her cast voice, and reused once made.
+      --signoff <words>         Lina’s last words, after her closing line, as Paper Coach takes her place (default “Draw more with Paper Coach. It’s free on the App Store.”, “free to download” for a Premium lesson). Spoken like the opening line; "" for none.
+      --cta <words>             The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge).
+      --opening <classic|hook>  How the video opens: hook (the finished picture under “How to draw a <lesson>” and “N easy steps” from the first frame, drawn over at once; Paper Coach and the lesson’s place at the end) or classic (Paper Coach, the place and “Let’s draw a <lesson>”, the picture fading before the drawing). Default: the day’s, from docs/ops/social-experiments.json: the hook from 2026-10-05 except the days listed there for the classic opening.
+      --speed                   The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4 (<id>-speed-hook.mp4 with the hook).
+      --stills <dir>            Write PNG frames into this folder instead of the video (the opening, a line being drawn, a colour going in, Lina’s closing line, the ending), to check the look in seconds.
 
 Usage: studio steps list <id>
 
@@ -582,49 +583,52 @@ Usage: studio social post <id>
 Render a lesson’s video and post it to Softroni’s accounts through Upload-Post, with a caption, title and link made for each platform.
 
 Options:
-      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
-      --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
-      --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
-      --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
-      --dry-run           Show what each platform would be sent, and stop. Needs no key and renders nothing.
-      --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
-      --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
-      --no-pin            Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only).
-      --speed             Post the speed draw (about 20 s, as `lessons video --speed` makes it) instead of the whole lesson. No step pin goes with it.
-      --video <file.mp4>  Post this file instead of rendering the lesson now.
+      --platforms <list>        Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
+      --private                 A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
+      --at <time>               Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
+      --before-launch           Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
+      --dry-run                 Show what each platform would be sent, and stop. Needs no key and renders nothing.
+      --no-wait                 Return once Upload-Post has the video, without waiting for each platform to publish.
+      --log                     Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
+      --opening <classic|hook>  How the video opens: hook or classic (as `lessons video --opening`). Default: the day’s, from docs/ops/social-experiments.json, which keeps the tests of openings to their days; a lesson posted again keeps the opening it went out with. The record notes it.
+      --no-pin                  Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only).
+      --speed                   Post the speed draw (about 20 s, as `lessons video --speed` makes it) instead of the whole lesson. No step pin goes with it.
+      --video <file.mp4>        Post this file instead of rendering the lesson now.
 
 Usage: studio social next
 
 Post the next lesson in the queue (see `social queue`): what the daily job runs. Refuses a second post within 12 hours unless --again, so the job can’t post twice in a day.
 
 Options:
-      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
-      --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
-      --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
-      --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
-      --dry-run           Show what each platform would be sent, and stop. Needs no key and renders nothing.
-      --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
-      --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
-      --no-pin            Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only).
-      --again             Post even though a lesson went out in the last 12 hours.
+      --platforms <list>        Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
+      --private                 A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
+      --at <time>               Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
+      --before-launch           Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
+      --dry-run                 Show what each platform would be sent, and stop. Needs no key and renders nothing.
+      --no-wait                 Return once Upload-Post has the video, without waiting for each platform to publish.
+      --log                     Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
+      --opening <classic|hook>  How the video opens: hook or classic (as `lessons video --opening`). Default: the day’s, from docs/ops/social-experiments.json, which keeps the tests of openings to their days; a lesson posted again keeps the opening it went out with. The record notes it.
+      --no-pin                  Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only).
+      --again                   Post even though a lesson went out in the last 12 hours.
 
 Usage: studio social announce
 
 Release news to every platform: the speed draw of a lesson from the release, with words saying what’s new. Only once the version with it is on sale.
 
 Options:
-      --platforms <list>  Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
-      --private           A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
-      --at <time>         Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
-      --before-launch     Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
-      --dry-run           Show what each platform would be sent, and stop. Needs no key and renders nothing.
-      --no-wait           Return once Upload-Post has the video, without waiting for each platform to publish.
-      --log               Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
-      --lesson <id>       The lesson whose speed draw carries the news: the best of what’s new. It must be in the version on sale.
-      --news <words>      What’s new, in a sentence or two, as people would say it (“10 new lessons: draw your town, from a bus stop to a skyline.”).
-      --headline <words>  A short title for YouTube and Pinterest (“New: draw your town”).
-      --intro <words>     Lina’s opening line over the speed draw (default “Watch a … come together, one line at a time.”).
-      --video <file.mp4>  Post this file instead of rendering the speed draw now.
+      --platforms <list>        Only these, comma-separated (default UPLOAD_POST_PLATFORMS, else all: youtube, tiktok, instagram, facebook, threads, pinterest, x).
+      --private                 A test only the account sees: YouTube private, TikTok "only me", a Facebook draft. Instagram, Pinterest and X have no private post and are left out.
+      --at <time>               Publish at this time instead of now (ISO 8601 with an offset, e.g. 2026-10-02T17:00:00-05:00).
+      --before-launch           Post for everyone even though Paper Coach isn’t on sale yet (the video’s ending sends people to the App Store).
+      --dry-run                 Show what each platform would be sent, and stop. Needs no key and renders nothing.
+      --no-wait                 Return once Upload-Post has the video, without waiting for each platform to publish.
+      --log                     Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.
+      --opening <classic|hook>  How the video opens: hook or classic (as `lessons video --opening`). Default: the day’s, from docs/ops/social-experiments.json, which keeps the tests of openings to their days; a lesson posted again keeps the opening it went out with. The record notes it.
+      --lesson <id>             The lesson whose speed draw carries the news: the best of what’s new. It must be in the version on sale.
+      --news <words>            What’s new, in a sentence or two, as people would say it (“10 new lessons: draw your town, from a bus stop to a skyline.”).
+      --headline <words>        A short title for YouTube and Pinterest (“New: draw your town”).
+      --intro <words>           Lina’s opening line over the speed draw (default “Watch a … come together, one line at a time.”).
+      --video <file.mp4>        Post this file instead of rendering the speed draw now.
 
 Usage: studio social stats
 

@@ -1342,7 +1342,7 @@
       "options": [
         {
           "flag": "--out <file.mp4>",
-          "description": "Where to write the video (default .studio/videos/<id>.mp4). A caption to post with it goes beside it as .txt."
+          "description": "Where to write the video (default .studio/videos/<id>.mp4, <id>-hook.mp4 with the hook opening). A caption to post with it goes beside it as .txt."
         },
         {
           "flag": "--intro <words>",
@@ -1357,8 +1357,12 @@
           "description": "The line under Paper Coach at the end (default “Free · link in bio” beside the App Store badge)."
         },
         {
+          "flag": "--opening <classic|hook>",
+          "description": "How the video opens: hook (the finished picture under “How to draw a <lesson>” and “N easy steps” from the first frame, drawn over at once; Paper Coach and the lesson’s place at the end) or classic (Paper Coach, the place and “Let’s draw a <lesson>”, the picture fading before the drawing). Default: the day’s, from docs/ops/social-experiments.json: the hook from 2026-10-05 except the days listed there for the classic opening."
+        },
+        {
           "flag": "--speed",
-          "description": "The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4."
+          "description": "The speed draw instead (about 20 s): the whole picture drawn fast while Lina says a shorter opening line, then the ending. Default .studio/videos/<id>-speed.mp4 (<id>-speed-hook.mp4 with the hook)."
         },
         {
           "flag": "--stills <dir>",
@@ -1428,6 +1432,10 @@
           "description": "Add a line to the Today page’s log (docs/ops/today.py log) when the post is done."
         },
         {
+          "flag": "--opening <classic|hook>",
+          "description": "How the video opens: hook or classic (as `lessons video --opening`). Default: the day’s, from docs/ops/social-experiments.json, which keeps the tests of openings to their days; a lesson posted again keeps the opening it went out with. The record notes it."
+        },
+        {
           "flag": "--no-pin",
           "description": "Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only)."
         },
@@ -1475,6 +1483,10 @@
           "description": "Add a line to the Today page’s log (docs/ops/today.py log) when the post is done."
         },
         {
+          "flag": "--opening <classic|hook>",
+          "description": "How the video opens: hook or classic (as `lessons video --opening`). Default: the day’s, from docs/ops/social-experiments.json, which keeps the tests of openings to their days; a lesson posted again keeps the opening it went out with. The record notes it."
+        },
+        {
           "flag": "--no-pin",
           "description": "Leave out the step pin, which otherwise goes to Pinterest 4 hours after the video (paid plan only)."
         },
@@ -1516,6 +1528,10 @@
         {
           "flag": "--log",
           "description": "Add a line to the Today page’s log (docs/ops/today.py log) when the post is done."
+        },
+        {
+          "flag": "--opening <classic|hook>",
+          "description": "How the video opens: hook or classic (as `lessons video --opening`). Default: the day’s, from docs/ops/social-experiments.json, which keeps the tests of openings to their days; a lesson posted again keeps the opening it went out with. The record notes it."
         },
         {
           "flag": "--lesson <id>",

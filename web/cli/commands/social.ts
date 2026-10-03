@@ -5,6 +5,7 @@ import { appendFile, mkdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { promisify } from 'node:util'
 
+import { experimentsOn, openingFor, REGISTER_FILE } from '../../server/social/experiments'
 import {
   FINAL_STATUSES,
   announcementTexts,
@@ -57,7 +58,8 @@ import {
 import { lastLessonVideo, mayPost, PIN_DELAY_HOURS, POST_GAP_HOURS, postingQueue, stillToPost, tooSoonAfter } from '../../server/social/queue'
 import { UploadPostError, uploadPostClient, type PostMetrics, type UploadPostClient } from '../../server/social/uploadPost'
 import { pinPage } from '../../server/social/pin'
-import { FONT, ICON, readAsset, videoDefaults } from '../../server/video/render'
+import type { Opening } from '../../server/video/plan'
+import { FONT, ICON, openingOfVideo, readAsset, videoDefaults } from '../../server/video/render'
 import { colorOfPath, PATH_SWATCHES } from '../../src/catalog/pathColors'
 import type { Tutorial } from '../../src/schema/types'
 
@@ -66,7 +68,7 @@ import { command, type Command } from '../command'
 import type { Context } from '../context'
 import { CliError, plural, table } from '../output'
 
-import { renderVideo, shown, videoDeps } from './video'
+import { OPENING_OPTION, openingValue, renderVideo, shown, videoDeps } from './video'
 
 /**
  * `social …`: lesson videos posted to Softroni's accounts (YouTube Shorts,
@@ -268,6 +270,10 @@ const SHARED_OPTIONS = {
   'dry-run': { type: 'boolean', description: 'Show what each platform would be sent, and stop. Needs no key and renders nothing.' },
   'no-wait': { type: 'boolean', description: 'Return once Upload-Post has the video, without waiting for each platform to publish.' },
   log: { type: 'boolean', description: 'Add a line to the Today page’s log (docs/ops/today.py log) when the post is done.' },
+  opening: {
+    ...OPENING_OPTION,
+    description: `How the video opens: hook or classic (as \`lessons video --opening\`). Default: the day’s, from ${REGISTER_FILE}, which keeps the tests of openings to their days; a lesson posted again keeps the opening it went out with. The record notes it.`,
+  },
 } as const
 
 const LESSON_OPTIONS = {
@@ -305,6 +311,10 @@ interface PostOutcome {
   speed: boolean
   /** A 16:9 video (announce --wide). */
   wide: boolean
+  /** How the video opens, and the tests the post is part of with its arm (`SocialRecord`). A 16:9 video is made
+   * beforehand, so it is recorded with neither. */
+  opening: Opening
+  experiments: Record<string, string> | null
   platforms: Platform[]
   private: boolean
   dryRun: boolean
@@ -319,6 +329,50 @@ interface PostOutcome {
   pin: { texts: PinTexts; scheduledAt: string | null; jobId: string | null } | null
   usage: { count: number; limit: number } | null
   warnings: string[]
+}
+
+/**
+ * How a post's video opens, and the tests the post is part of with its arm.
+ * `--opening` when given; else a lesson posted again (to a platform that
+ * failed, say) keeps the opening its video first went out with, so a lesson
+ * is one video everywhere; else the day's, from the register. A post that
+ * reached no platform at all doesn't count as having gone out. The same
+ * video posted again keeps its first post's arm too, so the daily check's
+ * re-post after midnight counts in the test the day it belongs to, and a
+ * lesson from before a test never joins it. A file passed with `--video`
+ * whose name says the other opening (as `videoFile` names them) is refused,
+ * so a classic video is never posted and recorded as the hook, or the reverse.
+ */
+async function postOpening(
+  ctx: Context,
+  request: { lessonId: string; media: 'video' | 'speed'; purpose: 'lesson' | 'announce'; at: string | null; video: string | null; asked: Opening | undefined },
+): Promise<{ opening: Opening; experiments: Record<string, string> | null }> {
+  const { lessonId, media, purpose, video, asked } = request
+  const day = dayOf(request.at ?? new Date().toISOString())
+  const today = await openingFor(repoDirOf(ctx), day)
+  if (today.problem) ctx.out.warn(today.problem)
+  const wentOut = ({ status }: PostState) => !(status && FINAL_STATUSES.has(status.status) && !Object.values(status.results).some((result) => result.success))
+  // The lesson's first post that went out: postStates lists the newest first.
+  const first =
+    purpose === 'lesson'
+      ? postStates(await readRecords(ctx))
+          .reverse()
+          .find(
+            (state) => state.post.lessonId === lessonId && !state.post.private && (state.post.purpose ?? 'lesson') === 'lesson' && (state.post.media ?? 'video') === media && wentOut(state),
+          )
+      : undefined
+  const opening = asked ?? (first ? (first.post.opening ?? 'classic') : today.opening)
+  const why = asked ? 'as --opening says' : first ? `as it went out on ${dayOf(first.post.scheduledAt ?? first.post.at)}` : `the opening for ${day} (${REGISTER_FILE})`
+  const named = video ? openingOfVideo(video, lessonId) : null
+  if (video && named && named !== opening) {
+    throw new CliError(
+      `${path.basename(video)} has the ${named} opening, by its name, and this post takes the ${opening}, ${why}. ` +
+        (asked ? `Pass a video with the ${opening} opening, or leave out --video to render one.` : `Leave out --video to render it with the ${opening}, or pass --opening ${named} to post it as it is.`),
+    )
+  }
+  if (video && !named && !asked) ctx.out.note(`Recorded as the ${opening} opening (${why}); pass --opening if ${path.basename(video)} has the other.`)
+  const again = first !== undefined && opening === (first.post.opening ?? 'classic')
+  return { opening, experiments: again ? (first.post.experiments ?? null) : experimentsOn(day, today.register, opening) }
 }
 
 async function postLesson(ctx: Context, lessonId: string, values: Parsed['values'], known?: Curriculum, news?: Announcement): Promise<PostOutcome> {
@@ -371,6 +425,13 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   const at = stringValue(values, 'at') ?? null
   if (at && (Number.isNaN(Date.parse(at)) || Date.parse(at) <= Date.now())) throw new CliError(`--at ${at} isn’t a time in the future.`)
 
+  const media = speed ? ('speed' as const) : ('video' as const)
+  const given = stringValue(values, 'video') ?? null
+  // A 16:9 video is made beforehand: it has no opening of ours and takes part in no test.
+  const { opening, experiments } = wide
+    ? { opening: 'classic' as Opening, experiments: null }
+    : await postOpening(ctx, { lessonId, media, purpose, at, video: given, asked: openingValue(values) })
+
   const texts = news
     ? announcementTexts(news.news, news.headline, settings.providerToken, { wide, campaign: news.campaign ?? undefined })
     : socialTexts(lesson.tutorial, placeIn(lessons.order, lessonId, lessons.titles), settings.providerToken, accessOf(lessons, lessonId))
@@ -398,6 +459,8 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     purpose,
     speed,
     wide,
+    opening,
+    experiments,
     platforms,
     private: isPrivate,
     dryRun,
@@ -452,14 +515,14 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   // The thumbnail is for YouTube (X takes one too); the subtitles only for YouTube.
   const files = extras.filter((extra) => (extra.field === 'thumbnail' ? platforms.includes('youtube') || platforms.includes('x') : platforms.includes('youtube')))
 
-  let video = stringValue(values, 'video') ?? null
+  let video = given
   if (video) {
     if (!existsSync(video)) throw new CliError(`There is no file ${video}.`)
   } else {
     const missing = await unrecorded(ctx, lessonId)
     if (missing.length > 0) throw new CliError(`Lina hasn’t recorded ${plural(missing.length, 'step')} of “${lesson.tutorial.title}” (${missing.join(', ')}): \`voice narrate ${lessonId}\` first.`)
-    ctx.out.note(`Rendering the ${speed ? 'speed draw' : 'video'} of “${lesson.tutorial.title}”…`)
-    const rendered = await renderVideo(ctx, { lessonId, speed, intro: news?.intro ?? null })
+    ctx.out.note(`Rendering the ${speed ? 'speed draw' : 'video'} of “${lesson.tutorial.title}” with the ${opening} opening…`)
+    const rendered = await renderVideo(ctx, { lessonId, speed, intro: news?.intro ?? null, opening })
     video = rendered.file!
   }
   outcome.video = video
@@ -473,8 +536,10 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
     private: isPrivate,
     requestId,
     scheduledAt: at,
-    media: wide ? ('wide' as const) : speed ? ('speed' as const) : ('video' as const),
+    media: wide ? ('wide' as const) : media,
     purpose,
+    ...(wide ? {} : { opening }),
+    ...(experiments ? { experiments } : {}),
     // A file made beforehand (a what's-new video), so the Social page knows it has gone out.
     ...(stringValue(values, 'video') ? { video: path.resolve(video) } : {}),
   }
@@ -606,9 +671,14 @@ function whatWent(outcome: PostOutcome): string {
 
 const indented = (value: string) => (value.includes('\n') ? `\n    ${value.split('\n').join('\n    ')}` : value)
 
+/** The opening, and the tests the post is an arm of: "(hook opening, E1)". */
+function openingWords(outcome: PostOutcome): string {
+  return `(${[`${outcome.opening} opening`, ...Object.keys(outcome.experiments ?? {})].join(', ')})`
+}
+
 function describePost(outcome: PostOutcome): string[] {
   if (outcome.dryRun) {
-    const lines = [`Would post ${whatWent(outcome)} to ${outcome.platforms.join(', ')}${outcome.private ? ' (private)' : ''}. The fields, as sent:`]
+    const lines = [`Would post ${whatWent(outcome)} ${openingWords(outcome)} to ${outcome.platforms.join(', ')}${outcome.private ? ' (private)' : ''}. The fields, as sent:`]
     for (const [name, values] of Object.entries(outcome.fields ?? {})) {
       for (const value of values) lines.push(`  ${name}: ${indented(value)}`)
     }
@@ -619,8 +689,8 @@ function describePost(outcome: PostOutcome): string[] {
     return lines
   }
   const head = outcome.scheduledAt
-    ? `Scheduled ${whatWent(outcome)} for ${outcome.scheduledAt} on ${outcome.platforms.join(', ')} (job ${outcome.jobId}).`
-    : `Posted ${whatWent(outcome)}${outcome.private ? ' privately' : ''}: ${outcome.status}.`
+    ? `Scheduled ${whatWent(outcome)} ${openingWords(outcome)} for ${outcome.scheduledAt} on ${outcome.platforms.join(', ')} (job ${outcome.jobId}).`
+    : `Posted ${whatWent(outcome)} ${openingWords(outcome)}${outcome.private ? ' privately' : ''}: ${outcome.status}.`
   const pin = outcome.pin?.scheduledAt ? [`The step pin goes to Pinterest at ${outcome.pin.scheduledAt}.`] : []
   const usage = outcome.usage ? [`Upload-Post uploads this month: ${outcome.usage.count} of ${outcome.usage.limit}.`] : []
   return [head, ...(outcome.scheduledAt ? [] : resultLines(outcome.results, outcome.platforms)), ...pin, ...usage]
@@ -630,7 +700,13 @@ function describePost(outcome: PostOutcome): string[] {
 function logLine(outcome: PostOutcome): string {
   const done = Object.entries(outcome.results).filter(([, result]) => result.success).map(([platform]) => platform)
   const failed = Object.entries(outcome.results).filter(([, result]) => !result.success).map(([platform]) => platform)
-  const what = outcome.wide ? `16:9 video (“${outcome.title}”)` : outcome.purpose === 'announce' ? `News (“${outcome.title}”)` : `“${outcome.title}”${outcome.speed ? ' speed draw' : ''}`
+  // The arm, while a test runs, so the log reads as the test's days: "“Donut” (hook)".
+  const arm = outcome.experiments ? ` (${outcome.opening})` : ''
+  const what = outcome.wide
+    ? `16:9 video (“${outcome.title}”)`
+    : outcome.purpose === 'announce'
+      ? `News (“${outcome.title}”)${arm}`
+      : `“${outcome.title}”${outcome.speed ? ' speed draw' : ''}${arm}`
   if (outcome.scheduledAt) return `Social: ${what} scheduled for ${outcome.scheduledAt.slice(0, 16).replace('T', ' ')}.`
   const where = done.length ? ` on ${done.join(', ')}` : ''
   const problems = failed.length ? `; failed on ${failed.join(', ')}` : outcome.status !== 'completed' ? ` (${outcome.status})` : ''

@@ -1,4 +1,5 @@
 import type { Tutorial } from '../../src/schema/types'
+import type { VideoOpening } from '../../src/video/types'
 import { OUTRO_ID } from '../../src/voice/bookends'
 
 import { estimateWords, type TimedWord } from './words'
@@ -12,7 +13,11 @@ import { estimateWords, type TimedWord } from './words'
  *
  * 1. **The opening.** The finished picture, then the whole lesson drawn fast
  *    while Lina says one line of invitation ("Let's draw a rocket. Grab a
- *    pencil and draw along with me.").
+ *    pencil and draw along with me."). It comes two ways (`Opening`): the
+ *    classic one, under Paper Coach, the lesson's place and "Let's draw a
+ *    rocket", the picture fading out before the drawing; or the hook, which
+ *    from the first frame says what it is ("How to draw a rocket", "6 easy
+ *    steps") over the picture in color and starts drawing over it at once.
  * 2. **Every step** at the lesson's own pace: Lina starts its recording, the
  *    lines follow a moment later, and the step lasts as long as the longer of
  *    the two, plus a short beat.
@@ -31,6 +36,19 @@ export interface Clip {
   words?: TimedWord[]
 }
 
+/**
+ * How the video opens (social-plan.md, *Growth*, E1). `classic`: Paper Coach,
+ * the lesson's place and "Let's draw a rocket" over the finished picture,
+ * which fades out before the lesson is drawn fast. `hook`: from the very first
+ * frame the finished picture in color under a large "How to draw a rocket" and
+ * "6 easy steps", the drawing starting over it at once with no blank card in
+ * between; Paper Coach comes in with step 1, and the lesson's place moves to
+ * the ending, above "Now draw it yourself". Lina's words, the steps and the
+ * ending's call to action are the same either way.
+ */
+export type Opening = VideoOpening
+export const OPENINGS: readonly Opening[] = ['classic', 'hook']
+
 export interface VideoInput {
   tutorial: Tutorial
   /** Each step's recording by step id, and the closing line under `lesson-outro`. A step without one is silent. */
@@ -47,6 +65,8 @@ export interface VideoInput {
   stickers: number
   /** The speed draw: the opening draws the whole picture in about `SPEED_DRAW` seconds, then straight to the ending. */
   speed?: boolean
+  /** How it opens; classic when absent. */
+  opening?: Opening
 }
 
 export type Segment =
@@ -75,11 +95,28 @@ export interface VideoPlan {
   segments: Segment[]
   captions: Caption[]
   cues: Cue[]
-  /** The opening's fast drawing: the finished picture until `hold`, then everything drawn from `drawFrom` at `speed` × the lesson's pace. */
-  hook: { hold: number; drawFrom: number; speed: number }
+  /**
+   * The opening's fast drawing: the finished picture alone until `hold`, then
+   * fading over `fade` seconds to `floor` of its strength (to nothing in the
+   * classic opening, to a faint guide under the lines in the hook), and
+   * everything drawn from `drawFrom` at `speed` × the lesson's pace.
+   */
+  fastDraw: { hold: number; fade: number; floor: number; drawFrom: number; speed: number }
   total: number
-  /** What the page shows, as HTML with every piece of text escaped. */
-  text: { introChip: string; introTitle: string; outroTitle: string; cta: string }
+  /**
+   * What the page shows, as HTML with every piece of text escaped: the
+   * classic opening's label and title (empty in the hook), the hook's title
+   * and second line (null in the classic opening), and the ending's label
+   * (the lesson's place, in the hook), title and call to action.
+   */
+  text: {
+    introChip: string
+    introTitle: string
+    hook: { title: string; steps: string } | null
+    outroChip: string
+    outroTitle: string
+    cta: string
+  }
 }
 
 export const DEFAULT_CTA = 'Free on the App Store · link in bio'
@@ -115,7 +152,17 @@ const OUTRO_HOLD = 1.6
 /** The first sticker lands this long into the ending, and each next one this long after the one before. */
 const STICKERS_AT = 0.6
 const STICKER_EVERY = 0.32
-const HOOK = { hold: 0.8, drawFrom: 1.1, tail: 0.8 }
+/**
+ * The opening's fast drawing, by opening (`VideoPlan.fastDraw`), and how long
+ * the finished drawing is held after it before step 1. The classic opening
+ * shows the picture for 0.8 s and fades it to an empty card before drawing;
+ * the hook starts drawing at 0.3 s as the picture fades to a faint guide, so
+ * the pencil moves within the first second and the card is never blank.
+ */
+const FAST_DRAW: Record<Opening, { hold: number; fade: number; floor: number; drawFrom: number; tail: number }> = {
+  classic: { hold: 0.8, fade: 0.25, floor: 0, drawFrom: 1.1, tail: 0.8 },
+  hook: { hold: 0.3, fade: 0.4, floor: 0.2, drawFrom: 0.3, tail: 0.8 },
+}
 /** How long the whole picture takes to draw in a speed draw (less when the lesson itself is quicker). */
 export const SPEED_DRAW = 8
 
@@ -125,10 +172,12 @@ export function planVideo(input: VideoInput): VideoPlan {
   const captions: Caption[] = []
   const cues: Cue[] = []
 
+  const opening = input.opening ?? 'classic'
+  const draw = FAST_DRAW[opening]
   const all = tutorial.steps.reduce((sum, step) => sum + stepSeconds(step), 0)
   // A speed draw holds the opening until the picture has had SPEED_DRAW seconds to draw itself.
   const spoken = INTRO_VOICE_AT + intro.durationS + INTRO_TAIL
-  const introEnd = input.speed ? Math.max(spoken, HOOK.drawFrom + Math.min(SPEED_DRAW, all) + HOOK.tail) : spoken
+  const introEnd = input.speed ? Math.max(spoken, draw.drawFrom + Math.min(SPEED_DRAW, all) + draw.tail) : spoken
   segments.push({ kind: 'intro', start: 0, end: introEnd })
   cues.push({ key: 'intro', at: INTRO_VOICE_AT })
   captions.push(...captionsFor(intro, INTRO_VOICE_AT, 0, introEnd))
@@ -166,23 +215,37 @@ export function planVideo(input: VideoInput): VideoPlan {
   segments.push({ kind: 'outro', start: t, end, swapAt, stickersAt })
 
   // As fast as it takes to finish with a moment to spare before step 1, and never slower than the lesson itself.
-  const window = Math.max(1, introEnd - HOOK.tail - HOOK.drawFrom)
-  const hook = { hold: HOOK.hold, drawFrom: HOOK.drawFrom, speed: Math.max(1, all / window) }
+  const window = Math.max(1, introEnd - draw.tail - draw.drawFrom)
+  const fastDraw = { hold: draw.hold, fade: draw.fade, floor: draw.floor, drawFrom: draw.drawFrom, speed: Math.max(1, all / window) }
 
   const { article, subject } = subjectOf(tutorial.title)
+  const what = `${article ? `${article} ` : ''}<em>${escapeHtml(subject)}</em>`
+  const place = input.place ? escapeHtml(`${input.place.pathTitle} · Lesson ${input.place.number} of ${input.place.count}`) : null
+  const lines = lineSteps(tutorial)
+  const hook = opening === 'hook'
   return {
     segments,
     captions,
     cues,
-    hook,
+    fastDraw,
     total: end,
     text: {
-      introChip: escapeHtml(input.place ? `${input.place.pathTitle} · Lesson ${input.place.number} of ${input.place.count}` : 'Paper Coach'),
-      introTitle: `Let’s draw ${article ? `${article} ` : ''}<em>${escapeHtml(subject)}</em>`,
+      introChip: hook ? '' : (place ?? 'Paper Coach'),
+      introTitle: hook ? '' : `Let’s draw ${what}`,
+      hook: hook ? { title: `How to draw ${what}`, steps: lines > 0 ? `${lines} easy ${lines === 1 ? 'step' : 'steps'}` : '' } : null,
+      outroChip: hook ? (place ?? '') : '',
       outroTitle: 'Now draw it <em>yourself</em><small>One line at a time, at your own pace</small>',
       cta: escapeHtml(input.cta),
     },
   }
+}
+
+/**
+ * The steps with lines to draw: what "N easy steps" counts, in the captions
+ * and in the hook. Colouring in comes after them ("…, then color it in").
+ */
+export function lineSteps(tutorial: Pick<Tutorial, 'steps'>): number {
+  return tutorial.steps.filter((step) => step.strokes.length > 0).length
 }
 
 /** A step's lines and colours, one after another, at the lesson's pace. */
@@ -355,7 +418,7 @@ export function stickerLessons(paths: { lessonIds: string[] }[], lessonId: strin
 /** A caption to post with the video: what it is, what the app does, and a few tags. */
 export function postCaption(tutorial: Tutorial, place: VideoInput['place']): string {
   const { article, subject } = subjectOf(tutorial.title)
-  const lines = tutorial.steps.filter((step) => step.strokes.length > 0).length
+  const lines = lineSteps(tutorial)
   const tags = ['#howtodraw', '#easydrawing', '#drawwithme', '#drawingtutorial', '#stepbystep', `#${tutorial.id.replace(/-/g, '')}`, '#papercoach']
   return [
     `Let’s draw ${article ? `${article} ` : ''}${subject}: ${lines} easy ${lines === 1 ? 'step' : 'steps'}, then color it in.`,
@@ -380,7 +443,7 @@ export function stillMoments(plan: VideoPlan, tutorial: Tutorial): { name: strin
   const landed = (outro.stickersAt[outro.stickersAt.length - 1] ?? outro.start + 0.5) + 0.7
   return [
     { name: 'opening', at: 0.2 },
-    { name: 'opening-drawing', at: plan.hook.drawFrom + (plan.segments[0].end - plan.hook.drawFrom) / 2 },
+    { name: 'opening-drawing', at: plan.fastDraw.drawFrom + (plan.segments[0].end - plan.fastDraw.drawFrom) / 2 },
     ...(lineStep ? [{ name: 'line', at: middle(lineStep) }] : []),
     ...(colourStep ? [{ name: 'colour', at: middle(colourStep) }] : []),
     { name: 'closing', at: Math.min(landed, outro.swapAt - 0.05) },

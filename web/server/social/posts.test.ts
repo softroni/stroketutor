@@ -231,6 +231,15 @@ describe('posts by day', () => {
     ])
   })
 
+  it('keeps the opening and the test’s arm in the repo’s copy, for the scorecard, and nothing on records from before', () => {
+    const hook = sent('hook', '2026-10-06T22:00:00Z', { opening: 'hook', experiments: { E1: 'hook' } })
+    const [entry] = postsByDay([hook, finished('hook')])[0].posts
+    expect(entry).toMatchObject({ requestId: 'hook', day: '2026-10-06', opening: 'hook', experiments: { E1: 'hook' } })
+    const [before] = postsByDay([sent('first', '2026-10-01T04:12:01Z'), finished('first')])[0].posts
+    expect(before).not.toHaveProperty('opening')
+    expect(before).not.toHaveProperty('experiments')
+  })
+
   it('groups the repo’s copy, kept a post a line in the order each finished, the same way', () => {
     const kept = (requestId: string, day: string, at: string): PostEntry => ({
       day, at, requestId, lessonId: 'pine-tree', media: 'video', purpose: 'lesson', private: false, status: 'completed', platforms: [],

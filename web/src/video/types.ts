@@ -14,8 +14,13 @@ export interface VideoProgress {
   message: string
 }
 
+/** How a video opens (server/video/plan.ts, `Opening`): the classic opening, or the hook. */
+export type VideoOpening = 'classic' | 'hook'
+
 export interface VideoResult {
   lessonId: string
+  /** How it opens. */
+  opening: VideoOpening
   /** The video, or null when stills were asked for. */
   file: string | null
   captionFile: string | null
@@ -45,6 +50,8 @@ export interface VideoDefaults {
   signoff: string
   /** The default line under Paper Coach at the end. */
   cta: string
+  /** How a video made now opens: the day's opening, as the posts have it (docs/ops/social-experiments.json). */
+  opening: VideoOpening
   /** True when the App Store badge is in the repository and goes beside the call to action. */
   badge: boolean
   /** Steps Lina has not recorded; a video needs every one. */
@@ -52,8 +59,8 @@ export interface VideoDefaults {
   /** Recordings whose words have changed since; the video uses them as they are. */
   stale: string[]
   caption: string
-  /** The last video made of this lesson, in .studio/videos. */
-  video: { file: string; bytes: number; modifiedAt: string } | null
+  /** The last video made of this lesson, in .studio/videos, of either opening. */
+  video: { file: string; bytes: number; modifiedAt: string; opening: VideoOpening } | null
 }
 
 export type VideoJobState = 'queued' | 'running' | 'done' | 'failed' | 'stopped'

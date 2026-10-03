@@ -57,7 +57,8 @@ import {
   type VoiceDeps,
 } from './voice'
 import { createVideoJobs, type VideoJobs } from './video/jobs'
-import { videoDefaults, videoFile, type VideoDeps } from './video/render'
+import { OPENINGS, type Opening } from './video/plan'
+import { latestVideo, videoDefaults, videoFile, type VideoDeps } from './video/render'
 import { openWorkspace, type Workspace } from './workspaceStore'
 
 /**
@@ -758,12 +759,17 @@ async function handleVideo(
       if (typeof value !== 'string' || value.length > 300) throw new WriteRefused(422, `${what} must be text of at most 300 characters.`)
       return value
     }
+    // The day's opening unless the page names one (server/social/experiments.ts).
+    if (body.opening !== undefined && body.opening !== null && !OPENINGS.includes(body.opening as Opening)) {
+      throw new WriteRefused(422, `The opening is ${OPENINGS.join(' or ')}.`)
+    }
     const job = videos.start(
       {
         lessonId: id,
         intro: words(body.intro, 'The opening line'),
         signoff: words(body.signoff, 'Lina’s last words'),
         cta: words(body.cta, 'The call to action'),
+        opening: (body.opening as Opening | undefined) ?? null,
       },
       async () => deps,
     )
@@ -771,7 +777,10 @@ async function handleVideo(
     return true
   }
   if (group === 'lessons' && parts.length === 3 && action === 'file' && method === 'GET') {
-    await sendVideo(req, res, videoFile(id, deps), url.searchParams.has('download') ? `${id}.mp4` : null)
+    // `?opening=` picks one of the lesson's two videos; without it, the one made last.
+    const asked = url.searchParams.get('opening') as Opening | null
+    const file = asked && OPENINGS.includes(asked) ? videoFile(id, deps, { opening: asked }) : ((await latestVideo(id, deps))?.file ?? videoFile(id, deps))
+    await sendVideo(req, res, file, url.searchParams.has('download') ? path.basename(file) : null)
     return true
   }
   if (group === 'jobs' && parts.length === 2) {

@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { dayOf } from '../server/social/posts'
 import { fakeConverter, startFakeTts, type FakeTts } from '../server/testing'
 
 import { openTestStudio, type TestStudio } from './testing'
@@ -284,6 +285,135 @@ describe('social post', () => {
   })
 })
 
+describe('the opening (E1)', () => {
+  const today = dayOf(new Date().toISOString())
+  /** docs/ops/social-experiments.json in the scratch repository, giving today to one arm of E1. */
+  const register = async (arm: 'classic' | 'hook') => {
+    await mkdir(path.join(t.root, 'docs', 'ops'), { recursive: true })
+    await writeFile(path.join(t.root, 'docs', 'ops', 'social-experiments.json'), JSON.stringify({ E1: { [arm]: [today] } }))
+  }
+
+  it('posts the day’s opening from the register, and notes it with the test’s arm on the record', async () => {
+    await register('classic')
+    const classic = await t.studio(['social', 'post', 'simple-house', '--private', '--video', path.join(t.root, 'clip.mp4'), '--no-wait'])
+    expect(classic.code).toBe(0)
+    expect(classic.stdout).toContain('Posted the “Simple House” video (classic opening, E1) privately')
+    await register('hook')
+    expect((await t.studio(['social', 'post', 'simple-house', '--private', '--video', path.join(t.root, 'clip.mp4'), '--no-wait'])).code).toBe(0)
+    const posts = (await records()).filter((line) => line.kind === 'post')
+    expect(posts.map((post) => [post.opening, post.experiments])).toEqual([
+      ['classic', { E1: 'classic' }],
+      ['hook', { E1: 'hook' }],
+    ])
+  })
+
+  it('leaves the test off the record outside its days', async () => {
+    await mkdir(path.join(t.root, 'docs', 'ops'), { recursive: true })
+    await writeFile(path.join(t.root, 'docs', 'ops', 'social-experiments.json'), JSON.stringify({ E1: { classic: ['2020-01-01'] } }))
+    expect((await t.studio(['social', 'post', 'simple-house', '--private', '--video', path.join(t.root, 'clip.mp4'), '--no-wait'])).code).toBe(0)
+    const [post] = await records()
+    expect(post.opening).toBe(today >= '2026-10-05' ? 'hook' : 'classic')
+    expect(post).not.toHaveProperty('experiments')
+  })
+
+  it('never posts a video whose name says the other opening, unless told it is the one to post', async () => {
+    await register('hook')
+    const classicFile = path.join(t.root, 'simple-house.mp4')
+    await writeFile(classicFile, 'a classic video')
+    const refused = await t.studio(['social', 'post', 'simple-house', '--private', '--video', classicFile])
+    expect(refused.code).toBe(1)
+    expect(refused.stderr).toContain('simple-house.mp4 has the classic opening, by its name, and this post takes the hook')
+    expect(refused.stderr).toContain('--opening classic')
+    expect(calls).toEqual([])
+
+    const asked = await t.studio(['social', 'post', 'simple-house', '--private', '--video', classicFile, '--opening', 'classic', '--no-wait'])
+    expect(asked.code).toBe(0)
+    expect((await records())[0]).toMatchObject({ opening: 'classic', experiments: { E1: 'classic' } })
+
+    const hookFile = path.join(t.root, 'simple-house-hook.mp4')
+    await writeFile(hookFile, 'a hook video')
+    const mismatched = await t.studio(['social', 'post', 'simple-house', '--private', '--video', hookFile, '--opening', 'classic'])
+    expect(mismatched.code).toBe(1)
+    expect(mismatched.stderr).toContain('simple-house-hook.mp4 has the hook opening, by its name, and this post takes the classic')
+  })
+
+  /** Earlier posts of Simple House that went out, oldest first, in the scratch repository's record. */
+  const postedBefore = async (...posts: { at: string; opening?: string; experiments?: Record<string, string> }[]) => {
+    await mkdir(path.join(t.root, '.studio', 'social'), { recursive: true })
+    const lines = posts.map((post, index) => ({
+      kind: 'post', lessonId: 'simple-house', profile: 'softroni', platforms: ['youtube'], private: false, requestId: `r${index + 1}`, outcome: 'sent', media: 'video', purpose: 'lesson', ...post,
+    }))
+    await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), lines.map((line) => `${JSON.stringify(line)}\n`).join(''))
+  }
+  const postedAgain = (argv = '') =>
+    t.json<{ opening: string; experiments: Record<string, string> | null }>(`social post simple-house --platforms tiktok --dry-run ${argv}`.trim())
+
+  it('keeps the opening and the arm a lesson first went out with when it is posted again', async () => {
+    await register('classic')
+    await postedBefore({ at: '2026-10-06T22:00:00Z', opening: 'hook', experiments: { E1: 'hook' } })
+    const again = await postedAgain()
+    expect([again.opening, again.experiments]).toEqual(['hook', { E1: 'hook' }])
+    // Its speed draw, never posted, takes the day's.
+    expect((await t.json<{ opening: string }>('social post simple-house --speed --dry-run')).opening).toBe('classic')
+  })
+
+  it('counts a re-post in the test its first post was in, never in one it wasn’t', async () => {
+    // Posted again after the test's last day (the daily check's re-post after midnight): still that day's arm.
+    await mkdir(path.join(t.root, 'docs', 'ops'), { recursive: true })
+    await writeFile(path.join(t.root, 'docs', 'ops', 'social-experiments.json'), JSON.stringify({ E1: { classic: ['2020-01-01'] } }))
+    await postedBefore({ at: '2020-01-01T23:00:00Z', opening: 'classic', experiments: { E1: 'classic' } })
+    expect(await postedAgain()).toMatchObject({ opening: 'classic', experiments: { E1: 'classic' } })
+    // A lesson that went out before the test, posted again while it runs, stays out of it.
+    await register('classic')
+    await postedBefore({ at: '2026-09-30T22:00:00Z' })
+    expect(await postedAgain()).toMatchObject({ opening: 'classic', experiments: null })
+  })
+
+  it('takes the opening of the lesson’s first post, not of a later one made by hand', async () => {
+    await register('classic')
+    await postedBefore({ at: '2026-10-06T22:00:00Z', opening: 'hook', experiments: { E1: 'hook' } }, { at: '2026-10-07T22:00:00Z', opening: 'classic', experiments: { E1: 'classic' } })
+    expect(await postedAgain()).toMatchObject({ opening: 'hook', experiments: { E1: 'hook' } })
+    // The other opening, asked for, is a new video: the day's arm.
+    expect(await postedAgain('--opening classic')).toMatchObject({ opening: 'classic', experiments: { E1: 'classic' } })
+  })
+
+  it('takes the day’s opening for a lesson whose earlier post reached no platform', async () => {
+    await register('classic')
+    await mkdir(path.join(t.root, '.studio', 'social'), { recursive: true })
+    const failed = [
+      { kind: 'post', at: '2026-10-06T22:00:00Z', lessonId: 'simple-house', profile: 'softroni', platforms: ['youtube'], private: false, requestId: 'r1', outcome: 'sent', media: 'video', purpose: 'lesson', opening: 'hook' },
+      { kind: 'status', at: '2026-10-06T22:05:00Z', requestId: 'r1', status: 'failed', results: { youtube: { success: false, error: 'Token expired' } } },
+    ]
+    await writeFile(path.join(t.root, '.studio', 'social', 'posts.jsonl'), failed.map((line) => `${JSON.stringify(line)}\n`).join(''))
+    expect((await t.json<{ opening: string }>('social post simple-house --dry-run')).opening).toBe('classic')
+  })
+
+  it('opens the next lesson as the register says for the day', async () => {
+    await register('classic')
+    expect((await t.studio('voice cast house-chatterbox')).code).toBe(0)
+    expect((await t.studio('voice narrate simple-house')).code).toBe(0)
+    const outcome = await t.studio('social next --dry-run')
+    expect(outcome.stdout).toContain('Would post the “Simple House” video (classic opening, E1) to')
+    await register('hook')
+    const next = await t.json<{ lessonId: string; opening: string; experiments: Record<string, string> }>('social next --dry-run')
+    expect([next.lessonId, next.opening, next.experiments]).toEqual(['simple-house', 'hook', { E1: 'hook' }])
+  })
+
+  it('warns and still posts when the register can’t be read', async () => {
+    await mkdir(path.join(t.root, 'docs', 'ops'), { recursive: true })
+    await writeFile(path.join(t.root, 'docs', 'ops', 'social-experiments.json'), '{ "E1": ')
+    const outcome = await t.studio('social post simple-house --dry-run')
+    expect(outcome.code).toBe(0)
+    expect(outcome.stderr).toContain('docs/ops/social-experiments.json: it isn’t JSON')
+  })
+
+  it('takes only the openings there are', async () => {
+    const outcome = await t.studio('social post simple-house --dry-run --opening teaser')
+    expect(outcome.code).toBe(2)
+    expect(outcome.stderr).toContain('--opening is classic or hook, not “teaser”')
+  })
+})
+
 describe('the version on sale', () => {
   it('posts only lessons in the catalog of the tagged build on sale, in its order', async () => {
     // Tag a build whose catalog has no Cars path, then put the working catalog back as it was.
@@ -370,7 +500,11 @@ describe('social announce', () => {
     expect(upload.fields!.external_id).toEqual(['paper-coach/simple-house/wide'])
     expect(upload.video).toBe('clip.mp4')
     expect(upload.extras).toEqual(['thumb.png', 'captions.srt'])
-    expect((await records())[0]).toMatchObject({ kind: 'post', purpose: 'announce', media: 'wide' })
+    const record = (await records())[0]
+    expect(record).toMatchObject({ kind: 'post', purpose: 'announce', media: 'wide' })
+    // Made beforehand: no opening of ours, and no part in a test of openings.
+    expect(record).not.toHaveProperty('opening')
+    expect(record).not.toHaveProperty('experiments')
   })
 
   it('posts a wide video only from a file', async () => {

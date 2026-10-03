@@ -15,13 +15,15 @@ import { INTRO_ID, OUTRO_ID } from '../../src/voice/bookends'
 import type { VideoDefaults, VideoProgress, VideoResult, VideoStage } from '../../src/video/types'
 import type { StepNarration } from '../../src/voice/types'
 import { WriteRefused } from '../repoWriter'
-import { FREE_LESSONS_PER_PATH } from '../social/posts'
+import { openingFor } from '../social/experiments'
+import { dayOf, FREE_LESSONS_PER_PATH } from '../social/posts'
 import { lessonNarration, readTakeAudio, say, type VoiceDeps } from '../voice'
 
 import { FRAME, videoPage } from './page'
 import {
   DEFAULT_CTA,
   DEFAULT_CTA_WITH_BADGE,
+  OPENINGS,
   SIGNOFF_ID,
   defaultIntro,
   defaultSpeedIntro,
@@ -31,6 +33,7 @@ import {
   stickerLessons,
   stillMoments,
   type Clip,
+  type Opening,
   type VideoInput,
   type VideoPlan,
 } from './plan'
@@ -39,7 +42,8 @@ import { alignWords, hearRecordings } from './words'
 /**
  * A lesson as a vertical draw-along video (1080 × 1920, 30 fps, H.264 and
  * AAC), for YouTube Shorts, TikTok and Instagram Reels. One function behind
- * both `studio lessons video` and the lesson page's Video tab.
+ * both `studio lessons video` and the lesson page's Video tab. It opens the
+ * classic way or with the hook (plan.ts, `Opening`), each to its own file.
  *
  * It uses the lesson as it stands in the workspace and Lina's recordings as
  * the Voice section has them, so a draft can be filmed as well as a published
@@ -71,12 +75,14 @@ export interface VideoRequest {
   signoff?: string | null
   /** The line under Paper Coach at the end. */
   cta?: string | null
-  /** The video file; `<videosDir>/<lesson>.mp4` when absent. The post caption goes beside it as `.txt`. */
+  /** The video file; `videoFile` when absent (`<videosDir>/<lesson>.mp4` for the classic opening). The post caption goes beside it as `.txt`. */
   out?: string | null
   /** Instead of the video, write a few PNG frames here: the opening, a line, a colour, the ending. */
   stillsDir?: string | null
   /** The speed draw (about 20 s): the whole picture drawn fast, then the ending. Goes to `<lesson>-speed.mp4` by default. */
   speed?: boolean
+  /** How it opens (plan.ts, `Opening`); the day's opening when absent, as `social next` would post it (server/social/experiments.ts). */
+  opening?: Opening | null
 }
 
 export type { VideoDefaults, VideoProgress, VideoResult, VideoStage }
@@ -90,16 +96,51 @@ export const ICON = 'PaperCoach/Assets.xcassets/AppIcon.appiconset/AppIcon.png'
 /** The lessons' illustrations, the App Store screenshots' stickers. */
 const REFERENCES = 'shared/Assets/References'
 
-export function videoFile(lessonId: string, deps: Pick<VideoDeps, 'videosDir'>): string {
-  return path.join(deps.videosDir, `${lessonId}.mp4`)
+/**
+ * Where a video goes unless the request names a file: `<lesson>.mp4`, with
+ * `-speed` for the speed draw and `-hook` for the hook opening
+ * (`rocket-speed-hook.mp4`). The classic opening keeps the names videos had
+ * before there was another, so every older file is what its name says, and a
+ * video made with one opening is never taken for the other.
+ */
+export function videoFile(lessonId: string, deps: Pick<VideoDeps, 'videosDir'>, { speed = false, opening = 'classic' }: { speed?: boolean; opening?: Opening } = {}): string {
+  return path.join(deps.videosDir, `${lessonId}${speed ? '-speed' : ''}${opening === 'hook' ? '-hook' : ''}.mp4`)
+}
+
+/** The opening the name of one of the lesson's videos says it has, as `videoFile` names them; null for any other name. */
+export function openingOfVideo(file: string, lessonId: string): Opening | null {
+  const name = path.basename(file)
+  if (!name.startsWith(lessonId)) return null
+  const rest = name.slice(lessonId.length)
+  if (rest === '-hook.mp4' || rest === '-speed-hook.mp4') return 'hook'
+  if (rest === '.mp4' || rest === '-speed.mp4') return 'classic'
+  return null
+}
+
+/** The lesson's last whole video in `videosDir`, of either opening: the newer when both have been made. */
+export async function latestVideo(lessonId: string, deps: Pick<VideoDeps, 'videosDir'>): Promise<VideoDefaults['video']> {
+  const made = await Promise.all(
+    OPENINGS.map(async (opening) => {
+      const file = videoFile(lessonId, deps, { opening })
+      const info = await stat(file).catch(() => null)
+      return info ? { file, bytes: info.size, modifiedAt: info.mtime.toISOString(), opening, at: info.mtimeMs } : null
+    }),
+  )
+  const newest = made.filter((video) => video !== null).sort((a, b) => b.at - a.at)[0]
+  if (!newest) return null
+  const { at: _at, ...video } = newest
+  return video
+}
+
+/** The opening a video made now gets when nobody says: the day's, as `social next` would post it. */
+async function todaysOpening(deps: Pick<VideoDeps, 'repoDir'>): Promise<Opening> {
+  return (await openingFor(deps.repoDir, dayOf(new Date().toISOString()))).opening
 }
 
 export async function videoDefaults(lessonId: string, deps: VideoDeps): Promise<VideoDefaults> {
   const tutorial = await readTutorial(lessonId, deps)
   const narration = await lessonNarration(lessonId, deps.voice)
   const badge = existsSync(path.join(deps.repoDir, BADGE))
-  const file = videoFile(lessonId, deps)
-  const info = await stat(file).catch(() => null)
   const { place, free } = await placeOf(lessonId, deps)
   return {
     lessonId,
@@ -107,11 +148,12 @@ export async function videoDefaults(lessonId: string, deps: VideoDeps): Promise<
     intro: defaultIntro(tutorial.title),
     signoff: defaultSignoff(free),
     cta: badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA,
+    opening: await todaysOpening(deps),
     badge,
     missing: missingSteps(narration.steps),
     stale: staleSteps(narration.steps),
     caption: postCaption(tutorial, place),
-    video: info ? { file, bytes: info.size, modifiedAt: info.mtime.toISOString() } : null,
+    video: await latestVideo(lessonId, deps),
   }
 }
 
@@ -147,6 +189,7 @@ export async function exportVideo(
     // Every recording in a file ffmpeg can read, with its exact length.
     report('voice', 'Recording Lina’s opening line and last words')
     const { place, backdrop, free, stickers } = await placeOf(lessonId, deps)
+    const opening = request.opening ?? (await todaysOpening(deps))
     const introText = request.intro?.trim() || (request.speed ? defaultSpeedIntro(tutorial.title) : defaultIntro(tutorial.title))
     const signoffText = request.signoff == null ? defaultSignoff(free) : request.signoff.trim()
     const voiceId = narration.castVoiceId ?? narration.steps.find((step) => step.take)?.take?.voiceId
@@ -206,7 +249,8 @@ export async function exportVideo(
     const badgePath = path.join(deps.repoDir, BADGE)
     const badge = existsSync(badgePath) ? await readFile(badgePath, 'utf8') : null
     const cta = request.cta?.trim() || (badge ? DEFAULT_CTA_WITH_BADGE : DEFAULT_CTA)
-    const input: VideoInput = { tutorial, clips, intro, signoff, place, cta, stickers: stickers.length, speed: request.speed === true }
+    const speed = request.speed === true
+    const input: VideoInput = { tutorial, clips, intro, signoff, place, cta, stickers: stickers.length, speed, opening }
     const plan = planVideo(input)
     const html = videoPage(tutorial, plan, {
       font: (await readAsset(deps.repoDir, FONT)).toString('base64'),
@@ -226,14 +270,16 @@ export async function exportVideo(
         const page = await openFramePage(browser, pagePath)
         await mkdir(request.stillsDir, { recursive: true })
         const stills: string[] = []
+        // Named as the video would be (`rocket-speed-hook-opening.png`), so stills of the two openings sit side by side.
+        const name = path.basename(videoFile(lessonId, deps, { speed, opening }), '.mp4')
         for (const moment of stillMoments(plan, tutorial)) {
           await renderAt(page, moment.at)
-          const file = path.join(request.stillsDir, `${lessonId}-${moment.name}.png`)
+          const file = path.join(request.stillsDir, `${name}-${moment.name}.png`)
           await page.screenshot({ path: file })
           stills.push(file)
         }
         report('done', 'Stills written')
-        return { lessonId, file: null, captionFile: null, caption, stills, durationS: plan.total, frames, stillFrames: 0, renderSeconds: elapsed(), bytes: 0, staleSteps: stale, timingNote }
+        return { lessonId, opening, file: null, captionFile: null, caption, stills, durationS: plan.total, frames, stillFrames: 0, renderSeconds: elapsed(), bytes: 0, staleSteps: stale, timingNote }
       } finally {
         await browser.close()
       }
@@ -251,7 +297,7 @@ export async function exportVideo(
     await mixAudio(plan, files, mixed)
 
     // Written beside the old video and renamed over it, so a failed export never leaves half a file.
-    const out = path.resolve(request.out ?? (request.speed ? path.join(deps.videosDir, `${lessonId}-speed.mp4`) : videoFile(lessonId, deps)))
+    const out = path.resolve(request.out ?? videoFile(lessonId, deps, { speed, opening }))
     await mkdir(path.dirname(out), { recursive: true })
     const partial = `${out}.partial.mp4`
     await run('ffmpeg', [
@@ -265,7 +311,7 @@ export async function exportVideo(
     await writeFile(captionFile, `${caption}\n`)
     const { size } = await stat(out)
     report('done', 'Done')
-    return { lessonId, file: out, captionFile, caption, stills: [], durationS: plan.total, frames, stillFrames, renderSeconds: elapsed(), bytes: size, staleSteps: stale, timingNote }
+    return { lessonId, opening, file: out, captionFile, caption, stills: [], durationS: plan.total, frames, stillFrames, renderSeconds: elapsed(), bytes: size, staleSteps: stale, timingNote }
   } finally {
     await rm(work, { recursive: true, force: true })
   }
