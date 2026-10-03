@@ -17,6 +17,7 @@ import {
   finishedLessons,
   lastedFor,
   learnerTag,
+  lessonFloorMs,
   LEARNERS_TIME_ZONE_NAME,
   MARK_CHOICES,
   markedChanges,
@@ -447,9 +448,9 @@ export function LearnersView({
   const report = useMemo(
     () =>
       response?.configured && response.events
-        ? buildReport(response.events, { period, date: day, who, source, lesson, only, where, age, now: Date.now() })
+        ? buildReport(response.events, { period, date: day, who, source, lesson, only, where, age, floorOf: lessonFloors(library), now: Date.now() })
         : null,
-    [response, period, day, who, source, lesson, only, where, age],
+    [response, period, day, who, source, lesson, only, where, age, library],
   )
   const ads = useAdNames(library.writable)
   const spend = useAdSpend(period, day, library.writable, loadedAt)
@@ -1374,7 +1375,15 @@ function MostDrawn({
 
 // ---------- A lesson as its picture ----------
 
-type PictureState = 'finished' | 'started' | 'locked'
+type PictureState = 'finished' | 'started' | 'locked' | 'skimmed'
+
+/** Each lesson's least drawing time (`lessonFloorMs`), from the library: a faster finish was tapped through. */
+function lessonFloors(library: Library): (lesson: string) => number | null {
+  return (lesson) => {
+    const tutorial = library.tutorials.get(lesson)?.tutorial
+    return tutorial ? lessonFloorMs(tutorial) : null
+  }
+}
 type Badge = 'kept' | 'crown' | 'wish'
 
 /** The lesson the page is narrowed to, picked out wherever it is drawn. */
@@ -1402,7 +1411,11 @@ export function LessonPicture({
   const picked = useContext(Picked) === lesson
   const entry = library.tutorials.get(lesson)
   const title = entry?.tutorial.title ?? lesson
-  const label = [title, state === 'started' ? 'not finished' : state === 'locked' ? 'locked' : null, badge ? BADGE_WORDS[badge] : null]
+  const label = [
+    title,
+    state === 'started' ? 'not finished' : state === 'locked' ? 'locked' : state === 'skimmed' ? 'tapped through, too fast to have drawn it' : null,
+    badge ? BADGE_WORDS[badge] : null,
+  ]
     .filter(Boolean)
     .join(', ')
   return (
@@ -1608,7 +1621,7 @@ function StripItem({ item, library }: { item: SessionItem; library: Library }) {
         <LessonPicture
           library={library}
           lesson={item.lesson}
-          state={item.state === 'finished' ? 'finished' : 'started'}
+          state={item.state === 'finished' ? (item.quick ? 'skimmed' : 'finished') : 'started'}
           badge={item.kept ? 'kept' : undefined}
         />
       )
@@ -1647,6 +1660,9 @@ function StripKey() {
       </li>
       <li>
         <span className="st-learners__key-tile st-learners__key-tile--started" /> stopped in it
+      </li>
+      <li title="Finished faster than the lesson can be drawn: not counted as drawn">
+        <span className="st-learners__key-tile st-learners__key-tile--skimmed" /> tapped through
       </li>
       <li>
         <span className="st-learners__badge st-learners__badge--kept st-learners__badge--inline">{BADGE_ICONS.kept}</span>{' '}
@@ -1691,7 +1707,15 @@ function Timeline({ lines, library }: { lines: TimelineLine[]; library: Library 
             <LessonPicture
               library={library}
               lesson={line.lesson}
-              state={line.mark === 'started' ? 'started' : line.mark === 'crown' || line.mark === 'wish' ? 'locked' : 'finished'}
+              state={
+                line.mark === 'started'
+                  ? 'started'
+                  : line.mark === 'skimmed'
+                    ? 'skimmed'
+                    : line.mark === 'crown' || line.mark === 'wish'
+                      ? 'locked'
+                      : 'finished'
+              }
             />
           ) : null}
           <span className="st-learners__line-text">
@@ -1801,7 +1825,7 @@ function History({ session, library }: { session: LearnerSession; library: Libra
     readLearnerHistory(ids.split(','))
       .then((response) => {
         if (!live) return
-        setState({ history: buildHistory(response.events, Date.now()), problem: response.problem })
+        setState({ history: buildHistory(response.events, Date.now(), lessonFloors(library)), problem: response.problem })
       })
       .catch((caught: unknown) => {
         if (live) setState({ history: null, problem: caught instanceof Error ? caught.message : String(caught) })
@@ -1809,7 +1833,7 @@ function History({ session, library }: { session: LearnerSession; library: Libra
     return () => {
       live = false
     }
-  }, [ids])
+  }, [ids, library])
 
   const thisDay = dayOf(session.start)
   if (!state) return <p className="st-learners__history st-learners__muted">Asking PostHog for their other visits…</p>
@@ -1981,8 +2005,11 @@ function DayCell({
 export function LearnersSummary({ day, library }: { day: string; library: Library }) {
   const { response, error } = useLearnerEvents('day', day, library.writable)
   const report = useMemo(
-    () => (response?.configured ? buildReport(response.events, { period: 'day', date: day, now: Date.now() }) : null),
-    [response, day],
+    () =>
+      response?.configured
+        ? buildReport(response.events, { period: 'day', date: day, floorOf: lessonFloors(library), now: Date.now() })
+        : null,
+    [response, day, library],
   )
   // The same view as the Learners page's day with nothing narrowed: one memory of what was seen.
   const [markFor] = useMarkFor()

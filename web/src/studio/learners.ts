@@ -24,6 +24,8 @@ export const LEARNERS_TIME_ZONE = 'America/Chicago'
 /** What the time zone is called on the page. */
 export const LEARNERS_TIME_ZONE_NAME = 'US Central'
 
+import { totalDuration, type Tutorial } from '../schema/types'
+
 export type Period = 'day' | 'week' | 'month'
 export type Who = 'all' | 'children' | 'teens' | 'adults'
 export type Source = 'all' | 'ads' | 'organic'
@@ -221,6 +223,57 @@ export interface LearnerEvent {
   paywall?: string
   /** Superwall's events: the test version (variant) shown. */
   variant?: string
+  /** `lesson_completed`, from 1.1: how long the drawing really took, in seconds. */
+  drawingSeconds?: number
+  /** `lesson_completed`, worked out here (`markTappedThrough`): too fast to have drawn it. */
+  quick?: boolean
+}
+
+/** The least time a lesson can be drawn in, in milliseconds, when its length is not known. */
+export const DEFAULT_LESSON_FLOOR_MS = 20_000
+/** Drawing a step on paper takes a learner at least this, however short its animation. */
+const LEAST_STEP_MS = 3_000
+
+/** The least time a lesson can be drawn in: its animation at 1x, or 3 seconds a step, whichever is longer. */
+export function lessonFloorMs(tutorial: Tutorial): number {
+  return Math.max(totalDuration(tutorial) * 1000, LEAST_STEP_MS * tutorial.steps.length)
+}
+
+/** A photo kept this soon after a finish shows the drawing was made, however fast the steps went. */
+const PHOTO_PROVES_MS = 30 * 60_000
+
+/**
+ * Marks each `lesson_completed` that came faster than the lesson can be drawn: faster than
+ * `floorOf` says (the page gives the lesson's own animation, or 3 seconds a step, whichever
+ * is longer), timed by the app's `drawing_seconds` when it sent it and otherwise from the
+ * learner's `lesson_started`. A finish with no start to time it by is left as it is, and so
+ * is one whose photo was kept soon after: the photo shows a drawing was made.
+ */
+export function markTappedThrough(events: LearnerEvent[], floorOf?: (lesson: string) => number | null): LearnerEvent[] {
+  const started = new Map<string, number>()
+  const photos = new Map<string, number[]>()
+  for (const event of events) {
+    if (event.event !== 'drawing_saved' || !event.lesson) continue
+    const key = `${event.id}|${event.lesson}`
+    photos.set(key, [...(photos.get(key) ?? []), event.at])
+  }
+  return events.map((event) => {
+    if (!event.lesson) return event
+    const key = `${event.id}|${event.lesson}`
+    if (event.event === 'lesson_started') {
+      started.set(key, event.at)
+      return event
+    }
+    if (event.event !== 'lesson_completed') return event
+    const begun = started.get(key)
+    started.delete(key)
+    const took = event.drawingSeconds !== undefined ? event.drawingSeconds * 1000 : begun !== undefined ? event.at - begun : null
+    if (took === null) return event
+    const floor = floorOf?.(event.lesson) ?? DEFAULT_LESSON_FLOOR_MS
+    if (took >= floor) return event
+    const photographed = (photos.get(key) ?? []).some((at) => at >= event.at && at - event.at < PHOTO_PROVES_MS)
+    return photographed ? event : { ...event, quick: true }
+  })
 }
 
 /** The events the server asks PostHog for. `ob_beat_viewed` only for the age question (`ob-age`). */
@@ -646,7 +699,8 @@ export const HERE_NOW_MS = 10 * 60_000
 /** One step of a session's strip, in order. */
 export type SessionItem =
   | { kind: 'onboarding'; at: number }
-  | { kind: 'lesson'; at: number; lesson: string; state: 'started' | 'finished' | 'left'; kept: boolean; endedAt: number | null }
+  /** A lesson; `quick` when it was finished faster than it can be drawn (tapped through). */
+  | { kind: 'lesson'; at: number; lesson: string; state: 'started' | 'finished' | 'left'; kept: boolean; endedAt: number | null; quick?: boolean }
   | { kind: 'crown'; at: number; lesson: string }
   | { kind: 'wish'; at: number; lesson: string }
   | { kind: 'grownUp'; at: number }
@@ -714,7 +768,7 @@ export interface TimelineLine {
   at: number
   text: string
   lesson: string | null
-  mark: 'quiet' | 'started' | 'finished' | 'price' | 'grownUp' | 'kept' | 'crown' | 'wish' | 'bought'
+  mark: 'quiet' | 'started' | 'finished' | 'skimmed' | 'price' | 'grownUp' | 'kept' | 'crown' | 'wish' | 'bought'
   /** Superwall's paywall, for its name beside the line. */
   shown?: PaywallShown
 }
@@ -746,7 +800,10 @@ export interface LearnerSession {
   returns: number[]
   /** Summed over its visits. */
   activeMs: number
+  /** Lessons finished, not counting those tapped through. */
   finished: number
+  /** Lessons finished faster than they can be drawn. */
+  skimmed: number
   /** Photos kept. */
   kept: number
   /** Who they are on this page: their animal (`animalsFor`). */
@@ -769,6 +826,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
   let visitStart = events[0].at
   let previous = events[0].at
   let finished = 0
+  let skimmed = 0
   let kept = 0
   let grownUp: GrownUpWay | null = null
   let beforePrice: BeforePrice | null = null
@@ -849,16 +907,20 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
         break
       case 'lesson_completed': {
         if (!event.lesson) break
-        finished += 1
+        const quick = event.quick === true
+        if (quick) skimmed += 1
+        else finished += 1
         const open = openLesson(event.lesson)
+        const took = event.drawingSeconds !== undefined ? event.drawingSeconds * 1000 : open ? event.at - open.at : null
         if (open) {
           open.state = 'finished'
           open.endedAt = event.at
-          line(`Finished it in ${spoken(event.at - open.at)}`, 'finished', event.lesson)
+          open.quick = quick
         } else {
-          items.push({ kind: 'lesson', at: event.at, lesson: event.lesson, state: 'finished', kept: false, endedAt: event.at })
-          line('Finished', 'finished', event.lesson)
+          items.push({ kind: 'lesson', at: event.at, lesson: event.lesson, state: 'finished', kept: false, endedAt: event.at, quick })
         }
+        if (quick) line(`Tapped through it${took !== null ? ` in ${spoken(took)}` : ''}: too fast to have drawn it`, 'skimmed', event.lesson)
+        else line(took !== null ? `Finished it in ${spoken(took)}` : 'Finished', 'finished', event.lesson)
         break
       }
       case 'lesson_left': {
@@ -1011,6 +1073,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
     returns,
     activeMs,
     finished,
+    skimmed,
     kept,
     items,
     end: endOf(items, events, now - last.at < HERE_NOW_MS),
@@ -1315,6 +1378,8 @@ export interface ReportOptions {
   where?: Where | null
   /** Only the learners of one age band; the numbers narrow with it too. */
   age?: AgeBand | null
+  /** The least time each lesson can be drawn in (`markTappedThrough`); 20 seconds when it says nothing. */
+  floorOf?: (lesson: string) => number | null
   now?: number
 }
 
@@ -1327,8 +1392,9 @@ const LEADERS = 10
  * children or 13+, and to Apple Ads or the rest; `lesson` to those who finished it;
  * `only` to those one number counts.
  */
-export function buildReport(events: LearnerEvent[], options: ReportOptions): LearnersReport {
+export function buildReport(allEvents: LearnerEvent[], options: ReportOptions): LearnersReport {
   const { period, date, who = 'all', source = 'all', lesson = null, only = null, where = null, age = null, now = Date.now() } = options
+  const events = markTappedThrough(allEvents, options.floorOf)
   const { from, to } = periodRange(period, date)
   const before = periodRange(period, stepPeriod(period, date, -1))
   const everybody = stitch(events)
@@ -1367,7 +1433,7 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
       .filter((entry) => entry.events.length > 0)
       .filter(
         (entry) =>
-          !lesson || entry.events.some((event) => event.event === 'lesson_completed' && event.lesson === lesson),
+          !lesson || entry.events.some((event) => event.event === 'lesson_completed' && !event.quick && event.lesson === lesson),
       )
       .filter((entry) => whole === 'where' || !where || matchesWhere(entry.learner.events, entry.events, where))
       .filter((entry) => whole === 'age' || !age || ageBandOf(entry.learner.events) === age)
@@ -1618,7 +1684,7 @@ export function leadersOf(sessions: LearnerSession[]): LearnerSession[] {
 export function finishedLessons(session: LearnerSession): string[] {
   const counts = new Map<string, number>()
   for (const item of session.items) {
-    if (item.kind === 'lesson' && item.state === 'finished') counts.set(item.lesson, (counts.get(item.lesson) ?? 0) + 1)
+    if (item.kind === 'lesson' && item.state === 'finished' && !item.quick) counts.set(item.lesson, (counts.get(item.lesson) ?? 0) + 1)
   }
   return [...counts.entries()].sort(([, a], [, b]) => b - a).map(([lesson]) => lesson)
 }
@@ -1647,8 +1713,12 @@ export interface LearnerHistory {
  * Every day a learner 13 or over used the app, from the events of their ids (the
  * server asks PostHog for up to a year of them). Null when there are none.
  */
-export function buildHistory(events: LearnerEvent[], now: number): LearnerHistory | null {
-  const learners = stitch(events)
+export function buildHistory(
+  allEvents: LearnerEvent[],
+  now: number,
+  floorOf?: (lesson: string) => number | null,
+): LearnerHistory | null {
+  const learners = stitch(markTappedThrough(allEvents, floorOf))
   if (!learners.length) return null
   const learner: Learner = {
     key: learners[learners.length - 1].key,
@@ -1699,7 +1769,8 @@ function numbersOf(
   const trials = purchases(sessions, true)
   const buys = purchases(sessions, false)
   const dollars = (list: { price: number | null }[]) => list.reduce((total, item) => total + (item.price ?? 0), 0)
-  const lessons = events.filter((event) => event.event === 'lesson_completed')
+  const lessons = events.filter((event) => event.event === 'lesson_completed' && !event.quick)
+  const skimmed = events.filter((event) => event.event === 'lesson_completed' && event.quick).length
   const different = new Set(lessons.map((event) => event.lesson)).size
   const photoSessions = sessions.filter((session) =>
     session.items.some((item) => item.kind === 'lesson' && item.kept),
@@ -1727,8 +1798,8 @@ function numbersOf(
       key: 'lessons',
       label: 'Lessons done',
       value: lessons.length,
-      previous: previousOf((_, list) => count(list, 'lesson_completed')),
-      sub: `${different} different`,
+      previous: previousOf((_, list) => list.filter((event) => event.event === 'lesson_completed' && !event.quick).length),
+      sub: `${different} different${skimmed ? ` · ${skimmed} tapped through` : ''}`,
     },
     {
       key: 'photos',
@@ -1789,7 +1860,7 @@ function journeyOf(sessions: LearnerSession[]): JourneyStage[] {
 function mostDrawnOf(events: LearnerEvent[]): DrawnLesson[] {
   const counts = new Map<string, number>()
   for (const event of events) {
-    if (event.event === 'lesson_completed' && event.lesson) counts.set(event.lesson, (counts.get(event.lesson) ?? 0) + 1)
+    if (event.event === 'lesson_completed' && event.lesson && !event.quick) counts.set(event.lesson, (counts.get(event.lesson) ?? 0) + 1)
   }
   return [...counts.entries()]
     .sort(([a, x], [b, y]) => y - x || a.localeCompare(b))
@@ -1807,7 +1878,7 @@ function daysOf(from: string, to: string, current: { learner: Learner; events: L
       day,
       installs: events.filter((event) => event.event === 'app_opened' && event.firstOpen).length,
       sessions: entries.length,
-      lessons: count(events, 'lesson_completed'),
+      lessons: events.filter((event) => event.event === 'lesson_completed' && !event.quick).length,
       top: mostDrawnOf(events)[0]?.lesson ?? null,
     }
   })

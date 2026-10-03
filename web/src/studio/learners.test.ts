@@ -3,7 +3,12 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import type { Tutorial } from '../schema/types'
+
 import {
+  DEFAULT_LESSON_FLOOR_MS,
+  markTappedThrough,
+  lessonFloorMs,
   beforeBuyingOf,
   adsTotal,
   withSpend,
@@ -50,6 +55,15 @@ const sample = JSON.parse(
  * The rest (the evening's learners, the first from an Apple Ads keyword) is in `everything`.
  */
 const everything = sample.events
+/** Each lesson's least drawing time, from its file in shared/Tutorials, as the page reads it from the library. */
+const floorOf = (lesson: string) => {
+  try {
+    const file = new URL(`../../../shared/Tutorials/${lesson}.json`, import.meta.url)
+    return lessonFloorMs(JSON.parse(readFileSync(fileURLToPath(file), 'utf8')) as Tutorial)
+  } catch {
+    return null
+  }
+}
 const events = everything.filter((event) => event.at <= Date.parse('2026-10-02T20:07:00.580Z'))
 /** Long after the sample's last event, so nobody is "in the app now". */
 const later = Date.parse('2026-10-03T18:00:00Z')
@@ -116,13 +130,15 @@ describe('stitch', () => {
 })
 
 describe('buildReport for Oct 2', () => {
-  const report = buildReport(events, { period: 'day', date: '2026-10-02', now: later })
+  const report = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', now: later })
   const number = (key: string) => report.numbers.find((entry) => entry.key === key)
 
   it('has the day in numbers, against the day before', () => {
     expect(number('installs')).toMatchObject({ value: 6, previous: 1, sub: '4 under 13' })
     expect(number('sessions')).toMatchObject({ value: 7, sub: '1 returning' })
-    expect(number('lessons')).toMatchObject({ value: 19, sub: '9 different' })
+    // 19 finished; 4 faster than the lesson can be drawn and with no photo kept (two watermelon
+    // slices in 6 and 9 s, a sun in 8 s, a donut in 25 s).
+    expect(number('lessons')).toMatchObject({ value: 15, sub: '8 different · 4 tapped through' })
     expect(number('photos')).toMatchObject({ value: 7, sub: 'in 2 sessions' })
     expect(number('price')).toMatchObject({ value: 3, sub: '1 for a child' })
     expect(number('trials')).toMatchObject({ value: 0, amount: 0 })
@@ -133,8 +149,8 @@ describe('buildReport for Oct 2', () => {
     expect(report.journey.map((stage) => [stage.key, stage.children, stage.teens])).toEqual([
       ['installed', 4, 2],
       ['onboarded', 4, 2],
-      ['first', 3, 2],
-      ['second', 2, 1],
+      ['first', 3, 1],
+      ['second', 1, 1],
       ['price', 1, 2],
       ['bought', 0, 0],
     ])
@@ -143,9 +159,9 @@ describe('buildReport for Oct 2', () => {
   it('lists what was drawn most, ties by name', () => {
     expect(report.mostDrawn.slice(0, 5)).toEqual([
       { lesson: 'cloud', count: 4 },
-      { lesson: 'sun', count: 4 },
-      { lesson: 'watermelon-slice', count: 4 },
+      { lesson: 'sun', count: 3 },
       { lesson: 'lightning-bolt', count: 2 },
+      { lesson: 'watermelon-slice', count: 2 },
       { lesson: 'apple', count: 1 },
     ])
   })
@@ -190,14 +206,18 @@ describe('buildReport for Oct 2', () => {
   it('marks the under-6 who came back in the afternoon, and what they kept and wished for', () => {
     const session = report.sessions.find((entry) => entry.age === 'under6')
     expect(session?.returns).toHaveLength(1)
-    expect(session?.finished).toBe(8)
-    const kinds = session?.items.map((item) => (item.kind === 'lesson' ? `${item.lesson}:${item.state}${item.kept ? '+kept' : ''}` : item.kind))
+    expect(session?.finished).toBe(7)
+    // A sun in 7.6 s: tapped through. A lightning bolt in 14.8 s, but its photo was kept: drawn.
+    expect(session?.skimmed).toBe(1)
+    const kinds = session?.items.map((item) =>
+      item.kind === 'lesson' ? `${item.lesson}:${item.state}${item.quick ? '+tapped' : ''}${item.kept ? '+kept' : ''}` : item.kind,
+    )
     expect(kinds).toEqual([
       'onboarding',
       'sun:finished+kept',
       'grownUp',
       'cloud:finished',
-      'sun:finished',
+      'sun:finished+tapped',
       'cloud:finished',
       'lightning-bolt:left',
       'sun:finished',
@@ -214,14 +234,14 @@ describe('buildReport for Oct 2', () => {
   })
 
   it('shows a learner still drawing as drawing now', () => {
-    const afternoon = buildReport(events, { period: 'day', date: '2026-10-02', now: Date.parse('2026-10-02T18:52:00Z') })
+    const afternoon = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', now: Date.parse('2026-10-02T18:52:00Z') })
     const child = afternoon.sessions.find((entry) => entry.age === 'under6')
     expect(child?.end).toEqual({ kind: 'drawingNow', lesson: 'pine-tree' })
   })
 
   it('narrows to children or 13+', () => {
-    const children = buildReport(events, { period: 'day', date: '2026-10-02', who: 'children', now: later })
-    const teens = buildReport(events, { period: 'day', date: '2026-10-02', who: 'teens', now: later })
+    const children = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', who: 'children', now: later })
+    const teens = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', who: 'teens', now: later })
     expect(children.sessions).toHaveLength(5)
     expect(teens.sessions).toHaveLength(2)
     expect(teens.numbers.find((entry) => entry.key === 'price')?.sub).toBe('all 13+')
@@ -229,41 +249,40 @@ describe('buildReport for Oct 2', () => {
 
   it('ranks who drew most: lessons, then photos kept, then time', () => {
     expect(report.leaders.map((session) => [session.key, session.finished, session.kept])).toEqual([
-      ['u03', 8, 3],
+      ['u03', 7, 3],
       ['u04', 4, 4],
-      ['u02', 3, 0],
       ['u07', 2, 0],
+      ['u02', 1, 0],
       ['u10', 1, 0],
-      ['u09', 1, 0],
     ])
   })
 
   it('narrows to the learners who finished one lesson', () => {
-    const cloud = buildReport(events, { period: 'day', date: '2026-10-02', lesson: 'cloud', now: later })
+    const cloud = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', lesson: 'cloud', now: later })
     expect(cloud.sessions.map((session) => session.key).sort()).toEqual(['u03', 'u04'])
     expect(cloud.leaders.map((session) => session.key)).toEqual(['u03', 'u04'])
     expect(cloud.numbers.find((entry) => entry.key === 'installs')?.value).toBe(1)
     expect(cloud.mostDrawn.find((drawn) => drawn.lesson === 'cloud')?.count).toBe(4)
-    expect(buildReport(events, { period: 'day', date: '2026-10-02', lesson: 'rocket', now: later }).sessions).toEqual([])
+    expect(buildReport(events, { floorOf, period: 'day', date: '2026-10-02', lesson: 'rocket', now: later }).sessions).toEqual([])
   })
 
   it('narrows to those a number counts, and keeps the numbers as they are', () => {
-    const price = buildReport(events, { period: 'day', date: '2026-10-02', only: 'price', now: later })
+    const price = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', only: 'price', now: later })
     expect(price.sessions.map((session) => session.key).sort()).toEqual(['u07', 'u09', 'u10'])
     expect(price.numbers).toEqual(report.numbers)
     expect(price.journey).toEqual(report.journey)
-    const photos = buildReport(events, { period: 'day', date: '2026-10-02', only: 'photos', now: later })
+    const photos = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', only: 'photos', now: later })
     expect(photos.leaders.map((session) => session.key)).toEqual(['u03', 'u04'])
-    expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'installs', now: later }).sessions).toHaveLength(6)
-    expect(buildReport(events, { period: 'day', date: '2026-10-02', only: 'buys', now: later }).sessions).toEqual([])
+    expect(buildReport(events, { floorOf, period: 'day', date: '2026-10-02', only: 'installs', now: later }).sessions).toHaveLength(6)
+    expect(buildReport(events, { floorOf, period: 'day', date: '2026-10-02', only: 'buys', now: later }).sessions).toEqual([])
   })
 
   it('gives every learner an animal, the same wherever they appear, whatever the page is narrowed to', () => {
     const animal = (list: { key: string; animal?: { name: string } }[], key: string) => list.find((session) => session.key === key)?.animal?.name
     const names = new Set(report.sessions.map((session) => session.animal?.name))
     expect(names.size).toBe(7)
-    const cloud = buildReport(events, { period: 'day', date: '2026-10-02', lesson: 'cloud', now: later })
-    const teens = buildReport(events, { period: 'day', date: '2026-10-02', who: 'teens', now: later })
+    const cloud = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', lesson: 'cloud', now: later })
+    const teens = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', who: 'teens', now: later })
     expect(animal(cloud.leaders, 'u03')).toBe(animal(report.sessions, 'u03'))
     expect(animal(teens.sessions, 'u07')).toBe(animal(report.sessions, 'u07'))
     // Children take the animals in order; the first child to open the app is the Fox.
@@ -283,16 +302,16 @@ describe('buildReport for Oct 2', () => {
   it('follows the journey: who reached a stage, and who stopped there', () => {
     expect(report.journey.map((stage) => [stage.key, stage.stopped])).toEqual([
       ['installed', 0],
-      ['onboarded', 1],
+      ['onboarded', 2],
       ['first', 2],
-      ['second', 2],
+      ['second', 1],
       ['price', 3],
       ['bought', 0],
     ])
-    const stoppedFirst = buildReport(events, { period: 'day', date: '2026-10-02', only: 'stopped-first', now: later })
-    expect(stoppedFirst.sessions.map((session) => session.key).sort()).toEqual(['u09', 'u10'])
-    const reachedSecond = buildReport(events, { period: 'day', date: '2026-10-02', only: 'reached-second', now: later })
-    expect(reachedSecond.sessions.map((session) => session.key).sort()).toEqual(['u02', 'u03', 'u07'])
+    const stoppedFirst = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', only: 'stopped-first', now: later })
+    expect(stoppedFirst.sessions.map((session) => session.key).sort()).toEqual(['u02', 'u10'])
+    const reachedSecond = buildReport(events, { floorOf, period: 'day', date: '2026-10-02', only: 'reached-second', now: later })
+    expect(reachedSecond.sessions.map((session) => session.key).sort()).toEqual(['u03', 'u07'])
     expect(stoppedFirst.journey).toEqual(report.journey)
   })
 
@@ -368,7 +387,7 @@ describe('buildHistory', () => {
 
 describe('buildReport for a week', () => {
   it('turns the session list into one column per day', () => {
-    const report = buildReport(events, { period: 'week', date: '2026-10-02', now: later })
+    const report = buildReport(events, { floorOf, period: 'week', date: '2026-10-02', now: later })
     expect(report.sessions).toEqual([])
     expect(report.days.map((day) => day.day)).toEqual([
       '2026-09-28',
@@ -379,7 +398,7 @@ describe('buildReport for a week', () => {
       '2026-10-03',
       '2026-10-04',
     ])
-    expect(report.days.find((day) => day.day === '2026-10-02')).toMatchObject({ installs: 6, lessons: 19, top: 'cloud' })
+    expect(report.days.find((day) => day.day === '2026-10-02')).toMatchObject({ installs: 6, lessons: 15, top: 'cloud' })
     // Oct 1's one real install left during onboarding; the rest of that day was test devices.
     expect(report.days.find((day) => day.day === '2026-10-01')).toMatchObject({ installs: 1, lessons: 0, top: null })
   })
@@ -442,7 +461,7 @@ describe('numbers that changed', () => {
 })
 
 describe('where learners came from', () => {
-  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+  const evening = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', now: later })
 
   it('names the Apple Ads keyword that brought a learner, from Apple’s answer before their age', () => {
     // u11 is the launch before the age question, u12 the 16-to-17 learner it became.
@@ -460,7 +479,8 @@ describe('where learners came from', () => {
 
   it('counts learners by keyword, organic, country and version, and narrows to one', () => {
     expect(evening.whereFrom.ads).toEqual([
-      expect.objectContaining({ key: 'keyword-2339019453', learners: 1, finished: 1, sawPrice: 1, bought: 0 }),
+      // Their donut came in 5 s: tapped through, so no lesson finished.
+      expect.objectContaining({ key: 'keyword-2339019453', learners: 1, finished: 0, sawPrice: 1, bought: 0 }),
     ])
     expect(evening.whereFrom.organic.learners).toBe(evening.sessions.length - 1)
     // Only Apple's answer says a country, until the app sends the phone's Region.
@@ -470,16 +490,16 @@ describe('where learners came from', () => {
     ])
     expect(evening.whereFrom.versions.map((row) => [row.key, row.learners])).toEqual([['version-1.0', evening.sessions.length]])
 
-    const keyword = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'keyword-2339019453', now: later })
+    const keyword = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', where: 'keyword-2339019453', now: later })
     expect(keyword.sessions.map((session) => session.key)).toEqual(['u12'])
     expect(keyword.numbers.find((number) => number.key === 'installs')).toMatchObject({ value: 1 })
     // Where from stays whole, so another row is one tap away.
     expect(keyword.whereFrom).toEqual(evening.whereFrom)
-    const campaign = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'campaign-2144789293', now: later })
+    const campaign = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', where: 'campaign-2144789293', now: later })
     expect(campaign.sessions.map((session) => session.key)).toEqual(['u12'])
-    const organic = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'organic', now: later })
+    const organic = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', where: 'organic', now: later })
     expect(organic.sessions).toHaveLength(evening.sessions.length - 1)
-    expect(buildReport(everything, { period: 'day', date: '2026-10-02', where: 'version-1.1', now: later }).sessions).toEqual([])
+    expect(buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', where: 'version-1.1', now: later }).sessions).toEqual([])
   })
 
   it('reads the phone’s Region before the ad’s storefront, and the latest version', () => {
@@ -505,7 +525,7 @@ describe('where learners came from', () => {
 })
 
 describe('at the paywall', () => {
-  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+  const evening = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', now: later })
 
   it('counts Superwall’s paywall by test version and where it was asked for', () => {
     expect(evening.paywalls.rows.map((row) => [row.placement, row.variant, row.opens, row.quickCloses, row.tappedBuy, row.bought])).toEqual([
@@ -549,7 +569,7 @@ describe('at the paywall', () => {
         { event: 'superwall_transaction_complete', ...paywall },
       ]),
     ]
-    const report = buildReport(events, { period: 'day', date: '2026-10-03', now: at + 3_600_000 })
+    const report = buildReport(events, { floorOf, period: 'day', date: '2026-10-03', now: at + 3_600_000 })
     expect(report.paywalls.rows).toEqual([
       expect.objectContaining({ variant: '643126', opens: 2, learners: 2, tappedBuy: 2, cancelled: 1, bought: 1, quickCloses: 1 }),
     ])
@@ -562,7 +582,7 @@ describe('at the paywall', () => {
 })
 
 describe('ages', () => {
-  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+  const evening = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', now: later })
 
   it('counts the day’s learners by age band, the six bands always, the rest when someone is in them', () => {
     expect(evening.ages.map((row) => row.age)).toEqual(['under6', '6to9', '10to12', '13to15', '16to17', '18plus'])
@@ -573,10 +593,10 @@ describe('ages', () => {
   })
 
   it('narrows to 18 and over, and to one band', () => {
-    const adults = buildReport(everything, { period: 'day', date: '2026-10-02', who: 'adults', now: later })
+    const adults = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', who: 'adults', now: later })
     expect(adults.sessions.every((session) => session.age === '18plus')).toBe(true)
     expect(adults.sessions).toHaveLength(evening.ages.find((row) => row.age === '18plus')!.learners)
-    const sixToNine = buildReport(everything, { period: 'day', date: '2026-10-02', age: '6to9', now: later })
+    const sixToNine = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', age: '6to9', now: later })
     expect(sixToNine.sessions.every((session) => session.age === '6to9')).toBe(true)
     expect(sixToNine.numbers.find((number) => number.key === 'sessions')!.value).toBe(sixToNine.sessions.length)
     // The chart stays whole, so another band is a tap away; Where from follows the band.
@@ -585,13 +605,13 @@ describe('ages', () => {
   })
 
   it('follows a keyword: the ages it brought', () => {
-    const keyword = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'keyword-2339019453', now: later })
+    const keyword = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', where: 'keyword-2339019453', now: later })
     expect(keyword.ages.filter((row) => row.learners).map((row) => [row.age, row.learners])).toEqual([['16to17', 1]])
   })
 })
 
 describe('Apple Ads spend beside its learners', () => {
-  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+  const evening = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', now: later })
   const spend = [
     { key: 'keyword-2339019453', campaign: '2144789293', adGroup: '2151492291', keyword: '2339019453', spend: 2.44, impressions: 11, taps: 1, installs: 1 },
     { key: 'keyword-2334871441', campaign: '2144789293', adGroup: '2151492291', keyword: '2334871441', spend: 1.9, impressions: 9, taps: 2, installs: 0 },
@@ -609,7 +629,7 @@ describe('Apple Ads spend beside its learners', () => {
 })
 
 describe('before buying', () => {
-  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+  const evening = buildReport(everything, { floorOf, period: 'day', date: '2026-10-02', now: later })
 
   it('groups the day’s learners by how it ended, and says what they had done before the first price', () => {
     const groups = Object.fromEntries(evening.beforeBuying.map((group) => [group.key, group]))
@@ -620,8 +640,8 @@ describe('before buying', () => {
     expect(groups.left.learners).toBe(evening.sessions.filter((session) => session.beforePrice).length)
     expect(groups.bought).toMatchObject({ learners: 0, finished: null, medianMs: null })
     const u12 = evening.sessions.find((session) => session.key === 'u12')!
-    // The Apple Ads learner drew the donut, then the onboarding offer came up.
-    expect(u12.beforePrice).toMatchObject({ finished: 1, kept: 0, cameBack: 0, where: 'onboarding_offer' })
+    // The Apple Ads learner tapped through the donut, then the onboarding offer came up.
+    expect(u12.beforePrice).toMatchObject({ finished: 0, kept: 0, cameBack: 0, where: 'onboarding_offer' })
   })
 
   it('measures who never saw a price over their whole day', () => {
@@ -632,8 +652,50 @@ describe('before buying', () => {
       { at: at + 180_000, event: 'lesson_completed', id: 'a', age: '6to9', lesson: 'cloud' },
       { at: at + 200_000, event: 'premium_lesson_tapped', id: 'a', age: '6to9', lesson: 'rocket' },
     ]
-    const report = buildReport(events, { period: 'day', date: '2026-10-03', now: at + 3_600_000 })
+    const report = buildReport(events, { floorOf, period: 'day', date: '2026-10-03', now: at + 3_600_000 })
     expect(report.beforeBuying.find((group) => group.key === 'never')).toMatchObject({ learners: 1, finished: 1, crown: 1, kept: 0, medianMs: 200_000 })
     expect(beforeBuyingOf([]).every((group) => group.learners === 0)).toBe(true)
+  })
+})
+
+describe('tapped through', () => {
+  const at = Date.parse('2026-10-03T15:00:00Z')
+
+  it('marks a finish faster than the lesson can be drawn, timed from its start or by the app’s drawing time', () => {
+    const marked = markTappedThrough(
+      [
+        { at, event: 'lesson_started', id: 'a', lesson: 'donut' },
+        { at: at + 5_000, event: 'lesson_completed', id: 'a', lesson: 'donut' },
+        { at: at + 10_000, event: 'lesson_started', id: 'a', lesson: 'donut' },
+        { at: at + 70_000, event: 'lesson_completed', id: 'a', lesson: 'donut' },
+        // From 1.1 the app says how long the drawing took: it wins over the clock.
+        { at: at + 80_000, event: 'lesson_started', id: 'a', lesson: 'cloud' },
+        { at: at + 200_000, event: 'lesson_completed', id: 'a', lesson: 'cloud', drawingSeconds: 9 },
+        // No start to time it by: left as it is.
+        { at: at + 300_000, event: 'lesson_completed', id: 'b', lesson: 'cloud' },
+        // Fast, but its photo was kept a few minutes later: a drawing was made.
+        { at: at + 400_000, event: 'lesson_started', id: 'c', lesson: 'cloud' },
+        { at: at + 405_000, event: 'lesson_completed', id: 'c', lesson: 'cloud' },
+        { at: at + 640_000, event: 'drawing_saved', id: 'c', lesson: 'cloud' },
+      ],
+      floorOf,
+    )
+    expect(marked.filter((event) => event.event === 'lesson_completed').map((event) => event.quick === true)).toEqual([true, false, true, false, false])
+    // The donut plays 28 s over 12 steps: 36 s at 3 s a step.
+    expect(floorOf('donut')).toBe(36_000)
+    expect(markTappedThrough([{ at, event: 'lesson_started', id: 'a', lesson: 'x' }, { at: at + DEFAULT_LESSON_FLOOR_MS - 1, event: 'lesson_completed', id: 'a', lesson: 'x' }])[1].quick).toBe(true)
+  })
+
+  it('says so in the timeline, and keeps it out of what was drawn', () => {
+    const events: LearnerEvent[] = [
+      { at, event: 'app_opened', id: 'a', age: '6to9', firstOpen: true },
+      { at: at + 1_000, event: 'lesson_started', id: 'a', age: '6to9', lesson: 'donut' },
+      { at: at + 6_000, event: 'lesson_completed', id: 'a', age: '6to9', lesson: 'donut' },
+    ]
+    const report = buildReport(events, { floorOf, period: 'day', date: '2026-10-03', now: at + 3_600_000 })
+    expect(report.sessions[0]).toMatchObject({ finished: 0, skimmed: 1 })
+    expect(report.sessions[0].timeline.map((line) => line.text)).toContain('Tapped through it in 5 s: too fast to have drawn it')
+    expect(report.mostDrawn).toEqual([])
+    expect(report.numbers.find((number) => number.key === 'lessons')).toMatchObject({ value: 0, sub: '0 different · 1 tapped through' })
   })
 })

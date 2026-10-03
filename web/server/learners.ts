@@ -197,7 +197,7 @@ const COLUMNS = [
   '  properties.first_open, properties.screen, properties.entry, properties.outcome, properties.asa_attribution,',
   '  properties.added, properties.plan, properties.asa_campaign_id, properties.asa_ad_group_id,',
   '  properties.asa_keyword_id, properties.device_region, properties.asa_country_or_region, properties.$app_version,',
-  '  properties.placement, properties.paywall_id, properties.variant_id',
+  '  properties.placement, properties.paywall_id, properties.variant_id, properties.drawing_seconds',
   'FROM events',
 ]
 
@@ -269,7 +269,7 @@ async function queryEvents(
 /** One row of the query, in the column order above, as an event; null when it has no time, name or id. */
 export function toEvent(row: unknown[]): LearnerEvent | null {
   const [at, event, id, age, lesson, firstOpen, screen, entry, outcome, ads, added, plan, ...more] = row
-  const [campaign, adGroup, keyword, region, adsRegion, version, placement, paywall, variant] = more
+  const [campaign, adGroup, keyword, region, adsRegion, version, placement, paywall, variant, drawingSeconds] = more
   if (typeof event !== 'string' || typeof id !== 'string') return null
   const time = typeof at === 'number' ? at : typeof at === 'string' && at !== '' ? Number(at) : Number.NaN
   if (!Number.isFinite(time)) return null
@@ -295,6 +295,8 @@ export function toEvent(row: unknown[]): LearnerEvent | null {
   if (text(placement)) result.placement = text(placement)
   if (text(paywall)) result.paywall = text(paywall)
   if (idOf(variant)) result.variant = idOf(variant)
+  const seconds = typeof drawingSeconds === 'number' ? drawingSeconds : typeof drawingSeconds === 'string' ? Number(drawingSeconds) : Number.NaN
+  if (drawingSeconds !== null && drawingSeconds !== undefined && drawingSeconds !== '' && Number.isFinite(seconds)) result.drawingSeconds = seconds
   if (flag(ads) !== undefined) result.ads = flag(ads)
   if (flag(added) !== undefined) result.added = flag(added)
   return result

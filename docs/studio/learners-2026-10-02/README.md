@@ -133,6 +133,17 @@ price or a grown-up's screen).
 
 <img src="sessions.png" width="900">
 
+## Tapped through
+
+A lesson "finished" faster than it can be drawn was tapped through: faster than its own animation plays at 1x, or
+than 3 seconds a step, whichever is longer (the donut plays 28 s over 12 steps: 36 s). It is timed from the lesson's
+start, or by the app's own drawing time from 1.1. A photo kept within half an hour shows a drawing was made, so it
+counts as drawn however fast the steps went. Tapped-through lessons show dashed in amber, say so in the timeline
+("Tapped through it in 5 s: too fast to have drawn it"), and are left out of Lessons done (its line says how many),
+Most drawn, the journey, the leaders, Where from and Ages.
+
+<img src="tapped-through.png" width="900">
+
 ## One session opened
 
 A tap on a row opens it as a timeline in words, each lesson beside its picture; for a learner 13 or over, their

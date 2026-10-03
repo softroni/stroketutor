@@ -1046,6 +1046,15 @@
   opacity: 0.45;
 }
 
+/* Tapped through: "finished" faster than it can be drawn. Amber, dashed, faded. */
+.st-learners__pic--skimmed .st-learners__pic-paper {
+  border: 2px dashed var(--amber);
+}
+
+.st-learners__pic--skimmed .st-learners__pic-paper > * {
+  opacity: 0.4;
+}
+
 /* The lesson the page is narrowed to, wherever it is drawn. */
 .st-learners__pic--picked .st-learners__pic-paper {
   box-shadow: 0 0 0 3px var(--accent);
@@ -1137,6 +1146,10 @@
 
 .st-learners__key-tile--started {
   border: 1.5px dashed var(--line-strong);
+}
+
+.st-learners__key-tile--skimmed {
+  border: 2px dashed var(--amber);
 }
 
 .st-learners__sessions {
@@ -1468,6 +1481,11 @@
 .st-learners__line--kept .st-learners__line-mark,
 .st-learners__line--bought .st-learners__line-mark {
   background: var(--learners-finished);
+}
+
+.st-learners__line--skimmed .st-learners__line-mark {
+  border: 2px dashed var(--amber);
+  background: var(--surface);
 }
 
 .st-learners__line--started .st-learners__line-mark {

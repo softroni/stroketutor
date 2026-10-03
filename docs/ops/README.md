@@ -47,6 +47,8 @@ every scheduled run follows it.
   the day runs) and the cost per learner, per paywall reached and per buyer.
   *Before buying* compares what buyers, buy-tappers, those who left at a price and those who never saw one had done
   before the first price.
+  A lesson finished faster than it can be drawn (its animation, or 3 s a step) with no photo kept is "tapped through"
+  and left out of every count of lessons drawn.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature
