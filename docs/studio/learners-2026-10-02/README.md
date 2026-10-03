@@ -174,3 +174,10 @@ The day's numbers and its most drawn lessons, with "Every session ›" to the pa
 <img src="day-dark.png" width="900">
 
 <img src="phone.png" width="300">
+
+On a phone (under 640 px) the numbers scroll sideways in one row; the header's Refresh and Highlight changes wrap
+whole; At the paywall gives each version a block with its numbers labeled beneath its name; Before buying becomes a
+card per group; an opened session's times keep one width; and a week or a month is a row per day (a bar across, its
+numbers, its lesson drawn most). On a tablet, Where from shows its lists side by side as far as they fit.
+
+<img src="phone-paywalls.png" width="300"> <img src="phone-before.png" width="300"> <img src="phone-week.png" width="300">

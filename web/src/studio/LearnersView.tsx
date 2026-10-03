@@ -392,9 +392,11 @@ function Freshness({
   const tooSoon = age !== null && age < REFRESH_FLOOR_MS
   return (
     <span className="st-learners__freshness">
-      {/* The minute's update runs quietly: only the first load says so. */}
-      {age === null ? (loading ? 'Updating…' : null) : `Updated ${ago}`}
-      {live ? <span className="st-learners__muted"> · every {every === DAY_REFRESH_MS ? 'minute' : '5 minutes'}</span> : null}{' '}
+      {/* The minute's update runs quietly: only the first load says so. One piece, so it wraps whole. */}
+      <span className="st-learners__fresh-when">
+        {age === null ? (loading ? 'Updating…' : null) : `Updated ${ago}`}
+        {live ? <span className="st-learners__muted"> · every {every === DAY_REFRESH_MS ? 'minute' : '5 minutes'}</span> : null}
+      </span>{' '}
       <button type="button" onClick={onRefresh} disabled={loading || tooSoon} title={tooSoon ? 'Just updated' : 'Ask PostHog now'}>
         Refresh
       </button>
@@ -726,6 +728,30 @@ function BeforeBuying({ groups }: { groups: BeforeGroup[] }) {
           ))}
         </tbody>
       </table>
+      {/* On a phone the four groups are cards, one under the other, instead of the table's columns. */}
+      <ul className="st-learners__before-cards">
+        {groups.map((group) => (
+          <li key={group.key} className={`st-learners__before-card st-learners__before-card--${group.key}`}>
+            <h3>
+              {BEFORE_WORDS[group.key]}
+              <span>
+                {group.learners} {group.learners === 1 ? 'learner' : 'learners'}
+                {group.key === 'never' && group.learners ? ', their whole day' : ''}
+              </span>
+            </h3>
+            {group.learners ? (
+              <dl>
+                {rows.map((row) => (
+                  <div key={row.label}>
+                    <dt>{row.label}</dt>
+                    <dd>{row.cell(group)}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }
@@ -799,17 +825,22 @@ function AtThePaywall({ paywalls, problem }: { paywalls: PaywallReport; problem:
                           {paywallWords(names, row)}
                           {version ? <span className="st-learners__paywall-share">{version.share}%</span> : null}
                         </th>
-                        <td>
+                        {/* data-label names each cell where the table stacks, on a phone. */}
+                        <td data-label="Shown">
                           {row.opens}
                           {row.learners !== row.opens ? <span className="st-learners__muted"> by {row.learners}</span> : null}
                         </td>
-                        <td>{row.medianLookMs === null ? '–' : spoken(row.medianLookMs)}</td>
-                        <td className={row.quickCloses ? 'st-learners__paywall-warn' : undefined}>{row.quickCloses}</td>
-                        <td>
+                        <td data-label="Looked">{row.medianLookMs === null ? '–' : spoken(row.medianLookMs)}</td>
+                        <td data-label="Closed fast" className={row.quickCloses ? 'st-learners__paywall-warn' : undefined}>
+                          {row.quickCloses}
+                        </td>
+                        <td data-label="Tapped buy">
                           {row.tappedBuy}
                           {row.cancelled ? <span className="st-learners__muted"> ({row.cancelled} cancelled)</span> : null}
                         </td>
-                        <td className={row.bought ? 'st-learners__paywall-good' : undefined}>{row.bought}</td>
+                        <td data-label="Bought" className={row.bought ? 'st-learners__paywall-good' : undefined}>
+                          {row.bought}
+                        </td>
                       </tr>
                     )
                   })}
@@ -1981,13 +2012,17 @@ function DayCell({
       <span className="st-learners__day-name">
         {weekday.format(date)} <strong>{date.getUTCDate()}</strong>
       </span>
+      {/* --share is the bar's height in the week's columns, and its length in a phone's rows. */}
       <span className="st-learners__day-bar" aria-hidden="true">
-        <span style={{ height: `${(day.lessons / most) * 100}%` }} />
+        <span style={{ '--share': `${(day.lessons / most) * 100}%` } as CSSProperties} />
       </span>
       <span className="st-learners__day-figures">
-        {day.lessons} {day.lessons === 1 ? 'lesson' : 'lessons'}
-        <br />
-        {day.installs} {day.installs === 1 ? 'install' : 'installs'}
+        <span>
+          {day.lessons} {day.lessons === 1 ? 'lesson' : 'lessons'}
+        </span>
+        <span>
+          {day.installs} {day.installs === 1 ? 'install' : 'installs'}
+        </span>
       </span>
       <span className="st-learners__day-top">
         {day.top ? <LessonPicture library={library} lesson={day.top} size="medium" /> : null}
