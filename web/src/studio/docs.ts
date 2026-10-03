@@ -252,7 +252,11 @@ export const DOC_TOOLS: DocTool[] = [
       'Reads App Store Connect, sales, Apple Ads and the paywall tests, keeps the log, and builds the Today page. The routines run it every day; anyone can log a line.',
     where: 'repo root',
     usedBy: 'Claude’s routines; you, to log',
-    needs: ['App Store Connect keys in `~/.appstoreconnect/config`', 'The `superwall` CLI signed in, for Apple Ads and the tests'],
+    needs: [
+      'App Store Connect keys in `~/.appstoreconnect/config`',
+      'The `superwall` CLI signed in, for Apple Ads and the tests',
+      'The Astro app open on this Mac, for keywords',
+    ],
     tips: [
       'A log line is one short sentence under 120 characters, in plain words: “Apple approved 1.1 (4); tagged and merged”.',
       'Never delete `.studio/ops/history` or `log.jsonl`: they only grow.',
@@ -269,7 +273,7 @@ export const DOC_TOOLS: DocTool[] = [
           },
           {
             run: 'python3 docs/ops/today.py collect',
-            does: 'Everything: versions and review, reviews, rating, sales, Apple Ads and the Superwall tests, into `.studio/ops/facts.json`.',
+            does: 'Everything: versions and review, reviews, rating, sales, Apple Ads, the Superwall tests and the keywords Astro tracks (popularity, rank), into `.studio/ops/facts.json`.',
           },
           { run: 'python3 docs/ops/today.py publish', does: 'Rebuilds the Today page from the facts, Claude’s notes and the log.' },
           {
@@ -287,6 +291,15 @@ export const DOC_TOOLS: DocTool[] = [
             does: 'The same, filed under a kind: release, review, ads, tests, social, build, money, learners or check.',
           },
           { run: 'python3 docs/ops/today.py show', does: 'The page as it stands, in the terminal.' },
+        ],
+      },
+      {
+        title: 'Keywords',
+        commands: [
+          {
+            run: 'python3 docs/ops/today.py astro <tool> \'<json>\'',
+            does: 'Calls any Astro tool, e.g. `get_keyword_suggestions` with `{"appId": "6816231257", "store": "us"}`. The Monday keyword research uses it.',
+          },
         ],
       },
     ],
@@ -581,6 +594,34 @@ export const DOC_TOOLS: DocTool[] = [
           { run: 'learn -s "<task>"', does: 'Loads PostHog’s own playbook for a task first.' },
           { run: 'search <words>', does: 'Finds a PostHog tool by what it does.' },
           { run: 'info <tool>', does: 'A tool’s inputs, read before calling it.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'astro',
+    kind: 'mcp',
+    name: 'Astro (App Store keywords)',
+    about:
+      'The Mac app that tracks Paper Coach’s keywords: Apple’s search popularity for each (5 is the floor: almost nobody searches it), how hard it is to rank, and where Paper Coach ranks. The daily check reads it to decide which Apple Ads keywords get money, and does keyword research with it on Mondays.',
+    where: 'the Astro app on this Mac · its MCP server at http://127.0.0.1:8089/mcp, only while the app is open',
+    usedBy: 'Claude’s daily check, through `today.py`; you, in the app',
+    tips: [
+      'Paper Coach is tracked in the US, UK, Canada and Australia (58 keywords each); Simply Draw is tracked as a competitor.',
+      'Popularity sets each Apple Ads keyword’s bid ceiling: 20 or more up to $2.75, 10–19 $2.00, 6–9 $1.50, 5 doesn’t climb.',
+      'Never `remove_keywords` without asking Kevin first: it deletes the tracking history.',
+    ],
+    more: [repo('docs/ops/README.md', 'Apple Ads, in the ops runbook')],
+    groups: [
+      {
+        title: 'Tools Claude uses',
+        about: 'Through `python3 docs/ops/today.py astro <tool> \'<json>\'`, or as MCP tools in a project that has the `astro` server.',
+        commands: [
+          { run: 'get_app_keywords {"appId": "6816231257", "store": "us"}', does: 'Every tracked keyword with popularity, difficulty and rank.' },
+          { run: 'get_keyword_performance {"appId": "6816231257", "keyword": "<keyword>", "includeHistory": true}', does: 'One keyword’s rank over time.' },
+          { run: 'extract_competitors_keywords {"appId": "6816231257", "keyword": "<keyword>", "store": "us"}', does: 'Keyword ideas from the apps that rank for a term, with popularity.' },
+          { run: 'get_keyword_suggestions {"appId": "6816231257", "store": "us"}', does: 'Suggested keywords with popularity and difficulty.' },
+          { run: 'add_keywords {"appId": "6816231257", "store": "us", "keywords": ["<keyword>"]}', does: 'Starts tracking new keywords.' },
         ],
       },
     ],
