@@ -569,7 +569,6 @@
   background: var(--accent-tint);
 }
 
-/* "Drew [picture] Cloud ✕": the lesson the page is narrowed to, and the way back to everyone. */
 /* "2 in the app now": who is in the app as the page last heard, and a way to see only them. */
 .st-learners__now-chip {
   display: inline-flex;
@@ -618,6 +617,7 @@
   color: var(--good);
 }
 
+/* "Drew [picture] Cloud ✕": the lesson the page is narrowed to, and the way back to everyone. */
 .st-learners__drew {
   display: inline-flex;
   align-items: center;

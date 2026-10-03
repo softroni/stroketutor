@@ -97,12 +97,12 @@ function nextStage(stage: Stage): Stage | null {
   return STAGES[STAGES.indexOf(stage) + 1] ?? null
 }
 
-/** Whether a learner is one of those a number, or a stage of the journey, counts. */
 /** In the app now: drawing, or anywhere else in it, by their last event (`HERE_NOW_MS`). */
 export function isHereNow(session: LearnerSession): boolean {
   return session.end.kind === 'drawingNow' || session.end.kind === 'hereNow'
 }
 
+/** Whether a learner is one of those a number, or a stage of the journey, counts. */
 export function counts(session: LearnerSession, only: Only): boolean {
   switch (only) {
     case 'now':
