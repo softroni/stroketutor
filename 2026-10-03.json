@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-03T10:01:20-05:00",
+  "updated": "2026-10-03T12:23:23-05:00",
   "headline": "1.1 has waited about 56 hours for Apple's review; nothing is broken and there are no reviews yet. Oct 2 was the best day so far: 7 new learners, all through onboarding, the first Apple Ads install, but no purchase yet.",
   "app": {
     "live": {
@@ -287,11 +287,6 @@
       "title": "Don't publish Paywall 1 or Flow 1 in Superwall yet",
       "detail": "They hold the Lifetime drafts. Even once 1.1 is on sale, wait for Claude: phased release keeps learners on 1.0, which doesn't count Lifetime, so Claude first limits both designs to 1.1 and later, then tells you.",
       "since": "2026-09-30"
-    },
-    {
-      "title": "TikTok bio link, once TikTok verifies the business",
-      "detail": "Verification was submitted Sep 30 (up to three days, so about now). Then Edit profile › Links: https://apps.apple.com/app/apple-store/id6816231257?pt=128560181&ct=tiktok-bio&mt=8",
-      "since": "2026-09-30"
     }
   ],
   "working": [
@@ -347,6 +342,19 @@
     }
   ],
   "log": [
+    {
+      "at": "2026-10-03T12:23:22-05:00",
+      "text": "Built for the build after 1.1 (on main, 7861275): Today's drawing (one Premium lesson a day, free to everyone that day, card on Home) and \"Draw again tomorrow?\" on a finished drawing (one tap turns the daily reminder on). App Store shot 8 retaken. Other ideas kept as suggestions in docs/next-builds.md."
+    },
+    {
+      "at": "2026-10-03T11:14:57-05:00",
+      "text": "YouTube verified Paper Coach's channel: custom thumbnails allowed; TikTok's bio link in since Oct 1",
+      "kind": "social"
+    },
+    {
+      "at": "2026-10-03T10:23:29-05:00",
+      "text": "Social: 16:9 video (“Learn to Draw Step by Step on Real Paper: the Paper Coach Tour”) posted on youtube."
+    },
     {
       "at": "2026-10-03T10:01:19-05:00",
       "text": "Trial cancelled: the 13–15 learner turned off renewal 3 hours in, still drawing; Premium until Oct 10",
@@ -520,19 +528,6 @@
     {
       "at": "2026-10-01T12:29:15-05:00",
       "text": "Apple Ads: excluded the junk search \"ve\" from Discovery (12 of its impressions, no taps)"
-    },
-    {
-      "at": "2026-10-01T12:17:22-05:00",
-      "text": "Apple Ads: within $150, cap and budgets are Claude's to test; past $150 needs Kevin's yes and a plan"
-    },
-    {
-      "at": "2026-10-01T12:11:31-05:00",
-      "text": "Apple Ads: Kevin made Claude ads and sales manager; any budget increase goes to him first"
-    },
-    {
-      "at": "2026-10-01T11:51:21-05:00",
-      "text": "Midnight check now leaves social to the 5:45 PM social check when that ran the evening before",
-      "kind": "check"
     }
   ],
   "experiments": [
