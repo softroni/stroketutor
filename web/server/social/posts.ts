@@ -456,13 +456,17 @@ export type SocialRecord =
       kind: 'status'
       at: string
       requestId: string
-      /** Upload-Post's overall status: pending, queued, processing, in_progress, completed, failed. */
+      /** Upload-Post's overall status: pending, queued, processing, in_progress, completed, failed, retryable; or ours, partial. */
       status: string
       results: Record<string, PlatformResult>
     }
 
-/** `partial`: every platform answered, and some failed. Ours, not Upload-Post's. */
-export const FINAL_STATUSES = new Set(['completed', 'partial', 'failed', 'not_found'])
+/**
+ * `partial`: every platform answered, and some failed. Ours, not Upload-Post's.
+ * `retryable`: Upload-Post's, once it has stopped retrying a platform that failed ("We retried automatically; please
+ * retry the post later", Watermelon Slice's pin, 2026-10-01). Nothing more comes on its own: a post sent again can work.
+ */
+export const FINAL_STATUSES = new Set(['completed', 'partial', 'failed', 'not_found', 'retryable'])
 
 /**
  * Upload-Post's status, or ours once every platform has answered: a platform
@@ -470,7 +474,8 @@ export const FINAL_STATUSES = new Set(['completed', 'partial', 'failed', 'not_fo
  * leave the post "in_progress" for good.
  */
 export function settledStatus(status: string, results: Record<string, PlatformResult>, platforms: Platform[]): string {
-  if (FINAL_STATUSES.has(status)) return status
+  // Upload-Post's `retryable` is final, but in our words, once every platform has answered: partial or failed.
+  if (FINAL_STATUSES.has(status) && status !== 'retryable') return status
   const answered = platforms.map((platform) => results[platform]).filter((result): result is PlatformResult => Boolean(result))
   if (answered.length < platforms.length || platforms.length === 0) return status
   if (answered.every((result) => result.success)) return 'completed'
@@ -582,7 +587,7 @@ export function postedLessons(records: SocialRecord[]): Set<string> {
   return posted
 }
 
-const STILL_WORKING = new Set(['pending', 'queued', 'processing', 'in_progress', 'retryable'])
+const STILL_WORKING = new Set(['pending', 'queued', 'processing', 'in_progress'])
 
 /**
  * Where a post can be seen. Upload-Post gives a pin's destination (our App
@@ -599,7 +604,8 @@ export function platformLink(platform: string, given: string | null, postId: str
 export function normaliseResults(results: unknown): Record<string, PlatformResult> {
   const out: Record<string, PlatformResult> = {}
   const add = (platform: string, value: Record<string, unknown>) => {
-    // A platform still at work says `success: false` too; it has answered only once it has a final status.
+    // A platform still at work says `success: false` too; it has answered only once it has a final status. A
+    // `retryable` one has answered: Upload-Post has stopped trying it.
     if (typeof value.status === 'string' && STILL_WORKING.has(value.status)) return
     const name = platform === 'twitter' ? 'x' : platform
     const text = (candidate: unknown) => (typeof candidate === 'string' && candidate ? candidate : null)

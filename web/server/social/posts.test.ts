@@ -11,6 +11,7 @@ import {
   boardName,
   dayOf,
   entriesByDay,
+  FINAL_STATUSES,
   platformLink,
   postsByDay,
   pinFields,
@@ -416,5 +417,20 @@ describe('the record of posts', () => {
     expect(settledStatus('in_progress', { youtube: ok, facebook: failed }, ['youtube', 'facebook'])).toBe('partial')
     expect(settledStatus('in_progress', { youtube: failed }, ['youtube'])).toBe('failed')
     expect(settledStatus('completed', {}, ['youtube'])).toBe('completed')
+  })
+
+  it('takes Upload-Post’s retryable as finished: it has stopped trying the platform that failed', () => {
+    // As Upload-Post answered for Watermelon Slice's video pin, 2026-10-01.
+    const refused = 'Pinterest temporarily refused to create this Pin. We retried automatically; please retry the post later.'
+    const results = normaliseResults([
+      { platform: 'youtube', status: 'completed', success: true, post_url: 'https://www.youtube.com/watch?v=HAmrckw2-JE' },
+      { platform: 'pinterest', status: 'retryable', success: false, error_message: refused },
+    ])
+    expect(results.pinterest).toEqual({ success: false, url: null, postId: null, error: refused })
+    expect(settledStatus('retryable', results, ['youtube', 'pinterest'])).toBe('partial')
+    expect(settledStatus('retryable', { pinterest: results.pinterest }, ['pinterest'])).toBe('failed')
+    // A platform that never answers can't hold the post back: retryable is final as it stands.
+    expect(settledStatus('retryable', { youtube: results.youtube }, ['youtube', 'pinterest'])).toBe('retryable')
+    expect(FINAL_STATUSES.has('retryable')).toBe(true)
   })
 })
