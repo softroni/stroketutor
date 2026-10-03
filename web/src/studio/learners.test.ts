@@ -6,6 +6,8 @@ import { describe, expect, it } from 'vitest'
 import type { Tutorial } from '../schema/types'
 
 import {
+  arrivalsOf,
+  newArrivals,
   leaveOutTestVersions,
   DEFAULT_LESSON_FLOOR_MS,
   markTappedThrough,
@@ -374,6 +376,54 @@ describe('purchases', () => {
   })
 })
 
+describe('sounds for what arrives', () => {
+  const at = Date.parse('2026-10-03T15:00:00Z')
+  const opened = (id: string, start: number): LearnerEvent[] => [
+    { at: start, event: 'app_opened', id, firstOpen: true },
+    { at: start + 1_000, event: 'ob_age_answered', id, age: '18plus' },
+  ]
+  const bought = (id: string, start: number, plan: string): LearnerEvent => ({
+    at: start,
+    event: 'purchase_attempted',
+    id,
+    age: '18plus',
+    plan,
+    outcome: 'purchased',
+  })
+  const counts = (list: LearnerEvent[]) => arrivalsOf(list, 'day', '2026-10-03', at + 86_400_000)
+
+  it('counts everybody’s installs, free trials and buys in the period, as the numbers do with nothing narrowed', () => {
+    const day = '2026-10-02'
+    const report = buildReport(everything, { period: 'day', date: day, now: later })
+    const number = (key: string) => report.numbers.find((entry) => entry.key === key)?.value
+    expect(arrivalsOf(everything, 'day', day, later)).toEqual({ install: number('installs'), trial: number('trials'), buy: number('buys') })
+    // A child's narrowing leaves the sounds as they are.
+    const children = buildReport(everything, { period: 'day', date: day, who: 'children', now: later })
+    expect(children.numbers.find((entry) => entry.key === 'installs')?.value).toBeLessThan(number('installs')!)
+  })
+
+  it('sounds the loudest news first, and nothing when nothing came', () => {
+    const first = counts(opened('a', at))
+    expect(first).toEqual({ install: 1, trial: 0, buy: 0 })
+    expect(newArrivals(first, first)).toEqual([])
+    const installed = counts([...opened('a', at), ...opened('b', at + 60_000)])
+    expect(newArrivals(first, installed)).toEqual(['install'])
+    const paid = counts([...opened('a', at), ...opened('b', at + 60_000), bought('a', at + 120_000, 'weekly')])
+    expect(newArrivals(first, paid)).toEqual(['buy', 'install'])
+    const trial = counts([...opened('a', at), { at: at + 120_000, event: 'superwall_free_trial_start', id: 'a', age: '18plus' }])
+    expect(newArrivals(first, trial)).toEqual(['trial'])
+  })
+
+  it('stays quiet when a buy turns out to have started a free week', () => {
+    const purchase = [...opened('a', at), bought('a', at + 120_000, 'yearly')]
+    const before = counts(purchase)
+    expect(before).toMatchObject({ trial: 0, buy: 1 })
+    const after = counts([...purchase, { at: at + 121_000, event: 'superwall_free_trial_start', id: 'a', age: '18plus' }])
+    expect(after).toMatchObject({ trial: 1, buy: 0 })
+    expect(newArrivals(before, after)).toEqual([])
+  })
+})
+
 describe('buildHistory', () => {
   it('lays out a 13+ learner’s days, from both their ids', () => {
     const theirs = events.filter((event) => event.id === 'u06' || event.id === 'u07')
@@ -430,7 +480,7 @@ describe('numbers that changed', () => {
     expect(markedChanges(third.changes, at + 60_000 + DEFAULT_MARK_MS)).toEqual({})
   })
 
-  it('marks for as long as was picked, and remembers a change an hour for a longer pick', () => {
+  it('marks for as long as was picked, and remembers a change twelve hours for a longer pick', () => {
     const first = noteNumbers(undefined, numbers(19), at)
     const second = noteNumbers(first, numbers(21), at + 60_000, 60_000)
     expect(markedChanges(second.changes, at + 90_000, 60_000)).toHaveProperty('lessons')
@@ -440,8 +490,15 @@ describe('numbers that changed', () => {
     expect(markedChanges(later.changes, at + 11 * 60_000, 30 * 60_000)).toHaveProperty('lessons')
     // …but a move after the minute starts again from where it was.
     expect(noteNumbers(later, numbers(22), at + 12 * 60_000, 60_000).changes.lessons).toMatchObject({ from: 21, to: 22 })
-    expect(noteNumbers(later, numbers(21), at + 62 * 60_000).changes).toEqual({})
-    expect([60_000, 5 * 60_000, 60 * 60_000].map(markWords)).toEqual(['1 min', '5 min', '1 hour'])
+    expect(noteNumbers(later, numbers(21), at + 11 * 60 * 60_000).changes).toHaveProperty('lessons')
+    expect(noteNumbers(later, numbers(21), at + 12 * 60 * 60_000 + 61_000).changes).toEqual({})
+    expect([60_000, 5 * 60_000, 60 * 60_000, 2 * 60 * 60_000, 12 * 60 * 60_000].map(markWords)).toEqual([
+      '1 min',
+      '5 min',
+      '1 hour',
+      '2 hours',
+      '12 hours',
+    ])
   })
 
   it('keeps where a number started when it moves again, and lets go when it comes back', () => {

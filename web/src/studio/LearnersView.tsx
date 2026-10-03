@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 
 import { readAdNames, readAdSpend, readLearnerHistory, readLearners, readPaywallNames, readSocialTaps } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
@@ -6,6 +6,10 @@ import {
   adKey,
   adsTotal,
   ageLabel,
+  type Arrival,
+  type ArrivalCounts,
+  ARRIVALS,
+  arrivalsOf,
   buildHistory,
   isChildAge,
   buildReport,
@@ -30,6 +34,7 @@ import {
   type LearnerHistory,
   PERIODS,
   money,
+  newArrivals,
   type Only,
   previousLabel,
   spoken,
@@ -65,6 +70,7 @@ import {
 } from './learners'
 import type { Library } from './library'
 import { routeHref } from './route'
+import { audioAllowed, playSound, wakeAudio } from './sounds'
 
 /**
  * How often a period that reaches today asks again, while the page is in view: a day every
@@ -217,6 +223,59 @@ export function useNumberChanges(
     return () => window.clearInterval(timer)
   }, [marked])
   return changes
+}
+
+const SOUNDS_STORE = 'st-learners-sounds'
+const ALL_SOUNDS: Record<Arrival, boolean> = { install: true, trial: true, buy: true }
+
+/**
+ * Which arrivals play a sound, as last set in this browser (all of them at first), and
+ * whether the browser still holds them back (`blocked`) because the page has not been
+ * clicked yet. Turning one on plays it, so it is heard once and the browser lets it play later.
+ */
+export function useSounds(): { sounds: Record<Arrival, boolean>; toggle: (kind: Arrival) => void; blocked: boolean } {
+  const [sounds, setSounds] = useState(() => ({ ...ALL_SOUNDS, ...readStore<Partial<Record<Arrival, boolean>>>(SOUNDS_STORE, {}) }))
+  const toggle = useCallback((kind: Arrival) => {
+    setSounds((current) => {
+      const next = { ...current, [kind]: !current[kind] }
+      writeStore(SOUNDS_STORE, next)
+      return next
+    })
+  }, [])
+  const anyOn = ARRIVALS.some((kind) => sounds[kind])
+  const [allowed, setAllowed] = useState(audioAllowed)
+  // Browsers play nothing until the page has been clicked or typed in: the first one wakes the sound.
+  useEffect(() => {
+    if (!anyOn) return
+    const wake = () => {
+      wakeAudio()
+      setAllowed(true)
+    }
+    window.addEventListener('pointerdown', wake, true)
+    window.addEventListener('keydown', wake, true)
+    return () => {
+      window.removeEventListener('pointerdown', wake, true)
+      window.removeEventListener('keydown', wake, true)
+    }
+  }, [anyOn])
+  return { sounds, toggle, blocked: anyOn && !allowed }
+}
+
+/**
+ * Plays a sound when an update of the same view brings an install, a free trial or a buy
+ * the page had not shown: the loudest of them that is not muted. Never on the first look at
+ * a period, so opening the page or another day is quiet.
+ */
+function useArrivalSounds(view: string, counts: ArrivalCounts | null, sounds: Record<Arrival, boolean>) {
+  const last = useRef<{ view: string; counts: ArrivalCounts } | null>(null)
+  // A sound turned on or off runs this again with the same counts: nothing new, nothing played.
+  useEffect(() => {
+    if (!counts) return
+    const before = last.current?.view === view ? last.current.counts : null
+    last.current = { view, counts }
+    const loudest = before ? newArrivals(before, counts).find((kind) => sounds[kind]) : undefined
+    if (loudest) playSound(loudest)
+  }, [view, counts, sounds])
 }
 
 /** "waiting for review", from App Store Connect's "WAITING_FOR_REVIEW". */
@@ -397,6 +456,8 @@ function Freshness({
   onRefresh,
   markFor,
   onMarkFor,
+  sounds,
+  onSound,
 }: {
   loadedAt: number | null
   loading: boolean
@@ -405,6 +466,8 @@ function Freshness({
   onRefresh: () => void
   markFor: number
   onMarkFor: (ms: number) => void
+  sounds: Record<Arrival, boolean>
+  onSound: (kind: Arrival) => void
 }) {
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -434,7 +497,59 @@ function Freshness({
           ))}
         </select>
       </label>
+      <SoundToggles sounds={sounds} onToggle={onSound} />
     </span>
+  )
+}
+
+const SOUND_WORDS: Record<Arrival, string> = { install: 'an install', trial: 'a free trial', buy: 'a buy' }
+/** Left to right as the numbers run: Installs, then Free trials and Buys. */
+const SOUND_ORDER: Arrival[] = ['install', 'trial', 'buy']
+
+/**
+ * A small icon for each sound, struck through when it is muted: a tap turns it on or off
+ * (and, on, plays it once).
+ */
+function SoundToggles({ sounds, onToggle }: { sounds: Record<Arrival, boolean>; onToggle: (kind: Arrival) => void }) {
+  return (
+    <span className="st-learners__sounds" role="group" aria-label="Sounds">
+      <span className="st-learners__muted">Sounds</span>
+      {SOUND_ORDER.map((kind) => (
+        <button
+          key={kind}
+          type="button"
+          className="st-learners__sound"
+          aria-pressed={sounds[kind]}
+          aria-label={`Sound for ${SOUND_WORDS[kind]}`}
+          title={`Sound for ${SOUND_WORDS[kind]}: ${sounds[kind] ? 'on. Click to mute.' : 'muted. Click to turn on.'}`}
+          onClick={() => {
+            if (!sounds[kind]) playSound(kind)
+            onToggle(kind)
+          }}
+        >
+          <SoundIcon kind={kind} muted={!sounds[kind]} />
+        </button>
+      ))}
+    </span>
+  )
+}
+
+/** An arrow into a tray for an install, a gift for a free trial, a counter bell for a buy. */
+function SoundIcon({ kind, muted }: { kind: Arrival; muted: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      {kind === 'install' ? (
+        <path d="M12 3.5v11M7.5 10 12 14.5 16.5 10M5 19.5h14" />
+      ) : kind === 'trial' ? (
+        <>
+          <rect x="4.5" y="11" width="15" height="9" rx="1.5" />
+          <path d="M3.5 7.5h17V11h-17zM12 7.5V20M12 7.5C11 5 8 4 7.4 5.6S9.5 7.5 12 7.5Zm0 0c1-2.5 4-3.5 4.6-1.9S14.5 7.5 12 7.5Z" />
+        </>
+      ) : (
+        <path d="M5 17.5a7 7 0 0 1 14 0M3 17.5h18M4.5 20.5h15M12 10.5V8.5M10.2 8.5h3.6" />
+      )}
+      {muted ? <path className="st-learners__sound-off" d="M3.5 3.5l17 17" /> : null}
+    </svg>
   )
 }
 
@@ -488,6 +603,13 @@ export function LearnersView({
   const socialTaps = useSocialTaps(period, day, library.writable, loadedAt)
   const paywallNames = usePaywallNames(library.writable)
   const [markFor, setMarkFor] = useMarkFor()
+  const { sounds, toggle: toggleSound, blocked: soundsBlocked } = useSounds()
+  // Everybody's, whatever the page is narrowed to: a sale is a sale.
+  const arrivals = useMemo(
+    () => (response?.configured && response.events ? arrivalsOf(response.events, period, day) : null),
+    [response, period, day],
+  )
+  useArrivalSounds(`${period}|${day}`, arrivals, sounds)
   // The numbers depend on the period, the day and the narrowing, but not on `only`.
   const changes = useNumberChanges(
     `${period}|${day}|${who}|${source}|${lesson ?? ''}${where ? `|${where}` : ''}${age ? `|age-${age}` : ''}`,
@@ -552,9 +674,14 @@ export function LearnersView({
                 onRefresh={refresh}
                 markFor={markFor}
                 onMarkFor={setMarkFor}
+                sounds={sounds}
+                onSound={toggleSound}
               />
             ) : null}
           </p>
+          {response?.configured && soundsBlocked ? (
+            <p className="st-learners__muted st-learners__sound-hint">The browser plays the sounds once the page has been clicked.</p>
+          ) : null}
         </div>
         <nav className="st-learners__period" aria-label="Period">
           <div className="st-learners__segments" role="group" aria-label="Show">

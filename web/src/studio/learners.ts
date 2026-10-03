@@ -1235,13 +1235,24 @@ export interface ReportNumber {
 }
 
 /** How long a number that changed stays marked on the page: the creator picks, five minutes at first. */
-export const MARK_CHOICES = [60_000, 5 * 60_000, 15 * 60_000, 30 * 60_000, 60 * 60_000] as const
+export const MARK_CHOICES = [
+  60_000,
+  5 * 60_000,
+  15 * 60_000,
+  30 * 60_000,
+  60 * 60_000,
+  2 * 60 * 60_000,
+  4 * 60 * 60_000,
+  8 * 60 * 60_000,
+  12 * 60 * 60_000,
+] as const
 export const DEFAULT_MARK_MS = 5 * 60_000
 const LONGEST_MARK_MS = MARK_CHOICES[MARK_CHOICES.length - 1]
 
-/** "1 min", "1 hour". */
+/** "1 min", "1 hour", "12 hours". */
 export function markWords(ms: number): string {
-  return ms >= 60 * 60_000 ? `${ms / (60 * 60_000)} hour` : `${ms / 60_000} min`
+  const hours = ms / (60 * 60_000)
+  return hours >= 1 ? `${hours} ${hours === 1 ? 'hour' : 'hours'}` : `${ms / 60_000} min`
 }
 
 /** A number that moved: from what, to what, and between which two looks. */
@@ -1297,6 +1308,43 @@ export function markedChanges(
   keepFor: number = DEFAULT_MARK_MS,
 ): Record<string, NumberChange> {
   return Object.fromEntries(Object.entries(changes).filter(([, change]) => now - change.at < keepFor))
+}
+
+/** What the page has a sound for: an install, a free trial started, a plan bought. */
+export type Arrival = 'install' | 'trial' | 'buy'
+/** Loudest first: an update that brings several plays the first of them not muted. */
+export const ARRIVALS: Arrival[] = ['buy', 'trial', 'install']
+
+/** How many of each arrival a period has had. */
+export type ArrivalCounts = Record<Arrival, number>
+
+/**
+ * The period's installs, free trials and buys by everybody, whatever the page is narrowed
+ * to: the same counts as the Installs, Free trials and Buys numbers with nothing narrowed.
+ */
+export function arrivalsOf(allEvents: LearnerEvent[], period: Period, date: string, now: number = Date.now()): ArrivalCounts {
+  const { from, to } = periodRange(period, date)
+  const events = allEvents.filter((event) => {
+    const day = dayOf(event.at)
+    return day >= from && day < to
+  })
+  const counts: ArrivalCounts = { install: 0, trial: 0, buy: 0 }
+  for (const learner of stitch(events)) {
+    const session = buildSession(learner, learner.events, now)
+    if (session.isNew) counts.install += 1
+    for (const item of session.items) if (item.kind === 'bought') counts[item.trial ? 'trial' : 'buy'] += 1
+  }
+  return counts
+}
+
+/**
+ * What a later look at the same period brought, loudest first. A buy that turns out to
+ * have started a free week (Superwall's word came after the purchase) is not new: trials
+ * and buys only sound when there are more of the two together.
+ */
+export function newArrivals(before: ArrivalCounts, after: ArrivalCounts): Arrival[] {
+  const paid = after.trial + after.buy > before.trial + before.buy
+  return ARRIVALS.filter((kind) => after[kind] > before[kind] && (kind === 'install' || paid))
 }
 
 export interface JourneyStage {

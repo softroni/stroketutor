@@ -36,8 +36,10 @@ every scheduled run follows it.
   It refreshes a day every minute while in view (a week or month every 5), asking PostHog for fresh results
   (`refresh: force_blocking`), about 60–120 queries an hour, far under the project's 2,400. Trials and buys are apart,
   with dollars at the plans' US list prices on the day, not Apple's proceeds: for proceeds, App Store Connect.
-  A number that moved since the page last looked flashes and stays highlighted (1 min to 1 hour, picked on the page,
+  A number that moved since the page last looked flashes and stays highlighted (1 min to 12 hours, picked on the page,
   5 min at first); what was seen is kept in the browser (`localStorage`), so a closed page catches up on return.
+  An update that brings an install, a free trial or a buy plays a sound (light, medium, a cash register's bell),
+  each muted on its own by its icon in the header.
   *Where from* counts learners by Apple Ads keyword, country and app version; each session names its keyword (names
   through `superwall asa`, kept half an hour). The country is `device_region`, sent from the release after 1.1.
   *At the paywall* shows Superwall's test versions (shown, time open, closed within 5 s, buy tapped, cancelled,

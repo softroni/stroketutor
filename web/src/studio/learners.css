@@ -2144,3 +2144,53 @@ a.st-learners__day-face:hover {
     grid-column-start: auto;
   }
 }
+
+/* The sounds for an install, a free trial and a buy: small icons, struck through when muted. */
+.st-learners__sounds {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+.st-learners__sounds > .st-learners__muted:first-child {
+  margin-right: 4px;
+}
+
+.st-learners__freshness .st-learners__sound {
+  display: inline-flex;
+  margin-left: 0;
+  padding: 2px 5px;
+  line-height: 0;
+}
+
+.st-learners__sound svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.st-learners__freshness .st-learners__sound[aria-pressed='false'] {
+  border-color: var(--line);
+  color: var(--ink-faint);
+}
+
+.st-learners__sound-off {
+  stroke-width: 2.2;
+}
+
+.st-learners__sound-hint {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .st-learners__sounds {
+    margin-left: 0;
+  }
+}
