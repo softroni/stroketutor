@@ -154,6 +154,7 @@ up" on the Today page and does what each says on the day.
 | While 1.1 is in review | 1.1's what's-new video, made from `release/1.1` (*What's new videos*) | social check |
 | The day 1.1 goes on sale | 1.1's what's-new video to every platform; Around Town's ten lessons join the queue | social check |
 | The day after 1.1's what's-new video | The tour (`.studio/overview-1.1`): its unlisted YouTube video made public, X its 2:16 cut, the five others as it is (*The tour video*) | social check |
+| The day the build after 1.1 goes on sale | Premium days post the app's drawing of that day (`DailyDrawing` in the app, free to everyone that day; docs/next-builds.md item 8), so a viewer who installs finds it open: port its order to `web/server/social/queue.ts`. The caption may say it is free in the app today only on the day it goes out | Claude |
 | 2026-10-28 | Four-week review: downloads per campaign and views per platform, written under *Log*. October's monthly report comes only on Nov 5, so the weekly ones: `acquisition.py --granularity WEEKLY --days 28` | daily check |
 | 2026-10-30 | Upload-Post renews monthly ($24) | automatic |
 | 2026-11-23 | The two-month write-up under *Log*, and "monthly → yearly, or stop?" under Needs you | daily check |

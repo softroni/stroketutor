@@ -200,6 +200,45 @@ app, so they are Kevin's; each is small:
   `offer_screen_viewed` with the `asa_*` keys; and send the age answer under the id from before the switch, so one
   funnel follows a 13+ learner from first open to the paywall.
 
+## 8. Bring learners back each day: today's drawing and the reminder question (small, built)
+
+**Built 2026-10-03, not shipped:** on `main`, for the build after 1.1. Kevin asked for both (2026-10-03) after the
+first free week, a 13–15 learner in the Netherlands who drew nine Premium lessons in an afternoon (many in under a
+minute, so tapped through rather than drawn) and cancelled within three hours. The library can be gone through in a
+day; what a subscription needs is a reason to come back tomorrow. Of the first ~14 learners who had a day to come
+back, 3 did, and 0 of 58 app opens in the week before had the practice reminder on. What was built (README ›
+M10 › *Coming back*):
+- **Today's drawing:** one Premium lesson a day, the same for everyone on that date, free to every learner until
+  their midnight, as a gold card under Home's hero ("Free today" for 13+ without Premium). In the social videos'
+  Premium order, so the app and the daily video can show the same lesson.
+- **"Draw again tomorrow?"** on a finished drawing's screen, from the first: one tap turns the practice reminder on
+  every day at that time. Until answered, at most three times.
+
+**Still to do (Claude, the day the build is on sale):** the social videos follow it. On a Premium day the video is
+that day's drawing, so a viewer who installs the same day finds it open: `DailyDrawing.order` is a few lines to port
+to `web/server/social/queue.ts` (docs/ops/social-plan.md has it in the schedule).
+
+**Judge it by** (PostHog, release builds): the share of learners who open the app on a second and a seventh day,
+before and after; `reminder_offer_answered` by answer, and `app_opened` with `reminder_on`; `daily_drawing_opened`
+and `lesson_started` with `daily_drawing` by learners without Premium (`free_today`), and whether they reach a
+paywall or a free week afterwards. Trials should not fall: one free Premium lesson a day is a taste, not the library.
+
+## Suggested for later (not decided; Kevin's call)
+
+From the same review (2026-10-03). None is built; each would need Kevin's yes:
+
+- **Draw it again from memory.** The day after a lesson: "Yesterday you drew the rocket. Try it without the steps,
+  then compare." Recall is how drawing is learned, and it makes endless daily practice out of the lessons there are.
+- **New lessons on a schedule**, e.g. a new lesson every week, said on the paywall ("New lessons every week"). What
+  makes a subscription fair once a learner has drawn a lot, and gives a reminder real news.
+- **A first-week plan for the free trial:** one or two lessons a day for seven days, picked for the learner, ending
+  on day 7 with "your week in drawings" just before the charge.
+- **Visible progress:** the first drawing beside the latest after two weeks, a month in drawings. Needs photos,
+  which few learners take yet (`drawing_saved`).
+- **A gentle pace, not a limit:** after three lessons in a row, the completion screen leads with "Good session.
+  Tomorrow: Sunflower" and the reminder, with "Keep going" still there. No daily cap: it would punish adults who pay.
+- **A home-screen widget with today's drawing** (a widget extension; `DailyDrawing` needs no data from the app).
+
 ## What Claude does meanwhile (no app change)
 
 - Custom product pages: one for parents (children drawing, the parental check, no ads) and one for adults (calm
@@ -212,4 +251,5 @@ app, so they are Kevin's; each is small:
 
 **1.1 carries items 1, 4 and 5**, with Around Town's Café and everything on `main` since 1.0 (2); it is cut once all of
 them are merged (item 1 is: `508ec63`). The plan and its checklist: [docs/releases/1.1.md](releases/1.1.md). The price test (2) waits for steady revenue
-(Kevin, 2026-10-01). Item 3 goes in the build after, with item 6 (sharing, on `main` since 2026-10-01).
+(Kevin, 2026-10-01). Item 3 goes in the build after, with item 6 (sharing, on `main` since 2026-10-01) and item 8
+(today's drawing and the reminder question, on `main` since 2026-10-03).

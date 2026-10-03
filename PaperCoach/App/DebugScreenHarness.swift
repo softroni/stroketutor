@@ -57,6 +57,7 @@ enum DebugScreenHarness {
         pendingTrialEndsAt = nil
         pendingOpensPlans = false
         app.pathsWelcomePending = false
+        app.offersReminder = false
 
         // The screens below are captured with two of the shipped drawings: the palm
         // tree (upright) and the red car (wide). They are found by lesson id and not
@@ -76,6 +77,11 @@ enum DebugScreenHarness {
             ?? shipped.first { $0.id != treePath.id }?.lessons.first
             ?? treeLesson
         guard let carPath = app.path(id: carLesson.pathId) else { return }
+
+        // Today's drawing is a fixed lesson in every capture, whatever the date, so
+        // a screenshot taken on another day shows the same screen. The pizza slice:
+        // its path is on no other App Store shot, so no crown elsewhere goes missing.
+        app.dailyDrawingDay = DailyDrawing.firstDate(showing: harnessDailyDrawing, paths: app.paths) ?? Date()
 
         app.selectedTab = .home
         app.popToRoot(.home)
@@ -100,6 +106,14 @@ enum DebugScreenHarness {
             for lesson in treePath.lessons.prefix(2) + carPath.lessons.prefix(1) {
                 addPlaceholderPage(to: app, lesson: lesson)
             }
+
+        case "home-daily":
+            // `home-progress` for a learner 18 or over without Premium: today's
+            // drawing says "Free today".
+            app.setAgeGroup(app.activeProfile.id, to: .adult)
+            markFirst(2, of: treePath, in: app)
+            if carPath.id != treePath.id { markFirst(1, of: carPath, in: app) }
+            app.select(treePath)
 
         case "home-shelves":
             // Home a few weeks in: shelves at different places, so the row that
@@ -235,6 +249,15 @@ enum DebugScreenHarness {
             // Same reason as `path-locked`: with one lesson per path this lesson
             // is always the last one, so "Next lesson" never has anything to
             // offer without a synthetic lesson after it.
+            let next = harnessLesson(from: treeLesson, suffix: "harness-next")
+            app.debugAppendLesson(next, toPathId: treePath.id)
+            app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
+            app.cover = .completion(lessonId: treeLesson.id)
+
+        case "completion-reminder":
+            // `completion-default` on a device that has never been offered the
+            // practice reminder: "Draw again tomorrow?" under the two facts.
+            app.offersReminder = true
             let next = harnessLesson(from: treeLesson, suffix: "harness-next")
             app.debugAppendLesson(next, toPathId: treePath.id)
             app.progress.markCompleted(treeLesson.id, pathId: treePath.id)
@@ -515,6 +538,9 @@ enum DebugScreenHarness {
             break // Unknown name: leave the clean, onboarded Home screen showing.
         }
     }
+
+    /// The lesson every capture shows as today's drawing (`DailyDrawing`).
+    static let harnessDailyDrawing = "pizza-slice"
 
     // MARK: - State AppRoot and two views read when they build a debug cover
 

@@ -50,6 +50,8 @@ struct AppRoot: View {
             .task {
                 guard !app.hasLoadedContent else { return }
                 app.loadContent()
+                // Today's drawing (`DailyDrawing`); a screenshot launch sets its own day.
+                if !isScreenshotLaunch { app.startDay() }
                 #if DEBUG
                 DebugScreenHarness.applyIfRequested(to: app)
                 #endif
@@ -94,6 +96,7 @@ struct AppRoot: View {
                 if returnsFromBackground {
                     returnsFromBackground = false
                     app.startNewSession()
+                    if !isScreenshotLaunch { app.startDay() }
                     if countsAsUse { app.recordAppOpened() }
                 }
                 Task { await app.premium.refreshEntitlements() }
@@ -163,13 +166,8 @@ struct AppRoot: View {
     /// settings after an update or a restore, when iOS may have dropped them. The
     /// reminder screen does the same when it appears; `st-reminder`'s notes ask for both.
     private func rescheduleReminderIfEnabled() async {
-        let settings = app.settings
-        guard settings.reminderEnabled else { return }
-        let subject = app.currentPath.map { PracticeReminder.subject(fromPathTitle: $0.title) }
-        await PracticeReminderScheduler.reschedule(
-            days: PracticeReminder.days(from: settings.reminderDays),
-            time: PracticeReminder.time(from: settings.reminderTime),
-            body: PracticeReminder.body(subject: subject))
+        guard app.settings.reminderEnabled else { return }
+        await app.reschedulePracticeReminder()
     }
 
     @ViewBuilder

@@ -34,10 +34,11 @@ extension AppModel {
     }
 
     /// True when this lesson is past its path's free lessons and Premium is not
-    /// active: it wears a crown, and a tap opens the way to Premium.
+    /// active: it wears a crown, and a tap opens the way to Premium. Today's drawing
+    /// (`DailyDrawing`) is open to everyone, so it wears no crown today.
     func needsPremium(_ lesson: Lesson) -> Bool {
         guard !premium.isPremium, let path = path(id: lesson.pathId) else { return false }
-        return PremiumAccess.isPremiumLesson(lesson, in: path)
+        return PremiumAccess.isPremiumLesson(lesson, in: path) && !isDailyDrawing(lesson)
     }
 
     /// Opens the way to Premium for a lesson that needs it, and says so. Returns

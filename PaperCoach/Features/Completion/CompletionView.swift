@@ -18,7 +18,10 @@ import UIKit
 /// to grow taller.
 ///
 /// A learner 13 or over may be asked for an App Store rating here, a moment after
-/// the page lands (`askForRatingIfDue()`, `RatingPromptPolicy`).
+/// the page lands (`askForRatingIfDue()`, `RatingPromptPolicy`). Until the practice
+/// reminder is on or turned down, "Draw again tomorrow?" may show above the ways on
+/// instead (`ReminderOfferCard`, `ReminderOfferPolicy`); a screen showing it
+/// never asks for a rating too.
 struct CompletionView: View {
     let lesson: Lesson
 
@@ -31,6 +34,11 @@ struct CompletionView: View {
 
     /// Lina reads her closing line once, if it was recorded and narration is on.
     @State private var narration = NarrationPlayer()
+
+    /// "Draw again tomorrow?", while it is on this screen.
+    @State private var reminderPhase: ReminderOfferCard.Phase?
+    /// When the card came up: the note's time is worked out from it.
+    @State private var reminderOfferedAt = Date()
 
     /// The path this lesson belongs to, if it is still in the catalog.
     private var path: PathModel? { app.path(id: lesson.pathId) }
@@ -84,6 +92,7 @@ struct CompletionView: View {
         }
         .onDisappear { narration.deactivate() }
         .task { await askForRatingIfDue() }
+        .task { await offerReminderIfDue() }
     }
 
     // MARK: - The rating prompt
@@ -102,8 +111,52 @@ struct CompletionView: View {
         } catch {
             return
         }
-        guard app.claimRatingPrompt(after: lesson) else { return }
+        // One thing at a time: the reminder's card has the screen.
+        guard reminderPhase == nil, app.claimRatingPrompt(after: lesson) else { return }
         requestReview()
+    }
+
+    // MARK: - The reminder
+
+    /// Puts "Draw again tomorrow?" above the ways on when `ReminderOfferPolicy` says
+    /// this finished drawing is the moment. iOS is asked first whether it has been
+    /// told no, since then the card could only fail.
+    private func offerReminderIfDue() async {
+        let denied = await PracticeReminderScheduler.authorization() == .denied
+        guard app.claimReminderOffer(after: lesson, notificationsDenied: denied) else { return }
+        reminderOfferedAt = Date()
+        withAnimation(.easeOut(duration: 0.25)) { reminderPhase = .asking }
+    }
+
+    @ViewBuilder
+    private var reminderCard: some View {
+        if let reminderPhase {
+            ReminderOfferCard(phase: reminderPhase,
+                              timeText: reminderTimeText,
+                              onAccept: acceptReminder,
+                              onDecline: declineReminder)
+                .transition(.opacity)
+        }
+    }
+
+    /// "4:45 PM": when the note will come.
+    private var reminderTimeText: String {
+        PracticeReminder.timeText(PracticeReminder.string(from: ReminderOfferPolicy.time(near: reminderOfferedAt)))
+    }
+
+    private func acceptReminder() {
+        reminderPhase = .waiting
+        Task {
+            let answer = await app.acceptReminderOffer(at: reminderOfferedAt)
+            withAnimation(.easeOut(duration: 0.25)) {
+                reminderPhase = answer == .yes ? .accepted : nil
+            }
+        }
+    }
+
+    private func declineReminder() {
+        app.declineReminderOffer()
+        withAnimation(.easeOut(duration: 0.25)) { reminderPhase = nil }
     }
 
     // MARK: - The wide screen
@@ -317,6 +370,8 @@ struct CompletionView: View {
 
     private var actions: some View {
         VStack(spacing: Theme.stackSpacing) {
+            reminderCard
+
             Button {
                 app.presentCapture(lesson)
             } label: {

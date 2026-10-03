@@ -5,19 +5,22 @@ import SwiftUI
 ///
 /// 1. **The hero** — *what do I draw next?* The next lesson, drawn large and in
 ///    color, with its path's name on a chip in the path's own tint, and one button.
-/// 2. **Your paths** — one shelf per path the learner is drawing: the current path
+/// 2. **Today's drawing** — one Premium lesson a day, the same for everyone and
+///    open to everyone today (`DailyDrawing`, `DailyDrawingCard`). Left out on the
+///    day it is the hero's own lesson.
+/// 3. **Your paths** — one shelf per path the learner is drawing: the current path
 ///    first (even before anything in it is drawn), then every other path they have
 ///    started, most recently drawn first. Each shelf sits on the white page — the
 ///    path's tint (`PathTint`) only colors its chevron and count — with its lessons
 ///    as tiles scrolling sideways, every one in full color on white paper: done in
 ///    gold, the next in green, what is coming behind a gray edge and a small lock,
 ///    so a learner can see what they will get to draw.
-/// 3. **Your wish list** — once the learner has saved a Premium lesson from its
+/// 4. **Your wish list** — once the learner has saved a Premium lesson from its
 ///    card (`GrownUpHandoffView`), those lessons as tiles with a gold star; a tap
 ///    opens the card again. Gone when the list is empty or Premium unlocks them.
-/// 4. **Your drawings** — once the sketchbook has pages, the latest few photos in a
+/// 5. **Your drawings** — once the sketchbook has pages, the latest few photos in a
 ///    strip; a tap goes to the Sketchbook tab.
-/// 5. **Try something new** — up to four paths not yet started, as picture cards
+/// 6. **Try something new** — up to four paths not yet started, as picture cards
 ///    in their tints (the path's first lesson in color on white paper), and "See
 ///    all 100 lessons", which opens the Lessons tab. Gone once every path is started.
 ///
@@ -61,6 +64,17 @@ struct HomeView: View {
                     hero
                         .padding(.horizontal, Theme.gutter)
                         .padding(.top, Theme.stackSpacing)
+
+                    if let daily = dailyDrawing {
+                        DailyDrawingCard(lesson: daily,
+                                         path: app.path(id: daily.pathId),
+                                         isDrawn: app.progress.isCompleted(daily.id),
+                                         isFreeToday: app.isFreeToday(daily) && !app.learnerIsChild) {
+                            app.openDailyDrawing()
+                        }
+                        .padding(.horizontal, Theme.gutter)
+                        .padding(.top, 18)
+                    }
 
                     ForEach(shelves) { path in
                         PathShelf(path: path,
@@ -199,6 +213,13 @@ struct HomeView: View {
     }
 
     // MARK: - What the screen lists
+
+    /// Today's drawing, unless the hero already offers that very lesson.
+    private var dailyDrawing: Lesson? {
+        guard let daily = app.dailyDrawing else { return nil }
+        let heroLesson = heroPath.flatMap { app.progress.nextLesson(in: $0) }
+        return daily.id == heroLesson?.id ? nil : daily
+    }
 
     /// Every path with lessons in the bundle, in catalog order. A path with nothing
     /// installed is never offered.

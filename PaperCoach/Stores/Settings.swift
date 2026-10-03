@@ -27,11 +27,14 @@ final class Settings {
         static let landscapeWidePage = "landscapeWidePage"
         static let firstRunStage = "firstRunStage"
         static let firstRunLessonId = "firstRunLessonId"
+        static let reminderOfferAnswer = "reminderOffer.answer"
+        static let reminderOfferShownCount = "reminderOffer.shownCount"
 
         static let all = [
             hasCompletedOnboarding, alsoSaveToPhotos, reminderEnabled,
             reminderDays, reminderTime, landscapeWidePage,
-            firstRunStage, firstRunLessonId
+            firstRunStage, firstRunLessonId,
+            reminderOfferAnswer, reminderOfferShownCount
         ]
     }
 
@@ -58,6 +61,12 @@ final class Settings {
     var reminderDays: String { didSet { write(reminderDays, Key.reminderDays) } }
     /// The reminder time as "HH:mm", 24-hour, formatted for display at the point of use.
     var reminderTime: String { didSet { write(reminderTime, Key.reminderTime) } }
+    /// How "Draw again tomorrow?" was answered on a finished drawing
+    /// (`ReminderOfferPolicy`): `yes`, `no` or `refused`. Nil while it has not been,
+    /// and then it may show again, a few times at most.
+    var reminderOfferAnswer: String? { didSet { writeOptional(reminderOfferAnswer, Key.reminderOfferAnswer) } }
+    /// How many finished drawings it has shown on, on this device.
+    var reminderOfferShownCount: Int { didSet { write(reminderOfferShownCount, Key.reminderOfferShownCount) } }
     /// How the player lays out a wide drawing with the phone on its side: true is
     /// the wide page (the paper alone, a bar along the bottom), false the panel.
     /// Nil until the learner first taps the paper to switch; the player treats it
@@ -92,6 +101,8 @@ final class Settings {
         reminderEnabled = defaults.object(forKey: Key.reminderEnabled) as? Bool ?? false
         reminderDays = defaults.string(forKey: Key.reminderDays) ?? "12345"
         reminderTime = defaults.string(forKey: Key.reminderTime) ?? "07:30"
+        reminderOfferAnswer = defaults.string(forKey: Key.reminderOfferAnswer)
+        reminderOfferShownCount = defaults.integer(forKey: Key.reminderOfferShownCount)
         landscapeWidePage = defaults.object(forKey: Key.landscapeWidePage) as? Bool
         firstRunStage = defaults.string(forKey: Key.firstRunStage).flatMap(FirstRunStage.init(rawValue:))
         firstRunLessonId = defaults.string(forKey: Key.firstRunLessonId)
@@ -106,6 +117,8 @@ final class Settings {
         reminderEnabled = false
         reminderDays = "12345"
         reminderTime = "07:30"
+        reminderOfferAnswer = nil
+        reminderOfferShownCount = 0
         landscapeWidePage = nil
         firstRunStage = nil
         firstRunLessonId = nil

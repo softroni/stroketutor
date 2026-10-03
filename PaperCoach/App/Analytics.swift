@@ -177,6 +177,9 @@ struct AnalyticsEvent: Equatable {
         static let result = "result"
         static let method = "method"
         static let taps = "taps"
+        static let dailyDrawing = "daily_drawing"
+        static let freeToday = "free_today"
+        static let answer = "answer"
     }
 
     // MARK: App and acquisition
@@ -214,24 +217,34 @@ struct AnalyticsEvent: Equatable {
     }
 
     /// The player opened on a lesson. `resumed` when it picks up at a saved step;
-    /// `premium_lesson` when the lesson needs Premium (so the learner has it).
-    static func lessonStarted(lessonId: String, pathId: String, resumed: Bool, premiumLesson: Bool) -> AnalyticsEvent {
+    /// `premium_lesson` when the lesson is past its path's free ones (so the learner
+    /// has Premium, or it is today's drawing); `daily_drawing` when it is today's
+    /// drawing (`DailyDrawing`).
+    static func lessonStarted(lessonId: String,
+                              pathId: String,
+                              resumed: Bool,
+                              premiumLesson: Bool,
+                              dailyDrawing: Bool = false) -> AnalyticsEvent {
         AnalyticsEvent(name: "lesson_started",
                        properties: [Key.lessonId: lessonId,
                                     Key.pathId: pathId,
                                     Key.resumed: resumed ? "true" : "false",
-                                    Key.premiumLesson: premiumLesson ? "true" : "false"])
+                                    Key.premiumLesson: premiumLesson ? "true" : "false",
+                                    Key.dailyDrawing: dailyDrawing ? "true" : "false"])
     }
 
     /// The last step was drawn. `drawing_seconds` is how long it took, in whole
     /// seconds (`DrawingClock`), when it was measured, and `estimated_seconds` what
     /// the preview promised (`Lesson.estimatedSeconds`): the two side by side check
-    /// the "About 4 min" against real learners.
+    /// the "About 4 min" against real learners. `daily_drawing` as on `lesson_started`.
     static func lessonCompleted(lessonId: String,
                                 pathId: String,
                                 drawingSeconds: Double? = nil,
-                                estimatedSeconds: Double? = nil) -> AnalyticsEvent {
-        var properties = [Key.lessonId: lessonId, Key.pathId: pathId]
+                                estimatedSeconds: Double? = nil,
+                                dailyDrawing: Bool = false) -> AnalyticsEvent {
+        var properties = [Key.lessonId: lessonId,
+                          Key.pathId: pathId,
+                          Key.dailyDrawing: dailyDrawing ? "true" : "false"]
         if let drawingSeconds {
             properties[Key.drawingSeconds] = String(Int(drawingSeconds.rounded()))
         }
@@ -348,6 +361,34 @@ struct AnalyticsEvent: Equatable {
     static func offerFinished(entry: String, subscribed: Bool) -> AnalyticsEvent {
         AnalyticsEvent(name: "offer_finished",
                        properties: [Key.entry: entry, Key.subscribed: subscribed ? "true" : "false"])
+    }
+
+    // MARK: Coming back
+
+    /// Home's "Today's drawing" card was tapped (`DailyDrawing`). `free_today` when
+    /// the lesson needs Premium and today is what opens it, so a learner without
+    /// Premium drawing it can be told from a subscriber.
+    static func dailyDrawingOpened(lessonId: String, pathId: String, freeToday: Bool) -> AnalyticsEvent {
+        AnalyticsEvent(name: "daily_drawing_opened",
+                       properties: [Key.lessonId: lessonId,
+                                    Key.pathId: pathId,
+                                    Key.freeToday: freeToday ? "true" : "false"])
+    }
+
+    /// "Draw again tomorrow?" showed on a finished drawing's screen
+    /// (`ReminderOfferPolicy`). `finished_drawings` is the learner's count, this one
+    /// included.
+    static func reminderOfferViewed(lessonId: String, finishedDrawings: Int) -> AnalyticsEvent {
+        AnalyticsEvent(name: "reminder_offer_viewed",
+                       properties: [Key.lessonId: lessonId,
+                                    Key.finishedDrawings: String(finishedDrawings)])
+    }
+
+    /// The learner answered it: `yes` (the reminder is on), `no` ("No thanks"), or
+    /// `refused` ("Remind me", then Don't Allow in iOS's prompt). Whether reminders
+    /// bring learners back is read from `app_opened`'s `reminder_on`.
+    static func reminderOfferAnswered(_ answer: String) -> AnalyticsEvent {
+        AnalyticsEvent(name: "reminder_offer_answered", properties: [Key.answer: answer])
     }
 
     // MARK: Ratings

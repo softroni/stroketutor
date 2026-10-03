@@ -5,8 +5,10 @@ import UserNotifications
 /// Everything the app asks of `UNUserNotificationCenter`, in one place.
 ///
 /// **Permission is requested here and nowhere else, and only from the learner's own
-/// hand: on the Practice reminder switch, or on "Continue" once a free week has
-/// started, under the reminder's promised date (`TrialStartedView`, `TrialReminder`).**
+/// hand: on the Practice reminder switch, on "Remind me" under "Draw again
+/// tomorrow?" on a finished drawing (`ReminderOfferCard`, which names the time of
+/// the note first), or on "Continue" once a free week has started, under the
+/// reminder's promised date (`TrialStartedView`, `TrialReminder`).**
 /// Apple's current guidance — Human Interface Guidelines › Managing notifications
 /// (<https://developer.apple.com/design/human-interface-guidelines/managing-notifications>)
 /// and User Notifications › Asking permission to use notifications
@@ -58,6 +60,13 @@ enum PracticeReminderScheduler {
             log.warning("Notification authorization failed: \(error.localizedDescription, privacy: .public)")
             return .denied
         }
+    }
+
+    /// What the learner has decided, asking first if they never have: the system
+    /// prompt shows only on a device where it never has.
+    static func authorizeIfNeeded() async -> Authorization {
+        let status = await authorization()
+        return status == .notDetermined ? await requestAuthorization() : status
     }
 
     /// Removes the seven reminder requests and adds one repeating request per

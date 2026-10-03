@@ -1076,6 +1076,38 @@ TestFlight). Leaving the screen before the two seconds are up cancels it.
   ratings in App Store Connect (docs/ops/README.md › *Rating prompt*). Settings' "Rate Paper Coach" stays: a link
   the learner chooses, which iOS never rations.
 
+**Coming back: today's drawing and "Draw again tomorrow?" (2026-10-03, for the build after 1.1).**
+docs/next-builds.md item 8. Kevin asked for both after the first free week: its learner drew nine Premium lessons
+in an afternoon and cancelled, few learners came back on a second day, and in the week before not one app open had
+the practice reminder on.
+- **Today's drawing** (`DailyDrawing`): one Premium lesson a day, the same for every learner on that date, open to
+  everyone until their midnight. The order is the social videos' Premium order: lesson 4 of every path in catalog
+  order, then lesson 5 of every path, and so on (so two days running never share a path), from day 0 on
+  2026-10-05, on the Gregorian calendar in the learner's time zone. `AppModel.needsPremium(_:)` leaves it out, so
+  it wears no crown anywhere that day and opens without the paywall; the next day it needs Premium again. The day
+  is set at launch and on each return from the background (`AppModel.startDay(_:)`); a lesson left part-way stays
+  open only while the app does.
+- **Home** shows it under the hero (`DailyDrawingCard`): gold, the drawing on a white tile, "Today's drawing",
+  the title, "Food & Treats · 6 min" and "Draw". "Free today" for a learner 13 or over without Premium; a child is
+  never told what anything costs, so their card has no tag. A check on the tile once drawn. Left out on a day it
+  is the hero's own lesson. A tap opens the preview past the path's order lock.
+- **"Draw again tomorrow?"** (`ReminderOfferCard`, `ReminderOfferPolicy`): one row above "Add to sketchbook" on a
+  finished drawing's screen, the guided first run's too, for every age, so it is seen without scrolling: "Draw
+  again tomorrow? Every day at 4:45 PM", "Remind me" and a cross ("No thanks" for VoiceOver, and in words at the
+  accessibility sizes). "Remind me" asks iOS for permission if it never has, then turns the practice reminder on
+  for every day at the time the drawing was finished, down to the quarter hour, and the row says "See you tomorrow
+  at 4:45 PM."; the cross puts it away for good. Until answered it shows on at most three finished drawings, never once the reminder is
+  on or iOS has been told no, and a screen showing it never asks for a rating too. The note itself is unchanged.
+  Settings › Practice reminder and the launch share one schedule (`AppModel.reschedulePracticeReminder()`).
+- **Events:** `daily_drawing_opened` (`lesson_id`, `path_id`, `free_today`); `lesson_started` and
+  `lesson_completed` carry `daily_drawing`; `reminder_offer_viewed` (`lesson_id`, `finished_drawings`) and
+  `reminder_offer_answered` (`answer`: `yes`, `no` or `refused`). Whether reminders bring learners back:
+  `app_opened`'s `reminder_on`.
+- **Harness:** every capture shows the pizza slice as today's drawing
+  (`DebugScreenHarness.harnessDailyDrawing`), so a screenshot looks the same on any date; `home-daily` is
+  `home-progress` for an adult without Premium ("Free today"), and `completion-reminder` the completion screen
+  with "Draw again tomorrow?". Tests in `DailyDrawingTests` and `ReminderOfferTests`.
+
 ---
 
 ## Baseline (M0)

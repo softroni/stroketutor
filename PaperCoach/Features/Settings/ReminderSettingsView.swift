@@ -194,33 +194,15 @@ struct ReminderSettingsView: View {
     }
 
     private func reschedule() async {
-        let settings = app.settings
-        guard settings.reminderEnabled else {
-            PracticeReminderScheduler.cancelAll()
-            return
-        }
-        await PracticeReminderScheduler.reschedule(
-            days: PracticeReminder.days(from: settings.reminderDays),
-            time: PracticeReminder.time(from: settings.reminderTime),
-            body: previewBody)
+        await app.reschedulePracticeReminder()
     }
 
     // MARK: - What the note would say
 
     /// The body of the note, from the path the learner is in — never the lesson
-    /// title, so the note cannot spoil the drawing.
+    /// title, so the note cannot spoil the drawing (`AppModel.practiceReminderBody`).
     private var previewBody: String {
-        PracticeReminder.body(subject: nextSubject)
-    }
-
-    private var nextSubject: String? {
-        let unfinished = app.paths.first { path in
-            !path.isEmpty && app.progress.nextLesson(in: path) != nil
-        }
-        let path = app.currentPath.flatMap { current in
-            app.progress.nextLesson(in: current) != nil ? current : nil
-        } ?? unfinished
-        return path.map { PracticeReminder.subject(fromPathTitle: $0.title) }
+        app.practiceReminderBody
     }
 }
 

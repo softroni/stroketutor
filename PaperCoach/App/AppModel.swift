@@ -125,6 +125,13 @@ final class AppModel {
     /// the way its own "Not now" would (`leaveCompletion(for:)`).
     @ObservationIgnored var offerReturnLessonId: String?
 
+    /// The day whose drawing is today's (`DailyDrawing`), open to every learner.
+    /// Set by `AppRoot` at launch and on each return from the background
+    /// (`startDay(_:)`), so the card and the crowns change at the learner's midnight
+    /// once the app is next opened; nil in the unit tests until a test sets it, so no
+    /// other test depends on the date it runs.
+    var dailyDrawingDay: Date?
+
     // MARK: - Sessions and the rating prompt
 
     /// The learners added in the session running now: this launch, or the stretch
@@ -135,19 +142,24 @@ final class AppModel {
     /// False in a launch that must never ask for a rating: a screenshot launch or
     /// the unit tests (`RatingPromptPolicy.isAllowed`).
     let asksForRatings: Bool
+    /// False in a launch that must never offer the practice reminder on a finished
+    /// drawing (`ReminderOfferPolicy`): the same launches as `asksForRatings`. The
+    /// screenshot harness turns it on for `completion-reminder`.
+    var offersReminder: Bool
 
     private let bundle: Bundle
 
     /// `paywalls` is for the tests; the app gets Superwall's (`SuperwallPaywalls.make`),
     /// which does nothing until `AppRoot` calls `startRemotePaywalls(waitingForPicker:)`.
-    /// `asksForRatings` too: left out, it is decided by the launch.
+    /// `asksForRatings` and `offersReminder` too: left out, they are decided by the launch.
     init(bundle: Bundle = .main,
          settings: Settings? = nil,
          storeDirectory: URL? = nil,
          analyticsSink: AnalyticsSink? = nil,
          paywalls: RemotePaywalls? = nil,
          appleAds: AppleAdsAttribution? = nil,
-         asksForRatings: Bool? = nil) {
+         asksForRatings: Bool? = nil,
+         offersReminder: Bool? = nil) {
         let settings = settings ?? Settings()
         let base = storeDirectory ?? AppStorageLocation.applicationSupport()
         let profileStore = ProfileStore(baseDirectory: base)
@@ -155,12 +167,14 @@ final class AppModel {
         self.settings = settings
         self.profileStore = profileStore
         #if DEBUG
-        self.asksForRatings = asksForRatings ?? RatingPromptPolicy.isAllowed(
+        let isUsed = RatingPromptPolicy.isAllowed(
             screenshotLaunch: DebugScreenHarness.isActive,
             runningTests: ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil)
         #else
-        self.asksForRatings = asksForRatings ?? true
+        let isUsed = true
         #endif
+        self.asksForRatings = asksForRatings ?? isUsed
+        self.offersReminder = offersReminder ?? isUsed
         pin = AppPIN(defaults: settings.defaults)
         library = TutorialLibrary()
         let analytics = Analytics(sink: analyticsSink ?? PostHogSink.make(bundle: bundle))
@@ -473,7 +487,8 @@ final class AppModel {
         analytics.track(.lessonStarted(lessonId: lesson.id,
                                        pathId: lesson.pathId,
                                        resumed: resumeFrom != nil,
-                                       premiumLesson: path(id: lesson.pathId).map { PremiumAccess.isPremiumLesson(lesson, in: $0) } ?? false))
+                                       premiumLesson: path(id: lesson.pathId).map { PremiumAccess.isPremiumLesson(lesson, in: $0) } ?? false,
+                                       dailyDrawing: isDailyDrawing(lesson)))
         selectPath(ofLesson: lesson)
         progress.markOpened(lesson.id, pathId: lesson.pathId, step: resumeFrom)
         cover = .player(lessonId: lesson.id, resumeFrom: resumeFrom)
@@ -491,7 +506,8 @@ final class AppModel {
         analytics.track(.lessonCompleted(lessonId: lesson.id,
                                          pathId: lesson.pathId,
                                          drawingSeconds: drawingSeconds,
-                                         estimatedSeconds: lesson.estimatedSeconds))
+                                         estimatedSeconds: lesson.estimatedSeconds,
+                                         dailyDrawing: isDailyDrawing(lesson)))
         cover = .completion(lessonId: lesson.id)
     }
 
