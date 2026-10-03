@@ -530,6 +530,45 @@ def sales_by_learner(days: int = 14) -> list[dict]:
     return sales
 
 
+def subscription_events(days: int = 14) -> list[dict]:
+    """What happens to subscriptions after the purchase, from Apple's server notifications as Superwall
+    records them: a trial cancelled (auto-renew off; Premium lasts to the end of the week), taken back up,
+    turned paid, renewed, refunded, expired. The first purchase itself comes from PostHog
+    (`sales_by_learner`, with the learner's age), so it isn't repeated here. Family Sharing copies of a
+    subscription are marked, not counted twice."""
+    rows = superwall(
+        "query",
+        "SELECT id, ts, name, productId, periodType, cancelReason, placement, variantId, countryCode, isFamilyShare, "
+        "isRefund, isTrialConversion, price, proceeds, expirationAt, appleSearchAdsKeywordName AS keyword, "
+        "originalTransactionId FROM open_revenue.attributed_events_by_ts_rep FINAL "
+        f"WHERE applicationId = {SUPERWALL_APP} AND isSandbox = 0 AND ts >= now() - INTERVAL {int(days)} DAY AND ts < now() "
+        "AND name NOT IN ('initial_purchase', 'transaction_complete') ORDER BY ts",
+    ).get("data", [])
+    return [
+        {
+            "id": row["id"],
+            # ClickHouse gives UTC without a zone; the log and the summaries speak Central time.
+            "at": dt.datetime.fromisoformat(row["ts"]).replace(tzinfo=dt.timezone.utc).astimezone(LOCAL_TZ).replace(microsecond=0).isoformat(),
+            "event": row["name"],
+            "trial": (row.get("periodType") or "").upper() == "TRIAL",
+            "becamePaid": bool(row.get("isTrialConversion")),
+            "refund": bool(row.get("isRefund")),
+            "familyShare": bool(row.get("isFamilyShare")),
+            "reason": row.get("cancelReason"),
+            "product": row.get("productId"),
+            "place": PLACES.get(row.get("placement"), row.get("placement")),
+            "variantId": str(row["variantId"]) if row.get("variantId") else None,
+            "country": row.get("countryCode"),
+            "price": row.get("price"),
+            "proceeds": row.get("proceeds"),
+            "until": row.get("expirationAt"),
+            "keyword": row.get("keyword"),
+            "subscription": row.get("originalTransactionId"),
+        }
+        for row in rows
+    ]
+
+
 def ads_by_age() -> dict:
     """Who the ads bring, by the age each learner gave (the app's own question, so it covers everyone),
     keyword by keyword, and how far they get; and Apple's own age ranges of the paying Apple Account by
@@ -641,6 +680,7 @@ def collect() -> dict:
     attempt("experiments", experiments)
     attempt("keywords", keywords)
     attempt("purchases", sales_by_learner)  # "sales" above is App Store Connect's report; this is PostHog's, per learner
+    attempt("subscriptionEvents", subscription_events)  # after the purchase: trial cancels, conversions, refunds
     attempt("adsByAge", ads_by_age)
     write_json("facts.json", facts)
     return facts
@@ -676,6 +716,10 @@ def check() -> list[dict]:
             if sale["id"] not in sold:
                 changes.append({"kind": "money", **sale, "design": names.get(sale["variantId"], sale["paywall"])})
                 sold.add(sale["id"])
+        for event in subscription_events(days=3):
+            if event["id"] not in sold and not event["familyShare"]:
+                changes.append({"kind": "money", **event, "design": names.get(event["variantId"])})
+            sold.add(event["id"])
         state["purchases"] = sorted(sold)
     except Exception as error:  # PostHog or Superwall down: the rest of the check still counts, and the daily check sees it
         print(f"today.py: trials and purchases not checked ({error})", file=sys.stderr)

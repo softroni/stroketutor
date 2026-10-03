@@ -314,6 +314,16 @@ six hours after the daily check: **know every trial and purchase the day it happ
   ad group by ad group (`byAppleAge`; Apple knows it only for people with Personalized Ads on, so mostly "unknown").
   Both read PostHog with the Studio's read-only key (`POSTHOG_PERSONAL_API_KEY` in `web/.env.local`), test installs
   left out.
+- **After the purchase** (Superwall, from Apple's server notifications; `facts.json` › `subscriptionEvents`, and
+  each one a `money` change for the heartbeat too): a trial cancelled (auto-renew off; Premium lasts to the end of
+  the free week), taken back up, turned paid, renewed, refunded, expired. A trial cancelled within hours is
+  usually a learner keeping the free week without paying, not one who disliked the app, so read it with what they
+  did in the app (the first one: a 13–15 learner in the Netherlands drew 19 lessons in under four hours and
+  cancelled three hours in, still drawing). **What decides is trials that turn paid**, by age, way in, design and
+  keyword; until the first trials end (from Oct 10), cancels inside the trial are the early sign. If 13–17
+  learners keep cancelling while adults convert, the ads lean to the adults' searches, and who pays for a teen
+  goes to Kevin as a question (a teen is not a child: the rule that no screen asks a child to fetch a grown-up
+  doesn't decide it).
 - **Ads, by the learner's age** (the app's own question, so it covers everyone): a keyword whose learners start
   trials or buy gets more money, up to its popularity ceiling (*Apple Ads*); a keyword that brings mostly children
   is judged by their grown-ups' purchases on the grown-up paywall; one whose learners never reach an offer comes

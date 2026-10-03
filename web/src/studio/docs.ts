@@ -270,11 +270,11 @@ export const DOC_TOOLS: DocTool[] = [
         commands: [
           {
             run: 'python3 docs/ops/today.py check',
-            does: 'Quick: has the App Store review state changed, are there new reviews, and any new trial or purchase? Prints “no changes” when nothing moved.',
+            does: 'Quick: has the App Store review state changed, are there new reviews, and any new trial, purchase, cancellation or refund? Prints “no changes” when nothing moved.',
           },
           {
             run: 'python3 docs/ops/today.py collect',
-            does: 'Everything: versions and review, reviews, rating, sales, Apple Ads, the Superwall tests, the keywords Astro tracks (popularity, rank), every trial and purchase with the learner’s age and way in, and which ages each ad keyword brings, into `.studio/ops/facts.json`.',
+            does: 'Everything: versions and review, reviews, rating, sales, Apple Ads, the Superwall tests, the keywords Astro tracks (popularity, rank), every trial and purchase with the learner’s age and way in, what happened to each after (cancelled, turned paid, refunded), and which ages each ad keyword brings, into `.studio/ops/facts.json`.',
           },
           { run: 'python3 docs/ops/today.py publish', does: 'Rebuilds the Today page from the facts, Claude’s notes and the log.' },
           {
