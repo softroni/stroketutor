@@ -465,7 +465,7 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
 - [x] Captions that open with the search phrase, 5 tags, the YouTube line (2026-10-03).
 - [ ] The Facebook link check. (Board names
   stay: renaming one in code would make a second board, since `boardFor` matches by name.)
-- [ ] E1, the new opening, default from Oct 5.
+- [x] E1, the new opening: on main 2026-10-03, the default from Oct 5 (the classic one on Oct 7, 8, 11 and 12).
 - [ ] What's new videos (*What's new videos*): the first is 1.1's, made while it is in review and posted the day it
   is on sale. Both copies of the social routine's prompt say so (step 7), since 2026-10-01.
 - [ ] E5, long videos (*Long videos*), before Oct 10:
