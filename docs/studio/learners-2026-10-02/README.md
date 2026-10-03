@@ -68,6 +68,15 @@ test, 33%)").
 
 <img src="paywalls.png" width="900">
 
+## Before buying
+
+What learners had done before the first price came up, side by side for those who bought or started a free week, who
+tapped buy and did not finish, who saw a price and left, and (over their whole day, to compare with) who never saw one:
+lessons finished, a photo kept, a locked lesson tapped, a wish, a break and a return, time in the app, and where the
+price came. Restoring purchases is not trying to buy.
+
+<img src="before-buying.png" width="900">
+
 ## Ages
 
 The period's learners by the age band they gave (children blue, 13 and over orange; "not said" and "no answer" in

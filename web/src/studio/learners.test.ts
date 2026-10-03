@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
+  beforeBuyingOf,
   adsTotal,
   withSpend,
   ageBandOf,
@@ -604,5 +605,35 @@ describe('Apple Ads spend beside its learners', () => {
       ['keyword-2334871441', 0, 1.9],
     ])
     expect(adsTotal(rows)).toEqual({ spend: 4.34, taps: 3, installs: 1, learners: 1, sawPrice: 1, bought: 0 })
+  })
+})
+
+describe('before buying', () => {
+  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+
+  it('groups the day’s learners by how it ended, and says what they had done before the first price', () => {
+    const groups = Object.fromEntries(evening.beforeBuying.map((group) => [group.key, group]))
+    expect(Object.keys(groups)).toEqual(['bought', 'tried', 'left', 'never'])
+    expect(groups.bought.learners + groups.tried.learners + groups.left.learners + groups.never.learners).toBe(evening.sessions.length)
+    // The 18+ learner who tried to restore at 6:25 PM was not buying: restoring is not trying to buy.
+    expect(groups.tried.learners).toBe(0)
+    expect(groups.left.learners).toBe(evening.sessions.filter((session) => session.beforePrice).length)
+    expect(groups.bought).toMatchObject({ learners: 0, finished: null, medianMs: null })
+    const u12 = evening.sessions.find((session) => session.key === 'u12')!
+    // The Apple Ads learner drew the donut, then the onboarding offer came up.
+    expect(u12.beforePrice).toMatchObject({ finished: 1, kept: 0, cameBack: 0, where: 'onboarding_offer' })
+  })
+
+  it('measures who never saw a price over their whole day', () => {
+    const at = Date.parse('2026-10-03T15:00:00Z')
+    const events: LearnerEvent[] = [
+      { at, event: 'app_opened', id: 'a', age: '6to9', firstOpen: true },
+      { at: at + 60_000, event: 'lesson_started', id: 'a', age: '6to9', lesson: 'cloud' },
+      { at: at + 180_000, event: 'lesson_completed', id: 'a', age: '6to9', lesson: 'cloud' },
+      { at: at + 200_000, event: 'premium_lesson_tapped', id: 'a', age: '6to9', lesson: 'rocket' },
+    ]
+    const report = buildReport(events, { period: 'day', date: '2026-10-03', now: at + 3_600_000 })
+    expect(report.beforeBuying.find((group) => group.key === 'never')).toMatchObject({ learners: 1, finished: 1, crown: 1, kept: 0, medianMs: 200_000 })
+    expect(beforeBuyingOf([]).every((group) => group.learners === 0)).toBe(true)
   })
 })

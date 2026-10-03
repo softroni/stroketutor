@@ -666,6 +666,22 @@ export interface PaywallShown {
   cancelled: boolean
 }
 
+/** What a learner had done in a session when the first price came up. */
+export interface BeforePrice {
+  finished: number
+  kept: number
+  /** Locked lessons tapped. */
+  crowns: number
+  /** Lessons saved to the wish list. */
+  wishes: number
+  /** Visits before it, after a pause of half an hour or more. */
+  cameBack: number
+  /** Time in the app until then, over its visits. */
+  activeMs: number
+  /** Where the price came: Superwall's placement, or `grown_up` for the grown-ups' paywall. */
+  where: string | null
+}
+
 /** A child's way to the grown-ups' paywall in one session. */
 export interface GrownUpWay {
   /** "This part is for a grown-up", seen. */
@@ -720,6 +736,10 @@ export interface LearnerSession {
   version: string | null
   /** A child's way to the grown-ups' paywall, when they met "This part is for a grown-up". */
   grownUp: GrownUpWay | null
+  /** What they had done when the first price came up; null if none did. */
+  beforePrice: BeforePrice | null
+  /** Tapped buy (Apple's sheet came up) or tried to buy, whatever came of it. */
+  triedToBuy: boolean
   /** Installed in this period. */
   isNew: boolean
   /** The times later visits began, after a pause of half an hour or more. */
@@ -751,6 +771,23 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
   let finished = 0
   let kept = 0
   let grownUp: GrownUpWay | null = null
+  let beforePrice: BeforePrice | null = null
+  let triedToBuy = false
+  /** A price came up: the first one notes what came before it. */
+  const priceCame = (item: Extract<SessionItem, { kind: 'price' }>, where: string | null) => {
+    if (!beforePrice) {
+      beforePrice = {
+        finished,
+        kept,
+        crowns: items.filter((candidate) => candidate.kind === 'crown').length,
+        wishes: items.filter((candidate) => candidate.kind === 'wish').length,
+        cameBack: returns.length,
+        activeMs: activeMs + (item.at - visitStart),
+        where,
+      }
+    }
+    items.push(item)
+  }
   const lastShown = () =>
     ([...items].reverse().find((item) => item.kind === 'price' && item.shown) as Extract<SessionItem, { kind: 'price' }> | undefined)
       ?.shown
@@ -878,7 +915,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
             grownUp ??= { views: 0, checks: 0, passed: false, entries: [] }
             grownUp.passed = true
           }
-          items.push({ kind: 'price', at: event.at, forGrownUp, closedAfter: null, shown: null })
+          priceCame({ kind: 'price', at: event.at, forGrownUp, closedAfter: null, shown: null }, forGrownUp ? 'grown_up' : screen)
           line(forGrownUp ? 'Passed the check: the grown-up’s paywall' : 'Saw the paywall', 'price')
         } else if (screen === 'sketchbook_tour') {
           line('Saw the sketchbook tour')
@@ -900,13 +937,14 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
           tappedBuy: false,
           cancelled: false,
         }
-        items.push({ kind: 'price', at: event.at, forGrownUp: false, closedAfter: null, shown })
+        priceCame({ kind: 'price', at: event.at, forGrownUp: false, closedAfter: null, shown }, event.placement ?? null)
         timeline.push({ at: event.at, text: 'Paywall opened', lesson: null, mark: 'price', shown })
         break
       }
       case 'superwall_transaction_start': {
         const shown = lastShown()
         if (shown) shown.tappedBuy = true
+        triedToBuy = true
         line('Tapped buy: Apple’s payment sheet came up', 'price')
         break
       }
@@ -940,6 +978,7 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
           }
           line(`Bought Premium${plan ? `, ${plan}` : ''}`, 'bought')
         } else if (event.outcome && plan !== 'restore') {
+          triedToBuy = true
           line(`Tried to buy Premium${plan ? `, ${plan}` : ''}: ${event.outcome}`, 'price')
         } else if (plan === 'restore') {
           line(`Restored purchases: ${event.outcome ?? 'tried'}`, 'quiet')
@@ -966,6 +1005,8 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
     country: countryOf(learner.events),
     version: versionOf(events),
     grownUp,
+    beforePrice,
+    triedToBuy,
     isNew,
     returns,
     activeMs,
@@ -1170,6 +1211,28 @@ export interface LearnersReport {
   ages: (WhereRow & { age: AgeBand })[]
   /** What happened at the paywalls: Superwall's, version by version, and the children's way to the grown-ups'. */
   paywalls: PaywallReport
+  /** What learners had done before the first price, by how it ended. */
+  beforeBuying: BeforeGroup[]
+}
+
+/** How a learner's day ended, for Before buying. */
+export type BeforeGroupKey = 'bought' | 'tried' | 'left' | 'never'
+
+/** One group of Before buying: its learners, and what they had done before the first price. */
+export interface BeforeGroup {
+  key: BeforeGroupKey
+  learners: number
+  /** Lessons finished, on average. */
+  finished: number | null
+  /** The share (0 to 1) who had kept a photo, tapped a locked lesson, wished for one, come back. */
+  kept: number | null
+  crown: number | null
+  wish: number | null
+  cameBack: number | null
+  /** The middle time in the app until the price (for `never`, their whole day). */
+  medianMs: number | null
+  /** Where the first price came, most first. */
+  where: { where: string; learners: number }[]
 }
 
 /** One test version of Superwall's paywall, where it was asked for: how it was met. */
@@ -1337,10 +1400,57 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
     days: period === 'day' ? [] : daysOf(from, to, current),
     leaders: leadersOf(sessions),
     paywalls: paywallsOf(everySession),
+    beforeBuying: beforeBuyingOf(everySession),
     // Each way in stays whole on its own narrowing and follows the other: ages from one keyword, keywords of one age.
     whereFrom: whereFromOf(where ? inRange({ from, to }, 'where').map((entry) => buildSession(entry.learner, entry.events, now)) : everySession),
     ages: agesOf(age ? inRange({ from, to }, 'age').map((entry) => buildSession(entry.learner, entry.events, now)) : everySession),
   }
+}
+
+/**
+ * What learners had done before their first price, in four groups: who bought or started a
+ * free week, who tapped buy and did not finish, who saw a price and left, and who never saw
+ * one (their whole day, to compare with).
+ */
+export function beforeBuyingOf(sessions: LearnerSession[]): BeforeGroup[] {
+  const groupOf = (session: LearnerSession): BeforeGroupKey =>
+    session.items.some((item) => item.kind === 'bought')
+      ? 'bought'
+      : session.triedToBuy
+        ? 'tried'
+        : session.beforePrice
+          ? 'left'
+          : 'never'
+  return (['bought', 'tried', 'left', 'never'] as const).map((key) => {
+    const members = sessions.filter((session) => groupOf(session) === key)
+    // What they had done before the price; for those who never saw one, all of it.
+    const before = members.map(
+      (session) =>
+        session.beforePrice ?? {
+          finished: session.finished,
+          kept: session.kept,
+          crowns: session.items.filter((item) => item.kind === 'crown').length,
+          wishes: session.items.filter((item) => item.kind === 'wish').length,
+          cameBack: session.returns.length,
+          activeMs: session.activeMs,
+          where: null,
+        },
+    )
+    const share = (has: (entry: BeforePrice) => boolean) => (before.length ? before.filter(has).length / before.length : null)
+    const where = new Map<string, number>()
+    for (const entry of before) if (entry.where) where.set(entry.where, (where.get(entry.where) ?? 0) + 1)
+    return {
+      key,
+      learners: members.length,
+      finished: before.length ? before.reduce((sum, entry) => sum + entry.finished, 0) / before.length : null,
+      kept: share((entry) => entry.kept > 0),
+      crown: share((entry) => entry.crowns > 0),
+      wish: share((entry) => entry.wishes > 0),
+      cameBack: share((entry) => entry.cameBack > 0),
+      medianMs: median(before.map((entry) => entry.activeMs)),
+      where: [...where.entries()].map(([place, learners]) => ({ where: place, learners })).sort((a, b) => b.learners - a.learners),
+    }
+  })
 }
 
 /** What happened at the paywalls in these sessions. */

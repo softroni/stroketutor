@@ -39,6 +39,8 @@ import {
   type AdSource,
   type AdSpendRow,
   type AgeBand,
+  type BeforeGroup,
+  type BeforeGroupKey,
   type DaySummary,
   type PaywallNames,
   type PaywallReport,
@@ -602,6 +604,7 @@ export function LearnersView({
             <MostDrawn report={report} library={library} picked={lesson} href={(drawn) => here({ lesson: drawn === lesson ? null : drawn })} />
           </div>
           <AtThePaywall paywalls={report.paywalls} problem={paywallNames.problem} />
+          <BeforeBuying groups={report.beforeBuying} />
           <div className="st-learners__pair st-learners__pair--who">
             <Ages ages={report.ages} picked={age} href={(next) => here({ age: next === age ? null : next })} />
             <WhereFromPanel
@@ -636,6 +639,82 @@ export function LearnersView({
         </AdNamesContext.Provider>
       ) : null}
     </div>
+  )
+}
+
+const BEFORE_WORDS: Record<BeforeGroupKey, string> = {
+  bought: 'Bought or started a trial',
+  tried: 'Tapped buy, did not finish',
+  left: 'Saw a price and left',
+  never: 'Never saw a price',
+}
+
+const PRICE_PLACE_WORDS: Record<string, string> = {
+  ...PLACEMENT_WORDS,
+  grown_up: 'the grown-ups’ paywall',
+  paywall: 'the app’s paywall',
+}
+
+/**
+ * What learners had done before the first price came up, side by side for those who
+ * bought, who tapped buy and did not finish, who saw a price and left, and (their whole
+ * day, to compare with) who never saw one: what drives a purchase, as far as the period
+ * shows it.
+ */
+function BeforeBuying({ groups }: { groups: BeforeGroup[] }) {
+  const percent = (share: number | null) => (share === null ? '–' : `${Math.round(share * 100)}%`)
+  const rows: { label: string; cell: (group: BeforeGroup) => ReactNode }[] = [
+    { label: 'Lessons finished, on average', cell: (group) => (group.finished === null ? '–' : group.finished.toFixed(1)) },
+    { label: 'Kept a photo', cell: (group) => percent(group.kept) },
+    { label: 'Tapped a locked lesson', cell: (group) => percent(group.crown) },
+    { label: 'Saved one to the wish list', cell: (group) => percent(group.wish) },
+    { label: 'Came back after a break', cell: (group) => percent(group.cameBack) },
+    { label: 'Time in the app (middle)', cell: (group) => (group.medianMs === null ? '–' : lastedFor(group.medianMs)) },
+    {
+      label: 'Where the price came',
+      cell: (group) =>
+        group.where.length
+          ? group.where.map((entry) => `${PRICE_PLACE_WORDS[entry.where] ?? entry.where}${group.where.length > 1 ? ` (${entry.learners})` : ''}`).join(', ')
+          : '–',
+    },
+  ]
+  return (
+    <section className="st-learners__panel st-learners__before" aria-labelledby="learners-before">
+      <div className="st-learners__panel-head">
+        <h2 id="learners-before" className="st-learners__h2">
+          Before buying
+        </h2>
+        <span className="st-learners__muted">What learners had done before the first price, by how it ended.</span>
+      </div>
+      <table className="st-learners__before-table">
+        <thead>
+          <tr>
+            <td />
+            {groups.map((group) => (
+              <th key={group.key} scope="col" className={`st-learners__before-head st-learners__before-head--${group.key}`}>
+                {BEFORE_WORDS[group.key]}
+                <span>
+                  {group.learners} {group.learners === 1 ? 'learner' : 'learners'}
+                  {group.key === 'never' ? ', their whole day' : ''}
+                </span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.label}>
+              <th scope="row">{row.label}</th>
+              {groups.map((group) => (
+                <td key={group.key} className={group.learners ? undefined : 'st-learners__before-empty'}>
+                  {group.learners ? row.cell(group) : '–'}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   )
 }
 

@@ -45,6 +45,8 @@ every scheduled run follows it.
   *Ages* charts the learners by age band (`?age=`), and the Who chips have 18+.
   Where from also shows Apple Ads' spend, taps and installs per keyword (`superwall asa reports`, kept 15 min while
   the day runs) and the cost per learner, per paywall reached and per buyer.
+  *Before buying* compares what buyers, buy-tappers, those who left at a price and those who never saw one had done
+  before the first price.
 
 **Kevin, in his own sessions:** new features, bugs nobody reported, and performance work. Claude only
 *suggests* these, in the summary or under "Needs you". **Claude never builds or submits a feature
