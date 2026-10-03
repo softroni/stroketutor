@@ -55,6 +55,8 @@ From `video/`:
 
 ## Posting
 
-YouTube, unlisted, on the Softroni channel through Upload-Post (`social announce --wide --unlisted --platforms
-youtube … --campaign studio-tour`), so it never counts as a post that went out. The link is in the posts record
-(`.studio/social/posts.jsonl`).
+YouTube, unlisted, 2026-10-03, on the Softroni channel: https://www.youtube.com/watch?v=nA2CSqTN_dI (title
+"Paper Coach Studio: How One Developer and Claude Run an App", with chapters, English captions and the thumbnail).
+Sent through Upload-Post with `social announce --wide --unlisted --platforms youtube --video out/… --lesson palm-tree
+--news "<what it is, then the chapters>" --headline "…" --campaign studio-tour --thumbnail out/thumbnail.jpg
+--subtitles out/paper-coach-studio-tour.en.srt` (from `web/`), so it never counts as a post that went out.
