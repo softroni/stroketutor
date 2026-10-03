@@ -1,5 +1,5 @@
 import { createReadStream } from 'node:fs'
-import { stat } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
 import path from 'node:path'
 
@@ -12,6 +12,7 @@ import { regenerate } from './regenerate'
 import { listScreenshots, readScreenshot } from './screenshots'
 import { gitIn, releaseLesson } from './release'
 import { mayPost, postingQueue } from './social/queue'
+import { madeFile, readMadeVideos } from './socialMade'
 import { readSocialPosts } from './socialPosts'
 import { readAdSpend } from './adSpend'
 import { readAdNames } from './appleAds'
@@ -97,6 +98,8 @@ export interface StudioApiOptions {
   opsDir?: string
   /** .studio/social, where `studio social` keeps its record of every post, for the Social page. */
   socialDir?: string
+  /** .studio, whose projects' `out/*.mp4` and `videos/` the Social page lists as made, not posted yet. */
+  studioDir?: string
   /** .studio/videos, where the Video tab's lesson videos are made. */
   videosDir?: string
   /** PostHog, for the Learners page: the key from POSTHOG_PERSONAL_API_KEY, or a sample file. */
@@ -179,6 +182,8 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  * - `GET  /api/social/posts`              every post sent to social media, by day, with each platform's link
  *                                         (.studio/social/posts.jsonl, or the repo's copy on ops-history), and the
  *                                         lessons the daily job posts next, as `social next` picks them; read-only
+ * - `GET  /api/social/made/file?id=[&download]`  a video made on this Mac and not posted yet (`made` in the
+ *                                         posts), or its thumbnail, from .studio (byte ranges); read-only
  * - `GET  /api/video/lessons/:lesson`     its video's default words, what Lina hasn't recorded, the last video and job
  * - `POST /api/video/lessons/:lesson`     `{ intro?, cta? }` → starts making its video (a job; one at a time)
  * - `GET  /api/video/lessons/:lesson/file[?download]`  the last video (byte ranges; `download` saves it as a file)
@@ -390,8 +395,26 @@ async function handle(
             const queue = await postingQueue(repoDir, library.catalog?.paths ?? [])
             return { ...queue, allowed: (lessonId) => mayPost(queue, lessonId, library.tutorials.get(lessonId)?.state) }
           },
+          made: options.studioDir
+            ? (records) => readMadeVideos(options.studioDir!, records, (lessonId) => library.tutorials.get(lessonId)?.tutorial.title)
+            : undefined,
         }),
       )
+    }
+
+    if (resource === 'social' && name === 'made' && parts.length === 3 && parts[2] === 'file' && method === 'GET' && options.studioDir) {
+      const id = url.searchParams.get('id') ?? ''
+      const file = madeFile(options.studioDir, id)
+      if (!file) return send(res, 404, { error: 'There is no such video here.' })
+      if (file.endsWith('.mp4')) {
+        await sendVideo(req, res, file, url.searchParams.has('download') ? path.basename(file) : null)
+        return
+      }
+      const image = await readFile(file).catch(() => null)
+      if (!image) return send(res, 404, { error: 'There is no such picture here.' })
+      res.writeHead(200, { 'Content-Type': file.endsWith('.png') ? 'image/png' : 'image/jpeg', 'Cache-Control': 'no-cache', 'Content-Length': image.length })
+      res.end(image)
+      return
     }
 
     if (resource === 'tutorials' && parts.length === 2) {

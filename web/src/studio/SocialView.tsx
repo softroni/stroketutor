@@ -2,11 +2,14 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'r
 
 import type { Tutorial } from '../schema/types'
 
-import { readSocialPosts } from './api'
+import { madeVideoUrl, readSocialPosts } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
 import type { Library } from './library'
 import { routeHref } from './route'
 import {
+  fileSize,
+  madeKind,
+  madeNote,
   nearDay,
   platformName,
   platformState,
@@ -15,6 +18,7 @@ import {
   reach,
   tally,
   type ComingPost,
+  type MadeVideo,
   type PlatformState,
   type SocialPlatform,
   type SocialPost,
@@ -112,6 +116,7 @@ export function SocialView({ library }: { library: Library }) {
       {response && (response.coming || response.comingProblem) ? (
         <ComingUp coming={response.coming ?? []} problem={response.comingProblem} scheduled={scheduled} library={library} clock={clock} />
       ) : null}
+      {response?.made?.length ? <MadeVideos made={response.made} coming={response.coming ?? []} clock={clock} /> : null}
       {response && !days.length ? (
         <p className="st-social__empty">Nothing posted yet. The daily post goes out at 5 PM Central.</p>
       ) : null}
@@ -204,6 +209,78 @@ function ComingUp({
         <p className="st-today__quiet">Every lesson in the version on sale has been posted.</p>
       )}
     </section>
+  )
+}
+
+/**
+ * The videos made on this Mac that haven't gone out, to watch before they do:
+ * a 16:9 video (a version's what's-new) goes out as it is; a lesson's video is
+ * a preview, since the daily post makes it again (server/socialMade.ts).
+ */
+function MadeVideos({ made, coming, clock }: { made: MadeVideo[]; coming: ComingPost[]; clock: Clock }) {
+  const wide = made.filter((video) => video.kind === 'wide')
+  const tall = made.filter((video) => video.kind !== 'wide')
+  return (
+    <section className="st-social__made" aria-labelledby="social-made">
+      <h2 id="social-made" className="st-social__h2">
+        Made, not posted yet
+      </h2>
+      <p className="st-today__lede">
+        Videos made on this Mac that haven’t gone out. A 16:9 video goes out as it is; a lesson’s video is a preview,
+        since the daily post makes it again.
+      </p>
+      {wide.length ? (
+        <ul className="st-social__made-list st-social__made-list--wide">
+          {wide.map((video) => (
+            <MadeCard key={video.id} video={video} clock={clock} />
+          ))}
+        </ul>
+      ) : null}
+      {tall.length ? (
+        <ul className="st-social__made-list st-social__made-list--tall">
+          {tall.map((video) => {
+            const due = coming.find((post) => post.lessonId === video.lessonId)
+            return <MadeCard key={video.id} video={video} clock={clock} due={due ? clock.date(due.at) : undefined} />
+          })}
+        </ul>
+      ) : null}
+    </section>
+  )
+}
+
+/** One made video: the player, what it is, when it was made, when it goes out, and a way to save it. */
+function MadeCard({ video, clock, due }: { video: MadeVideo; clock: Clock; due?: string }) {
+  const src = madeVideoUrl(video.id)
+  const wide = video.kind === 'wide'
+  return (
+    <li className={`st-social__made-item st-social__made-item--${wide ? 'wide' : 'tall'}`}>
+      <video
+        className="st-social__player"
+        controls
+        playsInline
+        preload="metadata"
+        // Without a poster, the frame a tenth of a second in, so Safari shows a picture before it plays.
+        src={video.poster ? src : `${src}#t=0.1`}
+        poster={video.poster ? madeVideoUrl(video.poster) : undefined}
+        aria-label={video.title}
+      />
+      <div className="st-social__what">
+        {video.lessonId ? (
+          <a className="st-social__lesson" href={routeHref({ name: 'lesson', lessonId: video.lessonId })}>
+            {video.title}
+          </a>
+        ) : (
+          <span className="st-social__lesson">{video.title}</span>
+        )}
+        <span className="st-social__kind">
+          {madeKind(video)} · made {clock.date(video.madeAt)}, {clock.time(video.madeAt)} · {fileSize(video.bytes)}
+        </span>
+        <span className="st-social__made-note">{madeNote(video, due)}</span>
+        <a className="st-social__made-save" href={madeVideoUrl(video.id, { download: true })} download>
+          Download
+        </a>
+      </div>
+    </li>
   )
 }
 

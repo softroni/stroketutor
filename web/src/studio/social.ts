@@ -26,6 +26,25 @@ export interface ComingPost {
   free: boolean
 }
 
+/**
+ * A video made on this Mac that hasn't gone out yet (server/socialMade.ts): a
+ * 16:9 video that is posted as it is, or a lesson's video or speed draw, which
+ * the daily post makes again when it posts the lesson.
+ */
+export interface MadeVideo {
+  /** Where it is under .studio (`whats-new-1.1/out/paper-coach-whats-new-1.1.mp4`, `videos/donut.mp4`), which GET /api/social/made/file?id= serves. */
+  id: string
+  kind: 'wide' | 'lesson' | 'speed'
+  /** "What’s new in 1.1", or the lesson's title. */
+  title: string
+  lessonId?: string
+  /** When the file was last written (ISO). */
+  madeAt: string
+  bytes: number
+  /** A thumbnail beside a 16:9 video, by the same kind of id. */
+  poster?: string
+}
+
 /** What the server answers for GET /api/social/posts. */
 export interface SocialResponse {
   /** Every post that went out, test posts left out, by day: newest day and newest post first. */
@@ -34,6 +53,8 @@ export interface SocialResponse {
   coming: ComingPost[] | null
   /** Why what comes next couldn't be worked out, when it couldn't. */
   comingProblem?: string
+  /** The videos made on this Mac and not posted yet, newest first; left out where the posts come from the repo's copy (another machine). */
+  made?: MadeVideo[]
   /** Where the posts were read: this Mac's record, the repo's copy of the finished posts (another machine), or neither yet. */
   source: 'record' | 'kept' | null
   /** The posting job's time zone, which the days and times are in. */
@@ -63,6 +84,41 @@ export function postKind(post: Pick<SocialPost, 'media' | 'purpose'>): string {
   if (post.media === 'speed') return 'Speed draw'
   if (post.media === 'pin') return 'Step pin'
   return 'Lesson video'
+}
+
+/** What a made video is: "What’s new video", "Overview", "16:9 video", "Lesson video" or "Speed draw". */
+export function madeKind(video: Pick<MadeVideo, 'id' | 'kind'>): string {
+  if (video.kind === 'speed') return 'Speed draw'
+  if (video.kind === 'lesson') return 'Lesson video'
+  if (video.id.startsWith('whats-new-')) return 'What’s new video'
+  if (video.id.startsWith('overview-')) return 'Overview'
+  return '16:9 video'
+}
+
+/**
+ * When a made video goes out, and whether as it is. A what's-new video goes to
+ * every platform the day its version is on sale (docs/ops/social-plan.md,
+ * "What's new videos"); a lesson's video is a preview, since the daily post
+ * renders it again. `due` is the post's day when the lesson is coming up.
+ */
+export function madeNote(video: Pick<MadeVideo, 'id' | 'kind'>, due?: string): string {
+  if (video.kind === 'wide') {
+    const version = /^whats-new-([^/]+)\//.exec(video.id)?.[1]
+    return version
+      ? `Goes to every platform as it is, the day ${version} is on sale.`
+      : 'Goes out as it is, with social announce --wide.'
+  }
+  const what = video.kind === 'speed' ? 'speed draw' : 'video'
+  return due
+    ? `A preview: the post on ${due} makes the ${what} again.`
+    : `A preview: the daily post makes the ${what} again when this lesson’s turn comes.`
+}
+
+/** A file's size as people read it: "820 KB", "14 MB". */
+export function fileSize(bytes: number): string {
+  if (bytes < 1_000_000) return `${Math.max(1, Math.round(bytes / 1000))} KB`
+  const mb = bytes / 1_000_000
+  return `${mb < 10 ? mb.toFixed(1).replace(/\.0$/, '') : Math.round(mb)} MB`
 }
 
 /**

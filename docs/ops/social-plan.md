@@ -28,7 +28,8 @@ Nothing here needs a session to keep going. On this Mac (`m4-1`):
 - **00:00** the daily check does the same on a day the social routine didn't log "Social check:".
 - What needs Kevin reaches him as a push notification and under "Needs you" on Today.
 
-To see where things stand: the Studio's **Social** page (`#/social`: every post with its links, and *Coming up*),
+To see where things stand: the Studio's **Social** page (`#/social`: every post with its links, *Coming up*, and
+*Made, not posted yet*, the videos made here to watch before they go out),
 `npm run studio -- social check | queue | status` in `web/`, the Today log, and the checklist below.
 
 Outside the repo, on purpose: `~/.config/upload-post/config` (the Upload-Post key, never committed; the other
@@ -407,6 +408,10 @@ To build (Claude):
   job and the Social page share; Premium in `social-premium-first.txt`'s order), and "in Paper Coach Premium. The
   app is free to download, with 30 free lessons" in every Premium post and pin (2026-09-30).
 - [x] The Studio's Social page (`#/social`): every post day by day with its links, and *Coming up* (2026-09-30).
+- [x] *Made, not posted yet* on the Social page (2026-10-02): every video made on this Mac that hasn't gone out, to
+  watch or download: a project's `out/*.mp4` under `.studio` (a what's-new video, posted as it is) and
+  `.studio/videos` (a lesson's video, which the daily post makes again). A post with `--video` records its file, so
+  the page knows once it has gone out.
 
 Then (Claude, once the plan and TikTok are on):
 

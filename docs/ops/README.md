@@ -294,7 +294,8 @@ video and posts it (`studio social …`; the studio-cli skill, *Posting lesson v
 - **The links, in the repo:** every finished post, with each platform's link or error, is a line in
   `social/posts.jsonl` on the **`ops-history`** branch (`.studio/ops/history/social/posts.jsonl`), written as the
   post finishes and pushed by `today.py archive` at once and every night. The Studio's Social page shows the posts
-  day by day. Never delete or rewrite those lines.
+  day by day, and above them *Made, not posted yet*: the videos made on this Mac that haven't gone out (a
+  what's-new video before its version is on sale), to watch or download. Never delete or rewrite those lines.
 
 **Downloads per campaign** (social-plan.md, *What we steer by*): `python3 docs/ops/acquisition.py` reads App Store
 Connect's analytics reports with the Sales key, read-only, replaces `.studio/ops/acquisition.json` and prints a short

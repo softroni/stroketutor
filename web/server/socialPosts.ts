@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs'
 
-import type { ComingPost, SocialResponse } from '../src/studio/social'
+import type { ComingPost, MadeVideo, SocialResponse } from '../src/studio/social'
 import { DAY } from '../src/studio/today'
 
 import {
@@ -24,6 +24,8 @@ export interface SocialLessons {
   title: (lessonId: string) => string | undefined
   /** The posting order and which lessons may go, as `social next` reads them (server/social/queue.ts); without it, nothing shows as coming. */
   queue?: () => Promise<{ order: QueueEntry[]; upNext?: string[]; premiumFirst?: string[]; allowed: (lessonId: string) => boolean }>
+  /** The videos made on this Mac that haven't gone out, given what was posted (server/socialMade.ts); without it, none show. */
+  made?: (records: SocialRecord[]) => Promise<MadeVideo[]>
 }
 
 /**
@@ -46,21 +48,33 @@ export async function readSocialPosts(
     source: SocialResponse['source'],
     days: { day: string; posts: PostEntry[] }[],
     coming: Pick<SocialResponse, 'coming' | 'comingProblem'>,
+    made?: MadeVideo[],
   ): SocialResponse => ({
     days: days
       .map(({ day, posts }) => ({ day, posts: posts.filter((post) => !post.private) }))
       .filter((day) => day.posts.length > 0),
     ...coming,
+    ...(made ? { made } : {}),
     source,
     timeZone: POSTING_TIME_ZONE,
     today: dayOf(new Date(now).toISOString()),
   })
   const records = await readLines(files.record, isRecord)
-  if (records) return shown('record', postsByDay(records, lessons.title, now), await comingUp(records, lessons, now))
+  if (records) return shown('record', postsByDay(records, lessons.title, now), await comingUp(records, lessons, now), await madeVideos(records, lessons))
   const kept = await readLines(files.kept, isEntry)
   // The working library's title wins over the one kept, so a lesson renamed since reads as it is called now.
   if (kept) return shown('kept', entriesByDay(kept.map((entry) => ({ ...entry, title: lessons.title(entry.lessonId) ?? entry.title }))), { coming: null })
-  return shown(null, [], await comingUp([], lessons, now))
+  return shown(null, [], await comingUp([], lessons, now), await madeVideos([], lessons))
+}
+
+/** The videos made and not posted; a folder that can't be read leaves the list out rather than failing the page. */
+async function madeVideos(records: SocialRecord[], lessons: SocialLessons): Promise<MadeVideo[] | undefined> {
+  if (!lessons.made) return undefined
+  try {
+    return await lessons.made(records)
+  } catch {
+    return undefined
+  }
 }
 
 /**

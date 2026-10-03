@@ -136,6 +136,11 @@ export function readSocialPosts() {
   return call<SocialResponse>('/api/social/posts')
 }
 
+/** A made video, or its thumbnail, from .studio (the Social page's "Made, not posted yet"); `download` saves it as a file. */
+export function madeVideoUrl(id: string, { download = false } = {}): string {
+  return `/api/social/made/file?id=${encodeURIComponent(id)}${download ? '&download' : ''}`
+}
+
 export function readSettings() {
   return call<StudioSettings>('/api/settings')
 }

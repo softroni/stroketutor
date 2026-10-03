@@ -465,7 +465,19 @@ async function postLesson(ctx: Context, lessonId: string, values: Parsed['values
   outcome.video = video
 
   ctx.out.note(`Sending ${shown(video)} to Upload-Post for ${platforms.join(', ')}…`)
-  const base = { kind: 'post' as const, lessonId, profile: settings.profile, platforms, private: isPrivate, requestId, scheduledAt: at, media: wide ? ('wide' as const) : speed ? ('speed' as const) : ('video' as const), purpose }
+  const base = {
+    kind: 'post' as const,
+    lessonId,
+    profile: settings.profile,
+    platforms,
+    private: isPrivate,
+    requestId,
+    scheduledAt: at,
+    media: wide ? ('wide' as const) : speed ? ('speed' as const) : ('video' as const),
+    purpose,
+    // A file made beforehand (a what's-new video), so the Social page knows it has gone out.
+    ...(stringValue(values, 'video') ? { video: path.resolve(video) } : {}),
+  }
   let accepted
   try {
     accepted = await client.upload(uploadFields(request), video, requestId, files)

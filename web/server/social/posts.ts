@@ -442,6 +442,8 @@ export type SocialRecord =
       media?: 'video' | 'speed' | 'pin' | 'wide'
       /** A lesson in the queue (the default), or release news, which never counts the lesson as posted. */
       purpose?: 'lesson' | 'announce'
+      /** The file sent, when it was given (`--video`) rather than rendered for the post: what the Social page's "Made, not posted yet" matches. From 2026-10-03. */
+      video?: string
       /** `sent`: Upload-Post took it. `refused`: it said no, and nothing was posted. */
       outcome: 'sent' | 'refused'
       message?: string | null

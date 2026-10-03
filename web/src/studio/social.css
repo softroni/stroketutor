@@ -77,6 +77,85 @@
   color: var(--accent);
 }
 
+/* ---------- Made, not posted yet: videos to watch before they go out ----------
+   A 16:9 video a card of its own, the player beside its words; lesson videos upright, side by side. */
+
+.st-social__made {
+  margin-top: 32px;
+}
+
+.st-social__made-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-social__made-list + .st-social__made-list {
+  margin-top: 14px;
+}
+
+.st-social__made-list--tall {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+.st-social__made-item {
+  display: grid;
+  gap: 12px 18px;
+  align-content: start;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--today-radius-panel);
+  background: var(--surface);
+}
+
+.st-social__made-item--wide {
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.st-social__player {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  background: #000;
+}
+
+.st-social__made-item--wide .st-social__player {
+  aspect-ratio: 16 / 9;
+}
+
+.st-social__made-item--tall .st-social__player {
+  aspect-ratio: 9 / 16;
+}
+
+.st-social__made-item--tall .st-social__lesson {
+  font-size: 16px;
+}
+
+.st-social__made-note {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink-muted);
+}
+
+.st-social__made-save {
+  justify-self: start;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.st-social__made-save:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* ---------- A day ---------- */
 
 .st-social__day {
@@ -310,6 +389,10 @@ div.st-social__platform--live .st-social__mark {
 /* ---------- Narrower: what is coming in one column ---------- */
 
 @media (max-width: 860px) {
+  .st-social__made-item--wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .st-social__queue {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
@@ -338,6 +421,16 @@ div.st-social__platform--live .st-social__mark {
 
   .st-social__queue {
     padding: 2px 14px;
+  }
+
+  /* Two upright videos a row, so a phone still shows a few at once. */
+  .st-social__made-list--tall {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .st-social__made-item {
+    padding: 10px;
   }
 
   /* Free or Premium under the words, which then have the row's width. */
