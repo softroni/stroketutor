@@ -159,5 +159,20 @@ describe('the query', () => {
       ads: true,
     })
     expect(toEvent([null, 'app_opened', 'x'])).toBeNull()
+    // Apple Ads' ids, the phone's Region, the ad's storefront and the app version.
+    expect(
+      toEvent([2, 'install_attributed', 'y', null, null, null, null, null, null, 'True', null, null, 2144789293, '2151492291', 2339019453, 'GB', 'US', '1.0']),
+    ).toEqual({
+      at: 2,
+      event: 'install_attributed',
+      id: 'y',
+      ads: true,
+      campaign: '2144789293',
+      adGroup: '2151492291',
+      keyword: '2339019453',
+      region: 'GB',
+      adsRegion: 'US',
+      version: '1.0',
+    })
   })
 })

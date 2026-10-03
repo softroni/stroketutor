@@ -1,0 +1,137 @@
+{
+  "note": "Paper Coach's Apple Ads campaigns, ad groups and keywords on 2026-10-02, as server/appleAds.ts reads them through superwall asa; the names for the sample events.",
+  "campaigns": {
+    "2144789693": "PC - US - Competitors",
+    "2144789293": "PC - US - Category",
+    "2144787874": "PC - US - Brand",
+    "2144787624": "PC - US - Discovery"
+  },
+  "adGroups": {
+    "2151491995": "Competitors",
+    "2151492291": "Category",
+    "2151491313": "Brand",
+    "2151492887": "Discovery"
+  },
+  "keywords": {
+    "2334871989": {
+      "text": "simply draw",
+      "match": "EXACT"
+    },
+    "2334871990": {
+      "text": "artworkout",
+      "match": "EXACT"
+    },
+    "2334871991": {
+      "text": "drawing desk",
+      "match": "EXACT"
+    },
+    "2334873792": {
+      "text": "art for kids hub",
+      "match": "EXACT"
+    },
+    "2334873793": {
+      "text": "drawy",
+      "match": "EXACT"
+    },
+    "2334873794": {
+      "text": "how to draw app",
+      "match": "EXACT"
+    },
+    "2334871441": {
+      "text": "learn to draw",
+      "match": "EXACT"
+    },
+    "2334873742": {
+      "text": "how to draw",
+      "match": "EXACT"
+    },
+    "2334873743": {
+      "text": "drawing lessons",
+      "match": "EXACT"
+    },
+    "2334873744": {
+      "text": "draw step by step",
+      "match": "EXACT"
+    },
+    "2334873745": {
+      "text": "step by step drawing",
+      "match": "EXACT"
+    },
+    "2334873746": {
+      "text": "how to draw for kids",
+      "match": "EXACT"
+    },
+    "2334873747": {
+      "text": "drawing for kids",
+      "match": "EXACT"
+    },
+    "2334873748": {
+      "text": "easy drawing",
+      "match": "EXACT"
+    },
+    "2334873749": {
+      "text": "drawing tutorial",
+      "match": "EXACT"
+    },
+    "2334873750": {
+      "text": "learn drawing",
+      "match": "EXACT"
+    },
+    "2334873751": {
+      "text": "drawing for beginners",
+      "match": "EXACT"
+    },
+    "2334873752": {
+      "text": "draw easy",
+      "match": "EXACT"
+    },
+    "2334873753": {
+      "text": "sketching for beginners",
+      "match": "EXACT"
+    },
+    "2334873754": {
+      "text": "how to draw easy",
+      "match": "EXACT"
+    },
+    "2339004720": {
+      "text": "drawing for adults",
+      "match": "EXACT"
+    },
+    "2339017674": {
+      "text": "learn to draw for adults",
+      "match": "EXACT"
+    },
+    "2339019453": {
+      "text": "how to draw app",
+      "match": "EXACT"
+    },
+    "2334872901": {
+      "text": "paper coach",
+      "match": "EXACT"
+    },
+    "2334872902": {
+      "text": "papercoach",
+      "match": "EXACT"
+    },
+    "2334872903": {
+      "text": "paper coach drawing",
+      "match": "EXACT"
+    },
+    "2334872904": {
+      "text": "paper coach learn to draw",
+      "match": "EXACT"
+    },
+    "2334867485": {
+      "text": "learn to draw",
+      "match": "BROAD"
+    },
+    "2334867486": {
+      "text": "drawing lessons",
+      "match": "BROAD"
+    },
+    "2334867487": {
+      "text": "how to draw",
+      "match": "BROAD"
+    }
+  }
+}

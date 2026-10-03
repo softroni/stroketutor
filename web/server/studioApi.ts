@@ -13,6 +13,7 @@ import { listScreenshots, readScreenshot } from './screenshots'
 import { gitIn, releaseLesson } from './release'
 import { mayPost, postingQueue } from './social/queue'
 import { readSocialPosts } from './socialPosts'
+import { readAdNames } from './appleAds'
 import { readLearnerHistory, readLearners, type LearnersOptions } from './learners'
 import { readToday } from './today'
 import {
@@ -164,6 +165,8 @@ export const DEFAULT_TTS_MCP_URL = 'https://m4-1.tail958ea4.ts.net:8443/mcp'
  *                                         sample, for the Learners page and Today's summary of it; `fresh` skips the
  *                                         server's copy (at most every 15 s); read-only
  * - `GET  /api/learners/history?ids=`     everything one learner 13 or over did, a year back; read-only
+ * - `GET  /api/learners/ads`              the names of Paper Coach's Apple Ads campaigns, ad groups and keywords,
+ *                                         through `superwall asa` (or beside the sample); read-only
  * - `GET  /api/social/posts`              every post sent to social media, by day, with each platform's link
  *                                         (.studio/social/posts.jsonl, or the repo's copy on ops-history), and the
  *                                         lessons the daily job posts next, as `social next` picks them; read-only
@@ -279,6 +282,12 @@ async function handle(
 
     if (resource === 'learners' && name === 'history' && parts.length === 2 && method === 'GET') {
       return send(res, 200, await readLearnerHistory(options.learners ?? {}, url.searchParams.get('ids')))
+    }
+
+    if (resource === 'learners' && name === 'ads' && parts.length === 2 && method === 'GET') {
+      // The sample's names sit beside its events (server/fixtures/apple-ads-names.json).
+      const sample = options.learners?.sampleFile
+      return send(res, 200, await readAdNames({ sampleFile: sample ? path.join(path.dirname(sample), 'apple-ads-names.json') : undefined }))
     }
 
     if (resource === 'learners' && parts.length === 1 && method === 'GET') {

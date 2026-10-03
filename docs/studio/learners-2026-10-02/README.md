@@ -1,8 +1,8 @@
 # The Studio's Learners page (2026-10-02)
 
 The Learners page (`#/learners`) and its summary on Today, shown with the committed sample
-(`STUDIO_LEARNERS_SAMPLE=server/fixtures/learners-sample.json`: PostHog's events for Oct 1 and 2, 2026, release
-builds only, ids relabeled). With `POSTHOG_PERSONAL_API_KEY` set, the same page reads PostHog live. Test devices
+(`STUDIO_LEARNERS_SAMPLE=server/fixtures/learners-sample.json`: PostHog's events for Oct 1, and Oct 2 until 6:30 PM,
+2026, release builds only, ids relabeled). With `POSTHOG_PERSONAL_API_KEY` set, the same page reads PostHog live. Test devices
 are left out: every debug build, and every id that carried Apple Ads' test payload.
 
 ## How fresh it is
@@ -54,6 +54,25 @@ A stage of the journey works the same way: a tap shows the installs who got that
 that far and no further (here, who stopped after one drawing):
 
 <img src="filter-journey.png" width="900">
+
+## Where from
+
+Where the period's learners came from, and what they did: Apple Ads keyword by keyword against the rest, their
+country and their app version. Apple tells the app which campaign, ad group and keyword brought an install, and the
+app sends their ids; the Studio names them through `superwall asa` (the CLI signed in on its machine; without it,
+the ids). A row shows only its learners and stays put, so the next one is a tap away.
+
+<img src="where.png" width="900">
+
+The country is the phone's Region (`device_region`), which the app sends from the release after 1.1; until then
+only an Apple Ads install has one, the ad's storefront. Never a city: the app sends no location.
+
+A session says the same on its row, and in full when opened (campaign, ad group if it says more, keyword and its
+match), each a way to see only learners like them:
+
+<img src="session-ad.png" width="900">
+
+<img src="filter-where.png" width="900">
 
 ## Top learners
 

@@ -184,6 +184,7 @@ export const DOC_TOOLS: DocTool[] = [
     needs: [
       'Node 22.13 or later, and `npm install` once',
       'Keys in `web/.env.local` (git ignores it): `OPENROUTER_API_KEY` to generate lessons, `POSTHOG_PERSONAL_API_KEY` (read access to Query) for the Learners page',
+      'The `superwall` CLI signed in, for the names of the Apple Ads campaigns and keywords on the Learners page (without it, their ids)',
     ],
     tips: ['On m4-1, don’t start a second Studio: the command line and the running one share the workspace safely.'],
     see: [{ label: 'Settings', href: studioPages.settings }],
@@ -425,9 +426,9 @@ export const DOC_TOOLS: DocTool[] = [
     kind: 'terminal',
     name: 'Superwall CLI',
     about:
-      'The paywalls, campaigns and A/B tests in Superwall, and Apple Ads through Superwall’s proxy. `today.py` calls it for the tests and the ads.',
+      'The paywalls, campaigns and A/B tests in Superwall, and Apple Ads through Superwall’s proxy. `today.py` calls it for the tests and the ads, and the Studio’s Learners page for the names of the Apple Ads campaigns and keywords that brought each learner.',
     where: 'anywhere',
-    usedBy: 'Claude, for the tests and the ads',
+    usedBy: 'Claude, for the tests and the ads; the Studio’s Learners page',
     needs: ['`superwall login` once per machine'],
     tips: [
       'A paywall test is judged by purchases per paywall open, never by taps.',

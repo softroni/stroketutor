@@ -205,6 +205,16 @@ export interface LearnerEvent {
   ads?: boolean
   /** `wish_list_changed`: on (true) or off the list. */
   added?: boolean
+  /** Apple Ads' ids for the campaign, ad group and keyword that brought the install (`asa_*`). */
+  campaign?: string
+  adGroup?: string
+  keyword?: string
+  /** `device_region`: the Region set on the phone ("US"), from the release after 1.1. */
+  region?: string
+  /** `asa_country_or_region`: the storefront of the ad that brought the install. */
+  adsRegion?: string
+  /** `$app_version`: "1.0". */
+  version?: string
 }
 
 /** The events the server asks PostHog for. `ob_beat_viewed` only for the age question (`ob-age`). */
@@ -225,7 +235,22 @@ export const LEARNER_EVENTS = [
   'superwall_paywall_close',
   'purchase_attempted',
   'superwall_free_trial_start',
+  // Apple's answer about the install, often the only event of a first launch that names the ad.
+  'install_attributed',
 ] as const
+
+/** The names behind Apple Ads' ids, from `/api/learners/ads` (`web/server/appleAds.ts`). */
+export interface AdNames {
+  campaigns: Record<string, string>
+  adGroups: Record<string, string>
+  keywords: Record<string, { text: string; match: string }>
+}
+
+export interface AdNamesResponse {
+  names: AdNames
+  source: 'apple-ads' | 'sample' | null
+  problem: string | null
+}
 
 /** What `/api/learners` answers. */
 export interface LearnersResponse {
@@ -458,6 +483,61 @@ export function sourceOf(events: LearnerEvent[]): 'ads' | 'organic' {
   return events.some((event) => event.ads === true) ? 'ads' : 'organic'
 }
 
+/** The Apple Ads campaign, ad group and keyword that brought a learner. */
+export interface AdSource {
+  campaign: string
+  adGroup: string | null
+  /** None for Search Match, where Apple picked the search. */
+  keyword: string | null
+}
+
+/** Which ad brought them, from the first of their events that names one. */
+export function adOf(events: LearnerEvent[]): AdSource | null {
+  const named = events.find((event) => event.campaign && event.ads !== false)
+  return named?.campaign ? { campaign: named.campaign, adGroup: named.adGroup ?? null, keyword: named.keyword ?? null } : null
+}
+
+/** Their country: the phone's Region if the app sent it, else the storefront of the ad that brought them. */
+export function countryOf(events: LearnerEvent[]): string | null {
+  for (let index = events.length - 1; index >= 0; index -= 1) if (events[index].region) return events[index].region ?? null
+  return events.find((event) => event.adsRegion)?.adsRegion ?? null
+}
+
+/** The app version of their latest event. */
+export function versionOf(events: LearnerEvent[]): string | null {
+  for (let index = events.length - 1; index >= 0; index -= 1) if (events[index].version) return events[index].version ?? null
+  return null
+}
+
+/**
+ * One way to narrow the page by where learners came from (`?where=`): an Apple Ads keyword
+ * (`keyword-<id>`), a campaign (`campaign-<id>`, for Search Match), `organic`, a country
+ * (`country-US`, `country-unknown`) or an app version (`version-1.0`, `version-unknown`).
+ */
+export type Where = string
+
+export function isWhere(value: string): boolean {
+  return /^(?:(?:keyword|campaign)-\d{1,20}|organic|country-(?:[A-Z]{2}|unknown)|version-(?:\d{1,4}(?:\.\d{1,4}){0,3}|unknown))$/.test(
+    value,
+  )
+}
+
+/** The filter key of the ad that brought someone: their keyword's, or their campaign's for Search Match. */
+export function adKey(ad: AdSource): Where {
+  return ad.keyword ? `keyword-${ad.keyword}` : `campaign-${ad.campaign}`
+}
+
+function matchesWhere(learnerEvents: LearnerEvent[], periodEvents: LearnerEvent[], where: Where): boolean {
+  if (where === 'organic') return sourceOf(learnerEvents) === 'organic'
+  if (where.startsWith('keyword-') || where.startsWith('campaign-')) {
+    const ad = adOf(learnerEvents)
+    return ad !== null && (adKey(ad) === where || `campaign-${ad.campaign}` === where)
+  }
+  if (where.startsWith('country-')) return (countryOf(learnerEvents) ?? 'unknown') === where.slice('country-'.length)
+  if (where.startsWith('version-')) return (versionOf(periodEvents) ?? 'unknown') === where.slice('version-'.length)
+  return true
+}
+
 // ---------- Sessions ----------
 
 /** A purchase and the free week it started arrive within this of each other. */
@@ -537,6 +617,12 @@ export interface LearnerSession {
   age: string | null
   child: boolean
   source: 'ads' | 'organic'
+  /** The Apple Ads campaign and keyword that brought them, when Apple said. */
+  ad: AdSource | null
+  /** ISO code ("US"), when known (`countryOf`). */
+  country: string | null
+  /** The app version they used in the period. */
+  version: string | null
   /** Installed in this period. */
   isNew: boolean
   /** The times later visits began, after a pause of half an hour or more. */
@@ -747,6 +833,9 @@ export function buildSession(learner: Learner, events: LearnerEvent[], now: numb
     age,
     child: isChildAge(age),
     source: sourceOf(learner.events),
+    ad: adOf(learner.events),
+    country: countryOf(learner.events),
+    version: versionOf(events),
     isNew,
     returns,
     activeMs,
@@ -945,6 +1034,28 @@ export interface LearnersReport {
   days: DaySummary[]
   /** Who drew most in the period, best first. */
   leaders: LearnerSession[]
+  /** Where the period's learners came from, before `where` narrows them, so each row stays a way in. */
+  whereFrom: WhereFrom
+}
+
+/** A row of Where from: how many learners, and what they did. */
+export interface WhereRow {
+  key: Where
+  learners: number
+  /** Lessons they finished. */
+  finished: number
+  /** Learners who reached a price. */
+  sawPrice: number
+  /** Learners who started a free week or bought a plan. */
+  bought: number
+}
+
+export interface WhereFrom {
+  /** By keyword (or by campaign, for Search Match), most learners first. */
+  ads: (WhereRow & { ad: AdSource })[]
+  organic: WhereRow
+  countries: (WhereRow & { country: string | null })[]
+  versions: (WhereRow & { version: string | null })[]
 }
 
 export interface ReportOptions {
@@ -960,6 +1071,8 @@ export interface ReportOptions {
    * how many there are of its kind.
    */
   only?: Only | null
+  /** Only the learners from one place (`Where`); like `lesson`, the numbers narrow with it. */
+  where?: Where | null
   now?: number
 }
 
@@ -973,7 +1086,7 @@ const LEADERS = 10
  * `only` to those one number counts.
  */
 export function buildReport(events: LearnerEvent[], options: ReportOptions): LearnersReport {
-  const { period, date, who = 'all', source = 'all', lesson = null, only = null, now = Date.now() } = options
+  const { period, date, who = 'all', source = 'all', lesson = null, only = null, where = null, now = Date.now() } = options
   const { from, to } = periodRange(period, date)
   const before = periodRange(period, stepPeriod(period, date, -1))
   const everybody = stitch(events)
@@ -998,7 +1111,7 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
     return true
   })
 
-  const inRange = (range: { from: string; to: string }) =>
+  const inRange = (range: { from: string; to: string }, narrow = true) =>
     learners
       .map((learner) => ({
         learner,
@@ -1012,6 +1125,7 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
         (entry) =>
           !lesson || entry.events.some((event) => event.event === 'lesson_completed' && event.lesson === lesson),
       )
+      .filter((entry) => !narrow || !where || matchesWhere(entry.learner.events, entry.events, where))
 
   const everyone = inRange({ from, to })
   const everySession = everyone.map((entry) => buildSession(entry.learner, entry.events, now))
@@ -1040,7 +1154,40 @@ export function buildReport(events: LearnerEvent[], options: ReportOptions): Lea
     sessions: period === 'day' ? [...sessions].sort((a, b) => b.start - a.start) : [],
     days: period === 'day' ? [] : daysOf(from, to, current),
     leaders: leadersOf(sessions),
+    whereFrom: whereFromOf(where ? inRange({ from, to }, false).map((entry) => buildSession(entry.learner, entry.events, now)) : everySession),
   }
+}
+
+/** Where from: learners counted by ad keyword, organic, country and app version. */
+export function whereFromOf(sessions: LearnerSession[]): WhereFrom {
+  const row = (key: Where): WhereRow => ({ key, learners: 0, finished: 0, sawPrice: 0, bought: 0 })
+  const add = (into: WhereRow, session: LearnerSession) => {
+    into.learners += 1
+    into.finished += session.finished
+    if (session.items.some((item) => item.kind === 'price')) into.sawPrice += 1
+    if (session.items.some((item) => item.kind === 'bought')) into.bought += 1
+  }
+  const ads = new Map<Where, WhereRow & { ad: AdSource }>()
+  const countries = new Map<string, WhereRow & { country: string | null }>()
+  const versions = new Map<string, WhereRow & { version: string | null }>()
+  const organic = row('organic')
+  for (const session of sessions) {
+    if (session.ad) {
+      const key = adKey(session.ad)
+      if (!ads.has(key)) ads.set(key, { ...row(key), ad: session.ad })
+      add(ads.get(key)!, session)
+    } else if (session.source === 'organic') {
+      add(organic, session)
+    }
+    const country = session.country ?? 'unknown'
+    if (!countries.has(country)) countries.set(country, { ...row(`country-${country}`), country: session.country })
+    add(countries.get(country)!, session)
+    const version = session.version ?? 'unknown'
+    if (!versions.has(version)) versions.set(version, { ...row(`version-${version}`), version: session.version })
+    add(versions.get(version)!, session)
+  }
+  const most = <Row extends WhereRow>(rows: Iterable<Row>) => [...rows].sort((a, b) => b.learners - a.learners || b.finished - a.finished)
+  return { ads: most(ads.values()), organic, countries: most(countries.values()), versions: most(versions.values()) }
 }
 
 /** The learners who finished most, then kept most photos, then stayed longest; anyone who finished nothing is left off. */

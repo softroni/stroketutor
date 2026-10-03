@@ -171,6 +171,7 @@ export function Studio() {
             date={route.date}
             lesson={route.lesson ?? null}
             only={route.only ?? null}
+            where={route.where ?? null}
             library={library}
           />
         )

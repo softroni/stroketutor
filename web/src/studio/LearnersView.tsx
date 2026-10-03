@@ -1,8 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 
-import { readLearnerHistory, readLearners } from './api'
+import { readAdNames, readLearnerHistory, readLearners } from './api'
 import { FinishedDrawing } from './FinishedDrawing'
 import {
+  adKey,
   ageLabel,
   buildHistory,
   buildReport,
@@ -31,6 +32,8 @@ import {
   stepPeriod,
   timeOf,
   timeWithSeconds,
+  type AdNames,
+  type AdSource,
   type DaySummary,
   type LearnersReport,
   type LearnersResponse,
@@ -40,6 +43,9 @@ import {
   type SessionItem,
   type Source,
   type TimelineLine,
+  type Where,
+  type WhereFrom,
+  type WhereRow,
   type Who,
 } from './learners'
 import type { Library } from './library'
@@ -198,6 +204,70 @@ export function useNumberChanges(
   return changes
 }
 
+const NO_NAMES: AdNames = { campaigns: {}, adGroups: {}, keywords: {} }
+/** The names behind Apple Ads' ids, asked for once per visit to the page. */
+const AdNamesContext = createContext<AdNames>(NO_NAMES)
+
+function useAdNames(available: boolean): { names: AdNames; problem: string | null } {
+  const [state, setState] = useState<{ names: AdNames; problem: string | null }>({ names: NO_NAMES, problem: null })
+  useEffect(() => {
+    if (!available) return
+    let live = true
+    readAdNames()
+      .then((response) => live && setState({ names: response.names, problem: response.problem }))
+      .catch((error: unknown) => live && setState({ names: NO_NAMES, problem: error instanceof Error ? error.message : String(error) }))
+    return () => {
+      live = false
+    }
+  }, [available])
+  return state
+}
+
+/** A campaign's name without Paper Coach's own prefix: "PC - US - Category" → "US - Category". */
+function campaignWords(names: AdNames, campaign: string): string {
+  const name = names.campaigns[campaign]
+  return name ? name.replace(/^PC\s*-\s*/, '') : `campaign ${campaign}`
+}
+
+/** "“how to draw app”", or "Search Match" when Apple picked the search. */
+function keywordWords(names: AdNames, ad: AdSource): string {
+  if (!ad.keyword) return 'Search Match'
+  const keyword = names.keywords[ad.keyword]
+  return keyword ? `“${keyword.text}”` : `keyword ${ad.keyword}`
+}
+
+const regionNames = new Intl.DisplayNames(['en-US'], { type: 'region' })
+
+/** 🇺🇸 from "US". */
+function flagOf(country: string): string {
+  return /^[A-Z]{2}$/.test(country) ? String.fromCodePoint(...[...country].map((letter) => 0x1f1a5 + letter.charCodeAt(0))) : ''
+}
+
+function countryWords(country: string | null): string {
+  if (!country) return 'Not sent'
+  try {
+    return regionNames.of(country) ?? country
+  } catch {
+    return country
+  }
+}
+
+/** What a `?where=` narrowing reads as: "from “how to draw app”", "in United States", "on 1.0". */
+function whereWords(names: AdNames, where: Where): string {
+  if (where === 'organic') return 'not from Apple Ads'
+  if (where.startsWith('keyword-')) {
+    const keyword = names.keywords[where.slice('keyword-'.length)]
+    return `from ${keyword ? `“${keyword.text}”` : `keyword ${where.slice('keyword-'.length)}`}`
+  }
+  if (where.startsWith('campaign-')) return `from ${campaignWords(names, where.slice('campaign-'.length))}`
+  if (where.startsWith('country-')) {
+    const country = where.slice('country-'.length)
+    return country === 'unknown' ? 'whose country was not sent' : `in ${countryWords(country)}`
+  }
+  const version = where.slice('version-'.length)
+  return version === 'unknown' ? 'on an unknown version' : `on ${version}`
+}
+
 /** "+2", "−1". */
 function signed(difference: number): string {
   return difference > 0 ? `+${difference}` : `−${-difference}`
@@ -272,6 +342,7 @@ export function LearnersView({
   date,
   lesson = null,
   only = null,
+  where = null,
   library,
 }: {
   period: Period
@@ -280,6 +351,8 @@ export function LearnersView({
   lesson?: string | null
   /** From the address (`?only=`): only the learners one number counts. */
   only?: Only | null
+  /** From the address (`?where=`): only the learners from one ad keyword, country or app version. */
+  where?: Where | null
   library: Library
 }) {
   const today = dayOf(Date.now())
@@ -294,23 +367,36 @@ export function LearnersView({
   const report = useMemo(
     () =>
       response?.configured && response.events
-        ? buildReport(response.events, { period, date: day, who, source, lesson, only, now: Date.now() })
+        ? buildReport(response.events, { period, date: day, who, source, lesson, only, where, now: Date.now() })
         : null,
-    [response, period, day, who, source, lesson, only],
+    [response, period, day, who, source, lesson, only, where],
   )
+  const ads = useAdNames(library.writable)
   const [markFor, setMarkFor] = useMarkFor()
   // The numbers depend on the period, the day and the narrowing, but not on `only`.
-  const changes = useNumberChanges(`${period}|${day}|${who}|${source}|${lesson ?? ''}`, report?.numbers ?? null, markFor)
+  const changes = useNumberChanges(
+    `${period}|${day}|${who}|${source}|${lesson ?? ''}${where ? `|${where}` : ''}`,
+    report?.numbers ?? null,
+    markFor,
+  )
   /** The same view somewhere else: what is not named stays as it is, the lesson and the number it is narrowed to included. */
-  const here = (next: { period?: Period; date?: string | null; lesson?: string | null; only?: Only | null }) => {
+  const here = (next: {
+    period?: Period
+    date?: string | null
+    lesson?: string | null
+    only?: Only | null
+    where?: Where | null
+  }) => {
     const pickedLesson = next.lesson === undefined ? lesson : next.lesson
     const pickedOnly = next.only === undefined ? only : next.only
+    const pickedWhere = next.where === undefined ? where : next.where
     return routeHref({
       name: 'learners',
       period: next.period ?? period,
       date: next.date === undefined ? date : next.date,
       ...(pickedLesson ? { lesson: pickedLesson } : {}),
       ...(pickedOnly ? { only: pickedOnly } : {}),
+      ...(pickedWhere ? { where: pickedWhere } : {}),
     })
   }
 
@@ -399,6 +485,12 @@ export function LearnersView({
             <span aria-hidden="true">✕</span>
           </a>
         ) : null}
+        {where ? (
+          <a className="st-learners__drew" href={here({ where: null })} aria-label={`Stop showing only learners ${whereWords(ads.names, where)}`}>
+            Only {whereWords(ads.names, where)}
+            <span aria-hidden="true">✕</span>
+          </a>
+        ) : null}
       </div>
 
       {error ? <p className="st-notice">The Studio server did not answer: {error}</p> : null}
@@ -407,6 +499,7 @@ export function LearnersView({
       {!response && !error ? <p className="st-learners__muted">Asking PostHog…</p> : null}
 
       {report ? (
+        <AdNamesContext.Provider value={ads.names}>
         <Picked.Provider value={lesson}>
           <Numbers
             report={report}
@@ -418,6 +511,12 @@ export function LearnersView({
             <Journey report={report} only={only} href={(next) => here({ only: next === only ? null : next })} />
             <MostDrawn report={report} library={library} picked={lesson} href={(drawn) => here({ lesson: drawn === lesson ? null : drawn })} />
           </div>
+          <WhereFromPanel
+            whereFrom={report.whereFrom}
+            picked={where}
+            problem={ads.problem}
+            href={(next) => here({ where: next === where ? null : next })}
+          />
           <Leaders
             report={report}
             library={library}
@@ -430,14 +529,138 @@ export function LearnersView({
               library={library}
               opened={opened}
               onToggle={(key) => setOpened((current) => (current === key ? null : key))}
-              empty={lesson || only ? 'Nobody like that on this day.' : 'Nobody opened the app on this day.'}
+              empty={lesson || only || where ? 'Nobody like that on this day.' : 'Nobody opened the app on this day.'}
+              whereHref={(next) => here({ where: next })}
             />
           ) : (
             <Days report={report} library={library} today={today} dayHref={(candidate) => here({ period: 'day', date: candidate })} />
           )}
         </Picked.Provider>
+        </AdNamesContext.Provider>
       ) : null}
     </div>
+  )
+}
+
+/**
+ * Where the period's learners came from: Apple Ads keyword by keyword (or campaign, for
+ * Search Match) against the rest, their countries and their app versions. A row narrows
+ * the page to its learners; tapped again, it shows everyone.
+ */
+function WhereFromPanel({
+  whereFrom,
+  picked,
+  problem,
+  href,
+}: {
+  whereFrom: WhereFrom
+  picked: Where | null
+  problem: string | null
+  href: (where: Where) => string
+}) {
+  const names = useContext(AdNamesContext)
+  const row = (data: WhereRow, label: ReactNode, words: string, detail?: ReactNode) => (
+    <li key={data.key}>
+      <a
+        className="st-learners__where-row"
+        href={href(data.key)}
+        aria-current={data.key === picked ? 'true' : undefined}
+        aria-label={`${words}: ${data.learners} ${data.learners === 1 ? 'learner' : 'learners'}, ${data.finished} lessons done, ${data.sawPrice} saw a price, ${data.bought} bought: ${data.key === picked ? 'show everyone' : 'show only them'}`}
+      >
+        <span className="st-learners__where-label">
+          {label}
+          {detail ? <span className="st-learners__where-detail">{detail}</span> : null}
+        </span>
+        <span className="st-learners__where-count">{data.learners}</span>
+        <span className="st-learners__where-did">
+          {data.finished} {data.finished === 1 ? 'lesson' : 'lessons'}
+          {data.sawPrice ? ` · ${data.sawPrice} saw a price` : ''}
+          {data.bought ? ` · ${data.bought} bought` : ''}
+        </span>
+      </a>
+    </li>
+  )
+  return (
+    <section className="st-learners__panel st-learners__where" aria-labelledby="learners-where">
+      <div className="st-learners__panel-head">
+        <h2 id="learners-where" className="st-learners__h2">
+          Where from
+        </h2>
+        <span className="st-learners__muted">Learners, and what they did. Tap one to see only them.</span>
+      </div>
+      <div className="st-learners__where-columns">
+        <div>
+          <h3 className="st-learners__where-title">Came from</h3>
+          <ul className="st-learners__where-list">
+            {whereFrom.ads.map((ad) =>
+              row(ad, <>Apple Ads {keywordWords(names, ad.ad)}</>, `Apple Ads, ${keywordWords(names, ad.ad)}`, campaignWords(names, ad.ad.campaign)),
+            )}
+            {whereFrom.organic.learners ? row(whereFrom.organic, 'Not from Apple Ads', 'Not from Apple Ads', 'the App Store, a link, a friend') : null}
+          </ul>
+          {problem ? <p className="st-learners__muted st-learners__where-note">Ads’ names are missing: {problem}</p> : null}
+        </div>
+        <div>
+          <h3 className="st-learners__where-title">Country</h3>
+          <ul className="st-learners__where-list">
+            {whereFrom.countries.map((country) =>
+              row(
+                country,
+                <>
+                  {country.country ? <span aria-hidden="true">{flagOf(country.country)} </span> : null}
+                  {countryWords(country.country)}
+                </>,
+                countryWords(country.country),
+                country.country ? undefined : 'sent from the release after 1.1',
+              ),
+            )}
+          </ul>
+        </div>
+        <div>
+          <h3 className="st-learners__where-title">App version</h3>
+          <ul className="st-learners__where-list">
+            {whereFrom.versions.map((version) =>
+              row(version, version.version ?? 'Unknown', `Version ${version.version ?? 'unknown'}`),
+            )}
+          </ul>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/**
+ * Where an opened session's learner came from, in full: the ad's campaign, ad group and
+ * keyword, their country and the app version, each a way to see only learners like them.
+ */
+function SessionFacts({ session, whereHref }: { session: LearnerSession; whereHref: (where: Where) => string }) {
+  const names = useContext(AdNamesContext)
+  const ad = session.ad
+  const keyword = ad?.keyword ? names.keywords[ad.keyword] : undefined
+  // An ad group named like its campaign ("US - Category" › "Category") says nothing more.
+  const group = ad?.adGroup ? names.adGroups[ad.adGroup] : undefined
+  const groupWords = ad && group && !campaignWords(names, ad.campaign).endsWith(group) ? ` › ${group}` : ''
+  return (
+    <p className="st-learners__facts">
+      {ad ? (
+        <a href={whereHref(adKey(ad))} title="Show only learners from this keyword">
+          From Apple Ads: {campaignWords(names, ad.campaign)}
+          {groupWords} › {keywordWords(names, ad)}
+          {keyword?.match ? ` (${keyword.match.toLowerCase()})` : ''}
+        </a>
+      ) : session.source === 'ads' ? (
+        <span>From Apple Ads (no campaign sent)</span>
+      ) : (
+        <a href={whereHref('organic')} title="Show only learners not from Apple Ads">
+          Not from Apple Ads
+        </a>
+      )}
+      <a href={whereHref(`country-${session.country ?? 'unknown'}`)} title="Show only learners from this country">
+        {session.country ? `${flagOf(session.country)} ${countryWords(session.country)}` : 'Country not sent'}
+      </a>
+      <a href={whereHref(`version-${session.version ?? 'unknown'}`)} title="Show only learners on this version">
+        App {session.version ?? 'version unknown'}
+      </a>
+    </p>
   )
 }
 
@@ -812,6 +1035,7 @@ function Sessions({
   opened,
   onToggle,
   empty,
+  whereHref,
 }: {
   sessions: LearnerSession[]
   library: Library
@@ -819,6 +1043,7 @@ function Sessions({
   onToggle: (key: string) => void
   /** What to say when there is nobody. */
   empty: string
+  whereHref: (where: Where) => string
 }) {
   return (
     <section className="st-learners__section" aria-labelledby="learners-sessions">
@@ -838,6 +1063,7 @@ function Sessions({
               library={library}
               open={opened === session.key}
               onToggle={() => onToggle(session.key)}
+              whereHref={whereHref}
             />
           ))}
         </ol>
@@ -853,17 +1079,21 @@ function SessionRow({
   library,
   open,
   onToggle,
+  whereHref,
 }: {
   session: LearnerSession
   library: Library
   open: boolean
   onToggle: () => void
+  whereHref: (where: Where) => string
 }) {
+  const names = useContext(AdNamesContext)
   const meta = [
     learnerTag(session),
     ageLabel(session.age),
     lastedFor(session.activeMs),
-    session.source === 'ads' ? 'Apple Ads' : null,
+    session.country ? `${flagOf(session.country)} ${session.country}` : null,
+    session.version ? `App ${session.version}` : null,
   ]
     .filter(Boolean)
     .join(' · ')
@@ -877,10 +1107,16 @@ function SessionRow({
             {session.isNew ? 'New' : 'Back'}
           </span>
           <span className="st-learners__session-meta">{meta}</span>
+          {session.ad || session.source === 'ads' ? (
+            <span className="st-learners__ad" title={session.ad ? campaignWords(names, session.ad.campaign) : undefined}>
+              Apple Ads{session.ad ? ` ${keywordWords(names, session.ad)}` : ''}
+            </span>
+          ) : null}
         </span>
         <Strip items={session.items} library={library} />
         <SessionEnd end={session.end} library={library} />
       </button>
+      {open ? <SessionFacts session={session} whereHref={whereHref} /> : null}
       {open ? <Timeline lines={session.timeline} library={library} /> : null}
       {open && !session.child ? <History session={session} library={library} /> : null}
     </li>

@@ -4,6 +4,11 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
+  adKey,
+  adOf,
+  countryOf,
+  isWhere,
+  versionOf,
   DEFAULT_MARK_MS,
   markedChanges,
   markWords,
@@ -32,7 +37,12 @@ import {
 const sample = JSON.parse(
   readFileSync(fileURLToPath(new URL('../../server/fixtures/learners-sample.json', import.meta.url)), 'utf8'),
 ) as { events: LearnerEvent[] }
-const events = sample.events
+/**
+ * The sample until 3:07 PM on Oct 2, when it was first taken: the day these tests describe.
+ * The rest (the evening's learners, the first from an Apple Ads keyword) is in `everything`.
+ */
+const everything = sample.events
+const events = everything.filter((event) => event.at <= Date.parse('2026-10-02T20:07:00.580Z'))
 /** Long after the sample's last event, so nobody is "in the app now". */
 const later = Date.parse('2026-10-03T18:00:00Z')
 
@@ -420,5 +430,68 @@ describe('numbers that changed', () => {
   it('marks what moved while the page was away, since it last looked', () => {
     const morning = noteNumbers(undefined, numbers(4), at - 3 * 3_600_000)
     expect(noteNumbers(morning, numbers(19), at).changes.lessons).toEqual({ from: 4, to: 19, since: at - 3 * 3_600_000, at })
+  })
+})
+
+describe('where learners came from', () => {
+  const evening = buildReport(everything, { period: 'day', date: '2026-10-02', now: later })
+
+  it('names the Apple Ads keyword that brought a learner, from Apple’s answer before their age', () => {
+    // u11 is the launch before the age question, u12 the 16-to-17 learner it became.
+    const fromAds = evening.sessions.find((session) => session.ad)
+    expect(fromAds).toMatchObject({
+      ids: ['u11', 'u12'],
+      age: '16to17',
+      source: 'ads',
+      ad: { campaign: '2144789293', adGroup: '2151492291', keyword: '2339019453' },
+      country: 'US',
+      version: '1.0',
+    })
+    expect(evening.sessions.filter((session) => session.ad)).toHaveLength(1)
+  })
+
+  it('counts learners by keyword, organic, country and version, and narrows to one', () => {
+    expect(evening.whereFrom.ads).toEqual([
+      expect.objectContaining({ key: 'keyword-2339019453', learners: 1, finished: 1, sawPrice: 1, bought: 0 }),
+    ])
+    expect(evening.whereFrom.organic.learners).toBe(evening.sessions.length - 1)
+    // Only Apple's answer says a country, until the app sends the phone's Region.
+    expect(evening.whereFrom.countries.map((row) => [row.key, row.learners])).toEqual([
+      ['country-unknown', evening.sessions.length - 1],
+      ['country-US', 1],
+    ])
+    expect(evening.whereFrom.versions.map((row) => [row.key, row.learners])).toEqual([['version-1.0', evening.sessions.length]])
+
+    const keyword = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'keyword-2339019453', now: later })
+    expect(keyword.sessions.map((session) => session.key)).toEqual(['u12'])
+    expect(keyword.numbers.find((number) => number.key === 'installs')).toMatchObject({ value: 1 })
+    // Where from stays whole, so another row is one tap away.
+    expect(keyword.whereFrom).toEqual(evening.whereFrom)
+    const campaign = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'campaign-2144789293', now: later })
+    expect(campaign.sessions.map((session) => session.key)).toEqual(['u12'])
+    const organic = buildReport(everything, { period: 'day', date: '2026-10-02', where: 'organic', now: later })
+    expect(organic.sessions).toHaveLength(evening.sessions.length - 1)
+    expect(buildReport(everything, { period: 'day', date: '2026-10-02', where: 'version-1.1', now: later }).sessions).toEqual([])
+  })
+
+  it('reads the phone’s Region before the ad’s storefront, and the latest version', () => {
+    const at = Date.parse('2026-10-03T15:00:00Z')
+    const learner: LearnerEvent[] = [
+      { at, event: 'install_attributed', id: 'x', ads: true, campaign: '1', keyword: '2', adsRegion: 'US', version: '1.0' },
+      { at: at + 1, event: 'app_opened', id: 'x', region: 'GB', version: '1.2' },
+    ]
+    expect(countryOf(learner)).toBe('GB')
+    expect(countryOf(learner.slice(0, 1))).toBe('US')
+    expect(versionOf(learner)).toBe('1.2')
+    expect(adOf(learner)).toEqual({ campaign: '1', adGroup: null, keyword: '2' })
+    expect(adKey({ campaign: '1', adGroup: null, keyword: null })).toBe('campaign-1')
+    expect(adOf([{ at, event: 'install_attributed', id: 'x', ads: false }])).toBeNull()
+  })
+
+  it('takes only the narrowings it knows from the address', () => {
+    for (const good of ['keyword-2339019453', 'campaign-1', 'organic', 'country-US', 'country-unknown', 'version-1.0', 'version-unknown']) {
+      expect(isWhere(good)).toBe(true)
+    }
+    for (const bad of ['keyword-', 'keyword-abc', 'country-usa', 'version-1.0.0.0.0', "organic'"]) expect(isWhere(bad)).toBe(false)
   })
 })

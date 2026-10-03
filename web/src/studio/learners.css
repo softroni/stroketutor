@@ -599,6 +599,90 @@
   color: var(--ink);
 }
 
+/* ---------- Where from ---------- */
+
+.st-learners__where {
+  margin-bottom: 18px;
+}
+
+.st-learners__where-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.8fr);
+  gap: 18px 24px;
+}
+
+.st-learners__where-title {
+  margin: 0 0 6px;
+  color: var(--ink-faint);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.st-learners__where-list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-learners__where-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'label count'
+    'did did';
+  gap: 0 10px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.st-learners__where-row:hover {
+  background: var(--surface-hover);
+}
+
+.st-learners__where-row[aria-current='true'] {
+  background: var(--accent-tint);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.st-learners__where-label {
+  grid-area: label;
+  min-width: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.st-learners__where-detail {
+  margin-left: 8px;
+  color: var(--ink-faint);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.st-learners__where-count {
+  grid-area: count;
+  color: var(--ink);
+  font: 750 16px/1.3 ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-learners__where-did {
+  grid-area: did;
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.st-learners__where-note {
+  margin: 8px 10px 0;
+  font-size: 12px;
+}
+
 /* ---------- A lesson as its picture ---------- */
 
 .st-learners__pic {
@@ -828,6 +912,38 @@
 .st-learners__session-meta {
   color: var(--ink-faint);
   font-size: 13px;
+}
+
+/* The Apple Ads keyword that brought them, beside who they are. */
+.st-learners__ad {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-tint);
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* An opened session: where they came from, their country and app version, each a filter. */
+.st-learners__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 4px 0 2px;
+  padding: 0 16px 0 58px;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+.st-learners__facts a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.st-learners__facts a:hover {
+  text-decoration: underline;
 }
 
 /* New or Back: who this session is, before the details. */
@@ -1426,7 +1542,8 @@ a.st-learners__day-face:hover {
 /* ---------- Narrower screens ---------- */
 
 @media (max-width: 1000px) {
-  .st-learners__pair {
+  .st-learners__pair,
+  .st-learners__where-columns {
     grid-template-columns: minmax(0, 1fr);
   }
 }
