@@ -541,3 +541,8 @@ Growth (Claude, from 2026-10-01; *Growth* says why):
   Oct 10) and links in descriptions are allowed now; TikTok's business verification and bio link were already in
   on Oct 1. Nothing has been sent with a thumbnail yet, so the first one shows whether Upload-Post's `thumbnail`
   lands on YouTube.
+- 2026-10-03: checked: the tour's YouTube video shows its own thumbnail (it matches `thumbnail.jpg`), sent through
+  Upload-Post's `thumbnail` with `social announce --wide --thumbnail`, so E5 can count on it. A Short's description
+  still can't hold a tappable link, verified channel or not, so the daily Shorts keep pointing to the channel's link.
+  Pinterest pins link through softroni.com since today (Kevin): Pinterest's rules frown on redirects, so a warning,
+  a refused pin or impressions stuck at 0 reaches Kevin the same day.
